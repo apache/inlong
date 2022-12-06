@@ -27,10 +27,10 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.message.BatchProxyMessage;
 import org.apache.inlong.agent.message.EndMessage;
+import org.apache.inlong.agent.message.PackProxyMessage;
 import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.message.PackProxyMessage;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.msg.InLongMsg;
@@ -118,7 +118,7 @@ public class PulsarSink extends AbstractSink {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        taskPositionManager = TaskPositionManager.getTaskPositionManager();
+        taskPositionManager = TaskPositionManager.getInstance();
         // agentConf
         sendQueueSize = agentConf.getInt(PULSAR_SINK_SEND_QUEUE_SIZE, DEFAULT_SEND_QUEUE_SIZE);
         sendQueueSemaphore = new Semaphore(sendQueueSize);
@@ -159,7 +159,7 @@ public class PulsarSink extends AbstractSink {
         try {
             if (message != null) {
                 if (!(message instanceof EndMessage)) {
-                    ProxyMessage proxyMessage = ProxyMessage.parse(message);
+                    ProxyMessage proxyMessage = new ProxyMessage(message);
                     // add proxy message to cache.
                     cache.compute(proxyMessage.getBatchKey(),
                             (s, packProxyMessage) -> {
@@ -319,7 +319,7 @@ public class PulsarSink extends AbstractSink {
                 batchMsg.getTotalSize());
         sinkMetric.pluginSendSuccessCount.addAndGet(batchMsg.getMsgCnt());
         if (sourceName != null) {
-            taskPositionManager.updateSinkPosition(batchMsg.getJobId(), sourceName, batchMsg.getMsgCnt());
+            taskPositionManager.updateSinkPosition(batchMsg, sourceName, batchMsg.getMsgCnt());
         }
     }
 
