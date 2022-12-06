@@ -35,7 +35,6 @@ import org.apache.inlong.sort.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.base.debezium.history.FlinkJsonTableChangeSerializer;
 import org.apache.inlong.sort.base.debezium.internal.DebeziumOffset;
 import org.apache.inlong.sort.base.debezium.internal.DebeziumOffsetSerializer;
-import org.apache.inlong.sort.base.debezium.internal.FlinkDatabaseSchemaHistory;
 import org.apache.inlong.sort.base.debezium.internal.Handover;
 import org.apache.inlong.sort.base.debezium.internal.SchemaRecord;
 import org.apache.inlong.sort.base.util.RecordUtils;
