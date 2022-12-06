@@ -154,28 +154,34 @@ export default class IcebergSink
   enableCreateResource: number;
 
   @FieldDecorator({
-    type: 'input',
+    type: 'select',
     rules: [{ required: true }],
     props: values => ({
+      showSearch: true,
       disabled: [110, 130].includes(values?.status),
-      placeholder: 'thrift://127.0.0.1:9083',
+      options: {
+        requestService: keyword => ({
+          url: '/node/list',
+          method: 'POST',
+          data: {
+            keyword,
+            type: 'ICEBERG',
+            pageNum: 1,
+            pageSize: 20,
+          },
+        }),
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              label: item.name,
+              value: item.name,
+            })),
+        },
+      },
     }),
   })
-  @ColumnDecorator()
-  @I18n('Catalog URI')
-  catalogUri: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      placeholder: 'hdfs://127.0.0.1:9000/user/iceberg/warehouse',
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Iceberg.Warehouse')
-  warehouse: string;
+  @I18n('meta.Sinks.Iceberg.DataNodeName')
+  dataNodeName: string;
 
   @FieldDecorator({
     type: 'select',

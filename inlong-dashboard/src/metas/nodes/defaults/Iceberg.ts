@@ -46,6 +46,10 @@ export default class IcebergNode
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: 'thrift://127.0.0.1:9083',
+    }),
   })
   @I18n('meta.Nodes.Iceberg.Url')
   url: string;
@@ -53,6 +57,10 @@ export default class IcebergNode
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: 'hdfs://127.0.0.1:9000/user/iceberg/warehouse',
+    }),
   })
   @I18n('meta.Nodes.Iceberg.Warehouse')
   warehouse: string;
