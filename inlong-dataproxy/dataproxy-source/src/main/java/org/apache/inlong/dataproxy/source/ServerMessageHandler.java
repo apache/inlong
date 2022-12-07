@@ -437,7 +437,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 } else {
                     commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
                             DataProxyErrCode.UNCONFIGURED_GROUPID_OR_STREAMID.getErrCodeStr());
-                    logger.debug("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
+                    logger.error("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
                             groupId, streamId);
                     return false;
                 }

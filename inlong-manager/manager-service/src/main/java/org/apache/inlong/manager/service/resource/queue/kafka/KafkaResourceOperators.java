@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.resource.queue.kafka;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -107,7 +108,9 @@ public class KafkaResourceOperators implements QueueResourceOperator {
         try {
             InlongKafkaInfo inlongKafkaInfo = (InlongKafkaInfo) groupInfo;
             // create kafka topic
-            this.createKafkaTopic(inlongKafkaInfo, streamInfo.getMqResource());
+            String topicName = String.format(InlongConstants.KAFKA_TOPIC_FORMAT,
+                    groupId, streamInfo.getMqResource());
+            this.createKafkaTopic(inlongKafkaInfo, topicName);
         } catch (Exception e) {
             String msg = String.format("failed to create kafka topic for groupId=%s, streamId=%s", groupId, streamId);
             log.error(msg, e);

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mq.kafka;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
@@ -45,6 +46,8 @@ import java.util.Properties;
 public class KafkaHandler implements MessageQueueHandler {
 
     public static final Logger LOG = LoggerFactory.getLogger(KafkaHandler.class);
+    public static final String KEY_NAMESPACE = "namespace";
+    public static final String KAFKA_TOPIC_FORMAT = "%s.%s";
 
     private CacheClusterConfig config;
     private MessageQueueZoneSinkContext sinkContext;
@@ -92,6 +95,7 @@ public class KafkaHandler implements MessageQueueHandler {
     public void stop() {
         // kafka producer
         this.producer.close();
+        LOG.info("kafka handler stopped");
     }
 
     /**
@@ -109,12 +113,14 @@ public class KafkaHandler implements MessageQueueHandler {
                 sinkContext.getDispatchQueue().release(event.getSize());
                 return false;
             }
-            String topic = idConfig.getTopicName();
-            if (topic == null) {
+            String baseTopic = idConfig.getTopicName();
+            if (baseTopic == null) {
                 sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 return false;
             }
+            String topic = getProducerTopic(baseTopic, idConfig);
+
             // metric
             sinkContext.addSendMetric(event, topic);
             // create producer failed
@@ -136,6 +142,17 @@ public class KafkaHandler implements MessageQueueHandler {
             sinkContext.processSendFail(event, event.getUid(), 0);
             return false;
         }
+    }
+
+    /**
+     * getProducerTopic
+     */
+    private String getProducerTopic(String baseTopic, IdTopicConfig config) {
+        String namespace = config.getParams().get(KEY_NAMESPACE);
+        if (StringUtils.isNotEmpty(namespace)) {
+            return String.format(KAFKA_TOPIC_FORMAT, namespace, baseTopic);
+        }
+        return baseTopic;
     }
 
     /**

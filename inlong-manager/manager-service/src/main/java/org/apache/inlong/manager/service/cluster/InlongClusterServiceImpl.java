@@ -843,13 +843,24 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 topicConfig.setInlongGroupId(groupId);
                 topicConfig.setTopic(mqResource);
                 topicList.add(topicConfig);
+            } else if (MQType.KAFKA.equals(mqType)) {
+                List<InlongStreamBriefInfo> streamList = streamMapper.selectBriefList(groupId);
+                for (InlongStreamBriefInfo streamInfo : streamList) {
+                    String streamId = streamInfo.getInlongStreamId();
+                    String topic = String.format(InlongConstants.KAFKA_TOPIC_FORMAT,
+                            mqResource, streamInfo.getMqResource());
+                    DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
+                    topicConfig.setInlongGroupId(groupId + "/" + streamId);
+                    topicConfig.setTopic(topic);
+                    topicList.add(topicConfig);
+                }
             }
         }
 
         // get mq cluster info
         LOGGER.debug("GetDPConfig: begin to get mq clusters by tags={}", clusterTagList);
         List<MQClusterInfo> mqSet = new ArrayList<>();
-        List<String> typeList = Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR);
+        List<String> typeList = Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR, ClusterType.KAFKA);
         ClusterPageRequest pageRequest = ClusterPageRequest.builder()
                 .typeList(typeList)
                 .clusterTagList(clusterTagList)
