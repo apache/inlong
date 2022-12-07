@@ -181,7 +181,7 @@ public final class ColumnImpl implements Column, Comparable<Column> {
             return this.name().equalsIgnoreCase(that.name()) && this.typeExpression()
                     .equalsIgnoreCase(that.typeExpression()) && this.typeName().equalsIgnoreCase(that.typeName())
                     && this.jdbcType() == that.jdbcType() && Strings.equalsIgnoreCase(this.charsetName(),
-                    that.charsetName())
+                            that.charsetName())
                     && this.position() == that.position() && this.length() == that.length()
                     && this.scale().equals(that.scale()) && this.isOptional() == that.isOptional()
                     && this.isAutoIncremented() == that.isAutoIncremented() && this.isGenerated() == that.isGenerated()
