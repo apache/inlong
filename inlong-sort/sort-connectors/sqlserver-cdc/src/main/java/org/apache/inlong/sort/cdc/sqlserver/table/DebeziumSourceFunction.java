@@ -18,12 +18,6 @@
 
 package org.apache.inlong.sort.cdc.sqlserver.table;
 
-import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
-import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
-
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.Validator;
 import com.ververica.cdc.debezium.internal.DebeziumChangeConsumer;
@@ -41,18 +35,6 @@ import io.debezium.embedded.Connect;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.spi.OffsetCommitPolicy;
 import io.debezium.heartbeat.Heartbeat;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -76,6 +58,10 @@ import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.sort.base.dirty.DirtyData;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
@@ -84,6 +70,25 @@ import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
+import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
+import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 
 /**
  * The {@link DebeziumSourceFunction} is a streaming data source that pulls captured change data
@@ -99,40 +104,33 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             CheckpointListener,
             ResultTypeQueryable<T> {
 
-    private static final long serialVersionUID = -5808108641062931623L;
-
-    protected static final Logger LOG = LoggerFactory.getLogger(DebeziumSourceFunction.class);
-
     /**
      * State name of the consumer's partition offset states.
      */
     public static final String OFFSETS_STATE_NAME = "offset-states";
-
     /**
      * State name of the consumer's history records state.
      */
     public static final String HISTORY_RECORDS_STATE_NAME = "history-records-states";
-
     /**
      * The maximum number of pending non-committed checkpoints to track, to avoid memory leaks.
      */
     public static final int MAX_NUM_PENDING_CHECKPOINTS = 100;
-
     /**
      * The configuration represents the Debezium MySQL Connector uses the legacy implementation or
      * not.
      */
     public static final String LEGACY_IMPLEMENTATION_KEY = "internal.implementation";
-
     /**
      * The configuration value represents legacy implementation.
      */
     public static final String LEGACY_IMPLEMENTATION_VALUE = "legacy";
+    protected static final Logger LOG = LoggerFactory.getLogger(DebeziumSourceFunction.class);
+    private static final long serialVersionUID = -5808108641062931623L;
 
     // ---------------------------------------------------------------------------------------
     // Properties
     // ---------------------------------------------------------------------------------------
-
     /**
      * The schema to convert from Debezium's messages into Flink's objects.
      */
@@ -152,21 +150,25 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      * Data for pending but uncommitted offsets.
      */
     private final LinkedMap pendingOffsetsToCommit = new LinkedMap();
-
-    /**
-     * Flag indicating whether the Debezium Engine is started.
-     */
-    private volatile boolean debeziumStarted = false;
-
     /**
      * Validator to validate the connected database satisfies the cdc connector's requirements.
      */
     private final Validator validator;
 
-    // ---------------------------------------------------------------------------------------
-    // State
-    // ---------------------------------------------------------------------------------------
+    /**
+     * Options for dirty parameters
+     */
+    private final DirtyOptions dirtyOptions;
 
+    /**
+     * Dirty sink
+     */
+    private @Nullable final DirtySink<Object> dirtySink;
+
+    /**
+     * Flag indicating whether the Debezium Engine is started.
+     */
+    private volatile boolean debeziumStarted = false;
     /**
      * The offsets to restore to, if the consumer restores state from a checkpoint.
      *
@@ -177,11 +179,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      */
     private transient volatile String restoredOffsetState;
 
+    // ---------------------------------------------------------------------------------------
+    // Worker
+    // ---------------------------------------------------------------------------------------
     /**
      * Accessor for state in the operator state backend.
      */
     private transient ListState<byte[]> offsetState;
-
     /**
      * State to store the history records, i.e. schema changes.
      *
@@ -189,11 +193,6 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      * @see FlinkDatabaseSchemaHistory
      */
     private transient ListState<String> schemaRecordsState;
-
-    // ---------------------------------------------------------------------------------------
-    // Worker
-    // ---------------------------------------------------------------------------------------
-
     private transient ExecutorService executor;
     private transient DebeziumEngine<?> engine;
     /**
@@ -201,30 +200,22 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      * generate a UUID for it. This is used for {@link FlinkDatabaseHistory}.
      */
     private transient String engineInstanceName;
-
     /**
      * Consume the events from the engine and commit the offset to the engine.
      */
     private transient DebeziumChangeConsumer changeConsumer;
-
     /**
      * The consumer to fetch records from {@link Handover}.
      */
     private transient DebeziumChangeFetcher<T> debeziumChangeFetcher;
-
     /**
      * Buffer the events from the source and record the errors from the debezium.
      */
     private transient Handover handover;
-
-    private String inlongMetric;
-
+    private final String inlongMetric;
     private SourceMetricData sourceMetricData;
-
-    private String auditHostAndPorts;
-
+    private final String auditHostAndPorts;
     private transient ListState<MetricState> metricStateListState;
-
     private MetricState metricState;
 
     // ---------------------------------------------------------------------------------------
@@ -234,13 +225,17 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             Properties properties,
             @Nullable DebeziumOffset specificOffset,
             Validator validator, String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
         this.validator = validator;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
@@ -252,8 +247,42 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         this.executor = Executors.newSingleThreadExecutor(threadFactory);
         this.handover = new Handover();
         this.changeConsumer = new DebeziumChangeConsumer(handover);
+        if (dirtySink != null) {
+            try {
+                dirtySink.open(new Configuration());
+            } catch (Exception e) {
+                LOG.error("failed to open dirty sink");
+            }
+        }
     }
 
+    void handleDirtyData(Object dirtyData, DirtyType dirtyType, Exception e) {
+        if (!dirtyOptions.ignoreDirty()) {
+            RuntimeException ex;
+            if (e instanceof RuntimeException) {
+                ex = (RuntimeException) e;
+            } else {
+                ex = new RuntimeException(e);
+            }
+            throw ex;
+        }
+        if (dirtySink != null) {
+            DirtyData.Builder<Object> builder = DirtyData.builder();
+            try {
+                builder.setData(dirtyData)
+                        .setDirtyType(dirtyType)
+                        .setLabels(dirtyOptions.getLabels())
+                        .setLogTag(dirtyOptions.getLogTag())
+                        .setIdentifier(dirtyOptions.getIdentifier());
+                dirtySink.invoke(builder.build());
+            } catch (Exception ex) {
+                if (!dirtyOptions.ignoreSideOutputErrors()) {
+                    throw new RuntimeException(ex);
+                }
+                LOG.warn("Dirty sink failed", ex);
+            }
+        }
+    }
     // ------------------------------------------------------------------------
     // Checkpoint and restore
     // ------------------------------------------------------------------------
@@ -286,8 +315,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                     getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
         } else {
             if (specificOffset != null) {
-                byte[] serializedOffset =
-                        DebeziumOffsetSerializer.INSTANCE.serialize(specificOffset);
+                byte[] serializedOffset = {};
+                try {
+                    serializedOffset = DebeziumOffsetSerializer.INSTANCE.serialize(specificOffset);
+                } catch (Exception e) {
+                    LOG.error("failed to serialize offset", e);
+                    handleDirtyData(specificOffset, DirtyType.VALUE_SERIALIZE_ERROR, e);
+                }
                 restoredOffsetState = new String(serializedOffset, StandardCharsets.UTF_8);
                 LOG.info(
                         "Consumer subtask {} starts to read from specified offset {}.",
@@ -479,7 +513,12 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                                 if (sourceMetricData != null) {
                                     sourceMetricData.outputMetricsWithEstimate(record.value());
                                 }
-                                deserializer.deserialize(record, out);
+                                try {
+                                    deserializer.deserialize(record, out);
+                                } catch (Exception e) {
+                                    LOG.error(String.format("deserialize error, raw data: %s", record), e);
+                                    handleDirtyData(record, DirtyType.DESERIALIZE_ERROR, e);
+                                }
                             }
 
                             @Override
@@ -553,8 +592,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 return;
             }
 
-            DebeziumOffset offset =
-                    DebeziumOffsetSerializer.INSTANCE.deserialize(serializedOffsets);
+            DebeziumOffset offset = null;
+            try {
+                offset = DebeziumOffsetSerializer.INSTANCE.deserialize(serializedOffsets);
+            } catch (Exception e) {
+                LOG.error("failed to deserialize offset", e);
+                handleDirtyData(serializedOffsets, DirtyType.VALUE_DESERIALIZE_ERROR, e);
+            }
             changeConsumer.commitOffset(offset);
         } catch (Exception e) {
             // ignore exception if we are no longer running

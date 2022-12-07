@@ -27,6 +27,9 @@ import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 
 import java.time.ZoneId;
 import java.util.HashSet;
@@ -38,61 +41,16 @@ import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSc
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
-/** Factory for creating configured instance of {@link SqlServerTableSource}. */
+/**
+ * Factory for creating configured instance of {@link SqlServerTableSource}.
+ */
 public class SqlServerTableFactory implements DynamicTableSourceFactory {
-
-    private static final String IDENTIFIER = "sqlserver-cdc-inlong";
-
-    private static final ConfigOption<String> HOSTNAME =
-            ConfigOptions.key("hostname")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("IP address or hostname of the SqlServer database server.");
-
-    private static final ConfigOption<Integer> PORT =
-            ConfigOptions.key("port")
-                    .intType()
-                    .defaultValue(1433)
-                    .withDescription("Integer port number of the SqlServer database server.");
-
-    private static final ConfigOption<String> USERNAME =
-            ConfigOptions.key("username")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "Name of the SqlServer database to use when connecting to the SqlServer database server.");
-
-    private static final ConfigOption<String> PASSWORD =
-            ConfigOptions.key("password")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "Password to use when connecting to the SqlServer database server.");
-
-    private static final ConfigOption<String> DATABASE_NAME =
-            ConfigOptions.key("database-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Database name of the SqlServer server to monitor.");
-
-    private static final ConfigOption<String> SCHEMA_NAME =
-            ConfigOptions.key("schema-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Schema name of the SqlServer database to monitor.");
-
-    private static final ConfigOption<String> TABLE_NAME =
-            ConfigOptions.key("table-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Table name of the SqlServer database to monitor.");
 
     public static final ConfigOption<String> SERVER_TIME_ZONE =
             ConfigOptions.key("server-time-zone")
                     .stringType()
                     .defaultValue("UTC")
                     .withDescription("The session time zone in database server.");
-
     public static final ConfigOption<String> SCAN_STARTUP_MODE =
             ConfigOptions.key("scan.startup.mode")
                     .stringType()
@@ -100,6 +58,72 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
                     .withDescription(
                             "Optional startup mode for SqlServer CDC consumer, valid enumerations are "
                                     + "\"initial\", \"initial-only\", \"latest-offset\"");
+    private static final String IDENTIFIER = "sqlserver-cdc-inlong";
+    private static final ConfigOption<String> HOSTNAME =
+            ConfigOptions.key("hostname")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("IP address or hostname of the SqlServer database server.");
+    private static final ConfigOption<Integer> PORT =
+            ConfigOptions.key("port")
+                    .intType()
+                    .defaultValue(1433)
+                    .withDescription("Integer port number of the SqlServer database server.");
+    private static final ConfigOption<String> USERNAME =
+            ConfigOptions.key("username")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "Name of the SqlServer database to use when connecting to the SqlServer database server.");
+    private static final ConfigOption<String> PASSWORD =
+            ConfigOptions.key("password")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "Password to use when connecting to the SqlServer database server.");
+    private static final ConfigOption<String> DATABASE_NAME =
+            ConfigOptions.key("database-name")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("Database name of the SqlServer server to monitor.");
+    private static final ConfigOption<String> SCHEMA_NAME =
+            ConfigOptions.key("schema-name")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("Schema name of the SqlServer database to monitor.");
+    private static final ConfigOption<String> TABLE_NAME =
+            ConfigOptions.key("table-name")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("Table name of the SqlServer database to monitor.");
+    private static final String SCAN_STARTUP_MODE_VALUE_INITIAL = "initial";
+    private static final String SCAN_STARTUP_MODE_VALUE_INITIAL_ONLY = "initial-only";
+    private static final String SCAN_STARTUP_MODE_VALUE_LATEST = "latest-offset";
+
+    private static StartupOptions getStartupOptions(ReadableConfig config) {
+        String modeString = config.get(SCAN_STARTUP_MODE);
+
+        switch (modeString.toLowerCase()) {
+            case SCAN_STARTUP_MODE_VALUE_INITIAL:
+                return StartupOptions.initial();
+
+            case SCAN_STARTUP_MODE_VALUE_INITIAL_ONLY:
+                return StartupOptions.initialOnly();
+
+            case SCAN_STARTUP_MODE_VALUE_LATEST:
+                return StartupOptions.latest();
+
+            default:
+                throw new ValidationException(
+                        String.format(
+                                "Invalid value for option '%s'. Supported values are [%s, %s, %s], but was: %s",
+                                SCAN_STARTUP_MODE.key(),
+                                SCAN_STARTUP_MODE_VALUE_INITIAL,
+                                SCAN_STARTUP_MODE_VALUE_INITIAL_ONLY,
+                                SCAN_STARTUP_MODE_VALUE_LATEST,
+                                modeString));
+        }
+    }
 
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
@@ -121,6 +145,9 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
         StartupOptions startupOptions = getStartupOptions(config);
         ResolvedSchema physicalSchema =
                 getPhysicalSchema(context.getCatalogTable().getResolvedSchema());
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(config);
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
 
         return new SqlServerTableSource(
                 physicalSchema,
@@ -134,7 +161,10 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
                 startupOptions,
-                inlongMetric, auditHostAndPorts);
+                inlongMetric,
+                auditHostAndPorts,
+                dirtyOptions,
+                dirtySink);
     }
 
     @Override
@@ -163,34 +193,5 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
         return options;
-    }
-
-    private static final String SCAN_STARTUP_MODE_VALUE_INITIAL = "initial";
-    private static final String SCAN_STARTUP_MODE_VALUE_INITIAL_ONLY = "initial-only";
-    private static final String SCAN_STARTUP_MODE_VALUE_LATEST = "latest-offset";
-
-    private static StartupOptions getStartupOptions(ReadableConfig config) {
-        String modeString = config.get(SCAN_STARTUP_MODE);
-
-        switch (modeString.toLowerCase()) {
-            case SCAN_STARTUP_MODE_VALUE_INITIAL:
-                return StartupOptions.initial();
-
-            case SCAN_STARTUP_MODE_VALUE_INITIAL_ONLY:
-                return StartupOptions.initialOnly();
-
-            case SCAN_STARTUP_MODE_VALUE_LATEST:
-                return StartupOptions.latest();
-
-            default:
-                throw new ValidationException(
-                        String.format(
-                                "Invalid value for option '%s'. Supported values are [%s, %s, %s], but was: %s",
-                                SCAN_STARTUP_MODE.key(),
-                                SCAN_STARTUP_MODE_VALUE_INITIAL,
-                                SCAN_STARTUP_MODE_VALUE_INITIAL_ONLY,
-                                SCAN_STARTUP_MODE_VALUE_LATEST,
-                                modeString));
-        }
     }
 }

@@ -21,6 +21,9 @@ package org.apache.inlong.sort.cdc.sqlserver.table;
 import com.ververica.cdc.connectors.sqlserver.table.SqlServerDeserializationConverterFactory;
 import com.ververica.cdc.connectors.sqlserver.table.SqlServerReadableMetadata;
 import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
+import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
+import com.ververica.cdc.debezium.table.MetadataConverter;
+import com.ververica.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -32,12 +35,11 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.cdc.sqlserver.SqlServerSource;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.table.MetadataConverter;
-import com.ververica.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
 
+import javax.annotation.Nullable;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
@@ -70,16 +72,18 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
-
-    /** Data type that describes the final output of the source. */
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
+    /**
+     * Data type that describes the final output of the source.
+     */
     protected DataType producedDataType;
-
-    /** Metadata that is appended at the end of a physical source row. */
+    /**
+     * Metadata that is appended at the end of a physical source row.
+     */
     protected List<String> metadataKeys;
-
-    private String inlongMetric;
-
-    private String auditHostAndPorts;
+    private final String inlongMetric;
+    private final String auditHostAndPorts;
 
     public SqlServerTableSource(
             ResolvedSchema physicalSchema,
@@ -94,7 +98,9 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
             Properties dbzProperties,
             StartupOptions startupOptions,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -110,6 +116,8 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
         this.startupOptions = startupOptions;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
@@ -151,6 +159,8 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                         .deserializer(deserializer)
                         .inlongMetric(inlongMetric)
                         .auditHostAndPorts(auditHostAndPorts)
+                        .dirtyOptions(dirtyOptions)
+                        .dirtySink(dirtySink)
                         .build();
         return SourceFunctionProvider.of(sourceFunction, false);
     }
@@ -186,7 +196,9 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                         dbzProperties,
                         startupOptions,
                         inlongMetric,
-                        auditHostAndPorts);
+                        auditHostAndPorts,
+                        dirtyOptions,
+                        dirtySink);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

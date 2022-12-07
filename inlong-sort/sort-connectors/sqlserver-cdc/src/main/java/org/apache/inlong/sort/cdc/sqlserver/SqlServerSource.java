@@ -20,9 +20,11 @@ package org.apache.inlong.sort.cdc.sqlserver;
 
 import com.ververica.cdc.connectors.sqlserver.SqlServerValidator;
 import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
-import org.apache.inlong.sort.cdc.sqlserver.table.DebeziumSourceFunction;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import io.debezium.connector.sqlserver.SqlServerConnector;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.cdc.sqlserver.table.DebeziumSourceFunction;
 
 import java.util.Properties;
 
@@ -40,7 +42,9 @@ public class SqlServerSource {
         return new Builder<>();
     }
 
-    /** Builder class of {@link SqlServerSource}. */
+    /**
+     * Builder class of {@link SqlServerSource}.
+     */
     public static class Builder<T> {
 
         private int port = 1433; // default 1433 port
@@ -54,19 +58,25 @@ public class SqlServerSource {
         private DebeziumDeserializationSchema<T> deserializer;
         private String inlongMetric;
         private String auditHostAndPorts;
+        private DirtyOptions dirtyOptions;
+        private DirtySink<Object> dirtySink;
 
         public Builder<T> hostname(String hostname) {
             this.hostname = hostname;
             return this;
         }
 
-        /** Integer port number of the SQL Server database server. */
+        /**
+         * Integer port number of the SQL Server database server.
+         */
         public Builder<T> port(int port) {
             this.port = port;
             return this;
         }
 
-        /** The name of the SQL Server database from which to stream the changes. */
+        /**
+         * The name of the SQL Server database from which to stream the changes.
+         */
         public Builder<T> database(String database) {
             this.database = database;
             return this;
@@ -84,19 +94,25 @@ public class SqlServerSource {
             return this;
         }
 
-        /** Username to use when connecting to the SQL Server database server. */
+        /**
+         * Username to use when connecting to the SQL Server database server.
+         */
         public Builder<T> username(String username) {
             this.username = username;
             return this;
         }
 
-        /** Password to use when connecting to the SQL Server database server. */
+        /**
+         * Password to use when connecting to the SQL Server database server.
+         */
         public Builder<T> password(String password) {
             this.password = password;
             return this;
         }
 
-        /** The Debezium SqlServer connector properties. For example, "snapshot.mode". */
+        /**
+         * The Debezium SqlServer connector properties. For example, "snapshot.mode".
+         */
         public Builder<T> debeziumProperties(Properties properties) {
             this.dbzProperties = properties;
             return this;
@@ -121,9 +137,21 @@ public class SqlServerSource {
             return this;
         }
 
-        /** Specifies the startup options. */
+        /**
+         * Specifies the startup options.
+         */
         public Builder<T> startupOptions(StartupOptions startupOptions) {
             this.startupOptions = startupOptions;
+            return this;
+        }
+
+        public Builder dirtyOptions(DirtyOptions dirtyOptions) {
+            this.dirtyOptions = dirtyOptions;
+            return this;
+        }
+
+        public Builder dirtySink(DirtySink<Object> dirtySink) {
+            this.dirtySink = dirtySink;
             return this;
         }
 
@@ -168,7 +196,8 @@ public class SqlServerSource {
 
             return new DebeziumSourceFunction<>(
                     deserializer, props, null, new SqlServerValidator(props),
-                    inlongMetric, auditHostAndPorts);
+                    inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
         }
+
     }
 }

@@ -42,6 +42,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -127,11 +128,19 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                        new FieldInfo("id", new LongFormatInfo())),
+                                new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())));
+                                new FieldInfo("name", new StringFormatInfo()))
+                );
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("dirty.side-output.connector", "log");
+        properties.put("dirty.ignore", "true");
+        properties.put("dirty.side-output.enable", "true");
+        properties.put("dirty.side-output.format", "csv");
+        properties.put("dirty.side-output.labels",
+                "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=inlong&table=inlong_sqlserver");
         return new SqlServerLoadNode(id, "sqlserver_out", fields, relations, null, null, 1,
-                null, "jdbc:sqlserver://localhost:1433;databaseName=column_type_test", "SA",
+                properties, "jdbc:sqlserver://localhost:1433;databaseName=column_type_test", "SA",
                 "INLONG*123", "dbo", "work1", "id");
     }
 
