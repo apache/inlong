@@ -69,7 +69,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private @Nullable transient SinkMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
-    private @Nullable final RowType flinkRowType;
+    private @Nullable RowType flinkRowType;
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
 
@@ -165,6 +165,10 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
                     getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
         }
+    }
+
+    public void setFlinkRowType(@Nullable RowType flinkRowType) {
+        this.flinkRowType = flinkRowType;
     }
 
     @Override

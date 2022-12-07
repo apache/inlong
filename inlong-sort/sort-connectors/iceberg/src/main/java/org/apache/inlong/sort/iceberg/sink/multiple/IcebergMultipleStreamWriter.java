@@ -216,6 +216,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             } else { // only if second times schema will evolute
                 // Refresh new schema maybe cause previous file writer interrupted, so here should handle it
                 multipleWriters.get(tableId).schemaEvolution(taskWriterFactory);
+                multipleWriters.get(tableId).setFlinkRowType(flinkRowType);
             }
 
         }
