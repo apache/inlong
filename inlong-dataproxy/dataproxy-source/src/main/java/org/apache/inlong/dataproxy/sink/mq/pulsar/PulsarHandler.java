@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mq.pulsar;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
@@ -27,6 +28,7 @@ import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
 import org.apache.inlong.dataproxy.sink.mq.OrderBatchPackProfileV0;
 import org.apache.inlong.dataproxy.sink.mq.SimpleBatchPackProfileV0;
 import org.apache.pulsar.client.api.AuthenticationFactory;
+import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.MessageRoutingMode;
@@ -113,9 +115,12 @@ public class PulsarHandler implements MessageQueueHandler {
             String serviceUrl = config.getParams().get(KEY_SERVICE_URL);
             String authentication = config.getParams().get(KEY_AUTHENTICATION);
             Context context = sinkContext.getProducerContext();
-            this.client = PulsarClient.builder()
+            ClientBuilder builder = PulsarClient.builder();
+            if (StringUtils.isNotEmpty(authentication)) {
+                builder.authentication(AuthenticationFactory.token(authentication));
+            }
+            this.client = builder
                     .serviceUrl(serviceUrl)
-                    .authentication(AuthenticationFactory.token(authentication))
                     .ioThreads(context.getInteger(KEY_IOTHREADS, 1))
                     .memoryLimit(context.getLong(KEY_MEMORYLIMIT, 1073741824L), SizeUnit.BYTES)
                     .connectionsPerBroker(context.getInteger(KEY_CONNECTIONSPERBROKER, 10))
@@ -188,7 +193,7 @@ public class PulsarHandler implements MessageQueueHandler {
                 return false;
             }
             // topic
-            String producerTopic = this.getProducerTopic(baseTopic);
+            String producerTopic = this.getProducerTopic(baseTopic, idConfig);
             if (producerTopic == null) {
                 sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
@@ -243,10 +248,14 @@ public class PulsarHandler implements MessageQueueHandler {
     /**
      * getProducerTopic
      */
-    private String getProducerTopic(String baseTopic) {
+    private String getProducerTopic(String baseTopic, IdTopicConfig config) {
         StringBuilder builder = new StringBuilder();
         if (tenant != null) {
             builder.append(tenant).append("/");
+        }
+        String namespace = this.namespace;
+        if (namespace == null) {
+            namespace = config.getParams().get(PulsarHandler.KEY_NAMESPACE);
         }
         if (namespace != null) {
             builder.append(namespace).append("/");

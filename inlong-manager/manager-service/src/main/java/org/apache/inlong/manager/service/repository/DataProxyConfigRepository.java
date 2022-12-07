@@ -262,6 +262,9 @@ public class DataProxyConfigRepository implements IRepository {
             // cache
             String clusterTag = proxyObj.getSetName();
             String extTag = proxyObj.getZone();
+            if (StringUtils.isEmpty(extTag)) {
+                continue;
+            }
             Map<String, List<CacheCluster>> cacheClusterZoneMap = cacheClusterMap.get(clusterTag);
             if (cacheClusterZoneMap != null) {
                 Map<String, String> subTagMap = tagCache.computeIfAbsent(extTag, k -> MAP_SPLITTER.split(extTag));
