@@ -679,8 +679,10 @@ public final class RowDataDebeziumDeserializeSchema
         } else {
             if (!appendSource) {
                 GenericRowData before = extractBeforeRow(value, valueSchema);
-                before.setRowKind(RowKind.UPDATE_BEFORE);
-                emit(record, before, tableSchema, out);
+                if (before != null) {
+                    before.setRowKind(RowKind.UPDATE_BEFORE);
+                    emit(record, before, tableSchema, out);
+                }
             }
 
             GenericRowData after = extractAfterRow(value, valueSchema);

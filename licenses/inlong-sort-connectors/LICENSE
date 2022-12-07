@@ -327,7 +327,6 @@
 =========
 
 1.3.1 inlong-sort/sort-connectors/base/src/main/java/org/apache/inlong/sort/base/debezium/history/FlinkJsonTableChangeSerializer.java
-      inlong-sort/sort-connectors/base/src/main/java/org/apache/inlong/sort/base/debezium/internal/DebeziumChangeConsumer.java
       inlong-sort/sort-connectors/base/src/main/java/org/apache/inlong/sort/base/debezium/internal/DebeziumOffset.java
       inlong-sort/sort-connectors/base/src/main/java/org/apache/inlong/sort/base/debezium/internal/DebeziumOffsetSerializer.java
       inlong-sort/sort-connectors/base/src/main/java/org/apache/inlong/sort/base/debezium/internal/FlinkDatabaseHistory.java
@@ -433,6 +432,7 @@
       inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/schema/MySqlFieldDefinition.java
       inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/split/FinishedSnapshotSplitInfo.java
       inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/internal/DebeziumChangeFetcher.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/internal/DebeziumChangeConsumer.java
       inlong-sort/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/PostgreSQLSource.java
       inlong-sort/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/DebeziumSourceFunction.java
       inlong-sort/sort-connectors/postgres-cdc/src/main/java/org/apache/inlong/sort/cdc/postgres/debezium/internal/ColumnImpl.java
@@ -450,6 +450,7 @@
       inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/table/OracleTableSource.java
       inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/table/OracleTableSourceFactory.java
       inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/DebeziumChangeFetcher.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/DebeziumChangeConsumer.java
       inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/FlinkDatabaseSchemaHistory.java
       inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/table/RowDataDebeziumDeserializeSchema.java
       inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/DebeziumSourceFunction.java
