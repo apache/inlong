@@ -45,7 +45,7 @@ public class DirtyData<T> {
      * The identifier of dirty data, it will be used for filename generation of file dirty sink,
      * topic generation of mq dirty sink, tablename generation of database, etc,
      * and it supports variable replace like '${variable}'.
-     * There are two system variables[SYSTEM_TIME|DIRTY_TYPE|DIRTY_MESSAGE] are currently supported,
+     * There are several system variables[SYSTEM_TIME|DIRTY_TYPE|DIRTY_MESSAGE] are currently supported,
      * and the support of other variables is determined by the connector.
      */
     private final String identifier;
