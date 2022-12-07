@@ -22,7 +22,6 @@ import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_IGNORE_SINGLE_TABLE_ERRORS;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
 
@@ -58,7 +57,6 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         String sinkMultipleFormat = helper.getOptions().getOptional(SINK_MULTIPLE_FORMAT).orElse(null);
         String databasePattern = helper.getOptions().getOptional(SINK_MULTIPLE_DATABASE_PATTERN).orElse(null);
         String tablePattern = helper.getOptions().getOptional(SINK_MULTIPLE_TABLE_PATTERN).orElse(null);
-        boolean ignoreSingleTableErrors = helper.getOptions().get(SINK_MULTIPLE_IGNORE_SINGLE_TABLE_ERRORS);
         SchemaUpdateExceptionPolicy schemaUpdatePolicy = helper.getOptions().get(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
         String inlongMetric = helper.getOptions().getOptional(INLONG_METRIC).orElse(INLONG_METRIC.defaultValue());
         String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(INLONG_AUDIT.defaultValue());
@@ -75,7 +73,6 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
                 sinkMultipleFormat,
                 databasePattern,
                 tablePattern,
-                ignoreSingleTableErrors,
                 inlongMetric,
                 auditHostAndPorts,
                 schemaUpdatePolicy);
@@ -114,7 +111,6 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         optionalOptions.add(SINK_MULTIPLE_DATABASE_PATTERN);
         optionalOptions.add(SINK_MULTIPLE_TABLE_PATTERN);
         optionalOptions.add(SINK_MULTIPLE_ENABLE);
-        optionalOptions.add(SINK_MULTIPLE_IGNORE_SINGLE_TABLE_ERRORS);
         optionalOptions.add(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
         optionalOptions.add(INLONG_METRIC);
         optionalOptions.add(INLONG_AUDIT);

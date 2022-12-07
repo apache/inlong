@@ -15,21 +15,24 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.apache.inlong</groupId>
         <artifactId>sort-connectors</artifactId>
+        <groupId>org.apache.inlong</groupId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
-    <artifactId>sort-connector-starrocks</artifactId>
+    <modelVersion>4.0.0</modelVersion>
 
     <name>Apache InLong - Sort-connector-starrocks</name>
+    <artifactId>sort-connector-starrocks</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <starrocks-connector.version>1.2.3</starrocks-connector.version>
     </properties>
 
     <dependencies>
@@ -41,7 +44,7 @@
         <dependency>
             <groupId>com.starrocks</groupId>
             <artifactId>flink-connector-starrocks</artifactId>
-            <version>1.2.3_flink-${flink.minor.version}_${flink.scala.binary.version}</version>
+            <version>${starrocks-connector.version}_flink-${flink.minor.version}_${flink.scala.binary.version}</version>
         </dependency>
     </dependencies>
 
@@ -53,17 +56,19 @@
                 <executions>
                     <execution>
                         <id>shade-flink</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <phase>package</phase>
                         <configuration>
                             <filters>
                                 <filter>
                                     <artifact>org.apache.inlong:sort-connector-*</artifact>
                                     <includes>
                                         <include>org/apache/inlong/**</include>
-                                        <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
+                                        <include>
+                                            META-INF/services/org.apache.flink.table.factories.Factory
+                                        </include>
                                     </includes>
                                 </filter>
                             </filters>

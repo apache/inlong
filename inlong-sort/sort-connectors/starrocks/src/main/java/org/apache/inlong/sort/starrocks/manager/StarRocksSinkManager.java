@@ -30,9 +30,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -54,11 +56,14 @@ import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * StarRocks sink manager which caches and flushes data.
+ */
 public class StarRocksSinkManager implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(StarRocksSinkManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StarRocksSinkManager.class);
 
     private final StarRocksJdbcConnectionProvider jdbcConnProvider;
     private final StarRocksQueryVisitor starrocksQueryVisitor;
@@ -81,6 +86,7 @@ public class StarRocksSinkManager implements Serializable {
     private transient Histogram readDataTimeMs;
     private transient Histogram writeDataTimeMs;
     private transient Histogram loadTimeMs;
+
 
     private static final String COUNTER_TOTAL_FLUSH_BYTES = "totalFlushBytes";
     private static final String COUNTER_TOTAL_FLUSH_ROWS = "totalFlushRows";
@@ -109,9 +115,13 @@ public class StarRocksSinkManager implements Serializable {
     private ScheduledFuture<?> scheduledFuture;
 
     private final boolean multipleSink;
-    private final boolean ignoreSingleTableErrors;
     private final SchemaUpdateExceptionPolicy schemaUpdatePolicy;
     private transient SinkMetricData metricData;
+
+    /**
+     * If a table writing throws exception, ignore it when receiving data later again
+     */
+    private Set<String> ignoreWriteTables = new HashSet<>();
 
     public void setSinkMetricData(SinkMetricData metricData) {
         this.metricData = metricData;
@@ -120,7 +130,6 @@ public class StarRocksSinkManager implements Serializable {
     public StarRocksSinkManager(StarRocksSinkOptions sinkOptions,
             TableSchema flinkSchema,
             boolean multipleSink,
-            boolean ignoreSingleTableErrors,
             SchemaUpdateExceptionPolicy schemaUpdatePolicy) {
         this.sinkOptions = sinkOptions;
         StarRocksJdbcConnectionOptions jdbcOptions = new StarRocksJdbcConnectionOptions(sinkOptions.getJdbcUrl(),
@@ -130,7 +139,6 @@ public class StarRocksSinkManager implements Serializable {
                 sinkOptions.getTableName());
 
         this.multipleSink = multipleSink;
-        this.ignoreSingleTableErrors = ignoreSingleTableErrors;
         this.schemaUpdatePolicy = schemaUpdatePolicy;
 
         init(flinkSchema);
@@ -141,14 +149,12 @@ public class StarRocksSinkManager implements Serializable {
             StarRocksJdbcConnectionProvider jdbcConnProvider,
             StarRocksQueryVisitor starrocksQueryVisitor,
             boolean multipleSink,
-            boolean ignoreSingleTableErrors,
             SchemaUpdateExceptionPolicy schemaUpdatePolicy) {
         this.sinkOptions = sinkOptions;
         this.jdbcConnProvider = jdbcConnProvider;
         this.starrocksQueryVisitor = starrocksQueryVisitor;
 
         this.multipleSink = multipleSink;
-        this.ignoreSingleTableErrors = ignoreSingleTableErrors;
         this.schemaUpdatePolicy = schemaUpdatePolicy;
 
         init(flinkSchema);
@@ -162,7 +168,8 @@ public class StarRocksSinkManager implements Serializable {
         this.starrocksStreamLoadVisitor = new StarRocksStreamLoadVisitor(
                 sinkOptions,
                 null == schema ? new String[]{} : schema.getFieldNames(),
-                version.length() > 0 && !version.trim().startsWith("1."));
+                version.length() > 0 && !version.trim().startsWith("1.")
+        );
     }
 
     public void setRuntimeContext(RuntimeContext runtimeCtx) {
@@ -197,7 +204,7 @@ public class StarRocksSinkManager implements Serializable {
             while (true) {
                 try {
                     if (!asyncFlush()) {
-                        LOG.info("StarRocks flush thread is about to exit.");
+                        LOGGER.info("StarRocks flush thread is about to exit.");
                         flushThreadAlive = false;
                         break;
                     }
@@ -208,7 +215,7 @@ public class StarRocksSinkManager implements Serializable {
         });
 
         flushThread.setUncaughtExceptionHandler((t, e) -> {
-            LOG.error("StarRocks flush thread uncaught exception occurred: " + e.getMessage(), e);
+            LOGGER.error("StarRocks flush thread uncaught exception occurred: " + e.getMessage(), e);
             flushException = e;
             flushThreadAlive = false;
         });
@@ -228,7 +235,7 @@ public class StarRocksSinkManager implements Serializable {
             synchronized (StarRocksSinkManager.this) {
                 if (!closed) {
                     try {
-                        LOG.info("StarRocks interval Sinking triggered.");
+                        LOGGER.info("StarRocks interval Sinking triggered.");
                         if (bufferMap.isEmpty()) {
                             startScheduler();
                         }
@@ -249,6 +256,7 @@ public class StarRocksSinkManager implements Serializable {
     }
 
     public final synchronized void writeRecords(String database, String table, String... records) throws IOException {
+        checkFlushException();
         try {
             if (0 == records.length) {
                 return;
@@ -261,16 +269,14 @@ public class StarRocksSinkManager implements Serializable {
                 bufferEntity.addToBuffer(bts);
             }
             if (StarRocksSinkSemantic.EXACTLY_ONCE.equals(sinkOptions.getSemantic())) {
-                checkFlushException();
                 return;
             }
             if (bufferEntity.getBatchCount() >= sinkOptions.getSinkMaxRows()
                     || bufferEntity.getBatchSize() >= sinkOptions.getSinkMaxBytes()) {
-                LOG.info(String.format("StarRocks buffer Sinking triggered: db: [%s] table: [%s] rows[%d] label[%s].",
+                LOGGER.info(String.format("StarRocks buffer Sinking triggered: db: [%s] table: [%s] rows[%d] label[%s].",
                         database, table, bufferEntity.getBatchCount(), bufferEntity.getLabel()));
                 flush(bufferKey, false);
             }
-            checkFlushException();
         } catch (Exception e) {
             throw new IOException("Writing records to StarRocks failed.", e);
         }
@@ -291,7 +297,7 @@ public class StarRocksSinkManager implements Serializable {
     }
 
     private synchronized void flushInternal(String bufferKey, boolean waitUtilDone) throws Exception {
-        // checkFlushException();
+        checkFlushException();
         if (null == bufferKey || bufferMap.isEmpty() || !bufferMap.containsKey(bufferKey)) {
             if (waitUtilDone) {
                 waitAsyncFlushingDone();
@@ -310,7 +316,7 @@ public class StarRocksSinkManager implements Serializable {
         if (!closed) {
             closed = true;
 
-            LOG.info("StarRocks Sink is about to close.");
+            LOGGER.info("StarRocks Sink is about to close.");
             this.bufferMap.clear();
 
             if (scheduledFuture != null) {
@@ -323,7 +329,7 @@ public class StarRocksSinkManager implements Serializable {
 
             offerEOF();
         }
-        // checkFlushException();
+        checkFlushException();
     }
 
     public Map<String, StarRocksSinkBufferEntity> getBufferedBatchMap() {
@@ -354,7 +360,17 @@ public class StarRocksSinkManager implements Serializable {
             return false;
         }
         stopScheduler();
-        LOG.info(String.format("Async stream load: db[%s] table[%s] rows[%d] bytes[%d] label[%s].",
+
+        String tableIdentifier = flushData.getDatabase() + "." + flushData.getTable();
+
+        if (SchemaUpdateExceptionPolicy.STOP_PARTIAL == schemaUpdatePolicy && ignoreWriteTables.contains(
+                tableIdentifier)) {
+            LOGGER.warn(String.format("Stop writing to db[%s] table[%s] because of former errors and stop_partial policy",
+                    flushData.getDatabase(), flushData.getTable()));
+            return true;
+        }
+
+        LOGGER.info(String.format("Async stream load: db[%s] table[%s] rows[%d] bytes[%d] label[%s].",
                 flushData.getDatabase(), flushData.getTable(), flushData.getBatchCount(), flushData.getBatchSize(),
                 flushData.getLabel()));
         long startWithRetries = System.nanoTime();
@@ -363,7 +379,7 @@ public class StarRocksSinkManager implements Serializable {
                 long start = System.nanoTime();
                 // flush to StarRocks with stream load
                 Map<String, Object> result = starrocksStreamLoadVisitor.doStreamLoad(flushData);
-                LOG.info(String.format("Async stream load finished: label[%s].", flushData.getLabel()));
+                LOGGER.info(String.format("Async stream load finished: label[%s].", flushData.getLabel()));
                 // metrics
                 if (null != totalFlushBytes) {
                     totalFlushBytes.inc(flushData.getBatchSize());
@@ -384,18 +400,20 @@ public class StarRocksSinkManager implements Serializable {
                 if (totalFlushFailedTimes != null) {
                     totalFlushFailedTimes.inc();
                 }
-                LOG.warn("Failed to flush batch data to StarRocks, retry times = {}", i, e);
+                LOGGER.warn("Failed to flush batch data to StarRocks, retry times = {}", i, e);
                 if (i >= sinkOptions.getSinkMaxRetries()) {
                     if (schemaUpdatePolicy == null
                             || schemaUpdatePolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
                         throw e;
+                    } else if (schemaUpdatePolicy == SchemaUpdateExceptionPolicy.STOP_PARTIAL) {
+                        ignoreWriteTables.add(tableIdentifier);
                     }
                 }
                 if (e instanceof StarRocksStreamLoadFailedException
                         && ((StarRocksStreamLoadFailedException) e).needReCreateLabel()) {
                     String oldLabel = flushData.getLabel();
                     flushData.reGenerateLabel();
-                    LOG.warn(String.format("Batch label changed from [%s] to [%s]", oldLabel, flushData.getLabel()));
+                    LOGGER.warn(String.format("Batch label changed from [%s] to [%s]", oldLabel, flushData.getLabel()));
                 }
                 try {
                     Thread.sleep(1000L * Math.min(i + 1, 10));
@@ -412,12 +430,12 @@ public class StarRocksSinkManager implements Serializable {
         // wait for previous flushings
         offer(new StarRocksSinkBufferEntity(null, null, null));
         offer(new StarRocksSinkBufferEntity(null, null, null));
-        // checkFlushException();
+        checkFlushException();
     }
 
     void offer(StarRocksSinkBufferEntity bufferEntity) throws InterruptedException {
         if (!flushThreadAlive) {
-            LOG.info(String.format("Flush thread already exit, ignore offer request for label[%s]",
+            LOGGER.info(String.format("Flush thread already exit, ignore offer request for label[%s]",
                     bufferEntity.getLabel()));
             return;
         }
@@ -437,18 +455,17 @@ public class StarRocksSinkManager implements Serializable {
         try {
             offer(new StarRocksSinkBufferEntity(null, null, null).asEOF());
         } catch (Exception e) {
-            LOG.warn("Writing EOF failed.", e);
+            LOGGER.warn("Writing EOF failed.", e);
         }
     }
 
-    private void checkFlushException() throws Exception {
+    private void checkFlushException() {
         if (flushException != null) {
             StackTraceElement[] stack = Thread.currentThread().getStackTrace();
             for (int i = 0; i < stack.length; i++) {
-                LOG.info(
+                LOGGER.info(
                         stack[i].getClassName() + "." + stack[i].getMethodName() + " line:" + stack[i].getLineNumber());
             }
-            flush(null, true);
             throw new RuntimeException("Writing records to StarRocks failed.", flushException);
         }
     }
@@ -493,15 +510,15 @@ public class StarRocksSinkManager implements Serializable {
                             + Arrays.asList(flinkSchema.getFieldNames()).stream().collect(Collectors.joining(","))
                             + "\n realTab[" + rows.size() + "]:"
                             + rows.stream().map((r) -> String.valueOf(r.get("COLUMN_NAME")))
-                                    .collect(Collectors.joining(",")));
+                            .collect(Collectors.joining(",")));
         }
         List<TableColumn> flinkCols = flinkSchema.getTableColumns();
         for (int i = 0; i < rows.size(); i++) {
             String starrocksField = rows.get(i).get("COLUMN_NAME").toString().toLowerCase();
             String starrocksType = rows.get(i).get("DATA_TYPE").toString().toLowerCase();
             List<TableColumn> matchedFlinkCols = flinkCols.stream()
-                    .filter(col -> col.getName().toLowerCase().equals(starrocksField)
-                            && (!typesMap.containsKey(starrocksType) || typesMap.get(starrocksType)
+                    .filter(col -> col.getName().toLowerCase().equals(starrocksField) && (
+                            !typesMap.containsKey(starrocksType) || typesMap.get(starrocksType)
                                     .contains(col.getType().getLogicalType().getTypeRoot())))
                     .collect(Collectors.toList());
             if (matchedFlinkCols.isEmpty()) {
@@ -529,7 +546,7 @@ public class StarRocksSinkManager implements Serializable {
                     long longValue = Long.parseLong(val.toString());
                     counter.inc(longValue);
                 } catch (Exception e) {
-                    LOG.warn("Parse stream load result metric error", e);
+                    LOGGER.warn("Parse stream load result metric error", e);
                 }
             }
         }
@@ -543,7 +560,7 @@ public class StarRocksSinkManager implements Serializable {
                     long longValue = Long.parseLong(val.toString());
                     histogram.update(longValue);
                 } catch (Exception e) {
-                    LOG.warn("Parse stream load result metric error", e);
+                    LOGGER.warn("Parse stream load result metric error", e);
                 }
             }
         }

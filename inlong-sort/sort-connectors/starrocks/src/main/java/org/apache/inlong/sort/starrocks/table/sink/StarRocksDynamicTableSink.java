@@ -35,7 +35,6 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
     private final String sinkMultipleFormat;
     private final String databasePattern;
     private final String tablePattern;
-    private final boolean ignoreSingleTableErrors;
     private final String inlongMetric;
     private final String auditHostAndPorts;
     private final SchemaUpdateExceptionPolicy schemaUpdatePolicy;
@@ -46,7 +45,6 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
             String sinkMultipleFormat,
             String databasePattern,
             String tablePattern,
-            boolean ignoreSingleTableErrors,
             String inlongMetric,
             String auditHostAndPorts,
             SchemaUpdateExceptionPolicy schemaUpdatePolicy) {
@@ -56,7 +54,6 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
         this.sinkMultipleFormat = sinkMultipleFormat;
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
-        this.ignoreSingleTableErrors = ignoreSingleTableErrors;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.schemaUpdatePolicy = schemaUpdatePolicy;
@@ -78,7 +75,6 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
                 sinkMultipleFormat,
                 databasePattern,
                 tablePattern,
-                ignoreSingleTableErrors,
                 inlongMetric,
                 auditHostAndPorts,
                 schemaUpdatePolicy);
@@ -93,7 +89,6 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
                 sinkMultipleFormat,
                 databasePattern,
                 tablePattern,
-                ignoreSingleTableErrors,
                 inlongMetric,
                 auditHostAndPorts,
                 schemaUpdatePolicy);

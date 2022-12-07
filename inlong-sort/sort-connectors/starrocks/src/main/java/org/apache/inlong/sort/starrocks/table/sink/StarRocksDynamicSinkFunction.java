@@ -84,7 +84,9 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
     private static final String COUNTER_INVOKE_ROWS_COST_TIME = "totalInvokeRowsTimeNs";
     private static final String COUNTER_INVOKE_ROWS = "totalInvokeRows";
 
-    // state only works with `StarRocksSinkSemantic.EXACTLY_ONCE`
+    /**
+     * state only works with `StarRocksSinkSemantic.EXACTLY_ONCE`
+     */
     private transient ListState<Map<String, StarRocksSinkBufferEntity>> checkpointedState;
 
     private final boolean multipleSink;
@@ -100,17 +102,23 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
 
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
 
-    public StarRocksDynamicSinkFunction(StarRocksSinkOptions sinkOptions, TableSchema schema,
-            StarRocksIRowTransformer<T> rowTransformer, boolean multipleSink, String sinkMultipleFormat,
-            String databasePattern, String tablePattern, boolean ignoreSingleTableErrors, String inlongMetric,
-            String auditHostAndPorts, SchemaUpdateExceptionPolicy schemaUpdatePolicy) {
+    public StarRocksDynamicSinkFunction(StarRocksSinkOptions sinkOptions,
+            TableSchema schema,
+            StarRocksIRowTransformer<T> rowTransformer,
+            boolean multipleSink,
+            String sinkMultipleFormat,
+            String databasePattern,
+            String tablePattern,
+            String inlongMetric,
+            String auditHostAndPorts,
+            SchemaUpdateExceptionPolicy schemaUpdatePolicy) {
         StarRocksJdbcConnectionOptions jdbcOptions = new StarRocksJdbcConnectionOptions(sinkOptions.getJdbcUrl(),
                 sinkOptions.getUsername(), sinkOptions.getPassword());
         StarRocksJdbcConnectionProvider jdbcConnProvider = new StarRocksJdbcConnectionProvider(jdbcOptions);
         StarRocksQueryVisitor starrocksQueryVisitor = new StarRocksQueryVisitor(jdbcConnProvider,
                 sinkOptions.getDatabaseName(), sinkOptions.getTableName());
         this.sinkManager = new StarRocksSinkManager(sinkOptions, schema, jdbcConnProvider, starrocksQueryVisitor,
-                multipleSink, ignoreSingleTableErrors, schemaUpdatePolicy);
+                multipleSink, schemaUpdatePolicy);
 
         rowTransformer.setStarRocksColumns(starrocksQueryVisitor.getFieldMapping());
         rowTransformer.setTableSchema(schema);
@@ -287,7 +295,7 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
         }
         ListStateDescriptor<Map<String, StarRocksSinkBufferEntity>> descriptor = new ListStateDescriptor<>(
                 "buffered-rows", TypeInformation.of(new TypeHint<Map<String, StarRocksSinkBufferEntity>>() {
-                }));
+        }));
         checkpointedState = context.getOperatorStateStore().getListState(descriptor);
     }
 
@@ -307,9 +315,9 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
         sinkManager.flush(null, true);
     }
 
-    // @Override
+    //@Override
     public synchronized void finish() throws Exception {
-        // super.finish();
+        //super.finish();
         LOG.info("StarRocks sink is draining the remaining data.");
         if (StarRocksSinkSemantic.EXACTLY_ONCE.equals(sinkOptions.getSemantic())) {
             flushPreviousState();
