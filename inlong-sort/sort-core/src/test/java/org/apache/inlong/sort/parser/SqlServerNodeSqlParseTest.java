@@ -128,10 +128,9 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo()))
-                );
+                                new FieldInfo("name", new StringFormatInfo())));
         Map<String, String> properties = new LinkedHashMap<>();
         properties.put("dirty.side-output.connector", "log");
         properties.put("dirty.ignore", "true");
