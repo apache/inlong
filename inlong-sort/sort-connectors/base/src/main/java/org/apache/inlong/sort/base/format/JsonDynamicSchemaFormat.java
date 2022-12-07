@@ -103,7 +103,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
                     .put(java.sql.Types.DATE, new DateType())
                     .put(java.sql.Types.BOOLEAN, new BooleanType())
                     .put(java.sql.Types.LONGNVARCHAR, new VarCharType())
-                    .put(java.sql.Types.LONGVARBINARY , new VarCharType())
+                    .put(java.sql.Types.LONGVARBINARY, new VarCharType())
                     .put(java.sql.Types.LONGVARCHAR, new VarCharType())
                     .put(java.sql.Types.REAL, new FloatType())
                     .put(java.sql.Types.ARRAY, new VarCharType())
