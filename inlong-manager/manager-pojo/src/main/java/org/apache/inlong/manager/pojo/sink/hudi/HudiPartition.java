@@ -15,19 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.consts;
+package org.apache.inlong.manager.pojo.sink.hudi;
+
+import org.apache.inlong.manager.common.util.Preconditions;
 
 /**
- * Constants of data node.
+ * Hudi partition type
  */
-public class DataNodeType {
+public enum HudiPartition {
 
-    public static final String HIVE = "HIVE";
-    public static final String KAFKA = "KAFKA";
-    public static final String ICEBERG = "ICEBERG";
-    public static final String HUDI = "HUDI";
-    public static final String CLICKHOUSE = "CLICKHOUSE";
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
-    public static final String MYSQL = "MYSQL";
+    IDENTITY,
+    BUCKET,
+    TRUNCATE,
+    YEAR,
+    MONTH,
+    DAY,
+    HOUR,
+    NONE,
+    ;
 
+    /**
+     * Get partition type from name
+     */
+    public static HudiPartition forName(String name) {
+        Preconditions.checkNotNull(name, "HudiPartition should not be null");
+        for (HudiPartition value : values()) {
+            if (value.toString().equalsIgnoreCase(name)) {
+                return value;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupported HudiPartition : %s", name));
+    }
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }

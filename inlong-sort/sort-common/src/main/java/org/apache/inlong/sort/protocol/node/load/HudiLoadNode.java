@@ -35,12 +35,15 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
-import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
+import org.apache.inlong.sort.protocol.constant.HudiConstant.CatalogType;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
+/**
+ * The load node of hudi.
+ */
 @JsonTypeName("hudiLoad")
 @Data
 @NoArgsConstructor
@@ -48,6 +51,8 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable {
 
     private static final long serialVersionUID = -1L;
+
+    public static final String ENABLE_CODE = "true";
 
     private static final String HUDI_OPTION_HIVE_SYNC_ENABLED = "hive_sync.enabled";
     private static final String HUDI_OPTION_HIVE_SYNC_DB = "hive_sync.db";
@@ -59,9 +64,11 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
     private static final String HUDI_OPTION_DEFAULT_PATH = "path";
     private static final String HUDI_OPTION_DATABASE_NAME = "hoodie.database.name";
     private static final String HUDI_OPTION_TABLE_NAME = "hoodie.table.name";
-    private static final String HUDI_OPTION_RECORDKEY_FIELD_NAME = "hoodie.datasource.write.recordkey.field";
-    private static final String HUDI_OPTION_PARTITIONPATH_FIELD_NAME = "hoodie.datasource.write.partitionpath.field";
-    private static final String DDL_ATTRIBUTE_HUDI = "hudi.";
+    private static final String HUDI_OPTION_RECORD_KEY_FIELD_NAME = "hoodie.datasource.write.recordkey.field";
+    private static final String HUDI_OPTION_PARTITION_PATH_FIELD_NAME = "hoodie.datasource.write.partitionpath.field";
+    private static final String DDL_ATTR_PREFIX = "ddl.";
+    private static final String EXTEND_ATTR_KEY_NAME = "keyName";
+    private static final String EXTEND_ATTR_VALUE_NAME = "keyValue";
 
     @JsonProperty("tableName")
     @Nonnull
@@ -122,7 +129,9 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
 
-        options.put(HUDI_OPTION_HIVE_SYNC_ENABLED, "true");
+        // Synchronization to Metastore is enabled by default,
+        // which can be modified in the front-end configuration
+        options.put(HUDI_OPTION_HIVE_SYNC_ENABLED, ENABLE_CODE);
         options.put(HUDI_OPTION_HIVE_SYNC_MODE, HUDI_OPTION_HIVE_SYNC_MODE_HMS_VALUE);
         options.put(HUDI_OPTION_HIVE_SYNC_DB, dbName);
         options.put(HUDI_OPTION_HIVE_SYNC_TABLE, tableName);
@@ -134,14 +143,18 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
                     partitionFields.stream()
                             .map(FieldInfo::getName)
                             .collect(Collectors.joining(","));
-            options.put(HUDI_OPTION_PARTITIONPATH_FIELD_NAME, partitionKey);
+            options.put(HUDI_OPTION_PARTITION_PATH_FIELD_NAME, partitionKey);
         }
 
+        // If the extend attributes starts with .ddl,
+        // it will be passed to the ddl statement of the table
         extList.forEach(ext -> {
-            String keyName = ext.get("keyName");
+            String keyName = ext.get(EXTEND_ATTR_KEY_NAME);
             if (StringUtils.isNoneBlank(keyName) &&
-                    keyName.startsWith(DDL_ATTRIBUTE_HUDI)) {
-                options.put(keyName, ext.get("keyValue"));
+                    keyName.startsWith(DDL_ATTR_PREFIX)) {
+                String ddlKeyName = keyName.substring(DDL_ATTR_PREFIX.length());
+                String ddlValue = ext.get(EXTEND_ATTR_VALUE_NAME);
+                options.put(ddlKeyName, ddlValue);
             }
         });
 
@@ -150,7 +163,7 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
 
         options.put(HUDI_OPTION_DATABASE_NAME, dbName);
         options.put(HUDI_OPTION_TABLE_NAME, tableName);
-        options.put(HUDI_OPTION_RECORDKEY_FIELD_NAME, primaryKey);
+        options.put(HUDI_OPTION_RECORD_KEY_FIELD_NAME, primaryKey);
         options.put("connector", "hudi-inlong");
 
         return options;

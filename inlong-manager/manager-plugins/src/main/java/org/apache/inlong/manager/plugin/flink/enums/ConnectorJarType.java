@@ -71,6 +71,8 @@ public enum ConnectorJarType {
 
     ICEBERG_SINK("icebergLoad", "iceberg"),
 
+    HUDI_SINK("hudiLoad", "hudi"),
+
     HDFS_SINK("fileSystemLoad", ""),
 
     ;

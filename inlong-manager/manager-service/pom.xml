@@ -557,5 +557,9 @@
             <artifactId>flink-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hudi</groupId>
+            <artifactId>hudi-flink1.13-bundle</artifactId>
+        </dependency>
     </dependencies>
 </project>

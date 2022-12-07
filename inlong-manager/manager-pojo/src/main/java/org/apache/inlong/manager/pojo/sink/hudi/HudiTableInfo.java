@@ -15,19 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.consts;
+package org.apache.inlong.manager.pojo.sink.hudi;
+
+import java.util.List;
+import java.util.Map;
+import lombok.Data;
 
 /**
- * Constants of data node.
+ * Hudi table info
  */
-public class DataNodeType {
+@Data
+public class HudiTableInfo {
 
-    public static final String HIVE = "HIVE";
-    public static final String KAFKA = "KAFKA";
-    public static final String ICEBERG = "ICEBERG";
-    public static final String HUDI = "HUDI";
-    public static final String CLICKHOUSE = "CLICKHOUSE";
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
-    public static final String MYSQL = "MYSQL";
+    private String dbName;
+    private String tableName;
+    private String tableDesc;
+    private String fileFormat;
+    private Map<String, Object> tblProperties;
+    private List<HudiColumnInfo> columns;
 
+    private String primaryKey;
 }
