@@ -120,7 +120,9 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         int id = sinkOperator.saveOpt(request, operator);
         boolean streamSuccess = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus());
         if (streamSuccess || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus())) {
-            SinkStatus nextStatus = SinkStatus.CONFIG_ING;
+            boolean enableCreateResource = InlongConstants.ENABLE_CREATE_RESOURCE.equals(
+                    request.getEnableCreateResource());
+            SinkStatus nextStatus = enableCreateResource ? SinkStatus.CONFIG_ING : SinkStatus.CONFIG_SUCCESSFUL;
             StreamSinkEntity sinkEntity = sinkMapper.selectByPrimaryKey(id);
             sinkEntity.setStatus(nextStatus.getCode());
             sinkMapper.updateStatus(sinkEntity);
@@ -246,7 +248,9 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         SinkStatus nextStatus = null;
         boolean streamSuccess = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus());
         if (streamSuccess || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus())) {
-            nextStatus = SinkStatus.CONFIG_ING;
+            boolean enableCreateResource = InlongConstants.ENABLE_CREATE_RESOURCE.equals(
+                    request.getEnableCreateResource());
+            nextStatus = enableCreateResource ? SinkStatus.CONFIG_ING : SinkStatus.CONFIG_SUCCESSFUL;
         }
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
         sinkOperator.updateOpt(request, nextStatus, operator);
