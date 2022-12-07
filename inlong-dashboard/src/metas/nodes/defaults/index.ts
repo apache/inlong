@@ -37,6 +37,11 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     LoadEntity: () => import('./Hive'),
   },
   {
+    label: 'Iceberg',
+    value: 'ICEBERG',
+    LoadEntity: () => import('./Iceberg'),
+  },
+  {
     label: 'MySQL',
     value: 'MYSQL',
     LoadEntity: () => import('./MySQL'),
