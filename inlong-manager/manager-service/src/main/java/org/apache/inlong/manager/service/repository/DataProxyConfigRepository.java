@@ -94,7 +94,6 @@ public class DataProxyConfigRepository implements IRepository {
             .withKeyValueSeparator(KEY_VALUE_SEPARATOR);
     public static final String CACHE_CLUSTER_PRODUCER_TAG = "producer";
     public static final String CACHE_CLUSTER_CONSUMER_TAG = "consumer";
-    public static final String DEFAULT_EXT_TAG = "default=true";
     private static final Gson GSON = new Gson();
 
     // key: proxyClusterName, value: jsonString
@@ -246,7 +245,7 @@ public class DataProxyConfigRepository implements IRepository {
         Map<String, Map<String, List<CacheCluster>>> cacheClusterMap = new HashMap<>();
         for (CacheCluster cacheCluster : clusterSetMapper.selectCacheCluster()) {
             if (StringUtils.isEmpty(cacheCluster.getExtTag())) {
-                cacheCluster.setExtTag(DEFAULT_EXT_TAG);
+                continue;
             }
             Map<String, String> tagMap = MAP_SPLITTER.split(cacheCluster.getExtTag());
             String producerTag = tagMap.getOrDefault(CACHE_CLUSTER_PRODUCER_TAG, Boolean.TRUE.toString());
@@ -264,12 +263,11 @@ public class DataProxyConfigRepository implements IRepository {
             String clusterTag = proxyObj.getSetName();
             String extTag = proxyObj.getZone();
             if (StringUtils.isEmpty(extTag)) {
-                extTag = DEFAULT_EXT_TAG;
+                continue;
             }
             Map<String, List<CacheCluster>> cacheClusterZoneMap = cacheClusterMap.get(clusterTag);
             if (cacheClusterZoneMap != null) {
-                String finalExtTag = extTag;
-                Map<String, String> subTagMap = tagCache.computeIfAbsent(extTag, k -> MAP_SPLITTER.split(finalExtTag));
+                Map<String, String> subTagMap = tagCache.computeIfAbsent(extTag, k -> MAP_SPLITTER.split(extTag));
                 for (Entry<String, List<CacheCluster>> cacheEntry : cacheClusterZoneMap.entrySet()) {
                     if (cacheEntry.getValue().size() == 0) {
                         continue;

@@ -144,6 +144,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 ConfigConstants.PROXY_CLUSTER_NAME, DEFAULT_CLUSTER_NAME));
         heartbeatMsg.setInCharges(commonProperties.getOrDefault(
                 ConfigConstants.PROXY_CLUSTER_INCHARGES, DEFAULT_CLUSTER_INCHARGES));
+        heartbeatMsg.setClusterExtTag(commonProperties.get(ConfigConstants.PROXY_CLUSTER_EXT_TAG));
 
         Map<String, String> groupIdMappings = configManager.getGroupIdMappingProperties();
         Map<String, Map<String, String>> streamIdMappings = configManager.getStreamIdMappingProperties();
