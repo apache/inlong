@@ -643,6 +643,10 @@ public final class RowDataDebeziumDeserializeSchema
                 Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
                 fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
                 break;
+            case MicroTimestamp.SCHEMA_NAME:
+                instantTime = Instant.ofEpochMilli((Long) fieldValue / 1000);
+                fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
+                break;
             case Decimal.LOGICAL_NAME:
                 // no need to transfer decimal type since the value is already decimal
                 break;
