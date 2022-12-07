@@ -46,6 +46,9 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * A demo of transferring data between PostgreSQL Server and other database, using postgres-cdc-inlong connector.
+ */
 public class AllMigratePostgreSQLTest {
 
     private PostgresExtractNode buildAllMigrateExtractNode() {

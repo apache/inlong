@@ -104,6 +104,9 @@ public enum PostgreSQLReadableMetaData {
         }
     }),
 
+    /**
+     * It indicates the data streams with canal-json format.
+     */
     DATA("meta.data", DataTypes.STRING(), new MetadataConverter() {
 
         private static final long serialVersionUID = 1L;
@@ -119,6 +122,9 @@ public enum PostgreSQLReadableMetaData {
         }
     }),
 
+    /**
+     * It indicates the data streams with canal-json format.
+     */
     DATA_CANAL("meta.data_canal", DataTypes.STRING(), new MetadataConverter() {
 
         private static final long serialVersionUID = 1L;
@@ -134,6 +140,9 @@ public enum PostgreSQLReadableMetaData {
         }
     }),
 
+    /**
+     * It indicates the data streams with debezium-json format.
+     */
     DATA_DEBEZIUM("meta.data_debezium", DataTypes.STRING(), new MetadataConverter() {
 
         private static final long serialVersionUID = 1L;
@@ -283,33 +292,9 @@ public enum PostgreSQLReadableMetaData {
                 }
             }),
 
-    MYSQL_TYPE("meta.mysql_type",
-            DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable()).nullable(),
-            new MetadataConverter() {
-
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public Object read(SourceRecord record) {
-                    return null;
-                }
-
-                @Override
-                public Object read(SourceRecord record, @Nullable TableChange tableSchema) {
-                    if (tableSchema == null) {
-                        return null;
-                    }
-                    Map<StringData, StringData> mysqlType = new HashMap<>();
-                    final Table table = tableSchema.getTable();
-                    table.columns().forEach(column -> {
-                        mysqlType.put(StringData.fromString(column.name()),
-                                StringData.fromString(String.format("%s(%d)", column.typeName(), column.length())));
-                    });
-
-                    return new GenericMapData(mysqlType);
-                }
-            }),
-
+    /**
+     * Primary keys of the table
+     */
     PK_NAMES("meta.pk_names", DataTypes.ARRAY(DataTypes.STRING().nullable()).nullable(), new MetadataConverter() {
 
         private static final long serialVersionUID = 1L;
@@ -329,6 +314,9 @@ public enum PostgreSQLReadableMetaData {
         }
     }),
 
+    /**
+     * The sql which generate the data change stream. Not implement yet.
+     */
     SQL("meta.sql", DataTypes.STRING().nullable(), new MetadataConverter() {
 
         private static final long serialVersionUID = 1L;
@@ -339,6 +327,9 @@ public enum PostgreSQLReadableMetaData {
         }
     }),
 
+    /**
+     * The PostgreSQL column type
+     */
     SQL_TYPE("meta.sql_type", DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.INT().nullable()).nullable(),
             new MetadataConverter() {
 
@@ -351,19 +342,23 @@ public enum PostgreSQLReadableMetaData {
 
                 @Override
                 public Object read(SourceRecord record, @Nullable TableChange tableSchema) {
-                    if (tableSchema == null) {
-                        return null;
-                    }
-                    Map<StringData, Integer> mysqlType = new HashMap<>();
+
+                    Map<StringData, Integer> postgresType = new HashMap<>();
                     final Table table = tableSchema.getTable();
                     table.columns().forEach(column -> {
-                        mysqlType.put(StringData.fromString(column.name()), column.jdbcType());
+                        postgresType.put(StringData.fromString(column.name()), column.jdbcType());
                     });
 
-                    return new GenericMapData(mysqlType);
+                    return new GenericMapData(postgresType);
                 }
             }),
 
+    /**
+     * It indicates the time that the change was made in the database. If the record is read from
+     * snapshot of the table instead of the binlog, the value is always 0.
+     *
+     * Used when data stream is debezium json format.
+     */
     TS("meta.ts", DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(), new MetadataConverter() {
 
         private static final long serialVersionUID = 1L;
@@ -375,6 +370,14 @@ public enum PostgreSQLReadableMetaData {
         }
     });
 
+    /**
+     * Generate a canal json message
+     *
+     * @param record
+     * @param tableSchema
+     * @param rowData
+     * @return
+     */
     private static StringData getCanalData(SourceRecord record, TableChange tableSchema, GenericRowData rowData) {
         // construct canal json
         Struct messageStruct = (Struct) record.value();
@@ -420,6 +423,12 @@ public enum PostgreSQLReadableMetaData {
         this.converter = converter;
     }
 
+    /**
+     * convert debezium operation to canal-json operation type
+     *
+     * @param record
+     * @return
+     */
     private static String getOpType(SourceRecord record) {
         String opType;
         final Envelope.Operation op = Envelope.operationFor(record);
@@ -433,6 +442,12 @@ public enum PostgreSQLReadableMetaData {
         return opType;
     }
 
+    /**
+     * get primary key names
+     *
+     * @param tableSchema
+     * @return
+     */
     private static List<String> getPkNames(@Nullable TableChange tableSchema) {
         if (tableSchema == null) {
             return null;
@@ -440,18 +455,30 @@ public enum PostgreSQLReadableMetaData {
         return tableSchema.getTable().primaryKeyColumnNames();
     }
 
+    /**
+     * get a map about column name and type
+     *
+     * @param tableSchema
+     * @return
+     */
     public static Map<String, Integer> getSqlType(@Nullable TableChange tableSchema) {
         if (tableSchema == null) {
             return null;
         }
-        Map<String, Integer> mysqlType = new LinkedHashMap<>();
+        Map<String, Integer> postgresType = new LinkedHashMap<>();
         final Table table = tableSchema.getTable();
         table.columns().forEach(column -> {
-            mysqlType.put(column.name(), column.jdbcType());
+            postgresType.put(column.name(), column.jdbcType());
         });
-        return mysqlType;
+        return postgresType;
     }
 
+    /**
+     * convert debezium operation to debezium-json operation type
+     *
+     * @param record
+     * @return
+     */
     private static String getDebeziumOpType(SourceRecord record) {
         String opType;
         final Envelope.Operation op = Envelope.operationFor(record);
@@ -465,6 +492,13 @@ public enum PostgreSQLReadableMetaData {
         return opType;
     }
 
+    /**
+     * get meta info from debezium-json data stream
+     *
+     * @param record
+     * @param tableNameKey
+     * @return
+     */
     private static String getMetaData(SourceRecord record, String tableNameKey) {
         Struct messageStruct = (Struct) record.value();
         Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);

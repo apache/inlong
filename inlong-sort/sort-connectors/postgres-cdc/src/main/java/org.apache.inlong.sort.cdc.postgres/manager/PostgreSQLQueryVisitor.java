@@ -33,6 +33,9 @@ import org.apache.inlong.sort.cdc.postgres.table.PostgreSQLDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * JDBC query tool to query meta info or data from PostgreSQL Server
+ */
 public class PostgreSQLQueryVisitor implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -45,6 +48,13 @@ public class PostgreSQLQueryVisitor implements Serializable {
         this.jdbcConnProvider = jdbcConnProvider;
     }
 
+    /**
+     * query PostgreSQL table meta data, such as column name, data type, constraint type, etc.
+     *
+     * @param schema
+     * @param table
+     * @return
+     */
     public List<Map<String, Object>> getTableColumnsMetaData(String schema, String table) {
         try {
             String query = "SELECT ordinal_position, tab_columns.column_name, data_type, character_maximum_length,\n"
@@ -76,6 +86,13 @@ public class PostgreSQLQueryVisitor implements Serializable {
         }
     }
 
+    /**
+     * get a map which key is column name and value is {@link PostgreSQLDataType}
+     *
+     * @param schema
+     * @param table
+     * @return
+     */
     public Map<String, PostgreSQLDataType> getFieldMapping(String schema, String table) {
         List<Map<String, Object>> columns = getTableColumnsMetaData(schema, table);
 
@@ -88,8 +105,13 @@ public class PostgreSQLQueryVisitor implements Serializable {
         return mapping;
     }
 
+    /**
+     * query PostgreSQL server version
+     *
+     * @return
+     */
     public String getPostgreSQLVersion() {
-        final String query = "select current_version() as ver;";
+        final String query = "select version() as ver;";
         List<Map<String, Object>> rows;
         try {
             if (LOG.isDebugEnabled()) {
@@ -109,6 +131,15 @@ public class PostgreSQLQueryVisitor implements Serializable {
         }
     }
 
+    /**
+     * execute sql and return result set
+     *
+     * @param query
+     * @param args
+     * @return
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     private List<Map<String, Object>> executeQuery(String query, String... args)
             throws ClassNotFoundException, SQLException {
         PreparedStatement stmt = jdbcConnProvider.getConnection()
@@ -136,6 +167,12 @@ public class PostgreSQLQueryVisitor implements Serializable {
         return list;
     }
 
+    /**
+     * execute sql query and return result count
+     *
+     * @param sql
+     * @return
+     */
     public Long getQueryCount(String sql) {
         Long count = 0L;
         try {
