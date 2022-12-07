@@ -39,7 +39,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "StarRocks sink info")
-@JsonTypeDefine(value = SinkType.DORIS)
+@JsonTypeDefine(value = SinkType.STARROCKS)
 public class StarRocksSink extends StreamSink {
 
     @ApiModelProperty("StarRocks jdbc url")

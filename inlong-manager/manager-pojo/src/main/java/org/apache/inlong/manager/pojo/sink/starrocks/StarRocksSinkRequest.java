@@ -33,7 +33,7 @@ import org.apache.inlong.manager.pojo.sink.SinkRequest;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "StarRocks sink request")
-@JsonTypeDefine(value = SinkType.DORIS)
+@JsonTypeDefine(value = SinkType.STARROCKS)
 public class StarRocksSinkRequest extends SinkRequest {
 
     @ApiModelProperty("StarRocks jdbc url")
