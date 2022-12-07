@@ -87,7 +87,6 @@ public class StarRocksSinkManager implements Serializable {
     private transient Histogram writeDataTimeMs;
     private transient Histogram loadTimeMs;
 
-
     private static final String COUNTER_TOTAL_FLUSH_BYTES = "totalFlushBytes";
     private static final String COUNTER_TOTAL_FLUSH_ROWS = "totalFlushRows";
     private static final String COUNTER_TOTAL_FLUSH_COST_TIME_WITHOUT_RETRIES = "totalFlushTimeNsWithoutRetries";
@@ -168,8 +167,7 @@ public class StarRocksSinkManager implements Serializable {
         this.starrocksStreamLoadVisitor = new StarRocksStreamLoadVisitor(
                 sinkOptions,
                 null == schema ? new String[]{} : schema.getFieldNames(),
-                version.length() > 0 && !version.trim().startsWith("1.")
-        );
+                version.length() > 0 && !version.trim().startsWith("1."));
     }
 
     public void setRuntimeContext(RuntimeContext runtimeCtx) {
@@ -273,8 +271,9 @@ public class StarRocksSinkManager implements Serializable {
             }
             if (bufferEntity.getBatchCount() >= sinkOptions.getSinkMaxRows()
                     || bufferEntity.getBatchSize() >= sinkOptions.getSinkMaxBytes()) {
-                LOGGER.info(String.format("StarRocks buffer Sinking triggered: db: [%s] table: [%s] rows[%d] label[%s].",
-                        database, table, bufferEntity.getBatchCount(), bufferEntity.getLabel()));
+                LOGGER.info(
+                        String.format("StarRocks buffer Sinking triggered: db: [%s] table: [%s] rows[%d] label[%s].",
+                                database, table, bufferEntity.getBatchCount(), bufferEntity.getLabel()));
                 flush(bufferKey, false);
             }
         } catch (Exception e) {
@@ -365,8 +364,9 @@ public class StarRocksSinkManager implements Serializable {
 
         if (SchemaUpdateExceptionPolicy.STOP_PARTIAL == schemaUpdatePolicy && ignoreWriteTables.contains(
                 tableIdentifier)) {
-            LOGGER.warn(String.format("Stop writing to db[%s] table[%s] because of former errors and stop_partial policy",
-                    flushData.getDatabase(), flushData.getTable()));
+            LOGGER.warn(
+                    String.format("Stop writing to db[%s] table[%s] because of former errors and stop_partial policy",
+                            flushData.getDatabase(), flushData.getTable()));
             return true;
         }
 
@@ -510,15 +510,15 @@ public class StarRocksSinkManager implements Serializable {
                             + Arrays.asList(flinkSchema.getFieldNames()).stream().collect(Collectors.joining(","))
                             + "\n realTab[" + rows.size() + "]:"
                             + rows.stream().map((r) -> String.valueOf(r.get("COLUMN_NAME")))
-                            .collect(Collectors.joining(",")));
+                                    .collect(Collectors.joining(",")));
         }
         List<TableColumn> flinkCols = flinkSchema.getTableColumns();
         for (int i = 0; i < rows.size(); i++) {
             String starrocksField = rows.get(i).get("COLUMN_NAME").toString().toLowerCase();
             String starrocksType = rows.get(i).get("DATA_TYPE").toString().toLowerCase();
             List<TableColumn> matchedFlinkCols = flinkCols.stream()
-                    .filter(col -> col.getName().toLowerCase().equals(starrocksField) && (
-                            !typesMap.containsKey(starrocksType) || typesMap.get(starrocksType)
+                    .filter(col -> col.getName().toLowerCase().equals(starrocksField)
+                            && (!typesMap.containsKey(starrocksType) || typesMap.get(starrocksType)
                                     .contains(col.getType().getLogicalType().getTypeRoot())))
                     .collect(Collectors.toList());
             if (matchedFlinkCols.isEmpty()) {

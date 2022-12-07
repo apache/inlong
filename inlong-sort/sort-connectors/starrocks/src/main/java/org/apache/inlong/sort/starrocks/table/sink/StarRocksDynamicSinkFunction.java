@@ -295,7 +295,7 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
         }
         ListStateDescriptor<Map<String, StarRocksSinkBufferEntity>> descriptor = new ListStateDescriptor<>(
                 "buffered-rows", TypeInformation.of(new TypeHint<Map<String, StarRocksSinkBufferEntity>>() {
-        }));
+                }));
         checkpointedState = context.getOperatorStateStore().getListState(descriptor);
     }
 
@@ -315,9 +315,9 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
         sinkManager.flush(null, true);
     }
 
-    //@Override
+    // @Override
     public synchronized void finish() throws Exception {
-        //super.finish();
+        // super.finish();
         LOG.info("StarRocks sink is draining the remaining data.");
         if (StarRocksSinkSemantic.EXACTLY_ONCE.equals(sinkOptions.getSemantic())) {
             flushPreviousState();
