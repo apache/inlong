@@ -108,12 +108,18 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
                                     + "to stream events to the connector that you are configuring. Default is "
                                     + "\"flink\".");
 
+    /**
+     * The session time zone in database server.
+     */
     public static final ConfigOption<String> SERVER_TIME_ZONE =
             ConfigOptions.key("server-time-zone")
                     .stringType()
                     .defaultValue("UTC")
                     .withDescription("The session time zone in database server.");
 
+    /**
+     * row kinds to be filtered
+     */
     public static final ConfigOption<String> ROW_KINDS_FILTERED =
             ConfigOptions.key("row-kinds-filtered")
                     .stringType()
@@ -126,6 +132,9 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
                             + "\"+U\" represents UPDATE_AFTER.\n"
                             + "\"-D\" represents DELETE.");
 
+    /**
+     * Whether works as append source.
+     */
     public static final ConfigOption<Boolean> APPEND_MODE =
             ConfigOptions.key("append-mode")
                     .booleanType()

@@ -30,6 +30,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+/**
+ * A implementation for {@link TableEditor} interface, which will used by {@link TableImpl} to create a {@link
+ * TableEditor} object.
+ */
 public class TableEditorImpl implements TableEditor {
 
     private TableId id;

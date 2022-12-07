@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
 import io.debezium.annotation.PackagePrivate;
 import io.debezium.util.Strings;
 
+/**
+ * A implementation class of {@link Table} interface, which can be used to instantiate a {@link TableImpl} object.
+ */
 public final class TableImpl implements Table {
 
     private final TableId id;

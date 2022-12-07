@@ -20,6 +20,7 @@ package org.apache.inlong.sort.cdc.postgres.debezium.internal;
 
 import io.debezium.relational.Column;
 import io.debezium.relational.ColumnEditor;
+import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +28,9 @@ import java.util.Optional;
 
 import io.debezium.util.Strings;
 
+/**
+ * A implementation class of {@link Column}, which can used by {@link TableChange}
+ */
 public final class ColumnImpl implements Column, Comparable<Column> {
 
     private final String name;
@@ -177,7 +181,7 @@ public final class ColumnImpl implements Column, Comparable<Column> {
             return this.name().equalsIgnoreCase(that.name()) && this.typeExpression()
                     .equalsIgnoreCase(that.typeExpression()) && this.typeName().equalsIgnoreCase(that.typeName())
                     && this.jdbcType() == that.jdbcType() && Strings.equalsIgnoreCase(this.charsetName(),
-                            that.charsetName())
+                    that.charsetName())
                     && this.position() == that.position() && this.length() == that.length()
                     && this.scale().equals(that.scale()) && this.isOptional() == that.isOptional()
                     && this.isAutoIncremented() == that.isAutoIncremented() && this.isGenerated() == that.isGenerated()
