@@ -30,8 +30,8 @@ import StatusTag from '@/components/StatusTag';
 const { Panel } = Collapse;
 
 export interface Props extends ModalProps {
-  inlongGroupId?: string;
-  inlongStreamId: string;
+  inlongGroupId: string;
+  inlongStreamId?: string;
 }
 
 const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps }) => {
@@ -47,9 +47,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
       url: '/workflow/listTaskLogs',
       params: {
         ...options,
-        inlongGroupId: inlongGroupId,
-        inlongStreamId: inlongStreamId,
-        processNames: 'CREATE_STREAM_RESOURCE',
+        inlongGroupId,
+        inlongStreamId,
+        processNames: inlongStreamId ? 'CREATE_STREAM_RESOURCE' : 'CREATE_GROUP_RESOURCE',
         taskType: 'ServiceTask',
       },
     },
