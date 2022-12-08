@@ -78,7 +78,7 @@ public class HbaseLoadFlinkSqlParseTest extends AbstractTestBase {
         properties.put("dirty.side-output.enable", "true");
         properties.put("dirty.side-output.format", "csv");
         properties.put("dirty.side-output.labels",
-                "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=inlong&table=inlong_iceberg");
+                "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=default&table=mytable");
         return new HbaseLoadNode("2", "test_hbase",
                 Arrays.asList(new FieldInfo("cf:age", new LongFormatInfo()), new FieldInfo("cf:name",
                         new StringFormatInfo())),
