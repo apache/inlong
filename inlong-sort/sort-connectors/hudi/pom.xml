@@ -29,6 +29,12 @@
     <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-hudi</name>
 
+    <properties>
+        <stax2-api.version>4.2.1</stax2-api.version>
+        <guava.version>31.0.1-jre</guava.version>
+        <woodstox-core.version>5.3.0</woodstox-core.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
@@ -69,17 +75,17 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>31.0.1-jre</version>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.woodstox</groupId>
             <artifactId>woodstox-core</artifactId>
-            <version>5.3.0</version>
+            <version>${woodstox-core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>stax2-api</artifactId>
-            <version>4.2.1</version>
+            <version>${stax2-api.version}</version>
         </dependency>
     </dependencies>
 

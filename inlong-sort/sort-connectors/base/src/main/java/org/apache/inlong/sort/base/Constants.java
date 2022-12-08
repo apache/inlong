@@ -122,8 +122,6 @@ public final class Constants {
 
     public static final String INLONG_METRIC_STATE_NAME = "inlong-metric-states";
 
-    public static final String SORT_CONNECTOR_IDENTIFY_HUDI = "hudi-inlong";
-
     /**
      * It is used for jdbc url filter for avoiding url attack
      * see also in https://su18.org/post/jdbc-connection-url-attack/

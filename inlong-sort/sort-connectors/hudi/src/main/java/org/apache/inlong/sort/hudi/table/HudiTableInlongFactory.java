@@ -19,7 +19,6 @@ package org.apache.inlong.sort.hudi.table;
 
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.base.Constants.SORT_CONNECTOR_IDENTIFY_HUDI;
 
 import java.util.Set;
 import org.apache.flink.configuration.ConfigOption;
@@ -32,6 +31,8 @@ import org.apache.hudi.table.HoodieTableFactory;
  * The DynamicTableSourceFactory and DynamicTableSinkFactory implements for hudi table.
  */
 public class HudiTableInlongFactory extends HoodieTableFactory {
+
+    public static final String SORT_CONNECTOR_IDENTIFY_HUDI = "hudi-inlong";
 
     public HudiTableInlongFactory() {
         super();
