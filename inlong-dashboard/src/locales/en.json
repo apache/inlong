@@ -150,6 +150,7 @@
   "meta.Sinks.ClickHouse.PrimaryKey": "PrimaryKey",
   "meta.Sinks.ClickHouse.CompressionCode": "CompressionCode",
   "meta.Sinks.ClickHouse.TtlExpr": "TtlExpr",
+  "meta.Sinks.ClickHouse.DataNodeName": "DataNode",
   "meta.Sinks.ES.DataNodeName": "DataNode",
   "meta.Sinks.ES.IndexName": "IndexName",
   "meta.Sinks.ES.FlushRecord": "FlushRecord",
