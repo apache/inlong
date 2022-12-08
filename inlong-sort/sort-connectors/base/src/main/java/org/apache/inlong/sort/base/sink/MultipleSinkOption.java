@@ -149,7 +149,6 @@ public class MultipleSinkOption implements Serializable {
             LOG.warn("Ignore table {} schema change: {}.", tableName, tableChange);
             return false;
         }
-
         throw new UnsupportedOperationException(
                 String.format("Unsupported table %s schema change: %s.", tableName, tableChange));
     }

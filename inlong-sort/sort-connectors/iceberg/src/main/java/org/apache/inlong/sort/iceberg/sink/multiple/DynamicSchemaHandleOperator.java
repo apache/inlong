@@ -19,7 +19,6 @@
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.operators.AbstractStreamOperator;
 import org.apache.flink.streaming.api.operators.OneInputStreamOperator;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
@@ -39,6 +38,10 @@ import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
 import org.apache.iceberg.types.Types.NestedField;
+import org.apache.inlong.sort.base.dirty.DirtyData;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
@@ -47,6 +50,7 @@ import org.apache.inlong.sort.base.sink.TableChange.AddColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collections;
@@ -63,10 +67,10 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             OneInputStreamOperator<RowData, RecordWithSchema>,
             ProcessingTimeCallback {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DynamicSchemaHandleOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaHandleOperator.class);
     private static final long HELPER_DEBUG_INTERVEL = 10 * 60 * 1000;
+    private static final long serialVersionUID = 1L;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final CatalogLoader catalogLoader;
     private final MultipleSinkOption multipleSinkOption;
 
@@ -84,18 +88,26 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     // blacklist to filter schema update failed table
     private transient Set<TableIdentifier> blacklist;
 
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
+
     public DynamicSchemaHandleOperator(CatalogLoader catalogLoader,
-            MultipleSinkOption multipleSinkOption) {
+            MultipleSinkOption multipleSinkOption, DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         this.catalogLoader = catalogLoader;
         this.multipleSinkOption = multipleSinkOption;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void open() throws Exception {
         super.open();
         this.catalog = catalogLoader.loadCatalog();
         this.asNamespaceCatalog =
                 catalog instanceof SupportsNamespaces ? (SupportsNamespaces) catalog : null;
+
         this.dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat(
                 multipleSinkOption.getFormat(), multipleSinkOption.getFormatOption());
 
@@ -118,18 +130,65 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
 
     @Override
     public void processElement(StreamRecord<RowData> element) throws Exception {
-        JsonNode jsonNode = dynamicSchemaFormat.deserialize(element.getValue().getBinary(0));
-
-        TableIdentifier tableId = parseId(jsonNode);
+        JsonNode jsonNode = null;
+        try {
+            jsonNode = dynamicSchemaFormat.deserialize(element.getValue().getBinary(0));
+        } catch (Exception e) {
+            LOGGER.error(String.format("Deserialize error, raw data: %s",
+                    new String(element.getValue().getBinary(0))), e);
+            handleDirtyData(new String(element.getValue().getBinary(0)),
+                    null, DirtyType.DESERIALIZE_ERROR, e);
+        }
+        TableIdentifier tableId = null;
+        try {
+            tableId = parseId(jsonNode);
+        } catch (Exception e) {
+            LOGGER.error(String.format("Table identifier parse error, raw data: %s", jsonNode), e);
+            handleDirtyData(jsonNode, jsonNode, DirtyType.TABLE_IDENTIFIER_PARSE_ERROR, e);
+        }
         if (blacklist.contains(tableId)) {
             return;
         }
-
         boolean isDDL = dynamicSchemaFormat.extractDDLFlag(jsonNode);
         if (isDDL) {
             execDDL(jsonNode, tableId);
         } else {
             execDML(jsonNode, tableId);
+        }
+    }
+
+    private void handleDirtyData(Object dirtyData, JsonNode rootNode, DirtyType dirtyType, Exception e) {
+        if (!dirtyOptions.ignoreDirty()) {
+            RuntimeException ex;
+            if (e instanceof RuntimeException) {
+                ex = (RuntimeException) e;
+            } else {
+                ex = new RuntimeException(e);
+            }
+            throw ex;
+        }
+        if (dirtySink != null) {
+            DirtyData.Builder<Object> builder = DirtyData.builder();
+            try {
+                builder.setData(dirtyData)
+                        .setDirtyType(dirtyType)
+                        .setDirtyMessage(e.getMessage());
+                if (rootNode != null) {
+                    builder.setLabels(dynamicSchemaFormat.parse(rootNode, dirtyOptions.getLabels()))
+                            .setLogTag(dynamicSchemaFormat.parse(rootNode, dirtyOptions.getLogTag()))
+                            .setIdentifier(dynamicSchemaFormat.parse(rootNode, dirtyOptions.getIdentifier()));
+                } else {
+                    builder.setLabels(dirtyOptions.getLabels())
+                            .setLogTag(dirtyOptions.getLogTag())
+                            .setIdentifier(dirtyOptions.getIdentifier());
+                }
+                dirtySink.invoke(builder.build());
+            } catch (Exception ex) {
+                if (!dirtyOptions.ignoreSideOutputErrors()) {
+                    throw new RuntimeException(ex);
+                }
+                LOG.warn("Dirty sink failed", ex);
+            }
         }
     }
 
@@ -146,6 +205,9 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
 
     private void execDML(JsonNode jsonNode, TableIdentifier tableId) {
         RecordWithSchema record = parseRecord(jsonNode, tableId);
+        if (record == null) {
+            return;
+        }
         Schema schema = schemaCache.get(record.getTableId());
         Schema dataSchema = record.getSchema();
         recordQueues.compute(record.getTableId(), (k, v) -> {
@@ -155,7 +217,6 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             v.add(record);
             return v;
         });
-
         if (schema == null) {
             handleTableCreateEventFromOperator(record.getTableId(), dataSchema);
         } else {
@@ -182,6 +243,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                                 LOG.warn("Ignore table {} schema change, old: {} new: {}.",
                                         tableId, dataSchema, latestSchema, e);
                                 blacklist.add(tableId);
+                                handleDirtyData(jsonNode, jsonNode, DirtyType.EXTRACT_ROWDATA_ERROR, e);
                             }
                             return Collections.emptyList();
                         });
@@ -204,13 +266,11 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                     LOG.warn("Database({}) already exist in Catalog({})!", tableId.namespace(), catalog.name());
                 }
             }
-
             ImmutableMap.Builder<String, String> properties = ImmutableMap.builder();
             properties.put("format-version", "2");
             properties.put("write.upsert.enabled", "true");
             // for hive visible
             properties.put("engine.hive.enabled", "true");
-
             try {
                 catalog.createTable(tableId, schema, PartitionSpec.unpartitioned(), properties.build());
                 LOG.info("Auto create Table({}) in Database({}) in Catalog({})!",
@@ -220,13 +280,11 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                         tableId.name(), tableId.namespace(), catalog.name());
             }
         }
-
         handleSchemaInfoEvent(tableId, catalog.loadTable(tableId).schema());
     }
 
     private void handldAlterSchemaEventFromOperator(TableIdentifier tableId, Schema oldSchema, Schema newSchema) {
         Table table = catalog.loadTable(tableId);
-
         // The transactionality of changes is guaranteed by comparing the old schema with the current schema of the
         // table.
         // Judging whether changes can be made by schema comparison (currently only column additions are supported),
@@ -263,15 +321,18 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     }
 
     private RecordWithSchema parseRecord(JsonNode data, TableIdentifier tableId) {
-        List<String> pkListStr = dynamicSchemaFormat.extractPrimaryKeyNames(data);
-        RowType schema = dynamicSchemaFormat.extractSchema(data, pkListStr);
-
-        RecordWithSchema record = new RecordWithSchema(
-                data,
-                FlinkSchemaUtil.convert(FlinkSchemaUtil.toSchema(schema)),
-                tableId,
-                pkListStr);
-        return record;
+        try {
+            List<String> pkListStr = dynamicSchemaFormat.extractPrimaryKeyNames(data);
+            RowType schema = dynamicSchemaFormat.extractSchema(data, pkListStr);
+            return new RecordWithSchema(
+                    data,
+                    FlinkSchemaUtil.convert(FlinkSchemaUtil.toSchema(schema)),
+                    tableId,
+                    pkListStr);
+        } catch (Exception e) {
+            handleDirtyData(data, data, DirtyType.EXTRACT_SCHEMA_ERROR, e);
+        }
+        return null;
     }
 
     private boolean canHandleWithSchemaUpdatePolicy(TableIdentifier tableId, List<TableChange> tableChanges) {
@@ -290,7 +351,6 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                 break;
             }
         }
-
         return canHandle;
     }
 }
