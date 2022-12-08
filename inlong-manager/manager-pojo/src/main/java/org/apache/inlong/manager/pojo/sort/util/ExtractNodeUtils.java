@@ -173,8 +173,7 @@ public class ExtractNodeUtils {
         String bootstrapServers = kafkaSource.getBootstrapServers();
 
         Format format = parsingFormat(kafkaSource.getSerializationType(),
-                kafkaSource.isWrapWithInlongMsg(),
-                kafkaSource.getDataSeparator());
+                kafkaSource.isWrapWithInlongMsg(), kafkaSource.getDataSeparator());
 
         KafkaOffset kafkaOffset = KafkaOffset.forName(kafkaSource.getAutoOffsetReset());
         KafkaScanStartupMode startupMode;
@@ -224,8 +223,7 @@ public class ExtractNodeUtils {
                 pulsarSource.getTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
 
         Format format = parsingFormat(pulsarSource.getSerializationType(),
-                pulsarSource.isWrapWithInlongMsg(),
-                pulsarSource.getDataSeparator());
+                pulsarSource.isWrapWithInlongMsg(), pulsarSource.getDataSeparator());
 
         PulsarScanStartupMode startupMode = PulsarScanStartupMode.forName(pulsarSource.getScanStartupMode());
         final String primaryKey = pulsarSource.getPrimaryKey();
@@ -401,16 +399,14 @@ public class ExtractNodeUtils {
     }
 
     /**
-     *  Parse format
-     * @param serializationType Data Serialization, support: csv, json, canal, avro, etc
-     * @param wrapWithInlongMessage Whether wrap content with InlongMessage
-     * @param separatorStr The data separator
-     * @return The format for serialized content of MQ
+     * Parse format
+     *
+     * @param serializationType data serialization, support: csv, json, canal, avro, etc
+     * @param wrapWithInlongMsg whether wrap content with {@link InLongMsgFormat}
+     * @param separatorStr the separator of data content
+     * @return the format for serialized content
      */
-    private static Format parsingFormat(
-            String serializationType,
-            boolean wrapWithInlongMessage,
-            String separatorStr) {
+    private static Format parsingFormat(String serializationType, boolean wrapWithInlongMsg, String separatorStr) {
         Format format;
         DataTypeEnum dataType = DataTypeEnum.forType(serializationType);
         switch (dataType) {
@@ -437,10 +433,9 @@ public class ExtractNodeUtils {
                 format = new RawFormat();
                 break;
             default:
-                throw new IllegalArgumentException(
-                        String.format("Unsupported dataType=%s", dataType));
+                throw new IllegalArgumentException(String.format("Unsupported dataType=%s", dataType));
         }
-        if (wrapWithInlongMessage) {
+        if (wrapWithInlongMsg) {
             Format innerFormat = format;
             format = new InLongMsgFormat(innerFormat, false);
         }
