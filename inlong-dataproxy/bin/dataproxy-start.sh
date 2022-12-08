@@ -41,12 +41,7 @@ done
 
 cd .. || exit
 
-MQ_TYPE=pulsar
-if [ -n "$1" ]; then
-  MQ_TYPE=$1
-fi
-
-CONFIG_FILE="dataproxy-${MQ_TYPE}.conf"
+CONFIG_FILE="dataproxy.conf"
 CONFIG_FILE_WITH_COFING_PATH="conf/${CONFIG_FILE}"
 CONFIG_FILE_WITH_PATH="${basedir}/${CONFIG_FILE}"
 
