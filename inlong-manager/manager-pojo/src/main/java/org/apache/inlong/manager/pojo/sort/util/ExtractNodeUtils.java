@@ -171,30 +171,10 @@ public class ExtractNodeUtils {
         List<FieldInfo> fieldInfos = parseFieldInfos(kafkaSource.getFieldList(), kafkaSource.getSourceName());
         String topic = kafkaSource.getTopic();
         String bootstrapServers = kafkaSource.getBootstrapServers();
-        Format format;
-        DataTypeEnum dataType = DataTypeEnum.forType(kafkaSource.getSerializationType());
-        switch (dataType) {
-            case CSV:
-                format = new CsvFormat();
-                break;
-            case AVRO:
-                format = new AvroFormat();
-                break;
-            case JSON:
-                format = new JsonFormat();
-                break;
-            case CANAL:
-                format = new CanalJsonFormat();
-                break;
-            case DEBEZIUM_JSON:
-                format = new DebeziumJsonFormat();
-                break;
-            case RAW:
-                format = new RawFormat();
-                break;
-            default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
-        }
+
+        Format format = parsingFormat(kafkaSource.getSerializationType(),
+                kafkaSource.isWrapWithInlongMsg(), kafkaSource.getDataSeparator());
+
         KafkaOffset kafkaOffset = KafkaOffset.forName(kafkaSource.getAutoOffsetReset());
         KafkaScanStartupMode startupMode;
         switch (kafkaOffset) {
@@ -242,40 +222,9 @@ public class ExtractNodeUtils {
         String fullTopicName =
                 pulsarSource.getTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
 
-        Format format;
-        DataTypeEnum dataType = DataTypeEnum.forType(pulsarSource.getSerializationType());
-        switch (dataType) {
-            case CSV:
-                String separatorStr = pulsarSource.getDataSeparator();
-                if (StringUtils.isNumeric(separatorStr)) {
-                    char dataSeparator = (char) Integer.parseInt(pulsarSource.getDataSeparator());
-                    separatorStr = Character.toString(dataSeparator);
-                }
-                format = new CsvFormat(separatorStr);
-                break;
-            case AVRO:
-                format = new AvroFormat();
-                break;
-            case JSON:
-                format = new JsonFormat();
-                break;
-            case CANAL:
-                format = new CanalJsonFormat();
-                break;
-            case DEBEZIUM_JSON:
-                format = new DebeziumJsonFormat();
-                break;
-            case RAW:
-                format = new RawFormat();
-                break;
-            default:
-                throw new IllegalArgumentException(
-                        String.format("Unsupported dataType=%s for pulsar source", dataType));
-        }
-        if (pulsarSource.isInlongComponent()) {
-            Format innerFormat = format;
-            format = new InLongMsgFormat(innerFormat, false);
-        }
+        Format format = parsingFormat(pulsarSource.getSerializationType(),
+                pulsarSource.isWrapWithInlongMsg(), pulsarSource.getDataSeparator());
+
         PulsarScanStartupMode startupMode = PulsarScanStartupMode.forName(pulsarSource.getScanStartupMode());
         final String primaryKey = pulsarSource.getPrimaryKey();
         final String serviceUrl = pulsarSource.getServiceUrl();
@@ -447,6 +396,50 @@ public class ExtractNodeUtils {
                 source.getMaxIdle(),
                 source.getMinIdle(),
                 lookupOptions);
+    }
+
+    /**
+     * Parse format
+     *
+     * @param serializationType data serialization, support: csv, json, canal, avro, etc
+     * @param wrapWithInlongMsg whether wrap content with {@link InLongMsgFormat}
+     * @param separatorStr the separator of data content
+     * @return the format for serialized content
+     */
+    private static Format parsingFormat(String serializationType, boolean wrapWithInlongMsg, String separatorStr) {
+        Format format;
+        DataTypeEnum dataType = DataTypeEnum.forType(serializationType);
+        switch (dataType) {
+            case CSV:
+                if (StringUtils.isNumeric(separatorStr)) {
+                    char dataSeparator = (char) Integer.parseInt(separatorStr);
+                    separatorStr = Character.toString(dataSeparator);
+                }
+                format = new CsvFormat(separatorStr);
+                break;
+            case AVRO:
+                format = new AvroFormat();
+                break;
+            case JSON:
+                format = new JsonFormat();
+                break;
+            case CANAL:
+                format = new CanalJsonFormat();
+                break;
+            case DEBEZIUM_JSON:
+                format = new DebeziumJsonFormat();
+                break;
+            case RAW:
+                format = new RawFormat();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported dataType=%s", dataType));
+        }
+        if (wrapWithInlongMsg) {
+            Format innerFormat = format;
+            format = new InLongMsgFormat(innerFormat, false);
+        }
+        return format;
     }
 
     /**

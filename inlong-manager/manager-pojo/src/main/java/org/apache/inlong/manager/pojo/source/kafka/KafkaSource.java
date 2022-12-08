@@ -91,6 +91,9 @@ public class KafkaSource extends StreamSource {
     @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
 
+    @ApiModelProperty("Whether wrap content with InlongMsg")
+    private boolean wrapWithInlongMsg = true;
+
     public KafkaSource() {
         this.setSourceType(SourceType.KAFKA);
     }
