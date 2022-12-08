@@ -39,7 +39,7 @@ public class InlongGroupTopicRequest {
     @ApiModelProperty(value = "The cluster tag of target group")
     private String clusterTag;
 
-    @ApiModelProperty(value = "The group id list that ")
+    @ApiModelProperty(value = "The target group id list, empty means list all groups ")
     private List<String> groupList;
 
 }
