@@ -51,6 +51,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
@@ -73,6 +74,7 @@ import org.springframework.validation.annotation.Validated;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -416,14 +418,24 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public List<InlongGroupTopicInfo> listTopicsByTag(String clusterTag) {
-        LOGGER.info("start to list group topic infos under clusterTag={}", clusterTag);
-        List<InlongGroupEntity> groupEntities = groupMapper.selectByClusterTag(clusterTag);
+    public List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest request) {
+        LOGGER.info("start to list group topic infos, request={}", request);
+        Preconditions.checkNotEmpty(request.getClusterTag(), "cluster tag should not be empty");
+        List<InlongGroupEntity> groupEntities = groupMapper.selectByClusterTag(request.getClusterTag());
+        Set<String> targetGroups = new HashSet<>(request.getGroupList());
+        // filter groups if the groupIds are specified
+        if (CollectionUtils.isNotEmpty(targetGroups)) {
+            groupEntities = groupEntities.stream()
+                    .filter(entity -> targetGroups.contains(entity.getInlongGroupId()))
+                    .collect(Collectors.toList());
+        }
+
         List<InlongGroupTopicInfo> topicInfos = new ArrayList<>();
         for (InlongGroupEntity entity : groupEntities) {
             topicInfos.add(this.getTopic(entity.getInlongGroupId()));
         }
-        LOGGER.info("success list group topic infos under clusterTag={}, size={}", clusterTag, topicInfos.size());
+        LOGGER.info("success list group topic infos under clusterTag={}, size={}",
+                request.getClusterTag(), topicInfos.size());
         return topicInfos;
     }
 

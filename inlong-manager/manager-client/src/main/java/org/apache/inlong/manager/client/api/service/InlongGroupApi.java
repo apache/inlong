@@ -24,6 +24,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -81,6 +82,6 @@ public interface InlongGroupApi {
     @GET("group/getTopic/{id}")
     Call<Response<Object>> getTopic(@Path("id") String id);
 
-    @GET("group/listTopicsByTag/{clusterTag}")
-    Call<Response<List<InlongGroupTopicInfo>>> listTopicsByTag(@Path("clusterTag") String clusterTag);
+    @GET("group/listTopics")
+    Call<Response<List<InlongGroupTopicInfo>>> listTopics(@Body InlongGroupTopicRequest request);
 }

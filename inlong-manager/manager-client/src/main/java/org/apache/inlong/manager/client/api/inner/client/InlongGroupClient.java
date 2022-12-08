@@ -35,6 +35,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
@@ -262,9 +263,9 @@ public class InlongGroupClient {
         }
     }
 
-    public List<InlongGroupTopicInfo> listTopicsByTag(String clusterTag) {
+    public List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest request) {
         Response<List<InlongGroupTopicInfo>> response =
-                ClientUtils.executeHttpCall(inlongGroupApi.listTopicsByTag(clusterTag));
+                ClientUtils.executeHttpCall(inlongGroupApi.listTopics(request));
         if (response.isSuccess()) {
             return response.getData();
         } else if (response.getErrMsg().contains("not exist")) {
