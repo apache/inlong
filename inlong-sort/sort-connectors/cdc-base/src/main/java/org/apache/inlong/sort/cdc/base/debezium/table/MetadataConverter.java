@@ -16,22 +16,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.base.debezium.table;
+package org.apache.inlong.sort.cdc.base.debezium.table;
 
-import io.debezium.relational.history.TableChanges.TableChange;
+import io.debezium.relational.history.TableChanges;
 import java.io.Serializable;
-import org.apache.kafka.connect.data.Schema;
+import javax.annotation.Nullable;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.table.data.RowData;
+import org.apache.kafka.connect.source.SourceRecord;
 
 /**
- * Runtime converter that converts objects of Debezium into objects of Flink Table & SQL internal
- * data structures.
+ * A converter converts {@link SourceRecord} metadata into Flink internal data structures.
  */
 @FunctionalInterface
-public interface DeserializationRuntimeConverter extends Serializable {
+@Internal
+public interface MetadataConverter extends Serializable {
 
-    Object convert(Object dbzObj, Schema schema) throws Exception;
+    Object read(SourceRecord record);
 
-    default Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
-        return dbzObj;
+    default Object read(SourceRecord record, @Nullable TableChanges.TableChange tableSchema) {
+        return read(record);
+    }
+
+    default Object read(SourceRecord record, @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+        return read(record, tableSchema);
     }
 }

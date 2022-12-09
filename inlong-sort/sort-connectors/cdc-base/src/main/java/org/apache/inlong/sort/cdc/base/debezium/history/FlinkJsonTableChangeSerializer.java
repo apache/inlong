@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.base.debezium.history;
+package org.apache.inlong.sort.cdc.base.debezium.history;
 
 import io.debezium.document.Array;
 import io.debezium.document.Array.Entry;

@@ -23,8 +23,8 @@ import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.util.Optional;
 import org.apache.flink.table.types.logical.LogicalType;
-import org.apache.inlong.sort.base.debezium.table.DeserializationRuntimeConverter;
-import org.apache.inlong.sort.base.debezium.table.DeserializationRuntimeConverterFactory;
+import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverterFactory;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 

@@ -23,7 +23,7 @@ import io.debezium.connector.postgresql.PostgresConnector;
 
 import java.time.Duration;
 import java.util.Properties;
-import org.apache.inlong.sort.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 

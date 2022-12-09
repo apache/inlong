@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.base.debezium.internal;
+package org.apache.inlong.sort.cdc.base.debezium.internal;
 
 import io.debezium.config.Configuration;
 import io.debezium.relational.history.AbstractDatabaseHistory;
@@ -27,7 +27,7 @@ import io.debezium.relational.history.HistoryRecordComparator;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
-import org.apache.inlong.sort.base.util.DatabaseHistoryUtil;
+import org.apache.inlong.sort.cdc.base.util.DatabaseHistoryUtil;
 
 /**
  * Inspired from {@link io.debezium.relational.history.MemoryDatabaseHistory} but we will store the
