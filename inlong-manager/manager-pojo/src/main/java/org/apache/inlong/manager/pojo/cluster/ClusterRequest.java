@@ -47,7 +47,7 @@ public abstract class ClusterRequest {
     private String name;
 
     @NotBlank(message = "cluster type cannot be blank")
-    @ApiModelProperty(value = "Cluster type, including TUBEMQ, PULSAR, DATAPROXY, etc.")
+    @ApiModelProperty(value = "Cluster type, including TUBEMQ, PULSAR, KAFKA, DATAPROXY, etc.")
     private String type;
 
     @ApiModelProperty(value = "Cluster url")
@@ -58,7 +58,7 @@ public abstract class ClusterRequest {
     private String clusterTags;
 
     @ApiModelProperty(value = "Extension tag")
-    private String extTag;
+    private String extTag = "default=true";
 
     @ApiModelProperty(value = "Cluster token")
     private String token;

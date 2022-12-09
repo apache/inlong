@@ -847,8 +847,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 List<InlongStreamBriefInfo> streamList = streamMapper.selectBriefList(groupId);
                 for (InlongStreamBriefInfo streamInfo : streamList) {
                     String streamId = streamInfo.getInlongStreamId();
-                    String topic = String.format(InlongConstants.KAFKA_TOPIC_FORMAT,
-                            mqResource, streamInfo.getMqResource());
+                    String topic = streamInfo.getMqResource();
+                    if (topic.equals(streamId)) {
+                        // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
+                        topic = String.format(InlongConstants.DEFAULT_KAFKA_TOPIC_FORMAT,
+                                mqResource, streamInfo.getMqResource());
+                    }
                     DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
                     topicConfig.setInlongGroupId(groupId + "/" + streamId);
                     topicConfig.setTopic(topic);

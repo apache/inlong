@@ -108,8 +108,12 @@ public class KafkaResourceOperators implements QueueResourceOperator {
         try {
             InlongKafkaInfo inlongKafkaInfo = (InlongKafkaInfo) groupInfo;
             // create kafka topic
-            String topicName = String.format(InlongConstants.KAFKA_TOPIC_FORMAT,
-                    groupId, streamInfo.getMqResource());
+            String topicName = streamInfo.getMqResource();
+            if (topicName.equals(streamId)) {
+                // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
+                topicName = String.format(InlongConstants.DEFAULT_KAFKA_TOPIC_FORMAT,
+                        inlongKafkaInfo.getMqResource(), streamInfo.getMqResource());
+            }
             this.createKafkaTopic(inlongKafkaInfo, topicName);
         } catch (Exception e) {
             String msg = String.format("failed to create kafka topic for groupId=%s, streamId=%s", groupId, streamId);
