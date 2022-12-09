@@ -34,6 +34,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
+import org.apache.inlong.sort.protocol.constant.Constant;
 import org.apache.inlong.sort.protocol.constant.StarRocksConstant;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
@@ -145,13 +146,13 @@ public class StarRocksLoadNode extends LoadNode implements InlongMetric, Seriali
         options.put(StarRocksConstant.DATABASE_NAME, databaseName);
         options.put(StarRocksConstant.TABLE_NAME, tableName);
         if (sinkMultipleEnable != null && sinkMultipleEnable) {
-            options.put(StarRocksConstant.SINK_MULTIPLE_ENABLE, sinkMultipleEnable.toString());
-            options.put(StarRocksConstant.SINK_MULTIPLE_FORMAT,
+            options.put(Constant.SINK_MULTIPLE_ENABLE, sinkMultipleEnable.toString());
+            options.put(Constant.SINK_MULTIPLE_FORMAT,
                     Objects.requireNonNull(sinkMultipleFormat).identifier());
-            options.put(StarRocksConstant.SINK_MULTIPLE_DATABASE_PATTERN, databasePattern);
-            options.put(StarRocksConstant.SINK_MULTIPLE_TABLE_PATTERN, tablePattern);
+            options.put(Constant.SINK_MULTIPLE_DATABASE_PATTERN, databasePattern);
+            options.put(Constant.SINK_MULTIPLE_TABLE_PATTERN, tablePattern);
         } else {
-            options.put(StarRocksConstant.SINK_MULTIPLE_ENABLE, "false");
+            options.put(Constant.SINK_MULTIPLE_ENABLE, "false");
         }
         options.put(StarRocksConstant.FORMAT, "json");
         options.put(StarRocksConstant.STRIP_OUTER_ARRAY, "true");
