@@ -19,6 +19,7 @@ package org.apache.inlong.agent.plugin.sinks;
 
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
+import org.apache.inlong.agent.message.BatchProxyMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -50,7 +51,9 @@ public class MockSink extends AbstractSink {
     public void write(Message message) {
         if (message != null) {
             number.incrementAndGet();
-            taskPositionManager.updateSinkPosition(jobInstanceId, sourceFileName, 1);
+            BatchProxyMessage msg = new BatchProxyMessage();
+            msg.setJobId(jobInstanceId);
+            taskPositionManager.updateSinkPosition(msg, sourceFileName, 1);
             // increment the count of successful sinks
             sinkMetric.sinkSuccessCount.incrementAndGet();
         } else {
@@ -71,7 +74,7 @@ public class MockSink extends AbstractSink {
 
     @Override
     public void init(JobProfile jobConf) {
-        taskPositionManager = TaskPositionManager.getTaskPositionManager();
+        taskPositionManager = TaskPositionManager.getInstance();
         jobInstanceId = jobConf.get(JOB_INSTANCE_ID);
         dataTime = AgentUtils.timeStrConvertToMillSec(jobConf.get(JOB_DATA_TIME, ""),
                 jobConf.get(JOB_CYCLE_UNIT, ""));

@@ -26,6 +26,9 @@ public class ConfStringUtils {
         if (ip == null || ip.trim().isEmpty()) {
             return false;
         }
+        if (ip.equals("localhost")) {
+            ip = "127.0.0.1";
+        }
         boolean b = false;
         ip = ip.trim();
         if (ip.matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")) {

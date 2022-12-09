@@ -227,11 +227,11 @@ public final class Constants {
                     .stringType()
                     .noDefaultValue()
                     .withDescription(
-                            "The identifier of dirty data, "
-                                    + "it will be used for filename generation of file dirty sink, "
+                            "The identifier of dirty data, it will be used for filename generation of file dirty sink, "
                                     + "topic generation of mq dirty sink, tablename generation of database, etc."
                                     + "and it supports variable replace like '${variable}'."
-                                    + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE] are currently supported,"
+                                    + "There are several system variables[SYSTEM_TIME|DIRTY_TYPE|DIRTY_MESSAGE] "
+                                    + "are currently supported, "
                                     + "and the support of other variables is determined by the connector.");
     public static final ConfigOption<Boolean> DIRTY_SIDE_OUTPUT_ENABLE =
             ConfigOptions.key("dirty.side-output.enable")
@@ -266,7 +266,8 @@ public final class Constants {
                     .withDescription(
                             "The labels of dirty side-output, format is 'key1=value1&key2=value2', "
                                     + "it supports variable replace like '${variable}',"
-                                    + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE] are currently supported,"
+                                    + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE|DIRTY_MESSAGE] "
+                                    + "are currently supported,"
                                     + " and the support of other variables is determined by the connector.");
     public static final ConfigOption<String> DIRTY_SIDE_OUTPUT_LOG_TAG =
             ConfigOptions.key("dirty.side-output.log-tag")
@@ -274,7 +275,7 @@ public final class Constants {
                     .defaultValue("DirtyData")
                     .withDescription(
                             "The log tag of dirty side-output, it supports variable replace like '${variable}'."
-                                    + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE] are currently supported,"
+                                    + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE|DIRTY_MESSAGE] are currently supported,"
                                     + " and the support of other variables is determined by the connector.");
     public static final ConfigOption<String> DIRTY_SIDE_OUTPUT_FIELD_DELIMITER =
             ConfigOptions.key("dirty.side-output.field-delimiter")

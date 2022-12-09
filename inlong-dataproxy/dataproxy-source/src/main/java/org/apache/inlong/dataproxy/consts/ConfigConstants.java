@@ -98,6 +98,7 @@ public class ConfigConstants {
     public static final String PROXY_CLUSTER_NAME = "proxy.cluster.name";
     public static final String DEFAULT_PROXY_CLUSTER_NAME = "DataProxy";
     public static final String PROXY_CLUSTER_TAG = "proxy.cluster.tag";
+    public static final String PROXY_CLUSTER_EXT_TAG = "proxy.cluster.extTag";
     public static final String PROXY_CLUSTER_INCHARGES = "proxy.cluster.inCharges";
     public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
     public static final String SOURCE_NO_TOPIC_ACCEPT = "source.topic.notfound.accept";

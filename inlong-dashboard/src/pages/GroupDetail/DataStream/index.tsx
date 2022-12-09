@@ -25,10 +25,10 @@ import { useRequest } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
 import { useLoadMeta, useDefaultMeta, StreamMetaType } from '@/metas';
+import { GroupLogs } from '@/components/GroupLogs';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';
 import { getFilterFormContent } from './config';
-import ExecutionLogModal from './ExecutionLogModal';
 
 type Props = CommonInterface;
 
@@ -48,7 +48,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     inlongGroupId,
   });
 
-  const [executionLogModal, setExecutionLogModal] = useState({
+  const [groupLogs, setGroupLogs] = useState({
     visible: false,
     inlongGroupId,
     inlongStreamId: '',
@@ -99,7 +99,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
   };
 
   const openModal = record => {
-    setExecutionLogModal({
+    setGroupLogs({
       visible: true,
       inlongGroupId: inlongGroupId,
       inlongStreamId: record.inlongStreamId,
@@ -233,12 +233,10 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
         onCancel={() => setStreamItemModal(prev => ({ ...prev, visible: false }))}
       />
 
-      <ExecutionLogModal
-        {...executionLogModal}
-        onOk={() => setExecutionLogModal({ visible: false, inlongGroupId: '', inlongStreamId: '' })}
-        onCancel={() =>
-          setExecutionLogModal({ visible: false, inlongGroupId: '', inlongStreamId: '' })
-        }
+      <GroupLogs
+        {...groupLogs}
+        onOk={() => setGroupLogs({ visible: false, inlongGroupId: '', inlongStreamId: '' })}
+        onCancel={() => setGroupLogs({ visible: false, inlongGroupId: '', inlongStreamId: '' })}
       />
     </>
   );

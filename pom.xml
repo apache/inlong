@@ -91,7 +91,7 @@
         <pagehelper.springboot.version>1.4.2</pagehelper.springboot.version>
         <pagehelper.version>5.3.1</pagehelper.version>
 
-        <h2.version>2.1.210</h2.version>
+        <h2.version>2.1.214</h2.version>
         <h2.mysql.version>2.0.0</h2.mysql.version>
         <debezium.version>1.8.0.Final</debezium.version>
         <rocksdb.version>6.14.6</rocksdb.version>
@@ -154,6 +154,7 @@
         <pulsar.testcontainers.version>1.15.3</pulsar.testcontainers.version>
         <kafka.version>2.4.1</kafka.version>
         <iceberg.version>0.13.2</iceberg.version>
+        <hudi.version>0.12.1</hudi.version>
         <flink.version>1.13.5</flink.version>
         <flink.minor.version>1.13</flink.minor.version>
         <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
@@ -161,7 +162,7 @@
         <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
         <flink.connector.postgres.cdc.version>2.2.1</flink.connector.postgres.cdc.version>
         <flink.connector.sqlserver.cdc.version>2.2.1</flink.connector.sqlserver.cdc.version>
-        <flink.pulsar.version>1.13.6.1-rc9</flink.pulsar.version>
+        <flink.pulsar.version>1.13.6.2</flink.pulsar.version>
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
         <flink.connector.mongodb.cdc.version>2.2.1</flink.connector.mongodb.cdc.version>
         <flink.connector.oracle.cdc.version>2.2.1</flink.connector.oracle.cdc.version>
@@ -1118,6 +1119,13 @@
                 <groupId>org.apache.iceberg</groupId>
                 <artifactId>iceberg-core</artifactId>
                 <version>${iceberg.version}</version>
+            </dependency>
+
+            <!-- hudi -->
+            <dependency>
+                <groupId>org.apache.hudi</groupId>
+                <artifactId>hudi-flink1.13-bundle</artifactId>
+                <version>${hudi.version}</version>
             </dependency>
 
             <!-- qcloud -->

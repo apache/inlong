@@ -44,7 +44,7 @@ public abstract class AbstractDaemon implements Service {
                     60L, TimeUnit.SECONDS,
                     new SynchronousQueue<Runnable>(), new AgentThreadFactory("AbstractDaemon"));
     private final List<CompletableFuture<?>> workerFutures;
-    private boolean runnable = true;
+    private volatile boolean runnable = true;
 
     public AbstractDaemon() {
         this.workerFutures = new ArrayList<>();

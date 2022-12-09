@@ -73,7 +73,7 @@ public enum TaskTypeEnum {
                 return TUBEMQ;
             case 12:
                 return MQTT;
-            case 101:
+            case 201:
                 return MOCK;
             default:
                 throw new RuntimeException("Unsupported task type " + taskType);
