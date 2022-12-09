@@ -165,6 +165,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             dataSize = 0L;
         } catch (Exception e) {
             LOG.error("fileSystem sink commitUpToCheckpoint.", e);
+            throw e;
         }
     }
 
