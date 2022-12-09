@@ -59,3 +59,4 @@ if [ -f "$CONFIG_FILE_WITH_PATH" ]; then
 else
    error "${CONFIG_FILE_WITH_PATH} is not exist! start failed!" 1
 fi
+
