@@ -19,6 +19,7 @@ package org.apache.inlong.dataproxy.sink.mq.kafka;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.sink.common.EventHandler;
@@ -47,7 +48,6 @@ public class KafkaHandler implements MessageQueueHandler {
 
     public static final Logger LOG = LoggerFactory.getLogger(KafkaHandler.class);
     public static final String KEY_NAMESPACE = "namespace";
-    public static final String DEFAULT_KAFKA_TOPIC_FORMAT = "%s.%s";
 
     private CacheClusterConfig config;
     private MessageQueueZoneSinkContext sinkContext;
@@ -150,7 +150,7 @@ public class KafkaHandler implements MessageQueueHandler {
     private String getProducerTopic(String baseTopic, IdTopicConfig config) {
         String namespace = config.getParams().get(KEY_NAMESPACE);
         if (StringUtils.isNotEmpty(namespace)) {
-            return String.format(DEFAULT_KAFKA_TOPIC_FORMAT, namespace, baseTopic);
+            return String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT, namespace, baseTopic);
         }
         return baseTopic;
     }

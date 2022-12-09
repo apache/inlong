@@ -96,11 +96,6 @@ public class InlongConstants {
     public static final String PULSAR_TOPIC_FORMAT = "persistent://%s/%s/%s";
 
     /**
-     * Default format of the Kafka topic: {groupKey}.{streamKey}
-     */
-    public static final String DEFAULT_KAFKA_TOPIC_FORMAT = "%s.%s";
-
-    /**
      * Sort config
      */
     public static final String DATAFLOW = "dataflow";

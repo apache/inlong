@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
@@ -850,7 +851,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String topic = streamInfo.getMqResource();
                     if (topic.equals(streamId)) {
                         // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
-                        topic = String.format(InlongConstants.DEFAULT_KAFKA_TOPIC_FORMAT,
+                        topic = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT,
                                 mqResource, streamInfo.getMqResource());
                     }
                     DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
