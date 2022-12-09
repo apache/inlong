@@ -41,7 +41,16 @@ done
 
 cd .. || exit
 
-CONFIG_FILE="dataproxy.conf"
+MQ_TYPE=pulsar
+if [ -n "$1" ]; then
+  MQ_TYPE=$1
+fi
+
+CONFIG_FILE="dataproxy-${MQ_TYPE}.conf"
+if [ "${MQ_TYPE}" == "pulsar" ] || [ "${MQ_TYPE}" == "kafka" ]; then
+  CONFIG_FILE="dataproxy.conf"
+fi
+
 CONFIG_FILE_WITH_COFING_PATH="conf/${CONFIG_FILE}"
 CONFIG_FILE_WITH_PATH="${basedir}/${CONFIG_FILE}"
 
