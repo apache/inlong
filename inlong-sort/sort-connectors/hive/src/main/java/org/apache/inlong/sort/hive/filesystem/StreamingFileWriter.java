@@ -24,7 +24,10 @@ import org.apache.flink.runtime.state.StateSnapshotContext;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.table.filesystem.stream.PartitionCommitInfo;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.NavigableMap;
@@ -44,8 +47,10 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
             long bucketCheckInterval,
             StreamingFileSink.BucketsBuilder<IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>> bucketsBuilder,
             String inlongMetric,
-            String auditHostAndPorts) {
-        super(bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
+            String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
+        super(bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
     }
 
     @Override
