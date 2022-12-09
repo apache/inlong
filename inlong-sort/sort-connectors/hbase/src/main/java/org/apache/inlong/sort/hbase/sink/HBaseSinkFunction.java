@@ -150,6 +150,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
 
     @Override
     public void open(Configuration parameters) throws Exception {
+        LOGGER.info("Start hbase sink function open ...");
         org.apache.hadoop.conf.Configuration config = prepareRuntimeConfiguration();
         try {
             this.runtimeContext = getRuntimeContext();
@@ -205,6 +206,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             LOGGER.error("Exception while creating connection to HBase.", ioe);
             throw new RuntimeException("Cannot create connection to HBase.", ioe);
         }
+        LOGGER.info("End hbase sink function open.");
     }
 
     private org.apache.hadoop.conf.Configuration prepareRuntimeConfiguration() throws IOException {
