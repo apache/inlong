@@ -211,6 +211,8 @@
         <paho.client.version>1.2.5</paho.client.version>
 
         <kubernetes.client.version>6.0.0</kubernetes.client.version>
+        <protobuf.maven.plugin.version>0.6.1</protobuf.maven.plugin.version>
+        <os.maven.plugin.version>1.6.0</os.maven.plugin.version>
     </properties>
 
     <dependencyManagement>
