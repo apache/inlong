@@ -44,6 +44,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -116,7 +117,13 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo())));
-
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("dirty.side-output.connector", "log");
+        properties.put("dirty.ignore", "true");
+        properties.put("dirty.side-output.enable", "true");
+        properties.put("dirty.side-output.format", "csv");
+        properties.put("dirty.side-output.labels",
+                "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=inlong&table=inlong_iceberg");
         // set HIVE_CONF_DIR,or set uri and warehouse
         return new IcebergLoadNode(
                 "iceberg",
@@ -126,7 +133,7 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
                 null,
                 null,
                 null,
-                null,
+                properties,
                 "inlong",
                 "inlong_iceberg",
                 null,

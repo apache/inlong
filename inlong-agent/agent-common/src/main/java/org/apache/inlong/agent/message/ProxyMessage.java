@@ -38,7 +38,7 @@ public class ProxyMessage implements Message {
     private final String inlongStreamId;
     // determine the group key when making batch
     private final String batchKey;
-    private String dataKey;
+    private final String dataKey;
 
     public ProxyMessage(byte[] body, Map<String, String> header) {
         this.body = body;
@@ -50,14 +50,8 @@ public class ProxyMessage implements Message {
         this.batchKey = dataKey + inlongStreamId;
     }
 
-    /**
-     * Transform Message to ProxyMessage
-     *
-     * @param message Message
-     * @return ProxyMessage
-     */
-    public static ProxyMessage parse(Message message) {
-        return new ProxyMessage(message.getBody(), message.getHeader());
+    public ProxyMessage(Message message) {
+        this(message.getBody(), message.getHeader());
     }
 
     public String getDataKey() {

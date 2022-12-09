@@ -131,7 +131,7 @@ public class SenderManager {
         retrySleepTime = jobConf.getLong(
                 CommonConstants.PROXY_RETRY_SLEEP, CommonConstants.DEFAULT_PROXY_RETRY_SLEEP);
         isFile = jobConf.getBoolean(CommonConstants.PROXY_IS_FILE, CommonConstants.DEFAULT_IS_FILE);
-        taskPositionManager = TaskPositionManager.getTaskPositionManager();
+        taskPositionManager = TaskPositionManager.getInstance();
         semaphore = new Semaphore(jobConf.getInt(CommonConstants.PROXY_MESSAGE_SEMAPHORE,
                 CommonConstants.DEFAULT_PROXY_MESSAGE_SEMAPHORE));
         ioThreadNum = jobConf.getInt(CommonConstants.PROXY_CLIENT_IO_THREAD_NUM,
@@ -161,7 +161,6 @@ public class SenderManager {
 
     private AgentMetricItem getMetricItem(String groupId, String streamId) {
         Map<String, String> dims = new HashMap<>();
-        dims.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
         dims.put(KEY_INLONG_GROUP_ID, groupId);
         dims.put(KEY_INLONG_STREAM_ID, streamId);
         return getMetricItem(dims);
@@ -248,8 +247,8 @@ public class SenderManager {
                     batchMessage.getDataList(), batchMessage.getGroupId(), batchMessage.getStreamId(),
                     batchMessage.getDataTime(), SEQUENTIAL_ID.getNextUuid(), maxSenderTimeout, TimeUnit.SECONDS,
                     batchMessage.getExtraMap(), proxySend);
-            int msgCnt = batchMessage.getDataList().size();
-            getMetricItem(batchMessage.getGroupId(), batchMessage.getStreamId()).pluginSendCount.addAndGet(msgCnt);
+            getMetricItem(batchMessage.getGroupId(), batchMessage.getStreamId()).pluginSendCount.addAndGet(
+                    batchMessage.getMsgCnt());
 
         } catch (Exception exception) {
             LOGGER.error("Exception caught", exception);
@@ -271,7 +270,7 @@ public class SenderManager {
             LOGGER.warn("max retry reached, retry count is {}, sleep and send again", retry);
             AgentUtils.silenceSleepInMs(retrySleepTime);
         }
-        int msgCnt = batchMessage.getDataList().size();
+        int msgCnt = batchMessage.getMsgCnt();
         String groupId = batchMessage.getGroupId();
         String streamId = batchMessage.getStreamId();
         long dataTime = batchMessage.getDataTime();
@@ -285,10 +284,10 @@ public class SenderManager {
             if (result == SendResult.OK) {
                 semaphore.release(msgCnt);
                 metricItem.pluginSendSuccessCount.addAndGet(msgCnt);
-                long totalSize = batchMessage.getDataList().stream().mapToLong(body -> body.length).sum();
-                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, msgCnt, totalSize);
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, msgCnt,
+                        batchMessage.getTotalSize());
                 if (sourcePath != null) {
-                    taskPositionManager.updateSinkPosition(batchMessage.getJobId(), sourcePath, msgCnt);
+                    taskPositionManager.updateSinkPosition(batchMessage, sourcePath, msgCnt);
                 }
             } else {
                 metricItem.pluginSendFailCount.addAndGet(msgCnt);
@@ -339,11 +338,11 @@ public class SenderManager {
                 return;
             }
             semaphore.release(msgCnt);
-            long totalSize = batchMessage.getDataList().stream().mapToLong(body -> body.length).sum();
-            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, msgCnt, totalSize);
+            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, msgCnt,
+                    batchMessage.getTotalSize());
             getMetricItem(groupId, streamId).pluginSendSuccessCount.addAndGet(msgCnt);
             if (sourcePath != null) {
-                taskPositionManager.updateSinkPosition(jobId, sourcePath, msgCnt);
+                taskPositionManager.updateSinkPosition(batchMessage, sourcePath, msgCnt);
             }
         }
 

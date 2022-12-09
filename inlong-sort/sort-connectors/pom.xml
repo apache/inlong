@@ -55,6 +55,8 @@
         <module>tubemq</module>
         <module>filesystem</module>
         <module>doris</module>
+        <module>starrocks</module>
+        <module>hudi</module>
     </modules>
 
     <dependencies>

@@ -201,6 +201,9 @@ public class TaskManager extends AbstractDaemon {
      * @param taskId task id
      */
     public void removeTask(String taskId) {
+        if (taskId == null) {
+            return;
+        }
         getTaskMetrics().taskRunningCount.decrementAndGet();
         TaskWrapper taskWrapper = tasks.remove(taskId);
         if (taskWrapper != null) {

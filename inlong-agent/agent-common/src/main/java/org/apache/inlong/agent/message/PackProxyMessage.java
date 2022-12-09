@@ -15,11 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.message;
+package org.apache.inlong.agent.message;
 
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.message.BatchProxyMessage;
-import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.slf4j.Logger;
@@ -39,6 +37,9 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STRE
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_SYNC;
+import static org.apache.inlong.common.msg.AttributeConstants.DATA_TIME;
+import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_TOPIC;
+import static org.apache.inlong.common.msg.AttributeConstants.STREAM_ID;
 
 /**
  * Handle List of BusMessage, which belong to the same stream id.
@@ -85,6 +86,12 @@ public class PackProxyMessage {
 
     public void generateExtraMap(String dataKey) {
         this.extraMap.put(AttributeConstants.MESSAGE_PARTITION_KEY, dataKey);
+    }
+
+    public void addTopicAndDataTime(String topic, long dataTime) {
+        this.extraMap.put(STREAM_ID, streamId);
+        this.extraMap.put(MESSAGE_TOPIC, topic);
+        this.extraMap.put(DATA_TIME, String.valueOf(dataTime));
     }
 
     /**

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,9 +108,7 @@ public class MessageQueueZoneProducer {
     public void reload() {
         try {
             // stop deleted cluster
-            deletingClusterList.forEach(item -> {
-                item.stop();
-            });
+            deletingClusterList.forEach(MessageQueueClusterProducer::stop);
             deletingClusterList.clear();
             // update cluster list
             List<CacheClusterConfig> configList = this.context.getCacheHolder().getConfigList();
@@ -140,6 +139,9 @@ public class MessageQueueZoneProducer {
                 }
             }
             this.clusterList = newClusterList;
+            if (!ConfigManager.getInstance().isMqClusterReady()) {
+                ConfigManager.getInstance().updMqClusterStatus(true);
+            }
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }

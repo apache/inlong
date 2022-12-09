@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.except;
+package org.apache.inlong.agent.except;
 
 public class FileException extends RuntimeException {
 

@@ -46,6 +46,11 @@ public class PulsarClusterDTO {
     @Builder.Default
     private String tenant = "public";
 
+    @Builder.Default
+    private String messageQueueHandler = "org.apache.inlong.dataproxy.sink.mq.pulsar.PulsarHandler";
+
+    private String serviceUrl;
+
     /**
      * Get the dto instance from the request
      */

@@ -40,7 +40,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
-import org.apache.flume.event.EventBuilder;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -57,6 +56,7 @@ import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
+import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -437,7 +437,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 } else {
                     commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
                             DataProxyErrCode.UNCONFIGURED_GROUPID_OR_STREAMID.getErrCodeStr());
-                    logger.debug("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
+                    logger.error("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
                             groupId, streamId);
                     return false;
                 }
@@ -556,7 +556,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     strBuff.delete(0, strBuff.length());
                 }
                 final byte[] data = inLongMsg.buildArray();
-                Event event = EventBuilder.withBody(data, headers);
+                Event event = new ProxyEvent(groupId, streamIdEntry.getKey(), data,
+                        Long.parseLong(strDataTime), strRemoteIP);
+                event.getHeaders().putAll(headers);
                 inLongMsg.reset();
                 Pair<Boolean, String> evenProcType =
                         MessageUtils.getEventProcType(syncSend, proxySend);

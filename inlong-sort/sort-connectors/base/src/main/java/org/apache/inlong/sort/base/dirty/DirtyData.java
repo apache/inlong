@@ -17,8 +17,10 @@
 
 package org.apache.inlong.sort.base.dirty;
 
+import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.inlong.sort.base.util.PatternReplaceUtils;
 
+import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -33,6 +35,8 @@ public class DirtyData<T> {
 
     private static final String DIRTY_TYPE_KEY = "DIRTY_TYPE";
 
+    private static final String DIRTY_MESSAGE_KEY = "DIRTY_MESSAGE";
+
     private static final String SYSTEM_TIME_KEY = "SYSTEM_TIME";
 
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -41,7 +45,7 @@ public class DirtyData<T> {
      * The identifier of dirty data, it will be used for filename generation of file dirty sink,
      * topic generation of mq dirty sink, tablename generation of database, etc,
      * and it supports variable replace like '${variable}'.
-     * There are two system variables[SYSTEM_TIME|DIRTY_TYPE] are currently supported,
+     * There are several system variables[SYSTEM_TIME|DIRTY_TYPE|DIRTY_MESSAGE] are currently supported,
      * and the support of other variables is determined by the connector.
      */
     private final String identifier;
@@ -59,17 +63,30 @@ public class DirtyData<T> {
      */
     private final DirtyType dirtyType;
     /**
+     * Dirty describe message, it is the cause of dirty data
+     */
+    private final String dirtyMessage;
+    /**
+     * The row type of data, it is only used for 'RowData'
+     */
+    private @Nullable final LogicalType rowType;
+    /**
      * The real dirty data
      */
     private final T data;
 
-    public DirtyData(T data, String identifier, String labels, String logTag, DirtyType dirtyType) {
+    public DirtyData(T data, String identifier, String labels,
+            String logTag, DirtyType dirtyType, String dirtyMessage,
+            @Nullable LogicalType rowType) {
         this.data = data;
         this.dirtyType = dirtyType;
+        this.dirtyMessage = dirtyMessage;
+        this.rowType = rowType;
         Map<String, String> paramMap = genParamMap();
         this.labels = PatternReplaceUtils.replace(labels, paramMap);
         this.logTag = PatternReplaceUtils.replace(logTag, paramMap);
         this.identifier = PatternReplaceUtils.replace(identifier, paramMap);
+
     }
 
     public static <T> Builder<T> builder() {
@@ -80,6 +97,7 @@ public class DirtyData<T> {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put(SYSTEM_TIME_KEY, DATE_TIME_FORMAT.format(LocalDateTime.now()));
         paramMap.put(DIRTY_TYPE_KEY, dirtyType.format());
+        paramMap.put(DIRTY_MESSAGE_KEY, dirtyMessage);
         return paramMap;
     }
 
@@ -103,12 +121,19 @@ public class DirtyData<T> {
         return identifier;
     }
 
+    @Nullable
+    public LogicalType getRowType() {
+        return rowType;
+    }
+
     public static class Builder<T> {
 
         private String identifier;
         private String labels;
         private String logTag;
         private DirtyType dirtyType = DirtyType.UNDEFINED;
+        private String dirtyMessage;
+        private LogicalType rowType;
         private T data;
 
         public Builder<T> setDirtyType(DirtyType dirtyType) {
@@ -136,8 +161,18 @@ public class DirtyData<T> {
             return this;
         }
 
+        public Builder<T> setDirtyMessage(String dirtyMessage) {
+            this.dirtyMessage = dirtyMessage;
+            return this;
+        }
+
+        public Builder<T> setRowType(LogicalType rowType) {
+            this.rowType = rowType;
+            return this;
+        }
+
         public DirtyData<T> build() {
-            return new DirtyData<>(data, identifier, labels, logTag, dirtyType);
+            return new DirtyData<>(data, identifier, labels, logTag, dirtyType, dirtyMessage, rowType);
         }
     }
 }

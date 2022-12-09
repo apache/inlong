@@ -79,6 +79,10 @@ public class PulsarSource extends StreamSource {
     @Builder.Default
     private boolean isInlongComponent = false;
 
+    @ApiModelProperty("Whether wrap content with InlongMsg")
+    @Builder.Default
+    private boolean wrapWithInlongMsg = true;
+
     public PulsarSource() {
         this.setSourceType(SourceType.PULSAR);
     }

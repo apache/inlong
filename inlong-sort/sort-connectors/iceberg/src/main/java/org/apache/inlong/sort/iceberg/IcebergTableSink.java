@@ -35,11 +35,14 @@ import org.apache.iceberg.actions.ActionsProvider;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
 import org.apache.inlong.sort.iceberg.sink.FlinkSink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +77,9 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
 
     private boolean overwrite = false;
 
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
+
     private IcebergTableSink(IcebergTableSink toCopy) {
         this.tableLoader = toCopy.tableLoader;
         this.tableSchema = toCopy.tableSchema;
@@ -81,18 +87,24 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
         this.catalogTable = toCopy.catalogTable;
         this.catalogLoader = toCopy.catalogLoader;
         this.actionsProvider = toCopy.actionsProvider;
+        this.dirtyOptions = toCopy.dirtyOptions;
+        this.dirtySink = toCopy.dirtySink;
     }
 
     public IcebergTableSink(TableLoader tableLoader,
             TableSchema tableSchema,
             CatalogTable catalogTable,
             CatalogLoader catalogLoader,
-            ActionsProvider actionsProvider) {
+            ActionsProvider actionsProvider,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         this.tableLoader = tableLoader;
         this.tableSchema = tableSchema;
         this.catalogTable = catalogTable;
         this.catalogLoader = catalogLoader;
         this.actionsProvider = actionsProvider;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
@@ -130,6 +142,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                     .overwrite(overwrite)
                     .appendMode(tableOptions.get(IGNORE_ALL_CHANGELOG))
                     .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT))
+                    .dirtyOptions(dirtyOptions)
+                    .dirtySink(dirtySink)
                     .action(actionsProvider)
                     .append();
         }

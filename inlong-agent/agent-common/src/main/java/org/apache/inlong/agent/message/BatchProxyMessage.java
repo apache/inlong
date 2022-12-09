@@ -20,6 +20,9 @@ package org.apache.inlong.agent.message;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.common.util.MessageUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -39,4 +42,21 @@ public class BatchProxyMessage {
     private long dataTime;
     private Map<String, String> extraMap;
     private boolean isSyncSend;
+
+    public InLongMsg getInLongMsg() {
+        InLongMsg message = InLongMsg.newInLongMsg(true);
+        String attr = MessageUtils.convertAttrToStr(extraMap).toString();
+        for (byte[] lineData : dataList) {
+            message.addMsg(attr, lineData);
+        }
+        return message;
+    }
+
+    public int getMsgCnt() {
+        return CollectionUtils.isEmpty(dataList) ? 0 : dataList.size();
+    }
+
+    public long getTotalSize() {
+        return CollectionUtils.isEmpty(dataList) ? 0 : dataList.stream().mapToLong(body -> body.length).sum();
+    }
 }
