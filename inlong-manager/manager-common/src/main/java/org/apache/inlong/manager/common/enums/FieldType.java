@@ -53,7 +53,6 @@ public enum FieldType {
     MAP,
     STRUCT,
     FUNCTION,
-    TEXT,
     KEYWORD;
 
     public static FieldType forName(String name) {
