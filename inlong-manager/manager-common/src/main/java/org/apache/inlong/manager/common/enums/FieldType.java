@@ -51,7 +51,9 @@ public enum FieldType {
     ARRAY,
     MAP,
     STRUCT,
-    FUNCTION;
+    FUNCTION,
+    TEXT,
+    KEYWORD;
 
     public static FieldType forName(String name) {
         Preconditions.checkNotNull(name, "FieldType should not be null");
