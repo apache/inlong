@@ -429,6 +429,8 @@ public class LoadNodeUtils {
      */
     public static ElasticsearchLoadNode createLoadNode(ElasticsearchSink elasticsearchSink,
             List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations, Map<String, String> properties) {
+        String host = elasticsearchSink.getHost();
+        Integer port = elasticsearchSink.getPort();
         return new ElasticsearchLoadNode(
                 elasticsearchSink.getSinkName(),
                 elasticsearchSink.getSinkName(),
@@ -439,7 +441,7 @@ public class LoadNodeUtils {
                 null,
                 properties,
                 elasticsearchSink.getIndexName(),
-                elasticsearchSink.getHost(),
+                String.format("http://%s:%d", host, port),
                 elasticsearchSink.getUsername(),
                 elasticsearchSink.getPassword(),
                 elasticsearchSink.getDocumentType(),
