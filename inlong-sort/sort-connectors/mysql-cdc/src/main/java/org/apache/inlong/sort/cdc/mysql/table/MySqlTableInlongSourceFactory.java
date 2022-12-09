@@ -26,7 +26,7 @@ import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.debezium.table.DebeziumOptions;
+import org.apache.inlong.sort.cdc.base.debezium.table.DebeziumOptions;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions;
 import org.apache.inlong.sort.cdc.mysql.source.config.ServerIdRange;
 
@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.base.debezium.table.DebeziumOptions.getDebeziumProperties;
+import static org.apache.inlong.sort.cdc.base.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.APPEND_MODE;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.CHUNK_META_GROUP_SIZE;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.CONNECTION_POOL_SIZE;

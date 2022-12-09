@@ -19,8 +19,8 @@
 package org.apache.inlong.sort.cdc.mysql;
 
 import io.debezium.connector.mysql.MySqlConnector;
-import org.apache.inlong.sort.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.base.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
 import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
 import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
 

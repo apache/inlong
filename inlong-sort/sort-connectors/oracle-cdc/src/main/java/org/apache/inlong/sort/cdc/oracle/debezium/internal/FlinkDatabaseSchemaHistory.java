@@ -35,10 +35,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.apache.inlong.sort.base.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.base.debezium.internal.FlinkDatabaseHistory;
-import org.apache.inlong.sort.base.debezium.internal.SchemaRecord;
-import org.apache.inlong.sort.base.util.DatabaseHistoryUtil;
+import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.base.debezium.internal.FlinkDatabaseHistory;
+import org.apache.inlong.sort.cdc.base.debezium.internal.SchemaRecord;
+import org.apache.inlong.sort.cdc.base.util.DatabaseHistoryUtil;
 
 /**
  * The {@link FlinkDatabaseSchemaHistory} only stores the latest schema of the monitored tables.

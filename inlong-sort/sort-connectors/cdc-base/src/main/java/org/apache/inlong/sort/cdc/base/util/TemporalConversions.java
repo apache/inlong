@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.base.util;
+package org.apache.inlong.sort.cdc.base.util;
 
 import java.time.Duration;
 import java.time.Instant;

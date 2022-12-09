@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.base.debezium.table;
+package org.apache.inlong.sort.cdc.base.debezium.table;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
@@ -54,9 +54,9 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.base.filter.RowValidator;
-import org.apache.inlong.sort.base.util.TemporalConversions;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.util.TemporalConversions;
 import org.apache.kafka.connect.data.ConnectSchema;
 import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Field;
@@ -70,9 +70,7 @@ import org.slf4j.LoggerFactory;
  * Deserialization schema from Debezium object to Flink Table/SQL internal data structure {@link
  * RowData}.
  */
-public final class RowDataDebeziumDeserializeSchema
-        implements
-            DebeziumDeserializationSchema<RowData> {
+public final class RowDataDebeziumDeserializeSchema implements DebeziumDeserializationSchema<RowData> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RowDataDebeziumDeserializeSchema.class);
 

@@ -31,8 +31,8 @@ import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeFamily;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
-import org.apache.inlong.sort.base.debezium.table.DeserializationRuntimeConverter;
-import org.apache.inlong.sort.base.debezium.table.DeserializationRuntimeConverterFactory;
+import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverterFactory;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 

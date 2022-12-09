@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.base.debezium.table;
+package org.apache.inlong.sort.cdc.base.debezium.table;
 
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.io.Serializable;

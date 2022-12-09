@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.base.debezium.internal;
+package org.apache.inlong.sort.cdc.base.debezium.internal;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 

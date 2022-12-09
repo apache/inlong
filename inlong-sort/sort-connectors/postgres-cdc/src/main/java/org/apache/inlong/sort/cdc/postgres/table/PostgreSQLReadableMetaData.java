@@ -38,7 +38,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
-import org.apache.inlong.sort.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson.Source;

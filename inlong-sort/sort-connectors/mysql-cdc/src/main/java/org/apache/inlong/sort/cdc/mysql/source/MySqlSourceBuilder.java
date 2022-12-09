@@ -19,7 +19,7 @@
 package org.apache.inlong.sort.cdc.mysql.source;
 
 import org.apache.flink.annotation.PublicEvolving;
-import org.apache.inlong.sort.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfigFactory;
 import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
 
