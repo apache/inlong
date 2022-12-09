@@ -47,7 +47,7 @@ public class KafkaHandler implements MessageQueueHandler {
 
     public static final Logger LOG = LoggerFactory.getLogger(KafkaHandler.class);
     public static final String KEY_NAMESPACE = "namespace";
-    public static final String KAFKA_TOPIC_FORMAT = "%s.%s";
+    public static final String DEFAULT_KAFKA_TOPIC_FORMAT = "%s.%s";
 
     private CacheClusterConfig config;
     private MessageQueueZoneSinkContext sinkContext;
@@ -150,7 +150,7 @@ public class KafkaHandler implements MessageQueueHandler {
     private String getProducerTopic(String baseTopic, IdTopicConfig config) {
         String namespace = config.getParams().get(KEY_NAMESPACE);
         if (StringUtils.isNotEmpty(namespace)) {
-            return String.format(KAFKA_TOPIC_FORMAT, namespace, baseTopic);
+            return String.format(DEFAULT_KAFKA_TOPIC_FORMAT, namespace, baseTopic);
         }
         return baseTopic;
     }
