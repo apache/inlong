@@ -150,7 +150,6 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        LOGGER.info("start open ...");
         org.apache.hadoop.conf.Configuration config = prepareRuntimeConfiguration();
         try {
             this.runtimeContext = getRuntimeContext();
@@ -206,7 +205,6 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             LOGGER.error("Exception while creating connection to HBase.", ioe);
             throw new RuntimeException("Cannot create connection to HBase.", ioe);
         }
-        LOGGER.info("end open.");
     }
 
     private org.apache.hadoop.conf.Configuration prepareRuntimeConfiguration() throws IOException {
@@ -237,7 +235,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
         Throwable cause = failureThrowable.get();
         if (cause != null) {
             LOGGER.error("An error occurred in HBaseSink.", cause);
-            failureThrowable.compareAndSet(cause, null);
+            throw new RuntimeException(cause);
         }
     }
 
@@ -261,7 +259,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                     DirtyData.Builder<Object> builder = DirtyData.builder();
                     try {
                         builder.setData(rowData)
-                                .setDirtyType(DirtyType.DATA_TYPE_MAPPING_ERROR)
+                                .setDirtyType(DirtyType.UNDEFINED)
                                 .setLabels(dirtyOptions.getLabels())
                                 .setLogTag(dirtyOptions.getLogTag())
                                 .setDirtyMessage(e.getMessage())
