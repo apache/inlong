@@ -71,9 +71,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.base</pattern>
-                                    <shadedPattern>
-                                        org.apache.inlong.sort.starrocks.shaded.org.apache.inlong.sort.base
-                                    </shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.starrocks.shaded.org.apache.inlong.sort.base</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
