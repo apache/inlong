@@ -47,6 +47,10 @@ if [ -n "$1" ]; then
 fi
 
 CONFIG_FILE="dataproxy-${MQ_TYPE}.conf"
+if [ "${MQ_TYPE}" == "pulsar" ] || [ "${MQ_TYPE}" == "kafka" ]; then
+  CONFIG_FILE="dataproxy.conf"
+fi
+
 CONFIG_FILE_WITH_COFING_PATH="conf/${CONFIG_FILE}"
 CONFIG_FILE_WITH_PATH="${basedir}/${CONFIG_FILE}"
 
@@ -55,3 +59,4 @@ if [ -f "$CONFIG_FILE_WITH_PATH" ]; then
 else
    error "${CONFIG_FILE_WITH_PATH} is not exist! start failed!" 1
 fi
+

@@ -26,4 +26,7 @@ public class Constants {
 
     public static final int RESULT_FAIL = 1;
 
+    // default kafka topic is {groupId}.{streamId}
+    public static final String DEFAULT_KAFKA_TOPIC_FORMAT = "%s.%s";
+
 }

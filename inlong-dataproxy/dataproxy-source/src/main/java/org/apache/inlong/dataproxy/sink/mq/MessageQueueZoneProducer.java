@@ -108,9 +108,7 @@ public class MessageQueueZoneProducer {
     public void reload() {
         try {
             // stop deleted cluster
-            deletingClusterList.forEach(item -> {
-                item.stop();
-            });
+            deletingClusterList.forEach(MessageQueueClusterProducer::stop);
             deletingClusterList.clear();
             // update cluster list
             List<CacheClusterConfig> configList = this.context.getCacheHolder().getConfigList();

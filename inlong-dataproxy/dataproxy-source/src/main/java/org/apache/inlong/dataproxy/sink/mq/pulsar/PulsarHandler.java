@@ -150,6 +150,7 @@ public class PulsarHandler implements MessageQueueHandler {
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }
+        LOG.info("pulsar handler started");
     }
 
     /**
@@ -169,6 +170,7 @@ public class PulsarHandler implements MessageQueueHandler {
         } catch (PulsarClientException e) {
             LOG.error(e.getMessage(), e);
         }
+        LOG.info("pulsar handler stopped");
     }
 
     /**

@@ -221,6 +221,7 @@ public class SinkContext {
     public MessageQueueHandler createMessageQueueHandler(CacheClusterConfig config) {
         String strHandlerClass = config.getParams().getOrDefault(KEY_MESSAGE_QUEUE_HANDLER,
                 PulsarHandler.class.getName());
+        LOG.info("mq handler class = {}", strHandlerClass);
         try {
             Class<?> handlerClass = ClassUtils.getClass(strHandlerClass);
             Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
