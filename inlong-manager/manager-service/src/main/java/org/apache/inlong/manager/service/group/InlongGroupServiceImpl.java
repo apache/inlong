@@ -421,15 +421,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest request) {
         LOGGER.info("start to list group topic infos, request={}", request);
         Preconditions.checkNotEmpty(request.getClusterTag(), "cluster tag should not be empty");
-        List<InlongGroupEntity> groupEntities = groupMapper.selectByClusterTag(request.getClusterTag());
-        Set<String> targetGroups = new HashSet<>(request.getGroupList());
-        // filter groups if the groupIds are specified
-        if (CollectionUtils.isNotEmpty(targetGroups)) {
-            groupEntities = groupEntities.stream()
-                    .filter(entity -> targetGroups.contains(entity.getInlongGroupId()))
-                    .collect(Collectors.toList());
-        }
-
+        List<InlongGroupEntity> groupEntities = groupMapper.selectByTopicRequest(request);
         List<InlongGroupTopicInfo> topicInfos = new ArrayList<>();
         for (InlongGroupEntity entity : groupEntities) {
             topicInfos.add(this.getTopic(entity.getInlongGroupId()));
