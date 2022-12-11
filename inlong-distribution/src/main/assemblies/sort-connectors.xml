@@ -132,14 +132,6 @@
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/iceberg-dlc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
-            <includes>
-                <include>sort-connector-iceberg-dlc-${project.version}.jar</include>
-            </includes>
-            <fileMode>0644</fileMode>
-        </fileSet>
-        <fileSet>
             <directory>../inlong-sort/sort-connectors/tubemq/target</directory>
             <outputDirectory>inlong-sort/connectors</outputDirectory>
             <includes>

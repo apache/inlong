@@ -28,7 +28,6 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
-import org.apache.inlong.manager.pojo.sink.dlciceberg.DLCIcebergSink;
 import org.apache.inlong.manager.pojo.sink.doris.DorisSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSink;
@@ -57,7 +56,6 @@ import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
-import org.apache.inlong.sort.protocol.node.load.DLCIcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.DorisLoadNode;
 import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
@@ -138,8 +136,6 @@ public class LoadNodeUtils {
                 return createLoadNode((OracleSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.TDSQLPOSTGRESQL:
                 return createLoadNode((TDSQLPostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
-            case SinkType.DLCICEBERG:
-                return createLoadNode((DLCIcebergSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.DORIS:
                 return createLoadNode((DorisSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.STARROCKS:
@@ -559,27 +555,6 @@ public class LoadNodeUtils {
                 tdsqlPostgreSQLSink.getPassword(),
                 tdsqlPostgreSQLSink.getSchemaName() + "." + tdsqlPostgreSQLSink.getTableName(),
                 tdsqlPostgreSQLSink.getPrimaryKey());
-    }
-
-    /**
-     * Create load node of DLCIceberg.
-     */
-    public static DLCIcebergLoadNode createLoadNode(DLCIcebergSink dlcIcebergSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
-        return new DLCIcebergLoadNode(
-                dlcIcebergSink.getSinkName(),
-                dlcIcebergSink.getSinkName(),
-                fieldInfos,
-                fieldRelations,
-                null,
-                null,
-                null,
-                properties,
-                dlcIcebergSink.getDbName(),
-                dlcIcebergSink.getTableName(),
-                dlcIcebergSink.getPrimaryKey(),
-                dlcIcebergSink.getCatalogUri(),
-                dlcIcebergSink.getWarehouse());
     }
 
     /**
