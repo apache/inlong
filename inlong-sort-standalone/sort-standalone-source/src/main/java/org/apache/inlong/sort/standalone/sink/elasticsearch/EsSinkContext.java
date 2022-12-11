@@ -71,15 +71,15 @@ public class EsSinkContext extends SinkContext {
     public static final String KEY_IS_USE_INDEX_ID = "isUseIndexId";
 
     public static final int DEFAULT_BULK_ACTION = 10000;
-    public static final int DEFAULT_BULK_SIZE_MB = 10;
-    public static final int DEFAULT_FLUSH_INTERVAL = 60;
-    public static final int DEFAULT_CONCURRENT_REQUESTS = 15;
-    public static final int DEFAULT_MAX_CONNECT_TOTAL = 500;
-    public static final int DEFAULT_MAX_CONNECT_PER_ROUTE = 50;
-    public static final int DEFAULT_CONNECTION_REQUEST_TIMEOUT = 10000;
-    public static final int DEFAULT_SOCKET_TIMEOUT = 8000;
-    public static final int DEFAULT_MAX_REDIRECTS = 50;
-    public static final int DEFAULT_LOG_MAX_LENGTH = 30 * 1024;
+    public static final int DEFAULT_BULK_SIZE_MB = 20;
+    public static final int DEFAULT_FLUSH_INTERVAL = 2000;
+    public static final int DEFAULT_CONCURRENT_REQUESTS = 20;
+    public static final int DEFAULT_MAX_CONNECT_TOTAL = 1000;
+    public static final int DEFAULT_MAX_CONNECT_PER_ROUTE = 1000;
+    public static final int DEFAULT_CONNECTION_REQUEST_TIMEOUT = 0;
+    public static final int DEFAULT_SOCKET_TIMEOUT = 0;
+    public static final int DEFAULT_MAX_REDIRECTS = 0;
+    public static final int DEFAULT_LOG_MAX_LENGTH = 32 * 1024;
     public static final int DEFAULT_KEYWORD_MAX_LENGTH = 8 * 1024;
     public static final boolean DEFAULT_IS_USE_INDEX_ID = false;
 
