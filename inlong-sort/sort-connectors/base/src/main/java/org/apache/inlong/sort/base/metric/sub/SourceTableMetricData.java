@@ -122,9 +122,14 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
         String metricGroupLabels = labels.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.joining(DELIMITER));
         StringBuilder labelBuilder = new StringBuilder(metricGroupLabels);
-        labelBuilder.append(DELIMITER).append(Constants.DATABASE_NAME).append("=").append(schemaInfoArray[0])
-                .append(DELIMITER).append(Constants.TABLE_NAME).append("=").append(schemaInfoArray[1]);
-
+        if (schemaInfoArray.length == 2) {
+            labelBuilder.append(DELIMITER).append(Constants.DATABASE_NAME).append("=").append(schemaInfoArray[0])
+                    .append(DELIMITER).append(Constants.TABLE_NAME).append("=").append(schemaInfoArray[1]);
+        } else if (schemaInfoArray.length == 3) {
+            labelBuilder.append(DELIMITER).append(Constants.DATABASE_NAME).append("=").append(schemaInfoArray[0])
+                    .append(DELIMITER).append(Constants.SCHEMA_NAME).append("=").append(schemaInfoArray[1])
+                    .append(DELIMITER).append(Constants.TABLE_NAME).append("=").append(schemaInfoArray[2]);
+        }
         MetricOption metricOption = MetricOption.builder()
                 .withInitRecords(subMetricState != null ? subMetricState.getMetricValue(NUM_RECORDS_IN) : 0L)
                 .withInitBytes(subMetricState != null ? subMetricState.getMetricValue(NUM_BYTES_IN) : 0L)
@@ -135,14 +140,18 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
     }
 
     /**
-     * build record schema identify,in the form of database.table
+     * build record schema identify,in the form of database.schema.table or database.table
      *
      * @param database the database name of record
+     * @param schema the schema name of record
      * @param table the table name of record
      * @return the record schema identify
      */
-    public String buildSchemaIdentify(String database, String table) {
-        return database + Constants.SEMICOLON + table;
+    public String buildSchemaIdentify(String database, String schema, String table) {
+        if (schema == null) {
+            return database + Constants.SEMICOLON + table;
+        }
+        return database + Constants.SEMICOLON + schema + Constants.SEMICOLON + table;
     }
 
     /**
@@ -168,12 +177,45 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
             outputMetricsWithEstimate(data);
             return;
         }
-        String identify = buildSchemaIdentify(database, table);
+        String identify = buildSchemaIdentify(database, null, table);
         SourceMetricData subSourceMetricData;
         if (subSourceMetricMap.containsKey(identify)) {
             subSourceMetricData = subSourceMetricMap.get(identify);
         } else {
             subSourceMetricData = buildSubSourceMetricData(new String[]{database, table}, this);
+            subSourceMetricMap.put(identify, subSourceMetricData);
+        }
+        // source metric and sub source metric output metrics
+        long rowCountSize = 1L;
+        long rowDataSize = data.toString().getBytes(StandardCharsets.UTF_8).length;
+        this.outputMetrics(rowCountSize, rowDataSize);
+        subSourceMetricData.outputMetrics(rowCountSize, rowDataSize);
+
+        // output read phase metric
+        outputReadPhaseMetrics((isSnapshotRecord) ? ReadPhase.SNAPSHOT_PHASE : ReadPhase.INCREASE_PHASE);
+    }
+
+    /**
+     * output metrics with estimate
+     *
+     * @param database the database name of record
+     * @param schema the schema name of record
+     * @param table the table name of record
+     * @param isSnapshotRecord is it snapshot record
+     * @param data the data of record
+     */
+    public void outputMetricsWithEstimate(String database, String schema, String table,
+            boolean isSnapshotRecord, Object data) {
+        if (StringUtils.isBlank(database) || StringUtils.isBlank(schema) || StringUtils.isBlank(table)) {
+            outputMetricsWithEstimate(data);
+            return;
+        }
+        String identify = buildSchemaIdentify(database, schema, table);
+        SourceMetricData subSourceMetricData;
+        if (subSourceMetricMap.containsKey(identify)) {
+            subSourceMetricData = subSourceMetricMap.get(identify);
+        } else {
+            subSourceMetricData = buildSubSourceMetricData(new String[]{database, schema, table}, this);
             subSourceMetricMap.put(identify, subSourceMetricData);
         }
         // source metric and sub source metric output metrics

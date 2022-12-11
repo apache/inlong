@@ -517,11 +517,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                                         Struct value = (Struct) record.value();
                                         Struct source = value.getStruct(Envelope.FieldName.SOURCE);
                                         String dbName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
+                                        String schemaName = source.getString(AbstractSourceInfo.SCHEMA_NAME_KEY);
                                         String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
                                         SnapshotRecord snapshotRecord = SnapshotRecord.fromSource(source);
                                         boolean isSnapshotRecord = (SnapshotRecord.TRUE == snapshotRecord);
                                         sourceMetricData
-                                                .outputMetricsWithEstimate(dbName, tableName, isSnapshotRecord, value);
+                                                .outputMetricsWithEstimate(dbName, schemaName, tableName,
+                                                        isSnapshotRecord, value);
                                     } else if (sourceMetricData != null && record != null) {
                                         sourceMetricData.outputMetricsWithEstimate(record.value());
                                     }
