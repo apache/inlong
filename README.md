@@ -93,6 +93,7 @@ You can use InLong in the following ways：
 |              | HDFS              | 2.x, 3.x                     | Lightweight, Standard |
 |              | Hive              | 1.x, 2.x, 3.x                | Lightweight, Standard |
 |              | Iceberg           | 0.12.x                       | Lightweight, Standard |
+|              | Hudi              | 0.12.x                       | Lightweight, Standard |
 |              | Kafka             | 2.x                          | Lightweight, Standard |
 |              | MySQL             | 5.6, 5.7, 8.0.x              | Lightweight, Standard |
 |              | Oracle            | 11, 12, 19                   | Lightweight, Standard |
