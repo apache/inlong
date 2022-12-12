@@ -619,7 +619,6 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String producerId = (String) result.getRetData();
         // get and check topicName and partitionId field
         final int partitionId = request.getPartitionId();
         if (!PBParameterUtils.getTopicNamePartIdInfo(true, request.getTopicName(),
