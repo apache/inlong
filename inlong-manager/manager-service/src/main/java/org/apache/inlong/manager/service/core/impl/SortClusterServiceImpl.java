@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -109,7 +110,7 @@ public class SortClusterServiceImpl implements SortClusterService {
         try {
             reloadAllClusterConfigV2();
         } catch (Throwable t) {
-            LOGGER.error(t.getMessage(), t);
+            LOGGER.error("fail to reload cluster config", t);
         }
         LOGGER.debug("end to reload config");
     }
@@ -239,6 +240,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                             .sinkParams(this.parseSinkParamsV2(nodeInfo))
                             .build();
                 })
+                .filter(config -> Objects.nonNull(config.getSinkParams()))
                 .collect(Collectors.toList());
 
         return SortClusterConfig.builder()
@@ -258,9 +260,10 @@ public class SortClusterServiceImpl implements SortClusterService {
                         LOGGER.error("fail to parse id params of groupId={}, streamId={} name={}, type={}}",
                                 streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
                                 streamSink.getSinkName(), streamSink.getSinkType(), e);
-                        return new HashMap<String, String>();
+                        return null;
                     }
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
@@ -271,7 +274,7 @@ public class SortClusterServiceImpl implements SortClusterService {
         } catch (Exception e) {
             LOGGER.error("fail to parse sink params of nodeName={}, type={}",
                     nodeInfo.getName(), nodeInfo.getType(), e);
-            return new HashMap<>();
+            return null;
         }
     }
 
