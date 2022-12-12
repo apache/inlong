@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mq.pulsar;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
@@ -325,8 +326,11 @@ public class PulsarHandler implements MessageQueueHandler {
             Producer<byte[]> producer,
             String producerTopic) throws Exception {
         // headers
-        Map<String, String> headers = event.getSimpleProfile().getHeaders();
-        // compress
+        Map<String, String> headers = event.getProperties();
+        if (MapUtils.isEmpty(headers)) {
+            headers = event.getSimpleProfile().getHeaders();
+        }
+        // body
         byte[] bodyBytes = event.getSimpleProfile().getBody();
         // sendAsync
         long sendTime = System.currentTimeMillis();

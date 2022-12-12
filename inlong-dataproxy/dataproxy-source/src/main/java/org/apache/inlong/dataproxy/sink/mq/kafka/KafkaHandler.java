@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mq.kafka;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.common.constant.Constants;
@@ -204,14 +205,18 @@ public class KafkaHandler implements MessageQueueHandler {
     private void sendSimpleProfileV0(SimpleBatchPackProfileV0 event, IdTopicConfig idConfig,
             String topic) throws Exception {
         // headers
-        Map<String, String> headers = event.getSimpleProfile().getHeaders();
-        // compress
+        Map<String, String> headers = event.getProperties();
+        if (MapUtils.isEmpty(headers)) {
+            headers = event.getSimpleProfile().getHeaders();
+        }
+        // body
         byte[] bodyBytes = event.getSimpleProfile().getBody();
         // sendAsync
         long sendTime = System.currentTimeMillis();
 
         // prepare ProducerRecord
         ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>(topic, bodyBytes);
+
         // add headers
         headers.forEach((key, value) -> {
             producerRecord.headers().add(key, value.getBytes());

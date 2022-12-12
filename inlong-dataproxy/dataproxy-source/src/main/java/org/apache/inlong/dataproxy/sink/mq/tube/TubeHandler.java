@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mq.tube;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
@@ -239,12 +240,16 @@ public class TubeHandler implements MessageQueueHandler {
     private void sendSimpleProfileV0(SimpleBatchPackProfileV0 event, IdTopicConfig idConfig,
             String topic) throws Exception {
         // headers
-        Map<String, String> headers = event.getSimpleProfile().getHeaders();
+        Map<String, String> headers = event.getProperties();
+        if (MapUtils.isEmpty(event.getProperties())) {
+            headers = event.getSimpleProfile().getHeaders();
+        }
         // compress
         byte[] bodyBytes = event.getSimpleProfile().getBody();
         // sendAsync
         Message message = new Message(topic, bodyBytes);
         // add headers
+
         headers.forEach((key, value) -> {
             message.setAttrKeyVal(key, value);
         });
