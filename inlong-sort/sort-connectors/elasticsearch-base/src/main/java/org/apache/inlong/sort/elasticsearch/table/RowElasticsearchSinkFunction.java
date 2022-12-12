@@ -104,7 +104,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                 .withInlongAudit(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
-                .withRegisterMetric(RegisteredMetric.ALL)
+                .withRegisterMetric(RegisteredMetric.NORMAL)
                 .build();
         if (metricOption != null) {
             sinkMetricData = new SinkMetricData(metricOption, runtimeContext.getMetricGroup());
