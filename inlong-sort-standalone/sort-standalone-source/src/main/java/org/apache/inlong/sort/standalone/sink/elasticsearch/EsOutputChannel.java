@@ -109,10 +109,14 @@ public class EsOutputChannel extends Thread {
                         new UsernamePasswordCredentials(userName, password));
                 builder.setHttpClientConfigCallback((httpAsyncClientBuilder) -> {
                     httpAsyncClientBuilder.disableAuthCaching();
-                    RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(120 * 1000).build();
+                    RequestConfig requestConfig = RequestConfig.custom()
+                            .setConnectionRequestTimeout(context.getConnectionRequestTimeout())
+                            .setMaxRedirects(context.getMaxRedirects())
+                            .setSocketTimeout(context.getSocketTimeout())
+                            .setConnectTimeout(120 * 1000).build();
                     return httpAsyncClientBuilder.setDefaultCredentialsProvider(provider)
                             .setMaxConnTotal(context.getMaxConnect())
-                            .setMaxConnPerRoute(context.getMaxConnect())
+                            .setMaxConnPerRoute(context.getMaxConnectPerRoute())
                             .setDefaultRequestConfig(requestConfig);
                 });
                 esClient = EsSinkFactory.createRestHighLevelClient(builder);
