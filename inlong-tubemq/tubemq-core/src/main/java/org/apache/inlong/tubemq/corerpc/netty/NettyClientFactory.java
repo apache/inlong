@@ -142,11 +142,6 @@ public class NettyClientFactory implements ClientFactory {
                     client.close(false);
                     client = existClient;
                 }
-            } catch (LocalConnException e) {
-                if (client != null) {
-                    client.close(false);
-                }
-                throw e;
             } catch (Exception e) {
                 if (client != null) {
                     client.close(false);
