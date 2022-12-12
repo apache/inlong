@@ -17,23 +17,14 @@
 
 package org.apache.inlong.sort.cdc.mongodb;
 
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.Validator;
-import com.ververica.cdc.debezium.internal.DebeziumChangeConsumer;
-import com.ververica.cdc.debezium.internal.DebeziumChangeFetcher;
-import com.ververica.cdc.debezium.internal.DebeziumOffset;
-import com.ververica.cdc.debezium.internal.DebeziumOffsetSerializer;
-import com.ververica.cdc.debezium.internal.FlinkDatabaseHistory;
-import com.ververica.cdc.debezium.internal.FlinkDatabaseSchemaHistory;
-import com.ververica.cdc.debezium.internal.FlinkOffsetBackingStore;
-import com.ververica.cdc.debezium.internal.Handover;
-import com.ververica.cdc.debezium.internal.SchemaRecord;
 import io.debezium.document.DocumentReader;
 import io.debezium.document.DocumentWriter;
 import io.debezium.embedded.Connect;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.spi.OffsetCommitPolicy;
 import io.debezium.heartbeat.Heartbeat;
+import io.debezium.relational.history.TableChanges;
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -62,6 +53,17 @@ import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumChangeConsumer;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumChangeFetcher;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumOffsetSerializer;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.FlinkDatabaseHistory;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.FlinkDatabaseSchemaHistory;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.FlinkOffsetBackingStore;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.Handover;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.SchemaRecord;
+import org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,8 +81,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
-import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
@@ -345,7 +345,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             }
         }
         if (engineInstanceName != null) {
-            registerHistory(engineInstanceName, historyRecords);
+            DatabaseHistoryUtil.registerHistory(engineInstanceName, historyRecords);
         }
         LOG.info(
                 "Consumer subtask {} restored history records state: {} with {} records.",
@@ -411,7 +411,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
         if (engineInstanceName != null) {
             schemaRecordsState.add(engineInstanceName);
-            Collection<SchemaRecord> records = retrieveHistory(engineInstanceName);
+            Collection<SchemaRecord> records = DatabaseHistoryUtil.retrieveHistory(engineInstanceName);
             DocumentWriter writer = DocumentWriter.defaultWriter();
             for (SchemaRecord record : records) {
                 schemaRecordsState.add(writer.write(record.toDocument()));
@@ -490,6 +490,15 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                                     sourceMetricData.outputMetricsWithEstimate(record.value());
                                 }
                                 deserializer.deserialize(record, out);
+                            }
+
+                            @Override
+                            public void deserialize(SourceRecord record, Collector<T> out,
+                                    TableChanges.TableChange tableSchema) throws Exception {
+                                if (sourceMetricData != null) {
+                                    sourceMetricData.outputMetricsWithEstimate(record.value());
+                                }
+                                deserializer.deserialize(record, out, tableSchema);
                             }
 
                             @Override
@@ -632,7 +641,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private Class<?> determineDatabase() {
         boolean isCompatibleWithLegacy =
-                FlinkDatabaseHistory.isCompatible(retrieveHistory(engineInstanceName));
+                FlinkDatabaseHistory.isCompatible(DatabaseHistoryUtil.retrieveHistory(engineInstanceName));
         if (LEGACY_IMPLEMENTATION_VALUE.equals(properties.get(LEGACY_IMPLEMENTATION_KEY))) {
             // specifies the legacy implementation but the state may be incompatible
             if (isCompatibleWithLegacy) {
@@ -642,7 +651,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         "The configured option 'debezium.internal.implementation' is 'legacy', but the state of "
                                 + "source is incompatible with this implementation, you should remove the the option.");
             }
-        } else if (FlinkDatabaseSchemaHistory.isCompatible(retrieveHistory(engineInstanceName))) {
+        } else if (FlinkDatabaseSchemaHistory.isCompatible(DatabaseHistoryUtil.retrieveHistory(engineInstanceName))) {
             // tries the non-legacy first
             return FlinkDatabaseSchemaHistory.class;
         } else if (isCompatibleWithLegacy) {
