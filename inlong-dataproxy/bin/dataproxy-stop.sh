@@ -20,4 +20,7 @@
 #
 
 # this program kills the dataProxy
+ps -ef |grep "org.apache.inlong.dataproxy.node.Application"|grep "inlong-dataproxy"|grep -v grep|awk '{print $2}'|xargs kill
+echo "Stoping inlong-dataproxy application,please wait 30s. "
+sleep 30
 ps -ef |grep "org.apache.inlong.dataproxy.node.Application"|grep "inlong-dataproxy"|grep -v grep|awk '{print $2}'|xargs kill -9
