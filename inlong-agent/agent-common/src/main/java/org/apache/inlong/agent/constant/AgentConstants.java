@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.constant;
 
+import io.netty.util.NettyRuntime;
+import io.netty.util.internal.SystemPropertyUtil;
 import org.apache.inlong.agent.utils.AgentUtils;
 
 /**
@@ -130,4 +132,50 @@ public class AgentConstants {
     public static final String AGENT_METRIC_LISTENER_CLASS = "agent.domainListeners";
     public static final String AGENT_METRIC_LISTENER_CLASS_DEFAULT =
             "org.apache.inlong.agent.metrics.AgentPrometheusMetricListener";
+
+    // pulsar sink config
+    public static final String PULSAR_CLIENT_IO_TREHAD_NUM = "agent.sink.pulsar.client.io.thread.num";
+    public static final int DEFAULT_PULSAR_CLIENT_IO_TREHAD_NUM = Math.max(1,
+            SystemPropertyUtil.getInt("io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
+
+    public static final String PULSAR_CONNECTION_PRE_BROKER = "agent.sink.pulsar.connection.pre.broker";
+    public static final int DEFAULT_PULSAR_CONNECTION_PRE_BROKER = 1;
+
+    public static final String PULSAR_CLIENT_TIMEOUT_SECOND = "agent.sink.pulsar.send.timeout.second";
+    public static final int DEFAULT_PULSAR_CLIENT_TIMEOUT_SECOND = 30;
+
+    public static final String PULSAR_CLIENT_ENABLE_BATCH = "agent.sink.pullsar.enable.batch";
+    public static final boolean DEFAULT_PULSAR_CLIENT_ENABLE_BATCH = true;
+
+    public static final String PULSAR_CLIENT_BLOCK_IF_QUEUE_FULL = "agent.sink.pulsar.block.if.queue.full";
+    public static final boolean DEFAULT_BLOCK_IF_QUEUE_FULL = true;
+
+    public static final String PULSAR_CLIENT_MAX_PENDING_MESSAGES = "agent.sink.pulsar.max.pending.messages";
+    public static final int DEFAULT_MAX_PENDING_MESSAGES = 10000;
+
+    public static final String PULSAR_CLIENT_MAX_PENDING_MESSAGES_ACROSS_PARTITION =
+            "agent.sink.pulsar.max.messages.across.partition";
+    public static final int DEFAULT_MAX_PENDING_MESSAGES_ACROSS_PARTITION = 500000;
+
+    public static final String PULSAR_CLIENT_MAX_BATCH_BYTES = "agent.sink.pulsar.max.batch.bytes";
+    public static final int DEFAULT_MAX_BATCH_BYTES = 128 * 1024;
+
+    public static final String PULSAR_CLIENT_MAX_BATCH_MESSAGES = "agent.sink.pulsar.max.batch.messages";
+    public static final int DEFAULT_MAX_BATCH_MESSAGES = 1000;
+
+    public static final String PULSAR_CLIENT_MAX_BATCH_INTERVAL_MILLIS = "agent.sink.pulsar.max.batch.interval.millis";
+    public static final int DEFAULT_MAX_BATCH_INTERVAL_MILLIS = 1;
+
+    public static final String PULSAR_CLIENT_COMPRESSION_TYPE = "agent.sink.pulsar.compression.type";
+    public static final String DEFAULT_COMPRESSION_TYPE = "NONE";
+
+    public static final String PULSAR_CLIENT_PRODUCER_NUM = "agent.sink.pulsar.producer.num";
+    public static final int DEFAULT_PRODUCER_NUM = 3;
+
+    public static final String PULSAR_CLIENT_ENABLE_ASYNC_SEND = "agent.sink.pulsar.enbale.async.send";
+    public static final boolean DEFAULT_ENABLE_ASYNC_SEND = true;
+
+    public static final String PULSAR_SINK_SEND_QUEUE_SIZE = "agent.sink.pulsar.send.queue.size";
+    public static final int DEFAULT_SEND_QUEUE_SIZE = 20000;
+
 }

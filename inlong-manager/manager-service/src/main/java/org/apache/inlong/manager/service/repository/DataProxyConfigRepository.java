@@ -262,6 +262,9 @@ public class DataProxyConfigRepository implements IRepository {
             // cache
             String clusterTag = proxyObj.getSetName();
             String extTag = proxyObj.getZone();
+            if (StringUtils.isEmpty(extTag)) {
+                continue;
+            }
             Map<String, List<CacheCluster>> cacheClusterZoneMap = cacheClusterMap.get(clusterTag);
             if (cacheClusterZoneMap != null) {
                 Map<String, String> subTagMap = tagCache.computeIfAbsent(extTag, k -> MAP_SPLITTER.split(extTag));
@@ -410,12 +413,12 @@ public class DataProxyConfigRepository implements IRepository {
 
                 Map<String, String> streamParam = streamParams.get(inlongId);
                 if (streamParam != null && !StringUtils.isBlank(streamParam.get(ClusterSwitch.BACKUP_MQ_RESOURCE))) {
-                    obj.setTopic(streamParam.get(ClusterSwitch.BACKUP_MQ_RESOURCE));
+                    backupObj.setTopic(streamParam.get(ClusterSwitch.BACKUP_MQ_RESOURCE));
                     backupObj.getParams().put(KEY_NAMESPACE, groupMqResource);
                 } else {
-                    obj.setTopic(groupMqResource);
+                    backupObj.setTopic(groupMqResource);
                 }
-                inlongIdMap.computeIfAbsent(clusterTag, k -> new ArrayList<>()).add(obj);
+                inlongIdMap.computeIfAbsent(clusterTag, k -> new ArrayList<>()).add(backupObj);
             }
         }
         return inlongIdMap;

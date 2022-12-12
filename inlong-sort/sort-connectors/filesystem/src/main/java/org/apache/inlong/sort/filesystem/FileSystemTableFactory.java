@@ -39,6 +39,9 @@ import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.factories.TableFactory;
 import org.apache.flink.table.filesystem.FileSystemOptions;
 import org.apache.flink.table.filesystem.FileSystemTableSource;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -48,6 +51,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.time.ZoneId.SHORT_IDS;
+import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
@@ -86,13 +90,17 @@ public class FileSystemTableFactory implements DynamicTableSourceFactory, Dynami
     public DynamicTableSink createDynamicTableSink(Context context) {
         FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         validate(helper);
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         return new FileSystemTableSink(
                 context,
                 discoverDecodingFormat(context, BulkReaderFormatFactory.class),
                 discoverDecodingFormat(context, DeserializationFormatFactory.class),
                 discoverFormatFactory(context),
                 discoverEncodingFormat(context, BulkWriterFormatFactory.class),
-                discoverEncodingFormat(context, SerializationFormatFactory.class));
+                discoverEncodingFormat(context, SerializationFormatFactory.class),
+                dirtyOptions,
+                dirtySink);
     }
 
     @Override
@@ -132,7 +140,7 @@ public class FileSystemTableFactory implements DynamicTableSourceFactory, Dynami
     private void validate(FactoryUtil.TableFactoryHelper helper) {
         // Except format options, some formats like parquet and orc can not list all supported
         // options.
-        helper.validateExcept(helper.getOptions().get(FactoryUtil.FORMAT) + ".");
+        helper.validateExcept(helper.getOptions().get(FactoryUtil.FORMAT) + ".", DIRTY_PREFIX);
 
         // validate time zone of watermark
         String watermarkTimeZone =

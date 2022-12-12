@@ -50,6 +50,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.DATA_TYPE_RAW_PREFIX;
+
 /**
  * Pulsar stream source operator
  */
@@ -127,6 +129,10 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             pulsarSource.setAdminUrl(adminUrl);
             pulsarSource.setServiceUrl(serviceUrl);
             pulsarSource.setInlongComponent(true);
+
+            // CSV: InLong message type whose message body is raw CSV
+            // Raw-CSV: messages are separated by a specific separator
+            pulsarSource.setWrapWithInlongMsg(streamInfo.getDataType().startsWith(DATA_TYPE_RAW_PREFIX));
 
             // set the token info
             if (StringUtils.isNotBlank(pulsarCluster.getToken())) {

@@ -79,6 +79,8 @@ public class JobManager extends AbstractDaemon {
     private final AgentMetricItemSet jobMetrics;
     private final Map<String, String> dimensions;
 
+    private final AgentConfiguration agentConf;
+
     /**
      * init job manager
      *
@@ -88,20 +90,18 @@ public class JobManager extends AbstractDaemon {
         this.jobProfileDb = jobProfileDb;
         this.agentManager = agentManager;
         // job thread pool for running
-        this.runningPool = new ThreadPoolExecutor(
-                0, Integer.MAX_VALUE,
-                60L, TimeUnit.SECONDS,
-                new SynchronousQueue<>(),
-                new AgentThreadFactory("job"));
+        this.runningPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+                new SynchronousQueue<>(), new AgentThreadFactory("job"));
         this.jobs = new ConcurrentHashMap<>();
+        this.agentConf = AgentConfiguration.getAgentConf();
         this.pendingJobs = new ConcurrentHashMap<>();
-        AgentConfiguration conf = AgentConfiguration.getAgentConf();
-        this.monitorInterval = conf
+        this.monitorInterval = agentConf
                 .getInt(
                         AgentConstants.JOB_MONITOR_INTERVAL, AgentConstants.DEFAULT_JOB_MONITOR_INTERVAL);
-        this.jobDbCacheTime = conf.getLong(JOB_DB_CACHE_TIME, DEFAULT_JOB_DB_CACHE_TIME);
-        this.jobDbCacheCheckInterval = conf.getLong(JOB_DB_CACHE_CHECK_INTERVAL, DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL);
-        this.jobMaxSize = conf.getLong(JOB_NUMBER_LIMIT, DEFAULT_JOB_NUMBER_LIMIT);
+        this.jobDbCacheTime = agentConf.getLong(JOB_DB_CACHE_TIME, DEFAULT_JOB_DB_CACHE_TIME);
+        this.jobDbCacheCheckInterval = agentConf.getLong(JOB_DB_CACHE_CHECK_INTERVAL,
+                DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL);
+        this.jobMaxSize = agentConf.getLong(JOB_NUMBER_LIMIT, DEFAULT_JOB_NUMBER_LIMIT);
 
         this.dimensions = new HashMap<>();
         this.dimensions.put(KEY_COMPONENT_NAME, this.getClass().getSimpleName());

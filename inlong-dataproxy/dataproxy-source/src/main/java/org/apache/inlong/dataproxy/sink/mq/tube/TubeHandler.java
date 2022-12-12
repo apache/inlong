@@ -147,6 +147,7 @@ public class TubeHandler implements MessageQueueHandler {
                 LOG.error(e.getMessage(), e);
             }
         }
+        LOG.info("tube handler stopped");
     }
 
     /**

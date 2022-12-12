@@ -93,12 +93,15 @@ You can use InLong in the following ways：
 |              | HDFS              | 2.x, 3.x                     | Lightweight, Standard |
 |              | Hive              | 1.x, 2.x, 3.x                | Lightweight, Standard |
 |              | Iceberg           | 0.12.x                       | Lightweight, Standard |
+|              | Hudi              | 0.12.x                       | Lightweight, Standard |
 |              | Kafka             | 2.x                          | Lightweight, Standard |
 |              | MySQL             | 5.6, 5.7, 8.0.x              | Lightweight, Standard |
 |              | Oracle            | 11, 12, 19                   | Lightweight, Standard |
 |              | PostgreSQL        | 9.6, 10, 11, 12              | Lightweight, Standard |
 |              | SQLServer         | 2012, 2014, 2016, 2017, 2019 | Lightweight, Standard |
 |              | TDSQL-PostgreSQL  | 10.17                        | Lightweight, Standard |
+|              | Doris             | >= 0.13                      | Lightweight, Standard |
+|              | StarRocks         | >= 2.0                       | Lightweight, Standard |
 
 ## Build InLong
 More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/next/quick_start/how_to_build) section in the documentation.

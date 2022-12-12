@@ -255,6 +255,7 @@ public class FieldInfoUtils {
                 formatInfo = createRowFormatInfo(format);
                 break;
             case VARCHAR:
+            case TEXT:
             default: // default is string
                 formatInfo = new StringFormatInfo();
         }

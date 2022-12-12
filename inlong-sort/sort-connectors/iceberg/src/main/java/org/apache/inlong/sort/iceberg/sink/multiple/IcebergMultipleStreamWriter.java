@@ -28,6 +28,7 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.operators.BoundedOneInput;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.FileFormat;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.Table;
@@ -38,6 +39,8 @@ import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.types.Types.NestedField;
 import org.apache.iceberg.util.PropertyUtil;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
@@ -95,18 +98,24 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
     private transient SinkMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
 
     public IcebergMultipleStreamWriter(
             boolean appendMode,
             CatalogLoader catalogLoader,
             String inlongMetric,
             String auditHostAndPorts,
-            MultipleSinkOption multipleSinkOption) {
+            MultipleSinkOption multipleSinkOption,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         this.appendMode = appendMode;
         this.catalogLoader = catalogLoader;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.multipleSinkOption = multipleSinkOption;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
@@ -182,11 +191,11 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                         .map(NestedField::fieldId)
                         .collect(Collectors.toList());
             }
-
+            RowType flinkRowType = FlinkSchemaUtil.convert(recordWithSchema.getSchema());
             TaskWriterFactory<RowData> taskWriterFactory = new RowDataTaskWriterFactory(
                     table,
                     recordWithSchema.getSchema(),
-                    FlinkSchemaUtil.convert(recordWithSchema.getSchema()),
+                    flinkRowType,
                     targetFileSizeBytes,
                     fileFormat,
                     equalityFieldIds,
@@ -195,7 +204,8 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
 
             if (multipleWriters.get(tableId) == null) {
                 IcebergSingleStreamWriter<RowData> writer = new IcebergSingleStreamWriter<>(
-                        tableId.toString(), taskWriterFactory, null, null);
+                        tableId.toString(), taskWriterFactory, null,
+                        null, flinkRowType, dirtyOptions, dirtySink);
                 writer.setup(getRuntimeContext(),
                         new CallbackCollector<>(
                                 writeResult -> collector.collect(new MultipleWriteResult(tableId, writeResult))),
@@ -206,6 +216,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             } else { // only if second times schema will evolute
                 // Refresh new schema maybe cause previous file writer interrupted, so here should handle it
                 multipleWriters.get(tableId).schemaEvolution(taskWriterFactory);
+                multipleWriters.get(tableId).setFlinkRowType(flinkRowType);
             }
 
         }

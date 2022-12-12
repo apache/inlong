@@ -24,6 +24,10 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.table.filesystem.stream.compact.CompactMessages.CoordinatorInput;
 import org.apache.flink.table.filesystem.stream.compact.CompactMessages.EndCheckpoint;
 import org.apache.flink.table.filesystem.stream.compact.CompactMessages.InputFile;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+
+import javax.annotation.Nullable;
 
 /** Writer for emitting {@link InputFile} and {@link EndCheckpoint} to downstream. */
 public class CompactFileWriter<T>
@@ -36,8 +40,10 @@ public class CompactFileWriter<T>
             long bucketCheckInterval,
             StreamingFileSink.BucketsBuilder<T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>> bucketsBuilder,
             String inlongMetric,
-            String auditHostAndPorts) {
-        super(bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
+            String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
+        super(bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
     }
 
     @Override

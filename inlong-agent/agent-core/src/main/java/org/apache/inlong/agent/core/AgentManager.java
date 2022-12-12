@@ -71,12 +71,12 @@ public class AgentManager extends AbstractDaemon {
         jobProfileDb = new JobProfileDb(db);
         String parentConfPath = conf.get(AGENT_CONF_PARENT, DEFAULT_AGENT_CONF_PARENT);
         localProfile = new LocalProfile(parentConfPath);
-        fetcher = initFetcher(this);
         triggerManager = new TriggerManager(this, new TriggerProfileDb(db));
         jobManager = new JobManager(this, jobProfileDb);
         taskManager = new TaskManager(this);
-        heartbeatManager = new HeartbeatManager(this);
-        taskPositionManager = TaskPositionManager.getTaskPositionManager(this);
+        fetcher = initFetcher(this);
+        heartbeatManager = HeartbeatManager.getInstance(this);
+        taskPositionManager = TaskPositionManager.getInstance(this);
         // need to be an option.
         if (conf.getBoolean(
                 AgentConstants.AGENT_ENABLE_HTTP, AgentConstants.DEFAULT_AGENT_ENABLE_HTTP)) {

@@ -17,7 +17,9 @@
 
 package org.apache.inlong.manager.pojo.cluster.kafka;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,8 +35,15 @@ import javax.validation.constraints.NotNull;
 @Data
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("Kafka cluster info")
 public class KafkaClusterDTO {
+
+    @Builder.Default
+    private String messageQueueHandler = "org.apache.inlong.dataproxy.sink.mq.kafka.KafkaHandler";
+
+    @JsonProperty("bootstrap.servers")
+    private String bootstrapServers;
 
     /**
      * Get the dto instance from the request

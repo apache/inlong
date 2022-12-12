@@ -41,12 +41,14 @@ import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.GreenplumLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
+import org.apache.inlong.sort.protocol.node.load.HudiLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
+import org.apache.inlong.sort.protocol.node.load.StarRocksLoadNode;
 import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
@@ -88,7 +90,10 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = OracleLoadNode.class, name = "oracleLoad"),
         @JsonSubTypes.Type(value = GreenplumLoadNode.class, name = "greenplumLoad"),
         @JsonSubTypes.Type(value = DLCIcebergLoadNode.class, name = "dlcIcebergLoad"),
-        @JsonSubTypes.Type(value = DorisLoadNode.class, name = "dorisLoad")
+        @JsonSubTypes.Type(value = DorisLoadNode.class, name = "dorisLoad"),
+        @JsonSubTypes.Type(value = HudiLoadNode.class, name = "hudiLoad"),
+        @JsonSubTypes.Type(value = DorisLoadNode.class, name = "dorisLoad"),
+        @JsonSubTypes.Type(value = StarRocksLoadNode.class, name = "starRocksLoad"),
 })
 public interface Node {
 

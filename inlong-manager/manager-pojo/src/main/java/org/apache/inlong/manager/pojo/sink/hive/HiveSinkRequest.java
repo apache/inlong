@@ -41,7 +41,6 @@ import java.util.List;
 @JsonTypeDefine(value = SinkType.HIVE)
 public class HiveSinkRequest extends SinkRequest {
 
-    @NotBlank(message = "jdbcUrl cannot be blank")
     @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
     private String jdbcUrl;
 
@@ -59,7 +58,6 @@ public class HiveSinkRequest extends SinkRequest {
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @NotBlank(message = "dataPath cannot be blank")
     @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
     private String dataPath;
 

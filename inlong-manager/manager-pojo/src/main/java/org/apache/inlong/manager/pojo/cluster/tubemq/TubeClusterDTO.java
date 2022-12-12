@@ -45,6 +45,9 @@ public class TubeClusterDTO {
     @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080", notes = "TubeMQ master RPC URL is the 'url' field of the cluster")
     private String masterWebUrl;
 
+    @Builder.Default
+    private String messageQueueHandler = "org.apache.inlong.dataproxy.sink.mq.tube.TubeHandler";
+
     /**
      * Get the dto instance from the JSON string.
      */

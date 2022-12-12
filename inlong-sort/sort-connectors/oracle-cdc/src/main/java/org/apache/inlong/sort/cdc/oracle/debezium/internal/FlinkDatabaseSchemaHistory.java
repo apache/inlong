@@ -35,8 +35,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.apache.inlong.sort.cdc.oracle.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil;
+import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.base.debezium.internal.FlinkDatabaseHistory;
+import org.apache.inlong.sort.cdc.base.debezium.internal.SchemaRecord;
+import org.apache.inlong.sort.cdc.base.util.DatabaseHistoryUtil;
 
 /**
  * The {@link FlinkDatabaseSchemaHistory} only stores the latest schema of the monitored tables.
@@ -90,7 +92,7 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
         this.useCatalogBeforeSchema = useCatalogBeforeSchema;
 
         // recover
-        this.latestTables = new ConcurrentHashMap<>();
+        latestTables = new ConcurrentHashMap<>(6);
         for (SchemaRecord schemaRecord : DatabaseHistoryUtil.retrieveHistory(instanceName)) {
             // validate here
             TableChange tableChange =
