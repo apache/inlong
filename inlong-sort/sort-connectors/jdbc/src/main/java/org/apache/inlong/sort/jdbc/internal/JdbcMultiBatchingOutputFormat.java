@@ -136,6 +136,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
+        LOG.info("Get schemaUpdateExceptionPolicy:{}", schemaUpdateExceptionPolicy);
     }
 
     /**
@@ -449,7 +450,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         for (Map.Entry<String, List<GenericRowData>> entry : recordsMap.entrySet()) {
             String tableIdentifier = entry.getKey();
             if (null != tableExceptionMap.get(tableIdentifier)
-                    && schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE)) {
+                    && (schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE)
+                            || schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.STOP_PARTIAL))) {
                 continue;
             }
             List<GenericRowData> tableIdRecordList = entry.getValue();
@@ -507,6 +509,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 }
             }
             if (!flushFlag && null != tableException) {
+                LOG.info("Put tableIdentifier:{} exception:{}",
+                        tableIdentifier, tableException.getMessage());
                 tableExceptionMap.put(tableIdentifier, tableException);
             }
             tableIdRecordList.clear();
