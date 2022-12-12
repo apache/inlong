@@ -100,6 +100,8 @@ You can use InLong in the following ways：
 |              | PostgreSQL        | 9.6, 10, 11, 12              | Lightweight, Standard |
 |              | SQLServer         | 2012, 2014, 2016, 2017, 2019 | Lightweight, Standard |
 |              | TDSQL-PostgreSQL  | 10.17                        | Lightweight, Standard |
+|              | Doris             | >= 0.13                      | Lightweight, Standard |
+|              | StarRocks         | >= 2.0                       | Lightweight, Standard |
 
 ## Build InLong
 More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/next/quick_start/how_to_build) section in the documentation.
