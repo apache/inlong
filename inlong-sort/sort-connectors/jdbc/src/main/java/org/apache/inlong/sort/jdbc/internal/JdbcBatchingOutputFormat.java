@@ -249,7 +249,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     }
 
     @Override
-    public final synchronized void writeRecord(In record) throws IOException {
+    public final synchronized void writeRecord(In record) {
         checkFlushException();
 
         rowSize++;
@@ -268,8 +268,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         } catch (Exception e) {
             LOG.error(String.format("serialize error, raw data: %s", record), e);
             handleDirtyData(record, DirtyType.SERIALIZE_ERROR, e);
-            resetStateAfterFlush();
-            throw new IOException("Writing records to JDBC failed.", e);
         }
     }
 
@@ -527,7 +525,9 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                         dml,
                         executionOptionsBuilder.build(),
                         inlongMetric,
-                        auditHostAndPorts);
+                        auditHostAndPorts,
+                        dirtyOptions,
+                        dirtySink);
             } else {
                 // warn: don't close over builder fields
                 String sql =
