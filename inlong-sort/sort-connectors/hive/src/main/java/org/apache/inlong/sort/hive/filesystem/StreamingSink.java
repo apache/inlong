@@ -41,7 +41,10 @@ import org.apache.flink.table.filesystem.stream.compact.CompactOperator;
 import org.apache.flink.table.filesystem.stream.compact.CompactReader;
 import org.apache.flink.table.filesystem.stream.compact.CompactWriter;
 import org.apache.flink.util.function.SupplierWithException;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
@@ -65,9 +68,12 @@ public class StreamingSink {
             StreamingFileSink.BucketsBuilder<T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>> bucketsBuilder,
             int parallelism,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         StreamingFileWriter<T> fileWriter =
-                new StreamingFileWriter<>(bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
+                new StreamingFileWriter<>(bucketCheckInterval, bucketsBuilder,
+                        inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
         return inputStream
                 .transform(
                         StreamingFileWriter.class.getSimpleName(),
@@ -90,9 +96,11 @@ public class StreamingSink {
             long targetFileSize,
             int parallelism,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         CompactFileWriter<T> writer = new CompactFileWriter<>(
-                bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
+                bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
 
         SupplierWithException<FileSystem, IOException> fsSupplier =
                 (SupplierWithException<FileSystem, IOException> & Serializable) () -> fsFactory.create(path.toUri());

@@ -40,6 +40,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,6 +72,13 @@ public class HbaseLoadFlinkSqlParseTest extends AbstractTestBase {
      * @return hbase load node
      */
     private HbaseLoadNode buildHbaseLoadNode() {
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("dirty.side-output.connector", "log");
+        properties.put("dirty.ignore", "true");
+        properties.put("dirty.side-output.enable", "true");
+        properties.put("dirty.side-output.format", "csv");
+        properties.put("dirty.side-output.labels",
+                "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=default&table=mytable");
         return new HbaseLoadNode("2", "test_hbase",
                 Arrays.asList(new FieldInfo("cf:age", new LongFormatInfo()), new FieldInfo("cf:name",
                         new StringFormatInfo())),
@@ -78,7 +86,7 @@ public class HbaseLoadFlinkSqlParseTest extends AbstractTestBase {
                         new FieldInfo("cf:age", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("cf:name", new StringFormatInfo()))),
-                null, null, 1, null, "mytable",
+                null, null, 1, properties, "mytable",
                 "default",
                 "localhost:2181", "MD5(`name`)", null, null, null, null);
     }
