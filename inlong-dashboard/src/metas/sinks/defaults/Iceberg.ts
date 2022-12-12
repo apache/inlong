@@ -160,6 +160,7 @@ export default class IcebergSink
       showSearch: true,
       disabled: [110, 130].includes(values?.status),
       options: {
+        requestTrigger: ['onOpen', 'onSearch'],
         requestService: keyword => ({
           url: '/node/list',
           method: 'POST',

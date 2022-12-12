@@ -58,6 +58,7 @@ export default class ElasticsearchSink
       showSearch: true,
       disabled: [110, 130].includes(values?.status),
       options: {
+        requestTrigger: ['onOpen', 'onSearch'],
         requestService: {
           url: '/node/list',
           method: 'POST',
