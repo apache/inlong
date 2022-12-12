@@ -108,7 +108,7 @@ public class SortClusterServiceImpl implements SortClusterService {
     public void reload() {
         LOGGER.debug("start to reload sort config");
         try {
-            reloadAllClusterConfigV2();
+            reloadAllClusterConfig();
         } catch (Throwable t) {
             LOGGER.error("fail to reload cluster config", t);
         }
@@ -162,7 +162,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .build();
     }
 
-    private void reloadAllClusterConfigV2() {
+    private void reloadAllClusterConfig() {
         // load all fields info
         List<SortFieldInfo> fieldInfos = sortConfigLoader.loadAllFields();
         fieldMap = new HashMap<>();
@@ -200,7 +200,7 @@ public class SortClusterServiceImpl implements SortClusterService {
 
         clusterTaskMap.forEach((clusterName, taskList) -> {
             try {
-                SortClusterConfig config = this.getConfigByClusterNameV2(clusterName,
+                SortClusterConfig config = this.getConfigByClusterName(clusterName,
                         taskList, task2AllStreams, task2DataNodeMap);
                 String jsonStr = GSON.toJson(config);
                 String md5 = DigestUtils.md5Hex(jsonStr);
@@ -219,7 +219,7 @@ public class SortClusterServiceImpl implements SortClusterService {
         sortClusterMd5Map = newMd5Map;
     }
 
-    private SortClusterConfig getConfigByClusterNameV2(
+    private SortClusterConfig getConfigByClusterName(
             String clusterName,
             List<SortTaskInfo> tasks,
             Map<String, List<StreamSinkEntity>> task2AllStreams,
@@ -227,20 +227,25 @@ public class SortClusterServiceImpl implements SortClusterService {
 
         List<SortTaskConfig> taskConfigs = tasks.stream()
                 .map(task -> {
-                    String taskName = task.getSortTaskName();
-                    String type = task.getSinkType();
-                    String dataNodeName = task.getDataNodeName();
-                    DataNodeInfo nodeInfo = task2DataNodeMap.get(dataNodeName);
-                    List<StreamSinkEntity> streams = task2AllStreams.get(taskName);
+                    try {
+                        String taskName = task.getSortTaskName();
+                        String type = task.getSinkType();
+                        String dataNodeName = task.getDataNodeName();
+                        DataNodeInfo nodeInfo = task2DataNodeMap.get(dataNodeName);
+                        List<StreamSinkEntity> streams = task2AllStreams.get(taskName);
 
-                    return SortTaskConfig.builder()
-                            .name(taskName)
-                            .type(type)
-                            .idParams(this.parseIdParamsV2(streams))
-                            .sinkParams(this.parseSinkParamsV2(nodeInfo))
-                            .build();
+                        return SortTaskConfig.builder()
+                                .name(taskName)
+                                .type(type)
+                                .idParams(this.parseIdParams(streams))
+                                .sinkParams(this.parseSinkParams(nodeInfo))
+                                .build();
+                    } catch (Exception e) {
+                        LOGGER.error("fail to parse sort task config of cluster={}", clusterName, e);
+                        return null;
+                    }
                 })
-                .filter(config -> Objects.nonNull(config.getSinkParams()))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return SortClusterConfig.builder()
@@ -249,7 +254,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .build();
     }
 
-    private List<Map<String, String>> parseIdParamsV2(List<StreamSinkEntity> streams) {
+    private List<Map<String, String>> parseIdParams(List<StreamSinkEntity> streams) {
         return streams.stream()
                 .map(streamSink -> {
                     try {
@@ -267,15 +272,9 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .collect(Collectors.toList());
     }
 
-    private Map<String, String> parseSinkParamsV2(DataNodeInfo nodeInfo) {
-        try {
+    private Map<String, String> parseSinkParams(DataNodeInfo nodeInfo) {
             DataNodeOperator operator = dataNodeOperatorFactory.getInstance(nodeInfo.getType());
             return operator.parse2SinkParams(nodeInfo);
-        } catch (Exception e) {
-            LOGGER.error("fail to parse sink params of nodeName={}, type={}",
-                    nodeInfo.getName(), nodeInfo.getType(), e);
-            return null;
-        }
     }
 
     /**
