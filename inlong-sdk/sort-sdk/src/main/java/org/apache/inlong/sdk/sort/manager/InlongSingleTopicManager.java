@@ -264,8 +264,8 @@ public class InlongSingleTopicManager extends TopicManager {
         }
 
         List<String> newTopics = assignedTopics.stream()
+                .filter(inlongTopic -> StringUtils.isNotBlank(inlongTopic.getTopic()))
                 .map(InLongTopic::getTopicKey)
-                .filter(StringUtils::isNotBlank)
                 .collect(Collectors.toList());
         LOGGER.debug("assignedTopics name: {}", Arrays.toString(newTopics.toArray()));
 
