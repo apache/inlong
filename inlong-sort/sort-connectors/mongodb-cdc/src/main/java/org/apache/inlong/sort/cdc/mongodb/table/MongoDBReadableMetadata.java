@@ -24,7 +24,6 @@ import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -126,14 +125,13 @@ public enum MongoDBReadableMetadata {
                     if (StringUtils.isBlank(debeziumOp)) {
                         return null;
                     }
-                    List<String> pkNames = Arrays.asList(PRIMARY_KEY);
                     DebeziumJson.Source source = DebeziumJson.Source.builder()
                             .db(to.getString(MongoDBEnvelope.NAMESPACE_DATABASE_FIELD))
                             .table(to.getString(MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD))
                             .name("mongo_binlog_source")
                             .mysqlType(mysqlType)
                             .sqlType(sqlType)
-                            .pkNames(pkNames)
+                            .pkNames(null)
                             .build();
                     DebeziumJson debeziumJson = DebeziumJson.builder()
                             .source(source)
@@ -180,14 +178,13 @@ public enum MongoDBReadableMetadata {
                     mysqlType.forEach((name, value) -> sqlType.put(name, RecordUtils.getSqlType(value)));
                     List<Map<String, Object>> dataList = new ArrayList<>();
                     dataList.add(field);
-                    List<String> pkNames = Arrays.asList(PRIMARY_KEY);
                     CanalJson canalJson = CanalJson.builder()
                             .data(dataList)
                             .database(to.getString(MongoDBEnvelope.NAMESPACE_DATABASE_FIELD))
                             .sql("")
                             .es((Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY))
                             .isDdl(false)
-                            .pkNames(pkNames)
+                            .pkNames(null)
                             .mysqlType(getMysqlType(tableSchema))
                             .table(to.getString(MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD))
                             .ts((Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY))
@@ -206,7 +203,6 @@ public enum MongoDBReadableMetadata {
     private final DataType dataType;
     private final MetadataConverter converter;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final String PRIMARY_KEY = "_id";
 
     MongoDBReadableMetadata(String key, DataType dataType, MetadataConverter converter) {
         this.key = key;
