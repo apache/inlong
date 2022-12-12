@@ -18,11 +18,7 @@
 
 package org.apache.inlong.sort.cdc.postgres.table;
 
-import com.ververica.cdc.connectors.postgres.table.PostgreSQLReadableMetadata;
-import com.ververica.cdc.connectors.postgres.table.PostgresValueValidator;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.table.MetadataConverter;
-import com.ververica.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
+import java.time.ZoneId;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -34,8 +30,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.cdc.postgres.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.postgres.PostgreSQLSource;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +38,12 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
+import org.apache.inlong.sort.base.filter.RowKindValidator;
+import org.apache.inlong.sort.cdc.postgres.PostgreSQLSource;
+import org.apache.inlong.sort.cdc.postgres.DebeziumSourceFunction;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
@@ -63,18 +63,26 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
     private final String password;
     private final String pluginName;
     private final String slotName;
+    private final String serverTimeZone;
     private final Properties dbzProperties;
+    private final boolean sourceMultipleEnable;
     private final String inlongMetric;
     private final String inlongAudit;
+    private final boolean appendSource;
+    private final String rowKindFiltered;
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
 
-    /** Data type that describes the final output of the source. */
+    /**
+     * Data type that describes the final output of the source.
+     */
     protected DataType producedDataType;
 
-    /** Metadata that is appended at the end of a physical source row. */
+    /**
+     * Metadata that is appended at the end of a physical source row.
+     */
     protected List<String> metadataKeys;
 
     public PostgreSQLTableSource(
@@ -88,7 +96,11 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
             String password,
             String pluginName,
             String slotName,
+            String serverTimeZone,
             Properties dbzProperties,
+            boolean appendSource,
+            String rowKindFiltered,
+            boolean sourceMultipleEnable,
             String inlongMetric,
             String inlongAudit) {
         this.physicalSchema = physicalSchema;
@@ -101,21 +113,27 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
         this.password = checkNotNull(password);
         this.pluginName = checkNotNull(pluginName);
         this.slotName = slotName;
+        this.serverTimeZone = serverTimeZone;
         this.dbzProperties = dbzProperties;
         this.producedDataType = physicalSchema.toPhysicalRowDataType();
         this.metadataKeys = Collections.emptyList();
+        this.appendSource = appendSource;
+        this.rowKindFiltered = rowKindFiltered;
+        this.sourceMultipleEnable = sourceMultipleEnable;
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
     }
 
     @Override
     public ChangelogMode getChangelogMode() {
-        return ChangelogMode.newBuilder()
-                .addContainedKind(RowKind.INSERT)
-                .addContainedKind(RowKind.UPDATE_BEFORE)
-                .addContainedKind(RowKind.UPDATE_AFTER)
-                .addContainedKind(RowKind.DELETE)
-                .build();
+        final ChangelogMode.Builder builder =
+                ChangelogMode.newBuilder().addContainedKind(RowKind.INSERT);
+        if (!appendSource) {
+            builder.addContainedKind(RowKind.UPDATE_BEFORE)
+                    .addContainedKind(RowKind.UPDATE_AFTER)
+                    .addContainedKind(RowKind.DELETE);
+        }
+        return builder.build();
     }
 
     @Override
@@ -130,15 +148,20 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                         .setPhysicalRowType(physicalDataType)
                         .setMetadataConverters(metadataConverters)
                         .setResultTypeInfo(typeInfo)
-                        .setValueValidator(new PostgresValueValidator(schemaName, tableName))
+                        .setUserDefinedConverterFactory(
+                                PostgreSQLDeserializationConverterFactory.instance())
+                        .setMigrateAll(sourceMultipleEnable)
+                        .setServerTimeZone(ZoneId.of(serverTimeZone))
+                        .setAppendSource(appendSource)
+                        .setValidator(new RowKindValidator(rowKindFiltered))
                         .build();
         DebeziumSourceFunction<RowData> sourceFunction =
                 PostgreSQLSource.<RowData>builder()
                         .hostname(hostname)
                         .port(port)
                         .database(database)
-                        .schemaList(schemaName)
-                        .tableList(schemaName + "." + tableName)
+                        .schemaList(schemaName.split(","))
+                        .tableList(tableName)
                         .username(username)
                         .password(password)
                         .decodingPluginName(pluginName)
@@ -157,12 +180,11 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
         }
 
         return metadataKeys.stream()
-                .map(
-                        key -> Stream.of(PostgreSQLReadableMetadata.values())
-                                .filter(m -> m.getKey().equals(key))
-                                .findFirst()
-                                .orElseThrow(IllegalStateException::new))
-                .map(PostgreSQLReadableMetadata::getConverter)
+                .map(key -> Stream.of(PostgreSQLReadableMetaData.values())
+                        .filter(m -> m.getKey().equals(key))
+                        .findFirst()
+                        .orElseThrow(IllegalStateException::new))
+                .map(PostgreSQLReadableMetaData::getConverter)
                 .toArray(MetadataConverter[]::new);
     }
 
@@ -180,7 +202,11 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                         password,
                         pluginName,
                         slotName,
+                        serverTimeZone,
                         dbzProperties,
+                        appendSource,
+                        rowKindFiltered,
+                        sourceMultipleEnable,
                         inlongMetric,
                         inlongAudit);
         source.metadataKeys = metadataKeys;
@@ -207,6 +233,7 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                 && Objects.equals(password, that.password)
                 && Objects.equals(pluginName, that.pluginName)
                 && Objects.equals(slotName, that.slotName)
+                && Objects.equals(serverTimeZone, that.serverTimeZone)
                 && Objects.equals(dbzProperties, that.dbzProperties)
                 && Objects.equals(producedDataType, that.producedDataType)
                 && Objects.equals(metadataKeys, that.metadataKeys)
@@ -227,6 +254,7 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                 password,
                 pluginName,
                 slotName,
+                serverTimeZone,
                 dbzProperties,
                 producedDataType,
                 metadataKeys,
@@ -241,11 +269,11 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
 
     @Override
     public Map<String, DataType> listReadableMetadata() {
-        return Stream.of(PostgreSQLReadableMetadata.values())
+        return Stream.of(PostgreSQLReadableMetaData.values())
                 .collect(
                         Collectors.toMap(
-                                PostgreSQLReadableMetadata::getKey,
-                                PostgreSQLReadableMetadata::getDataType));
+                                PostgreSQLReadableMetaData::getKey,
+                                PostgreSQLReadableMetaData::getDataType));
     }
 
     @Override

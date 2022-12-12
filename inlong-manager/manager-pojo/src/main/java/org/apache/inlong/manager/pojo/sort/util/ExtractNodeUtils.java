@@ -252,12 +252,22 @@ public class ExtractNodeUtils {
     public static PostgresExtractNode createExtractNode(PostgreSQLSource postgreSQLSource) {
         List<FieldInfo> fieldInfos = parseFieldInfos(postgreSQLSource.getFieldList(), postgreSQLSource.getSourceName());
         Map<String, String> properties = parseProperties(postgreSQLSource.getProperties());
-        return new PostgresExtractNode(postgreSQLSource.getSourceName(), postgreSQLSource.getSourceName(),
-                fieldInfos, null, properties, postgreSQLSource.getPrimaryKey(),
-                postgreSQLSource.getTableNameList(), postgreSQLSource.getHostname(),
-                postgreSQLSource.getUsername(), postgreSQLSource.getPassword(),
-                postgreSQLSource.getDatabase(), postgreSQLSource.getSchema(),
-                postgreSQLSource.getPort(), postgreSQLSource.getDecodingPluginName());
+        return new PostgresExtractNode(postgreSQLSource.getSourceName(),
+                postgreSQLSource.getSourceName(),
+                fieldInfos,
+                null,
+                properties,
+                postgreSQLSource.getPrimaryKey(),
+                postgreSQLSource.getTableNameList(),
+                postgreSQLSource.getHostname(),
+                postgreSQLSource.getUsername(),
+                postgreSQLSource.getPassword(),
+                postgreSQLSource.getDatabase(),
+                postgreSQLSource.getSchema(),
+                postgreSQLSource.getPort(),
+                postgreSQLSource.getDecodingPluginName(),
+                postgreSQLSource.getServerTimeZone(),
+                postgreSQLSource.getScanStartupMode());
     }
 
     /**

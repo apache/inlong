@@ -68,6 +68,10 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
     private Integer port;
     @JsonProperty("decodingPluginName")
     private String decodingPluginName;
+    @JsonProperty("serverTimeZone")
+    private String serverTimeZone;
+    @JsonProperty("scanStartupMode")
+    private String scanStartupMode;
 
     @JsonCreator
     public PostgresExtractNode(@JsonProperty("id") String id,
@@ -83,7 +87,9 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
             @JsonProperty("database") String database,
             @JsonProperty("schema") String schema,
             @JsonProperty("port") Integer port,
-            @JsonProperty("decodingPluginName") String decodingPluginName) {
+            @JsonProperty("decodingPluginName") String decodingPluginName,
+            @JsonProperty("serverTimeZone") String serverTimeZone,
+            @JsonProperty("scanStartupMode") String scanStartupMode) {
         super(id, name, fields, watermarkField, properties);
         this.primaryKey = primaryKey;
         this.tableNames = Preconditions.checkNotNull(tableNames, "tableNames is null");
@@ -94,6 +100,8 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
         this.schema = Preconditions.checkNotNull(schema, "schema is null");
         this.port = Preconditions.checkNotNull(port, "port is null");
         this.decodingPluginName = decodingPluginName;
+        this.serverTimeZone = serverTimeZone;
+        this.scanStartupMode = scanStartupMode;
     }
 
     /**
@@ -106,6 +114,9 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
+        if (getProperties() != null && !getProperties().isEmpty()) {
+            options.putAll(getProperties());
+        }
         options.put(PostgresConstant.CONNECTOR, PostgresConstant.POSTGRES_CDC);
         options.put(PostgresConstant.HOSTNAME, hostname);
         options.put(PostgresConstant.USERNAME, username);
@@ -123,8 +134,14 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
             decodingPluginNameOption = PostgresConstant.PGOUTPUT;
         }
         options.put(PostgresConstant.DECODING_PLUGIN_NAME, decodingPluginNameOption);
-        options.put(PostgresConstant.SLOT_NAME, UUID.randomUUID().toString().toLowerCase(Locale.ROOT).replaceAll(
-                "[\\-\\d]", ""));
+        options.put(PostgresConstant.SLOT_NAME,
+                UUID.randomUUID().toString().toLowerCase(Locale.ROOT).replaceAll("[\\-\\d]", ""));
+        if (StringUtils.isNotBlank(serverTimeZone)) {
+            options.put(PostgresConstant.SERVER_TIME_ZONE, serverTimeZone);
+        }
+        if (StringUtils.isNotBlank(scanStartupMode)) {
+            options.put(PostgresConstant.DEBEZIUM_SNAPSHOT_MODE, scanStartupMode);
+        }
         return options;
     }
 
@@ -145,7 +162,59 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME,
-                MetaField.SCHEMA_NAME, MetaField.OP_TS);
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME, MetaField.SCHEMA_NAME,
+                MetaField.OP_TS, MetaField.OP_TYPE, MetaField.DATA, MetaField.DATA_BYTES, MetaField.DATA_CANAL,
+                MetaField.DATA_BYTES_CANAL, MetaField.DATA_DEBEZIUM, MetaField.DATA_BYTES_DEBEZIUM, MetaField.IS_DDL,
+                MetaField.TS, MetaField.SQL_TYPE, MetaField.PK_NAMES);
+    }
+
+    @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case TABLE_NAME:
+                metadataKey = "meta.table_name";
+                break;
+            case DATABASE_NAME:
+                metadataKey = "meta.database_name";
+                break;
+            case SCHEMA_NAME:
+                metadataKey = "meta.schema_name";
+                break;
+            case OP_TS:
+                metadataKey = "meta.op_ts";
+                break;
+            case OP_TYPE:
+                metadataKey = "meta.op_type";
+                break;
+            case DATA:
+            case DATA_BYTES:
+                metadataKey = "meta.data";
+                break;
+            case DATA_CANAL:
+            case DATA_BYTES_CANAL:
+                metadataKey = "meta.data_canal";
+                break;
+            case DATA_DEBEZIUM:
+            case DATA_BYTES_DEBEZIUM:
+                metadataKey = "meta.data_debezium";
+                break;
+            case IS_DDL:
+                metadataKey = "meta.is_ddl";
+                break;
+            case TS:
+                metadataKey = "meta.ts";
+                break;
+            case SQL_TYPE:
+                metadataKey = "meta.sql_type";
+                break;
+            case PK_NAMES:
+                metadataKey = "meta.pk_names";
+                break;
+            default:
+                throw new UnsupportedOperationException(
+                        String.format("Unsupport meta field for %s: %s", this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
     }
 }

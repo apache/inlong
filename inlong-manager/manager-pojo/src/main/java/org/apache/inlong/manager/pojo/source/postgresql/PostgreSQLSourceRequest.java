@@ -62,6 +62,12 @@ public class PostgreSQLSourceRequest extends SourceRequest {
     @ApiModelProperty("List of table name")
     private List<String> tableNameList;
 
+    @ApiModelProperty("Server time zone")
+    private String serverTimeZone;
+
+    @ApiModelProperty("Scan startup mode,  either initial or never")
+    private String scanStartupMode;
+
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
