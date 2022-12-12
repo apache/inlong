@@ -211,6 +211,7 @@
   "meta.Sinks.MySQL.IsMetaField": "是否为元字段",
   "meta.Sinks.MySQL.FieldFormat": "字段格式",
   "meta.Sinks.MySQL.FieldDescription": "字段描述",
+  "meta.Sinks.MySQL.DataNodeName": "数据节点",
   "meta.Sinks.Oracle.TableName": "表名称",
   "meta.Sinks.Oracle.PrimaryKey": "主键",
   "meta.Sinks.Oracle.FieldName": "字段名",

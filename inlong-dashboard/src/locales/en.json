@@ -210,6 +210,7 @@
   "meta.Sinks.MySQL.IsMetaField": "IsMetaField",
   "meta.Sinks.MySQL.FieldFormat": "FieldFormat",
   "meta.Sinks.MySQL.FieldDescription": "FieldDescription",
+  "meta.Sinks.MySQL.DataNodeName": "DataNode",
   "meta.Sinks.Oracle.TableName": "TableName",
   "meta.Sinks.Oracle.PrimaryKey": "PrimaryKey",
   "meta.Sinks.Oracle.FieldName": "FieldName",
