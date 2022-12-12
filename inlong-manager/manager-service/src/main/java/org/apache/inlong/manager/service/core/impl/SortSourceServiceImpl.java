@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -387,9 +388,10 @@ public class SortSourceServiceImpl implements SortSourceService {
                                 .build();
                     } catch (Exception e) {
                         LOGGER.error("fail to parse topic of groupId={}, streamId={}", groupId, streamId, e);
-                        return Topic.builder().build();
+                        return null;
                     }
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         return CacheZone.builder()
                 .zoneName(cluster.getName())
