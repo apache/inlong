@@ -48,7 +48,7 @@ public class AnnoController {
     @PostMapping("/anno/login")
     public Response<Boolean> login(@Validated @RequestBody UserLoginRequest loginRequest) {
         userService.login(loginRequest);
-        return Response.success();
+        return Response.success(true);
     }
 
     @PostMapping("/anno/register")

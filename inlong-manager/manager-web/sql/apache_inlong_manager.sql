@@ -540,6 +540,10 @@ VALUES ('admin', '1976e096b31cfda81269d0df2775466aac6dd809e3ada1d5ba7831d85e80f1
         '9B5DCE950F284141D5493A2DAFEBD1BFEECE075FC5F426E8B67F33F14876E2D0', 0, 1,
         '2099-12-31 23:59:59', 'inlong_init', 'inlong_init');
 
+VALUES ('test_lock_account', '1976e096b31cfda81269d0df2775466aac6dd809e3ada1d5ba7831d85e80f109',
+        '9B5DCE950F284141D5493A2DAFEBD1BFEECE075FC5F426E8B67F33F14876E2D0', 0, 1,
+        '2099-12-31 23:59:59', 'inlong_init', 'inlong_init');
+
 -- ----------------------------
 -- Table structure for role
 -- ----------------------------
