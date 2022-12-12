@@ -30,10 +30,10 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.base.filter.RowKindValidator;
 import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
 
