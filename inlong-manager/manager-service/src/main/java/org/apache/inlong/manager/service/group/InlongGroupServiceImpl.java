@@ -51,6 +51,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
@@ -414,6 +415,20 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
         groupExtMapper.insertOnDuplicateKeyUpdate(entityList);
         LOGGER.info("success to save or update inlong group ext for groupId={}", groupId);
+    }
+
+    @Override
+    public List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest request) {
+        LOGGER.info("start to list group topic infos, request={}", request);
+        Preconditions.checkNotEmpty(request.getClusterTag(), "cluster tag should not be empty");
+        List<InlongGroupEntity> groupEntities = groupMapper.selectByTopicRequest(request);
+        List<InlongGroupTopicInfo> topicInfos = new ArrayList<>();
+        for (InlongGroupEntity entity : groupEntities) {
+            topicInfos.add(this.getTopic(entity.getInlongGroupId()));
+        }
+        LOGGER.info("success list group topic infos under clusterTag={}, size={}",
+                request.getClusterTag(), topicInfos.size());
+        return topicInfos;
     }
 
     @Override

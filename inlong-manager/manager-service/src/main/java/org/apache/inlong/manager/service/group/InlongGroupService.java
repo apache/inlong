@@ -26,6 +26,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -152,5 +153,11 @@ public interface InlongGroupService {
      * @param infoList inlong group ext info list
      */
     void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> infoList);
+
+    /**
+     * List topic infos
+     * @return List of InlongGroupTopicInfo
+     */
+    List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest clusterTag);
 
 }
