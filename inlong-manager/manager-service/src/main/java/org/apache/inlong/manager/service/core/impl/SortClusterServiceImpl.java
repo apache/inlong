@@ -46,7 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -174,7 +174,7 @@ public class SortClusterServiceImpl implements SortClusterService {
         // get all task under a given cluster, has been reduced into cluster and task.
         List<SortTaskInfo> tasks = sortConfigLoader.loadAllTask();
         Map<String, List<SortTaskInfo>> clusterTaskMap = tasks.stream()
-                .filter(dto -> dto.getSortClusterName() != null)
+                .filter(dto -> StringUtils.isNotBlank(dto.getSortClusterName()))
                 .collect(Collectors.groupingBy(SortTaskInfo::getSortClusterName));
 
         // get all stream sinks
@@ -207,8 +207,9 @@ public class SortClusterServiceImpl implements SortClusterService {
                 newMd5Map.put(clusterName, md5);
             } catch (Throwable e) {
                 // if get config failed, update the err log.
-                newErrorLogMap.put(clusterName, e.getMessage());
-                LOGGER.error("Failed to update cluster config={}, error={}", clusterName, e.getMessage());
+                String errMsg = Optional.ofNullable(e.getMessage()).orElse("Unknown error, please check logs");
+                newErrorLogMap.put(clusterName, errMsg);
+                LOGGER.error("Failed to update cluster config={}", clusterName, e);
             }
         });
 
@@ -249,17 +250,29 @@ public class SortClusterServiceImpl implements SortClusterService {
     private List<Map<String, String>> parseIdParamsV2(List<StreamSinkEntity> streams) {
         return streams.stream()
                 .map(streamSink -> {
-                    StreamSinkOperator operator = sinkOperatorFactory.getInstance(streamSink.getSinkType());
-                    List<String> fields = fieldMap.get(streamSink.getInlongGroupId());
-                    return operator.parse2IdParams(streamSink, fields);
+                    try {
+                        StreamSinkOperator operator = sinkOperatorFactory.getInstance(streamSink.getSinkType());
+                        List<String> fields = fieldMap.get(streamSink.getInlongGroupId());
+                        return operator.parse2IdParams(streamSink, fields);
+                    } catch (Exception e) {
+                        LOGGER.error("fail to parse id params of groupId={}, streamId={} name={}, type={}}",
+                                streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
+                                streamSink.getSinkName(), streamSink.getSinkType(), e);
+                        return new HashMap<String, String>();
+                    }
                 })
-                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     private Map<String, String> parseSinkParamsV2(DataNodeInfo nodeInfo) {
-        DataNodeOperator operator = dataNodeOperatorFactory.getInstance(nodeInfo.getType());
-        return operator.parse2SinkParams(nodeInfo);
+        try {
+            DataNodeOperator operator = dataNodeOperatorFactory.getInstance(nodeInfo.getType());
+            return operator.parse2SinkParams(nodeInfo);
+        } catch (Exception e) {
+            LOGGER.error("fail to parse sink params of nodeName={}, type={}",
+                    nodeInfo.getName(), nodeInfo.getType(), e);
+            return new HashMap<>();
+        }
     }
 
     /**
