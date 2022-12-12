@@ -90,7 +90,7 @@ class AnnoControllerTest extends WebBaseTest {
         }
 
         // account is locked
-        MvcResult mvcResult =  mockMvc.perform(
+        MvcResult mvcResult = mockMvc.perform(
                         post("/api/anno/login")
                                 .content(JsonUtils.toJsonString(loginUser))
                                 .contentType(MediaType.APPLICATION_JSON)
