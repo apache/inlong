@@ -368,23 +368,27 @@ public class SortSourceServiceImpl implements SortSourceService {
                     String streamId = sink.getStreamId();
                     SortSourceGroupInfo groupInfo = groupInfos.get(groupId);
                     SortSourceStreamInfo streamInfo = allStreams.get(groupId).get(streamId);
-
-                    String namespace = groupInfo.getMqResource();
-                    String topic = streamInfo.getMqResource();
-                    if (isBackupTag) {
-                        if (backupGroupMqResource.containsKey(groupId)) {
-                            namespace = backupGroupMqResource.get(groupId);
+                    try {
+                        String namespace = groupInfo.getMqResource();
+                        String topic = streamInfo.getMqResource();
+                        if (isBackupTag) {
+                            if (backupGroupMqResource.containsKey(groupId)) {
+                                namespace = backupGroupMqResource.get(groupId);
+                            }
+                            if (backupStreamMqResource.containsKey(groupId)
+                                    && backupStreamMqResource.get(groupId).containsKey(streamId)) {
+                                topic = backupStreamMqResource.get(groupId).get(streamId);
+                            }
                         }
-                        if (backupStreamMqResource.containsKey(groupId)
-                                && backupStreamMqResource.get(groupId).containsKey(streamId)) {
-                            topic = backupStreamMqResource.get(groupId).get(streamId);
-                        }
+                        String fullTopic = tenant.concat("/").concat(namespace).concat("/").concat(topic);
+                        return Topic.builder()
+                                .topic(fullTopic)
+                                .topicProperties(sink.getExtParamsMap())
+                                .build();
+                    } catch (Exception e) {
+                        LOGGER.error("fail to parse topic of groupId={}, streamId={}", groupId, streamId, e);
+                        return Topic.builder().build();
                     }
-                    String fullTopic = tenant.concat("/").concat(namespace).concat("/").concat(topic);
-                    return Topic.builder()
-                            .topic(fullTopic)
-                            .topicProperties(sink.getExtParamsMap())
-                            .build();
                 })
                 .collect(Collectors.toList());
         return CacheZone.builder()
