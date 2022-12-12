@@ -64,8 +64,7 @@ class TableJdbcUpsertOutputFormat
             String inlongMetric,
             String auditHostAndPorts,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink
-    ) {
+            @Nullable DirtySink<Object> dirtySink) {
         this(
                 connectionProvider,
                 batchOptions,
@@ -86,8 +85,7 @@ class TableJdbcUpsertOutputFormat
             String inlongMetric,
             String auditHostAndPorts,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink
-            ) {
+            @Nullable DirtySink<Object> dirtySink) {
         super(connectionProvider, batchOptions, statementExecutorFactory, tuple2 -> tuple2.f1,
                 inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
         this.deleteStatementExecutorFactory = deleteStatementExecutorFactory;
@@ -196,7 +194,7 @@ class TableJdbcUpsertOutputFormat
         } else {
             try {
                 deleteExecutor.addToBatch(extracted);
-            } catch (Exception e){
+            } catch (Exception e) {
                 LOG.error(String.format("DataTypeMappingError, data: %s", extracted), e);
                 handleDirtyData(extracted, DirtyType.DATA_TYPE_MAPPING_ERROR, e);
             }

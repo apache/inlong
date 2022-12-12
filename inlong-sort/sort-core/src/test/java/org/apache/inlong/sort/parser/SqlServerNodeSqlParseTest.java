@@ -143,7 +143,6 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 "INLONG*123", "dbo", "work1", "id");
     }
 
-
     /**
      * Build node relation.
      */
