@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.doris.util;
 
 import org.apache.flink.types.RowKind;
+
+import java.time.LocalDate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,4 +69,26 @@ public class DorisParseUtils {
         return buf.toString();
     }
 
+    /**
+     * A utility used to change epoch dates into normal dates
+     * <p/>
+     * Example input: 0
+     * Example output: 1970-01-01
+     *
+     * @param obj the epoch date that is either long or int
+     * @return the transformed local date
+     */
+    public static LocalDate epochToDate(Object obj) {
+        if (obj instanceof Long) {
+            return LocalDate.ofEpochDay((Long) obj);
+        }
+        if (obj instanceof Integer) {
+            return LocalDate.ofEpochDay((Integer) obj);
+        }
+        throw new IllegalArgumentException(
+                "Unable to convert to LocalDate from unexpected value '"
+                        + obj
+                        + "' of type "
+                        + obj.getClass().getName());
+    }
 }
