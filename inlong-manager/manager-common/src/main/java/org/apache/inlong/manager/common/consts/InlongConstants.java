@@ -134,4 +134,6 @@ public class InlongConstants {
 
     public static final String SORT_PROPERTIES = "sort.properties";
 
+    public static final String DATA_TYPE_RAW_PREFIX = "RAW_";
+
 }

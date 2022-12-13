@@ -65,8 +65,6 @@ public enum ConnectorJarType {
 
     CLICKHOUSE_SINK("clickHouseLoad", "jdbc"),
 
-    DLCICEBERG_SINK("dlcIcebergLoad", "dlc"),
-
     HIVE_SINK("hiveLoad", "hive"),
 
     ICEBERG_SINK("icebergLoad", "iceberg"),

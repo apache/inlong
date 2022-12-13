@@ -26,7 +26,7 @@ import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
 import { useRequest, useHistory } from '@/hooks';
 import { defaultSize } from '@/configs/pagination';
-import ExecutionLogModal from './ExecutionLogModal';
+import { GroupLogs } from '@/components/GroupLogs';
 import { dashCardList, getFilterFormContent, useColumns } from './config';
 
 const Comp: React.FC = () => {
@@ -39,7 +39,7 @@ const Comp: React.FC = () => {
     pageNum: 1,
   });
 
-  const [executionLogModal, setExecutionLogModal] = useState({
+  const [groupLogs, setGroupLogs] = useState({
     visible: false,
     inlongGroupId: '',
   });
@@ -78,7 +78,7 @@ const Comp: React.FC = () => {
   };
 
   const openModal = ({ inlongGroupId }) => {
-    setExecutionLogModal({ visible: true, inlongGroupId: inlongGroupId });
+    setGroupLogs({ visible: true, inlongGroupId: inlongGroupId });
   };
 
   const onChange = ({ current: pageNum, pageSize }) => {
@@ -140,10 +140,10 @@ const Comp: React.FC = () => {
         </Card>
       </Container>
 
-      <ExecutionLogModal
-        {...executionLogModal}
-        onOk={() => setExecutionLogModal({ visible: false, inlongGroupId: '' })}
-        onCancel={() => setExecutionLogModal({ visible: false, inlongGroupId: '' })}
+      <GroupLogs
+        {...groupLogs}
+        onOk={() => setGroupLogs({ visible: false, inlongGroupId: '' })}
+        onCancel={() => setGroupLogs({ visible: false, inlongGroupId: '' })}
       />
     </PageContainer>
   );

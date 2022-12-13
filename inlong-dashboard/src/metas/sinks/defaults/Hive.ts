@@ -117,39 +117,35 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   password: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: 'select',
     rules: [{ required: true }],
     props: values => ({
+      showSearch: true,
       disabled: [110, 130].includes(values?.status),
-      placeholder: 'jdbc:hive2://127.0.0.1:10000',
+      options: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
+          url: '/node/list',
+          method: 'POST',
+          data: {
+            keyword,
+            type: 'HIVE',
+            pageNum: 1,
+            pageSize: 20,
+          },
+        }),
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              label: item.name,
+              value: item.name,
+            })),
+        },
+      },
     }),
   })
-  @I18n('JDBC URL')
-  jdbcUrl: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.DataPathHelp'),
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      placeholder: 'hdfs://127.0.0.1:9000/user/hive/warehouse/default',
-    }),
-  })
-  @I18n('meta.Sinks.Hive.DataPath')
-  dataPath: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.Hive.ConfDirHelp'),
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      placeholder: '/usr/hive/conf',
-    }),
-  })
-  @I18n('meta.Sinks.Hive.ConfDir')
-  hiveConfDir: string;
+  @I18n('meta.Sinks.Hive.DataNodeName')
+  dataNodeName: string;
 
   @FieldDecorator({
     type: 'radio',

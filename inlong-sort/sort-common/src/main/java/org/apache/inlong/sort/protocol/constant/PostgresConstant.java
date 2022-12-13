@@ -47,6 +47,10 @@ public class PostgresConstant {
 
     public static final String SLOT_NAME = "slot.name";
 
+    public static final String SERVER_TIME_ZONE = "server-time-zone";
+
+    public static final String DEBEZIUM_SNAPSHOT_MODE = "debezium.snapshot.mode";
+
     public static final String URL = "url";
 
     public static final String JDBC_INLONG = "jdbc-inlong";

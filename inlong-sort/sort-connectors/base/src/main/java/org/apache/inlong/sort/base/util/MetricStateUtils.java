@@ -222,8 +222,12 @@ public class MetricStateUtils {
         Map<String, Long> metricDataMap = new HashMap<>();
         metricDataMap.put(NUM_RECORDS_OUT, sinkMetricData.getNumRecordsOut().getCount());
         metricDataMap.put(NUM_BYTES_OUT, sinkMetricData.getNumBytesOut().getCount());
-        metricDataMap.put(DIRTY_RECORDS_OUT, sinkMetricData.getDirtyRecordsOut().getCount());
-        metricDataMap.put(DIRTY_BYTES_OUT, sinkMetricData.getDirtyBytesOut().getCount());
+        if (sinkMetricData.getDirtyRecordsOut() != null) {
+            metricDataMap.put(DIRTY_RECORDS_OUT, sinkMetricData.getDirtyRecordsOut().getCount());
+        }
+        if (sinkMetricData.getDirtyBytesOut() != null) {
+            metricDataMap.put(DIRTY_BYTES_OUT, sinkMetricData.getDirtyBytesOut().getCount());
+        }
         MetricState metricState = new MetricState(subtaskIndex, metricDataMap);
         metricStateListState.add(metricState);
     }

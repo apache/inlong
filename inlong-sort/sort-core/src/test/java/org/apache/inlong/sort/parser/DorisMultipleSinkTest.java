@@ -39,7 +39,9 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -73,8 +75,22 @@ public class DorisMultipleSinkTest {
         List<FieldRelation> relations = Collections
                 .singletonList(new FieldRelation(new FieldInfo("raw", new VarBinaryFormatInfo()),
                         new FieldInfo("raw", new VarBinaryFormatInfo())));
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("dirty.side-output.connector", "log");
+        properties.put("dirty.ignore", "true");
+        properties.put("dirty.side-output.enable", "true");
+        properties.put("dirty.side-output.format", "csv");
+        properties.put("dirty.side-output.labels",
+                "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=${database}&table=${table}");
+        properties.put("dirty.identifier", "${database}-${table}-${SYSTEM_TIME}");
+        properties.put("dirty.side-output.s3.bucket", "s3-test-bucket");
+        properties.put("dirty.side-output.s3.endpoint", "s3.test.endpoint");
+        properties.put("dirty.side-output.s3.key", "dirty/test");
+        properties.put("dirty.side-output.s3.region", "region");
+        properties.put("dirty.side-output.s3.access-key-id", "access_key_id");
+        properties.put("dirty.side-output.s3.secret-key-id", "secret_key_id");
         return new DorisLoadNode("2", "doris_output", fields, relations,
-                null, null, 1, null,
+                null, null, 1, properties,
                 "localhost:8030", "root", "000000", null,
                 null, true, new CanalJsonFormat(), databasePattern, tablePattern);
     }

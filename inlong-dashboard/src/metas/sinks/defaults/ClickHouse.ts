@@ -93,35 +93,35 @@ export default class ClickHouseSink
   enableCreateResource: number;
 
   @FieldDecorator({
-    type: 'input',
+    type: 'select',
     rules: [{ required: true }],
     props: values => ({
+      showSearch: true,
       disabled: [110, 130].includes(values?.status),
+      options: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
+          url: '/node/list',
+          method: 'POST',
+          data: {
+            keyword,
+            type: 'CLICKHOUSE',
+            pageNum: 1,
+            pageSize: 20,
+          },
+        }),
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              label: item.name,
+              value: item.name,
+            })),
+        },
+      },
     }),
   })
-  @I18n('meta.Sinks.Username')
-  username: string;
-
-  @FieldDecorator({
-    type: 'password',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @I18n('meta.Sinks.Password')
-  password: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      placeholder: 'jdbc:clickhouse://127.0.0.1:8123',
-    }),
-  })
-  @I18n('JDBC URL')
-  jdbcUrl: string;
+  @I18n('meta.Sinks.ClickHouse.DataNodeName')
+  dataNodeName: string;
 
   @FieldDecorator({
     type: 'inputnumber',

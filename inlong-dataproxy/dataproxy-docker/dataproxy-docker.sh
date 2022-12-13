@@ -23,7 +23,14 @@ local_ip=$(ifconfig $ETH_NAME | grep inet | grep -v inet6 | grep -v "127.0.0.1" 
 # config
 cd "${file_path}/"
 common_conf_file=./conf/common.properties
-mq_conf_file=./conf/dataproxy-${MQ_TYPE}.conf
+if [ "${MQ_TYPE}" == "pulsar" ] || [ "${MQ_TYPE}" == "kafka" ]; then
+  mq_conf_file=./conf/dataproxy.conf
+elif [ "${MQ_TYPE}" == "tubemq" ]; then
+  mq_conf_file=./conf/dataproxy-${MQ_TYPE}.conf
+else
+  echo "MQ_TYPE must be one of pulsar/kafka/tubemq !"
+  exit 1
+fi
 
 sed -i "s/manager.hosts=.*$/manager.hosts=${MANAGER_OPENAPI_IP}:${MANAGER_OPENAPI_PORT}/g" "${common_conf_file}"
 sed -i "s/audit.enable=.*$/audit.enable=${AUDIT_ENABLE}/g" "${common_conf_file}"
@@ -33,13 +40,7 @@ sed -i "s/proxy.cluster.tag=.*$/proxy.cluster.tag=${CLUSTER_TAG}/g" "${common_co
 sed -i "s/proxy.cluster.name=.*$/proxy.cluster.name=${CLUSTER_NAME}/g" "${common_conf_file}"
 sed -i "s/proxy.cluster.inCharges=.*$/proxy.cluster.inCharges=${CLUSTER_IN_CHARGES}/g" "${common_conf_file}"
 
-# start
-if [ "${MQ_TYPE}" = "pulsar" ]; then
-  bash +x ./bin/dataproxy-start.sh pulsar
-fi
-if [ "${MQ_TYPE}" = "tubemq" ]; then
-  bash +x ./bin/dataproxy-start.sh tubemq
-fi
+ bash +x ./bin/dataproxy-start.sh "${MQ_TYPE}"
 
 sleep 3
 # keep alive

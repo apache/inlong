@@ -77,6 +77,8 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.utils.PartitionPathUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.filesystem.stream.StreamingSink;
 
 import javax.annotation.Nullable;
@@ -129,10 +131,12 @@ public class FileSystemTableSink extends AbstractFileSystemTable
     private LinkedHashMap<String, String> staticPartitions = new LinkedHashMap<>();
 
     @Nullable
-    private Integer configuredParallelism;
+    private final Integer configuredParallelism;
 
-    private String inlongMetric;
-    private String inlongAudit;
+    private final String inlongMetric;
+    private final String inlongAudit;
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
 
     FileSystemTableSink(
             DynamicTableFactory.Context context,
@@ -140,7 +144,9 @@ public class FileSystemTableSink extends AbstractFileSystemTable
             @Nullable DecodingFormat<DeserializationSchema<RowData>> deserializationFormat,
             @Nullable FileSystemFormatFactory formatFactory,
             @Nullable EncodingFormat<BulkWriter.Factory<RowData>> bulkWriterFormat,
-            @Nullable EncodingFormat<SerializationSchema<RowData>> serializationFormat) {
+            @Nullable EncodingFormat<SerializationSchema<RowData>> serializationFormat,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         super(context);
         this.bulkReaderFormat = bulkReaderFormat;
         this.deserializationFormat = deserializationFormat;
@@ -159,6 +165,8 @@ public class FileSystemTableSink extends AbstractFileSystemTable
         this.configuredParallelism = tableOptions.get(FileSystemOptions.SINK_PARALLELISM);
         this.inlongMetric = tableOptions.get(INLONG_METRIC);
         this.inlongAudit = tableOptions.get(INLONG_AUDIT);
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
@@ -283,11 +291,14 @@ public class FileSystemTableSink extends AbstractFileSystemTable
                             compactionSize,
                             parallelism,
                             inlongMetric,
-                            inlongAudit);
+                            inlongAudit,
+                            dirtyOptions,
+                            dirtySink);
         } else {
             writerStream =
                     StreamingSink.writer(
-                            dataStream, bucketCheckInterval, bucketsBuilder, parallelism, inlongMetric, inlongAudit);
+                            dataStream, bucketCheckInterval, bucketsBuilder, parallelism,
+                            inlongMetric, inlongAudit, dirtyOptions, dirtySink);
         }
 
         return StreamingSink.sink(
@@ -543,7 +554,9 @@ public class FileSystemTableSink extends AbstractFileSystemTable
                         deserializationFormat,
                         formatFactory,
                         bulkWriterFormat,
-                        serializationFormat);
+                        serializationFormat,
+                        dirtyOptions,
+                        dirtySink);
         sink.overwrite = overwrite;
         sink.dynamicGrouping = dynamicGrouping;
         sink.staticPartitions = staticPartitions;

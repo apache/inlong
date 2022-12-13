@@ -258,6 +258,11 @@ public class SinkMetricData implements MetricData {
         invoke(1, size);
     }
 
+    public void invokeDirtyWithEstimate(Object o) {
+        long size = o.toString().getBytes(StandardCharsets.UTF_8).length;
+        invokeDirty(1, size);
+    }
+
     public void invoke(long rowCount, long rowSize) {
         if (numRecordsOut != null) {
             numRecordsOut.inc(rowCount);

@@ -220,6 +220,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         final String clusterName = componentHeartbeat.getClusterName();
         final String type = componentHeartbeat.getComponentType();
         final String clusterTag = componentHeartbeat.getClusterTag();
+        final String extTag = componentHeartbeat.getExtTag();
         Preconditions.checkNotNull(clusterTag, "cluster tag cannot be null");
         Preconditions.checkNotNull(type, "cluster type cannot be null");
         Preconditions.checkNotNull(clusterName, "cluster name cannot be null");
@@ -234,6 +235,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         cluster.setName(clusterName);
         cluster.setType(type);
         cluster.setClusterTags(clusterTag);
+        cluster.setExtTag(extTag);
         String inCharges = componentHeartbeat.getInCharges();
         if (StringUtils.isBlank(inCharges)) {
             inCharges = InlongConstants.ADMIN_USER;

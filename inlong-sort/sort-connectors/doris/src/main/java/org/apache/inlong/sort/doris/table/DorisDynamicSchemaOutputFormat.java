@@ -41,6 +41,11 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
+import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.dirty.DirtyData;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.MetricOption;
@@ -52,6 +57,7 @@ import org.apache.inlong.sort.doris.util.DorisParseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -94,8 +100,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
      * Mark the record for not delete
      */
     private static final String DORIS_DELETE_FALSE = "0";
-    private static final String FORMAT_JSON_VALUE = "json";
-    private static final String FORMAT_KEY = "format";
     private static final String FIELD_DELIMITER_KEY = "column_separator";
     private static final String FIELD_DELIMITER_DEFAULT = "\t";
     private static final String LINE_DELIMITER_KEY = "line_delimiter";
@@ -119,11 +123,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final String inlongMetric;
     private final String auditHostAndPorts;
     private final boolean multipleSink;
-    private volatile String tableIdentifier;
-    private volatile String databasePattern;
-    private volatile String tablePattern;
-    private volatile String dynamicSchemaFormat;
-    private volatile boolean ignoreSingleTableErrors;
+    private final String tableIdentifier;
+    private final String databasePattern;
+    private final String tablePattern;
+    private final String dynamicSchemaFormat;
+    private final boolean ignoreSingleTableErrors;
     private long batchBytes = 0L;
     private int size;
     private DorisStreamLoad dorisStreamLoad;
@@ -135,35 +139,15 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private transient SinkMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
-    private volatile String[] fieldNames;
+    private final String[] fieldNames;
     private volatile boolean jsonFormat;
     private String keysType;
     private volatile RowData.FieldGetter[] fieldGetters;
     private String fieldDelimiter;
     private String lineDelimiter;
-    private volatile LogicalType[] logicalTypes;
-
-    public DorisDynamicSchemaOutputFormat(DorisOptions option,
-            DorisReadOptions readOptions,
-            DorisExecutionOptions executionOptions,
-            String dynamicSchemaFormat,
-            String databasePattern,
-            String tablePattern,
-            boolean ignoreSingleTableErrors,
-            String inlongMetric,
-            String auditHostAndPorts,
-            boolean multipleSink) {
-        this.options = option;
-        this.readOptions = readOptions;
-        this.executionOptions = executionOptions;
-        this.dynamicSchemaFormat = dynamicSchemaFormat;
-        this.databasePattern = databasePattern;
-        this.tablePattern = tablePattern;
-        this.ignoreSingleTableErrors = ignoreSingleTableErrors;
-        this.multipleSink = multipleSink;
-        this.inlongMetric = inlongMetric;
-        this.auditHostAndPorts = auditHostAndPorts;
-    }
+    private final LogicalType[] logicalTypes;
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
 
     public DorisDynamicSchemaOutputFormat(DorisOptions option,
             DorisReadOptions readOptions,
@@ -171,9 +155,15 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             String tableIdentifier,
             LogicalType[] logicalTypes,
             String[] fieldNames,
+            String dynamicSchemaFormat,
+            String databasePattern,
+            String tablePattern,
+            boolean ignoreSingleTableErrors,
             String inlongMetric,
             String auditHostAndPorts,
-            boolean multipleSink) {
+            boolean multipleSink,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         this.options = option;
         this.readOptions = readOptions;
         this.executionOptions = executionOptions;
@@ -183,6 +173,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.logicalTypes = logicalTypes;
+        this.dynamicSchemaFormat = dynamicSchemaFormat;
+        this.databasePattern = databasePattern;
+        this.tablePattern = tablePattern;
+        this.ignoreSingleTableErrors = ignoreSingleTableErrors;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     /**
@@ -295,7 +291,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
     @Override
-    public synchronized void writeRecord(T row) throws IOException {
+    public synchronized void writeRecord(T row) {
         addBatch(row);
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
                 || batchBytes >= executionOptions.getMaxBatchBytes();
@@ -306,124 +302,190 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     public void addSingle(T row) {
         if (row instanceof RowData) {
-            RowData rowData = (RowData) row;
-            Map<String, String> valueMap = new HashMap<>();
-            StringJoiner value = new StringJoiner(this.fieldDelimiter);
-            for (int i = 0; i < rowData.getArity() && i < fieldGetters.length; ++i) {
-                Object field = fieldGetters[i].getFieldOrNull(rowData);
-                if (jsonFormat) {
-                    String data = field != null ? field.toString() : null;
-                    valueMap.put(this.fieldNames[i], data);
-                    batchBytes += this.fieldNames[i].getBytes(StandardCharsets.UTF_8).length;
-                    if (data != null) {
+            try {
+                RowData rowData = (RowData) row;
+                Map<String, String> valueMap = new HashMap<>();
+                StringJoiner value = new StringJoiner(this.fieldDelimiter);
+                for (int i = 0; i < rowData.getArity() && i < fieldGetters.length; ++i) {
+                    Object field = fieldGetters[i].getFieldOrNull(rowData);
+                    if (jsonFormat) {
+                        String data = field != null ? field.toString() : null;
+                        valueMap.put(this.fieldNames[i], data);
+                        batchBytes += this.fieldNames[i].getBytes(StandardCharsets.UTF_8).length;
+                        if (data != null) {
+                            batchBytes += data.getBytes(StandardCharsets.UTF_8).length;
+                        }
+                    } else {
+                        String data = field != null ? field.toString() : NULL_VALUE;
+                        value.add(data);
                         batchBytes += data.getBytes(StandardCharsets.UTF_8).length;
                     }
-                } else {
-                    String data = field != null ? field.toString() : NULL_VALUE;
-                    value.add(data);
-                    batchBytes += data.getBytes(StandardCharsets.UTF_8).length;
                 }
-            }
-            // add doris delete sign
-            if (enableBatchDelete()) {
-                if (jsonFormat) {
-                    valueMap.put(DORIS_DELETE_SIGN, DorisParseUtils.parseDeleteSign(rowData.getRowKind()));
-                } else {
-                    value.add(DorisParseUtils.parseDeleteSign(rowData.getRowKind()));
+                // add doris delete sign
+                if (enableBatchDelete()) {
+                    if (jsonFormat) {
+                        valueMap.put(DORIS_DELETE_SIGN, DorisParseUtils.parseDeleteSign(rowData.getRowKind()));
+                    } else {
+                        value.add(DorisParseUtils.parseDeleteSign(rowData.getRowKind()));
+                    }
                 }
+                Object data = jsonFormat ? valueMap : value.toString();
+                List mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
+                mapData.add(data);
+                batchMap.putIfAbsent(tableIdentifier, mapData);
+            } catch (Exception e) {
+                LOG.error(String.format("serialize error, raw data: %s", row), e);
+                handleDirtyData(row, DirtyType.SERIALIZE_ERROR, e);
             }
-            Object data = jsonFormat ? valueMap : value.toString();
-            List mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
-            mapData.add(data);
-            batchMap.putIfAbsent(tableIdentifier, mapData);
         } else if (row instanceof String) {
             batchBytes += ((String) row).getBytes(StandardCharsets.UTF_8).length;
             List mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
             mapData.add(row);
             batchMap.putIfAbsent(tableIdentifier, mapData);
         } else {
-            throw new RuntimeException("The type of element should be 'RowData' or 'String' only.");
+            LOG.error(String.format("The type of element should be 'RowData' or 'String' only., raw data: %s", row));
+            handleDirtyData(row, DirtyType.UNSUPPORTED_DATA_TYPE,
+                    new RuntimeException("The type of element should be 'RowData' or 'String' only."));
         }
+
     }
 
-    @SuppressWarnings({"unchecked"})
-    private void addBatch(T row) throws IOException {
+    private void addBatch(T row) {
+        readInNum.incrementAndGet();
         if (!multipleSink) {
             addSingle(row);
             return;
         }
         if (row instanceof RowData) {
             RowData rowData = (RowData) row;
-            JsonNode rootNode = jsonDynamicSchemaFormat.deserialize(rowData.getBinary(0));
-            readInNum.incrementAndGet();
+            JsonNode rootNode = null;
+            try {
+                rootNode = jsonDynamicSchemaFormat.deserialize(rowData.getBinary(0));
+            } catch (Exception e) {
+                LOG.error(String.format("deserialize error, raw data: %s", new String(rowData.getBinary(0))), e);
+                handleDirtyData(new String(rowData.getBinary(0)), DirtyType.DESERIALIZE_ERROR, e);
+            }
             boolean isDDL = jsonDynamicSchemaFormat.extractDDLFlag(rootNode);
             if (isDDL) {
                 ddlNum.incrementAndGet();
                 // Ignore ddl change for now
                 return;
             }
-            String tableIdentifier = StringUtils.join(
-                    jsonDynamicSchemaFormat.parse(rootNode, databasePattern), ".",
-                    jsonDynamicSchemaFormat.parse(rootNode, tablePattern));
-            if (checkFlushException(tableIdentifier)) {
-                return;
-            }
-            List<RowKind> rowKinds = jsonDynamicSchemaFormat
-                    .opType2RowKind(jsonDynamicSchemaFormat.getOpType(rootNode));
-            JsonNode physicalData = jsonDynamicSchemaFormat.getPhysicalData(rootNode);
-            List<Map<String, String>> physicalDataList = jsonDynamicSchemaFormat.jsonNode2Map(physicalData);
-            JsonNode updateBeforeNode = jsonDynamicSchemaFormat.getUpdateBefore(rootNode);
+            String tableIdentifier;
+            List<RowKind> rowKinds;
+            JsonNode physicalData;
+            JsonNode updateBeforeNode;
+            List<Map<String, String>> physicalDataList;
             List<Map<String, String>> updateBeforeList = null;
-            if (updateBeforeNode != null) {
-                updateBeforeList = jsonDynamicSchemaFormat.jsonNode2Map(updateBeforeNode);
+            try {
+                tableIdentifier = StringUtils.join(
+                        jsonDynamicSchemaFormat.parse(rootNode, databasePattern), ".",
+                        jsonDynamicSchemaFormat.parse(rootNode, tablePattern));
+                if (checkFlushException(tableIdentifier)) {
+                    return;
+                }
+                rowKinds = Preconditions.checkNotNull(jsonDynamicSchemaFormat
+                        .opType2RowKind(jsonDynamicSchemaFormat.getOpType(rootNode)));
+                physicalData = Preconditions.checkNotNull(jsonDynamicSchemaFormat.getPhysicalData(rootNode));
+                Preconditions.checkArgument(!physicalData.isEmpty());
+                physicalDataList = Preconditions.checkNotNull(jsonDynamicSchemaFormat.jsonNode2Map(physicalData));
+                updateBeforeNode = jsonDynamicSchemaFormat.getUpdateBefore(rootNode);
+                if (updateBeforeNode != null) {
+                    updateBeforeList = jsonDynamicSchemaFormat.jsonNode2Map(updateBeforeNode);
+                }
+            } catch (Exception e) {
+                LOG.error(String.format("json parse error, raw data: %s", new String(rowData.getBinary(0))), e);
+                handleDirtyData(new String(rowData.getBinary(0)), DirtyType.JSON_PROCESS_ERROR, e);
+                return;
             }
             for (int i = 0; i < physicalDataList.size(); i++) {
                 for (RowKind rowKind : rowKinds) {
-                    switch (rowKind) {
-                        case INSERT:
-                        case UPDATE_AFTER:
-                            handleColumnsChange(tableIdentifier, rootNode, physicalData);
-                            batchBytes += physicalDataList.get(i).toString().getBytes(StandardCharsets.UTF_8).length;
-                            size++;
-                            batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
-                                    .add(physicalDataList.get(i));
-                            if (enableBatchDelete()) {
-                                physicalDataList.get(i).put(DORIS_DELETE_SIGN, DORIS_DELETE_FALSE);
-                            }
-                            break;
-                        case DELETE:
-                            handleColumnsChange(tableIdentifier, rootNode, physicalData);
-                            batchBytes += physicalDataList.get(i).toString().getBytes(StandardCharsets.UTF_8).length;
-                            size++;
-                            // add doris delete sign
-                            if (enableBatchDelete()) {
-                                physicalDataList.get(i).put(DORIS_DELETE_SIGN, DORIS_DELETE_TRUE);
-                            }
-                            batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
-                                    .add(physicalDataList.get(i));
-                            break;
-                        case UPDATE_BEFORE:
-                            if (updateBeforeList != null && updateBeforeList.size() > i) {
-                                handleColumnsChange(tableIdentifier, rootNode, updateBeforeNode);
-                                batchBytes += updateBeforeList.get(i).toString()
-                                        .getBytes(StandardCharsets.UTF_8).length;
-                                size++;
-                                // add doris delete sign
-                                if (enableBatchDelete()) {
-                                    updateBeforeList.get(i).put(DORIS_DELETE_SIGN, DORIS_DELETE_TRUE);
-                                }
-                                batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
-                                        .add(updateBeforeList.get(i));
-                            }
-                            break;
-                        default:
-                            errorNum.incrementAndGet();
-                            throw new RuntimeException("Unrecognized row kind:" + rowKind);
+                    if (updateBeforeList != null && updateBeforeList.size() > i) {
+                        addRow(rowKind, rootNode, physicalData, updateBeforeNode,
+                                physicalDataList.get(i), updateBeforeList.get(i));
+                    } else {
+                        addRow(rowKind, rootNode, physicalData, updateBeforeNode,
+                                physicalDataList.get(i), null);
                     }
                 }
             }
         } else {
-            throw new RuntimeException("The type of element should be 'RowData' only.");
+            LOG.error(String.format("The type of element should be 'RowData' only, raw data: %s", row));
+            handleDirtyData(row, DirtyType.UNSUPPORTED_DATA_TYPE,
+                    new RuntimeException("The type of element should be 'RowData' only."));
+        }
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private void addRow(RowKind rowKind, JsonNode rootNode, JsonNode physicalNode, JsonNode updateBeforeNode,
+            Map<String, String> physicalData, Map<String, String> updateBeforeData) {
+        switch (rowKind) {
+            case INSERT:
+            case UPDATE_AFTER:
+                handleColumnsChange(tableIdentifier, rootNode, physicalNode);
+                batchBytes += physicalData.toString().getBytes(StandardCharsets.UTF_8).length;
+                size++;
+                batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
+                        .add(physicalData);
+                if (enableBatchDelete()) {
+                    physicalData.put(DORIS_DELETE_SIGN, DORIS_DELETE_FALSE);
+                }
+                break;
+            case DELETE:
+                handleColumnsChange(tableIdentifier, rootNode, physicalNode);
+                batchBytes += physicalData.toString().getBytes(StandardCharsets.UTF_8).length;
+                size++;
+                // add doris delete sign
+                if (enableBatchDelete()) {
+                    physicalData.put(DORIS_DELETE_SIGN, DORIS_DELETE_TRUE);
+                }
+                batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
+                        .add(physicalData);
+                break;
+            case UPDATE_BEFORE:
+                if (updateBeforeData != null) {
+                    handleColumnsChange(tableIdentifier, rootNode, updateBeforeNode);
+                    batchBytes += updateBeforeData.toString()
+                            .getBytes(StandardCharsets.UTF_8).length;
+                    size++;
+                    // add doris delete sign
+                    if (enableBatchDelete()) {
+                        updateBeforeData.put(DORIS_DELETE_SIGN, DORIS_DELETE_TRUE);
+                    }
+                    batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
+                            .add(updateBeforeData);
+                }
+                break;
+            default:
+        }
+    }
+
+    private void handleDirtyData(Object dirtyData, DirtyType dirtyType, Exception e) {
+        errorNum.incrementAndGet();
+        if (!dirtyOptions.ignoreDirty()) {
+            RuntimeException ex;
+            if (e instanceof RuntimeException) {
+                ex = (RuntimeException) e;
+            } else {
+                ex = new RuntimeException(e);
+            }
+            throw ex;
+        }
+        if (dirtySink != null) {
+            DirtyData.Builder<Object> builder = DirtyData.builder();
+            try {
+                builder.setData(dirtyData)
+                        .setDirtyType(dirtyType)
+                        .setLabels(dirtyOptions.getLabels())
+                        .setLogTag(dirtyOptions.getLogTag())
+                        .setIdentifier(dirtyOptions.getIdentifier());
+                dirtySink.invoke(builder.build());
+            } catch (Exception ex) {
+                if (!dirtyOptions.ignoreSideOutputErrors()) {
+                    throw new RuntimeException(ex);
+                }
+                LOG.warn("Dirty sink failed", ex);
+            }
         }
     }
 
@@ -525,11 +587,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         if (checkFlushException(tableIdentifier) || values == null || values.isEmpty()) {
             return;
         }
-
         String loadValue = null;
+        RespContent respContent = null;
         try {
             loadValue = OBJECT_MAPPER.writeValueAsString(values);
-            RespContent respContent = load(tableIdentifier, loadValue);
+            respContent = load(tableIdentifier, loadValue);
             try {
                 if (null != metricData && null != respContent) {
                     metricData.invoke(respContent.getNumberLoadedRows(), respContent.getLoadBytes());
@@ -543,6 +605,20 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         } catch (Exception e) {
             flushExceptionMap.put(tableIdentifier, e);
             errorNum.getAndAdd(values.size());
+            if (respContent != null && StringUtils.isNotBlank(respContent.getErrorURL())) {
+                // Makesure it is a dirty data
+                for (Object value : values) {
+                    try {
+                        handleDirtyData(OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsString(value)),
+                                DirtyType.BATCH_LOAD_ERROR, e);
+                    } catch (IOException ex) {
+                        if (!dirtyOptions.ignoreSideOutputErrors()) {
+                            throw new RuntimeException(ex);
+                        }
+                        LOG.warn("Dirty sink failed", ex);
+                    }
+                }
+            }
             if (!ignoreSingleTableErrors) {
                 throw new RuntimeException(
                         String.format("Writing records to streamload of tableIdentifier:%s failed, the value: %s.",
@@ -648,6 +724,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         private String tableIdentifier;
         private DataType[] fieldDataTypes;
         private String[] fieldNames;
+        private DirtyOptions dirtyOptions;
+        private DirtySink<Object> dirtySink;
 
         public Builder() {
             this.optionsBuilder = DorisOptions.builder().setTableIdentifier("");
@@ -729,22 +807,27 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             return this;
         }
 
+        public DorisDynamicSchemaOutputFormat.Builder setDirtyOptions(DirtyOptions dirtyOptions) {
+            this.dirtyOptions = dirtyOptions;
+            return this;
+        }
+
+        public DorisDynamicSchemaOutputFormat.Builder setDirtySink(DirtySink<Object> dirtySink) {
+            this.dirtySink = dirtySink;
+            return this;
+        }
+
         @SuppressWarnings({"rawtypes"})
         public DorisDynamicSchemaOutputFormat build() {
+            LogicalType[] logicalTypes = null;
             if (!multipleSink) {
-                LogicalType[] logicalTypes = Arrays.stream(fieldDataTypes)
+                logicalTypes = Arrays.stream(fieldDataTypes)
                         .map(DataType::getLogicalType).toArray(LogicalType[]::new);
-
-                return new DorisDynamicSchemaOutputFormat(
-                        optionsBuilder.setTableIdentifier(tableIdentifier).build(), readOptions, executionOptions,
-                        tableIdentifier,
-                        logicalTypes, fieldNames,
-                        inlongMetric, auditHostAndPorts, multipleSink);
             }
             return new DorisDynamicSchemaOutputFormat(
-                    optionsBuilder.build(), readOptions, executionOptions,
-                    dynamicSchemaFormat, databasePattern, tablePattern,
-                    ignoreSingleTableErrors, inlongMetric, auditHostAndPorts, multipleSink);
+                    optionsBuilder.setTableIdentifier(tableIdentifier).build(), readOptions, executionOptions,
+                    tableIdentifier, logicalTypes, fieldNames, dynamicSchemaFormat, databasePattern, tablePattern,
+                    ignoreSingleTableErrors, inlongMetric, auditHostAndPorts, multipleSink, dirtyOptions, dirtySink);
         }
     }
 }

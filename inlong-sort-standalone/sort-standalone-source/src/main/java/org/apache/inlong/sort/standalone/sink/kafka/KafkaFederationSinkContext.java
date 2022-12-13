@@ -72,8 +72,12 @@ public class KafkaFederationSinkContext extends SinkContext {
             Map<String, KafkaIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
             List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
             for (Map<String, String> idParam : idList) {
-                KafkaIdConfig idConfig = new KafkaIdConfig(idParam);
-                newIdConfigMap.put(idConfig.getUid(), idConfig);
+                try {
+                    KafkaIdConfig idConfig = new KafkaIdConfig(idParam);
+                    newIdConfigMap.put(idConfig.getUid(), idConfig);
+                } catch (Exception e) {
+                    LOG.error("fail to parse kafka id config", e);
+                }
             }
 
             LOG.info("reload clusterConfig");

@@ -45,7 +45,6 @@ public class Job {
     // job description
     private String description;
     protected String jobInstanceId;
-    protected List<Task> taskList = new ArrayList<>();
     protected ThreadLocal<Integer> threadNum = new ThreadLocal<Integer>() {
 
         protected Integer initialValue() {

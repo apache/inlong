@@ -132,14 +132,6 @@
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/iceberg-dlc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
-            <includes>
-                <include>sort-connector-iceberg-dlc-${project.version}.jar</include>
-            </includes>
-            <fileMode>0644</fileMode>
-        </fileSet>
-        <fileSet>
             <directory>../inlong-sort/sort-connectors/tubemq/target</directory>
             <outputDirectory>inlong-sort/connectors</outputDirectory>
             <includes>
@@ -163,6 +155,14 @@
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>../inlong-sort/sort-connectors/starrocks/target</directory>
+            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <includes>
+                <include>sort-connector-starrocks-${project.version}.jar</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
         <!-- module's 3td-licenses, notices-->
         <fileSet>
             <directory>../licenses/inlong-sort-connectors</directory>
@@ -170,6 +170,14 @@
                 <include>**/*</include>
             </includes>
             <outputDirectory>./</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>../inlong-sort/sort-connectors/hudi/target</directory>
+            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <includes>
+                <include>sort-connector-hudi-${project.version}.jar</include>
+            </includes>
+            <fileMode>0644</fileMode>
         </fileSet>
     </fileSets>
 </assembly>

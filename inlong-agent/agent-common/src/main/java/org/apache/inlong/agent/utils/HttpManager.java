@@ -39,7 +39,11 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_SUCCE
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 
 /**
  * Perform http operation
@@ -48,6 +52,7 @@ public class HttpManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpManager.class);
     private static final Gson gson;
+    private static final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
 
     static {
         final GsonBuilder gsonBuilder = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -63,6 +68,17 @@ public class HttpManager {
                 DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT));
         secretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
         secretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
+    }
+
+    /**
+     * build base url for manager according to config
+     *
+     * example - http://127.0.0.1:8080/inlong/manager/openapi
+     */
+    public static String buildBaseUrl() {
+        return "http://" + agentConf.get(AGENT_MANAGER_VIP_HTTP_HOST)
+                + ":" + agentConf.get(AGENT_MANAGER_VIP_HTTP_PORT)
+                + agentConf.get(AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
     }
 
     /**

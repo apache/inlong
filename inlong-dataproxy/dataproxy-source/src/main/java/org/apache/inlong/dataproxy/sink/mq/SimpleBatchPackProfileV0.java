@@ -17,9 +17,12 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 
 import java.util.Map;
@@ -31,6 +34,7 @@ import java.util.Map;
 public class SimpleBatchPackProfileV0 extends BatchPackProfile {
 
     private Event simpleProfile;
+    private Map<String, String> properties;
 
     /**
      * Constructor
@@ -50,7 +54,7 @@ public class SimpleBatchPackProfileV0 extends BatchPackProfile {
      */
     public static SimpleBatchPackProfileV0 create(Event event) {
         Map<String, String> headers = event.getHeaders();
-        String inlongGroupId = headers.get(AttributeConstants.GROUP_ID);;
+        String inlongGroupId = headers.get(AttributeConstants.GROUP_ID);
         String inlongStreamId = headers.get(AttributeConstants.STREAM_ID);
         String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         long msgTime = NumberUtils.toLong(headers.get(AttributeConstants.DATA_TIME), System.currentTimeMillis());
@@ -60,6 +64,11 @@ public class SimpleBatchPackProfileV0 extends BatchPackProfile {
         profile.setCount(1);
         profile.setSize(event.getBody().length);
         profile.simpleProfile = event;
+
+        String pkgVersion = event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER);
+        if (StringUtils.isNotBlank(pkgVersion)) {
+            profile.properties = MessageUtils.getXfsAttrs(headers, pkgVersion);
+        }
         return profile;
     }
 
@@ -69,5 +78,13 @@ public class SimpleBatchPackProfileV0 extends BatchPackProfile {
      */
     public Event getSimpleProfile() {
         return simpleProfile;
+    }
+
+    /**
+     * get properties
+     * @return the properties
+     */
+    public Map<String, String> getProperties() {
+        return properties;
     }
 }

@@ -62,6 +62,11 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     LoadEntity: () => import('./Iceberg'),
   },
   {
+    label: 'Hudi',
+    value: 'HUDI',
+    LoadEntity: () => import('./Hudi'),
+  },
+  {
     label: 'Kafka',
     value: 'KAFKA',
     LoadEntity: () => import('./Kafka'),
@@ -85,6 +90,11 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     label: 'SQLServer',
     value: 'SQLSERVER',
     LoadEntity: () => import('./SQLServer'),
+  },
+  {
+    label: 'StarRocks',
+    value: 'STARROCKS',
+    LoadEntity: () => import('./StarRocks'),
   },
   {
     label: 'TDSQLPostgreSQL',

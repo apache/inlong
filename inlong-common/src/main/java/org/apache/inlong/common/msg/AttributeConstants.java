@@ -94,4 +94,6 @@ public interface AttributeConstants {
 
     // dataproxy IP from dp response ack
     String MESSAGE_DP_IP = "dpIP";
+
+    String MESSAGE_TOPIC = "topic";
 }

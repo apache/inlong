@@ -33,6 +33,7 @@ import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SOURCE_MULTIPLE_ENABLE;
 
 /**
  * Factory for creating configured instance of
@@ -107,6 +108,39 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
                                     + "to stream events to the connector that you are configuring. Default is "
                                     + "\"flink\".");
 
+    /**
+     * The session time zone in database server.
+     */
+    public static final ConfigOption<String> SERVER_TIME_ZONE =
+            ConfigOptions.key("server-time-zone")
+                    .stringType()
+                    .defaultValue("UTC")
+                    .withDescription("The session time zone in database server.");
+
+    /**
+     * row kinds to be filtered
+     */
+    public static final ConfigOption<String> ROW_KINDS_FILTERED =
+            ConfigOptions.key("row-kinds-filtered")
+                    .stringType()
+                    .defaultValue("+I&-U&+U&-D")
+                    .withDescription("row kinds to be filtered,"
+                            + " here filtered means keep the data of certain row kind"
+                            + "the format follows rowKind1&rowKind2, supported row kinds are "
+                            + "\"+I\" represents INSERT.\n"
+                            + "\"-U\" represents UPDATE_BEFORE.\n"
+                            + "\"+U\" represents UPDATE_AFTER.\n"
+                            + "\"-D\" represents DELETE.");
+
+    /**
+     * Whether works as append source.
+     */
+    public static final ConfigOption<Boolean> APPEND_MODE =
+            ConfigOptions.key("append-mode")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether works as append source.");
+
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
         final FactoryUtil.TableFactoryHelper helper =
@@ -123,9 +157,14 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
         int port = config.get(PORT);
         String pluginName = config.get(DECODING_PLUGIN_NAME);
         String slotName = config.get(SLOT_NAME);
+        String serverTimeZone = config.get(SERVER_TIME_ZONE);
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
+        final boolean sourceMultipleEnable = config.get(SOURCE_MULTIPLE_ENABLE);
         String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String inlongAudit = config.get(INLONG_AUDIT);
+        final boolean appendSource = config.get(APPEND_MODE);
+        final String rowKindFiltered = config.get(ROW_KINDS_FILTERED).isEmpty() ? ROW_KINDS_FILTERED.defaultValue()
+                : config.get(ROW_KINDS_FILTERED);
 
         return new PostgreSQLTableSource(
                 physicalSchema,
@@ -138,7 +177,11 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
                 password,
                 pluginName,
                 slotName,
+                serverTimeZone,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
+                appendSource,
+                rowKindFiltered,
+                sourceMultipleEnable,
                 inlongMetric,
                 inlongAudit);
     }
@@ -166,8 +209,12 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
         options.add(PORT);
         options.add(DECODING_PLUGIN_NAME);
         options.add(SLOT_NAME);
+        options.add(SERVER_TIME_ZONE);
+        options.add(SOURCE_MULTIPLE_ENABLE);
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
+        options.add(APPEND_MODE);
+        options.add(ROW_KINDS_FILTERED);
         return options;
     }
 }

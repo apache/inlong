@@ -101,12 +101,13 @@ public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Ser
 
     /**
      * if you want to set field routing, set the routing.field-name
+     * The elasticsearch-6-inlong Connector is compatible with elasticsearch versions 5 and 6
      */
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
         options.put("connector", "elasticsearch-7-inlong");
-        if (version == 6) {
+        if (version == 5 || version == 6) {
             options.put("connector", "elasticsearch-6-inlong");
             options.put("document-type", documentType);
         }

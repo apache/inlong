@@ -31,7 +31,6 @@ import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.RowData.FieldGetter;
 import org.apache.flink.table.data.StringData;
-import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.inlong.sort.base.dirty.utils.FormatUtils;
 import org.junit.Assert;
@@ -41,7 +40,6 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import static org.apache.flink.table.data.RowData.createFieldGetter;
 
 /**
@@ -64,7 +62,7 @@ public class FormatUtilsTest {
                 Column.physical("name", DataTypes.STRING()),
                 Column.physical("age", DataTypes.INT()));
         List<LogicalType> logicalTypes = schema.toPhysicalRowDataType()
-                .getChildren().stream().map(DataType::getLogicalType).collect(Collectors.toList());
+                .getLogicalType().getChildren();
         fieldGetters = new RowData.FieldGetter[logicalTypes.size()];
         for (int i = 0; i < logicalTypes.size(); i++) {
             fieldGetters[i] = createFieldGetter(logicalTypes.get(i), i);

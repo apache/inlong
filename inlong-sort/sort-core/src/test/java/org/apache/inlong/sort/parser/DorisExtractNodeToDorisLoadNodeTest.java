@@ -42,9 +42,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
@@ -75,7 +75,6 @@ public class DorisExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("price", new DecimalFormatInfo()),
                 new FieldInfo("sale", new DoubleFormatInfo()));
-
         List<FieldRelation> fieldRelations = Arrays
                 .asList(new FieldRelation(new FieldInfo("dt", new StringFormatInfo()),
                         new FieldInfo("dt", new StringFormatInfo())),
@@ -91,9 +90,15 @@ public class DorisExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
                                 new FieldInfo("sale", new DoubleFormatInfo())));
 
         List<FilterFunction> filters = new ArrayList<>();
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("dirty.side-output.connector", "log");
+        properties.put("dirty.ignore", "true");
+        properties.put("dirty.side-output.enable", "true");
+        properties.put("dirty.side-output.format", "csv");
+        properties.put("dirty.side-output.labels",
+                "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=test&table=test2");
         return new DorisLoadNode("2", "doris_output", fields, fieldRelations,
-                filters, null, 1, map,
+                filters, null, 1, properties,
                 "localhost:8030", "root",
                 "000000", "test.test2", null);
     }

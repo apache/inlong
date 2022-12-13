@@ -38,18 +38,18 @@ export default class HiveNode extends NodeInfo implements DataWithBackend, Rende
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.DataPathHelp'),
+    tooltip: i18n.t('meta.Nodes.Hive.DataPathHelp'),
     initialValue: 'hdfs://127.0.0.1:9000/user/hive/warehouse/default',
   })
-  @I18n('meta.Sinks.Hive.DataPath')
+  @I18n('meta.Nodes.Hive.DataPath')
   dataPath: string;
 
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.Hive.ConfDirHelp'),
+    tooltip: i18n.t('meta.Nodes.Hive.ConfDirHelp'),
     initialValue: '/usr/hive/conf',
   })
-  @I18n('meta.Sinks.Hive.ConfDir')
+  @I18n('meta.Nodes.Hive.ConfDir')
   hiveConfDir: string;
 }

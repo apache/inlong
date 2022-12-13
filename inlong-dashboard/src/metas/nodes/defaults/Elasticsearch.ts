@@ -33,12 +33,9 @@ export default class ElasticsearchNode
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    props: {
-      placeholder: 'ip:port',
-    },
   })
   @I18n('meta.Nodes.ES.Host')
-  httpHosts: string;
+  url: string;
 
   @FieldDecorator({
     type: 'input',
@@ -52,7 +49,7 @@ export default class ElasticsearchNode
     rules: [{ required: true }],
   })
   @I18n('meta.Nodes.ES.Password')
-  password: string;
+  token: string;
 
   @FieldDecorator({
     type: 'inputnumber',
@@ -60,6 +57,7 @@ export default class ElasticsearchNode
     props: {
       min: 0,
     },
+    suffix: i18n.t('meta.Nodes.ES.BulkActionUnit'),
   })
   @I18n('bulkAction')
   bulkAction: number;
@@ -81,6 +79,7 @@ export default class ElasticsearchNode
     props: {
       min: 0,
     },
+    suffix: i18n.t('meta.Nodes.ES.FlushIntervalUnit'),
   })
   @I18n('meta.Nodes.ES.FlushInterval')
   flushInterval: number;
