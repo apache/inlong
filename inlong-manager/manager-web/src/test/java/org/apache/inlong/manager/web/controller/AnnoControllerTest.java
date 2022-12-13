@@ -112,16 +112,16 @@ class AnnoControllerTest extends WebBaseTest {
         MvcResult mvcResult = null;
         for (int i = 0; i < 19; i++) {
             // Before locking account, input correct pwd to clear error count
-            if(i == 9) {
+            if (i == 9) {
                 loginUser.setPassword("inlong");
             } else {
                 loginUser.setPassword("test_wrong_pwd");
             }
-            mvcResult  = mockMvc.perform(
-                            post("/api/anno/login")
-                                    .content(JsonUtils.toJsonString(loginUser))
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .accept(MediaType.APPLICATION_JSON))
+            mvcResult = mockMvc.perform(
+                    post("/api/anno/login")
+                            .content(JsonUtils.toJsonString(loginUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andReturn();
         }
