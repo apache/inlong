@@ -29,9 +29,10 @@ import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
+import java.util.List;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * Inlong group service layer interface
@@ -52,10 +53,11 @@ public interface InlongGroupService {
      * Save inlong group info.
      *
      * @param groupInfo group request need to save
-     * @param opInfo userinfo of operator
+     * @param opInfo    userinfo of operator
      * @return detail of inlong group
      */
-    String save(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest groupInfo, UserInfo opInfo);
+    String save(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest groupInfo,
+            UserInfo opInfo);
 
     /**
      * Query whether the specified group id exists
@@ -142,7 +144,7 @@ public interface InlongGroupService {
      * @return inlong group id
      */
     String update(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest request,
-                  UserInfo opInfo);
+            UserInfo opInfo);
 
     /**
      * Modify the status of the specified group

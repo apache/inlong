@@ -250,11 +250,13 @@ public class InlongGroupProcessService {
         try {
             invokeDeleteProcess(groupId, opInfo.getName());
         } catch (Exception e) {
-            LOGGER.error(String.format("failed to delete group for groupId=%s by user=%s", groupId,  opInfo.getName()), e);
+            LOGGER.error(String.format("failed to delete group for groupId=%s by user=%s",
+                    groupId, opInfo.getName()), e);
             throw e;
         }
 
-        LOGGER.info("success to delete group for groupId={} by user={}", groupId,  opInfo.getName());
+        LOGGER.info("success to delete group for groupId={} by user={}",
+                groupId, opInfo.getName());
         return true;
     }
 

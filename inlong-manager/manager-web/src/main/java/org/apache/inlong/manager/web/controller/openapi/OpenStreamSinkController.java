@@ -87,7 +87,7 @@ public class OpenStreamSinkController {
             @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     })
     public Response<Boolean> delete(@PathVariable Integer id,
-                                    @RequestParam(required = false, defaultValue = "false") boolean startProcess) {
+            @RequestParam(required = false, defaultValue = "false") boolean startProcess) {
         return Response.success(sinkService.delete(id, startProcess, LoginUserUtils.getLoginUser()));
     }
 }
