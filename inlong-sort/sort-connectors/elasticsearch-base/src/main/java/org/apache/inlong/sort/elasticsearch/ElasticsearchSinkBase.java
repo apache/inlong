@@ -501,7 +501,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                         failure = callBridge.extractFailureCauseFromBulkItemResponse(itemResponse);
                         if (failure != null) {
                             restStatus = itemResponse.getFailure().getStatus() != null
-                                    ? itemResponse.getFailure().getStatus().getStatus() : -1;
+                                    ? itemResponse.getFailure().getStatus().getStatus()
+                                    : -1;
                             handleFailure(request.requests().get(i), restStatus, failure);
                         }
                     }

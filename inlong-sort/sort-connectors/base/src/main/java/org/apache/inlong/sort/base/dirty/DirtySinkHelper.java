@@ -38,7 +38,7 @@ public class DirtySinkHelper<T> implements Serializable {
     private DirtyOptions dirtyOptions;
     private final @Nullable DirtySink<T> dirtySink;
 
-    public DirtySinkHelper(DirtyOptions dirtyOptions, @Nullable DirtySink<T> dirtySink){
+    public DirtySinkHelper(DirtyOptions dirtyOptions, @Nullable DirtySink<T> dirtySink) {
         this.dirtyOptions = Preconditions.checkNotNull(dirtyOptions, "dirtyOptions is null");
         this.dirtySink = dirtySink;
     }
@@ -48,11 +48,11 @@ public class DirtySinkHelper<T> implements Serializable {
      *
      * @param configuration The configuration that is used for dirty sink
      */
-    public void open(Configuration configuration){
-        if(dirtySink != null){
+    public void open(Configuration configuration) {
+        if (dirtySink != null) {
             try {
                 dirtySink.open(configuration);
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }

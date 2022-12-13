@@ -98,7 +98,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             ElasticSearchBuilderProvider builderProvider,
             String inlongMetric,
             String auditHostAndPorts,
-            @Nullable DirtySinkHelper<Object> dirtySinkHelper) {
+            DirtySinkHelper<Object> dirtySinkHelper) {
         this.format = format;
         this.schema = schema;
         this.config = config;
