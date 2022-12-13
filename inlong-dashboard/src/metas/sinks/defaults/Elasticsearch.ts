@@ -95,6 +95,7 @@ export default class ElasticsearchSink
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
+    tooltip: i18n.t('meta.Sinks.ES.PrimaryKeyHelp'),
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
