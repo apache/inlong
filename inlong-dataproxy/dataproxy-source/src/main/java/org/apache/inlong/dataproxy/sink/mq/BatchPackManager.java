@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.sink.mq;
 
 import org.apache.flume.Context;
+import org.apache.flume.event.SimpleEvent;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
@@ -70,7 +71,6 @@ public class BatchPackManager {
 
     /**
      * addEvent
-     * 
      * @param event
      */
     public void addEvent(ProxyEvent event) {
@@ -133,6 +133,18 @@ public class BatchPackManager {
             this.dispatchQueue.acquire(dispatchProfile.getSize());
             this.dispatchQueue.offer(dispatchProfile);
         }
+    }
+
+    /**
+     * addSimpleEvent
+     * @param event
+     */
+    public void addSimpleEvent(SimpleEvent event) {
+        BatchPackProfile dispatchProfile = SimpleBatchPackProfileV0.create(event);
+        this.dispatchQueue.acquire(dispatchProfile.getSize());
+        this.dispatchQueue.offer(dispatchProfile);
+        outCounter.addAndGet(dispatchProfile.getCount());
+        inCounter.incrementAndGet();
     }
 
     /**

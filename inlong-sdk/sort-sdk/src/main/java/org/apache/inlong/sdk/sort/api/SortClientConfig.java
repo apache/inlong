@@ -362,42 +362,53 @@ public class SortClientConfig implements Serializable {
      * @param sortSdkParams
      */
     public void setParameters(Map<String, String> sortSdkParams) {
-        this.callbackQueueSize = NumberUtils.toInt(sortSdkParams.get("callbackQueueSize"), callbackQueueSize);
-        this.pulsarReceiveQueueSize = NumberUtils.toInt(sortSdkParams.get("pulsarReceiveQueueSize"),
+        this.callbackQueueSize =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.CALLBACK_QUEUE_SIZE), callbackQueueSize);
+        this.pulsarReceiveQueueSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.PULSAR_RECEIVE_QUEUE_SIZE),
                 pulsarReceiveQueueSize);
-        this.kafkaFetchWaitMs = NumberUtils.toInt(sortSdkParams.get("kafkaFetchWaitMs"), kafkaFetchWaitMs);
-        this.kafkaFetchSizeBytes = NumberUtils.toInt(sortSdkParams.get("kafkaFetchSizeBytes"), kafkaFetchSizeBytes);
-        this.kafkaSocketRecvBufferSize = NumberUtils.toInt(sortSdkParams.get("kafkaSocketRecvBufferSize"),
-                kafkaSocketRecvBufferSize);
+        this.kafkaFetchWaitMs =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.KAFKA_FETCH_WAIT_MS), kafkaFetchWaitMs);
+        this.kafkaFetchSizeBytes =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.KAFKA_FETCH_SIZE_BYTES), kafkaFetchSizeBytes);
+        this.kafkaSocketRecvBufferSize =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.KAFKA_SOCKET_RECV_BUFFER_SIZE),
+                        kafkaSocketRecvBufferSize);
 
-        this.localIp = sortSdkParams.getOrDefault("localIp", localIp);
-        this.appName = sortSdkParams.getOrDefault("appName", appName);
-        this.serverName = sortSdkParams.getOrDefault("serverName", serverName);
-        this.containerId = sortSdkParams.getOrDefault("containerId", containerId);
-        this.instanceName = sortSdkParams.getOrDefault("instanceName", instanceName);
-        this.env = sortSdkParams.getOrDefault("env", env);
-        this.managerApiUrl = sortSdkParams.getOrDefault("managerApiUrl", managerApiUrl);
-        this.managerApiVersion = sortSdkParams.getOrDefault("managerApiVersion", managerApiVersion);
-        String strConsumeStrategy = sortSdkParams.getOrDefault("consumeStrategy", consumeStrategy.name());
-        String strManagerType = sortSdkParams.getOrDefault("topicManagerType",
+        this.localIp = sortSdkParams.getOrDefault(ConfigConstants.LOCAL_IP, localIp);
+        this.appName = sortSdkParams.getOrDefault(ConfigConstants.APP_NAME, appName);
+        this.serverName = sortSdkParams.getOrDefault(ConfigConstants.SERVER_NAME, serverName);
+        this.containerId = sortSdkParams.getOrDefault(ConfigConstants.CONTAINER_ID, containerId);
+        this.instanceName = sortSdkParams.getOrDefault(ConfigConstants.INSTANCE_NAME, instanceName);
+        this.env = sortSdkParams.getOrDefault(ConfigConstants.ENV, env);
+        this.managerApiUrl = sortSdkParams.getOrDefault(ConfigConstants.MANAGER_API_URL, managerApiUrl);
+        this.managerApiVersion = sortSdkParams.getOrDefault(ConfigConstants.MANAGER_API_VERSION, managerApiVersion);
+        String strConsumeStrategy =
+                sortSdkParams.getOrDefault(ConfigConstants.CONSUME_STRATEGY, consumeStrategy.name());
+        String strManagerType = sortSdkParams.getOrDefault(ConfigConstants.TOPIC_MANAGER_TYPE,
                 TopicType.MULTI_TOPIC.toString());
         this.consumeStrategy = ConsumeStrategy.valueOf(strConsumeStrategy);
         this.topicType = TopicType.valueOf(strManagerType);
 
-        this.reportStatisticIntervalSec = NumberUtils.toInt(sortSdkParams.get("reportStatisticIntervalSec"),
-                reportStatisticIntervalSec);
-        this.updateMetaDataIntervalSec = NumberUtils.toInt(sortSdkParams.get("updateMetaDataIntervalSec"),
-                updateMetaDataIntervalSec);
-        this.ackTimeoutSec = NumberUtils.toInt(sortSdkParams.get("ackTimeoutSec"), ackTimeoutSec);
-        this.cleanOldConsumerIntervalSec = NumberUtils.toInt(sortSdkParams.get("cleanOldConsumerIntervalSec"),
-                cleanOldConsumerIntervalSec);
+        this.reportStatisticIntervalSec =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.REPORT_STATISTIC_INTERVAL_SEC),
+                        reportStatisticIntervalSec);
+        this.updateMetaDataIntervalSec =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.UPDATE_META_DATA_INTERVAL_SEC),
+                        updateMetaDataIntervalSec);
+        this.ackTimeoutSec = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.ACK_TIMEOUT_SEC), ackTimeoutSec);
+        this.cleanOldConsumerIntervalSec =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.CLEAN_OLD_CONSUMER_INTERVAL_SEC),
+                        cleanOldConsumerIntervalSec);
 
-        String strPrometheusEnabled = sortSdkParams.getOrDefault("isPrometheusEnabled", Boolean.TRUE.toString());
+        String strPrometheusEnabled =
+                sortSdkParams.getOrDefault(ConfigConstants.IS_PROMETHEUS_ENABLED, Boolean.TRUE.toString());
         this.isPrometheusEnabled = StringUtils.equalsIgnoreCase(strPrometheusEnabled, Boolean.TRUE.toString());
 
-        this.emptyPollSleepStepMs = NumberUtils.toInt(sortSdkParams.get("emptyPollSleepStepMs"), emptyPollSleepStepMs);
-        this.maxEmptyPollSleepMs = NumberUtils.toInt(sortSdkParams.get("maxEmptyPollSleepMs"), maxEmptyPollSleepMs);
-        this.emptyPollTimes = NumberUtils.toInt(sortSdkParams.get("emptyPollTimes"), emptyPollTimes);
-        this.maxConsumerSize = NumberUtils.toInt(sortSdkParams.get("maxConsumerSize"), maxConsumerSize);
+        this.emptyPollSleepStepMs =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.EMPTY_POLL_SLEEP_STEP_MS), emptyPollSleepStepMs);
+        this.maxEmptyPollSleepMs =
+                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_EMPTY_POLL_SLEEP_MS), maxEmptyPollSleepMs);
+        this.emptyPollTimes = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.EMPTY_POLL_TIMES), emptyPollTimes);
+        this.maxConsumerSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_CONSUMER_SIZE), maxConsumerSize);
     }
 }

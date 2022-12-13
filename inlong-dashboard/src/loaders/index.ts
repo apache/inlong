@@ -17,13 +17,10 @@
  * under the License.
  */
 
-import { groupLoader } from '@/loaders';
-import { allDefaultGroups } from './defaults';
-import { allExtendsGroups } from './extends';
-import type { GroupMetaType } from './types';
-
-export type { GroupMetaType };
-
-export const groups = groupLoader.loadPluginList<GroupMetaType>(allDefaultGroups, allExtendsGroups);
-
-export const defaultValue = groupLoader.loadDefaultPlugin<GroupMetaType>(groups);
+export { clusterLoader } from './clusters';
+export { consumeLoader } from './consumes';
+export { groupLoader } from './groups';
+export { nodeLoader } from './nodes';
+export { sinkLoader } from './sinks';
+export { sourceLoader } from './sources';
+export { streamLoader } from './streams';

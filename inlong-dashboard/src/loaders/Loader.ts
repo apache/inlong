@@ -17,13 +17,13 @@
  * under the License.
  */
 
-import { groupLoader } from '@/loaders';
-import { allDefaultGroups } from './defaults';
-import { allExtendsGroups } from './extends';
-import type { GroupMetaType } from './types';
+import { MetaExportWithBackendList } from '@/metas/types';
 
-export type { GroupMetaType };
+export abstract class Loader {
+  abstract loadPluginList<T>(
+    defaultsList: MetaExportWithBackendList<T>,
+    extendsList: MetaExportWithBackendList<T>,
+  ): MetaExportWithBackendList<T>;
 
-export const groups = groupLoader.loadPluginList<GroupMetaType>(allDefaultGroups, allExtendsGroups);
-
-export const defaultValue = groupLoader.loadDefaultPlugin<GroupMetaType>(groups);
+  abstract loadDefaultPlugin<T>(pluginList: MetaExportWithBackendList<T>): string;
+}

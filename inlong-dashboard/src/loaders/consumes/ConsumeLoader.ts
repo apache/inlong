@@ -17,13 +17,8 @@
  * under the License.
  */
 
-import { groupLoader } from '@/loaders';
-import { allDefaultGroups } from './defaults';
-import { allExtendsGroups } from './extends';
-import type { GroupMetaType } from './types';
+import { ConsumeDefaultLoader } from './ConsumeDefaultLoader';
 
-export type { GroupMetaType };
-
-export const groups = groupLoader.loadPluginList<GroupMetaType>(allDefaultGroups, allExtendsGroups);
-
-export const defaultValue = groupLoader.loadDefaultPlugin<GroupMetaType>(groups);
+export class ConsumeLoader extends ConsumeDefaultLoader {
+  // You can extends ConsumeLoader at here...
+}
