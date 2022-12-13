@@ -23,6 +23,7 @@ import org.apache.flume.Event;
 import org.apache.flume.EventDeliveryException;
 import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
+import org.apache.flume.event.SimpleEvent;
 import org.apache.flume.sink.AbstractSink;
 import org.apache.inlong.dataproxy.sink.common.SinkContext;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
@@ -146,6 +147,13 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable {
             if (event instanceof ProxyPackEvent) {
                 ProxyPackEvent packEvent = (ProxyPackEvent) event;
                 this.dispatchManager.addPackEvent(packEvent);
+                tx.commit();
+                return Status.READY;
+            }
+            // SimpleEvent, send as is
+            if (event instanceof SimpleEvent) {
+                SimpleEvent simpleEvent = (SimpleEvent) event;
+                this.dispatchManager.addSimpleEvent(simpleEvent);
                 tx.commit();
                 return Status.READY;
             }
