@@ -215,13 +215,12 @@ public class HudiCatalogClient {
         String serDeClassName = HoodieInputFormatUtils.getSerDeClassName(baseFileFormat);
         sd.setInputFormat(inputFormatClassName);
         sd.setOutputFormat(outputFormatClassName);
+
         Map<String, String> serdeProperties = new HashMap<>();
         serdeProperties.put("path", location);
         serdeProperties.put(ConfigUtils.IS_QUERY_AS_RO_TABLE, String.valueOf(!useRealTimeInputFormat));
         serdeProperties.put("serialization.format", "1");
-
         sd.setSerdeInfo(new SerDeInfo(null, serDeClassName, serdeProperties));
-
         sd.setLocation(location);
         hiveTable.setSd(sd);
 
