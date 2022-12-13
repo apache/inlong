@@ -1557,6 +1557,9 @@
                         <eclipse>
                             <file>codestyle/spotless_inlong_formatter.xml</file>
                         </eclipse>
+                        <licenseHeader>
+                            <file>codestyle/license-header</file>
+                        </licenseHeader>
                         <removeUnusedImports />
                         <replaceRegex>
                             <name>Remove wildcard imports</name>
@@ -1597,7 +1600,7 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>check</goal>
+                            <goal>apply</goal>
                         </goals>
                         <phase>compile</phase>
                     </execution>
@@ -1636,7 +1639,6 @@
                         </licenseFamily>
                     </licenseFamilies>
                     <excludes>
-                        <!-- Exclude license copies -->
                         <exclude>licenses/**</exclude>
 
                         <!-- Generated content -->
