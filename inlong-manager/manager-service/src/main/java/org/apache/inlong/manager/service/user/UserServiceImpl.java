@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity curUser = userMapper.selectByName(currentUser);
         Preconditions.checkTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
-                || Objects.equals(entity.getName(), currentUser),
+                        || Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to get other users' info");
 
         UserInfo result = new UserInfo();
@@ -211,7 +211,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity targetUserEntity = userMapper.selectByName(updateName);
         Preconditions.checkTrue(Objects.isNull(targetUserEntity)
-                || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
+                        || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
                 "Username [" + updateName + "] already exists");
 
         // if the current user is not a manager, needs to check the password before updating user info
@@ -263,23 +263,21 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * This implementation is just to simply intercept some requests and reduce the pressure of wrong requests on the
-     * database. The memory method used, the number of multi-node logins is not shared, and a single node is not safe
-     * in high concurrency
+     * This implementation is just to intercept some error requests and reduce the pressure on the database.
+     * <p/>
+     * This is a memory-based implementation. There is a problem with concurrency security when there are
+     * multiple service nodes because the data in memory cannot be shared.
      *
-     * @param req username and pwd
+     * @param req username login request
      */
     @Override
     public void login(UserLoginRequest req) {
         String username = req.getUsername();
-
         UserLoginLockStatus userLoginLockStatus = loginLockStatusMap.getOrDefault(username, new UserLoginLockStatus());
-
         LocalDateTime lockoutTime = userLoginLockStatus.getLockoutTime();
         if (lockoutTime != null && lockoutTime.isAfter(LocalDateTime.now())) {
-            long waitMinutes = Duration.between(LocalDateTime.now(), lockoutTime)
-                    // Part of a minute counts as a minute
-                    .toMinutes() + 1;
+            // part of a minute counts as one minute
+            long waitMinutes = Duration.between(LocalDateTime.now(), lockoutTime).toMinutes() + 1;
             throw new BusinessException("account has been locked, please try again in " + waitMinutes + " minutes");
         }
 
@@ -288,13 +286,13 @@ public class UserServiceImpl implements UserService {
         try {
             subject.login(token);
         } catch (AuthenticationException e) {
-            LOGGER.error("login error: request param:{}", req, e);
+            LOGGER.error("login error for request {}", req, e);
             int loginErrorCount = userLoginLockStatus.getLoginErrorCount() + 1;
 
             if (loginErrorCount % LOCKED_THRESHOLD == 0) {
                 LocalDateTime lockedTime = LocalDateTime.now().plusMinutes(LOCKED_TIME);
                 userLoginLockStatus.setLockoutTime(lockedTime);
-                LOGGER.error("The account is locked, username:{}, lockout time:{}", username, lockedTime);
+                LOGGER.error("account {} is locked, lockout time: {}", username, lockedTime);
             }
             userLoginLockStatus.setLoginErrorCount(loginErrorCount);
 
