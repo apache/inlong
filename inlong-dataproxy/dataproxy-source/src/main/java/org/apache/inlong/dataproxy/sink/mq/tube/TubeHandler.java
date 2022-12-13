@@ -241,7 +241,7 @@ public class TubeHandler implements MessageQueueHandler {
             String topic) throws Exception {
         // headers
         Map<String, String> headers = event.getProperties();
-        if (MapUtils.isEmpty(event.getProperties())) {
+        if (MapUtils.isEmpty(headers)) {
             headers = event.getSimpleProfile().getHeaders();
         }
         // compress
@@ -249,7 +249,6 @@ public class TubeHandler implements MessageQueueHandler {
         // sendAsync
         Message message = new Message(topic, bodyBytes);
         // add headers
-
         headers.forEach((key, value) -> {
             message.setAttrKeyVal(key, value);
         });

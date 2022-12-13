@@ -216,7 +216,6 @@ public class KafkaHandler implements MessageQueueHandler {
 
         // prepare ProducerRecord
         ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>(topic, bodyBytes);
-
         // add headers
         headers.forEach((key, value) -> {
             producerRecord.headers().add(key, value.getBytes());
