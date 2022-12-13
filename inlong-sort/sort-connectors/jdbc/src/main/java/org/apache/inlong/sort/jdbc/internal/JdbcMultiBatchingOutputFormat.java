@@ -99,6 +99,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     private transient Map<String, List<String>> pkNameMap = new HashMap<>();
     private transient Map<String, List<GenericRowData>> recordsMap = new HashMap<>();
     private transient Map<String, Exception> tableExceptionMap = new HashMap<>();
+    private transient Boolean isIgnoreTableException;
 
     private transient ListState<MetricState> metricStateListState;
     private final String sinkMultipleFormat;
@@ -163,6 +164,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         rowTypeMap = new HashMap<>();
         recordsMap = new HashMap<>();
         tableExceptionMap = new HashMap<>();
+        isIgnoreTableException = schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE)
+                || schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.STOP_PARTIAL);
         if (executionOptions.getBatchIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
             this.scheduler =
                     Executors.newScheduledThreadPool(
@@ -216,8 +219,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         }
         StatementExecutorFactory<JdbcExec> statementExecutorFactory = null;
         if (CollectionUtils.isNotEmpty(pkNameList) && !appendMode) {
-            // update
-            LOG.info("bug_test update mode");
+            // upsert query
             JdbcDmlOptions createDmlOptions = JdbcDmlOptions.builder()
                     .withTableName(getTbNameFromIdentifier(tableIdentifier))
                     .withDialect(jdbcOptions.getDialect())
@@ -228,7 +230,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                     createDmlOptions, ctx, rowDataTypeInfo, logicalTypes);
 
         } else {
-            // insert
+            // append only query
             final String sql = dmlOptions
                     .getDialect()
                     .getInsertIntoStatement(getTbNameFromIdentifier(tableIdentifier), filedNames);
@@ -449,9 +451,9 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     protected void attemptFlush() throws IOException {
         for (Map.Entry<String, List<GenericRowData>> entry : recordsMap.entrySet()) {
             String tableIdentifier = entry.getKey();
-            if (null != tableExceptionMap.get(tableIdentifier)
-                    && (schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE)
-                            || schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.STOP_PARTIAL))) {
+            boolean isIgnoreTableIdentifierException = isIgnoreTableException
+                    && (null != tableExceptionMap.get(tableIdentifier));
+            if (isIgnoreTableIdentifierException) {
                 continue;
             }
             List<GenericRowData> tableIdRecordList = entry.getValue();
@@ -506,12 +508,17 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                             }
                         }
                     }
+                    if (!flushFlag && null != tableException) {
+                        LOG.info("Put tableIdentifier:{} exception:{}",
+                                tableIdentifier, tableException.getMessage());
+                        tableExceptionMap.put(tableIdentifier, tableException);
+                        if (isIgnoreTableException) {
+                            LOG.info("Stop write table:{} because occur exception",
+                                    tableIdentifier);
+                            break;
+                        }
+                    }
                 }
-            }
-            if (!flushFlag && null != tableException) {
-                LOG.info("Put tableIdentifier:{} exception:{}",
-                        tableIdentifier, tableException.getMessage());
-                tableExceptionMap.put(tableIdentifier, tableException);
             }
             tableIdRecordList.clear();
         }

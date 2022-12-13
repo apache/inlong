@@ -18,7 +18,6 @@
 
 package org.apache.inlong.sort.jdbc.table;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
@@ -30,7 +29,6 @@ import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcReadOptions;
 import org.apache.flink.connector.jdbc.table.JdbcDynamicTableSource;
 import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSinkFactory;
@@ -252,35 +250,21 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
 
     private void validateSinkMultiple(boolean multipleSink, String sinkMultipleFormat,
             String databasePattern, String schemaPattern, String tablePattern) {
+        Preconditions.checkNotNull(multipleSink, "The option 'sink.multiple.enable' is not allowed null");
         if (multipleSink) {
-            if (StringUtils.isBlank(databasePattern)) {
-                throw new ValidationException(
-                        "The option 'sink.multiple.database-pattern'"
-                                + " is not allowed blank when the option 'sink.multiple.enable' is 'true'");
-            }
-            if (StringUtils.isBlank(schemaPattern)) {
-                throw new ValidationException(
-                        "The option 'sink.multiple.schema-pattern'"
-                                + " is not allowed blank when the option 'sink.multiple.enable' is 'true'");
-            }
-            if (StringUtils.isBlank(tablePattern)) {
-                throw new ValidationException(
-                        "The option 'sink.multiple.table-pattern' "
-                                + "is not allowed blank when the option 'sink.multiple.enable' is 'true'");
-            }
-            if (StringUtils.isBlank(sinkMultipleFormat)) {
-                throw new ValidationException(
-                        "The option 'sink.multiple.format' "
-                                + "is not allowed blank when the option 'sink.multiple.enable' is 'true'");
-            }
+            Preconditions.checkNotNull(databasePattern, "The option 'sink.multiple.database-pattern'"
+                    + " is not allowed blank when the option 'sink.multiple.enable' is 'true'");
+            Preconditions.checkNotNull(schemaPattern, "The option 'sink.multiple.schema-pattern'"
+                    + " is not allowed blank when the option 'sink.multiple.enable' is 'true'");
+            Preconditions.checkNotNull(tablePattern, "The option 'sink.multiple.table-pattern' "
+                    + "is not allowed blank when the option 'sink.multiple.enable' is 'true'");
+            Preconditions.checkNotNull(sinkMultipleFormat, "The option 'sink.multiple.format' "
+                    + "is not allowed blank when the option 'sink.multiple.enable' is 'true'");
             DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
             Set<String> supportFormats = DynamicSchemaFormatFactory.SUPPORT_FORMATS.keySet();
-            if (!supportFormats.contains(sinkMultipleFormat)) {
-                throw new ValidationException(String.format(
-                        "Unsupported value '%s' for '%s'. "
-                                + "Supported values are %s.",
-                        sinkMultipleFormat, SINK_MULTIPLE_FORMAT.key(), supportFormats));
-            }
+            Preconditions.checkArgument(supportFormats.contains(sinkMultipleFormat), String.format(
+                    "Unsupported value '%s' for '%s'. Supported values are %s.",
+                    sinkMultipleFormat, SINK_MULTIPLE_FORMAT.key(), supportFormats));
         }
     }
 
