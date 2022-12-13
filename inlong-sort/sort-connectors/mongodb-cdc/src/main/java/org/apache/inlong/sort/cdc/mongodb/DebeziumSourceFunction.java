@@ -24,7 +24,6 @@ import io.debezium.embedded.Connect;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.spi.OffsetCommitPolicy;
 import io.debezium.heartbeat.Heartbeat;
-import io.debezium.relational.history.TableChanges;
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -490,15 +489,6 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                                     sourceMetricData.outputMetricsWithEstimate(record.value());
                                 }
                                 deserializer.deserialize(record, out);
-                            }
-
-                            @Override
-                            public void deserialize(SourceRecord record, Collector<T> out,
-                                    TableChanges.TableChange tableSchema) throws Exception {
-                                if (sourceMetricData != null) {
-                                    sourceMetricData.outputMetricsWithEstimate(record.value());
-                                }
-                                deserializer.deserialize(record, out, tableSchema);
                             }
 
                             @Override

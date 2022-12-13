@@ -20,7 +20,6 @@ package org.apache.inlong.sort.cdc.mongodb.debezium.internal;
 
 import static io.debezium.relational.history.TableChanges.TableChange;
 
-import com.google.gson.Gson;
 import io.debezium.config.Configuration;
 import io.debezium.relational.TableId;
 import io.debezium.relational.Tables;
@@ -38,8 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.apache.inlong.sort.cdc.mongodb.debezium.history.FlinkJsonTableChangeSerializer;
 import org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The {@link FlinkDatabaseSchemaHistory} only stores the latest schema of the monitored tables.
@@ -52,8 +49,6 @@ import org.slf4j.LoggerFactory;
  * history DDLs, it's useful to prevent OOM when meet massive history DDLs.</p>
  */
 public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FlinkDatabaseSchemaHistory.class);
 
     public static final String DATABASE_HISTORY_INSTANCE_NAME = "database.history.instance.name";
 
@@ -88,8 +83,6 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
             HistoryRecordComparator comparator,
             DatabaseHistoryListener listener,
             boolean useCatalogBeforeSchema) {
-        Gson gson = new Gson();
-        LOG.info("bug_test get configure:{}", gson.toJson(config));
         this.instanceName = config.getString(DATABASE_HISTORY_INSTANCE_NAME);
         this.listener = listener;
         this.storeOnlyMonitoredTablesDdl = config.getBoolean(STORE_ONLY_MONITORED_TABLES_DDL);
@@ -103,7 +96,6 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
             TableChange tableChange =
                     FlinkJsonTableChangeSerializer.fromDocument(
                             schemaRecord.toDocument(), useCatalogBeforeSchema);
-            LOG.info("bug_test get tableId:{}", tableChange.getId());
             latestTables.put(tableChange.getId(), schemaRecord);
         }
         // register

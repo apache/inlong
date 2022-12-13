@@ -18,12 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mongodb.debezium.internal;
 
-import com.google.gson.Gson;
 import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
-import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +31,6 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.mongodb.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -232,29 +228,16 @@ public class DebeziumChangeFetcher<T> {
                 // drop heartbeat events
                 continue;
             }
-
-            // TODO mongo not support schema ?
-            // deserialization.deserialize(record, debeziumCollector, getTableChange(record));
             deserialization.deserialize(record, debeziumCollector);
 
             if (!isSnapshotRecord(record)) {
                 LOG.debug("Snapshot phase finishes.");
                 isInDbSnapshotPhase = false;
             }
-            Gson gson = new Gson();
-            LOG.info("bug_test 245 get source:{}", gson.toJson(record));
             // emit the actual records. this also updates offset state atomically
             emitRecordsUnderCheckpointLock(
                     debeziumCollector.records, record.sourcePartition(), record.sourceOffset());
         }
-    }
-
-    private TableChange getTableChange(SourceRecord record) {
-        Gson gson = new Gson();
-        SchemaRecord schemaRecord = FlinkDatabaseSchemaHistory.latestTables.get(RecordUtils.getTableId(
-                record));
-        return FlinkJsonTableChangeSerializer.fromDocument(
-                schemaRecord.toDocument(), true);
     }
 
     private void emitRecordsUnderCheckpointLock(
@@ -264,9 +247,7 @@ public class DebeziumChangeFetcher<T> {
         // The synchronized checkpointLock is reentrant. It's safe to sync again in snapshot mode.
         synchronized (checkpointLock) {
             T record;
-            Gson gson = new Gson();
             while ((record = records.poll()) != null) {
-                LOG.info("bug_test 268 get source:{}", gson.toJson(record));
                 emitDelay =
                         isInDbSnapshotPhase ? 0L : System.currentTimeMillis() - messageTimestamp;
                 sourceContext.collect(record);
