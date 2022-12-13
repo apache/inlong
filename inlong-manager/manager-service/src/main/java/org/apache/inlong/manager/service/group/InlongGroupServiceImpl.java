@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -57,10 +58,12 @@ import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.sort.UserDefinedSortConf;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,6 +174,29 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public String save(InlongGroupRequest request, UserInfo opInfo) {
+        Preconditions.checkNotNull(request, "inlong group request cannot be empty");
+        String groupId = request.getInlongGroupId();
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity != null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
+        }
+        // check operator info
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
+        InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
+        groupId = instance.saveOpt(request, opInfo.getName());
+        // save ext info
+        this.saveOrUpdateExt(groupId, request.getExtList());
+
+        LOGGER.info("success to save inlong group for groupId={} by user={}", groupId, opInfo.getName());
+        return groupId;
+    }
+
+    @Override
     public Boolean exist(String groupId) {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
@@ -198,6 +224,37 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         groupInfo.setSortConf(sortConf);
 
         LOGGER.debug("success to get inlong group for groupId={}", groupId);
+        return groupInfo;
+    }
+
+    @Override
+    public InlongGroupInfo get(String groupId, UserInfo opInfo) {
+        // check group id
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // check operator info
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        // only the person in charges can query
+        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(opInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
+        // query mq information
+        InlongGroupOperator instance = groupOperatorFactory.getInstance(entity.getMqType());
+        InlongGroupInfo groupInfo = instance.getFromEntity(entity);
+        // get all ext info
+        List<InlongGroupExtEntity> extEntityList = groupExtMapper.selectByGroupId(groupId);
+        List<InlongGroupExtInfo> extList = CommonBeanUtils.copyListProperties(extEntityList, InlongGroupExtInfo::new);
+        groupInfo.setExtList(extList);
+        BaseSortConf sortConf = buildSortConfig(extList);
+        groupInfo.setSortConf(sortConf);
         return groupInfo;
     }
 
@@ -309,6 +366,46 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
+    public PageResult<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request, UserInfo opInfo) {
+        if (request.getPageSize() > MAX_PAGE_SIZE) {
+            request.setPageSize(MAX_PAGE_SIZE);
+        }
+        // check operator info
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
+        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        OrderFieldEnum.checkOrderField(request);
+        OrderTypeEnum.checkOrderType(request);
+        Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
+        List<InlongGroupBriefInfo> briefInfos =
+                CommonBeanUtils.copyListProperties(entityPage, InlongGroupBriefInfo::new);
+        // list all related sources
+        if (request.isListSources() && CollectionUtils.isNotEmpty(briefInfos)) {
+            Set<String> groupIds = briefInfos.stream().map(InlongGroupBriefInfo::getInlongGroupId)
+                    .collect(Collectors.toSet());
+            List<StreamSourceEntity> sourceEntities = streamSourceMapper.selectByGroupIds(new ArrayList<>(groupIds));
+            Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
+            sourceEntities.forEach(sourceEntity -> {
+                StreamSourceOperator operation = sourceOperatorFactory.getInstance(sourceEntity.getSourceType());
+                StreamSource source = operation.getFromEntity(sourceEntity);
+                sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList()).add(source);
+            });
+            briefInfos.forEach(group -> {
+                List<StreamSource> sources = sourceMap.getOrDefault(group.getInlongGroupId(), Lists.newArrayList());
+                group.setStreamSources(sources);
+            });
+        }
+        PageResult<InlongGroupBriefInfo> pageResult = new PageResult<>(briefInfos,
+                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+
+        LOGGER.debug("success to list inlong group for {}", request);
+        return pageResult;
+    }
+
+    @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public String update(InlongGroupRequest request, String operator) {
         LOGGER.debug("begin to update inlong group={} by user={}", request, operator);
@@ -335,6 +432,42 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         this.saveOrUpdateExt(groupId, request.getExtList());
 
         LOGGER.info("success to update inlong group for groupId={} by user={}", groupId, operator);
+        return groupId;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
+    public String update(InlongGroupRequest request, UserInfo opInfo) {
+        String groupId = request.getInlongGroupId();
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
+        // check operator info
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        // only the person in charges can query
+        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(opInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
+        // check whether the current status can be modified
+        doUpdateCheck(entity, request, opInfo.getName());
+
+        request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
+        InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
+        instance.updateOpt(request, opInfo.getName());
+
+        // save ext info
+        this.saveOrUpdateExt(groupId, request.getExtList());
+
+        LOGGER.info("success to update inlong group for groupId={} by user={}", groupId, opInfo.getName());
         return groupId;
     }
 
