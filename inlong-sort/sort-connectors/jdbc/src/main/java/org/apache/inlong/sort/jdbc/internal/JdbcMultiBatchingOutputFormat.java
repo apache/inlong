@@ -137,7 +137,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
-        LOG.info("Get schemaUpdateExceptionPolicy:{}", schemaUpdateExceptionPolicy);
     }
 
     /**
