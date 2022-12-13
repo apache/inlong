@@ -114,17 +114,13 @@ class ChunkSplitter {
             long start = System.currentTimeMillis();
 
             Table table = mySqlSchema.getTableSchema(jdbc, tableId).getTable();
-            Column splitColumn = ChunkUtils.getSplitColumn(table);
-            final List<ChunkRange> chunks;
-            try {
-                chunks = splitTableIntoChunks(jdbc, tableId, splitColumn);
-            } catch (SQLException e) {
-                throw new FlinkRuntimeException("Failed to split chunks for table " + tableId, e);
-            }
+
+            List<ChunkRange> chunks = getChunks(tableId, jdbc, table);
 
             // convert chunks into splits
             List<MySqlSnapshotSplit> splits = new ArrayList<>();
-            RowType splitType = ChunkUtils.getSplitType(splitColumn);
+
+            RowType splitType = ChunkUtils.getSplitType(getSplitColumn(table));
             for (int i = 0; i < chunks.size(); i++) {
                 ChunkRange chunk = chunks.get(i);
                 MySqlSnapshotSplit split =
@@ -149,6 +145,45 @@ class ChunkSplitter {
             throw new FlinkRuntimeException(
                     String.format("Generate Splits for table %s error", tableId), e);
         }
+    }
+
+    /**
+     * get the split column using primary key
+     * for those don't have primary key, return the first column
+     * @return chunks
+     */
+    private Column getSplitColumn(Table table) {
+        Column splitColumn;
+        if (table.primaryKeyColumns().isEmpty()) {
+            // since we do not need a split column when there is no primary key
+            // simply return the first column which won't be used
+            splitColumn = table.columns().get(0);
+        } else {
+            splitColumn = ChunkUtils.getSplitColumn(table);
+        }
+        return splitColumn;
+    }
+
+    /**
+     * get chunks of the table using primary key
+     * for those who don't have primary key, return the whole table as a chunk
+     * @return chunks
+     */
+    private List<ChunkRange> getChunks(TableId tableId, JdbcConnection jdbc, Table table) {
+        List<ChunkRange> chunks = new ArrayList<>();
+        if (table.primaryKeyColumns().isEmpty()) {
+            // take the whole table as chunk range
+            // when there is no primary key presented
+            chunks.add(ChunkRange.all());
+        } else {
+            Column splitColumn = ChunkUtils.getSplitColumn(table);
+            try {
+                chunks = splitTableIntoChunks(jdbc, tableId, splitColumn);
+            } catch (SQLException e) {
+                throw new FlinkRuntimeException("Failed to split chunks for table " + tableId, e);
+            }
+        }
+        return chunks;
     }
 
     /**

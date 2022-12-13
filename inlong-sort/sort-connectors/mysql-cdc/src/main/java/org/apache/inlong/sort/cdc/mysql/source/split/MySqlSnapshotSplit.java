@@ -91,6 +91,14 @@ public class MySqlSnapshotSplit extends MySqlSplit {
         return highWatermark != null;
     }
 
+    /**
+     * read the whole table when split start and split end are null
+     * @return whether the split reads the whole table
+     */
+    public boolean isWholeSplit() {
+        return splitStart == null && splitEnd == null;
+    }
+
     @Override
     public Map<TableId, TableChange> getTableSchemas() {
         return tableSchemas;
