@@ -20,41 +20,34 @@ import { RenderRow } from '@/metas/RenderRow';
 import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
-import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
+import { SinkInfo } from '../common/SinkInfo';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
-  CHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1 <= M <= 8000'),
-  VARCHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1 <= M<= 8000'),
-  NCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
-  NVARCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
-  TEXT: () => '',
-  NTEXT: () => '',
-  XML: () => '',
-  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
-  BIGSERIAL: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
-  DECIMAL: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
-  MONEY: (m, d) => (1 <= m && m <= 15 && 1 <= d && d <= 4 ? '' : '1 <= M <= 15, 1 <= D <= 4'),
-  SMALLMONEY: (m, d) => (1 <= m && m <= 7 && 1 <= d && d <= 4 ? '' : '1 <= M <= 7, 1 <= D <= 4'),
-  NUMERIC: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D <= M'),
-  FLOAT: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
-  REAL: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
-  BIT: (m, d) => (1 <= m && m <= 64 ? '' : '1 <= M <= 64'),
-  INT: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
-  TINYINT: (m, d) => (1 <= m && m <= 4 ? '' : '1 <= M <= 4'),
-  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
-  TIME: () => '',
+  CHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  VARCHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  DATE: () => '',
+  TINYINT: (m, d) => (1 <= m && m <= 4 ? '' : '1<=M<=4'),
+  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1<=M<=6'),
+  INT: (m, d) => (1 <= m && m <= 11 ? '' : '1<=M<=11'),
+  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1<=M<=20'),
+  LARGEINT: () => '',
+  STRING: () => '',
   DATETIME: () => '',
-  DATETIME2: () => '',
-  SMALLDATETIME: () => '',
-  DATETIMEOFFSET: () => '',
+  FLOAT: (m, d) =>
+    1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
+  DOUBLE: (m, d) =>
+    1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
+  DECIMAL: (m, d) =>
+    1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
+  BOOLEAN: () => '',
 };
 
-const sqlserverFieldTypes = Object.keys(fieldTypesConf).reduce(
+const fieldTypes = Object.keys(fieldTypesConf).reduce(
   (acc, key) =>
     acc.concat({
       label: key,
@@ -63,7 +56,7 @@ const sqlserverFieldTypes = Object.keys(fieldTypesConf).reduce(
   [],
 );
 
-export default class SqlServerSink
+export default class StarRocksSink
   extends SinkInfo
   implements DataWithBackend, RenderRow, RenderList
 {
@@ -72,7 +65,7 @@ export default class SqlServerSink
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      placeholder: 'jdbc:sqlserver://127.0.0.1:1433;database=db_name',
+      placeholder: 'jdbc:mysql://127.0.0.1:3306/write',
     }),
   })
   @ColumnDecorator()
@@ -84,74 +77,72 @@ export default class SqlServerSink
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
+      placeholder: '127.0.0.1:8030;127.0.0.1:8031;127.0.0.1:8032;',
     }),
   })
   @ColumnDecorator()
-  @I18n('meta.Sinks.SQLServer.SchemaName')
-  schemaName: string;
+  @I18n('LOAD URL')
+  loadUrl: string;
 
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    initialValue: 'UTC',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
   @ColumnDecorator()
-  @I18n('meta.Sinks.SQLServer.ServerTimezone')
-  serverTimezone: string;
+  @I18n('meta.Sinks.Username')
+  username: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: 'password',
     rules: [{ required: true }],
-    initialValue: 'UTC',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
   @ColumnDecorator()
-  @I18n('meta.Sinks.SQLServer.TableName')
+  @I18n('meta.Sinks.Password')
+  password: string;
+
+  @FieldDecorator({
+    type: 'input',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.StarRocks.DatabaseName')
+  databaseName: string;
+
+  @FieldDecorator({
+    type: 'input',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.StarRocks.TableName')
   tableName: string;
 
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    initialValue: 'UTC',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
   @ColumnDecorator()
-  @I18n('meta.Sinks.SQLServer.PrimaryKey')
+  @I18n('meta.Sinks.StarRocks.PrimaryKey')
   primaryKey: string;
 
   @FieldDecorator({
     type: 'radio',
     rules: [{ required: true }],
-    initialValue: 1,
-    tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      options: [
-        {
-          label: i18n.t('basic.Yes'),
-          value: 1,
-        },
-        {
-          label: i18n.t('basic.No'),
-          value: 0,
-        },
-      ],
-    }),
-  })
-  @I18n('meta.Sinks.EnableCreateResource')
-  enableCreateResource: number;
-
-  @FieldDecorator({
-    type: 'radio',
-    rules: [{ required: true }],
-    initialValue: true,
+    initialValue: false,
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       options: [
@@ -166,28 +157,44 @@ export default class SqlServerSink
       ],
     }),
   })
-  @I18n('meta.Sinks.SQLServer.AllMigration')
-  allMigration: boolean;
+  @I18n('meta.Sinks.StarRocks.SinkMultipleEnable')
+  sinkMultipleEnable: boolean;
 
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
+    visible: record => record.sinkMultipleEnable === true,
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @I18n('meta.Sinks.Username')
-  username: string;
+  @ColumnDecorator()
+  @I18n('meta.Sinks.StarRocks.SinkMultipleFormat')
+  sinkMultipleFormat: string;
 
   @FieldDecorator({
-    type: 'password',
+    type: 'input',
     rules: [{ required: true }],
+    visible: record => record.sinkMultipleEnable === true,
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @I18n('meta.Sinks.Password')
-  password: string;
+  @ColumnDecorator()
+  @I18n('meta.Sinks.StarRocks.DatabasePattern')
+  databasePattern: string;
+
+  @FieldDecorator({
+    type: 'input',
+    rules: [{ required: true }],
+    visible: record => record.sinkMultipleEnable === true,
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.StarRocks.TablePattern')
+  tablePattern: string;
 
   @FieldDecorator({
     type: EditableTable,
@@ -204,14 +211,14 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `SQLSERVER${i18n.t('meta.Sinks.SQLServer.FieldName')}`,
+      title: `StarRocks${i18n.t('meta.Sinks.StarRocks.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.SQLServer.FieldNameRule'),
+          message: i18n.t('meta.Sinks.StarRocks.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -219,13 +226,14 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `SQLSERVER${i18n.t('meta.Sinks.SQLServer.FieldType')}`,
+      title: `StarRocks${i18n.t('meta.Sinks.StarRocks.FieldType')}`,
       dataIndex: 'fieldType',
-      initialValue: sqlserverFieldTypes[0].value,
+      initialValue: fieldTypes[0].value,
       type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
-        options: sqlserverFieldTypes,
+        options: fieldTypes,
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        allowClear: true,
       }),
       rules: [
         { required: true },
@@ -247,9 +255,9 @@ const getFieldListColumns = sinkValues => {
       ],
     },
     {
-      title: i18n.t('meta.Sinks.SQLServer.IsMetaField'),
-      initialValue: 0,
+      title: i18n.t('meta.Sinks.StarRocks.IsMetaField'),
       dataIndex: 'isMetaField',
+      initialValue: 0,
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: [
@@ -265,9 +273,9 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: i18n.t('meta.Sinks.SQLServer.FieldFormat'),
+      title: i18n.t('meta.Sinks.StarRocks.FieldFormat'),
       dataIndex: 'fieldFormat',
-      initialValue: '',
+      initialValue: 0,
       type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
         options: ['MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'SQL', 'ISO_8601'].map(item => ({
@@ -279,7 +287,7 @@ const getFieldListColumns = sinkValues => {
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.SQLServer.FieldDescription'),
+      title: i18n.t('meta.Sinks.StarRocks.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },
