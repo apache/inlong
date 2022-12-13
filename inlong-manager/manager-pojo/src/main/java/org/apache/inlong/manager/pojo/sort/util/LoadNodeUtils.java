@@ -35,6 +35,7 @@ import org.apache.inlong.manager.pojo.sink.hbase.HBaseSink;
 import org.apache.inlong.manager.pojo.sink.hdfs.HDFSSink;
 import org.apache.inlong.manager.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.pojo.sink.hudi.HudiSink;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
@@ -46,6 +47,7 @@ import org.apache.inlong.manager.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.StringTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.HudiConstant;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
@@ -62,6 +64,7 @@ import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.GreenplumLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
+import org.apache.inlong.sort.protocol.node.load.HudiLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
@@ -122,6 +125,8 @@ public class LoadNodeUtils {
                 return createLoadNode((ClickHouseSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.ICEBERG:
                 return createLoadNode((IcebergSink) streamSink, fieldInfos, fieldRelations, properties);
+            case SinkType.HUDI:
+                return createLoadNode((HudiSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.SQLSERVER:
                 return createLoadNode((SQLServerSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.ELASTICSEARCH:
@@ -396,6 +401,39 @@ public class LoadNodeUtils {
                 catalogType,
                 icebergSink.getCatalogUri(),
                 icebergSink.getWarehouse());
+    }
+
+    /**
+     * Create load node of Hudi.
+     */
+    public static HudiLoadNode createLoadNode(HudiSink hudiSink, List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+        HudiConstant.CatalogType catalogType = HudiConstant.CatalogType.forName(hudiSink.getCatalogType());
+        List<FieldInfo> partitionFields = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(hudiSink.getPartitionFieldList())) {
+            partitionFields = hudiSink.getPartitionFieldList().stream()
+                    .map(partitionField -> new FieldInfo(partitionField.getFieldName(), hudiSink.getSinkName(),
+                            FieldInfoUtils.convertFieldFormat(partitionField.getFieldType(),
+                                    partitionField.getFieldFormat())))
+                    .collect(Collectors.toList());
+        }
+        return new HudiLoadNode(
+                hudiSink.getSinkName(),
+                hudiSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                hudiSink.getDbName(),
+                hudiSink.getTableName(),
+                hudiSink.getPrimaryKey(),
+                catalogType,
+                hudiSink.getCatalogUri(),
+                hudiSink.getWarehouse(),
+                hudiSink.getExtList(),
+                partitionFields);
     }
 
     /**
