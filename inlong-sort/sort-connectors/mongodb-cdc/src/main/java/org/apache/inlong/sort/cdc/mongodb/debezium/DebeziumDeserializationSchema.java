@@ -18,7 +18,6 @@
 
 package org.apache.inlong.sort.cdc.mongodb.debezium;
 
-import io.debezium.relational.history.TableChanges;
 import java.io.Serializable;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
@@ -38,15 +37,5 @@ public interface DebeziumDeserializationSchema<T> extends Serializable, ResultTy
      * Deserialize the Debezium record, it is represented in Kafka {@link SourceRecord}.
      */
     void deserialize(SourceRecord record, Collector<T> out) throws Exception;
-
-    /**
-     * Deserialize the Debezium record with tableSchema, it is represented in Kafka {@link
-     * SourceRecord}.
-     */
-    default void deserialize(
-            SourceRecord record, Collector<T> out, TableChanges.TableChange tableSchema)
-            throws Exception {
-        deserialize(record, out);
-    }
 
 }
