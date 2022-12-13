@@ -445,7 +445,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
   org.dom4j:dom4j:2.1.3 - dom4j (http://dom4j.github.io), (BSD 3-clause New License)
   com.google.code.findbugs:jsr305:3.0.2 - FindBugs-jsr305 (http://findbugs.sourceforge.net/), (New BSD License)
-  com.google.protobuf:protobuf-java:3.19.4 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf), (3-Clause BSD License)
+  com.google.protobuf:protobuf-java:3.19.6 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf), (3-Clause BSD License)
 
 
 ========================================================================
