@@ -273,8 +273,8 @@ public class SortClusterServiceImpl implements SortClusterService {
     }
 
     private Map<String, String> parseSinkParams(DataNodeInfo nodeInfo) {
-            DataNodeOperator operator = dataNodeOperatorFactory.getInstance(nodeInfo.getType());
-            return operator.parse2SinkParams(nodeInfo);
+        DataNodeOperator operator = dataNodeOperatorFactory.getInstance(nodeInfo.getType());
+        return operator.parse2SinkParams(nodeInfo);
     }
 
     /**
