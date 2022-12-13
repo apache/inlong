@@ -175,13 +175,16 @@ public class SortClusterServiceImpl implements SortClusterService {
         // get all task under a given cluster, has been reduced into cluster and task.
         List<SortTaskInfo> tasks = sortConfigLoader.loadAllTask();
         Map<String, List<SortTaskInfo>> clusterTaskMap = tasks.stream()
-                .filter(dto -> StringUtils.isNotBlank(dto.getSortClusterName()))
+                .filter(dto -> StringUtils.isNotBlank(dto.getSortClusterName())
+                        && StringUtils.isNotBlank(dto.getSortTaskName())
+                        && StringUtils.isNotBlank(dto.getDataNodeName())
+                        && StringUtils.isNotBlank(dto.getSinkType()))
                 .collect(Collectors.groupingBy(SortTaskInfo::getSortClusterName));
 
         // get all stream sinks
         Map<String, List<StreamSinkEntity>> task2AllStreams = sinkEntities.stream()
                 .filter(entity -> StringUtils.isNotBlank(entity.getInlongClusterName()))
-                .collect(Collectors.groupingBy(StreamSinkEntity::getSinkName));
+                .collect(Collectors.groupingBy(StreamSinkEntity::getSortTaskName));
 
         // get all data nodes and group by node name
         List<DataNodeEntity> dataNodeEntities = sortConfigLoader.loadAllDataNodeEntity();
@@ -233,7 +236,6 @@ public class SortClusterServiceImpl implements SortClusterService {
                         String dataNodeName = task.getDataNodeName();
                         DataNodeInfo nodeInfo = task2DataNodeMap.get(dataNodeName);
                         List<StreamSinkEntity> streams = task2AllStreams.get(taskName);
-
                         return SortTaskConfig.builder()
                                 .name(taskName)
                                 .type(type)
