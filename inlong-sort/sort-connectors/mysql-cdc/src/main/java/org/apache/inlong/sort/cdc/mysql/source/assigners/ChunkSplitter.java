@@ -153,15 +153,13 @@ class ChunkSplitter {
      * @return chunks
      */
     private Column getSplitColumn(Table table) {
-        Column splitColumn;
         if (table.primaryKeyColumns().isEmpty()) {
             // since we do not need a split column when there is no primary key
             // simply return the first column which won't be used
-            splitColumn = table.columns().get(0);
+            return table.columns().get(0);
         } else {
-            splitColumn = ChunkUtils.getSplitColumn(table);
+            return ChunkUtils.getSplitColumn(table);
         }
-        return splitColumn;
     }
 
     /**
@@ -170,20 +168,18 @@ class ChunkSplitter {
      * @return chunks
      */
     private List<ChunkRange> getChunks(TableId tableId, JdbcConnection jdbc, Table table) {
-        List<ChunkRange> chunks = new ArrayList<>();
         if (table.primaryKeyColumns().isEmpty()) {
             // take the whole table as chunk range
             // when there is no primary key presented
-            chunks.add(ChunkRange.all());
+            return Collections.singletonList(ChunkRange.all());
         } else {
             Column splitColumn = ChunkUtils.getSplitColumn(table);
             try {
-                chunks = splitTableIntoChunks(jdbc, tableId, splitColumn);
+                return splitTableIntoChunks(jdbc, tableId, splitColumn);
             } catch (SQLException e) {
                 throw new FlinkRuntimeException("Failed to split chunks for table " + tableId, e);
             }
         }
-        return chunks;
     }
 
     /**

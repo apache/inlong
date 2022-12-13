@@ -169,15 +169,13 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
      * @return highWatermark
      */
     private BinlogOffset determineHighWatermark(BinlogOffset lowWatermark) {
-        BinlogOffset highWatermark;
         if (snapshotSplit.isWholeSplit()) {
-            highWatermark = lowWatermark;
             LOG.info("for split {}, set highWatermark to lowWatermark {} since"
                     + " it reads the whole table ", snapshotSplit, lowWatermark);
+            return lowWatermark;
         } else {
-            highWatermark = currentBinlogOffset(jdbcConnection);
+            return currentBinlogOffset(jdbcConnection);
         }
-        return highWatermark;
     }
 
     @Override
