@@ -145,7 +145,8 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                         .startupOptions(startupOptions)
                         .deserializer(deserializer)
                         .inlongMetric(inlongMetric)
-                        .inlongAudit(inlongAudit);
+                        .inlongAudit(inlongAudit)
+                        .sourceMultipleEnable(sourceMultipleEnable);
         DebeziumSourceFunction<RowData> sourceFunction = builder.build();
 
         return SourceFunctionProvider.of(sourceFunction, false);
