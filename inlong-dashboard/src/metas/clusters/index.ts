@@ -17,11 +17,16 @@
  * under the License.
  */
 
+import { clusterLoader } from '@/loaders';
 import { allDefaultClusters } from './defaults';
 import { allExtendsClusters } from './extends';
+import type { ClusterMetaType } from './types';
 
-export type { ClusterMetaType } from './types';
+export type { ClusterMetaType };
 
-export const clusters = allDefaultClusters.concat(allExtendsClusters);
+export const clusters = clusterLoader.loadPluginList<ClusterMetaType>(
+  allDefaultClusters,
+  allExtendsClusters,
+);
 
-export const defaultValue = clusters[0].value;
+export const defaultValue = clusterLoader.loadDefaultPlugin<ClusterMetaType>(clusters);
