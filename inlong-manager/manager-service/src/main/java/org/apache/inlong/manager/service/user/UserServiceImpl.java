@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity curUser = userMapper.selectByName(currentUser);
         Preconditions.checkTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
-                        || Objects.equals(entity.getName(), currentUser),
+                || Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to get other users' info");
 
         UserInfo result = new UserInfo();
@@ -211,7 +211,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity targetUserEntity = userMapper.selectByName(updateName);
         Preconditions.checkTrue(Objects.isNull(targetUserEntity)
-                        || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
+                || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
                 "Username [" + updateName + "] already exists");
 
         // if the current user is not a manager, needs to check the password before updating user info
