@@ -273,18 +273,14 @@ public class UserServiceImpl implements UserService {
     public void login(UserLoginRequest req) {
         String username = req.getUsername();
 
-        UserLoginLockStatus userLoginLockStatus = loginLockStatusMap.get(username);
+        UserLoginLockStatus userLoginLockStatus = loginLockStatusMap.getOrDefault(username, new UserLoginLockStatus());
 
-        if (userLoginLockStatus == null) {
-            userLoginLockStatus = new UserLoginLockStatus();
-        } else {
-            LocalDateTime lockoutTime = userLoginLockStatus.getLockoutTime();
-            if (lockoutTime != null && lockoutTime.isAfter(LocalDateTime.now())) {
-                long waitMinutes = Duration.between(LocalDateTime.now(), lockoutTime)
-                        // Part of a minute counts as a minute
-                        .toMinutes() + 1;
-                throw new BusinessException("account has been locked, please try again in " + waitMinutes + " minutes");
-            }
+        LocalDateTime lockoutTime = userLoginLockStatus.getLockoutTime();
+        if (lockoutTime != null && lockoutTime.isAfter(LocalDateTime.now())) {
+            long waitMinutes = Duration.between(LocalDateTime.now(), lockoutTime)
+                    // Part of a minute counts as a minute
+                    .toMinutes() + 1;
+            throw new BusinessException("account has been locked, please try again in " + waitMinutes + " minutes");
         }
 
         Subject subject = SecurityUtils.getSubject();
@@ -296,9 +292,9 @@ public class UserServiceImpl implements UserService {
             int loginErrorCount = userLoginLockStatus.getLoginErrorCount() + 1;
 
             if (loginErrorCount % LOCKED_THRESHOLD == 0) {
-                LocalDateTime lockoutTime = LocalDateTime.now().plusMinutes(LOCKED_TIME);
-                userLoginLockStatus.setLockoutTime(lockoutTime);
-                LOGGER.error("the account is locked, username:{}, lockout time:{}", username, lockoutTime);
+                LocalDateTime lockedTime = LocalDateTime.now().plusMinutes(LOCKED_TIME);
+                userLoginLockStatus.setLockoutTime(lockedTime);
+                LOGGER.error("The account is locked, username:{}, lockout time:{}", username, lockedTime);
             }
             userLoginLockStatus.setLoginErrorCount(loginErrorCount);
 
