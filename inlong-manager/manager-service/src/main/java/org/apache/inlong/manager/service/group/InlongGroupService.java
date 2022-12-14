@@ -27,10 +27,12 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * Inlong group service layer interface
@@ -48,6 +50,16 @@ public interface InlongGroupService {
             String operator);
 
     /**
+     * Save inlong group info.
+     *
+     * @param groupInfo group request need to save
+     * @param opInfo    userinfo of operator
+     * @return detail of inlong group
+     */
+    String save(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest groupInfo,
+            UserInfo opInfo);
+
+    /**
      * Query whether the specified group id exists
      *
      * @param groupId the group id to be queried
@@ -62,6 +74,15 @@ public interface InlongGroupService {
      * @return detail of inlong group
      */
     InlongGroupInfo get(String groupId);
+
+    /**
+     * Get inlong group info based on inlong group id
+     *
+     * @param groupId inlong group id
+     * @param opInfo userinfo of operator
+     * @return detail of inlong group
+     */
+    InlongGroupInfo get(String groupId, UserInfo opInfo);
 
     /**
      * Query the group information of each status of the current user
@@ -97,6 +118,15 @@ public interface InlongGroupService {
     PageResult<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request);
 
     /**
+     * Paging query inlong group brief info list
+     *
+     * @param request pagination query request
+     * @param opInfo userinfo of operator
+     * @return group list
+     */
+    PageResult<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request, UserInfo opInfo);
+
+    /**
      * Modify group information
      *
      * @param request inlong group request that needs to be modified
@@ -105,6 +135,16 @@ public interface InlongGroupService {
      */
     String update(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest request,
             String operator);
+
+    /**
+     * Modify group information
+     *
+     * @param request inlong group request that needs to be modified
+     * @param opInfo userinfo of operator
+     * @return inlong group id
+     */
+    String update(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest request,
+            UserInfo opInfo);
 
     /**
      * Modify the status of the specified group
