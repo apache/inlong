@@ -113,17 +113,11 @@ int main(int argc, char* argv[]) {
       consumer_1.Confirm(gentRet.GetConfirmContext(), true, confirm_result);
     } else {
       // 2.2.1 if failure, check error code
-      // print error message if errcode not in
-      // [no partitions assigned, all partitions in use,
-      //    or all partitons idle, reach max position]
-      if (!(gentRet.GetErrCode() == err_code::kErrNotFound
-        || gentRet.GetErrCode() == err_code::kErrNoPartAssigned
-        || gentRet.GetErrCode() == err_code::kErrAllPartInUse
-        || gentRet.GetErrCode() == err_code::kErrAllPartWaiting)) {
-        printf("\n GetMessage failure, err_code=%d, err_msg is: %s ",
-          gentRet.GetErrCode(), gentRet.GetErrMessage().c_str());
-      }
+      printf("\n GetMessage failure, err_code=%d, err_msg is: %s ",
+        gentRet.GetErrCode(), gentRet.GetErrMessage().c_str());
     }
+    // avoid too many logs, should be removed when benchmarking
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     // used for test, consume 10 minutes only
     if (time(NULL) - start_time > 10 * 60) {
       break;

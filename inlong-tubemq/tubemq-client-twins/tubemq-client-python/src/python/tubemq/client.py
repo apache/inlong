@@ -132,15 +132,8 @@ class Consumer(tubemq_client.TubeMQConsumer):
             return self.getRet.getMessageList()
         else:
             # 2.2.1 if failure, check error code
-            # print error message if errcode not in
-            # [no partitions assigned, all partitions in use,
-            #    or all partitons idle, reach max position]
-            if not self.getRet.getErrCode() == tubemq_errcode.Result.kErrNotFound \
-                    or not self.getRet.getErrCode() == tubemq_errcode.Result.kErrNoPartAssigned \
-                    or not self.getRet.getErrCode() == tubemq_errcode.Result.kErrAllPartInUse \
-                    or not self.getRet.getErrCode() == tubemq_errcode.Result.kErrAllPartWaiting:
-                print('GetMessage failure, err_code=%d, err_msg is:%s',
-                      self.getRet.getErrCode(), self.getRet.getErrMessage())
+            print('GetMessage failure, err_code=%d, err_msg is: %s' 
+                % (self.getRet.getErrCode(), self.getRet.getErrMessage()))
 
     def acknowledge(self):
         self.confirm(self.getRet.getConfirmContext(), True, self.confirm_result)
