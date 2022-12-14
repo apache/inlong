@@ -50,8 +50,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
@@ -95,6 +96,9 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
 
+    private Long dataSize = 0L;
+    private Long rowSize = 0L;
+
     public AbstractStreamingWriter(
             long bucketCheckInterval,
             StreamingFileSink.BucketsBuilder<IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>> bucketsBuilder,
@@ -134,7 +138,17 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
      * Commit up to this checkpoint id.
      */
     protected void commitUpToCheckpoint(long checkpointId) throws Exception {
-        helper.commitUpToCheckpoint(checkpointId);
+        try {
+            helper.commitUpToCheckpoint(checkpointId);
+            if (metricData != null) {
+                metricData.invoke(rowSize, dataSize);
+            }
+            rowSize = 0L;
+            dataSize = 0L;
+        } catch (Exception e) {
+            LOG.error("hive sink commitUpToCheckpoint occurs error.", e);
+            throw e;
+        }
     }
 
     @Override
@@ -226,8 +240,9 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
                     getProcessingTimeService().getCurrentProcessingTime(),
                     element.hasTimestamp() ? element.getTimestamp() : null,
                     currentWatermark);
-            if (metricData != null) {
-                metricData.invokeWithEstimate(element.getValue());
+            rowSize = rowSize + 1;
+            if (element.getValue() != null) {
+                dataSize = dataSize + element.getValue().toString().getBytes(StandardCharsets.UTF_8).length;
             }
         } catch (IOException e) {
             throw e;
