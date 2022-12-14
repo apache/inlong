@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -154,20 +155,26 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
 
     @Override
     public void process(RowData element, RuntimeContext ctx, RequestIndexer indexer) {
-        final String key;
-        try {
-            key = createKey.apply(element);
-        } catch (Exception e) {
-            LOGGER.error(String.format("Generate index id error, raw data: %s", element), e);
-            dirtySinkHelper.invoke(element, DirtyType.INDEX_ID_GENERATE_ERROR, e);
-            return;
-        }
         final byte[] document;
         try {
             document = serializationSchema.serialize(element);
         } catch (Exception e) {
             LOGGER.error(String.format("Serialize error, raw data: %s", element), e);
             dirtySinkHelper.invoke(element, DirtyType.SERIALIZE_ERROR, e);
+            if (sinkMetricData != null) {
+                sinkMetricData.invokeDirty(1, element.toString().getBytes(StandardCharsets.UTF_8).length);
+            }
+            return;
+        }
+        final String key;
+        try {
+            key = createKey.apply(element);
+        } catch (Exception e) {
+            LOGGER.error(String.format("Generate index id error, raw data: %s", element), e);
+            dirtySinkHelper.invoke(element, DirtyType.INDEX_ID_GENERATE_ERROR, e);
+            if (sinkMetricData != null) {
+                sinkMetricData.invokeDirty(1, document.length);
+            }
             return;
         }
         final String index;
@@ -176,6 +183,9 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         } catch (Exception e) {
             LOGGER.error(String.format("Generate index error, raw data: %s", element), e);
             dirtySinkHelper.invoke(element, DirtyType.INDEX_GENERATE_ERROR, e);
+            if (sinkMetricData != null) {
+                sinkMetricData.invokeDirty(1, document.length);
+            }
             return;
         }
         addDocument(element, key, index, document, indexer);
@@ -188,13 +198,13 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             case UPDATE_AFTER:
                 if (key != null) {
                     request = requestFactory.createUpdateRequest(index, docType, key, contentType, document);
-                    if (addRouting(request, element)) {
+                    if (addRouting(request, element, document)) {
                         indexer.add((UpdateRequest) request);
                         sendMetrics(document);
                     }
                 } else {
                     request = requestFactory.createIndexRequest(index, docType, key, contentType, document);
-                    if (addRouting(request, element)) {
+                    if (addRouting(request, element, document)) {
                         indexer.add((IndexRequest) request);
                         sendMetrics(document);
                     }
@@ -203,7 +213,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             case UPDATE_BEFORE:
             case DELETE:
                 request = requestFactory.createDeleteRequest(index, docType, key);
-                if (addRouting(request, element)) {
+                if (addRouting(request, element, document)) {
                     indexer.add((DeleteRequest) request);
                     sendMetrics(document);
                 }
@@ -212,10 +222,13 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                 LOGGER.error(String.format("The type of element should be 'RowData' only, raw data: %s", element));
                 dirtySinkHelper.invoke(element, DirtyType.UNSUPPORTED_DATA_TYPE,
                         new RuntimeException("The type of element should be 'RowData' only."));
+                if (sinkMetricData != null) {
+                    sinkMetricData.invokeDirty(1, document.length);
+                }
         }
     }
 
-    private boolean addRouting(DocWriteRequest<?> request, RowData row) {
+    private boolean addRouting(DocWriteRequest<?> request, RowData row, byte[] document) {
         if (null != createRouting) {
             try {
                 String routing = createRouting.apply(row);
@@ -223,6 +236,9 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             } catch (Exception e) {
                 LOGGER.error(String.format("Routing error, raw data: %s", row), e);
                 dirtySinkHelper.invoke(row, DirtyType.INDEX_ROUTING_ERROR, e);
+                if (sinkMetricData != null) {
+                    sinkMetricData.invokeDirty(1, document.length);
+                }
                 return false;
             }
         }
