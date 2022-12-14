@@ -154,7 +154,6 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
                 : config.get(ROW_KINDS_FILTERED);
         boolean enableParallelRead = config.get(SCAN_INCREMENTAL_SNAPSHOT_ENABLED);
         if (enableParallelRead) {
-            validatePrimaryKeyIfEnableParallel(physicalSchema);
             validateStartupOptionIfEnableParallel(startupOptions);
             validateIntegerOption(SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE, splitSize, 1);
             validateIntegerOption(CHUNK_META_GROUP_SIZE, splitMetaGroupSize, 1);
