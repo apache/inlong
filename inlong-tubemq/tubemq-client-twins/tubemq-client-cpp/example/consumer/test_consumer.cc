@@ -116,8 +116,6 @@ int main(int argc, char* argv[]) {
       printf("\n GetMessage failure, err_code=%d, err_msg is: %s ",
         gentRet.GetErrCode(), gentRet.GetErrMessage().c_str());
     }
-    // avoid too many logs, should be removed when benchmarking
-    std::this_thread::sleep_for(std::chrono::seconds(1));
     // used for test, consume 10 minutes only
     if (time(NULL) - start_time > 10 * 60) {
       break;
