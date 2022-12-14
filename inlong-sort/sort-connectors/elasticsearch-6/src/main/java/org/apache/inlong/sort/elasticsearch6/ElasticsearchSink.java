@@ -23,6 +23,7 @@ import org.apache.flink.streaming.connectors.elasticsearch.util.NoOpFailureHandl
 import org.apache.flink.streaming.connectors.elasticsearch6.RestClientFactory;
 import org.apache.flink.util.Preconditions;
 import org.apache.http.HttpHost;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
 import org.elasticsearch.action.ActionRequest;
@@ -70,14 +71,15 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
             ElasticsearchSinkFunction<T> elasticsearchSinkFunction,
             ActionRequestFailureHandler failureHandler,
             RestClientFactory restClientFactory,
-            String inlongMetric) {
-
+            String inlongMetric,
+            DirtySinkHelper<Object> dirtySinkHelper) {
         super(
                 new Elasticsearch6ApiCallBridge(httpHosts, restClientFactory),
                 bulkRequestsConfig,
                 elasticsearchSinkFunction,
                 failureHandler,
-                inlongMetric);
+                inlongMetric,
+                dirtySinkHelper);
     }
 
     /**
@@ -96,6 +98,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         private RestClientFactory restClientFactory = restClientBuilder -> {
         };
         private String inlongMetric = null;
+        private DirtySinkHelper<Object> dirtySinkHelper;
 
         /**
          * Creates a new {@code ElasticsearchSink} that connects to the cluster using a {@link
@@ -118,6 +121,14 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
          */
         public void setInLongMetric(String inlongMetric) {
             this.inlongMetric = inlongMetric;
+        }
+
+        /**
+         * Set dirty sink helper
+         * @param dirtySinkHelper The dirty sink helper
+         */
+        public void setDirtySinkHelper(DirtySinkHelper<Object> dirtySinkHelper) {
+            this.dirtySinkHelper = dirtySinkHelper;
         }
 
         /**
@@ -244,7 +255,8 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                     elasticsearchSinkFunction,
                     failureHandler,
                     restClientFactory,
-                    inlongMetric);
+                    inlongMetric,
+                    dirtySinkHelper);
         }
 
         @Override

@@ -32,6 +32,10 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.flink.util.StringUtils;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.elasticsearch.table.ElasticsearchValidationUtils;
 
 import java.util.Set;
@@ -39,6 +43,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLASH_MAX_SIZE_OPTION;
@@ -99,7 +104,7 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
         final EncodingFormat<SerializationSchema<RowData>> format =
                 helper.discoverEncodingFormat(SerializationFormatFactory.class, FORMAT_OPTION);
 
-        helper.validate();
+        helper.validateExcept(DIRTY_PREFIX);
         Configuration configuration = new Configuration();
         context.getCatalogTable().getOptions().forEach(configuration::setString);
         Elasticsearch6Configuration config =
@@ -110,9 +115,12 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
         String inlongMetric = helper.getOptions().getOptional(INLONG_METRIC).orElse(null);
 
         String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(null);
-
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
+        final DirtySinkHelper<Object> dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
         return new Elasticsearch6DynamicSink(
-                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema), inlongMetric, auditHostAndPorts);
+                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema),
+                inlongMetric, auditHostAndPorts, dirtySinkHelper);
     }
 
     private void validate(Elasticsearch6Configuration config, Configuration originalConfiguration) {

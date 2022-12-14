@@ -26,13 +26,14 @@ import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
-import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
@@ -42,9 +43,12 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -56,6 +60,8 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<RowData> {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RowElasticsearchSinkFunction.class);
 
     private final IndexGenerator indexGenerator;
     private final String docType;
@@ -73,6 +79,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private transient RuntimeContext runtimeContext;
 
     private SinkMetricData sinkMetricData;
+    private final DirtySinkHelper<Object> dirtySinkHelper;
 
     public RowElasticsearchSinkFunction(
             IndexGenerator indexGenerator,
@@ -83,7 +90,8 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             Function<RowData, String> createKey,
             @Nullable Function<RowData, String> createRouting,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtySinkHelper<Object> dirtySinkHelper) {
         this.indexGenerator = Preconditions.checkNotNull(indexGenerator);
         this.docType = docType;
         this.serializationSchema = Preconditions.checkNotNull(serializationSchema);
@@ -93,6 +101,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         this.createRouting = createRouting;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.dirtySinkHelper = dirtySinkHelper;
     }
 
     @Override
@@ -146,55 +155,94 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
 
     @Override
     public void process(RowData element, RuntimeContext ctx, RequestIndexer indexer) {
+        final byte[] document;
+        try {
+            document = serializationSchema.serialize(element);
+        } catch (Exception e) {
+            LOGGER.error(String.format("Serialize error, raw data: %s", element), e);
+            dirtySinkHelper.invoke(element, DirtyType.SERIALIZE_ERROR, e);
+            if (sinkMetricData != null) {
+                sinkMetricData.invokeDirty(1, element.toString().getBytes(StandardCharsets.UTF_8).length);
+            }
+            return;
+        }
+        final String key;
+        try {
+            key = createKey.apply(element);
+        } catch (Exception e) {
+            LOGGER.error(String.format("Generate index id error, raw data: %s", element), e);
+            dirtySinkHelper.invoke(element, DirtyType.INDEX_ID_GENERATE_ERROR, e);
+            if (sinkMetricData != null) {
+                sinkMetricData.invokeDirty(1, document.length);
+            }
+            return;
+        }
+        final String index;
+        try {
+            index = indexGenerator.generate(element);
+        } catch (Exception e) {
+            LOGGER.error(String.format("Generate index error, raw data: %s", element), e);
+            dirtySinkHelper.invoke(element, DirtyType.INDEX_GENERATE_ERROR, e);
+            if (sinkMetricData != null) {
+                sinkMetricData.invokeDirty(1, document.length);
+            }
+            return;
+        }
+        addDocument(element, key, index, document, indexer);
+    }
+
+    private void addDocument(RowData element, String key, String index, byte[] document, RequestIndexer indexer) {
+        DocWriteRequest<?> request;
         switch (element.getRowKind()) {
             case INSERT:
             case UPDATE_AFTER:
-                processUpsert(element, indexer);
+                if (key != null) {
+                    request = requestFactory.createUpdateRequest(index, docType, key, contentType, document);
+                    if (addRouting(request, element, document)) {
+                        indexer.add((UpdateRequest) request);
+                        sendMetrics(document);
+                    }
+                } else {
+                    request = requestFactory.createIndexRequest(index, docType, key, contentType, document);
+                    if (addRouting(request, element, document)) {
+                        indexer.add((IndexRequest) request);
+                        sendMetrics(document);
+                    }
+                }
                 break;
             case UPDATE_BEFORE:
             case DELETE:
-                processDelete(element, indexer);
+                request = requestFactory.createDeleteRequest(index, docType, key);
+                if (addRouting(request, element, document)) {
+                    indexer.add((DeleteRequest) request);
+                    sendMetrics(document);
+                }
                 break;
             default:
-                throw new TableException("Unsupported message kind: " + element.getRowKind());
+                LOGGER.error(String.format("The type of element should be 'RowData' only, raw data: %s", element));
+                dirtySinkHelper.invoke(element, DirtyType.UNSUPPORTED_DATA_TYPE,
+                        new RuntimeException("The type of element should be 'RowData' only."));
+                if (sinkMetricData != null) {
+                    sinkMetricData.invokeDirty(1, document.length);
+                }
         }
     }
 
-    private void processUpsert(RowData row, RequestIndexer indexer) {
-        final byte[] document = serializationSchema.serialize(row);
-        final String key = createKey.apply(row);
-        sendMetrics(document);
-        if (key != null) {
-            final UpdateRequest updateRequest =
-                    requestFactory.createUpdateRequest(
-                            indexGenerator.generate(row), docType, key, contentType, document);
-            addRouting(updateRequest, row);
-            indexer.add(updateRequest);
-        } else {
-            final IndexRequest indexRequest =
-                    requestFactory.createIndexRequest(
-                            indexGenerator.generate(row), docType, key, contentType, document);
-            addRouting(indexRequest, row);
-            indexer.add(indexRequest);
-        }
-    }
-
-    private void processDelete(RowData row, RequestIndexer indexer) {
-        // the serialization is just for metrics
-        final byte[] document = serializationSchema.serialize(row);
-        sendMetrics(document);
-        final String key = createKey.apply(row);
-        final DeleteRequest deleteRequest =
-                requestFactory.createDeleteRequest(indexGenerator.generate(row), docType, key);
-        addRouting(deleteRequest, row);
-        indexer.add(deleteRequest);
-    }
-
-    private void addRouting(DocWriteRequest<?> request, RowData row) {
+    private boolean addRouting(DocWriteRequest<?> request, RowData row, byte[] document) {
         if (null != createRouting) {
-            String routing = createRouting.apply(row);
-            request.routing(routing);
+            try {
+                String routing = createRouting.apply(row);
+                request.routing(routing);
+            } catch (Exception e) {
+                LOGGER.error(String.format("Routing error, raw data: %s", row), e);
+                dirtySinkHelper.invoke(row, DirtyType.INDEX_ROUTING_ERROR, e);
+                if (sinkMetricData != null) {
+                    sinkMetricData.invokeDirty(1, document.length);
+                }
+                return false;
+            }
         }
+        return true;
     }
 
     @Override

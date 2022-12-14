@@ -35,6 +35,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.elasticsearch.table.IndexGeneratorFactory;
 import org.apache.inlong.sort.elasticsearch.table.KeyExtractor;
 import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
@@ -67,6 +68,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
     private final String inlongMetric;
     private final String auditHostAndPorts;
     private final ElasticSearchBuilderProvider builderProvider;
+    private final DirtySinkHelper<Object> dirtySinkHelper;
 
     // --------------------------------------------------------------
     // Hack to make configuration testing possible.
@@ -83,8 +85,10 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             Elasticsearch6Configuration config,
             TableSchema schema,
             String inlongMetric,
-            String auditHostAndPorts) {
-        this(format, config, schema, (ElasticsearchSink.Builder::new), inlongMetric, auditHostAndPorts);
+            String auditHostAndPorts,
+            DirtySinkHelper<Object> dirtySinkHelper) {
+        this(format, config, schema, (ElasticsearchSink.Builder::new),
+                inlongMetric, auditHostAndPorts, dirtySinkHelper);
     }
 
     Elasticsearch6DynamicSink(
@@ -93,13 +97,15 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             TableSchema schema,
             ElasticSearchBuilderProvider builderProvider,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtySinkHelper<Object> dirtySinkHelper) {
         this.format = format;
         this.schema = schema;
         this.config = config;
         this.builderProvider = builderProvider;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.dirtySinkHelper = dirtySinkHelper;
     }
 
     @Override
@@ -134,7 +140,8 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
                             RoutingExtractor.createRoutingExtractor(
                                     schema, config.getRoutingField().orElse(null)),
                             inlongMetric,
-                            auditHostAndPorts);
+                            auditHostAndPorts,
+                            dirtySinkHelper);
 
             final ElasticsearchSink.Builder<RowData> builder =
                     builderProvider.createBuilder(config.getHosts(), upsertFunction);
@@ -145,6 +152,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             builder.setBulkFlushInterval(config.getBulkFlushInterval());
             builder.setBulkFlushBackoff(config.isBulkFlushBackoffEnabled());
             builder.setInLongMetric(inlongMetric);
+            builder.setDirtySinkHelper(dirtySinkHelper);
             config.getBulkFlushBackoffType().ifPresent(builder::setBulkFlushBackoffType);
             config.getBulkFlushBackoffRetries().ifPresent(builder::setBulkFlushBackoffRetries);
             config.getBulkFlushBackoffDelay().ifPresent(builder::setBulkFlushBackoffDelay);
