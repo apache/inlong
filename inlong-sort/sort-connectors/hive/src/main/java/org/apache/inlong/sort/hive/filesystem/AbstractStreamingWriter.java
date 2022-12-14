@@ -146,7 +146,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             rowSize = 0L;
             dataSize = 0L;
         } catch (Exception e) {
-            LOG.error("hive sink commitUpToCheckpoint.", e);
+            LOG.error("hive sink commitUpToCheckpoint occurs error.", e);
             throw e;
         }
     }
