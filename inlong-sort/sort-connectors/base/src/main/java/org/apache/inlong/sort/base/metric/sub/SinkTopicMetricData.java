@@ -36,7 +36,7 @@ import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
-public class SinkTopicMetricData extends SinkMetricData implements SinkSubMetricData{
+public class SinkTopicMetricData extends SinkMetricData implements SinkSubMetricData {
 
     /**
      * The sink metric data map
