@@ -232,7 +232,7 @@ public class MetricStateUtils {
         metricStateListState.add(metricState);
 
         // snapshot sub metric data state
-        snapshotMetricStateForSinkTopicMetricData(sinkMetricData, subtaskIndex, metricState);
+        snapshotMetricStateForSinkSubMetricData(sinkMetricData, subtaskIndex, metricState);
         metricStateListState.add(metricState);
     }
 
@@ -242,17 +242,17 @@ public class MetricStateUtils {
      * @param subtaskIndex subtask index
      * @param metricState state of source metric data
      */
-    private static void snapshotMetricStateForSinkTopicMetricData(SinkMetricData sinkMetricData,
+    private static void snapshotMetricStateForSinkSubMetricData(SinkMetricData sinkMetricData,
             Integer subtaskIndex, MetricState metricState) {
         if (!(sinkMetricData instanceof SinkSubMetricData)) {
             return;
         }
         SinkSubMetricData sinkSubMetricData = (SinkSubMetricData) sinkMetricData;
 
-        Map<String, SinkMetricData> subSourceMetricMap = sinkSubMetricData.getSubSourceMetricMap();
-        if (subSourceMetricMap != null && !subSourceMetricMap.isEmpty()) {
+        Map<String, SinkMetricData> subSinkMetricMap = sinkSubMetricData.getSubSourceMetricMap();
+        if (subSinkMetricMap != null && !subSinkMetricMap.isEmpty()) {
             Map<String, MetricState> subMetricStateMap = new HashMap<>();
-            Set<Entry<String, SinkMetricData>> entries = subSourceMetricMap.entrySet();
+            Set<Entry<String, SinkMetricData>> entries = subSinkMetricMap.entrySet();
             for (Entry<String, SinkMetricData> entry : entries) {
                 Map<String, Long> subMetricDataMap = new HashMap<>();
                 subMetricDataMap.put(NUM_RECORDS_OUT, entry.getValue().getNumRecordsOut().getCount());
