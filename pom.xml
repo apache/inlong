@@ -106,7 +106,7 @@
         <shiro.version>1.10.1</shiro.version>
 
         <snappy.version>1.1.8.4</snappy.version>
-        <protobuf.version>3.19.4</protobuf.version>
+        <protobuf.version>3.19.6</protobuf.version>
         <bytebuddy.version>1.12.9</bytebuddy.version>
         <reflections.version>0.10.2</reflections.version>
 
