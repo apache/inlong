@@ -43,7 +43,7 @@ env:
 jobs:
   chart-test:
     name: Lint and test charts
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         kubernetes-version:
