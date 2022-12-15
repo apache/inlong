@@ -27,6 +27,66 @@ import tubemq_tdmsg  # pylint: disable=unused-import
 import tubemq_message  # pylint: disable=unused-import
 
 
+class Producer(tubemq_client.TubeMQProducer):
+    def __init__(self, 
+                 master_addr,
+                 rpc_read_timeout_ms=20000,
+                 conf_file=os.path.join(os.path.dirname(__file__), "client.conf")):
+        super(Producer, self).__init__()
+
+        producer_config = tubemq_config.ProducerConfig()
+        producer_config.setRpcReadTimeoutMs(rpc_read_timeout_ms)
+        
+        err_info = ""
+        result = producer_config.setMasterAddrInfo(err_info, master_addr)
+        if not result:
+            print("Set Master AddrInfo failure:", err_info)
+            exit(1)
+        
+        result = tubemq_client.startTubeMQService(err_info, conf_file)
+        if not result:
+            print("StartTubeMQService failure:", err_info)
+            exit(1)
+        
+        result = self.start(err_info, producer_config)
+        if not result:
+            print("Initial producer failure, error is:", err_info)
+            exit(1)
+
+    def publish(self, topic_list):
+        if not isinstance(topic_list, (tuple, list, set, str)):
+            raise TypeError("Accepted types: `list`, `tuple`, `set` or `str`, get {}".format(type(topic_list)))
+        if isinstance(topic_list, (tuple, list)):
+            topic_list = set(topic_list)
+        elif isinstance(topic_list, str):
+            topic_list = {topic_list}
+        
+        err_info = ""
+        result = self.publishTopics(err_info, topic_list)
+        if not result:
+            print("Python Producer push topics failed, error is:", err_info)
+            exit(1)
+
+    def send(self, msg, is_sync=False, callback=None):
+        if is_sync:
+            err_info = ""
+            result = self.sendMessage(err_info, msg)
+            if not result:
+                print("Send Message failure, error is:", err_info)
+            return result
+        else:
+            if callback is None:
+                raise ValueError("The callback function should be provided when sending message async.")
+            self.sendMessage(msg, callback)
+
+    def stop(self):
+        err_info = ''
+        result = self.shutDown()
+        result = tubemq_client.stopTubeMQService(err_info)
+        if not result:
+            print("StopTubeMQService failure, reason is:" + err_info)
+            exit(1)
+    
 class Consumer(tubemq_client.TubeMQConsumer):
     def __init__(self,
                  master_addr,
@@ -72,15 +132,8 @@ class Consumer(tubemq_client.TubeMQConsumer):
             return self.getRet.getMessageList()
         else:
             # 2.2.1 if failure, check error code
-            # print error message if errcode not in
-            # [no partitions assigned, all partitions in use,
-            #    or all partitons idle, reach max position]
-            if not self.getRet.getErrCode() == tubemq_errcode.Result.kErrNotFound \
-                    or not self.getRet.getErrCode() == tubemq_errcode.Result.kErrNoPartAssigned \
-                    or not self.getRet.getErrCode() == tubemq_errcode.Result.kErrAllPartInUse \
-                    or not self.getRet.getErrCode() == tubemq_errcode.Result.kErrAllPartWaiting:
-                print('GetMessage failure, err_code=%d, err_msg is:%s',
-                      self.getRet.getErrCode(), self.getRet.getErrMessage())
+            print('GetMessage failure, err_code=%d, err_msg is: %s' 
+                % (self.getRet.getErrCode(), self.getRet.getErrMessage()))
 
     def acknowledge(self):
         self.confirm(self.getRet.getConfirmContext(), True, self.confirm_result)

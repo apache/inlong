@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import static org.apache.flink.table.data.RowData.createFieldGetter;
 
 /**
  * Log dirty sink that is used to print log
@@ -48,7 +47,7 @@ public class LogDirtySink<T> implements DirtySink<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LogDirtySink.class);
 
-    private final RowData.FieldGetter[] fieldGetters;
+    private RowData.FieldGetter[] fieldGetters;
     private final String format;
     private final String fieldDelimiter;
     private final DataType physicalRowDataType;
@@ -58,18 +57,13 @@ public class LogDirtySink<T> implements DirtySink<T> {
         this.format = format;
         this.fieldDelimiter = fieldDelimiter;
         this.physicalRowDataType = physicalRowDataType;
-        final LogicalType[] logicalTypes = physicalRowDataType.getChildren()
-                .stream().map(DataType::getLogicalType).toArray(LogicalType[]::new);
-        this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
-        for (int i = 0; i < logicalTypes.length; i++) {
-            fieldGetters[i] = createFieldGetter(logicalTypes[i], i);
-        }
     }
 
     @Override
     public void open(Configuration configuration) throws Exception {
         converter = new RowDataToJsonConverters(TimestampFormat.SQL, MapNullKeyMode.DROP, null)
                 .createConverter(physicalRowDataType.getLogicalType());
+        fieldGetters = FormatUtils.parseFieldGetters(physicalRowDataType.getLogicalType());
     }
 
     @Override
@@ -78,7 +72,7 @@ public class LogDirtySink<T> implements DirtySink<T> {
         Map<String, String> labelMap = LabelUtils.parseLabels(dirtyData.getLabels());
         T data = dirtyData.getData();
         if (data instanceof RowData) {
-            value = format((RowData) data, labelMap);
+            value = format((RowData) data, dirtyData.getRowType(), labelMap);
         } else if (data instanceof JsonNode) {
             value = format((JsonNode) data, labelMap);
         } else {
@@ -88,14 +82,23 @@ public class LogDirtySink<T> implements DirtySink<T> {
         LOGGER.info("[{}] {}", dirtyData.getLogTag(), value);
     }
 
-    private String format(RowData data, Map<String, String> labels) throws JsonProcessingException {
+    private String format(RowData data, LogicalType rowType,
+            Map<String, String> labels) throws JsonProcessingException {
         String value;
         switch (format) {
             case "csv":
-                value = FormatUtils.csvFormat(data, fieldGetters, labels, fieldDelimiter);
+                RowData.FieldGetter[] getters = fieldGetters;
+                if (rowType != null) {
+                    getters = FormatUtils.parseFieldGetters(rowType);
+                }
+                value = FormatUtils.csvFormat(data, getters, labels, fieldDelimiter);
                 break;
             case "json":
-                value = FormatUtils.jsonFormat(data, converter, labels);
+                RowDataToJsonConverter jsonConverter = converter;
+                if (rowType != null) {
+                    jsonConverter = FormatUtils.parseRowDataToJsonConverter(rowType);
+                }
+                value = FormatUtils.jsonFormat(data, jsonConverter, labels);
                 break;
             default:
                 throw new UnsupportedOperationException(

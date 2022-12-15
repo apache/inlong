@@ -17,11 +17,13 @@
  * under the License.
  */
 
+import { sinkLoader } from '@/loaders';
 import { allDefaultSinks } from './defaults';
 import { allExtendsSinks } from './extends';
+import type { SinkMetaType } from './types';
 
-export type { SinkMetaType } from './types';
+export type { SinkMetaType };
 
-export const sinks = allDefaultSinks.concat(allExtendsSinks);
+export const sinks = sinkLoader.loadPluginList<SinkMetaType>(allDefaultSinks, allExtendsSinks);
 
-export const defaultValue = sinks[0].value;
+export const defaultValue = sinkLoader.loadDefaultPlugin<SinkMetaType>(sinks);

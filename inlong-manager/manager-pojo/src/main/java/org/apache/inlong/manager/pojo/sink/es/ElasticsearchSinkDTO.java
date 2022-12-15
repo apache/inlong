@@ -95,6 +95,7 @@ public class ElasticsearchSinkDTO {
         }
         return ElasticsearchSinkDTO.builder()
                 .host(request.getHost())
+                .port(request.getPort())
                 .username(request.getUsername())
                 .password(passwd)
                 .indexName(request.getIndexName())

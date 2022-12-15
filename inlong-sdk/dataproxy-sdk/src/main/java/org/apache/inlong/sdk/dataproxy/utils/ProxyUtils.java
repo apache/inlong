@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +17,6 @@
 
 package org.apache.inlong.sdk.dataproxy.utils;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.slf4j.Logger;
@@ -97,21 +95,6 @@ public class ProxyUtils {
             return System.currentTimeMillis();
         }
         return dt;
-    }
-
-    public static StringBuilder convertAttrToStr(Map<String, String> extraAttrMap) {
-        StringBuilder attrs = new StringBuilder();
-        if (MapUtils.isEmpty(extraAttrMap)) {
-            return attrs;
-        }
-        for (Map.Entry<String, String> entry : extraAttrMap.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            attrs.append(key).append("=");
-            attrs.append(value).append("&");
-        }
-        attrs.deleteCharAt(attrs.length() - 1);
-        return attrs;
     }
 
     /**

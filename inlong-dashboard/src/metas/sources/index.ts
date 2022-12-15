@@ -17,11 +17,16 @@
  * under the License.
  */
 
+import { sourceLoader } from '@/loaders';
 import { allDefaultSources } from './defaults';
 import { allExtendsSources } from './extends';
+import type { SourceMetaType } from './types';
 
-export type { SourceMetaType } from './types';
+export type { SourceMetaType };
 
-export const sources = allDefaultSources.concat(allExtendsSources);
+export const sources = sourceLoader.loadPluginList<SourceMetaType>(
+  allDefaultSources,
+  allExtendsSources,
+);
 
-export const defaultValue = sources[0].value;
+export const defaultValue = sourceLoader.loadDefaultPlugin<SourceMetaType>(sources);

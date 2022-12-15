@@ -34,6 +34,7 @@ public enum ErrorCodeEnum {
     REQUEST_IS_EMPTY(104, "Request is empty"),
     REQUEST_COMPONENT_EMPTY(105, "Component is empty"),
     REQUEST_INSTANCE_EMPTY(106, "Instance is empty"),
+    LOGIN_USER_EMPTY(107, "Login user is empty"),
     USER_IS_NOT_MANAGER(110, "%s is not the manager, please contact %s"),
 
     GROUP_NOT_FOUND(1001, "Inlong group does not exist/no operation authority"),

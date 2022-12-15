@@ -469,8 +469,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      */
     private String confirmLocalIps(List<String> localIps) {
         ConfirmAgentIpRequest request = new ConfirmAgentIpRequest(AGENT, localIps);
-        JsonObject resultData = getResultData(httpManager.doSentPost(managerIpsCheckUrl, request))
-                .get(AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonObject();
+        JsonObject resultData = getResultData(httpManager.doSentPost(managerIpsCheckUrl, request)).get(
+                AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonObject();
         if (!resultData.has(AGENT_MANAGER_RETURN_PARAM_IP)) {
             throw new IllegalArgumentException("cannot get ip from data " + resultData.getAsString());
         }

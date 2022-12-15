@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,6 +34,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.elasticsearch.table.IndexGeneratorFactory;
 import org.apache.inlong.sort.elasticsearch.table.KeyExtractor;
 import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
@@ -68,6 +68,7 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
     private final String inlongMetric;
     private final String auditHostAndPorts;
     private final ElasticSearchBuilderProvider builderProvider;
+    private final DirtySinkHelper<Object> dirtySinkHelper;
 
     // --------------------------------------------------------------
     // Hack to make configuration testing possible.
@@ -84,8 +85,10 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
             Elasticsearch7Configuration config,
             TableSchema schema,
             String inlongMetric,
-            String auditHostAndPorts) {
-        this(format, config, schema, (ElasticsearchSink.Builder::new), inlongMetric, auditHostAndPorts);
+            String auditHostAndPorts,
+            DirtySinkHelper<Object> dirtySinkHelper) {
+        this(format, config, schema, (ElasticsearchSink.Builder::new),
+                inlongMetric, auditHostAndPorts, dirtySinkHelper);
     }
 
     Elasticsearch7DynamicSink(
@@ -94,13 +97,15 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
             TableSchema schema,
             ElasticSearchBuilderProvider builderProvider,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtySinkHelper<Object> dirtySinkHelper) {
         this.format = format;
         this.schema = schema;
         this.config = config;
         this.builderProvider = builderProvider;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.dirtySinkHelper = dirtySinkHelper;
     }
 
     @Override
@@ -135,7 +140,8 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
                             RoutingExtractor.createRoutingExtractor(
                                     schema, config.getRoutingField().orElse(null)),
                             inlongMetric,
-                            auditHostAndPorts);
+                            auditHostAndPorts,
+                            dirtySinkHelper);
 
             final ElasticsearchSink.Builder<RowData> builder =
                     builderProvider.createBuilder(config.getHosts(), upsertFunction);
@@ -146,6 +152,7 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
             builder.setBulkFlushInterval(config.getBulkFlushInterval());
             builder.setBulkFlushBackoff(config.isBulkFlushBackoffEnabled());
             builder.setInLongMetric(inlongMetric);
+            builder.setDirtySinkHelper(dirtySinkHelper);
             config.getBulkFlushBackoffType().ifPresent(builder::setBulkFlushBackoffType);
             config.getBulkFlushBackoffRetries().ifPresent(builder::setBulkFlushBackoffRetries);
             config.getBulkFlushBackoffDelay().ifPresent(builder::setBulkFlushBackoffDelay);

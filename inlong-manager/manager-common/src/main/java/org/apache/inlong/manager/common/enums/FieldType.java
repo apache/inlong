@@ -31,6 +31,7 @@ public enum FieldType {
     FLOAT,
     DECIMAL,
     STRING,
+    TEXT,
     FIXED,
     BYTE,
     BINARY,
@@ -51,7 +52,8 @@ public enum FieldType {
     ARRAY,
     MAP,
     STRUCT,
-    FUNCTION;
+    FUNCTION,
+    KEYWORD;
 
     public static FieldType forName(String name) {
         Preconditions.checkNotNull(name, "FieldType should not be null");

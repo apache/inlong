@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.manager;
@@ -33,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InlongTopicTypeEnum;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
@@ -263,6 +263,7 @@ public class InlongSingleTopicManager extends TopicManager {
         }
 
         List<String> newTopics = assignedTopics.stream()
+                .filter(inlongTopic -> StringUtils.isNotBlank(inlongTopic.getTopic()))
                 .map(InLongTopic::getTopicKey)
                 .collect(Collectors.toList());
         LOGGER.debug("assignedTopics name: {}", Arrays.toString(newTopics.toArray()));

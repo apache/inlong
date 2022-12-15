@@ -105,10 +105,6 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           label: 'CSV',
           value: 'CSV',
         },
-        {
-          label: 'Raw-CSV',
-          value: 'RAW_CSV',
-        },
       ],
     }),
     rules: [{ required: true }],

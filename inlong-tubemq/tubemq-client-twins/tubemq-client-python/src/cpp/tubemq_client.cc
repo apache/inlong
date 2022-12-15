@@ -18,6 +18,8 @@
  */
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/functional.h>
 #include "tubemq/tubemq_client.h"
 
 namespace py = pybind11;
@@ -37,4 +39,13 @@ PYBIND11_MODULE(tubemq_client, m) {
         .def("getMessage", &TubeMQConsumer::GetMessage)
         .def("confirm", &TubeMQConsumer::Confirm)
         .def("getCurConsumedInfo", &TubeMQConsumer::GetCurConsumedInfo);
+    
+    py::class_<TubeMQProducer>(m, "TubeMQProducer")
+        .def(py::init<>())
+        .def("start", &TubeMQProducer::Start)
+        .def("shutDown", &TubeMQProducer::ShutDown)
+        .def("publishTopics", &TubeMQProducer::Publish)
+        .def("sendMessage", static_cast<bool (TubeMQProducer::*)(string&, const Message&)>(&TubeMQProducer::SendMessage))
+        .def("sendMessage", static_cast<void (TubeMQProducer::*)(const Message&, 
+                                                                 const std::function<void(const ErrorCode&)>&)>(&TubeMQProducer::SendMessage));
 }

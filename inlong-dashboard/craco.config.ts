@@ -18,7 +18,7 @@
  */
 
 import CracoLess from 'craco-less';
-import CracoAlias from 'craco-alias';
+import { CracoAliasPlugin } from 'react-app-alias';
 import AntdDayjsWebpackPlugin from 'antd-dayjs-webpack-plugin';
 import type { CracoConfig } from 'craco__craco';
 
@@ -38,7 +38,7 @@ const config: CracoConfig = {
       },
     },
     {
-      plugin: CracoAlias,
+      plugin: CracoAliasPlugin,
       options: {
         source: 'tsconfig',
         baseUrl: './',

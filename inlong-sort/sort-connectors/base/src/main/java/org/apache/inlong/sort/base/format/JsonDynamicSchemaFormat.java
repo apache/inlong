@@ -40,6 +40,7 @@ import org.apache.flink.table.types.logical.RowType.RowField;
 import org.apache.flink.table.types.logical.SmallIntType;
 import org.apache.flink.table.types.logical.TimeType;
 import org.apache.flink.table.types.logical.TimestampType;
+import org.apache.flink.table.types.logical.TinyIntType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.RowKind;
@@ -92,13 +93,22 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
                     .put(java.sql.Types.NUMERIC, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
                     .put(java.sql.Types.BIT, new BooleanType())
                     .put(java.sql.Types.TIME, new TimeType())
+                    .put(java.sql.Types.TIME_WITH_TIMEZONE, new TimeType())
                     .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
                     .put(java.sql.Types.TIMESTAMP, new TimestampType())
                     .put(java.sql.Types.BINARY, new BinaryType())
                     .put(java.sql.Types.VARBINARY, new VarBinaryType())
                     .put(java.sql.Types.BLOB, new VarBinaryType())
+                    .put(java.sql.Types.CLOB, new VarBinaryType())
                     .put(java.sql.Types.DATE, new DateType())
                     .put(java.sql.Types.BOOLEAN, new BooleanType())
+                    .put(java.sql.Types.LONGNVARCHAR, new VarCharType())
+                    .put(java.sql.Types.LONGVARBINARY, new VarCharType())
+                    .put(java.sql.Types.LONGVARCHAR, new VarCharType())
+                    .put(java.sql.Types.ARRAY, new VarCharType())
+                    .put(java.sql.Types.NCHAR, new CharType())
+                    .put(java.sql.Types.NCLOB, new VarBinaryType())
+                    .put(java.sql.Types.TINYINT, new TinyIntType())
                     .put(java.sql.Types.OTHER, new VarCharType())
                     .build();
 

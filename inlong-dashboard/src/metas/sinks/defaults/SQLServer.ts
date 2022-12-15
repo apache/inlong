@@ -166,7 +166,7 @@ export default class SqlServerSink
       ],
     }),
   })
-  @I18n('meta.Sinks.AllMigration')
+  @I18n('meta.Sinks.SQLServer.AllMigration')
   allMigration: boolean;
 
   @FieldDecorator({

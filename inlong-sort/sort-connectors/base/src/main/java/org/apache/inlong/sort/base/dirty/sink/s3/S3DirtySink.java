@@ -24,9 +24,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.formats.common.TimestampFormat;
-import org.apache.flink.formats.json.JsonOptions.MapNullKeyMode;
-import org.apache.flink.formats.json.RowDataToJsonConverters;
 import org.apache.flink.formats.json.RowDataToJsonConverters.RowDataToJsonConverter;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
@@ -53,7 +50,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.flink.table.data.RowData.createFieldGetter;
 
 /**
  * S3 dirty sink that is used to sink dirty data to s3
@@ -72,7 +68,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
     private final AtomicLong writeOutNum = new AtomicLong(0);
     private final AtomicLong errorNum = new AtomicLong(0);
     private final DataType physicalRowDataType;
-    private final RowData.FieldGetter[] fieldGetters;
+    private RowData.FieldGetter[] fieldGetters;
     private RowDataToJsonConverter converter;
     private long batchBytes = 0L;
     private int size;
@@ -85,18 +81,12 @@ public class S3DirtySink<T> implements DirtySink<T> {
     public S3DirtySink(S3Options s3Options, DataType physicalRowDataType) {
         this.s3Options = s3Options;
         this.physicalRowDataType = physicalRowDataType;
-        final LogicalType[] logicalTypes = physicalRowDataType.getChildren()
-                .stream().map(DataType::getLogicalType).toArray(LogicalType[]::new);
-        this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
-        for (int i = 0; i < logicalTypes.length; i++) {
-            fieldGetters[i] = createFieldGetter(logicalTypes[i], i);
-        }
     }
 
     @Override
     public void open(Configuration configuration) throws Exception {
-        converter = new RowDataToJsonConverters(TimestampFormat.SQL, MapNullKeyMode.DROP, null)
-                .createConverter(physicalRowDataType.getLogicalType());
+        converter = FormatUtils.parseRowDataToJsonConverter(physicalRowDataType.getLogicalType());
+        fieldGetters = FormatUtils.parseFieldGetters(physicalRowDataType.getLogicalType());
         AmazonS3 s3Client;
         if (s3Options.getAccessKeyId() != null && s3Options.getSecretKeyId() != null) {
             BasicAWSCredentials awsCreds =
@@ -149,7 +139,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
         Map<String, String> labelMap = LabelUtils.parseLabels(dirtyData.getLabels());
         T data = dirtyData.getData();
         if (data instanceof RowData) {
-            value = format((RowData) data, labelMap);
+            value = format((RowData) data, dirtyData.getRowType(), labelMap);
         } else if (data instanceof JsonNode) {
             value = format((JsonNode) data, labelMap);
         } else {
@@ -164,14 +154,23 @@ public class S3DirtySink<T> implements DirtySink<T> {
         batchMap.computeIfAbsent(dirtyData.getIdentifier(), k -> new ArrayList<>()).add(value);
     }
 
-    private String format(RowData data, Map<String, String> labels) throws JsonProcessingException {
+    private String format(RowData data, LogicalType rowType,
+            Map<String, String> labels) throws JsonProcessingException {
         String value;
         switch (s3Options.getFormat()) {
             case "csv":
-                value = FormatUtils.csvFormat(data, fieldGetters, labels, s3Options.getFieldDelimiter());
+                RowData.FieldGetter[] getters = fieldGetters;
+                if (rowType != null) {
+                    getters = FormatUtils.parseFieldGetters(rowType);
+                }
+                value = FormatUtils.csvFormat(data, getters, labels, s3Options.getFieldDelimiter());
                 break;
             case "json":
-                value = FormatUtils.jsonFormat(data, converter, labels);
+                RowDataToJsonConverter jsonConverter = converter;
+                if (rowType != null) {
+                    jsonConverter = FormatUtils.parseRowDataToJsonConverter(rowType);
+                }
+                value = FormatUtils.jsonFormat(data, jsonConverter, labels);
                 break;
             default:
                 throw new UnsupportedOperationException(

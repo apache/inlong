@@ -94,6 +94,7 @@ public class AgentMain {
             try {
                 LOGGER.info("stopping agent gracefully");
                 agentManager.stop();
+                AuditUtils.send();
             } catch (Exception ex) {
                 LOGGER.error("stop agent manager error: ", ex);
             }
@@ -120,7 +121,6 @@ public class AgentMain {
             LOGGER.error("agent running exception: ", ex);
         } finally {
             manager.stop();
-            AuditUtils.send();
         }
     }
 }

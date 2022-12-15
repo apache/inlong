@@ -31,6 +31,8 @@ public class ComponentHeartbeat {
 
     private String clusterTag;
 
+    private String extTag;
+
     private String clusterName;
 
     private String componentType;
@@ -49,11 +51,12 @@ public class ComponentHeartbeat {
     public ComponentHeartbeat() {
     }
 
-    public ComponentHeartbeat(String clusterTag, String clusterName,
-            String componentType, String ip, String port,
-            String inCharges, String protocolType) {
+    public ComponentHeartbeat(String clusterTag, String extTag,
+            String clusterName, String componentType, String ip,
+            String port, String inCharges, String protocolType) {
         this.nodeSrvStatus = NodeSrvStatus.OK;
         this.clusterTag = clusterTag;
+        this.extTag = extTag;
         this.clusterName = clusterName;
         this.componentType = componentType;
         this.ip = ip;
@@ -64,11 +67,12 @@ public class ComponentHeartbeat {
     }
 
     public ComponentHeartbeat(NodeSrvStatus nodeSrvStatus,
-            String clusterTag, String clusterName,
+            String clusterTag, String extTag, String clusterName,
             String componentType, String ip, String port,
             String inCharges, String protocolType, int loadValue) {
         this.nodeSrvStatus = nodeSrvStatus;
         this.clusterTag = clusterTag;
+        this.extTag = extTag;
         this.clusterName = clusterName;
         this.componentType = componentType;
         this.ip = ip;

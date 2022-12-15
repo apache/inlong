@@ -34,7 +34,7 @@ export default class MySQLNode extends NodeInfo implements DataWithBackend, Rend
   username: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: 'password',
     rules: [{ required: true }],
   })
   @I18n('meta.Nodes.MySQL.Password')
@@ -43,6 +43,9 @@ export default class MySQLNode extends NodeInfo implements DataWithBackend, Rend
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
+    props: {
+      placeholder: 'jdbc:mysql://127.0.0.1:3306/write',
+    },
   })
   @I18n('meta.Nodes.MySQL.Url')
   url: string;

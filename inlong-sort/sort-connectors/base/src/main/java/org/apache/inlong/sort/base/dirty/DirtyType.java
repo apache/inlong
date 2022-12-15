@@ -23,6 +23,10 @@ package org.apache.inlong.sort.base.dirty;
 public enum DirtyType {
 
     /**
+     * Undefined dirty type
+     */
+    UNDEFINED("Undefined"),
+    /**
      * Field mapping error, it refers to the field mapping error between source
      * and sink or between the flink system and the external system.
      * For example, the number of fields contained in the flink system
@@ -61,9 +65,46 @@ public enum DirtyType {
      */
     VALUE_SERIALIZE_ERROR("ValueSerializeError"),
     /**
-     * Undefined dirty type
+     * Batch load error
      */
-    UNDEFINED("Undefined");
+    BATCH_LOAD_ERROR("BatchLoadError"),
+    /**
+     * Unsupported data type
+     */
+    UNSUPPORTED_DATA_TYPE("UnsupportedDataType"),
+    /**
+     * Json process error
+     */
+    JSON_PROCESS_ERROR("JsonProcessError"),
+    /**
+     * Table identifier parse error
+     */
+    TABLE_IDENTIFIER_PARSE_ERROR("TableIdentifierParseError"),
+    /**
+     * Extract schema error
+     */
+    EXTRACT_SCHEMA_ERROR("ExtractSchemaError"),
+    /**
+     * Extract RowData error
+     */
+    EXTRACT_ROWDATA_ERROR("ExtractRowDataError"),
+    /**
+     * Index generate error
+     */
+    INDEX_GENERATE_ERROR("IndexGenerateError"),
+    /**
+     * Index id generate error
+     */
+    INDEX_ID_GENERATE_ERROR("IndexIdGenerateError"),
+    /**
+     * Index routing error
+     */
+    INDEX_ROUTING_ERROR("IndexRoutingError"),
+    /**
+     * Document parse error
+     */
+    DOCUMENT_PARSE_ERROR("DocumentParseError"),
+    ;
 
     private final String format;
 

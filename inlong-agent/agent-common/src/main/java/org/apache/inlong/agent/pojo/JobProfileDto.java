@@ -417,7 +417,7 @@ public class JobProfileDto {
                 break;
             case MOCK:
                 profileDto.setJob(job);
-
+                break;
             default:
         }
         return TriggerProfile.parseJsonStr(GSON.toJson(profileDto));

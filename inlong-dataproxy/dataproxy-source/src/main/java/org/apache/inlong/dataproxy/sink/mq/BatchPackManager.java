@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.sink.mq;
 
 import org.apache.flume.Context;
+import org.apache.flume.event.SimpleEvent;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
@@ -70,7 +71,6 @@ public class BatchPackManager {
 
     /**
      * addEvent
-     * 
      * @param event
      */
     public void addEvent(ProxyEvent event) {
@@ -133,6 +133,18 @@ public class BatchPackManager {
             this.dispatchQueue.acquire(dispatchProfile.getSize());
             this.dispatchQueue.offer(dispatchProfile);
         }
+    }
+
+    /**
+     * addSimpleEvent
+     * @param event
+     */
+    public void addSimpleEvent(SimpleEvent event) {
+        BatchPackProfile dispatchProfile = SimpleBatchPackProfileV0.create(event);
+        this.dispatchQueue.acquire(dispatchProfile.getSize());
+        this.dispatchQueue.offer(dispatchProfile);
+        outCounter.addAndGet(dispatchProfile.getCount());
+        inCounter.incrementAndGet();
     }
 
     /**
