@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -150,7 +151,6 @@ public abstract class AbstractConfiguration {
             }
         }
     }
-
     /**
      * get int from config
      *
@@ -279,6 +279,10 @@ public abstract class AbstractConfiguration {
 
     Map<String, JsonPrimitive> getConfigStorage() {
         return configStorage;
+    }
+
+    public URL getConfigLocation(String fileName) {
+        return classLoader.getResource(fileName);
     }
 
     /**

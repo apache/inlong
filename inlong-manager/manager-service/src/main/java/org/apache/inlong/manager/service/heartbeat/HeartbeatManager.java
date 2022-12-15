@@ -124,7 +124,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             } else {
                 heartbeatMsg.setProtocolType(protocolType);
             }
-            if (lastHeartbeat == null) {
+            if (heartbeatConfigModified(lastHeartbeat, heartbeat)) {
                 InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
                 if (clusterNode == null) {
                     handlerNum += insertClusterNode(clusterInfo, heartbeatMsg, clusterInfo.getCreator());
@@ -214,6 +214,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     private int updateClusterNode(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
         clusterNode.setNodeLoad(heartbeat.getLoad());
+        clusterNode.setNodeTags(heartbeat.getNodeTag());
         return clusterNodeMapper.updateById(clusterNode);
     }
 
@@ -254,5 +255,20 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
         log.debug("success to fetch cluster for heartbeat: {}", componentHeartbeat);
         return clusterInfo;
+    }
+
+    /**
+     * Check whether the configuration information carried in the heartbeat has been updated
+     *
+     * @param oldHB last heartbeat msg
+     * @param newHB current heartbeat msg
+     * @return
+     */
+    private static boolean heartbeatConfigModified(HeartbeatMsg oldHB, HeartbeatMsg newHB) {
+        // todo: only support dynamic renew node tag. Support clusterName/port/ip... later
+        if (oldHB == null) {
+            return true;
+        }
+        return oldHB.getNodeTag() != newHB.getNodeTag() || oldHB.getLoad() != newHB.getLoad();
     }
 }
