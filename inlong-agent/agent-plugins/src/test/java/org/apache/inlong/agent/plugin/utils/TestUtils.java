@@ -47,7 +47,7 @@ public class TestUtils {
                 + "      \"dir\": {\n"
                 + "        \"path\": \"\",\n"
                 + "        \"patterns\": \"/AgentBaseTestsHelper/"
-                + "org.apache.tubemq.inlong.plugin.fetcher.TestTdmFetcher/test[0-9].dat\"\n"
+                + "org.apache.tubemq.inlong.plugin.fetcher.TestTdmFetcher/test*.dat\"\n"
                 + "      },\n"
                 + "      \"thread\" : {\n"
                 + "\"running\": {\n"

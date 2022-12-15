@@ -19,7 +19,7 @@ package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
-import org.apache.inlong.agent.constant.FileCollectType;
+import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
@@ -52,7 +52,7 @@ import java.util.stream.Stream;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TRIGGER_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
@@ -145,7 +145,7 @@ public class TestTextFileReader {
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
         jobConfiguration.set(JOB_GROUP_ID, "groupid");
         jobConfiguration.set(JOB_STREAM_ID, "streamid");
-        jobConfiguration.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
+        jobConfiguration.set(JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
         jobConfiguration.set(JOB_FILE_LINE_END_PATTERN, "line-end-symbol");
         TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);
@@ -179,7 +179,7 @@ public class TestTextFileReader {
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
         jobConfiguration.set(JOB_GROUP_ID, "groupid");
         jobConfiguration.set(JOB_STREAM_ID, "streamid");
-        jobConfiguration.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
+        jobConfiguration.set(JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
         jobConfiguration.set(JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.INCREMENT);
         TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);

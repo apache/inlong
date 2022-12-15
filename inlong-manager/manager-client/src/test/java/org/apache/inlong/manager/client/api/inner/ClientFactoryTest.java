@@ -50,6 +50,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
@@ -134,7 +135,7 @@ class ClientFactoryTest {
         wireMockServer.start();
         WireMock.configureFor(wireMockServer.port());
         **/
-        String serviceUrl = "172.21.71.20:" + SERVICE_PORT;
+        String serviceUrl = "172.17.116.108:" + SERVICE_PORT;
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
         InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);
@@ -161,8 +162,12 @@ class ClientFactoryTest {
     @Test
     void testNewAPI() {
         /** bindTag */
-
-
+        ClusterPageRequest request = new ClusterPageRequest();
+        request.setParentId(1);
+        request.setType("AGENT");
+        request.setCurrentUser("admin");
+        PageResult<ClusterNodeResponse> p = clusterClient.listNode(request);
+        System.out.println(1);
         /** create stream source*/
 
     }

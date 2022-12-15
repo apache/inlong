@@ -20,7 +20,7 @@ package org.apache.inlong.agent.plugin;
 import org.apache.commons.io.IOUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.constant.FileCollectType;
+import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.core.job.JobWrapper;
 import org.apache.inlong.agent.core.trigger.TriggerManager;
 import org.apache.inlong.agent.db.StateSearchKey;
@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +53,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROU
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TRIGGER_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
@@ -122,7 +123,7 @@ public class TestFileAgent {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
                 JobProfile profile = JobProfile.parseJsonStr(jobJson);
                 profile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testRootDir.toString(),
-                        "hugeFile.[0-9].txt").toString());
+                        "hugeFile.*.txt").toString());
                 profile.set(JOB_READ_WAIT_TIMEOUT, String.valueOf(readWaitTimeMilliseconds));
                 profile.set(PROXY_INLONG_GROUP_ID, "groupid");
                 profile.set(PROXY_INLONG_STREAM_ID, "streamid");
@@ -137,7 +138,7 @@ public class TestFileAgent {
         TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
         triggerProfile.set(JOB_DIR_FILTER_PATTERNS, helper.getParentPath() + triggerProfile.get(JOB_DIR_FILTER_PATTERNS));
         triggerProfile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testRootDir.toString(),
-                "test[0-9].dat").toString());
+                "test*.dat").toString());
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
         TriggerManager triggerManager = agent.getManager().getTriggerManager();
         triggerManager.restoreTrigger(triggerProfile);
@@ -151,7 +152,7 @@ public class TestFileAgent {
         Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
         AtomicLong result = new AtomicLong(0L);
         jobs.forEach((s, jobWrapper) -> {
-            if (FileCollectType.FULL.equals(jobWrapper.getJob().getJobConf().get(JOB_FILE_COLLECT_TYPE, null))) {
+            if (FileTriggerType.FULL.equals(jobWrapper.getJob().getJobConf().get(JOB_FILE_TRIGGER_TYPE, null))) {
                 result.set(jobWrapper.getAllTasks().size());
             }
         });
@@ -164,14 +165,13 @@ public class TestFileAgent {
         String path = Paths.get(uri).toString();
         String jsonString = TestUtils.getTestTriggerProfile();
         TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
-        triggerProfile.set(JOB_DIR_FILTER_PATTERNS, path);
+        triggerProfile.set(JOB_DIR_FILTER_PATTERNS, path + File.separator + "*.txt");
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
-        triggerProfile.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
+        triggerProfile.set(JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
         triggerProfile.set(JOB_ID, "2");
         TriggerManager triggerManager = agent.getManager().getTriggerManager();
         triggerManager.submitTrigger(triggerProfile);
-        Thread.sleep(2000);
-        Assert.assertEquals(3L, checkFullPathReadJob().longValue());
+        await().atMost(10, TimeUnit.SECONDS).until(() -> checkFullPathReadJob().longValue() == 3);
     }
 
     private boolean checkOnlyOneJob() {

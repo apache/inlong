@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -62,8 +63,8 @@ public class TestDateFormatRegex {
     public void testRegex() {
         File file = Paths.get(helper.getParentPath().toString(), "aad20201201_11.log").toFile();
         DateFormatRegex dateFormatRegex = DateFormatRegex
-                .ofRegex(helper.getParentPath().toString() + "/\\w{3}YYYYMMDD_HH.log").withFile(file);
-        dateFormatRegex.match();
+                .ofRegex(helper.getParentPath().toString() + "/\\w{3}YYYYMMDD_HH.log");
+        dateFormatRegex.match(file);
         dateFormatRegex.getFormattedTime();
         Assert.assertEquals(helper.getParentPath().toString() + "/\\w{3}"
                 + AgentUtils.formatCurrentTime("yyyyMMdd_HH") + ".log",
@@ -75,9 +76,9 @@ public class TestDateFormatRegex {
         ZonedDateTime zoned = ZonedDateTime.now().plusDays(-1);
         String pathTime = DateTimeFormatter.ofPattern("yyyyMMdd").withLocale(Locale.getDefault()).format(zoned);
         File file = Paths.get(helper.getParentPath().toString(), pathTime.concat(".log")).toFile();
-        PathPattern entity = new PathPattern(
-                helper.getParentPath().toString() + "/yyyyMMdd.log", "-1d", Sets.newHashSet());
-        boolean flag = entity.suitForWatch(file.getPath());
+        PathPattern entity = new PathPattern(helper.getParentPath().toString(),
+                Collections.singleton(helper.getParentPath().toString() + "/yyyyMMdd.log"), Sets.newHashSet(), "-1d");
+        boolean flag = entity.suitable(file.getPath());
         Assert.assertTrue(flag);
     }
 
