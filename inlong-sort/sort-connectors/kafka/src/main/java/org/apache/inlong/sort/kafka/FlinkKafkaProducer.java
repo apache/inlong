@@ -920,6 +920,11 @@ public class FlinkKafkaProducer<IN>
         if (metricOption != null) {
             sinkMetricData = new SinkTopicMetricData(metricOption, ctx.getMetricGroup());
         }
+        if (kafkaSchema instanceof DynamicKafkaSerializationSchema) {
+            DynamicKafkaSerializationSchema dynamicKafkaSerializationSchema =
+                    (DynamicKafkaSerializationSchema) kafkaSchema;
+            dynamicKafkaSerializationSchema.setMetricData(sinkMetricData);
+        }
         super.open(configuration);
     }
 

@@ -35,6 +35,7 @@ import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
@@ -91,6 +92,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
     private int parallelInstanceId;
 
     private int numParallelInstances;
+    private SinkMetricData metricData;
 
     DynamicKafkaSerializationSchema(
             String topic,
@@ -124,6 +126,10 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         this.topicPattern = topicPattern;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
+    }
+
+    public void setMetricData(SinkMetricData metricData) {
+        this.metricData = metricData;
     }
 
     static RowData createProjectedRow(
@@ -164,6 +170,9 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             final byte[] valueSerialized = serializeWithDirtyHandle(consumedRow,
                     DirtyType.VALUE_SERIALIZE_ERROR, valueSerialization);
             if (valueSerialized != null) {
+                if (metricData != null) {
+                    metricData.invokeDirtyWithEstimate(consumedRow);
+                }
                 return new ProducerRecord<>(
                         getTargetTopic(consumedRow),
                         extractPartition(consumedRow, null, valueSerialized),
@@ -179,6 +188,9 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         } else {
             final RowData keyRow = createProjectedRow(consumedRow, RowKind.INSERT, keyFieldGetters);
             keySerialized = serializeWithDirtyHandle(keyRow, DirtyType.KEY_SERIALIZE_ERROR, keySerialization);
+            if (metricData != null) {
+                metricData.invokeDirtyWithEstimate(keyRow);
+            }
             mayDirtyData = keySerialized == null;
         }
 
@@ -199,6 +211,9 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         } else {
             valueSerialized = serializeWithDirtyHandle(valueRow, DirtyType.VALUE_SERIALIZE_ERROR, valueSerialization);
             mayDirtyData = mayDirtyData || valueSerialized == null;
+            if (metricData != null) {
+                metricData.invokeDirtyWithEstimate(valueRow);
+            }
         }
         if (mayDirtyData) {
             return null;
