@@ -200,6 +200,9 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         StreamSourceEntity existEntity = sourceMapper.selectByIdForUpdate(request.getId());
         SourceStatus curState = SourceStatus.forCode(existEntity.getStatus());
         SourceStatus nextState = SourceStatus.TO_BE_ISSUED_FROZEN;
+        if (curState == SourceStatus.SOURCE_FROZEN) {
+            return;
+        }
         if (!SourceStatus.isAllowedTransition(curState, nextState)) {
             throw new BusinessException(String.format("source=%s is not allowed to stop", existEntity));
         }
