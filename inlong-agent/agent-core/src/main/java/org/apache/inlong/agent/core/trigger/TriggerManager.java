@@ -75,11 +75,11 @@ public class TriggerManager extends AbstractDaemon {
     }
 
     /**
-     * submit trigger profile.
+     * Restore trigger task.
      *
      * @param triggerProfile trigger profile
      */
-    public boolean addTrigger(TriggerProfile triggerProfile) {
+    public boolean restoreTrigger(TriggerProfile triggerProfile) {
         try {
             Class<?> triggerClass = Class.forName(triggerProfile.get(JobConstants.JOB_TRIGGER));
             Trigger trigger = (Trigger) triggerClass.newInstance();
@@ -104,8 +104,11 @@ public class TriggerManager extends AbstractDaemon {
     }
 
     /**
-     * check trigger config, store it to db, and submit this trigger to be executed
+     * Submit trigger task.It guarantees eventual consistency.
+     * 1.store db kv.
+     * 2.start trigger thread.
      *
+     * @param triggerProfile trigger profile
      * @return true if success
      */
     public boolean submitTrigger(TriggerProfile triggerProfile) {
@@ -115,9 +118,40 @@ public class TriggerManager extends AbstractDaemon {
                     triggerProfile.toJsonStr(), this.triggerMap.size(), maxRunningNum);
             return false;
         }
-        preprocessTrigger(triggerProfile);
+        // repeat check
+        if (triggerProfileDB.getTriggers().stream()
+                .anyMatch(profile -> profile.getTriggerId().equals(triggerProfile.getTriggerId()))) {
+            return true;
+        }
+
+        LOGGER.info("submit trigger {}", triggerProfile);
         triggerProfileDB.storeTrigger(triggerProfile);
-        addTrigger(triggerProfile);
+        preprocessTrigger(triggerProfile);
+        restoreTrigger(triggerProfile);
+        return true;
+    }
+
+    /**
+     * Submit trigger task.It guarantees eventual consistency.
+     * 1.stop trigger task and related collecting job.
+     * 2.delete db kv.
+     *
+     * @param triggerId trigger profile.
+     */
+    public boolean deleteTrigger(String triggerId) {
+        // repeat check
+        if (!triggerProfileDB.getTriggers().stream()
+                .anyMatch(profile -> profile.getTriggerId().equals(triggerId))) {
+            return true;
+        }
+
+        LOGGER.info("delete trigger {}", triggerId);
+        Trigger trigger = triggerMap.remove(triggerId);
+        if (trigger != null) {
+            deleteRelatedJobs(triggerId);
+            trigger.destroy();
+        }
+        triggerProfileDB.deleteTrigger(triggerId);
         return true;
     }
 
@@ -127,7 +161,7 @@ public class TriggerManager extends AbstractDaemon {
      * FULL: All directory by regex
      * INCREMENT: Directory entry created
      */
-    public void preprocessTrigger(TriggerProfile profile) {
+    private void preprocessTrigger(TriggerProfile profile) {
         String syncType = profile.get(JobConstants.JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
         if (FileCollectType.INCREMENT.equals(syncType)) {
             return;
@@ -263,32 +297,13 @@ public class TriggerManager extends AbstractDaemon {
     }
 
     /**
-     * delete trigger by trigger profile.
-     *
-     * @param triggerId trigger profile.
-     */
-    public boolean deleteTrigger(String triggerId) {
-        LOGGER.info("delete trigger {}", triggerId);
-        Trigger trigger = triggerMap.remove(triggerId);
-        if (trigger != null) {
-            deleteRelatedJobs(triggerId);
-            trigger.destroy();
-            // delete trigger from db
-            triggerProfileDB.deleteTrigger(triggerId);
-            return true;
-        }
-        LOGGER.warn("cannot find trigger {}", triggerId);
-        return true;  // todo:这里就算找不到也可以认为是删除成功了，反正你给我的triggerId我这里没有的，保证最终一致性
-    }
-
-    /**
      * init all triggers when daemon started.
      */
-    private void initTriggers() throws Exception {
+    private void initTriggers() {
         // fetch all triggers from db
         List<TriggerProfile> profileList = triggerProfileDB.getTriggers();
         for (TriggerProfile profile : profileList) {
-            addTrigger(profile);
+            restoreTrigger(profile);
         }
     }
 
@@ -299,7 +314,7 @@ public class TriggerManager extends AbstractDaemon {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() {
         initTriggers();
         submitWorker(jobFetchThread());
         submitWorker(jobCheckThread());

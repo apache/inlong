@@ -34,13 +34,13 @@ import java.util.List;
 @ApiModel("Cluster node bind and unbind tag request")
 public class ClusterNodeBindTagRequest {
 
-    @NotBlank(message = "clusterTag cannot be blank")
-    @ApiModelProperty(value = "Cluster tag")
+    @NotBlank(message = "Cluster nodeTag cannot be blank")
+    @ApiModelProperty(value = "Cluster node tag")
     private String clusterNodeTag;
 
-    @NotNull(message = "clusterTag cannot be blank")
-    @ApiModelProperty(value = "Cluster tag")
-    private Integer clusterId;
+    @NotNull(message = "clusterName cannot be blank")
+    @ApiModelProperty(value = "Cluster name")
+    private String clusterName;
 
     @NotBlank(message = "type cannot be blank")
     @ApiModelProperty(value = "Cluster type, including AGENT, DATAPROXY, etc.")

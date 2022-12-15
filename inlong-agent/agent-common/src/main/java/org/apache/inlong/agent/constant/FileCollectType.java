@@ -22,7 +22,45 @@ package org.apache.inlong.agent.constant;
  */
 public class FileCollectType {
 
+    /**
+     * Increment only collect newly created files content.
+     *
+     * <p>Here is an example. Collect task submit at '2022-01-01 23:00:00' with pattern '/bin/*.sh'.
+     * <blockquote><pre>
+     * .
+     * ©¸©¤©¤ [2022-01-01 20:49:42]  bin
+     *     ©À©¤©¤ [2022-01-01 20:10:00]  managerctl
+     *     ©À©¤©¤ [2022-01-01 21:10:00]  restart.sh
+     *     ©À©¤©¤ [2022-01-01 22:10:00]  shutdown.sh
+     *     ©¸©¤©¤ [2022-01-01 23:49:00]  startup.sh
+     * </pre></blockquote>
+     *
+     * <p>It Finally collect file is:
+     * <blockquote><pre>
+     * ./bin/startup.sh
+     * </pre></blockquote>
+     */
     public static final String INCREMENT = "INCREMENT";
 
+    /**
+     * FULL collect existing files, as well as newly created files.
+     *
+     * <p>Here is an example. Collect task submit at '2022-01-01 23:00:00' with pattern '/bin/*.sh'.
+     * <blockquote><pre>
+     * .
+     * ©¸©¤©¤ [2022-01-01 20:49:42]  bin
+     *     ©À©¤©¤ [2022-01-01 20:10:00]  managerctl
+     *     ©À©¤©¤ [2022-01-01 21:10:00]  restart.sh
+     *     ©À©¤©¤ [2022-01-01 22:10:00]  shutdown.sh
+     *     ©¸©¤©¤ [2022-01-01 23:49:00]  startup.sh
+     * </pre></blockquote>
+     *
+     * <p>It Finally collect file is:
+     * <blockquote><pre>
+     * ./bin/startup.sh
+     * ./bin/shutdown.sh
+     * ./bin/startup.sh
+     * </pre></blockquote>
+     */
     public static final String FULL = "FULL";
 }

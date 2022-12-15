@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.fetcher;
 
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -61,6 +62,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
@@ -290,41 +292,18 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         if (!taskResult.getCmdConfigs().isEmpty() || !taskResult.getDataConfigs().isEmpty()) {
             LOGGER.info("deal with fetch result {}", taskResult);
         }
-        for (DataConfig dataConfig : taskResult.getDataConfigs()) {
-            TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
-            if (triggerIsRunning(profile)) {
-                continue;
-            }
-            LOGGER.info("the triggerProfile: {}", profile.toJsonStr());
-            if (profile.hasKey(JOB_TRIGGER)) {
-                dealWithTdmTriggerProfile(profile);
-            } else {
-                dealWithJobProfile(profile);
-            }
-        }
-
+        taskResult.getDataConfigs().stream()
+                .map(TriggerProfile::getTriggerProfiles)
+                .forEach(profile -> {
+                    LOGGER.info("the triggerProfile: {}", profile.toJsonStr());
+                    if (profile.hasKey(JOB_TRIGGER)) {
+                        dealWithTdmTriggerProfile(profile);
+                    } else {
+                        dealWithJobProfile(profile);
+                    }
+                });
         // todo:删除这段逻辑，cmd这张表没用了
-        for (CmdConfig cmdConfig : taskResult.getCmdConfigs()) {
-            dealWithTdmCmd(cmdConfig);
-        }
-    }
-
-    private boolean triggerIsRunning(TriggerProfile newProfile) {
-        int type = ManagerOpEnum.getOpType(newProfile.getInt(JOB_OP)).getType();
-        if (ManagerOpEnum.ACTIVE.getType() != type || ManagerOpEnum.ADD.getType() != type) {
-            return false;
-        }
-        JobProfileDb jobProfileDb = agentManager.getJobProfileDb();
-        List<JobProfile> jobsByState = jobProfileDb.getJobsByState(StateSearchKey.ACCEPTED);
-        jobsByState.addAll(jobProfileDb.getJobsByState(StateSearchKey.RUNNING));
-        AtomicBoolean jobIsRunning = new AtomicBoolean(false);
-        jobsByState.forEach(jobProfile -> {
-            if (Objects.equals(jobProfile.get(JOB_ID), newProfile.get(JOB_ID))) {
-                LOGGER.error("job is running or accepted, {} submit failed", newProfile.get(JOB_ID));
-                jobIsRunning.set(true);
-            }
-        });
-        return jobIsRunning.get();
+        taskResult.getCmdConfigs().forEach(this::dealWithTdmCmd);
     }
 
     /**

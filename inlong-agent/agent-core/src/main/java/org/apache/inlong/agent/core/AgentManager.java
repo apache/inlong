@@ -175,7 +175,7 @@ public class AgentManager extends AbstractDaemon {
                 TriggerProfile triggerProfile = TriggerProfile.parseJobProfile(profile);
                 // there is no need to store this profile in triggerDB, because
                 // this profile comes from local file.
-                triggerManager.addTrigger(triggerProfile);
+                triggerManager.restoreTrigger(triggerProfile);
             } else {
                 // job db store instance info, so it's suitable to use submitJobProfile
                 // to store instance into job db.

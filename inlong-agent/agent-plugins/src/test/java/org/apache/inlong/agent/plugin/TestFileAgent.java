@@ -140,7 +140,7 @@ public class TestFileAgent {
                 "test[0-9].dat").toString());
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
         TriggerManager triggerManager = agent.getManager().getTriggerManager();
-        triggerManager.addTrigger(triggerProfile);
+        triggerManager.restoreTrigger(triggerProfile);
         TestUtils.createHugeFiles("test0.dat", testRootDir.toString(), RECORD);
         TestUtils.createHugeFiles("test1.dat", testRootDir.toString(), RECORD);
         await().atMost(30, TimeUnit.SECONDS).until(this::checkOnlyOneJob);

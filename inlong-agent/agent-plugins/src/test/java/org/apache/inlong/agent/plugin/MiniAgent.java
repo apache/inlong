@@ -72,7 +72,7 @@ public class MiniAgent {
 
     public void submitTriggerJob(JobProfile profile) {
         TriggerProfile triggerProfile = TriggerProfile.parseJobProfile(profile);
-        manager.getTriggerManager().addTrigger(triggerProfile);
+        manager.getTriggerManager().restoreTrigger(triggerProfile);
     }
 
     public AgentManager getManager() {

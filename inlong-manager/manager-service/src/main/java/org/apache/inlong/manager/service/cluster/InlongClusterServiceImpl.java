@@ -1402,7 +1402,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
         Preconditions.checkTrue(Sets.union(bindSet, unbindSet).size() == bindSet.size() + unbindSet.size(),
                 "can not add and del node tag in the sameTime");
-        InlongClusterEntity cluster = clusterMapper.selectById(request.getClusterId());
+        InlongClusterEntity cluster = clusterMapper.selectByNameAndType(request.getClusterName(), request.getType());
         String message = "Current user does not have permission to bind cluster node tag";
         checkUser(cluster, operator, message);
 
