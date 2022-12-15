@@ -149,7 +149,7 @@ public class JobConstants extends CommonConstants {
 
     public static final String JOB_OP = "job.op";
 
-    public static final String TRIGGER_ONLY_ONE_JOB = "job.standalone";
+    public static final String TRIGGER_ONLY_ONE_JOB = "job.standalone"; // TODO:delete it
 
     // field splitter
     public static final String JOB_FIELD_SPLITTER = "job.splitter";

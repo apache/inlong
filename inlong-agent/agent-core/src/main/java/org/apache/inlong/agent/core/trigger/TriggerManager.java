@@ -44,7 +44,6 @@ import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MA
 import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.TRIGGER_ONLY_ONE_JOB;
 
 /**
  * manager for triggers.
@@ -173,10 +172,6 @@ public class TriggerManager extends AbstractDaemon {
                     triggerMap.forEach((s, trigger) -> {
                         JobProfile profile = trigger.fetchJobProfile();
                         if (profile != null) {
-                            TriggerProfile triggerProfile = trigger.getTriggerProfile();
-                            if (triggerProfile.getBoolean(TRIGGER_ONLY_ONE_JOB, false)) {
-                                deleteRelatedJobs(triggerProfile.getTriggerId());
-                            }
                             Map<String, JobWrapper> jobWrapperMap = manager.getJobManager().getJobs();
                             // case: The trigger and job already start, more matched file produced and add wrap
                             //       those file read job as trigger subtask
