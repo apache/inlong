@@ -118,13 +118,13 @@ public interface InlongGroupService {
     PageResult<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request);
 
     /**
-     * Paging query inlong group brief info list
+     * Query inlong group brief info list
      *
      * @param request pagination query request
-     * @param opInfo userinfo of operator
+     * @param opInfo  userinfo of operator
      * @return group list
      */
-    PageResult<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request, UserInfo opInfo);
+    List<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request, UserInfo opInfo);
 
     /**
      * Modify group information

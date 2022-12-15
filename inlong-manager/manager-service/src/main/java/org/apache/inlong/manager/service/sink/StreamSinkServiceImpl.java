@@ -17,14 +17,17 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
@@ -146,21 +149,42 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Integer save(SinkRequest request, UserInfo opInfo) {
-        this.checkParams(request);
-        // Check if it can be added
-        String groupId = request.getInlongGroupId();
-        groupCheckService.checkGroupStatus(groupId, opInfo.getName());
-        // Make sure that there is no same sink name under the current groupId and streamId
-        String streamId = request.getInlongStreamId();
-        String sinkName = request.getSinkName();
+        // check request parameter
+        checkSinkRequestParams(request);
+        // check operator info
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        InlongGroupEntity entity = groupMapper.selectByGroupId(request.getInlongGroupId());
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
+        }
+        // only the person in charges can query
+        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(opInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
+        // check group status
+        GroupStatus curState = GroupStatus.forCode(entity.getStatus());
+        if (GroupStatus.notAllowedUpdate(curState)) {
+            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), curState));
+        }
         // Check whether the stream exist or not
-        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-        Preconditions.checkNotNull(streamEntity, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
+        InlongStreamEntity streamEntity =
+                streamMapper.selectByIdentifier(request.getInlongGroupId(), request.getInlongStreamId());
+        if (streamEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
+        }
         // Check whether the sink name exists with the same groupId and streamId
-        StreamSinkEntity exists = sinkMapper.selectByUniqueKey(groupId, streamId, sinkName);
-        if (exists != null && exists.getSinkName().equals(sinkName)) {
-            String err = "sink name=%s already exists with the groupId=%s streamId=%s";
-            throw new BusinessException(String.format(err, sinkName, groupId, streamId));
+        StreamSinkEntity exists = sinkMapper.selectByUniqueKey(
+                request.getInlongGroupId(), request.getInlongStreamId(), request.getSinkName());
+        if (exists != null && exists.getSinkName().equals(request.getSinkName())) {
+            throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
+                    String.format("sink name=%s already exists with the groupId=%s streamId=%s",
+                            request.getSinkName(), request.getInlongGroupId(), request.getInlongStreamId()));
         }
         // According to the sink type, save sink information
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
@@ -181,7 +205,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
         // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
         if (streamSuccess && request.getStartProcess()) {
-            this.startProcessForSink(groupId, streamId, opInfo.getName());
+            this.startProcessForSink(request.getInlongGroupId(), request.getInlongStreamId(), opInfo.getName());
         }
         return id;
     }
@@ -202,14 +226,17 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public StreamSink get(Integer id, UserInfo opInfo) {
-        Preconditions.checkNotNull(id, "sink id is empty");
+        // check operator info
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        // check sink id
+        if (id == null) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "sink id is empty");
+        }
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
-        }
-        // check opInfo
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
         InlongGroupEntity groupEntity =
                 groupMapper.selectByGroupId(entity.getInlongGroupId());
@@ -298,26 +325,29 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public PageResult<? extends StreamSink> listByCondition(SinkPageRequest request, UserInfo opInfo) {
-        Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+    public List<? extends StreamSink> listByCondition(SinkPageRequest request, UserInfo opInfo) {
+        if (request == null) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "group query request cannot be empty");
+        }
+        // check sink id
+        if (StringUtils.isBlank(request.getInlongGroupId())) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        }
         // check opInfo
         if (opInfo == null) {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
         // query result
-        PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        OrderFieldEnum.checkOrderField(request);
-        OrderTypeEnum.checkOrderType(request);
-        List<StreamSinkEntity> entityPage = sinkMapper.selectByCondition(request);
+        List<StreamSinkEntity> sinkEntityList = sinkMapper.selectByCondition(request);
         Map<String, Page<StreamSinkEntity>> sinkMap = Maps.newHashMap();
-        for (StreamSinkEntity streamSink : entityPage) {
+        for (StreamSinkEntity streamSink : sinkEntityList) {
             sinkMap.computeIfAbsent(streamSink.getSinkType(), k -> new Page<>()).add(streamSink);
         }
-        List<StreamSink> responseList = Lists.newArrayList();
+        List<StreamSink> filterResult = Lists.newArrayList();
         for (Map.Entry<String, Page<StreamSinkEntity>> entry : sinkMap.entrySet()) {
             StreamSinkOperator sinkOperator = operatorFactory.getInstance(entry.getKey());
             PageResult<? extends StreamSink> pageInfo = sinkOperator.getPageInfo(entry.getValue());
-            // filter Filter un-incharge records
             for (StreamSink streamSink : pageInfo.getList()) {
                 InlongGroupEntity groupEntity =
                         groupMapper.selectByGroupId(streamSink.getInlongGroupId());
@@ -331,11 +361,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                         continue;
                     }
                 }
-                responseList.add(streamSink);
+                filterResult.add(streamSink);
             }
         }
-        // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        return new PageResult<>(responseList);
+        return filterResult;
     }
 
     @Override
@@ -384,25 +413,48 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(SinkRequest request, UserInfo opInfo) {
-        this.checkParams(request);
-        Preconditions.checkNotNull(request.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
-        // Check if it can be modified
-        String groupId = request.getInlongGroupId();
-        String streamId = request.getInlongStreamId();
-        String sinkName = request.getSinkName();
-        groupCheckService.checkGroupStatus(groupId, opInfo.getName());
-
-        // Check whether the stream exist or not
-        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-        Preconditions.checkNotNull(streamEntity, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
-
-        // Check whether the sink name exists with the same groupId and streamId
-        StreamSinkEntity existEntity = sinkMapper.selectByUniqueKey(groupId, streamId, sinkName);
-        if (existEntity != null && !existEntity.getId().equals(request.getId())) {
-            String errMsg = "sink name=%s already exists with the groupId=%s streamId=%s";
-            throw new BusinessException(String.format(errMsg, sinkName, groupId, streamId));
+        // check request parameter
+        checkSinkRequestParams(request);
+        if (request.getId() == null) {
+            throw new BusinessException(ErrorCodeEnum.ID_IS_EMPTY);
         }
-
+        // check opInfo
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        // check group record
+        InlongGroupEntity entity = groupMapper.selectByGroupId(request.getInlongGroupId());
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
+        }
+        // only the person in charges can query
+        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(opInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
+        // Check if group status can be modified
+        GroupStatus curState = GroupStatus.forCode(entity.getStatus());
+        if (GroupStatus.notAllowedUpdate(curState)) {
+            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), curState));
+        }
+        // Check whether the stream exist or not
+        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
+                request.getInlongGroupId(), request.getInlongStreamId());
+        if (streamEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
+        }
+        // Check whether the sink name exists with the same groupId and streamId
+        StreamSinkEntity existEntity = sinkMapper.selectByUniqueKey(
+                request.getInlongGroupId(), request.getInlongStreamId(), request.getSinkName());
+        if (existEntity != null && !existEntity.getId().equals(request.getId())) {
+            throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
+                    String.format("sink name=%s already exists with the groupId=%s streamId=%s",
+                            request.getSinkName(), request.getInlongGroupId(), request.getInlongStreamId()));
+        }
+        // update record
         SinkStatus nextStatus = null;
         boolean streamSuccess = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus());
         if (streamSuccess || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus())) {
@@ -412,10 +464,9 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
         sinkOperator.updateOpt(request, nextStatus, opInfo.getName());
-
         // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
         if (streamSuccess && request.getStartProcess()) {
-            this.startProcessForSink(groupId, streamId, opInfo.getName());
+            this.startProcessForSink(request.getInlongGroupId(), request.getInlongStreamId(), opInfo.getName());
         }
         return true;
     }
@@ -478,17 +529,41 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean delete(Integer id, Boolean startProcess, UserInfo opInfo) {
-        Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
-        StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-
-        groupCheckService.checkGroupStatus(entity.getInlongGroupId(), opInfo.getName());
-
-        StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
-        sinkOperator.deleteOpt(entity, opInfo.getName());
-
+        if (id == null) {
+            throw new BusinessException(ErrorCodeEnum.ID_IS_EMPTY);
+        }
+        // check opInfo
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        // check stream sink record
+        StreamSinkEntity sinkEntity = sinkMapper.selectByPrimaryKey(id);
+        if (sinkEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
+        }
+        // check group record
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sinkEntity.getInlongGroupId());
+        if (groupEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", sinkEntity.getInlongGroupId()));
+        }
+        // only the person in charges can query
+        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(opInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
+        // Check if group status can be modified
+        GroupStatus curState = GroupStatus.forCode(groupEntity.getStatus());
+        if (GroupStatus.notAllowedUpdate(curState)) {
+            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), curState));
+        }
+        // delete record
+        StreamSinkOperator sinkOperator = operatorFactory.getInstance(sinkEntity.getSinkType());
+        sinkOperator.deleteOpt(sinkEntity, opInfo.getName());
         if (startProcess) {
-            this.deleteProcessForSink(entity.getInlongGroupId(), entity.getInlongStreamId(), opInfo.getName());
+            this.deleteProcessForSink(sinkEntity.getInlongGroupId(), sinkEntity.getInlongStreamId(), opInfo.getName());
         }
         return true;
     }
@@ -627,6 +702,33 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         LOGGER.info("success to update sink after approve: {}", approveList);
         return true;
+    }
+
+    private void checkSinkRequestParams(SinkRequest request) {
+        // check request parameter
+        if (request == null) {
+            throw new BusinessException(ErrorCodeEnum.REQUEST_IS_EMPTY);
+        }
+        // check group id
+        String groupId = request.getInlongGroupId();
+        if (StringUtils.isBlank(groupId)) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        }
+        // check stream id
+        String streamId = request.getInlongStreamId();
+        if (StringUtils.isBlank(streamId)) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_ID_IS_EMPTY);
+        }
+        // check sinkType
+        String sinkType = request.getSinkType();
+        if (StringUtils.isBlank(sinkType)) {
+            throw new BusinessException(ErrorCodeEnum.SINK_TYPE_IS_NULL);
+        }
+        // check sinkName
+        String sinkName = request.getSinkName();
+        if (StringUtils.isBlank(sinkName)) {
+            throw new BusinessException(ErrorCodeEnum.SINK_NAME_IS_NULL);
+        }
     }
 
     private void checkParams(SinkRequest request) {

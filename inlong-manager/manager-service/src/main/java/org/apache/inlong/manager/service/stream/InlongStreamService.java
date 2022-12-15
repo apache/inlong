@@ -98,13 +98,13 @@ public interface InlongStreamService {
     PageResult<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request);
 
     /**
-     * Paging query inlong stream brief info list
+     * Query inlong stream brief info list
      *
      * @param request query request
-     * @param opInfo userinfo of operator
+     * @param opInfo  userinfo of operator
      * @return inlong stream brief list
      */
-    PageResult<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request, UserInfo opInfo);
+    List<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request, UserInfo opInfo);
 
     /**
      * Paging query inlong stream full info list, and get all related sources and sinks

@@ -19,7 +19,6 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
-import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -38,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -66,7 +67,7 @@ public class OpenInLongGroupController {
 
     @PostMapping(value = "/group/list")
     @ApiOperation(value = "List inlong groups by paginating")
-    public Response<PageResult<InlongGroupBriefInfo>> listBrief(@RequestBody InlongGroupPageRequest request) {
+    public Response<List<InlongGroupBriefInfo>> listBrief(@RequestBody InlongGroupPageRequest request) {
         return Response.success(groupService.listBrief(request, LoginUserUtils.getLoginUser()));
     }
 
