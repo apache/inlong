@@ -73,6 +73,7 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
+import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
@@ -81,6 +82,7 @@ import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +138,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /**
      * The schema to convert from Debezium's messages into Flink's objects.
      */
-    private final DebeziumDeserializationSchema<T> deserializer;
+    private final RowDataDebeziumDeserializeSchema deserializer;
 
     /**
      * User-supplied properties for Kafka. *
@@ -230,7 +232,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     // ---------------------------------------------------------------------------------------
 
     public DebeziumSourceFunction(
-            DebeziumDeserializationSchema<T> deserializer,
+            RowDataDebeziumDeserializeSchema deserializer,
             Properties properties,
             @Nullable DebeziumOffset specificOffset,
             Validator validator, String inlongMetric,
@@ -479,12 +481,12 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                                 if (sourceMetricData != null) {
                                     sourceMetricData.outputMetricsWithEstimate(record.value());
                                 }
-                                deserializer.deserialize(record, out);
+                                deserializer.deserialize(record, (Collector<RowData>) out);
                             }
 
                             @Override
                             public TypeInformation<T> getProducedType() {
-                                return deserializer.getProducedType();
+                                return (TypeInformation<T>) deserializer.getProducedType();
                             }
                         },
                         restoredOffsetState == null, // DB snapshot phase if restore state is null
@@ -607,7 +609,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     @Override
     public TypeInformation<T> getProducedType() {
-        return deserializer.getProducedType();
+        return (TypeInformation<T>) deserializer.getProducedType();
     }
 
     @VisibleForTesting

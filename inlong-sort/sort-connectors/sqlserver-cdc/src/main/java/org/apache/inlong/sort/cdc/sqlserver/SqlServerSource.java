@@ -20,8 +20,8 @@ package org.apache.inlong.sort.cdc.sqlserver;
 
 import com.ververica.cdc.connectors.sqlserver.SqlServerValidator;
 import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
+import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.cdc.sqlserver.table.DebeziumSourceFunction;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import io.debezium.connector.sqlserver.SqlServerConnector;
 
 import java.util.Properties;
@@ -51,7 +51,7 @@ public class SqlServerSource {
         private String[] tableList;
         private Properties dbzProperties;
         private StartupOptions startupOptions = StartupOptions.initial();
-        private DebeziumDeserializationSchema<T> deserializer;
+        private RowDataDebeziumDeserializeSchema deserializer;
         private String inlongMetric;
         private String auditHostAndPorts;
 
@@ -105,8 +105,9 @@ public class SqlServerSource {
         /**
          * The deserializer used to convert from consumed {@link
          * org.apache.kafka.connect.source.SourceRecord}.
+         * @param deserializer
          */
-        public Builder<T> deserializer(DebeziumDeserializationSchema<T> deserializer) {
+        public Builder<T> deserializer(RowDataDebeziumDeserializeSchema deserializer) {
             this.deserializer = deserializer;
             return this;
         }
@@ -166,7 +167,7 @@ public class SqlServerSource {
                 props.putAll(dbzProperties);
             }
 
-            return new DebeziumSourceFunction<>(
+            return new DebeziumSourceFunction(
                     deserializer, props, null, new SqlServerValidator(props),
                     inlongMetric, auditHostAndPorts);
         }

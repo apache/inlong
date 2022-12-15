@@ -121,7 +121,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         this.dirtySink = dirtySink;
     }
 
-
     public static Builder builder() {
         return new Builder();
     }
@@ -279,9 +278,9 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     }
 
     protected void addToBatch(In original, JdbcIn extracted) {
-        try{
+        try {
             jdbcStatementExecutor.addToBatch(extracted);
-        } catch (Exception e){
+        } catch (Exception e) {
             LOG.error(String.format("DataTypeMappingError, data: %s", extracted), e);
             handleDirtyData(extracted, DirtyType.DATA_TYPE_MAPPING_ERROR, e);
         }
@@ -527,7 +526,9 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                         dml,
                         executionOptionsBuilder.build(),
                         inlongMetric,
-                        auditHostAndPorts);
+                        auditHostAndPorts,
+                        dirtyOptions,
+                        dirtySink);
             } else {
                 // warn: don't close over builder fields
                 String sql =

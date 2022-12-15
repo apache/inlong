@@ -32,11 +32,10 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-
+import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverterFactory;
+import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.cdc.sqlserver.SqlServerSource;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.table.MetadataConverter;
-import com.ververica.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
 
 import java.time.ZoneId;
 import java.util.Collections;
@@ -129,15 +128,17 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
         MetadataConverter[] metadataConverters = getMetadataConverters();
         TypeInformation<RowData> typeInfo = scanContext.createTypeInformation(producedDataType);
 
-        DebeziumDeserializationSchema<RowData> deserializer =
+        RowDataDebeziumDeserializeSchema deserializer =
                 RowDataDebeziumDeserializeSchema.newBuilder()
                         .setPhysicalRowType(physicalDataType)
                         .setMetadataConverters(metadataConverters)
                         .setResultTypeInfo(typeInfo)
                         .setServerTimeZone(serverTimeZone)
                         .setUserDefinedConverterFactory(
-                                SqlServerDeserializationConverterFactory.instance())
+                                (DeserializationRuntimeConverterFactory) SqlServerDeserializationConverterFactory
+                                        .instance())
                         .build();
+
         DebeziumSourceFunction<RowData> sourceFunction =
                 SqlServerSource.<RowData>builder()
                         .hostname(hostname)

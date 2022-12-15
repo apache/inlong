@@ -40,7 +40,6 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.jdbc.internal.JdbcBatchingOutputFormat;
 
 import java.io.Serializable;
@@ -254,7 +253,6 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
         this.dirtySink = dirtySink;
         return this;
     }
-
 
     public JdbcBatchingOutputFormat<RowData, ?, ?> build() {
         checkNotNull(jdbcOptions, "jdbc options can not be null");
