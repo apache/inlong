@@ -91,6 +91,11 @@ public class PathPattern {
             LOGGER.warn("max num of files is {}, please check", maxNum);
             return;
         }
+        // remove blacklist path
+        if (blackList.contains(dirPath.toString())) {
+            LOGGER.info("find blacklist path {}, ignore it.", dirPath);
+            return;
+        }
         if (dirPath.isFile() && dateFormatRegex.withFile(dirPath).match()) {
             collectResult.add(dirPath);
         } else if (dirPath.isDirectory()) {
@@ -136,7 +141,7 @@ public class PathPattern {
     public boolean suitForWatch(String pathStr) {
         // remove blacklist path
         if (blackList.contains(pathStr)) {
-            LOGGER.info("blacklist path {}", pathStr);
+            LOGGER.info("find blacklist path {}, ignore it.", pathStr);
             return false;
         }
         // remove common root path

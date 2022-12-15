@@ -178,6 +178,10 @@ public class JobWrapper extends AbstractStateWrapper {
 
     public synchronized void addTask(JobProfile jobProfile) {
         Task task = job.createTask(jobProfile);
+        if (task == null) {
+            LOGGER.info("job cannot be created, total task {}", allTasks.size());
+            return;
+        }
         allTasks.add(task);
         LOGGER.info("job name is {} and add new task, total task {}", job.getName(), allTasks.size());
         taskManager.submitTask(task);
