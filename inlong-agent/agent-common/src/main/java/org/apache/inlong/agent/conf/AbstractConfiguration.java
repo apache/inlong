@@ -251,7 +251,15 @@ public abstract class AbstractConfiguration {
      * @param value value
      */
     public void set(String key, String value) {
-        configStorage.put(key, new JsonPrimitive(value));
+        if (value != null) {
+            configStorage.put(key, new JsonPrimitive(value));
+            return;
+        }
+
+        // del
+        if (configStorage.containsKey(key)) {
+           configStorage.remove(key);
+        }
     }
 
     public void setInt(String key, int value) {

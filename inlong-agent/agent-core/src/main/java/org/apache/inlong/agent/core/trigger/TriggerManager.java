@@ -17,16 +17,16 @@
 
 package org.apache.inlong.agent.core.trigger;
 
+import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.job.JobWrapper;
-import org.apache.inlong.agent.core.task.Task;
 import org.apache.inlong.agent.db.TriggerProfileDb;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.utils.ThreadUtils;
@@ -35,14 +35,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
 import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
 
 /**
@@ -50,12 +48,10 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
  */
 public class TriggerManager extends AbstractDaemon {
 
-    public static final int JOB_CHECK_INTERVAL = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(TriggerManager.class);
     private final AgentManager manager;
     private final TriggerProfileDb triggerProfileDB;
     private final ConcurrentHashMap<String, Trigger> triggerMap;
-    private final ConcurrentHashMap<String, ConcurrentHashMap<String, JobProfile>> triggerJobMap;
     private final AgentConfiguration conf;
     private final int triggerFetchInterval;
     private final int maxRunningNum;
@@ -65,7 +61,6 @@ public class TriggerManager extends AbstractDaemon {
         this.manager = manager;
         this.triggerProfileDB = triggerProfileDb;
         this.triggerMap = new ConcurrentHashMap<>();
-        this.triggerJobMap = new ConcurrentHashMap<>();
         this.triggerFetchInterval = conf.getInt(AgentConstants.TRIGGER_FETCH_INTERVAL,
                 AgentConstants.DEFAULT_TRIGGER_FETCH_INTERVAL);
         this.maxRunningNum = conf.getInt(TRIGGER_MAX_RUNNING_NUM, DEFAULT_TRIGGER_MAX_RUNNING_NUM);
@@ -123,6 +118,7 @@ public class TriggerManager extends AbstractDaemon {
         }
 
         LOGGER.info("submit trigger {}", triggerProfile);
+        manager.getJobManager().submitJobProfile(triggerProfile, true);  // todo:这个一定要在保存数据库之前，因为下次恢复还需要用到这个job_instance_id
         triggerProfileDB.storeTrigger(triggerProfile);
         restoreTrigger(triggerProfile);
     }
@@ -144,25 +140,10 @@ public class TriggerManager extends AbstractDaemon {
         LOGGER.info("delete trigger {}", triggerId);
         Trigger trigger = triggerMap.remove(triggerId);
         if (trigger != null) {
-            deleteRelatedJobs(triggerId);
+            manager.getJobManager().deleteJob(trigger.getTriggerProfile().getInstanceId());
             trigger.destroy();
         }
         triggerProfileDB.deleteTrigger(triggerId);
-    }
-
-    /**
-     * Preprocessing before adding trigger, default value FULL
-     *
-     * FULL: All directory by regex
-     * INCREMENT: Directory entry created
-     */
-    private void preprocessTrigger(TriggerProfile profile) {
-        String syncType = profile.get(JobConstants.JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
-        if (FileTriggerType.INCREMENT.equals(syncType)) {
-            return;
-        }
-        LOGGER.info("initialize submit full sync trigger {}", profile.getTriggerId());
-        manager.getJobManager().submitFileJobProfile(profile);
     }
 
     private Runnable jobFetchThread() {
@@ -173,16 +154,23 @@ public class TriggerManager extends AbstractDaemon {
                         JobProfile profile = trigger.fetchJobProfile();
                         if (profile != null) {
                             Map<String, JobWrapper> jobWrapperMap = manager.getJobManager().getJobs();
-                            // case: The trigger and job already start, more matched file produced and add wrap
-                            //       those file read job as trigger subtask
-                            if (isRunningJob(profile, jobWrapperMap)) {
-                                jobWrapperMap.get(profile.getInstanceId()).addTask(profile);
-                            }
-                            // case: In INCREMENT type the trigger already start, but does not start the first job until
-                            //       meet up first matched file
-                            if (isNotExistJob(profile)) {
-                                manager.getJobManager().submitFileJobProfile(profile);
-                                addToTriggerMap(profile.get(JOB_ID), profile);
+                            JobWrapper job = jobWrapperMap.get(trigger.getTriggerProfile().getInstanceId());
+                            String subTaskFile = profile.get(JobConstants.JOB_DIR_FILTER_PATTERNS, "");
+                            Preconditions.checkArgument(StringUtils.isNotBlank(subTaskFile),
+                                    String.format("Trigger %s fetched task file should not be null."), s);
+                            // Add new watched file as subtask of trigger job.
+                            // In order to solve the situation that the job will automatically recover after restarting,
+                            // but the trigger will also automatically rematch all files to rebuild watchKey, it is
+                            // necessary to filter the stated monitored file task.
+
+                            Optional alreadyExistTask = job.getAllTasks().stream()
+                                    .filter(task -> subTaskFile.equals(
+                                            task.getJobConf().get(JobConstants.JOB_DIR_FILTER_PATTERNS, ""))
+                                    ).findAny();
+                            if (!alreadyExistTask.isPresent()) {
+                                jobWrapperMap.get(trigger.getTriggerProfile().getInstanceId()).addTask(profile);
+                                LOGGER.info("Trigger job {} add new task file {}, total task {}",
+                                        job.getJob().getName(), subTaskFile, job.getAllTasks().size());
                             }
                         }
                     });
@@ -193,94 +181,6 @@ public class TriggerManager extends AbstractDaemon {
                 }
             }
         };
-    }
-
-    private boolean isRunningJob(JobProfile profile, Map<String, JobWrapper> jobWrapperMap) {
-        try {
-            if (jobWrapperMap == null || jobWrapperMap.get(profile.getInstanceId()) == null) {
-                return false;
-            }
-
-            JobWrapper jobWrapper = jobWrapperMap.get(profile.getInstanceId());
-            List<Task> tasks = jobWrapper.getAllTasks();
-            if (tasks == null) {
-                return true;
-            }
-            for (Task task : tasks) {
-                if (task.getJobConf().hasKey(profile.get(JOB_DIR_FILTER_PATTERNS)) &&
-                        task.getJobConf().get(profile.get(JOB_DIR_FILTER_PATTERNS)).equals(profile.get(JOB_DIR_FILTER_PATTERNS))) {
-                    return false;
-                }
-            }
-
-            return true;
-        } catch (Exception e) {
-            LOGGER.warn("not found job {} in the jobs, error: ", profile.toJsonStr(), e);
-            return false;
-        }
-    }
-
-    private boolean isNotExistJob(JobProfile profile) {
-        List<JobProfile> jobProfileList = manager.getJobProfileDb().getAllJobs();
-        AtomicBoolean isExist = new AtomicBoolean(false);
-        jobProfileList.forEach(job -> {
-            if (profile.get(JOB_ID).equals(job.get(JOB_ID))) {
-                isExist.set(true);
-            }
-        });
-        return !isExist.get();
-    }
-
-    /**
-     * delete jobs generated by the trigger
-     */
-    private void deleteRelatedJobs(String triggerId) {
-        LOGGER.info("start to delete related jobs in triggerId {}", triggerId);
-        List<JobProfile> jobProfileList = manager.getJobProfileDb().getAllJobs();
-        jobProfileList.forEach(jobProfile -> {
-            if (Objects.equals(jobProfile.get(JOB_ID), triggerId)) {
-                deleteJob(jobProfile.getInstanceId());
-            }
-        });
-        triggerJobMap.remove(triggerId);
-    }
-
-    private void deleteJob(String jobInstanceId) {
-        manager.getJobManager().deleteJob(jobInstanceId);
-    }
-
-    private Runnable jobCheckThread() {
-        return () -> {
-            while (isRunnable()) {
-                try {
-                    triggerJobMap.forEach((s, jobProfiles) -> {
-                        for (String jobId : jobProfiles.keySet()) {
-                            Map<String, JobWrapper> jobs = manager.getJobManager().getJobs();
-                            if (jobs.get(jobId) == null) {
-                                triggerJobMap.remove(jobId);
-                            }
-                        }
-                    });
-                    TimeUnit.MINUTES.sleep(JOB_CHECK_INTERVAL);
-                } catch (Throwable e) {
-                    LOGGER.info("ignored Exception ", e);
-                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
-                }
-            }
-
-        };
-    }
-
-    /**
-     * need to put profile in triggerJobMap
-     */
-    private void addToTriggerMap(String triggerId, JobProfile profile) {
-        ConcurrentHashMap<String, JobProfile> tmpList = new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, JobProfile> jobWrappers = triggerJobMap.putIfAbsent(triggerId, tmpList);
-        if (jobWrappers == null) {
-            jobWrappers = tmpList;
-        }
-        jobWrappers.putIfAbsent(profile.getInstanceId(), profile);
     }
 
     /**
@@ -304,7 +204,6 @@ public class TriggerManager extends AbstractDaemon {
     public void start() {
         initTriggers();
         submitWorker(jobFetchThread());
-        submitWorker(jobCheckThread());
     }
 
     @Override

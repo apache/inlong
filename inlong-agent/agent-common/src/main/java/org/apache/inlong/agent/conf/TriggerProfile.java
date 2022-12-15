@@ -22,7 +22,8 @@ import org.apache.inlong.agent.pojo.JobProfileDto;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
 /**
- * profile used in trigger. Trigger profile is a special job profile
+ * Profile used in trigger.</br>
+ * Trigger job is a special job profile that never end up and are always running.
  */
 public class TriggerProfile extends JobProfile {
 

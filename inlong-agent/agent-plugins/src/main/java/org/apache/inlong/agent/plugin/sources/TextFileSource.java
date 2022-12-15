@@ -22,6 +22,7 @@ import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.file.FileReaderOperator;
+import org.apache.inlong.agent.plugin.sources.reader.file.TriggerFileReader;
 import org.apache.inlong.agent.plugin.utils.FileDataUtils;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
@@ -40,6 +42,7 @@ import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FIL
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
 
 /**
  * Read text files
@@ -54,11 +57,16 @@ public class TextFileSource extends AbstractSource {
     @Override
     public List<Reader> split(JobProfile jobConf) {
         super.init(jobConf);
+        if (jobConf.hasKey(JOB_TRIGGER)) {
+            // trigger as a special reader.
+            return Collections.singletonList(new TriggerFileReader());
+        }
+
         Collection<File> allFiles = PluginUtils.findSuitFiles(jobConf);
         allFiles = FileDataUtils.filterFile(allFiles, jobConf);
-        List<Reader> result = new ArrayList<>();
         String filterPattern = jobConf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
         LOGGER.info("file splits size: {}", allFiles.size());
+        List<Reader> result = new ArrayList<>();
         for (File file : allFiles) {
             int startPosition = getStartPosition(jobConf, file);
             LOGGER.info("read from history position {} with job profile {}, file absolute path: {}", startPosition,

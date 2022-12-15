@@ -47,6 +47,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
@@ -57,6 +58,7 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TRIGGER_TYP
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
 import static org.awaitility.Awaitility.await;
 
@@ -141,22 +143,14 @@ public class TestFileAgent {
                 "test*.dat").toString());
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
         TriggerManager triggerManager = agent.getManager().getTriggerManager();
-        triggerManager.restoreTrigger(triggerProfile);
+        triggerManager.submitTrigger(triggerProfile);
         TestUtils.createHugeFiles("test0.dat", testRootDir.toString(), RECORD);
-        TestUtils.createHugeFiles("test1.dat", testRootDir.toString(), RECORD);
-        await().atMost(30, TimeUnit.SECONDS).until(this::checkOnlyOneJob);
-        Assert.assertTrue(checkOnlyOneJob());
-    }
-
-    private Long checkFullPathReadJob() {
-        Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
-        AtomicLong result = new AtomicLong(0L);
-        jobs.forEach((s, jobWrapper) -> {
-            if (FileTriggerType.FULL.equals(jobWrapper.getJob().getJobConf().get(JOB_FILE_TRIGGER_TYPE, null))) {
-                result.set(jobWrapper.getAllTasks().size());
-            }
+        TestUtils.createHugeFiles("te1.dat", testRootDir.toString(), RECORD);
+        await().atMost(1000, TimeUnit.SECONDS).until(() -> {
+            Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
+            return jobs.size() == 1
+                    && jobs.values().stream().collect(Collectors.toList()).get(0).getAllTasks().size() == 2;
         });
-        return result.get();
     }
 
     @Test
@@ -171,17 +165,11 @@ public class TestFileAgent {
         triggerProfile.set(JOB_ID, "2");
         TriggerManager triggerManager = agent.getManager().getTriggerManager();
         triggerManager.submitTrigger(triggerProfile);
-        await().atMost(10, TimeUnit.SECONDS).until(() -> checkFullPathReadJob().longValue() == 3);
-    }
-
-    private boolean checkOnlyOneJob() {
-        Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
-        AtomicBoolean result = new AtomicBoolean(false);
-        if (jobs.size() == 1) {
-            jobs.forEach((s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf().get(JOB_DIR_FILTER_PATTERNS)
-                    .equals(testRootDir + FileSystems.getDefault().getSeparator() + "test0.dat")));
-        }
-        return result.get();
+        await().atMost(10, TimeUnit.SECONDS).until(() -> {
+                Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
+                return jobs.size() == 1
+                                && jobs.values().stream().collect(Collectors.toList()).get(0).getAllTasks().size() == 4;
+        });
     }
 
     @Test

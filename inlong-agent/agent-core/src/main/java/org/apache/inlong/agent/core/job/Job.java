@@ -93,16 +93,6 @@ public class Job {
         return getTasks(this.jobConf);
     }
 
-    /**
-     * build task from job config
-     *
-     * @param jobConf subtask config in the job
-     * @return new task
-     */
-    public Task createTask(JobProfile jobConf) {
-        return getTasks(jobConf).isEmpty() ? null : createTasks().get(0);
-    }
-
     private List<Task> getTasks(JobProfile jobConf) {
         List<Task> taskList = new ArrayList<>();
         try {
