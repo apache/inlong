@@ -47,10 +47,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import org.apache.inlong.common.metric.MetricItemValue;
+import org.apache.inlong.common.metric.MetricListener;
 import org.apache.inlong.common.metric.MetricValue;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.metrics.MetricItemValue;
-import org.apache.inlong.sort.standalone.metrics.MetricListener;
+
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
