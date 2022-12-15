@@ -17,35 +17,28 @@
 
 package org.apache.inlong.agent.core.trigger;
 
-import com.google.common.collect.Sets;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.constant.FileCollectType;
+import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.job.JobWrapper;
 import org.apache.inlong.agent.core.task.Task;
-import org.apache.inlong.agent.db.JobProfileDb;
-import org.apache.inlong.agent.db.StateSearchKey;
 import org.apache.inlong.agent.db.TriggerProfileDb;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
 import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
@@ -132,7 +125,6 @@ public class TriggerManager extends AbstractDaemon {
 
         LOGGER.info("submit trigger {}", triggerProfile);
         triggerProfileDB.storeTrigger(triggerProfile);
-        preprocessTrigger(triggerProfile);
         restoreTrigger(triggerProfile);
     }
 
@@ -166,8 +158,8 @@ public class TriggerManager extends AbstractDaemon {
      * INCREMENT: Directory entry created
      */
     private void preprocessTrigger(TriggerProfile profile) {
-        String syncType = profile.get(JobConstants.JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
-        if (FileCollectType.INCREMENT.equals(syncType)) {
+        String syncType = profile.get(JobConstants.JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
+        if (FileTriggerType.INCREMENT.equals(syncType)) {
             return;
         }
         LOGGER.info("initialize submit full sync trigger {}", profile.getTriggerId());

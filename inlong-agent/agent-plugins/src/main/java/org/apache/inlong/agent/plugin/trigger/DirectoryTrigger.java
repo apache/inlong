@@ -17,11 +17,13 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
@@ -40,9 +42,9 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -119,7 +121,7 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
      */
     private void registerAllSubDir(PathPattern entity,
             Path path,
-            List<WatchKey> tmpWatchers) throws Exception {
+            List<WatchKey> tmpWatchers) throws IOException {
         // check regex
         LOGGER.info("check whether path {} is suitable", path);
         if (entity.suitForWatch(path.toString())) {
@@ -229,44 +231,47 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
     }
 
     /**
-     * register pathPattern into watchers
-     */
-    public void register(List<String> pathPatterns, Set<String> blackList) throws IOException {
-        for (String pathPattern : pathPatterns) {
-            PathPattern entity = new PathPattern(pathPattern, blackList);
-            innerRegister(pathPattern, entity);
-        }
-    }
-
-    /**
      * register pathPattern into watchers, with offset
      */
-    public void register(List<String> pathPatterns, String offset, Set<String> blackList) throws IOException {
-        for (String pathPattern : pathPatterns) {
-            PathPattern entity = new PathPattern(pathPattern, offset, blackList);
-            innerRegister(pathPattern, entity);
+    public Set<String> register(Set<String> whiteList, String offset, Set<String> blackList) throws IOException {
+        Set<String> commonWatchDir = PathUtils.findCommonRootPath(whiteList);
+        Set<PathPattern> pathPatterns = commonWatchDir.stream().map(rootDir -> {
+                    Set<String> commonWatchDirWhiteList =
+                            whiteList.stream()
+                                    .filter(whiteRegex -> whiteRegex.startsWith(rootDir))
+                                    .collect(Collectors.toSet());
+                    return new PathPattern(rootDir, commonWatchDirWhiteList, blackList, offset);
+                }).collect(Collectors.toSet());
+
+        for (PathPattern pathPattern : pathPatterns) {
+            innerRegister(pathPattern.getRootDir(), pathPattern);
         }
+        return commonWatchDir;
     }
 
-    private void innerRegister(String pathPattern, PathPattern entity) throws IOException {
+    private void innerRegister(String watchDir, PathPattern entity) throws IOException {
         List<WatchKey> tmpKeyList = new ArrayList<>();
         List<WatchKey> keyList = allWatchers.putIfAbsent(entity, tmpKeyList);
-        if (keyList == null) {
-            Path rootPath = Paths.get(entity.getRootDir());
-            LOGGER.info("watch root path is {}", rootPath);
-            WatchKey key = rootPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-            tmpKeyList.add(key);
-        } else {
-            LOGGER.error("{} exists in watcher list, please check it", pathPattern);
+        if (keyList != null) {
+            LOGGER.error("{} exists in watcher list, please check it", watchDir);
+            return;
         }
+
+        Path rootPath = Paths.get(entity.getRootDir());
+        LOGGER.info("watch root path is {}", rootPath);
+        WatchKey key = rootPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+        if (FileTriggerType.FULL.equals(
+                profile.get(JobConstants.JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL))) {
+            registerAllSubDir(entity, Paths.get(entity.getRootDir()), tmpKeyList);
+        }
+        tmpKeyList.add(key);
     }
 
-    public void unregister(String pathPattern, Set<String> blackList) {
-        PathPattern entity = new PathPattern(pathPattern, blackList);
-        Collection<WatchKey> allKeys = allWatchers.remove(entity);
+    public void unregister(String watchDir) {
+        Collection<WatchKey> allKeys = allWatchers.remove(
+                new PathPattern(watchDir, Collections.emptySet(), Collections.emptySet()));
         if (allKeys != null) {
-            LOGGER.info("unregister pattern {}, total size of path {}", pathPattern,
-                    allKeys.size());
+            LOGGER.info("unregister pattern {}, total size of path {}", watchDir, allKeys.size());
             for (WatchKey key : allKeys) {
                 key.cancel();
             }
@@ -284,18 +289,14 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
                 AgentConstants.TRIGGER_CHECK_INTERVAL, AgentConstants.DEFAULT_TRIGGER_CHECK_INTERVAL);
         this.profile = profile;
         if (this.profile.hasKey(JOB_DIR_FILTER_PATTERNS)) {
-            List<String> pathPatterns = Stream.of(
-                    this.profile.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toList());
+            Set<String> pathPatterns = Stream.of(
+                    this.profile.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toSet());
             Set<String> blackList = Stream.of(
                     this.profile.get(JOB_DIR_FILTER_BLACKLIST, "").split(","))
                     .filter(black -> !StringUtils.isBlank(black))
                     .collect(Collectors.toSet());
             String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");
-            if (timeOffset.isEmpty()) {
-                register(pathPatterns, blackList);
-            } else {
-                register(pathPatterns, timeOffset, blackList);
-            }
+            register(pathPatterns, timeOffset, blackList);
         }
     }
 
@@ -308,19 +309,8 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        initWatchService();
-        Path rootPath = Paths.get("D:/tmp/test");
-        WatchKey watchKey = rootPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-
-        while (true) {
-            Thread.sleep(1000L);
-            List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
-            if (!watchEvents.isEmpty()) {
-                System.out.println(watchEvents);
-            }
-        }
-
+    @VisibleForTesting
+    public Collection<JobProfile> getFetchedJob() {
+        return queue;
     }
-
 }

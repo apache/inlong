@@ -29,6 +29,7 @@ import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.trigger.PathPattern;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.PathUtils;
 import org.apache.pulsar.client.api.CompressionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -92,23 +94,26 @@ public class PluginUtils {
      * scan and return files based on job dir conf
      */
     public static Collection<File> findSuitFiles(JobProfile jobConf) {
-        List<String> dirPatterns = Stream.of(jobConf.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toList());
+        Set<String> dirPatterns = Stream.of(jobConf.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toSet());
+        Set<String> blackList = Stream.of(
+                        jobConf.get(JOB_DIR_FILTER_BLACKLIST, "").split(","))
+                .filter(black -> !StringUtils.isBlank(black))
+                .collect(Collectors.toSet());
         LOGGER.info("start to find files with dir pattern {}", dirPatterns);
-        List<PathPattern> patterns = dirPatterns.stream().map(dirPattern -> {
-                Set<String> blackList = Stream.of(
-                            jobConf.get(JOB_DIR_FILTER_BLACKLIST, "").split(","))
-                        .filter(black -> !StringUtils.isBlank(black))
-                        .collect(Collectors.toSet());
-                return jobConf.hasKey(JOB_FILE_TIME_OFFSET)
-                        ? new PathPattern(dirPattern, jobConf.get(JOB_FILE_TIME_OFFSET), blackList)
-                        : new PathPattern(dirPattern, blackList);
-            }).collect(Collectors.toList());
 
-        updateRetryTime(jobConf, patterns);
+        List<PathPattern> pathPatterns = PathUtils.findCommonRootPath(dirPatterns).stream().map(rootDir -> {
+            Set<String> commonWatchDirWhiteList =
+                    dirPatterns.stream()
+                            .filter(whiteRegex -> whiteRegex.startsWith(rootDir))
+                            .collect(Collectors.toSet());
+            return new PathPattern(
+                    rootDir, commonWatchDirWhiteList, blackList, jobConf.get(JOB_FILE_TIME_OFFSET, null));
+        }).collect(Collectors.toList());
+        updateRetryTime(jobConf, pathPatterns);
         int maxFileNum = jobConf.getInt(FILE_MAX_NUM, DEFAULT_FILE_MAX_NUM);
         LOGGER.info("dir pattern {}, max file num {}", dirPatterns, maxFileNum);
         Collection<File> allFiles = new ArrayList<>();
-        patterns.forEach(pattern -> {
+        pathPatterns.forEach(pattern -> {
             try {
                 pattern.walkAllSuitableFiles(allFiles, maxFileNum);
             } catch (IOException ex) {

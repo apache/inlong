@@ -20,7 +20,7 @@ package org.apache.inlong.agent.constant;
 /**
  * Collection type of file data
  */
-public class FileCollectType {
+public class FileTriggerType {
 
     /**
      * Increment only collect newly created files content.

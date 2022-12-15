@@ -20,6 +20,7 @@ package org.apache.inlong.agent.plugin.trigger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.inlong.agent.plugin.filter.DateFormatRegex;
+import org.apache.inlong.agent.utils.PathUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,55 +32,43 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * path pattern for file filter.
+ * Path pattern for file filter.
+ * It’s identified by watchDir, which matches {@link PathPattern#whiteList} and filters {@link PathPattern#blackList}.
  */
 public class PathPattern {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(PathPattern.class);
 
-    private final DateFormatRegex dateFormatRegex;
-
-    private final String watchDir;
     private final String rootDir;
     private final Set<String> subDirs;
+    // regex for those files should be matched
+    private final Set<DateFormatRegex> whiteList;
+    // regex for those files should be filtered
     private final Set<String> blackList;
 
-    public PathPattern(String watchDir, Set<String> blackList) {
-        this.watchDir = watchDir;
-        this.blackList = blackList;
-        rootDir = findRoot(watchDir);
-        subDirs = new HashSet<>();
-        dateFormatRegex = DateFormatRegex.ofRegex(watchDir);
+    public PathPattern(String rootDir, Set<String> whiteList, Set<String> blackList) {
+        this(rootDir, whiteList, blackList, null);
     }
 
-    public PathPattern(String watchDir, String offset, Set<String> blackList) {
-        this.watchDir = watchDir;
+    public PathPattern(String rootDir, Set<String> whiteList, Set<String> blackList, String offset) {
+        this.rootDir = rootDir;
+        this.subDirs = new HashSet<>();
         this.blackList = blackList;
-        rootDir = findRoot(watchDir);
-        subDirs = new HashSet<>();
-        dateFormatRegex = DateFormatRegex.ofRegex(watchDir).withOffset(offset);
-        updateDateFormatRegex();
-    }
-
-    /**
-     * find last existing path by pattern.
-     */
-    private String findRoot(String watchDir) {
-        Path currentPath = Paths.get(watchDir);
-        if (!Files.exists(currentPath)) {
-            Path parentPath = currentPath.getParent();
-            if (parentPath != null) {
-                return findRoot(parentPath.toString());
-            }
+        if (offset != null && StringUtils.isNotBlank(offset)) {
+            this.whiteList = whiteList.stream()
+                    .map(whiteRegex -> DateFormatRegex.ofRegex(whiteRegex).withOffset(offset))
+                    .collect(Collectors.toSet());
+            updateDateFormatRegex();
+        } else {
+            this.whiteList = whiteList.stream()
+                    .map(whiteRegex -> DateFormatRegex.ofRegex(whiteRegex))
+                    .collect(Collectors.toSet());
         }
-        if (Files.isDirectory(currentPath)) {
-            return watchDir;
-        }
-        return currentPath.getParent().toString();
     }
 
     /**
@@ -96,7 +85,10 @@ public class PathPattern {
             LOGGER.info("find blacklist path {}, ignore it.", dirPath);
             return;
         }
-        if (dirPath.isFile() && dateFormatRegex.withFile(dirPath).match()) {
+        Optional matched = whiteList.stream()
+                .filter(whiteRegex -> whiteRegex.match(dirPath))
+                .findAny();
+        if (dirPath.isFile() && matched.isPresent()) {
             collectResult.add(dirPath);
         } else if (dirPath.isDirectory()) {
             try (final Stream<Path> pathStream = Files.list(dirPath.toPath())) {
@@ -111,7 +103,6 @@ public class PathPattern {
                 LOGGER.error("exception caught", e);
             } catch (Throwable t) {
                 ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
-
             }
         }
     }
@@ -151,43 +142,49 @@ public class PathPattern {
             LOGGER.info("already watched {}", pathStr);
             return false;
         }
-        boolean matched = dateFormatRegex.withFile(new File(pathStr)).match();
-        if (matched) {
+
+        File path = new File(pathStr);
+        if (path.isDirectory()) {
             LOGGER.info("add path {}", pathStr);
             subDirs.add(briefSubDir);
+            return true;
+        } else {
+            return whiteList.stream()
+                    .filter(whiteRegex -> whiteRegex.match(path))
+                    .findAny()
+                    .isPresent();
         }
-        return matched;
     }
 
     /**
      * when a new file is found, update regex since time may change.
      */
     public void updateDateFormatRegex() {
-        dateFormatRegex.setRegexWithCurrentTime(this.watchDir);
+        whiteList.forEach(DateFormatRegex::setRegexWithCurrentTime);
     }
 
     /**
      * when job is retry job, the time for searching file should be specified.
      */
     public void updateDateFormatRegex(String time) {
-        dateFormatRegex.setRegexWithTime(this.watchDir, time);
+        whiteList.forEach(whiteRegex -> whiteRegex.setRegexWithTime(time));
     }
 
     @Override
     public String toString() {
-        return watchDir;
+        return rootDir;
     }
 
     @Override
     public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(watchDir, false);
+        return HashCodeBuilder.reflectionHashCode(rootDir, false);
     }
 
     @Override
     public boolean equals(Object object) {
         if (object instanceof PathPattern) {
             PathPattern entity = (PathPattern) object;
-            return entity.watchDir.equals(this.watchDir);
+            return entity.rootDir.equals(this.rootDir);
         } else {
             return false;
         }
@@ -198,6 +195,6 @@ public class PathPattern {
     }
 
     public String getSuitTime() {
-        return dateFormatRegex.getFormattedTime();
+        return whiteList.stream().findAny().get().getFormattedTime(); // todo:适配多regex情况下的datetime
     }
 }

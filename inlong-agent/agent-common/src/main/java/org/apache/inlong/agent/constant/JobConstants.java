@@ -57,7 +57,7 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_FILE_TIME_OFFSET = "job.fileJob.timeOffset";
     public static final String JOB_FILE_MAX_WAIT = "job.fileJob.file.max.wait";
     public static final String JOB_CYCLE_UNIT = "job.fileJob.cycleUnit";
-    public static final String JOB_FILE_COLLECT_TYPE = "job.fileJob.collectType";
+    public static final String JOB_FILE_TRIGGER_TYPE = "job.fileJob.collectType";
     public static final String JOB_FILE_LINE_END_PATTERN = "job.fileJob.line.endPattern";
     public static final String JOB_FILE_CONTENT_COLLECT_TYPE = "job.fileJob.contentCollectType";
     public static final String JOB_FILE_META_ENV_LIST = "job.fileJob.envList";

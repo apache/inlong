@@ -70,7 +70,6 @@ public class AgentUtils {
     public static final String HOUR_LOW_CASE = "h";
     public static final String MINUTE = "m";
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentUtils.class);
-    private static final AntPathMatcher MATCHER = new AntPathMatcher();
 
     /**
      * Get MD5 of file.
@@ -240,19 +239,6 @@ public class AgentUtils {
     public static String formatCurrentTimeWithoutOffset(String formatter) {
         ZonedDateTime zoned = ZonedDateTime.now().plusDays(0).plusHours(0).plusMinutes(0);
         return DateTimeFormatter.ofPattern(formatter).withLocale(Locale.getDefault()).format(zoned);
-    }
-
-    /**
-     * Whether all class of path name are matched
-     *
-     * @param pathStr path string
-     * @param patternStr regex pattern
-     * @return true if all match
-     */
-    public static boolean regexMatch(String pathStr, String patternStr) {
-        boolean result = MATCHER.match(patternStr, pathStr);
-        LOGGER.info("path: {}, pattern: {}, result: {}", pathStr, patternStr, result);
-        return result;
     }
 
     /**
