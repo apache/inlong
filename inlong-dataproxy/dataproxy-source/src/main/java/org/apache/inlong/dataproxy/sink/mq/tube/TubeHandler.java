@@ -17,12 +17,13 @@
 
 package org.apache.inlong.dataproxy.sink.mq.tube;
 
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.common.EventHandler;
+import org.apache.inlong.dataproxy.sink.common.TubeUtils;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
@@ -49,6 +50,7 @@ public class TubeHandler implements MessageQueueHandler {
 
     public static final Logger LOG = LoggerFactory.getLogger(TubeHandler.class);
     private static String MASTER_HOST_PORT_LIST = "master-host-port-list";
+    public static final String KEY_NAMESPACE = "namespace";
 
     private CacheClusterConfig config;
     private MessageQueueZoneSinkContext sinkContext;
@@ -151,6 +153,16 @@ public class TubeHandler implements MessageQueueHandler {
         LOG.info("tube handler stopped");
     }
 
+    private String getTubeTopic(IdTopicConfig idConfig) {
+        // consider first using group mq resource as tube topic, for example, group id
+        String topic = idConfig.getParams().get(KEY_NAMESPACE);
+        if (StringUtils.isBlank(topic)) {
+            // use whatever user specifies in stream mq resource
+            topic = idConfig.getTopicName();
+        }
+        return topic;
+    }
+
     /**
      * send
      */
@@ -163,7 +175,7 @@ public class TubeHandler implements MessageQueueHandler {
                 sinkContext.getDispatchQueue().release(event.getSize());
                 return false;
             }
-            String topic = idConfig.getTopicName();
+            String topic = getTubeTopic(idConfig);
             if (topic == null) {
                 sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
@@ -171,15 +183,16 @@ public class TubeHandler implements MessageQueueHandler {
             }
             // metric
             sinkContext.addSendMetric(event, topic);
+            // create producer failed
+            if (producer == null) {
+                LOG.error("producer is null");
+                sinkContext.processSendFail(event, topic, 0);
+                return false;
+            }
             // publish
             if (!this.topicSet.contains(topic)) {
                 this.producer.publish(topic);
                 this.topicSet.add(topic);
-            }
-            // create producer failed
-            if (producer == null) {
-                sinkContext.processSendFail(event, topic, 0);
-                return false;
             }
             // send
             if (event instanceof SimpleBatchPackProfileV0) {
@@ -239,19 +252,8 @@ public class TubeHandler implements MessageQueueHandler {
      */
     private void sendSimpleProfileV0(SimpleBatchPackProfileV0 event, IdTopicConfig idConfig,
             String topic) throws Exception {
-        // headers
-        Map<String, String> headers = event.getProperties();
-        if (MapUtils.isEmpty(headers)) {
-            headers = event.getSimpleProfile().getHeaders();
-        }
-        // compress
-        byte[] bodyBytes = event.getSimpleProfile().getBody();
-        // sendAsync
-        Message message = new Message(topic, bodyBytes);
-        // add headers
-        headers.forEach((key, value) -> {
-            message.setAttrKeyVal(key, value);
-        });
+        // build message
+        Message message = TubeUtils.buildMessage(topic, event.getSimpleProfile());
         // callback
         long sendTime = System.currentTimeMillis();
         MessageSentCallback callback = new MessageSentCallback() {

@@ -62,6 +62,7 @@ public class TubeClusterOperator extends AbstractClusterOperator {
         CommonBeanUtils.copyProperties(tubeRequest, targetEntity, true);
         try {
             TubeClusterDTO dto = objectMapper.convertValue(tubeRequest, TubeClusterDTO.class);
+            dto.setMasterIpPortList(request.getUrl());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
             LOGGER.info("success to set entity for tubemq cluster");
         } catch (Exception e) {
