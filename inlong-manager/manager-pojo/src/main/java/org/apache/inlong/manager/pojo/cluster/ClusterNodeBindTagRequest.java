@@ -38,7 +38,7 @@ public class ClusterNodeBindTagRequest {
     @ApiModelProperty(value = "Cluster node tag")
     private String clusterNodeTag;
 
-    @NotNull(message = "clusterName cannot be blank")
+    @NotBlank(message = "clusterName cannot be blank")
     @ApiModelProperty(value = "Cluster name")
     private String clusterName;
 
