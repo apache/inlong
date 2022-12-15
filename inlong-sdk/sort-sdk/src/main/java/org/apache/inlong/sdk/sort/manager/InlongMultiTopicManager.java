@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.sort.manager;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InlongTopicTypeEnum;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
@@ -160,6 +161,7 @@ public class InlongMultiTopicManager extends TopicManager {
         }
         this.allTopics = assignedTopics.stream()
                 .map(InLongTopic::getTopic)
+                .filter(StringUtils::isNotBlank)
                 .collect(Collectors.toSet());
 
         assignedTopics.stream()

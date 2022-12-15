@@ -17,18 +17,24 @@
 
 package org.apache.inlong.sort.base.dirty.utils;
 
+import org.apache.flink.formats.common.TimestampFormat;
+import org.apache.flink.formats.json.JsonOptions.MapNullKeyMode;
+import org.apache.flink.formats.json.RowDataToJsonConverters;
 import org.apache.flink.formats.json.RowDataToJsonConverters.RowDataToJsonConverter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.logical.LogicalType;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringJoiner;
+import static org.apache.flink.table.data.RowData.createFieldGetter;
 
 /**
  * Format utils
@@ -47,6 +53,30 @@ public final class FormatUtils {
     private static final ObjectNode reuse = MAPPER.createObjectNode();
 
     private FormatUtils() {
+    }
+
+    /**
+     * Parse FieldGetter from LogicalType
+     * @param rowType The row type
+     * @return A array of FieldGetter
+     */
+    public static RowData.FieldGetter[] parseFieldGetters(LogicalType rowType) {
+        List<LogicalType> logicalTypes = rowType.getChildren();
+        RowData.FieldGetter[] fieldGetters = new RowData.FieldGetter[logicalTypes.size()];
+        for (int i = 0; i < logicalTypes.size(); i++) {
+            fieldGetters[i] = createFieldGetter(logicalTypes.get(i), i);
+        }
+        return fieldGetters;
+    }
+
+    /**
+     * Parse RowDataToJsonConverter
+     * @param rowType The row type
+     * @return RowDataToJsonConverter
+     */
+    public static RowDataToJsonConverter parseRowDataToJsonConverter(LogicalType rowType) {
+        return new RowDataToJsonConverters(TimestampFormat.SQL, MapNullKeyMode.DROP, null)
+                .createConverter(rowType);
     }
 
     /**

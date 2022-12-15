@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -72,8 +72,12 @@ public class KafkaFederationSinkContext extends SinkContext {
             Map<String, KafkaIdConfig> newIdConfigMap = new ConcurrentHashMap<>();
             List<Map<String, String>> idList = this.sortTaskConfig.getIdParams();
             for (Map<String, String> idParam : idList) {
-                KafkaIdConfig idConfig = new KafkaIdConfig(idParam);
-                newIdConfigMap.put(idConfig.getUid(), idConfig);
+                try {
+                    KafkaIdConfig idConfig = new KafkaIdConfig(idParam);
+                    newIdConfigMap.put(idConfig.getUid(), idConfig);
+                } catch (Exception e) {
+                    LOG.error("fail to parse kafka id config", e);
+                }
             }
 
             LOG.info("reload clusterConfig");

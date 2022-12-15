@@ -17,13 +17,15 @@
  * under the License.
  */
 
+import { nodeLoader } from '@/loaders';
 import { allDefaultNodes } from './defaults';
 import { allExtendsNodes } from './extends';
+import type { NodeMetaType } from './types';
 
-export type { NodeMetaType } from './types';
+export type { NodeMetaType };
 
 export * as dao from './common/dao';
 
-export const nodes = allDefaultNodes.concat(allExtendsNodes);
+export const nodes = nodeLoader.loadPluginList<NodeMetaType>(allDefaultNodes, allExtendsNodes);
 
-export const defaultValue = nodes[0].value;
+export const defaultValue = nodeLoader.loadDefaultPlugin<NodeMetaType>(nodes);

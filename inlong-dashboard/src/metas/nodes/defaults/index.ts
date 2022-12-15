@@ -27,6 +27,11 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     LoadEntity: () => import('../common/NodeInfo').then(r => ({ default: r.NodeInfo })),
   },
   {
+    label: 'Clickhouse',
+    value: 'CLICKHOUSE',
+    LoadEntity: () => import('./ClickHouse'),
+  },
+  {
     label: 'Elasticsearch',
     value: 'ELASTICSEARCH',
     LoadEntity: () => import('./Elasticsearch'),
@@ -35,6 +40,11 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     label: 'Hive',
     value: 'HIVE',
     LoadEntity: () => import('./Hive'),
+  },
+  {
+    label: 'Iceberg',
+    value: 'ICEBERG',
+    LoadEntity: () => import('./Iceberg'),
   },
   {
     label: 'MySQL',

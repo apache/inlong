@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,7 +17,10 @@
 
 package org.apache.inlong.dataproxy.sink.mq.kafka;
 
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.sink.common.EventHandler;
@@ -45,6 +48,7 @@ import java.util.Properties;
 public class KafkaHandler implements MessageQueueHandler {
 
     public static final Logger LOG = LoggerFactory.getLogger(KafkaHandler.class);
+    public static final String KEY_NAMESPACE = "namespace";
 
     private CacheClusterConfig config;
     private MessageQueueZoneSinkContext sinkContext;
@@ -92,6 +96,7 @@ public class KafkaHandler implements MessageQueueHandler {
     public void stop() {
         // kafka producer
         this.producer.close();
+        LOG.info("kafka handler stopped");
     }
 
     /**
@@ -109,12 +114,14 @@ public class KafkaHandler implements MessageQueueHandler {
                 sinkContext.getDispatchQueue().release(event.getSize());
                 return false;
             }
-            String topic = idConfig.getTopicName();
-            if (topic == null) {
+            String baseTopic = idConfig.getTopicName();
+            if (baseTopic == null) {
                 sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 return false;
             }
+            String topic = getProducerTopic(baseTopic, idConfig);
+
             // metric
             sinkContext.addSendMetric(event, topic);
             // create producer failed
@@ -136,6 +143,17 @@ public class KafkaHandler implements MessageQueueHandler {
             sinkContext.processSendFail(event, event.getUid(), 0);
             return false;
         }
+    }
+
+    /**
+     * getProducerTopic
+     */
+    private String getProducerTopic(String baseTopic, IdTopicConfig config) {
+        String namespace = config.getParams().get(KEY_NAMESPACE);
+        if (StringUtils.isNotEmpty(namespace)) {
+            return String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT, namespace, baseTopic);
+        }
+        return baseTopic;
     }
 
     /**
@@ -187,8 +205,11 @@ public class KafkaHandler implements MessageQueueHandler {
     private void sendSimpleProfileV0(SimpleBatchPackProfileV0 event, IdTopicConfig idConfig,
             String topic) throws Exception {
         // headers
-        Map<String, String> headers = event.getSimpleProfile().getHeaders();
-        // compress
+        Map<String, String> headers = event.getProperties();
+        if (MapUtils.isEmpty(headers)) {
+            headers = event.getSimpleProfile().getHeaders();
+        }
+        // body
         byte[] bodyBytes = event.getSimpleProfile().getBody();
         // sendAsync
         long sendTime = System.currentTimeMillis();

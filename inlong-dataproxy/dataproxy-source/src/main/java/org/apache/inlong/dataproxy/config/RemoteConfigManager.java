@@ -108,18 +108,19 @@ public class RemoteConfigManager implements IRepository {
                 try {
                     String strReloadInterval = CommonPropertiesHolder.getString(KEY_CONFIG_CHECK_INTERVAL);
                     instance.reloadInterval = NumberUtils.toLong(strReloadInterval, DEFAULT_HEARTBEAT_INTERVAL_MS);
-                    //
-                    String ipListParserType = CommonPropertiesHolder.getString(IManagerIpListParser.KEY_MANAGER_TYPE);
+
+                    String ipListParserType = CommonPropertiesHolder.getString(IManagerIpListParser.KEY_MANAGER_TYPE,
+                            DefaultManagerIpListParser.class.getName());
                     Class<? extends IManagerIpListParser> ipListParserClass;
                     ipListParserClass = (Class<? extends IManagerIpListParser>) Class
                             .forName(ipListParserType);
                     instance.ipListParser = ipListParserClass.getDeclaredConstructor().newInstance();
-                    //
+
                     SecureRandom random = new SecureRandom(String.valueOf(System.currentTimeMillis()).getBytes());
                     instance.managerIpListIndex.set(random.nextInt());
-                    //
+
                     instance.httpClient = constructHttpClient();
-                    //
+
                     instance.reload();
                     instance.setReloadTimer();
                     isInit = true;

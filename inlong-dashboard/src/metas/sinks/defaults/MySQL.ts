@@ -68,18 +68,6 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      placeholder: 'jdbc:mysql://127.0.0.1:3306/write',
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('JDBC URL')
-  jdbcUrl: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
     }),
   })
   @ColumnDecorator()
@@ -120,26 +108,35 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   enableCreateResource: number;
 
   @FieldDecorator({
-    type: 'input',
+    type: 'select',
     rules: [{ required: true }],
     props: values => ({
+      showSearch: true,
       disabled: [110, 130].includes(values?.status),
+      options: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
+          url: '/node/list',
+          method: 'POST',
+          data: {
+            keyword,
+            type: 'MYSQL',
+            pageNum: 1,
+            pageSize: 20,
+          },
+        }),
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              label: item.name,
+              value: item.name,
+            })),
+        },
+      },
     }),
   })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Username')
-  username: string;
-
-  @FieldDecorator({
-    type: 'password',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Password')
-  password: string;
+  @I18n('meta.Sinks.MySQL.DataNodeName')
+  dataNodeName: string;
 
   @FieldDecorator({
     type: EditableTable,

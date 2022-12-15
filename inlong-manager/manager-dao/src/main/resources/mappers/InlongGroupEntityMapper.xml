@@ -192,6 +192,20 @@
         order by modify_time desc
         limit 100
     </select>
+    <select id="selectByTopicRequest" resultType="org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_group
+        <where>
+            is_deleted = 0
+            <if test="groupIdList != null and groupIdList.size() > 0">
+                and inlong_group_id in
+                <foreach collection="groupIdList" item="inlongGroupId" index="index" open="(" close=")" separator=",">
+                    #{inlongGroupId}
+                </foreach>
+            </if>
+        </where>
+    </select>
     <select id="selectByClusterTag" resultType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         select
         <include refid="Base_Column_List"/>

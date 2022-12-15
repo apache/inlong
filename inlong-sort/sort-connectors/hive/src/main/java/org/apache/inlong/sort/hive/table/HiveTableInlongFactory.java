@@ -34,6 +34,9 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.filesystem.FileSystemOptions;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.hive.HiveTableSink;
 
 import java.util.Collections;
@@ -106,7 +109,8 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
                     .getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue());
             final String auditHostAndPorts = context.getCatalogTable().getOptions()
                     .getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue());
-
+            final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(Configuration.fromMap(options));
+            final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
             return new HiveTableSink(
                     context.getConfiguration(),
                     new JobConf(hiveConf),
@@ -114,7 +118,9 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
                     context.getCatalogTable(),
                     configuredParallelism,
                     inlongMetric,
-                    auditHostAndPorts);
+                    auditHostAndPorts,
+                    dirtyOptions,
+                    dirtySink);
         } else {
             return FactoryUtil.createTableSink(
                     null, // we already in the factory of catalog

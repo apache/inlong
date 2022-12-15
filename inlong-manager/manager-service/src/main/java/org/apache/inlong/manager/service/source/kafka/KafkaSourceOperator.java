@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.DATA_TYPE_RAW_PREFIX;
+
 /**
  * kafka stream source operator
  */
@@ -115,6 +117,11 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
                 }
                 kafkaSource.setSerializationType(sourceInfo.getSerializationType());
             }
+
+            // CSV: InLong message type whose message body is raw CSV
+            // Raw-CSV: messages are separated by a specific separator
+            kafkaSource.setWrapWithInlongMsg(streamInfo.getDataType().startsWith(DATA_TYPE_RAW_PREFIX));
+
             kafkaSource.setAutoOffsetReset(KafkaOffset.EARLIEST.getName());
             kafkaSource.setFieldList(streamInfo.getFieldList());
             sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(kafkaSource);

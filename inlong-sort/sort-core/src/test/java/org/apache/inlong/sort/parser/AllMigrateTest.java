@@ -62,7 +62,7 @@ public class AllMigrateTest {
         return new MySqlExtractNode("1", "mysql_input", fields,
                 null, option, null,
                 tables, "localhost", "root", "inlong",
-                "test", null, null, false, null,
+                "test", null, null, true, null,
                 ExtractMode.CDC, null, null);
     }
 

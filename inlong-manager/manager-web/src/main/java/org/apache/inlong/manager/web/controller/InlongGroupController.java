@@ -32,6 +32,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.group.InlongGroupProcessService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
@@ -46,6 +47,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Inlong group control layer
@@ -93,6 +96,12 @@ public class InlongGroupController {
     @ApiOperation(value = "Get topic info")
     public Response<InlongGroupTopicInfo> getTopic(@PathVariable String groupId) {
         return Response.success(groupService.getTopic(groupId));
+    }
+
+    @PostMapping(value = "/group/listTopics")
+    @ApiOperation(value = "Get topic infos")
+    public Response<List<InlongGroupTopicInfo>> listTopics(@RequestBody InlongGroupTopicRequest request) {
+        return Response.success(groupService.listTopics(request));
     }
 
     @GetMapping(value = "/group/getBackupTopic/{groupId}")

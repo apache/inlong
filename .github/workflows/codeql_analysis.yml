@@ -22,7 +22,7 @@ on: [ push, pull_request ]
 jobs:
   analyze:
     name: Analyze by CodeQL
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       actions: read
       contents: read

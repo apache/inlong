@@ -33,7 +33,7 @@
                ext_tag,
                ext_params
         from inlong_cluster
-        where type in ('PULSAR', 'KAFKA', 'TUBE')
+        where type in ('PULSAR', 'KAFKA', 'TUBEMQ')
           and is_deleted = '0'
     </select>
     <select id="selectInlongGroupId" resultType="org.apache.inlong.manager.pojo.dataproxy.InlongGroupId">

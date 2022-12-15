@@ -28,7 +28,6 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
-import org.apache.inlong.manager.pojo.sink.dlciceberg.DLCIcebergSink;
 import org.apache.inlong.manager.pojo.sink.doris.DorisSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSink;
@@ -36,16 +35,19 @@ import org.apache.inlong.manager.pojo.sink.hbase.HBaseSink;
 import org.apache.inlong.manager.pojo.sink.hdfs.HDFSSink;
 import org.apache.inlong.manager.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.pojo.sink.hudi.HudiSink;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSink;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerSink;
+import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksSink;
 import org.apache.inlong.manager.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.StringTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.HudiConstant;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
@@ -56,19 +58,20 @@ import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
-import org.apache.inlong.sort.protocol.node.load.DLCIcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.DorisLoadNode;
 import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.GreenplumLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
+import org.apache.inlong.sort.protocol.node.load.HudiLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
+import org.apache.inlong.sort.protocol.node.load.StarRocksLoadNode;
 import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -122,6 +125,8 @@ public class LoadNodeUtils {
                 return createLoadNode((ClickHouseSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.ICEBERG:
                 return createLoadNode((IcebergSink) streamSink, fieldInfos, fieldRelations, properties);
+            case SinkType.HUDI:
+                return createLoadNode((HudiSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.SQLSERVER:
                 return createLoadNode((SQLServerSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.ELASTICSEARCH:
@@ -136,10 +141,10 @@ public class LoadNodeUtils {
                 return createLoadNode((OracleSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.TDSQLPOSTGRESQL:
                 return createLoadNode((TDSQLPostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
-            case SinkType.DLCICEBERG:
-                return createLoadNode((DLCIcebergSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.DORIS:
                 return createLoadNode((DorisSink) streamSink, fieldInfos, fieldRelations, properties);
+            case SinkType.STARROCKS:
+                return createLoadNode((StarRocksSink) streamSink, fieldInfos, fieldRelations, properties);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -332,6 +337,50 @@ public class LoadNodeUtils {
     }
 
     /**
+     * Create load node of StarRocks.
+     */
+    public static StarRocksLoadNode createLoadNode(StarRocksSink starRocksSink, List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+        Format format = null;
+        if (starRocksSink.getSinkMultipleEnable() != null && starRocksSink.getSinkMultipleEnable()
+                && StringUtils.isNotBlank(
+                        starRocksSink.getSinkMultipleFormat())) {
+            DataTypeEnum dataType = DataTypeEnum.forType(starRocksSink.getSinkMultipleFormat());
+            switch (dataType) {
+                case CANAL:
+                    format = new CanalJsonFormat();
+                    break;
+                case DEBEZIUM_JSON:
+                    format = new DebeziumJsonFormat();
+                    break;
+                default:
+                    throw new IllegalArgumentException(
+                            String.format("Unsupported dataType=%s for StarRocks", dataType));
+            }
+        }
+        return new StarRocksLoadNode(
+                starRocksSink.getSinkName(),
+                starRocksSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                starRocksSink.getJdbcUrl(),
+                starRocksSink.getLoadUrl(),
+                starRocksSink.getUsername(),
+                starRocksSink.getPassword(),
+                starRocksSink.getDatabaseName(),
+                starRocksSink.getTableName(),
+                starRocksSink.getPrimaryKey(),
+                starRocksSink.getSinkMultipleEnable(),
+                format,
+                starRocksSink.getDatabasePattern(),
+                starRocksSink.getTablePattern());
+    }
+
+    /**
      * Create load node of Iceberg.
      */
     public static IcebergLoadNode createLoadNode(IcebergSink icebergSink, List<FieldInfo> fieldInfos,
@@ -352,6 +401,39 @@ public class LoadNodeUtils {
                 catalogType,
                 icebergSink.getCatalogUri(),
                 icebergSink.getWarehouse());
+    }
+
+    /**
+     * Create load node of Hudi.
+     */
+    public static HudiLoadNode createLoadNode(HudiSink hudiSink, List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+        HudiConstant.CatalogType catalogType = HudiConstant.CatalogType.forName(hudiSink.getCatalogType());
+        List<FieldInfo> partitionFields = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(hudiSink.getPartitionFieldList())) {
+            partitionFields = hudiSink.getPartitionFieldList().stream()
+                    .map(partitionField -> new FieldInfo(partitionField.getFieldName(), hudiSink.getSinkName(),
+                            FieldInfoUtils.convertFieldFormat(partitionField.getFieldType(),
+                                    partitionField.getFieldFormat())))
+                    .collect(Collectors.toList());
+        }
+        return new HudiLoadNode(
+                hudiSink.getSinkName(),
+                hudiSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                hudiSink.getDbName(),
+                hudiSink.getTableName(),
+                hudiSink.getPrimaryKey(),
+                catalogType,
+                hudiSink.getCatalogUri(),
+                hudiSink.getWarehouse(),
+                hudiSink.getExtList(),
+                partitionFields);
     }
 
     /**
@@ -381,6 +463,8 @@ public class LoadNodeUtils {
      */
     public static ElasticsearchLoadNode createLoadNode(ElasticsearchSink elasticsearchSink,
             List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations, Map<String, String> properties) {
+        String host = elasticsearchSink.getHost();
+        Integer port = elasticsearchSink.getPort();
         return new ElasticsearchLoadNode(
                 elasticsearchSink.getSinkName(),
                 elasticsearchSink.getSinkName(),
@@ -391,7 +475,7 @@ public class LoadNodeUtils {
                 null,
                 properties,
                 elasticsearchSink.getIndexName(),
-                elasticsearchSink.getHost(),
+                String.format("http://%s:%d", host, port),
                 elasticsearchSink.getUsername(),
                 elasticsearchSink.getPassword(),
                 elasticsearchSink.getDocumentType(),
@@ -509,27 +593,6 @@ public class LoadNodeUtils {
                 tdsqlPostgreSQLSink.getPassword(),
                 tdsqlPostgreSQLSink.getSchemaName() + "." + tdsqlPostgreSQLSink.getTableName(),
                 tdsqlPostgreSQLSink.getPrimaryKey());
-    }
-
-    /**
-     * Create load node of DLCIceberg.
-     */
-    public static DLCIcebergLoadNode createLoadNode(DLCIcebergSink dlcIcebergSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
-        return new DLCIcebergLoadNode(
-                dlcIcebergSink.getSinkName(),
-                dlcIcebergSink.getSinkName(),
-                fieldInfos,
-                fieldRelations,
-                null,
-                null,
-                null,
-                properties,
-                dlcIcebergSink.getDbName(),
-                dlcIcebergSink.getTableName(),
-                dlcIcebergSink.getPrimaryKey(),
-                dlcIcebergSink.getCatalogUri(),
-                dlcIcebergSink.getWarehouse());
     }
 
     /**
