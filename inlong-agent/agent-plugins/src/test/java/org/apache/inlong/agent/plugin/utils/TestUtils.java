@@ -46,7 +46,7 @@ public class TestUtils {
                 + "      \"trigger\": \"org.apache.inlong.agent.plugin.trigger.DirectoryTrigger\",\n"
                 + "      \"dir\": {\n"
                 + "        \"path\": \"\",\n"
-                + "        \"pattern\": \"/AgentBaseTestsHelper/"
+                + "        \"patterns\": \"/AgentBaseTestsHelper/"
                 + "org.apache.tubemq.inlong.plugin.fetcher.TestTdmFetcher/test[0-9].dat\"\n"
                 + "      },\n"
                 + "      \"thread\" : {\n"

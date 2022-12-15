@@ -44,9 +44,10 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 
 /**
  * Watch directory, if new valid files are created, create jobs correspondingly.
@@ -131,7 +132,7 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
                 JobProfile copiedJobProfile = PluginUtils.copyJobProfile(profile,
                         entity.getSuitTime(), path.toFile());
                 LOGGER.info("trigger {} generate job profile to read file {}",
-                        getTriggerProfile().getTriggerId(), path.toString());
+                        getTriggerProfile().getTriggerId(), path);
                 queue.offer(copiedJobProfile);
             }
         }
@@ -226,17 +227,21 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
     /**
      * register pathPattern into watchers
      */
-    public void register(String pathPattern) throws IOException {
-        PathPattern entity = new PathPattern(pathPattern);
-        innerRegister(pathPattern, entity);
+    public void register(List<String> pathPatterns) throws IOException {
+        for (String pathPattern : pathPatterns) {
+            PathPattern entity = new PathPattern(pathPattern);
+            innerRegister(pathPattern, entity);
+        }
     }
 
     /**
      * register pathPattern into watchers, with offset
      */
-    public void register(String pathPattern, String offset) throws IOException {
-        PathPattern entity = new PathPattern(pathPattern, offset);
-        innerRegister(pathPattern, entity);
+    public void register(List<String> pathPatterns, String offset) throws IOException {
+        for (String pathPattern : pathPatterns) {
+            PathPattern entity = new PathPattern(pathPattern, offset);
+            innerRegister(pathPattern, entity);
+        }
     }
 
     private void innerRegister(String pathPattern, PathPattern entity) throws IOException {
@@ -274,13 +279,14 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         interval = profile.getInt(
                 AgentConstants.TRIGGER_CHECK_INTERVAL, AgentConstants.DEFAULT_TRIGGER_CHECK_INTERVAL);
         this.profile = profile;
-        if (this.profile.hasKey(JOB_DIR_FILTER_PATTERN)) {
-            String pathPattern = this.profile.get(JOB_DIR_FILTER_PATTERN);
+        if (this.profile.hasKey(JOB_DIR_FILTER_PATTERNS)) {
+            List<String> pathPatterns = Stream.of(
+                    this.profile.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toList());
             String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");
             if (timeOffset.isEmpty()) {
-                register(pathPattern);
+                register(pathPatterns);
             } else {
-                register(pathPattern, timeOffset);
+                register(pathPatterns, timeOffset);
             }
         }
     }
@@ -293,4 +299,20 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
             throw new IllegalStateException(exception);
         }
     }
+
+    public static void main(String[] args) throws Exception {
+        initWatchService();
+        Path rootPath = Paths.get("D:/tmp/test");
+        WatchKey watchKey = rootPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+
+        while (true) {
+            Thread.sleep(1000L);
+            List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
+            if (!watchEvents.isEmpty()) {
+                System.out.println(watchEvents);
+            }
+        }
+
+    }
+
 }

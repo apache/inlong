@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.file.Files;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -240,6 +241,7 @@ public class AgentUtils {
         if (patternStr.contains(HIDDEN_DIR)) {
             return matchHiddenDir(pathStr, patternStr);
         }
+
 
         boolean result = true;
         String[] pathNames = StringUtils.split(pathStr, File.separator);

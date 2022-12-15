@@ -42,6 +42,8 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_COLON;
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NIX_OS;
@@ -49,7 +51,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NUX_OS;
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_OS_NAME;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FILE_MAX_NUM;
 import static org.apache.inlong.agent.constant.CommonConstants.FILE_MAX_NUM;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
 import static org.apache.inlong.agent.constant.KubernetesConstants.HTTPS;
@@ -87,31 +89,35 @@ public class PluginUtils {
      * scan and return files based on job dir conf
      */
     public static Collection<File> findSuitFiles(JobProfile jobConf) {
-        String dirPattern = jobConf.get(JOB_DIR_FILTER_PATTERN);
-        LOGGER.info("start to find files with dir pattern {}", dirPattern);
-        PathPattern pattern =
-                jobConf.hasKey(JOB_FILE_TIME_OFFSET) ? new PathPattern(dirPattern, jobConf.get(JOB_FILE_TIME_OFFSET))
-                        : new PathPattern(dirPattern);
-        updateRetryTime(jobConf, pattern);
+        List<String> dirPatterns = Stream.of(jobConf.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toList());
+        LOGGER.info("start to find files with dir pattern {}", dirPatterns);
+        List<PathPattern> patterns = dirPatterns.stream().map(dirPattern ->
+            jobConf.hasKey(JOB_FILE_TIME_OFFSET) ? new PathPattern(dirPattern, jobConf.get(JOB_FILE_TIME_OFFSET))
+                    : new PathPattern(dirPattern)
+        ).collect(Collectors.toList());
+
+        updateRetryTime(jobConf, patterns);
         int maxFileNum = jobConf.getInt(FILE_MAX_NUM, DEFAULT_FILE_MAX_NUM);
-        LOGGER.info("dir pattern {}, max file num {}", dirPattern, maxFileNum);
+        LOGGER.info("dir pattern {}, max file num {}", dirPatterns, maxFileNum);
         Collection<File> allFiles = new ArrayList<>();
-        try {
-            pattern.walkAllSuitableFiles(allFiles, maxFileNum);
-        } catch (IOException ex) {
-            LOGGER.warn("cannot get all files from {}", dirPattern, ex);
-        }
+        patterns.forEach(pattern -> {
+            try {
+                pattern.walkAllSuitableFiles(allFiles, maxFileNum);
+            } catch (IOException ex) {
+                LOGGER.warn("cannot get all files from {}", pattern, ex);
+            }
+        });
         return allFiles;
     }
 
     /**
      * if the job is retry job, the date is determined
      */
-    public static void updateRetryTime(JobProfile jobConf, PathPattern pattern) {
+    public static void updateRetryTime(JobProfile jobConf, List<PathPattern> patterns) {
         if (jobConf.hasKey(JOB_RETRY_TIME)) {
             LOGGER.info("job {} is retry job with specific time, update file time to {}"
                     + "", jobConf.toJsonStr(), jobConf.get(JOB_RETRY_TIME));
-            pattern.updateDateFormatRegex(jobConf.get(JOB_RETRY_TIME));
+            patterns.forEach(pattern -> pattern.updateDateFormatRegex(jobConf.get(JOB_RETRY_TIME)));
         }
     }
 
@@ -123,7 +129,7 @@ public class PluginUtils {
         JobProfile copiedProfile = TriggerProfile.parseJsonStr(triggerProfile.toJsonStr());
         String md5 = AgentUtils.getFileMd5(pendingFile);
         copiedProfile.set(pendingFile.getAbsolutePath() + ".md5", md5);
-        copiedProfile.set(JobConstants.JOB_DIR_FILTER_PATTERN, pendingFile.getAbsolutePath());
+        copiedProfile.set(JobConstants.JOB_DIR_FILTER_PATTERNS, pendingFile.getAbsolutePath());
         // the time suit for file name is just the data time
         copiedProfile.set(JobConstants.JOB_DATA_TIME, dataTime);
         return copiedProfile;

@@ -63,7 +63,7 @@ public class TriggerProfileDb {
         if (trigger.allRequiredKeyExist()) {
             String keyName = CommonConstants.TRIGGER_ID_PREFIX + trigger.get(JobConstants.JOB_ID);
             KeyValueEntity entity = new KeyValueEntity(keyName,
-                    trigger.toJsonStr(), trigger.get(JobConstants.JOB_DIR_FILTER_PATTERN));
+                    trigger.toJsonStr(), trigger.get(JobConstants.JOB_DIR_FILTER_PATTERNS));
             KeyValueEntity oldEntity = db.put(entity);
             if (oldEntity != null) {
                 LOGGER.warn("trigger profile {} has been replaced", oldEntity.getKey());

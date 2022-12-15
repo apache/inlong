@@ -96,7 +96,6 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     componentHeartbeat.getComponentType());
             return;
         }
-
         // if the heartbeat was not in the cache, insert or update the node by the heartbeat info
         HeartbeatMsg lastHeartbeat = heartbeatCache.getIfPresent(componentHeartbeat);
 

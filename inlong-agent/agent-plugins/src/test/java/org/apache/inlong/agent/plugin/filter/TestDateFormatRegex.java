@@ -36,7 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
@@ -85,7 +85,7 @@ public class TestDateFormatRegex {
         Paths.get(testPath.toString(), currentDate + "_0").toFile().createNewFile();
         TextFileSource source = new TextFileSource();
         JobProfile profile = new JobProfile();
-        profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testPath.toString(), "YYYYMMDD_0").toString());
+        profile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testPath.toString(), "YYYYMMDD_0").toString());
         profile.set(JOB_INSTANCE_ID, "test");
         profile.set(JOB_GROUP_ID, "groupId");
         profile.set(JOB_STREAM_ID, "streamId");

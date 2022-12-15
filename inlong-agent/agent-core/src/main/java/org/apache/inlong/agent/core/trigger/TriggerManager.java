@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
 import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
 import static org.apache.inlong.agent.constant.JobConstants.TRIGGER_ONLY_ONE_JOB;
 
@@ -180,7 +180,7 @@ public class TriggerManager extends AbstractDaemon {
                 return true;
             }
             for (Task task : tasks) {
-                if (task.getJobConf().hasKey(profile.get(JOB_DIR_FILTER_PATTERN))) {
+                if (task.getJobConf().hasKey(profile.get(JOB_DIR_FILTER_PATTERNS))) {
                     return false;
                 }
             }
@@ -278,7 +278,7 @@ public class TriggerManager extends AbstractDaemon {
             return true;
         }
         LOGGER.warn("cannot find trigger {}", triggerId);
-        return false;
+        return true;  // todo:这里就算找不到也可以认为是删除成功了，反正你给我的triggerId我这里没有的，保证最终一致性
     }
 
     /**

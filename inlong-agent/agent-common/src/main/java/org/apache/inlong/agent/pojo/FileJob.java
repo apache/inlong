@@ -64,7 +64,9 @@ public class FileJob {
     @Data
     public static class Dir {
 
-        private String pattern;
+        private String patterns;
+
+        private String blackLists;
     }
 
     @Data
@@ -89,6 +91,8 @@ public class FileJob {
     public static class FileJobTaskConfig {
 
         private String pattern;
+
+        private String blackLists;
         // '1m' means one minute after, '-1m' means one minute before
         // '1h' means one hour after, '-1h' means one hour before
         // '1d' means one day after, '-1d' means one day before

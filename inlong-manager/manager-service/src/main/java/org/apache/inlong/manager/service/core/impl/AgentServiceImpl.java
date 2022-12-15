@@ -42,11 +42,13 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
+import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
@@ -70,7 +72,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Agent service layer implementation
@@ -108,6 +113,8 @@ public class AgentServiceImpl implements AgentService {
     private InlongStreamEntityMapper streamMapper;
     @Autowired
     private InlongClusterEntityMapper clusterMapper;
+    @Autowired
+    private InlongClusterNodeEntityMapper clusterNodeMapper;
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
@@ -185,16 +192,49 @@ public class AgentServiceImpl implements AgentService {
         }
 
         List<DataConfig> tasks = Lists.newArrayList();
-        // Query the tasks that needed to add or active - without agentIp and uuid
-        tasks.addAll(fetchNonFileTasks(request));
-        // Query file collecting tasks
-        tasks.addAll(fetchFileTasks(request));
-        // Query other tasks by agentIp and uuid
-        tasks.addAll(fetchNeedIssuedTasks(request));
+        tasks.addAll(fetchNormalTasks(request));
+        tasks.addAll(fetchQueuedTasks(request));
 
         // Query pending special commands
         List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
         return TaskResult.builder().dataConfigs(tasks).cmdConfigs(cmdConfigs).build();
+    }
+
+    /**
+     * Query the tasks that source is need to add or active.
+     *
+     * @param request
+     * @return
+     */
+    private List<DataConfig> fetchNormalTasks(TaskRequest request) {
+        List<DataConfig> tasks = Lists.newArrayList();
+        // Query the tasks for non file collecting tasks
+        tasks.addAll(fetchNonFileTasks(request));
+        // Query the tasks for file collecting tasks
+        tasks.addAll(fetchFileTasks(request));
+        return tasks;
+    }
+
+    /**
+     * Query the tasks that source is waited to be operated.(Status in {@link NEED_ISSUED_STATUS})
+     *
+     * @param request
+     * @return
+     */
+    private List<DataConfig> fetchQueuedTasks(TaskRequest request) {
+        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndCluster(NEED_ISSUED_STATUS,
+                request.getClusterName(), request.getAgentIp(), request.getUuid());
+        List<DataConfig> issuedTasks = Lists.newArrayList();
+        for (StreamSourceEntity issuedTask : sourceEntities) {
+            int op = getOp(issuedTask.getStatus());
+            int nextStatus = getNextStatus(issuedTask.getStatus());
+            issuedTask.setStatus(nextStatus);
+            if (sourceMapper.updateByPrimaryKeySelective(issuedTask) == 1) {
+                issuedTask.setVersion(issuedTask.getVersion() + 1);
+                issuedTasks.add(getDataConfig(issuedTask, op));
+            }
+        }
+        return issuedTasks;
     }
 
     private List<DataConfig> fetchNonFileTasks(TaskRequest taskRequest) {
@@ -238,11 +278,26 @@ public class AgentServiceImpl implements AgentService {
         final String agentClusterName = taskRequest.getClusterName();
         Preconditions.checkTrue(StringUtils.isNotBlank(agentIp) || StringUtils.isNotBlank(agentClusterName),
                 "both agent ip and cluster name are blank when fetching file task");
+        // 这里寻找匹配agentClusterName的cluster下属node并且agentIp匹配上的tags的任务
+        // todo:优化下这里的逻辑,这里的逻辑有点乱
+        InlongClusterEntity clusterEntity = clusterMapper.selectByNameAndType(agentClusterName, ClusterType.AGENT);
+        List<DataConfig> fileTasks = Lists.newArrayList();
+        if (clusterEntity == null) {
+            LOGGER.error("could not find cluster: " + agentClusterName);
+            return fileTasks;
+        }
+
+        ClusterPageRequest nodeRequest = new ClusterPageRequest();
+        nodeRequest.setKeyword(agentIp);
+        nodeRequest.setParentId(clusterEntity.getId());
+        nodeRequest.setType(ClusterType.AGENT);
+        InlongClusterNodeEntity clusterNodeEntity =
+                clusterNodeMapper.selectByCondition(nodeRequest).stream().findFirst().orElse(null);
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpOrCluster(needAddStatusList,
                 Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName);
-        List<DataConfig> fileTasks = Lists.newArrayList();
+
         for (StreamSourceEntity sourceEntity : sourceEntities) {
-            DataConfig taskConfig = getFileTaskFromEntity(taskRequest, sourceEntity);
+            DataConfig taskConfig = getFileTaskFromEntity(taskRequest, sourceEntity, clusterNodeEntity);
             if (taskConfig == null) {
                 continue;
             }
@@ -254,7 +309,8 @@ public class AgentServiceImpl implements AgentService {
         return fileTasks;
     }
 
-    private DataConfig getFileTaskFromEntity(TaskRequest taskRequest, StreamSourceEntity sourceEntity) {
+    private DataConfig getFileTaskFromEntity(
+            TaskRequest taskRequest, StreamSourceEntity sourceEntity, InlongClusterNodeEntity clusterNodeEntity) {
         final String agentIp = taskRequest.getAgentIp();
         final String uuid = taskRequest.getUuid();
 
@@ -279,46 +335,39 @@ public class AgentServiceImpl implements AgentService {
         if (isTemplateTask) {
             // is the task already fetched by this agent ?
             List<StreamSourceEntity> subSources = sourceMapper.selectByTemplateId(sourceEntity.getId());
-            if (subSources.stream().anyMatch(subSource -> subSource.getAgentIp().equals(agentIp))) {
-                return null;
+            // 某个模板的子任务中是否有该节点的任务，若没有，判断tag是否匹配匹配了则应该让它有；若有，则判断tag是否匹配不匹配则应该让他没有
+            Optional<StreamSourceEntity> optionalSource =  subSources.stream()
+                    .filter(subSource -> subSource.getAgentIp().equals(agentIp))
+                    .findAny();
+            if (optionalSource.isPresent() && !matchTag(optionalSource.get(), clusterNodeEntity)) {
+                StreamSourceEntity fileEntity = optionalSource.get();
+                if (!fileEntity.getStatus().equals(SourceStatus.SOURCE_DISABLE)) { // 如果不是最终态，则一直下发删除直到成为转变成为SOURCE_DISABLE状态
+                    fileEntity.setStatus(SourceStatus.TO_BE_ISSUED_DELETE.getCode());
+                    sourceMapper.updateByPrimaryKey(fileEntity);
+                }
+            } else if (!optionalSource.isPresent() && matchTag(sourceEntity, clusterNodeEntity)) {
+                // if not, clone a subtask for this Agent.
+                // note: a new source name with random suffix is generated to adhere to the unique constraint
+                StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
+                fileEntity.setExtParams(sourceEntity.getExtParams());
+                fileEntity.setInlongClusterNodeTag(sourceEntity.getInlongClusterNodeTag());
+                fileEntity.setAgentIp(agentIp);
+                fileEntity.setUuid(uuid);
+                fileEntity.setSourceName(fileEntity.getSourceName() + "-"
+                        + RandomStringUtils.randomAlphanumeric(10).toLowerCase(Locale.ROOT));
+                fileEntity.setTemplateId(sourceEntity.getId());
+                int nextStatus = getNextStatus(fileEntity.getStatus());
+                fileEntity.setStatus(nextStatus);
+
+                // create new sub source task
+                sourceMapper.insert(fileEntity);
+
+                // select again to refresh entity version and others.
+                return getDataConfig(sourceMapper.selectById(fileEntity.getId()), getOp(fileEntity.getStatus()));
             }
-
-            // if not, clone a subtask for this Agent.
-            // note: a new source name with random suffix is generated to adhere to the unique constraint
-            StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
-            fileEntity.setExtParams(sourceEntity.getExtParams());
-            fileEntity.setAgentIp(agentIp);
-            fileEntity.setUuid(uuid);
-            fileEntity.setSourceName(fileEntity.getSourceName() + "-"
-                    + RandomStringUtils.randomAlphanumeric(10).toLowerCase(Locale.ROOT));
-            fileEntity.setTemplateId(sourceEntity.getId());
-            int nextStatus = getNextStatus(fileEntity.getStatus());
-            fileEntity.setStatus(nextStatus);
-
-            // create new sub source task
-            sourceMapper.insert(fileEntity);
-
-            // select again to refresh entity version and others.
-            return getDataConfig(sourceMapper.selectById(fileEntity.getId()), getOp(fileEntity.getStatus()));
         }
 
         return null;
-    }
-
-    private List<DataConfig> fetchNeedIssuedTasks(TaskRequest taskRequest) {
-        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndCluster(NEED_ISSUED_STATUS,
-                taskRequest.getClusterName(), taskRequest.getAgentIp(), taskRequest.getUuid());
-        List<DataConfig> issuedTasks = Lists.newArrayList();
-        for (StreamSourceEntity issuedTask : sourceEntities) {
-            int op = getOp(issuedTask.getStatus());
-            int nextStatus = getNextStatus(issuedTask.getStatus());
-            issuedTask.setStatus(nextStatus);
-            if (sourceMapper.updateByPrimaryKeySelective(issuedTask) == 1) {
-                issuedTask.setVersion(issuedTask.getVersion() + 1);
-                issuedTasks.add(getDataConfig(issuedTask, op));
-            }
-        }
-        return issuedTasks;
     }
 
     private int getOp(int status) {
@@ -441,6 +490,7 @@ public class AgentServiceImpl implements AgentService {
         return taskType.getType();
     }
 
+    // todo:删除
     /**
      * Get the agent command config by the agent ip.
      *
@@ -456,6 +506,20 @@ public class AgentServiceImpl implements AgentService {
             cmdConfig.setTaskId(cmd.getTaskId());
             return cmdConfig;
         }).collect(Collectors.toList());
+    }
+
+    private boolean matchTag(StreamSourceEntity sourceEntity, InlongClusterNodeEntity clusterNodeEntity) {
+        Preconditions.checkNotNull(sourceEntity, "cluster must be valid");
+        if (sourceEntity.getInlongClusterNodeTag() == null) {
+            return true;
+        }
+        if (clusterNodeEntity == null) {
+            return false;
+        }
+
+        Set<String> tags = Stream.of(
+                clusterNodeEntity.getNodeTags().split(InlongConstants.COMMA)).collect(Collectors.toSet());
+        return tags.contains(sourceEntity.getInlongClusterNodeTag());
     }
 
 }

@@ -51,7 +51,7 @@ import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
@@ -107,7 +107,7 @@ public class TestTextFileReader {
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
-        jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
+        jobConfiguration.set(JOB_DIR_FILTER_PATTERNS, Paths.get(mainPath,
                 "[2].txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
@@ -138,7 +138,7 @@ public class TestTextFileReader {
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
-        jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
+        jobConfiguration.set(JOB_DIR_FILTER_PATTERNS, Paths.get(mainPath,
                 "[1].txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
@@ -172,7 +172,7 @@ public class TestTextFileReader {
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
-        jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
+        jobConfiguration.set(JOB_DIR_FILTER_PATTERNS, Paths.get(mainPath,
                 "[1].txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");

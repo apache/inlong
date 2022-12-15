@@ -303,6 +303,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             }
         }
 
+        // todo:删除这段逻辑，cmd这张表没用了
         for (CmdConfig cmdConfig : taskResult.getCmdConfigs()) {
             dealWithTdmCmd(cmdConfig);
         }
