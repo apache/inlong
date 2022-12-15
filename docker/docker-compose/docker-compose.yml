@@ -14,12 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-version: '2.3'
+version: '2.4'
 
 services:
   mysql:
     image: mysql:8.0.28
     container_name: mysql
+    platform: "linux/x86_64"
     ports:
       - "3306:3306"
     environment:

@@ -19,6 +19,7 @@
 package org.apache.inlong.sdk.dataproxy;
 
 import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.common.util.MessageUtils;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
@@ -281,7 +282,7 @@ public class DefaultMessageSender implements MessageSender {
         if (isProxySend) {
             extraAttrMap.put(AttributeConstants.MESSAGE_PROXY_SEND, "true");
         }
-        StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
+        StringBuilder attrs = MessageUtils.convertAttrToStr(extraAttrMap);
 
         boolean isCompressEnd = (isCompress && (body.length > cpsSize));
 
@@ -393,7 +394,7 @@ public class DefaultMessageSender implements MessageSender {
         if (isProxySend) {
             extraAttrMap.put(AttributeConstants.MESSAGE_PROXY_SEND, "true");
         }
-        StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
+        StringBuilder attrs = MessageUtils.convertAttrToStr(extraAttrMap);
 
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(bodyList, msgtype, isCompress, isReport,
@@ -516,7 +517,7 @@ public class DefaultMessageSender implements MessageSender {
         if (isProxySend) {
             extraAttrMap.put(AttributeConstants.MESSAGE_PROXY_SEND, "true");
         }
-        StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
+        StringBuilder attrs = MessageUtils.convertAttrToStr(extraAttrMap);
 
         boolean isCompressEnd = (isCompress && (body.length > cpsSize));
         if (msgtype == 7 || msgtype == 8) {
@@ -633,7 +634,7 @@ public class DefaultMessageSender implements MessageSender {
         if (isProxySend) {
             extraAttrMap.put(AttributeConstants.MESSAGE_PROXY_SEND, "true");
         }
-        StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
+        StringBuilder attrs = MessageUtils.convertAttrToStr(extraAttrMap);
 
         if (msgtype == 7 || msgtype == 8) {
             // if (!isGroupIdTransfer)
@@ -746,7 +747,7 @@ public class DefaultMessageSender implements MessageSender {
         }
         addIndexCnt(groupId, streamId, bodyList.size());
 
-        StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
+        StringBuilder attrs = MessageUtils.convertAttrToStr(extraAttrMap);
 
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(bodyList, msgtype,
@@ -796,7 +797,7 @@ public class DefaultMessageSender implements MessageSender {
         }
         addIndexCnt(groupId, streamId, bodyList.size());
 
-        StringBuilder attrs = ProxyUtils.convertAttrToStr(extraAttrMap);
+        StringBuilder attrs = MessageUtils.convertAttrToStr(extraAttrMap);
 
         if (msgtype == 7 || msgtype == 8) {
             EncodeObject encodeObject = new EncodeObject(bodyList, msgtype, isCompress,

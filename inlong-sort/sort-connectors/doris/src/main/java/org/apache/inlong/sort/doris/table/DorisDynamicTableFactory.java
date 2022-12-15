@@ -35,6 +35,9 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.utils.TableSchemaUtils;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 
 import java.time.Duration;
@@ -51,6 +54,7 @@ import static org.apache.doris.flink.cfg.ConfigurationOptions.DORIS_REQUEST_QUER
 import static org.apache.doris.flink.cfg.ConfigurationOptions.DORIS_REQUEST_READ_TIMEOUT_MS_DEFAULT;
 import static org.apache.doris.flink.cfg.ConfigurationOptions.DORIS_REQUEST_RETRIES_DEFAULT;
 import static org.apache.doris.flink.cfg.ConfigurationOptions.DORIS_TABLET_SIZE_DEFAULT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
@@ -287,7 +291,7 @@ public final class DorisDynamicTableFactory implements DynamicTableSourceFactory
     public DynamicTableSink createDynamicTableSink(Context context) {
         final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         // validate all options
-        helper.validateExcept(STREAM_LOAD_PROP_PREFIX);
+        helper.validateExcept(STREAM_LOAD_PROP_PREFIX, DIRTY_PREFIX);
 
         Properties streamLoadProp = getStreamLoadProp(context.getCatalogTable().getOptions());
         TableSchema physicalSchema = TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
@@ -301,13 +305,17 @@ public final class DorisDynamicTableFactory implements DynamicTableSourceFactory
         String inlongMetric = helper.getOptions().getOptional(INLONG_METRIC).orElse(INLONG_METRIC.defaultValue());
         String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(INLONG_AUDIT.defaultValue());
         Integer parallelism = helper.getOptions().getOptional(FactoryUtil.SINK_PARALLELISM).orElse(1);
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         // create and return dynamic table sink
         return new DorisDynamicTableSink(
                 getDorisOptions(helper.getOptions()),
                 getDorisReadOptions(helper.getOptions()),
                 getDorisExecutionOptions(helper.getOptions(), streamLoadProp),
                 physicalSchema, multipleSink, sinkMultipleFormat, databasePattern,
-                tablePattern, ignoreSingleTableErrors, inlongMetric, auditHostAndPorts, parallelism);
+                tablePattern, ignoreSingleTableErrors, inlongMetric, auditHostAndPorts, parallelism,
+                dirtyOptions, dirtySink);
     }
 
     private void validateSinkMultiple(DataType physicalDataType, boolean multipleSink, String sinkMultipleFormat,

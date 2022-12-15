@@ -383,7 +383,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                     String fullTopic = tenant.concat("/").concat(namespace).concat("/").concat(topic);
                     return Topic.builder()
                             .topic(fullTopic)
-                            .topicProperties(streamInfo.getExtParamsMap())
+                            .topicProperties(sink.getExtParamsMap())
                             .build();
                 })
                 .collect(Collectors.toList());
