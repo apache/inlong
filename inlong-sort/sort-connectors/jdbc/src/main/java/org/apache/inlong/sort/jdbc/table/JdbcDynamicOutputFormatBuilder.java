@@ -38,7 +38,9 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.jdbc.internal.JdbcBatchingOutputFormat;
+import org.apache.inlong.sort.jdbc.internal.JdbcMultiBatchingOutputFormat;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -66,6 +68,11 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
     private DataType[] fieldDataTypes;
     private String inlongMetric;
     private String auditHostAndPorts;
+    private String sinkMultipleFormat;
+    private String databasePattern;
+    private String tablePattern;
+    private String schemaPattern;
+    private SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy;
 
     public JdbcDynamicOutputFormatBuilder() {
 
@@ -241,6 +248,32 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
         return this;
     }
 
+    public JdbcDynamicOutputFormatBuilder setSinkMultipleFormat(String sinkMultipleFormat) {
+        this.sinkMultipleFormat = sinkMultipleFormat;
+        return this;
+    }
+
+    public JdbcDynamicOutputFormatBuilder setDatabasePattern(String databasePattern) {
+        this.databasePattern = databasePattern;
+        return this;
+    }
+
+    public JdbcDynamicOutputFormatBuilder setTablePattern(String tablePattern) {
+        this.tablePattern = tablePattern;
+        return this;
+    }
+
+    public JdbcDynamicOutputFormatBuilder setSchemaPattern(String schemaPattern) {
+        this.schemaPattern = schemaPattern;
+        return this;
+    }
+
+    public JdbcDynamicOutputFormatBuilder setSchemaUpdatePolicy(
+            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy) {
+        this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
+        return this;
+    }
+
     public JdbcBatchingOutputFormat<RowData, ?, ?> build() {
         checkNotNull(jdbcOptions, "jdbc options can not be null");
         checkNotNull(dmlOptions, "jdbc dml options can not be null");
@@ -281,5 +314,24 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                     inlongMetric,
                     auditHostAndPorts);
         }
+    }
+
+    public JdbcMultiBatchingOutputFormat<RowData, ?, ?> buildMulti() {
+        checkNotNull(jdbcOptions, "jdbc options can not be null");
+        checkNotNull(dmlOptions, "jdbc dml options can not be null");
+        checkNotNull(executionOptions, "jdbc execution options can not be null");
+        return new JdbcMultiBatchingOutputFormat<>(
+                new SimpleJdbcConnectionProvider(jdbcOptions),
+                executionOptions,
+                dmlOptions,
+                appendMode,
+                jdbcOptions,
+                sinkMultipleFormat,
+                databasePattern,
+                tablePattern,
+                schemaPattern,
+                inlongMetric,
+                auditHostAndPorts,
+                schemaUpdateExceptionPolicy);
     }
 }

@@ -514,7 +514,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         if (isIgnoreTableException) {
                             LOG.info("Stop write table:{} because occur exception",
                                     tableIdentifier);
-                            break;
+                            continue;
                         }
                     }
                 }

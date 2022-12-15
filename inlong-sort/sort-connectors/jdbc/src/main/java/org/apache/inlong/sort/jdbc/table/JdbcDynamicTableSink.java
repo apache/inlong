@@ -114,33 +114,24 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
         final TypeInformation<RowData> rowDataTypeInformation =
                 context.createTypeInformation(tableSchema.toRowDataType());
-
+        final JdbcDynamicOutputFormatBuilder builder = new JdbcDynamicOutputFormatBuilder();
+        builder.setAppendMode(appendMode);
+        builder.setJdbcOptions(jdbcOptions);
+        builder.setJdbcDmlOptions(dmlOptions);
+        builder.setJdbcExecutionOptions(executionOptions);
+        builder.setInLongMetric(inlongMetric);
+        builder.setAuditHostAndPorts(auditHostAndPorts);
         if (multipleSink) {
-            final JdbcMultiDynamicOutputFormatBuilder builder = new JdbcMultiDynamicOutputFormatBuilder();
-            builder.setAppendMode(appendMode);
-            builder.setJdbcOptions(jdbcOptions);
-            builder.setJdbcDmlOptions(dmlOptions);
-            builder.setJdbcExecutionOptions(executionOptions);
-            builder.setInLongMetric(inlongMetric);
-            builder.setAuditHostAndPorts(auditHostAndPorts);
             builder.setSinkMultipleFormat(sinkMultipleFormat);
             builder.setDatabasePattern(databasePattern);
             builder.setTablePattern(tablePattern);
             builder.setSchemaPattern(schemaPattern);
             builder.setSchemaUpdatePolicy(schemaUpdateExceptionPolicy);
             return SinkFunctionProvider.of(
-                    new GenericJdbcSinkFunction<>(builder.build()), jdbcOptions.getParallelism());
+                    new GenericJdbcSinkFunction<>(builder.buildMulti()), jdbcOptions.getParallelism());
         } else {
-            final JdbcDynamicOutputFormatBuilder builder = new JdbcDynamicOutputFormatBuilder();
-
-            builder.setAppendMode(appendMode);
-            builder.setJdbcOptions(jdbcOptions);
-            builder.setJdbcDmlOptions(dmlOptions);
-            builder.setJdbcExecutionOptions(executionOptions);
             builder.setRowDataTypeInfo(rowDataTypeInformation);
             builder.setFieldDataTypes(tableSchema.getFieldDataTypes());
-            builder.setInLongMetric(inlongMetric);
-            builder.setAuditHostAndPorts(auditHostAndPorts);
             return SinkFunctionProvider.of(
                     new GenericJdbcSinkFunction<>(builder.build()), jdbcOptions.getParallelism());
         }
