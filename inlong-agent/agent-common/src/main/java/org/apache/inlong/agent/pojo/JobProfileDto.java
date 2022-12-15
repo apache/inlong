@@ -121,7 +121,7 @@ public class JobProfileDto {
 
         FileJob.Dir dir = new FileJob.Dir();
         dir.setPatterns(fileJobTaskConfig.getPattern());
-        dir.setBlackLists(fileJobTaskConfig.getBlackLists());
+        dir.setBlackList(fileJobTaskConfig.getBlackList());
         fileJob.setDir(dir);
         fileJob.setCollectType(fileJobTaskConfig.getCollectType());
         fileJob.setContentCollectType(fileJobTaskConfig.getContentCollectType());

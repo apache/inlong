@@ -57,6 +57,7 @@ import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
+import org.elasticsearch.common.util.set.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -88,18 +90,6 @@ public class AgentServiceImpl implements AgentService {
     private static final int ISSUED_STATUS = 3;
     private static final int MODULUS_100 = 100;
     private static final int TASK_FETCH_SIZE = 2;
-
-    /**
-     * Need issued status list, not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
-     */
-    private static final List<Integer> NEED_ISSUED_STATUS = Arrays.asList(
-            SourceStatus.TO_BE_ISSUED_DELETE.getCode(),
-            SourceStatus.TO_BE_ISSUED_RETRY.getCode(),
-            SourceStatus.TO_BE_ISSUED_BACKTRACK.getCode(),
-            SourceStatus.TO_BE_ISSUED_FROZEN.getCode(),
-            SourceStatus.TO_BE_ISSUED_CHECK.getCode(),
-            SourceStatus.TO_BE_ISSUED_REDO_METRIC.getCode(),
-            SourceStatus.TO_BE_ISSUED_MAKEUP.getCode());
 
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
@@ -191,9 +181,8 @@ public class AgentServiceImpl implements AgentService {
             throw new BusinessException("agent request or agent ip was empty, just return");
         }
 
-        List<DataConfig> tasks = Lists.newArrayList();
-        tasks.addAll(fetchNormalTasks(request));
-        tasks.addAll(fetchQueuedTasks(request));
+        preProcessNormalTasks(request);
+        List<DataConfig> tasks = fetchQueuedTasks(request);
 
         // Query pending special commands
         List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
@@ -201,28 +190,34 @@ public class AgentServiceImpl implements AgentService {
     }
 
     /**
-     * Query the tasks that source is need to add or active.
+     * Query the tasks that source is need to add or active.  这里变成预处理，然后后面再进行统一的处理
      *
      * @param request
      * @return
      */
-    private List<DataConfig> fetchNormalTasks(TaskRequest request) {
-        List<DataConfig> tasks = Lists.newArrayList();
+    private void preProcessNormalTasks(TaskRequest request) {
         // Query the tasks for non file collecting tasks
-        tasks.addAll(fetchNonFileTasks(request));
+        preProcessNonFileTasks(request);
         // Query the tasks for file collecting tasks
-        tasks.addAll(fetchFileTasks(request));
-        return tasks;
+        preProcessFileTasks(request);
     }
 
     /**
-     * Query the tasks that source is waited to be operated.(Status in {@link NEED_ISSUED_STATUS})
+     * Query the tasks that source is waited to be operated.
      *
      * @param request
      * @return
      */
     private List<DataConfig> fetchQueuedTasks(TaskRequest request) {
-        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndCluster(NEED_ISSUED_STATUS,
+        HashSet<SourceStatus> needAddStatusSet = Sets.newHashSet(SourceStatus.TOBE_ISSUED_SET);
+        if (PullJobTypeEnum.NEVER == PullJobTypeEnum.getPullJobType(request.getPullJobType())) {
+            LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
+            needAddStatusSet.remove(SourceStatus.TO_BE_ISSUED_ADD);
+        }
+
+        // todo:弄清楚这里为什么一定需要uuid,如果是废的就不管它了
+        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndCluster(
+                needAddStatusSet.stream().map(SourceStatus::getCode).collect(Collectors.toList()),
                 request.getClusterName(), request.getAgentIp(), request.getUuid());
         List<DataConfig> issuedTasks = Lists.newArrayList();
         for (StreamSourceEntity sourceEntity : sourceEntities) {
@@ -238,7 +233,7 @@ public class AgentServiceImpl implements AgentService {
         return issuedTasks;
     }
 
-    private List<DataConfig> fetchNonFileTasks(TaskRequest taskRequest) {
+    private void preProcessNonFileTasks(TaskRequest taskRequest) {
         List<Integer> needAddStatusList;
         if (PullJobTypeEnum.NEVER == PullJobTypeEnum.getPullJobType(taskRequest.getPullJobType())) {
             LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
@@ -263,10 +258,9 @@ public class AgentServiceImpl implements AgentService {
                 nonFileTasks.add(getDataConfig(sourceEntity, op));
             }
         }
-        return nonFileTasks;
     }
 
-    private List<DataConfig> fetchFileTasks(TaskRequest taskRequest) {
+    private void preProcessFileTasks(TaskRequest taskRequest) {
         List<Integer> needAddStatusList;
         if (PullJobTypeEnum.NEVER == PullJobTypeEnum.getPullJobType(taskRequest.getPullJobType())) {
             LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
@@ -283,10 +277,9 @@ public class AgentServiceImpl implements AgentService {
         InlongClusterNodeEntity clusterNodeEntity = selectByIpAndCluster(agentClusterName, agentIp);
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpOrCluster(needAddStatusList,
                 Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName);
-        return sourceEntities.stream()
-                .map(sourceEntity -> fetchFileTaskMatched(taskRequest, sourceEntity, clusterNodeEntity))
-                .filter(taskConfig -> taskConfig != null)
-                .collect(Collectors.toList());
+        sourceEntities.stream()
+                .forEach(sourceEntity -> fetchFileTaskMatched(taskRequest, sourceEntity, clusterNodeEntity));
+
     }
 
     private InlongClusterNodeEntity selectByIpAndCluster(String clusterName, String ip) {
@@ -315,7 +308,7 @@ public class AgentServiceImpl implements AgentService {
      * @param clusterNodeEntity
      * @return
      */
-    private DataConfig fetchFileTaskMatched(
+    private void fetchFileTaskMatched(
             TaskRequest taskRequest, StreamSourceEntity sourceEntity, InlongClusterNodeEntity clusterNodeEntity) {
         // 先预处理，调整其状态；然后再处理，根据to_be状态进行处理
         // preprocessNonTemplateTask
@@ -325,7 +318,7 @@ public class AgentServiceImpl implements AgentService {
                 && StringUtils.isNotBlank(sourceEntity.getInlongClusterName())
                 && sourceEntity.getInlongClusterName().equals(taskRequest.getClusterName());
         if (!isTemplateTask) {
-            return null;
+            return;
         }
 
         // is the task already fetched by this agent ?
@@ -354,9 +347,6 @@ public class AgentServiceImpl implements AgentService {
             // create new sub source task
             sourceMapper.insert(fileEntity);
         }
-
-        // processFileTask will be later in fetchQueuedTasks
-        return null;
     }
 
     private int getOp(int status) {

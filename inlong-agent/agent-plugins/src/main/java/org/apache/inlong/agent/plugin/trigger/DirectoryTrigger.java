@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
@@ -41,12 +42,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_BLACKLIST;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 
 /**
@@ -227,9 +231,9 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
     /**
      * register pathPattern into watchers
      */
-    public void register(List<String> pathPatterns) throws IOException {
+    public void register(List<String> pathPatterns, Set<String> blackList) throws IOException {
         for (String pathPattern : pathPatterns) {
-            PathPattern entity = new PathPattern(pathPattern);
+            PathPattern entity = new PathPattern(pathPattern, blackList);
             innerRegister(pathPattern, entity);
         }
     }
@@ -237,9 +241,9 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
     /**
      * register pathPattern into watchers, with offset
      */
-    public void register(List<String> pathPatterns, String offset) throws IOException {
+    public void register(List<String> pathPatterns, String offset, Set<String> blackList) throws IOException {
         for (String pathPattern : pathPatterns) {
-            PathPattern entity = new PathPattern(pathPattern, offset);
+            PathPattern entity = new PathPattern(pathPattern, offset, blackList);
             innerRegister(pathPattern, entity);
         }
     }
@@ -257,8 +261,8 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         }
     }
 
-    public void unregister(String pathPattern) {
-        PathPattern entity = new PathPattern(pathPattern);
+    public void unregister(String pathPattern, Set<String> blackList) {
+        PathPattern entity = new PathPattern(pathPattern, blackList);
         Collection<WatchKey> allKeys = allWatchers.remove(entity);
         if (allKeys != null) {
             LOGGER.info("unregister pattern {}, total size of path {}", pathPattern,
@@ -282,11 +286,15 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         if (this.profile.hasKey(JOB_DIR_FILTER_PATTERNS)) {
             List<String> pathPatterns = Stream.of(
                     this.profile.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toList());
+            Set<String> blackList = Stream.of(
+                    this.profile.get(JOB_DIR_FILTER_BLACKLIST, "").split(","))
+                    .filter(black -> !StringUtils.isBlank(black))
+                    .collect(Collectors.toSet());
             String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");
             if (timeOffset.isEmpty()) {
-                register(pathPatterns);
+                register(pathPatterns, blackList);
             } else {
-                register(pathPatterns, timeOffset);
+                register(pathPatterns, timeOffset, blackList);
             }
         }
     }

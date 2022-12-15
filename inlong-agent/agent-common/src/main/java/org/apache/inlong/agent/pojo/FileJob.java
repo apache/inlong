@@ -66,7 +66,7 @@ public class FileJob {
 
         private String patterns;
 
-        private String blackLists;
+        private String blackList;
     }
 
     @Data
@@ -92,7 +92,7 @@ public class FileJob {
 
         private String pattern;
 
-        private String blackLists;
+        private String blackList;
         // '1m' means one minute after, '-1m' means one minute before
         // '1h' means one hour after, '-1h' means one hour before
         // '1d' means one day after, '-1d' means one day before

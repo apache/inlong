@@ -161,12 +161,6 @@ class ClientFactoryTest {
     @Test
     void testNewAPI() {
         /** bindTag */
-        ClusterNodeBindTagRequest request = new ClusterNodeBindTagRequest();
-        request.setClusterId(1);
-        request.setType("AGENT");
-        request.setClusterNodeTag("drink,play");
-        request.setUnbindClusterNodes(Lists.newArrayList("127.0.0.1"));
-        clusterClient.bindNodeTag(request);
 
 
         /** create stream source*/

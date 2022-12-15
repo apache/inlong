@@ -46,16 +46,19 @@ public class PathPattern {
     private final String watchDir;
     private final String rootDir;
     private final Set<String> subDirs;
+    private final Set<String> blackList;
 
-    public PathPattern(String watchDir) {
+    public PathPattern(String watchDir, Set<String> blackList) {
         this.watchDir = watchDir;
+        this.blackList = blackList;
         rootDir = findRoot(watchDir);
         subDirs = new HashSet<>();
         dateFormatRegex = DateFormatRegex.ofRegex(watchDir);
     }
 
-    public PathPattern(String watchDir, String offset) {
+    public PathPattern(String watchDir, String offset, Set<String> blackList) {
         this.watchDir = watchDir;
+        this.blackList = blackList;
         rootDir = findRoot(watchDir);
         subDirs = new HashSet<>();
         dateFormatRegex = DateFormatRegex.ofRegex(watchDir).withOffset(offset);
@@ -131,7 +134,12 @@ public class PathPattern {
      * @return true if suit else false.
      */
     public boolean suitForWatch(String pathStr) {
-        // remove common root dir
+        // remove blacklist path
+        if (blackList.contains(pathStr)) {
+            LOGGER.info("blacklist path {}", pathStr);
+            return false;
+        }
+        // remove common root path
         String briefSubDir = StringUtils.substringAfter(pathStr, rootDir);
         // if already watched, then stop deep find
         if (subDirs.contains(briefSubDir)) {

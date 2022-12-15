@@ -19,6 +19,8 @@ package org.apache.inlong.agent.plugin.trigger;
 
 import java.nio.file.Path;
 import java.util.HashMap;
+
+import com.google.common.collect.Sets;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
@@ -58,8 +60,8 @@ public class TestWatchDirTrigger {
 
     @Test
     public void testWatchEntity() throws Exception {
-        PathPattern a1 = new PathPattern(helper.getParentPath().toString());
-        PathPattern a2 = new PathPattern(helper.getParentPath().toString());
+        PathPattern a1 = new PathPattern(helper.getParentPath().toString(), Sets.newHashSet());
+        PathPattern a2 = new PathPattern(helper.getParentPath().toString(), Sets.newHashSet());
         HashMap<PathPattern, Integer> map = new HashMap<>();
         map.put(a1, 10);
         Integer result = map.remove(a2);
