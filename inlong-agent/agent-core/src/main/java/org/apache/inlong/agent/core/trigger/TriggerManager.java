@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.core.trigger;
 
+import com.google.common.collect.Sets;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -35,12 +36,16 @@ import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
 import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
@@ -181,12 +186,14 @@ public class TriggerManager extends AbstractDaemon {
                                 deleteRelatedJobs(triggerProfile.getTriggerId());
                             }
                             Map<String, JobWrapper> jobWrapperMap = manager.getJobManager().getJobs();
-                            // running job then add new task
+                            // case: The trigger and job already start, more matched file produced and add wrap
+                            //       those file read job as trigger subtask
                             if (isRunningJob(profile, jobWrapperMap)) {
                                 jobWrapperMap.get(profile.getInstanceId()).addTask(profile);
                             }
-                            // not running job then add job
-                            if (isExistJob(profile)) {
+                            // case: In INCREMENT type the trigger already start, but does not start the first job until
+                            //       meet up first matched file
+                            if (isNotExistJob(profile)) {
                                 manager.getJobManager().submitFileJobProfile(profile);
                                 addToTriggerMap(profile.get(JOB_ID), profile);
                             }
@@ -213,7 +220,8 @@ public class TriggerManager extends AbstractDaemon {
                 return true;
             }
             for (Task task : tasks) {
-                if (task.getJobConf().hasKey(profile.get(JOB_DIR_FILTER_PATTERNS))) {
+                if (task.getJobConf().hasKey(profile.get(JOB_DIR_FILTER_PATTERNS)) &&
+                        task.getJobConf().get(profile.get(JOB_DIR_FILTER_PATTERNS)).equals(profile.get(JOB_DIR_FILTER_PATTERNS))) {
                     return false;
                 }
             }
@@ -225,8 +233,8 @@ public class TriggerManager extends AbstractDaemon {
         }
     }
 
-    private boolean isExistJob(JobProfile profile) {
-        List<JobProfile> jobProfileList = getJobProfiles();
+    private boolean isNotExistJob(JobProfile profile) {
+        List<JobProfile> jobProfileList = manager.getJobProfileDb().getAllJobs();
         AtomicBoolean isExist = new AtomicBoolean(false);
         jobProfileList.forEach(job -> {
             if (profile.get(JOB_ID).equals(job.get(JOB_ID))) {
@@ -241,20 +249,13 @@ public class TriggerManager extends AbstractDaemon {
      */
     private void deleteRelatedJobs(String triggerId) {
         LOGGER.info("start to delete related jobs in triggerId {}", triggerId);
-        List<JobProfile> jobProfileList = getJobProfiles();
+        List<JobProfile> jobProfileList = manager.getJobProfileDb().getAllJobs();
         jobProfileList.forEach(jobProfile -> {
             if (Objects.equals(jobProfile.get(JOB_ID), triggerId)) {
                 deleteJob(jobProfile.getInstanceId());
             }
         });
         triggerJobMap.remove(triggerId);
-    }
-
-    private List<JobProfile> getJobProfiles() {
-        JobProfileDb jobProfileDb = manager.getJobProfileDb();
-        List<JobProfile> jobProfileList = jobProfileDb.getJobsByState(StateSearchKey.RUNNING);
-        jobProfileList.addAll(jobProfileDb.getJobsByState(StateSearchKey.ACCEPTED));
-        return jobProfileList;
     }
 
     private void deleteJob(String jobInstanceId) {
