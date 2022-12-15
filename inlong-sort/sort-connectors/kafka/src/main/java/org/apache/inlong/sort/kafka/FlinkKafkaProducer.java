@@ -860,17 +860,15 @@ public class FlinkKafkaProducer<IN>
 
                         @Override
                         public void onCompletion(RecordMetadata metadata, Exception e) {
-                            if (e != null) {
-                                sinkMetricData.sendDirtyMetrics(metadata.topic(), 1L, dataSize);
-                                LOG.error(
-                                        "Error while sending record to Kafka: " + e.getMessage(),
-                                        e);
-                            } else {
-                                sinkMetricData.sendOutMetrics(metadata.topic(), 1L, dataSize);
-                                sendOutMetrics(1L, dataSize);
-                                pendingRecords.incrementAndGet();
+                            if (metadata.topic() != null) {
+                                if (e != null) {
+                                    LOG.error("Error while sending record to Kafka: " + e.getMessage(), e);
+                                } else {
+                                    sinkMetricData.sendOutMetrics(metadata.topic(), 1L, dataSize);
+                                    sendOutMetrics(1L, dataSize);
+                                }
+                                acknowledgeMessage();
                             }
-                            acknowledgeMessage();
                         }
                     };
         } else {
@@ -879,13 +877,13 @@ public class FlinkKafkaProducer<IN>
 
                         @Override
                         public void onCompletion(RecordMetadata metadata, Exception exception) {
-                            if (exception != null && asyncException == null) {
-                                asyncException = exception;
-                                sinkMetricData.sendDirtyMetrics(metadata.topic(), 1L, dataSize);
-                            } else {
-                                sinkMetricData.sendOutMetrics(metadata.topic(), 1L, dataSize);
-                                sendOutMetrics(1L, dataSize);
-                                pendingRecords.incrementAndGet();
+                            if (metadata.topic() != null) {
+                                if (exception != null && asyncException == null) {
+                                    asyncException = exception;
+                                } else {
+                                    sinkMetricData.sendOutMetrics(metadata.topic(), 1L, dataSize);
+                                    sendOutMetrics(1L, dataSize);
+                                }
                             }
                             acknowledgeMessage();
                         }
