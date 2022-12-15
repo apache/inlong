@@ -25,16 +25,29 @@ public class PathUtils {
     }
 
     /**
-     * Check whether all class of path name are matched
+     * Check whether path name are matched ant path regex
      *
      * @param pathStr path string
      * @param patternStr ant regex pattern
-     * @return true if all match
+     * @return true if matched
      */
     public static boolean antPathMatch(String pathStr, String patternStr) {
         boolean result = MATCHER.match(patternStr, pathStr);
         LOGGER.info("path: {}, pattern: {}, result: {}", pathStr, patternStr, result);
         return result;
+    }
+
+    /**
+     * Check whether directory name are included in patternStr prefix</br>
+     * e.g. "/a/b/1/3/4/5"  are included in "/a/*\/1/3/**\/1.log" prefix
+     *
+     * @param dirStr directory string
+     * @param patternStr ant regex pattern
+     * @return true if all match
+     */
+    public static boolean antPathIncluded(String dirStr, String patternStr) {
+        // todo:待实现
+        return true;
     }
 
     /**

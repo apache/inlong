@@ -124,7 +124,8 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
             List<WatchKey> tmpWatchers) throws IOException {
         // check regex
         LOGGER.info("check whether path {} is suitable", path);
-        if (entity.suitForWatch(path.toString())) {
+        if (entity.suitable(path.toString())) {
+            LOGGER.info("path {} is suitable.", path);
             if (path.toFile().isDirectory()) {
                 WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
                 tmpWatchers.add(watchKey);
@@ -234,19 +235,11 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
      * register pathPattern into watchers, with offset
      */
     public Set<String> register(Set<String> whiteList, String offset, Set<String> blackList) throws IOException {
-        Set<String> commonWatchDir = PathUtils.findCommonRootPath(whiteList);
-        Set<PathPattern> pathPatterns = commonWatchDir.stream().map(rootDir -> {
-                    Set<String> commonWatchDirWhiteList =
-                            whiteList.stream()
-                                    .filter(whiteRegex -> whiteRegex.startsWith(rootDir))
-                                    .collect(Collectors.toSet());
-                    return new PathPattern(rootDir, commonWatchDirWhiteList, blackList, offset);
-                }).collect(Collectors.toSet());
-
+        Set<PathPattern> pathPatterns = PathPattern.buildPathPattern(whiteList, offset, blackList);
         for (PathPattern pathPattern : pathPatterns) {
             innerRegister(pathPattern.getRootDir(), pathPattern);
         }
-        return commonWatchDir;
+        return pathPatterns.stream().map(PathPattern::getRootDir).collect(Collectors.toSet());
     }
 
     private void innerRegister(String watchDir, PathPattern entity) throws IOException {

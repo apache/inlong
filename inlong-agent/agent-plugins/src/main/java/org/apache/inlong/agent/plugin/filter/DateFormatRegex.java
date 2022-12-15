@@ -72,7 +72,12 @@ public class DateFormatRegex {
 
     public boolean match(File file) {
         // TODO: check with more regex
-        return PathUtils.antPathMatch(file.getAbsolutePath(), formattedRegex);
+        if (file.isFile()) {
+            return PathUtils.antPathMatch(file.getAbsolutePath(), formattedRegex);
+        } else if (file.isDirectory()) {
+            return PathUtils.antPathIncluded(file.getAbsolutePath(), formattedRegex);
+        }
+        return false;
     }
 
     /**

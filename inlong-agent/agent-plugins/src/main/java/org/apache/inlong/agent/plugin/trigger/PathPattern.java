@@ -21,18 +21,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.inlong.agent.plugin.filter.DateFormatRegex;
 import org.apache.inlong.agent.utils.PathUtils;
-import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,48 +66,15 @@ public class PathPattern {
         }
     }
 
-    /**
-     * walk all suitable files under directory.
-     */
-    private void walkAllSuitableFiles(File dirPath, final Collection<File> collectResult,
-            int maxNum) throws IOException {
-        if (collectResult.size() > maxNum) {
-            LOGGER.warn("max num of files is {}, please check", maxNum);
-            return;
-        }
-        // remove blacklist path
-        if (blackList.contains(dirPath.toString())) {
-            LOGGER.info("find blacklist path {}, ignore it.", dirPath);
-            return;
-        }
-        Optional matched = whiteList.stream()
-                .filter(whiteRegex -> whiteRegex.match(dirPath))
-                .findAny();
-        if (dirPath.isFile() && matched.isPresent()) {
-            collectResult.add(dirPath);
-        } else if (dirPath.isDirectory()) {
-            try (final Stream<Path> pathStream = Files.list(dirPath.toPath())) {
-                pathStream.forEach(path -> {
-                    try {
-                        walkAllSuitableFiles(path.toFile(), collectResult, maxNum);
-                    } catch (IOException ex) {
-                        LOGGER.warn("cannot add {}, please check it", path, ex);
-                    }
-                });
-            } catch (Exception e) {
-                LOGGER.error("exception caught", e);
-            } catch (Throwable t) {
-                ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
-            }
-        }
-    }
-
-    /**
-     * walk root directory
-     */
-    public void walkAllSuitableFiles(final Collection<File> collectResult,
-            int maxNum) throws IOException {
-        walkAllSuitableFiles(new File(rootDir), collectResult, maxNum);
+    public static Set<PathPattern> buildPathPattern(Set<String> whiteList, String offset, Set<String> blackList) {
+        Set<String> commonWatchDir = PathUtils.findCommonRootPath(whiteList);
+        return commonWatchDir.stream().map(rootDir -> {
+            Set<String> commonWatchDirWhiteList =
+                    whiteList.stream()
+                            .filter(whiteRegex -> whiteRegex.startsWith(rootDir))
+                            .collect(Collectors.toSet());
+            return new PathPattern(rootDir, commonWatchDirWhiteList, blackList, offset);
+        }).collect(Collectors.toSet());
     }
 
     /**
@@ -124,35 +86,57 @@ public class PathPattern {
     }
 
     /**
-     * whether path is suitable
+     * Research all children files with {@link PathPattern#rootDir} matched whiteList and filtered by blackList.
      *
-     * @param pathStr pathString
+     * @param maxNum
+     * @return
+     */
+    public Collection<File> walkSuitableFiles(int maxNum) {
+        Collection<File> suitableFiles = new ArrayList<>();
+        walkSuitableFiles(suitableFiles, new File(rootDir), maxNum);
+        return suitableFiles;
+    }
+
+    /**
+     * Check whether path is suitable for match whiteList and filtered by blackList
+     *
+     * @param path pathString
      * @return true if suit else false.
      */
-    public boolean suitForWatch(String pathStr) {
+    public boolean suitable(String path) {
         // remove blacklist path
-        if (blackList.contains(pathStr)) {
-            LOGGER.info("find blacklist path {}, ignore it.", pathStr);
+        if (blackList.contains(path)) {
+            LOGGER.info("find blacklist path {}, ignore it.", path);
             return false;
         }
         // remove common root path
-        String briefSubDir = StringUtils.substringAfter(pathStr, rootDir);
+        String briefSubDir = StringUtils.substringAfter(path, rootDir);
         // if already watched, then stop deep find
         if (subDirs.contains(briefSubDir)) {
-            LOGGER.info("already watched {}", pathStr);
+            LOGGER.info("already watched {}", path);
             return false;
         }
 
-        File path = new File(pathStr);
-        if (path.isDirectory()) {
-            LOGGER.info("add path {}", pathStr);
-            subDirs.add(briefSubDir);
-            return true;
-        } else {
-            return whiteList.stream()
-                    .filter(whiteRegex -> whiteRegex.match(path))
-                    .findAny()
-                    .isPresent();
+        subDirs.add(briefSubDir);
+        File file = new File(path);
+        return whiteList.stream()
+                .filter(whiteRegex -> whiteRegex.match(file))
+                .findAny()
+                .isPresent();
+    }
+
+    private void walkSuitableFiles(Collection<File> suitableFiles, File file, int maxNum) {
+        if (suitableFiles.size() > maxNum) {
+            LOGGER.warn("Suitable files exceed max num {}, just return.", maxNum);
+            return;
+        }
+
+        if (suitable(file.getAbsolutePath())) {
+            if (file.isFile()) {
+                suitableFiles.add(file);
+            } else if (file.isDirectory()) {
+                Stream.of(file.listFiles()).forEach(subFile -> walkSuitableFiles(suitableFiles, subFile, maxNum));
+            }
         }
     }
 

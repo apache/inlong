@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -94,39 +93,28 @@ public class PluginUtils {
      * scan and return files based on job dir conf
      */
     public static Collection<File> findSuitFiles(JobProfile jobConf) {
-        Set<String> dirPatterns = Stream.of(jobConf.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toSet());
+        Set<String> dirPatterns = Stream.of(
+                jobConf.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toSet());
         Set<String> blackList = Stream.of(
-                        jobConf.get(JOB_DIR_FILTER_BLACKLIST, "").split(","))
+                jobConf.get(JOB_DIR_FILTER_BLACKLIST, "").split(","))
                 .filter(black -> !StringUtils.isBlank(black))
                 .collect(Collectors.toSet());
         LOGGER.info("start to find files with dir pattern {}", dirPatterns);
 
-        List<PathPattern> pathPatterns = PathUtils.findCommonRootPath(dirPatterns).stream().map(rootDir -> {
-            Set<String> commonWatchDirWhiteList =
-                    dirPatterns.stream()
-                            .filter(whiteRegex -> whiteRegex.startsWith(rootDir))
-                            .collect(Collectors.toSet());
-            return new PathPattern(
-                    rootDir, commonWatchDirWhiteList, blackList, jobConf.get(JOB_FILE_TIME_OFFSET, null));
-        }).collect(Collectors.toList());
+        Set<PathPattern> pathPatterns =
+                PathPattern.buildPathPattern(dirPatterns, jobConf.get(JOB_FILE_TIME_OFFSET, null), blackList);
         updateRetryTime(jobConf, pathPatterns);
         int maxFileNum = jobConf.getInt(FILE_MAX_NUM, DEFAULT_FILE_MAX_NUM);
         LOGGER.info("dir pattern {}, max file num {}", dirPatterns, maxFileNum);
         Collection<File> allFiles = new ArrayList<>();
-        pathPatterns.forEach(pattern -> {
-            try {
-                pattern.walkAllSuitableFiles(allFiles, maxFileNum);
-            } catch (IOException ex) {
-                LOGGER.warn("cannot get all files from {}", pattern, ex);
-            }
-        });
+        pathPatterns.forEach(pathPattern -> allFiles.addAll(pathPattern.walkSuitableFiles(maxFileNum)));
         return allFiles;
     }
 
     /**
      * if the job is retry job, the date is determined
      */
-    public static void updateRetryTime(JobProfile jobConf, List<PathPattern> patterns) {
+    public static void updateRetryTime(JobProfile jobConf, Collection<PathPattern> patterns) {
         if (jobConf.hasKey(JOB_RETRY_TIME)) {
             LOGGER.info("job {} is retry job with specific time, update file time to {}"
                     + "", jobConf.toJsonStr(), jobConf.get(JOB_RETRY_TIME));
