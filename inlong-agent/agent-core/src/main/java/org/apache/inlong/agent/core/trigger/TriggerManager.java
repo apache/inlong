@@ -148,6 +148,7 @@ public class TriggerManager extends AbstractDaemon {
 
     private Runnable jobFetchThread() {
         return () -> {
+            Thread.currentThread().setName("TriggerManager-jobFetch");
             while (isRunnable()) {
                 try {
                     triggerMap.forEach((s, trigger) -> {

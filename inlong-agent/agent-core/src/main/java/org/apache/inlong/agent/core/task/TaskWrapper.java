@@ -216,4 +216,9 @@ public class TaskWrapper extends AbstractStateWrapper {
             doChangeState(State.FAILED);
         }
     }
+
+    @Override
+    public String getName() {
+        return task.getTaskId();
+    }
 }

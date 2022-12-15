@@ -499,6 +499,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      */
     private Runnable profileFetchThread() {
         return () -> {
+            Thread.currentThread().setName("ManagerFetcher");
             while (isRunnable()) {
                 try {
                     int configSleepTime = conf.getInt(AGENT_FETCHER_INTERVAL,

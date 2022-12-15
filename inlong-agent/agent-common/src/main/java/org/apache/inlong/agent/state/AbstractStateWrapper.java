@@ -19,13 +19,14 @@ package org.apache.inlong.agent.state;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.agent.common.NamedRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractStateWrapper implements Runnable {
+public abstract class AbstractStateWrapper implements NamedRunnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStateWrapper.class);
 
@@ -92,5 +93,4 @@ public abstract class AbstractStateWrapper implements Runnable {
     public State getCurrentState() {
         return currentState;
     }
-
 }

@@ -169,6 +169,11 @@ public class JobWrapper extends AbstractStateWrapper {
         }));
     }
 
+    @Override
+    public String getName() {
+        return job.getJobInstanceId();
+    }
+
     /**
      * get all running task
      */

@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
 import org.apache.inlong.agent.common.AgentThreadFactory;
+import org.apache.inlong.agent.common.NamedRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +77,7 @@ public final class MonitorTextFile {
     /**
      * Runnable for monitor the file event
      */
-    private static class MonitorEventRunnable implements Runnable {
+    private static class MonitorEventRunnable implements NamedRunnable {
 
         private static final int WAIT_TIME = 30;
         private final FileReaderOperator fileReaderOperator;
@@ -105,6 +106,7 @@ public final class MonitorTextFile {
         @Override
         public void run() {
             try {
+                Thread.currentThread().setName(String.format("Monitor(%s)", path));
                 TimeUnit.SECONDS.sleep(WAIT_TIME);
                 LOGGER.info("start {} monitor", fileReaderOperator.file.getAbsolutePath());
                 while (!fileReaderOperator.finished) {
@@ -121,6 +123,11 @@ public final class MonitorTextFile {
             } catch (Exception e) {
                 LOGGER.error(String.format("monitor %s error", fileReaderOperator.file.getName()), e);
             }
+        }
+
+        @Override
+        public String getName() {
+            return path;
         }
 
         private void listen() throws IOException {
