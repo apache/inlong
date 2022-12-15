@@ -85,7 +85,7 @@ public class DorisParseUtils {
         if (obj instanceof Integer) {
             return LocalDate.ofEpochDay((Integer) obj);
         }
-         throw new IllegalArgumentException(
+        throw new IllegalArgumentException(
                 "Convert to LocalDate failed from unexpected value '" + obj + "' of type " + obj.getClass().getName());
     }
 }
