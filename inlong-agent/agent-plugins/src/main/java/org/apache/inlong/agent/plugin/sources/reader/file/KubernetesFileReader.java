@@ -36,14 +36,14 @@ import java.util.Objects;
 
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_ID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_NAME;
-import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_CONTAINER_ID;
-import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_CONTAINER_NAME;
-import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_NAMESPACE;
-import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_POD_LABEL;
-import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_POD_NAME;
-import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_POD_UID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.NAMESPACE;
 import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_CONTAINER_ID;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_CONTAINER_NAME;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_NAMESPACE;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_POD_LABEL;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_POD_NAME;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_POD_UID;
 
 /**
  * k8s file reader
@@ -68,7 +68,7 @@ public final class KubernetesFileReader extends AbstractFileReader {
         } catch (IOException e) {
             log.error("get k8s client error: ", e);
         }
-        fileReaderOperator.metadata = getK8sMetadata(fileReaderOperator.jobConf);
+        getK8sMetadata(fileReaderOperator.jobConf);
     }
 
     /**
@@ -85,17 +85,17 @@ public final class KubernetesFileReader extends AbstractFileReader {
     /**
      * get pod metadata by namespace and pod name
      */
-    public Map<String, String> getK8sMetadata(JobProfile jobConf) {
+    public void getK8sMetadata(JobProfile jobConf) {
         if (Objects.isNull(jobConf)) {
-            return null;
+            return;
         }
         Map<String, String> k8sInfo = MetaDataUtils.getLogInfo(fileReaderOperator.file.getName());
         log.info("file name is: {}, k8s information size: {}", fileReaderOperator.file.getName(), k8sInfo.size());
-        Map<String, String> metadata = new HashMap<>();
         if (k8sInfo.isEmpty()) {
-            return metadata;
+            return;
         }
 
+        Map<String, String> metadata = fileReaderOperator.metadata;
         metadata.put(METADATA_NAMESPACE, k8sInfo.get(NAMESPACE));
         metadata.put(METADATA_CONTAINER_NAME, k8sInfo.get(CONTAINER_NAME));
         metadata.put(METADATA_CONTAINER_ID, k8sInfo.get(CONTAINER_ID));
@@ -104,7 +104,7 @@ public final class KubernetesFileReader extends AbstractFileReader {
         PodResource podResource = client.pods().inNamespace(k8sInfo.get(NAMESPACE))
                 .withName(k8sInfo.get(POD_NAME));
         if (Objects.isNull(podResource)) {
-            return metadata;
+            return;
         }
         Pod pod = podResource.get();
         PodList podList = client.pods().inNamespace(k8sInfo.get(NAMESPACE)).list();
@@ -114,6 +114,6 @@ public final class KubernetesFileReader extends AbstractFileReader {
                 metadata.put(METADATA_POD_LABEL, GSON.toJson(pod.getMetadata().getLabels()));
             }
         });
-        return metadata;
+        return;
     }
 }

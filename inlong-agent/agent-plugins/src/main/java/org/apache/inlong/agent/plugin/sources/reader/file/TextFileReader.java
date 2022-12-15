@@ -99,5 +99,4 @@ public final class TextFileReader extends AbstractFileReader {
         fileReaderOperator.stream = lines.stream();
         fileReaderOperator.position = fileReaderOperator.position + lines.size();
     }
-
 }

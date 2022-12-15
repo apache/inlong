@@ -28,9 +28,10 @@ import java.util.stream.Collectors;
 
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_FILTER_BY_LABELS;
-import static org.apache.inlong.agent.constant.KubernetesConstants.DATA_CONTENT;
-import static org.apache.inlong.agent.constant.KubernetesConstants.DATA_CONTENT_TIME;
+import static org.apache.inlong.agent.constant.MetadataConstants.DATA_CONTENT;
+import static org.apache.inlong.agent.constant.MetadataConstants.DATA_CONTENT_TIME;
 
+// todo:rename this to MetadataProvider
 /**
  * File reader template
  */

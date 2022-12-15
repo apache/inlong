@@ -98,6 +98,7 @@ public class AgentConstants {
     public static final int DEFAULT_JOB_NUMBER_LIMIT = 15;
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
     public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
+    public static final String DEFAULT_LOCAL_HOST = "localhost";
     // default use local ip as uniq id for agent.
     public static final String DEFAULT_AGENT_UNIQ_ID = AgentUtils.getLocalIp();
     public static final String CUSTOM_FIXED_IP = "agent.custom.fixed.ip";

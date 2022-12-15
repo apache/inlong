@@ -21,7 +21,21 @@ package org.apache.inlong.agent.constant;
  *  Metadata type
  */
 public class MetadataConstants {
+    public static final String DATA_CONTENT = "__content__";
+    public static final String DATA_CONTENT_TIME = "__LogTime__";
 
-    public static final String KUBERNETES = "kubernetes";
 
+    // k8s metadata
+    public static final String METADATA_CONTAINER_ID = "__container_id__";
+    public static final String METADATA_CONTAINER_NAME = "__container_name__";
+    public static final String METADATA_NAMESPACE = "__namespace__";
+    public static final String METADATA_POD_UID = "__pod_uid__";
+    public static final String METADATA_POD_NAME = "__pod_name__";
+    public static final String METADATA_POD_LABEL = "__pod_label__";
+
+    // cvm metadata
+    public static final String ENV_CVM = "cvm";
+    public static final String METADATA_HOST_NAME = "__HostName__";
+    public static final String METADATA_SOURCE_IP = "__SourceIp__";
+    public static final String METADATA_FILE_NAME = "__FileName__";
 }

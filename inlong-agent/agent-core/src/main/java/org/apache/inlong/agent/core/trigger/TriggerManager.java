@@ -111,24 +111,24 @@ public class TriggerManager extends AbstractDaemon {
      * @param triggerProfile trigger profile
      * @return true if success
      */
-    public boolean submitTrigger(TriggerProfile triggerProfile) {
+    public void submitTrigger(TriggerProfile triggerProfile) {
         // make sure all required key exists.
         if (!triggerProfile.allRequiredKeyExist() || this.triggerMap.size() > maxRunningNum) {
-            LOGGER.error("trigger {} not all required key exists or size {} exceed {}",
-                    triggerProfile.toJsonStr(), this.triggerMap.size(), maxRunningNum);
-            return false;
+            throw new IllegalArgumentException(
+                    String.format(
+                            "trigger %s not all required key exists or size %d exceed %d",
+                            triggerProfile.toJsonStr(), this.triggerMap.size(), maxRunningNum));
         }
         // repeat check
         if (triggerProfileDB.getTriggers().stream()
                 .anyMatch(profile -> profile.getTriggerId().equals(triggerProfile.getTriggerId()))) {
-            return true;
+            return;
         }
 
         LOGGER.info("submit trigger {}", triggerProfile);
         triggerProfileDB.storeTrigger(triggerProfile);
         preprocessTrigger(triggerProfile);
         restoreTrigger(triggerProfile);
-        return true;
     }
 
     /**
@@ -138,11 +138,11 @@ public class TriggerManager extends AbstractDaemon {
      *
      * @param triggerId trigger profile.
      */
-    public boolean deleteTrigger(String triggerId) {
+    public void deleteTrigger(String triggerId) {
         // repeat check
         if (!triggerProfileDB.getTriggers().stream()
                 .anyMatch(profile -> profile.getTriggerId().equals(triggerId))) {
-            return true;
+            return;
         }
 
         LOGGER.info("delete trigger {}", triggerId);
@@ -152,7 +152,6 @@ public class TriggerManager extends AbstractDaemon {
             trigger.destroy();
         }
         triggerProfileDB.deleteTrigger(triggerId);
-        return true;
     }
 
     /**

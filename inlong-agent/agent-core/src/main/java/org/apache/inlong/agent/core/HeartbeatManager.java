@@ -118,7 +118,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
                     TaskSnapshotRequest taskSnapshotRequest = buildTaskSnapshotRequest();
                     httpManager.doSentPost(reportSnapshotUrl, taskSnapshotRequest);
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(" {} report to manager", taskSnapshotRequest);
+                        LOGGER.debug(" {} report snapshot to manager", taskSnapshotRequest);
                     }
                     SECONDS.sleep(conf.getInt(AGENT_HEARTBEAT_INTERVAL, DEFAULT_AGENT_HEARTBEAT_INTERVAL));
                 } catch (Throwable e) {
@@ -133,7 +133,11 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         return () -> {
             while (isRunnable()) {
                 try {
-                    reportHeartbeat(buildHeartbeatMsg());
+                    HeartbeatMsg heartbeatMsg = buildHeartbeatMsg();
+                    reportHeartbeat(heartbeatMsg);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(" {} report heartbeat to manager", heartbeatMsg);
+                    }
                     SECONDS.sleep(heartbeatInterval());
                 } catch (Throwable e) {
                     LOGGER.error("interrupted while report heartbeat", e);

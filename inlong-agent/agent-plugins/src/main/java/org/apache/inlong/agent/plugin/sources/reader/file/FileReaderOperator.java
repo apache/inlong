@@ -48,7 +48,11 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
-import static org.apache.inlong.agent.constant.MetadataConstants.KUBERNETES;
+import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
+import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_FILE_NAME;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_HOST_NAME;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_SOURCE_IP;
 
 /**
  * File reader entrance
@@ -80,6 +84,7 @@ public class FileReaderOperator extends AbstractReader {
         this.file = file;
         this.position = position;
         this.md5 = md5;
+        this.metadata = new HashMap<>();
     }
 
     public FileReaderOperator(File file) {
@@ -234,6 +239,10 @@ public class FileReaderOperator extends AbstractReader {
         Arrays.stream(env).forEach(data -> {
             if (data.equalsIgnoreCase(KUBERNETES)) {
                 fileReaders.add(new KubernetesFileReader(reader));
+            } else if (data.equalsIgnoreCase(ENV_CVM)) {
+                reader.metadata.put(METADATA_HOST_NAME, AgentUtils.getLocalHost());
+                reader.metadata.put(METADATA_SOURCE_IP, AgentUtils.getLocalIp());
+                reader.metadata.put(METADATA_FILE_NAME, reader.file.getName());
             }
         });
         return fileReaders;

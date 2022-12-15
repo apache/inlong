@@ -409,17 +409,22 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      */
     public void dealWithTdmTriggerProfile(TriggerProfile triggerProfile) {
         ManagerOpEnum opType = ManagerOpEnum.getOpType(triggerProfile.getInt(JOB_OP));
-        boolean success = false;
-        switch (requireNonNull(opType)) {
-            case ACTIVE:
-            case ADD:
-                success = agentManager.getTriggerManager().submitTrigger(triggerProfile);
-                break;
-            case DEL:
-            case FROZEN:
-                success = agentManager.getTriggerManager().deleteTrigger(triggerProfile.getTriggerId());
-                break;
-            default:
+        boolean success = true;
+        try {
+            switch (requireNonNull(opType)) {
+                case ACTIVE:
+                case ADD:
+                    agentManager.getTriggerManager().submitTrigger(triggerProfile);
+                    break;
+                case DEL:
+                case FROZEN:
+                    agentManager.getTriggerManager().deleteTrigger(triggerProfile.getTriggerId());
+                    break;
+                default:
+            }
+        } catch (Exception e) {
+            LOGGER.error("Deal with trigger profile err.", e);
+            success = false;
         }
         commandDb.saveNormalCmds(triggerProfile, success);
     }
@@ -429,17 +434,22 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      */
     public void dealWithJobProfile(TriggerProfile triggerProfile) {
         ManagerOpEnum opType = ManagerOpEnum.getOpType(triggerProfile.getInt(JOB_OP));
-        boolean success = false;
-        switch (requireNonNull(opType)) {
-            case ACTIVE:
-            case ADD:
-                success = agentManager.getJobManager().submitJobProfile(triggerProfile, true);
-                break;
-            case DEL:
-            case FROZEN:
-                success = agentManager.getJobManager().deleteJob(triggerProfile.getTriggerId());
-                break;
-            default:
+        boolean success = true;
+        try {
+            switch (requireNonNull(opType)) {
+                case ACTIVE:
+                case ADD:
+                    success = agentManager.getJobManager().submitJobProfile(triggerProfile, true);
+                    break;
+                case DEL:
+                case FROZEN:
+                    success = agentManager.getJobManager().deleteJob(triggerProfile.getTriggerId());
+                    break;
+                default:
+            }
+        } catch (Exception e) {
+            LOGGER.error("Deal with job profile err.", e);
+            success = false;
         }
         commandDb.saveNormalCmds(triggerProfile, success);
     }

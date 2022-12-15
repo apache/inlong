@@ -52,6 +52,7 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_O
 import static org.apache.inlong.agent.constant.AgentConstants.CUSTOM_FIXED_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_ENABLE_OOM_EXIT;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_LOCAL_HOST;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_LOCAL_IP;
 
 /**
@@ -142,6 +143,21 @@ public class AgentUtils {
             LOGGER.error("error while get local ip", ex);
         }
         return ip;
+    }
+
+
+    /**
+     * Get local host
+     */
+    public static String getLocalHost() {
+        String host = DEFAULT_LOCAL_HOST;
+        try (DatagramSocket socket = new DatagramSocket()) {
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            host = socket.getLocalAddress().getHostName();
+        } catch (Exception ex) {
+            LOGGER.error("error while get local host", ex);
+        }
+        return host;
     }
 
     /**

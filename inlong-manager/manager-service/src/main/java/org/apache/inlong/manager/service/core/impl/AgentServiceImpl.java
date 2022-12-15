@@ -156,7 +156,7 @@ public class AgentServiceImpl implements AgentService {
 
         if (Constants.RESULT_FAIL == result) {
             LOGGER.warn("task failed for id =[{}]", taskId);
-            nextStatus = SourceStatus.SOURCE_FAILED.getCode();
+            nextStatus = SourceStatus.SOURCE_FAILED.getCode();  // todo:这个地方让它无论如何都回复就需要保证agent下发过程中不要出现异常，出现异常认为是FAIL
         } else if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
             // Change the status from 30x to normal / disable / frozen
             if (SourceStatus.TEMP_TO_NORMAL.contains(previousStatus)) {
@@ -181,8 +181,9 @@ public class AgentServiceImpl implements AgentService {
             throw new BusinessException("agent request or agent ip was empty, just return");
         }
 
-        preProcessNormalTasks(request);
-        List<DataConfig> tasks = fetchQueuedTasks(request);
+        preProcessFileTasks(request);
+        preProcessNonFileTasks(request);
+        List<DataConfig> tasks = processQueuedTasks(request);
 
         // Query pending special commands
         List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
@@ -190,25 +191,12 @@ public class AgentServiceImpl implements AgentService {
     }
 
     /**
-     * Query the tasks that source is need to add or active.  这里变成预处理，然后后面再进行统一的处理
+     * Query the tasks that source is waited to be operated.(only clusterName and ip matched it can be operated)
      *
      * @param request
      * @return
      */
-    private void preProcessNormalTasks(TaskRequest request) {
-        // Query the tasks for non file collecting tasks
-        preProcessNonFileTasks(request);
-        // Query the tasks for file collecting tasks
-        preProcessFileTasks(request);
-    }
-
-    /**
-     * Query the tasks that source is waited to be operated.
-     *
-     * @param request
-     * @return
-     */
-    private List<DataConfig> fetchQueuedTasks(TaskRequest request) {
+    private List<DataConfig> processQueuedTasks(TaskRequest request) {
         HashSet<SourceStatus> needAddStatusSet = Sets.newHashSet(SourceStatus.TOBE_ISSUED_SET);
         if (PullJobTypeEnum.NEVER == PullJobTypeEnum.getPullJobType(request.getPullJobType())) {
             LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
@@ -233,6 +221,7 @@ public class AgentServiceImpl implements AgentService {
         return issuedTasks;
     }
 
+    // 这个地方如果很多agent都拉去相同的non file任务 岂不是有问题?这里之前是怎么解决的，需要问下poco
     private void preProcessNonFileTasks(TaskRequest taskRequest) {
         List<Integer> needAddStatusList;
         if (PullJobTypeEnum.NEVER == PullJobTypeEnum.getPullJobType(taskRequest.getPullJobType())) {
@@ -246,19 +235,14 @@ public class AgentServiceImpl implements AgentService {
                 SourceType.MYSQL_BINLOG);
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndType(needAddStatusList, sourceTypes,
                 TASK_FETCH_SIZE);
-        List<DataConfig> nonFileTasks = Lists.newArrayList();
         for (StreamSourceEntity sourceEntity : sourceEntities) {
-            int op = getOp(sourceEntity.getStatus());
-            int nextStatus = getNextStatus(sourceEntity.getStatus());
-            sourceEntity.setStatus(nextStatus);
+            // refresh agentip and uuid to make it can be processed in queued task
             sourceEntity.setAgentIp(taskRequest.getAgentIp());
             sourceEntity.setUuid(taskRequest.getUuid());
-            if (sourceMapper.updateByPrimaryKeySelective(sourceEntity) == 1) {
-                sourceEntity.setVersion(sourceEntity.getVersion() + 1);
-                nonFileTasks.add(getDataConfig(sourceEntity, op));
-            }
+            sourceMapper.updateByPrimaryKeySelective(sourceEntity);
         }
     }
+
 
     private void preProcessFileTasks(TaskRequest taskRequest) {
         List<Integer> needAddStatusList;
@@ -278,7 +262,7 @@ public class AgentServiceImpl implements AgentService {
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpOrCluster(needAddStatusList,
                 Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName);
         sourceEntities.stream()
-                .forEach(sourceEntity -> fetchFileTaskMatched(taskRequest, sourceEntity, clusterNodeEntity));
+                .forEach(sourceEntity -> preProcessFileTaskMatched(taskRequest, sourceEntity, clusterNodeEntity));
 
     }
 
@@ -308,9 +292,8 @@ public class AgentServiceImpl implements AgentService {
      * @param clusterNodeEntity
      * @return
      */
-    private void fetchFileTaskMatched(
+    private void preProcessFileTaskMatched(
             TaskRequest taskRequest, StreamSourceEntity sourceEntity, InlongClusterNodeEntity clusterNodeEntity) {
-        // 先预处理，调整其状态；然后再处理，根据to_be状态进行处理
         // preprocessNonTemplateTask
         final String agentIp = taskRequest.getAgentIp();
         // fetch task by cluster name and template source
@@ -329,13 +312,13 @@ public class AgentServiceImpl implements AgentService {
         if (optionalSource.isPresent()) {  // 有的情况下，可能有删除tag，以及删除tag后又增加tag的情况
             StreamSourceEntity fileEntity = optionalSource.get();
             // 如果不是最终态，则一直下发删除直到成为转变成为SOURCE_DISABLE状态，处理tag删除的逻辑
-            if (!matchTag(optionalSource.get(), clusterNodeEntity) && SourceStatus.SOURCE_DISABLE.getCode() != fileEntity.getStatus()) {
-                sourceMapper.updateStatus(fileEntity.getId(), SourceStatus.TO_BE_ISSUED_DELETE.getCode(), false);
+            if (!matchTag(optionalSource.get(), clusterNodeEntity) && SourceStatus.SOURCE_FROZEN.getCode() != fileEntity.getStatus()) {
+                sourceMapper.updateStatus(fileEntity.getId(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), false);
             }
 
             // 如果不是运行态，则一直下发增加直到成功转变成SOURCE_NORMAL状态，处理tag新增的逻辑
             if (matchTag(optionalSource.get(), clusterNodeEntity) && SourceStatus.SOURCE_NORMAL.getCode() != fileEntity.getStatus()) {
-                sourceMapper.updateStatus(fileEntity.getId(), SourceStatus.TO_BE_ISSUED_ADD.getCode(), false);
+                sourceMapper.updateStatus(fileEntity.getId(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(), false);
             }
         } else if (!optionalSource.isPresent() && matchTag(sourceEntity, clusterNodeEntity)) {  // 没有的情况下只有在tag匹配情况下才下发任务
             // if not, clone a subtask for this Agent.
@@ -344,6 +327,7 @@ public class AgentServiceImpl implements AgentService {
             fileEntity.setSourceName(fileEntity.getSourceName() + "-"
                     + RandomStringUtils.randomAlphanumeric(10).toLowerCase(Locale.ROOT));
             fileEntity.setTemplateId(sourceEntity.getId());
+            fileEntity.setAgentIp(agentIp);  // todo:这里不设置uuid是不是也没问题,因为前面查询的时候就没有吧uuid带上过滤
             // create new sub source task
             sourceMapper.insert(fileEntity);
         }
