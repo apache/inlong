@@ -76,6 +76,10 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 
+/**
+ * A JDBC multi-table outputFormat that supports batching records before writing records to databases.
+ * Add an option `inlong.metric` to support metrics.
+ */
 public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStatementExecutor<JdbcIn>>
         extends
             AbstractJdbcOutputFormat<In> {
@@ -195,6 +199,11 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         }
     }
 
+    /**
+     * get or create  StatementExecutor for one table.
+     *
+     * @param tableIdentifier The table identifier for which to get statementExecutor.
+     */
     private JdbcExec getOrCreateStatementExecutor(
             String tableIdentifier) throws IOException {
         if (StringUtils.isBlank(tableIdentifier)) {
@@ -271,6 +280,12 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         return jdbcExec;
     }
 
+    /**
+     * Get table name From tableIdentifier
+     * tableIdentifier maybe: ${dbName}.${tbName} or ${dbName}.${schemaName}.${tbName}
+     *
+     * @param tableIdentifier The table identifier for which to get table name.
+     */
     private String getTbNameFromIdentifier(String tableIdentifier) {
         String[] fileArray = tableIdentifier.split("\\.");
         if (2 == fileArray.length) {
@@ -299,6 +314,11 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         }
     }
 
+    /**
+     * Extract and write record to recordsMap(buffer)
+     *
+     * @param row The record to write.
+     */
     @Override
     public final synchronized void writeRecord(In row) throws IOException {
         checkFlushException();
@@ -374,6 +394,9 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         }
     }
 
+    /**
+     * Convert fieldMap(data) to GenericRowData with rowType(schema)
+     */
     protected GenericRowData generateRecord(RowType rowType, Map<String, String> fieldMap) {
         String[] fieldNames = rowType.getFieldNames().toArray(new String[0]);
         int arity = fieldNames.length;
@@ -447,6 +470,12 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         batchCount = 0;
     }
 
+    /**
+     * Write all recorde from recordsMap to db
+     *
+     * First batch writing.
+     * If batch-writing occur exception, then rewrite one-by-one retry-times set by user.
+     */
     protected void attemptFlush() throws IOException {
         for (Map.Entry<String, List<GenericRowData>> entry : recordsMap.entrySet()) {
             String tableIdentifier = entry.getKey();

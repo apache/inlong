@@ -41,6 +41,9 @@ import java.util.function.Function;
 import static org.apache.flink.table.data.RowData.createFieldGetter;
 import static org.apache.flink.util.Preconditions.checkArgument;
 
+/**
+ * Comm function for A JDBC multi-table outputFormat to get or create JDBC Executor
+ */
 public class JdbcMultiBatchingComm {
 
     public static JdbcBatchStatementExecutor<RowData> createBufferReduceExecutor(
