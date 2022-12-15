@@ -169,6 +169,7 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                         .deserializer(deserializer)
                         .inlongMetric(inlongMetric)
                         .inlongAudit(inlongAudit)
+                        .migrateAll(sourceMultipleEnable)
                         .build();
         return SourceFunctionProvider.of(sourceFunction, false);
     }
