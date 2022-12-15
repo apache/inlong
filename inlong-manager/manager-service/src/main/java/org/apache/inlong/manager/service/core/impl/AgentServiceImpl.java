@@ -480,9 +480,11 @@ public class AgentServiceImpl implements AgentService {
             return false;
         }
 
-        Set<String> tags = Stream.of(
+        Set<String> nodeTags = Stream.of(
                 clusterNodeEntity.getNodeTags().split(InlongConstants.COMMA)).collect(Collectors.toSet());
-        return tags.contains(sourceEntity.getInlongClusterNodeTag());
+        Set<String> sourceTags = Stream.of(
+                sourceEntity.getInlongClusterNodeTag().split(InlongConstants.COMMA)).collect(Collectors.toSet());
+        return sourceTags.stream().anyMatch(sourceTag -> nodeTags.contains(sourceTag));
     }
 
 }
