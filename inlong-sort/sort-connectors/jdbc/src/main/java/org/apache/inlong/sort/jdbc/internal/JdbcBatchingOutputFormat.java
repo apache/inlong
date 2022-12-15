@@ -164,7 +164,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             try {
                 dirtySink.open(new Configuration());
             } catch (Exception e) {
-                LOG.error("failed to open dirty sink");
+                throw new IOException("failed to open dirty sink");
             }
         }
         jdbcStatementExecutor = createAndOpenStatementExecutor(statementExecutorFactory);
@@ -217,9 +217,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     }
 
     void handleDirtyData(Object dirtyData, DirtyType dirtyType, Exception e) {
-        if (sinkMetricData != null) {
-            sinkMetricData.invokeDirty(rowSize, dataSize);
-        }
         if (!dirtyOptions.ignoreDirty()) {
             RuntimeException ex;
             if (e instanceof RuntimeException) {
@@ -229,6 +226,9 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             }
             throw ex;
         }
+        if (sinkMetricData != null) {
+            sinkMetricData.invokeDirty(rowSize, dataSize);
+        }
         if (dirtySink != null) {
             DirtyData.Builder<Object> builder = DirtyData.builder();
             try {
@@ -236,6 +236,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                         .setDirtyType(dirtyType)
                         .setLabels(dirtyOptions.getLabels())
                         .setLogTag(dirtyOptions.getLogTag())
+                        .setDirtyMessage(e.getMessage())
                         .setIdentifier(dirtyOptions.getIdentifier());
                 dirtySink.invoke(builder.build());
             } catch (Exception ex) {
@@ -265,8 +266,8 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                 resetStateAfterFlush();
             }
         } catch (Exception e) {
-            LOG.error(String.format("serialize error, raw data: %s", record), e);
-            handleDirtyData(record, DirtyType.SERIALIZE_ERROR, e);
+            LOG.error(String.format("jdbc batch write record error, raw data: %s", record), e);
+            handleDirtyData(record, DirtyType.EXTRACT_ROWDATA_ERROR, e);
             resetStateAfterFlush();
             throw new IOException("Writing records to JDBC failed.", e);
         }
