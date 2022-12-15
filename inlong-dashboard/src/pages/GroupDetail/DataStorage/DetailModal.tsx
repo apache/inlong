@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Skeleton, Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/hooks';
@@ -43,6 +43,8 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...m
   // Q: Why sinkType default = '' ?
   // A: Avoid the table of the fields triggering the monitoring of the column change.
   const [sinkType, setSinkType] = useState('');
+
+  const [changedValues, setChangedValues] = useState<Record<string, any>>({});
 
   const { Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
 
@@ -70,10 +72,48 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...m
     },
   );
 
+  const { data: streamDetail, run: getStreamDetail } = useRequest(
+    streamId => ({
+      url: `/stream/get`,
+      params: {
+        groupId: inlongGroupId,
+        streamId,
+      },
+    }),
+    {
+      manual: true,
+    },
+  );
+
+  useEffect(() => {
+    if (changedValues.inlongStreamId) {
+      getStreamDetail(changedValues.inlongStreamId);
+    }
+  }, [getStreamDetail, changedValues.inlongStreamId]);
+
+  useEffect(() => {
+    if (
+      Entity &&
+      streamDetail &&
+      streamDetail.fieldList?.length &&
+      Entity.FieldList?.some(item => item.name === 'sinkFieldList')
+    ) {
+      form.setFieldsValue({
+        sinkFieldList: streamDetail.fieldList.map(item => ({
+          sourceFieldName: item.fieldName,
+          sourceFieldType: item.fieldType,
+          fieldName: item.fieldName,
+          fieldType: '',
+        })),
+      });
+    }
+  }, [Entity, streamDetail, form]);
+
   useUpdateEffect(() => {
     if (modalProps.visible) {
       // open
       getGroupData();
+      setChangedValues({});
       if (id) {
         getData(id);
       } else {
@@ -141,7 +181,10 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...m
           content={formContent}
           form={form}
           initialValues={id ? data : { inlongGroupId }}
-          onValuesChange={(c, values) => setSinkType(values.sinkType)}
+          onValuesChange={(c, values) => {
+            setChangedValues(c);
+            setSinkType(values.sinkType);
+          }}
         />
       )}
     </Modal>
