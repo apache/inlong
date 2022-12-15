@@ -204,7 +204,7 @@
             limit #{limit, jdbcType=INTEGER}
         </where>
     </select>
-    <select id="selectByAgentIpOrCluster" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectByAgentIpAndCluster" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
@@ -222,7 +222,33 @@
                     #{item}
                 </foreach>
             </if>
-            and (agent_ip = #{agentIp, jdbcType=VARCHAR} or inlong_cluster_name = #{clusterName, jdbcType=VARCHAR})
+            <if test="agentIp != null and agentIp != ''">
+                and agent_ip = #{agentIp, jdbcType=VARCHAR}
+            </if>
+            and inlong_cluster_name = #{clusterName, jdbcType=VARCHAR}
+        </where>
+    </select>
+    <select id="selectTemplateSourceByCluster" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            <if test="statusList != null and statusList.size()>0">
+                and status in
+                <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="sourceTypeList != null and sourceTypeList.size()>0">
+                and source_type in
+                <foreach item="item" index="index" collection="sourceTypeList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            and agent_ip is NULL
+            and template_id is NULL
+            and inlong_cluster_name = #{clusterName, jdbcType=VARCHAR}
         </where>
     </select>
     <select id="selectByStatusAndCluster" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
