@@ -83,7 +83,7 @@ import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.cdc.debezium.utils.CallbackCollector;
+import org.apache.inlong.sort.cdc.base.util.CallbackCollector;
 import org.apache.inlong.sort.cdc.postgres.debezium.internal.DebeziumChangeFetcher;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
