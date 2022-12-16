@@ -24,8 +24,8 @@ import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
+import org.apache.inlong.manager.client.api.inner.client.StreamTransformClient;
 import org.apache.inlong.manager.client.api.inner.client.UserClient;
-import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -37,6 +37,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
 import java.util.List;
@@ -57,6 +58,7 @@ public class DescribeCommand extends AbstractCommand {
         jcommander.addCommand("group", new DescribeGroup());
         jcommander.addCommand("sink", new DescribeSink());
         jcommander.addCommand("source", new DescribeSource());
+        jcommander.addCommand("transform", new DescribeTransform());
         jcommander.addCommand("cluster", new DescribeCluster());
         jcommander.addCommand("cluster-tag", new DescribeClusterTag());
         jcommander.addCommand("cluster-node", new DescribeClusterNode());
@@ -108,7 +110,6 @@ public class DescribeCommand extends AbstractCommand {
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
                 pageRequest.setKeyword(group);
                 PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
-                PrintUtils.print(pageInfo.getList(), GroupInfo.class);
                 pageInfo.getList().forEach(PrintUtils::printJson);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -163,6 +164,31 @@ public class DescribeCommand extends AbstractCommand {
                 StreamSourceClient sourceClient = ClientUtils.clientFactory.getSourceClient();
                 List<StreamSource> sources = sourceClient.listSources(group, stream, type);
                 sources.forEach(PrintUtils::printJson);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get transform details")
+    private static class DescribeTransform extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
+        private String groupId;
+
+        @Parameter(names = {"-s", "--stream"}, required = true, description = "inlong stream id")
+        private String streamId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                StreamTransformClient transformClient = ClientUtils.clientFactory.getTransformClient();
+                List<TransformResponse> transforms = transformClient.listTransform(groupId, streamId);
+                transforms.forEach(PrintUtils::printJson);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

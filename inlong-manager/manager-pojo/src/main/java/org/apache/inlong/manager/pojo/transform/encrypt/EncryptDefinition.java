@@ -17,14 +17,18 @@
 
 package org.apache.inlong.manager.pojo.transform.encrypt;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.consts.TransformConstants;
 import org.apache.inlong.manager.common.enums.TransformType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
+
+import java.util.List;
 
 /**
  * A class to define operation to encrypt stream fields in stream records by EncryptRule defined.
@@ -32,6 +36,8 @@ import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder
+@NoArgsConstructor
+@JsonTypeDefine(value = TransformConstants.ENCRYPT)
 public class EncryptDefinition extends TransformDefinition {
 
     private List<EncryptRule> encryptRules;
@@ -42,6 +48,7 @@ public class EncryptDefinition extends TransformDefinition {
     }
 
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class EncryptRule {
 

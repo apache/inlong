@@ -21,7 +21,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.consts.TransformConstants;
 import org.apache.inlong.manager.common.enums.TransformType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 
@@ -33,6 +36,8 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@JsonTypeDefine(value = TransformConstants.FILTER)
 public class FilterDefinition extends TransformDefinition {
 
     /**
@@ -89,6 +94,7 @@ public class FilterDefinition extends TransformDefinition {
      * Such as 'a >= b' or 'a were not null'
      */
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class FilterRule {
 
@@ -102,6 +108,7 @@ public class FilterDefinition extends TransformDefinition {
     }
 
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class ScriptBase {
 
