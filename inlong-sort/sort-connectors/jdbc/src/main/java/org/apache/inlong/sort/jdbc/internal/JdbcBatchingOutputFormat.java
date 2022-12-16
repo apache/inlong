@@ -317,7 +317,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             } catch (SQLException e) {
                 LOG.error("JDBC executeBatch error, retry times = {}", i, e);
                 if (i >= executionOptions.getMaxRetries()) {
-                    clearBatchMap(e);
+                    clearBatch(e);
                     throw new IOException(e);
                 }
                 try {
@@ -328,7 +328,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                     LOG.error(
                             "JDBC connection is not valid, and reestablish connection failed.",
                             exception);
-                    clearBatchMap(exception);
+                    clearBatch(exception);
                     throw new IOException("Reestablish JDBC connection failed", exception);
                 }
                 try {
@@ -342,7 +342,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         }
     }
 
-    private void clearBatchMap(Exception e) {
+    private void clearBatch(Exception e) {
         for (In data : batchSet) {
             handleDirtyData(data, DirtyType.BATCH_LOAD_ERROR, e);
         }
