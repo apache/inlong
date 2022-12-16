@@ -278,13 +278,8 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         rowSize = 0L;
     }
 
-    protected void addToBatch(In original, JdbcIn extracted) {
-        try {
-            jdbcStatementExecutor.addToBatch(extracted);
-        } catch (Exception e) {
-            LOG.error(String.format("DataTypeMappingError, data: %s", extracted), e);
-            handleDirtyData(extracted, DirtyType.DATA_TYPE_MAPPING_ERROR, e);
-        }
+    protected void addToBatch(In original, JdbcIn extracted) throws SQLException {
+        jdbcStatementExecutor.addToBatch(extracted);
     }
 
     @Override

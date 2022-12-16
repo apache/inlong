@@ -188,7 +188,7 @@ class TableJdbcUpsertOutputFormat
     }
 
     @Override
-    protected void addToBatch(Tuple2<Boolean, Row> original, Row extracted) {
+    protected void addToBatch(Tuple2<Boolean, Row> original, Row extracted) throws SQLException {
         if (original.f0) {
             super.addToBatch(original, extracted);
         } else {
