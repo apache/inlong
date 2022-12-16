@@ -1,41 +1,46 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.inlong.manager.service.mocks;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
-import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.core.HeartbeatService;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.apache.inlong.manager.service.ServiceBaseTest.GLOBAL_OPERATOR;
 
 public class MockAgent {
     // mock ability
-    // 1.定时向manager拉取任务，并处理该任务
-    // 2.定时向manager上报之前执行的任务情况（可能成功可能失败）
-    // validate ability
-    // 1.某个任务的下发次数
-    // 2.任务保存状态（是否真的在运行）
-
-    
+    // 1. Regularly pull tasks from the manager and process the tasks
+    // 2. Regularly report the previously executed tasks to the manager (may be successful or fail)
     public static final String LOCAL_IP = "127.0.0.1";
     public static final String LOCAL_PORT = "8008";
     public static final String LOCAL_TAG = "default_tag";
@@ -46,7 +51,6 @@ public class MockAgent {
     private AgentService agentService;
     private HeartbeatService heartbeatService;
 
-    // 模拟本机的配置
     private Queue<CommandEntity> commands = new LinkedList<>();
     private Set<String> tags = Sets.newHashSet(LOCAL_TAG);
     private int jobLimit;
