@@ -327,6 +327,7 @@
   "meta.Group.TubeMq.Stripe/Second": "条/秒",
   "meta.Group.TubeMq.SingleStripMaximumLength": "单条最大长度",
   "meta.Group.Kafka.Partition": "分区数",
+  "meta.Group.Kafka.PartitionExtra": "最大限制为100",
   "meta.Group.Kafka.ReplicationFactor": "副本数",
   "meta.Group.Status.Approved": "审批通过",
   "meta.Group.Status.Draft": "草稿",

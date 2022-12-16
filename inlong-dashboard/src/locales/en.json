@@ -327,6 +327,7 @@
   "meta.Group.TubeMq.Stripe/Second": "Stripe / Second",
   "meta.Group.TubeMq.SingleStripMaximumLength": "Single Max Length",
   "meta.Group.Kafka.Partition": "Number of partitions",
+  "meta.Group.Kafka.PartitionExtra": "Maximum limit is 100",
   "meta.Group.Kafka.ReplicationFactor": "Replications",
   "meta.Group.Status.Approved": "Approved",
   "meta.Group.Status.Draft": "Draft",
