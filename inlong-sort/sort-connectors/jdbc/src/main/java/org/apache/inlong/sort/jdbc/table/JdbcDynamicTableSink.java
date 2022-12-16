@@ -27,7 +27,6 @@ import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.jdbc.internal.GenericJdbcSinkFunction;
 
 import java.util.Objects;
@@ -74,11 +73,7 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
         validatePrimaryKey(requestedMode);
-        return ChangelogMode.newBuilder()
-                .addContainedKind(RowKind.INSERT)
-                .addContainedKind(RowKind.DELETE)
-                .addContainedKind(RowKind.UPDATE_AFTER)
-                .build();
+        return ChangelogMode.all();
     }
 
     private void validatePrimaryKey(ChangelogMode requestedMode) {

@@ -35,7 +35,9 @@ import org.apache.flink.connector.jdbc.utils.JdbcUtils;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
+import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.Row;
+import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
@@ -195,12 +197,27 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         }
     }
 
+    /**
+     * update before is used for metric computing only
+     * @param record
+     * @return
+     */
+    private boolean isValidRowKind(In record) {
+        RowData rowData = (RowData) record;
+        return RowKind.UPDATE_BEFORE != rowData.getRowKind();
+    }
+
     @Override
     public final synchronized void writeRecord(In record) throws IOException {
+
+        updateMetric(record);
+
+        if (!isValidRowKind(record)) {
+            return;
+        }
+
         checkFlushException();
 
-        rowSize++;
-        dataSize = dataSize + record.toString().getBytes(StandardCharsets.UTF_8).length;
         try {
             addToBatch(record, jdbcRecordExtractor.apply(record));
             batchCount++;
@@ -219,6 +236,11 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             resetStateAfterFlush();
             throw new IOException("Writing records to JDBC failed.", e);
         }
+    }
+
+    private void updateMetric(In record) {
+        rowSize++;
+        dataSize += record.toString().getBytes(StandardCharsets.UTF_8).length;
     }
 
     private void resetStateAfterFlush() {
@@ -245,7 +267,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
                             })));
-
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
