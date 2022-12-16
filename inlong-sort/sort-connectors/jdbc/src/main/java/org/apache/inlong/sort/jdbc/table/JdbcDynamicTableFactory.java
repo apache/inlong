@@ -41,16 +41,25 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+import org.apache.inlong.sort.base.util.JdbcUrlUtils;
+
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
 
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
-import org.apache.inlong.sort.base.util.JdbcUrlUtils;
 
-import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 
 /**
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
@@ -182,6 +191,14 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                     .defaultValue(false)
                     .withDescription("Whether to support sink update/delete data without primaryKey.");
 
+    public static final ConfigOption<String> SINK_MULTIPLE_SCHEMA_PATTERN =
+            ConfigOptions.key("sink.multiple.schema-pattern")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("The option 'sink.multiple.schema-pattern' "
+                            + "is used extract table name from the raw binary data, "
+                            + "this is only used in the multiple sink writing scenario.");
+
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
         final FactoryUtil.TableFactoryHelper helper =
@@ -190,12 +207,20 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
 
         helper.validateExcept(DIRTY_PREFIX);
         validateConfigOptions(config);
+        boolean multipleSink = config.getOptional(SINK_MULTIPLE_ENABLE).orElse(false);
+        String sinkMultipleFormat = helper.getOptions().getOptional(SINK_MULTIPLE_FORMAT).orElse(null);
+        String databasePattern = helper.getOptions().getOptional(SINK_MULTIPLE_DATABASE_PATTERN).orElse(null);
+        String tablePattern = helper.getOptions().getOptional(SINK_MULTIPLE_TABLE_PATTERN).orElse(null);
+        String schemaPattern = helper.getOptions().getOptional(SINK_MULTIPLE_SCHEMA_PATTERN).orElse(databasePattern);
+        validateSinkMultiple(multipleSink, sinkMultipleFormat, databasePattern, schemaPattern, tablePattern);
         JdbcOptions jdbcOptions = getJdbcOptions(config);
         TableSchema physicalSchema =
                 TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
         boolean appendMode = config.get(SINK_APPEND_MODE);
         String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = config.getOptional(INLONG_AUDIT).orElse(null);
+        SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy =
+                helper.getOptions().getOptional(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY).orElse(null);
         // Build the dirty data side-output
         final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
         final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
@@ -205,8 +230,14 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                 getJdbcDmlOptions(jdbcOptions, physicalSchema),
                 physicalSchema,
                 appendMode,
+                multipleSink,
+                sinkMultipleFormat,
+                databasePattern,
+                tablePattern,
+                schemaPattern,
                 inlongMetric,
                 auditHostAndPorts,
+                schemaUpdateExceptionPolicy,
                 dirtyOptions,
                 dirtySink);
     }
@@ -226,6 +257,26 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                 getJdbcReadOptions(helper.getOptions()),
                 getJdbcLookupOptions(helper.getOptions()),
                 physicalSchema);
+    }
+
+    private void validateSinkMultiple(boolean multipleSink, String sinkMultipleFormat,
+            String databasePattern, String schemaPattern, String tablePattern) {
+        Preconditions.checkNotNull(multipleSink, "The option 'sink.multiple.enable' is not allowed null");
+        if (multipleSink) {
+            Preconditions.checkNotNull(databasePattern, "The option 'sink.multiple.database-pattern'"
+                    + " is not allowed blank when the option 'sink.multiple.enable' is 'true'");
+            Preconditions.checkNotNull(schemaPattern, "The option 'sink.multiple.schema-pattern'"
+                    + " is not allowed blank when the option 'sink.multiple.enable' is 'true'");
+            Preconditions.checkNotNull(tablePattern, "The option 'sink.multiple.table-pattern' "
+                    + "is not allowed blank when the option 'sink.multiple.enable' is 'true'");
+            Preconditions.checkNotNull(sinkMultipleFormat, "The option 'sink.multiple.format' "
+                    + "is not allowed blank when the option 'sink.multiple.enable' is 'true'");
+            DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
+            Set<String> supportFormats = DynamicSchemaFormatFactory.SUPPORT_FORMATS.keySet();
+            Preconditions.checkArgument(supportFormats.contains(sinkMultipleFormat), String.format(
+                    "Unsupported value '%s' for '%s'. Supported values are %s.",
+                    sinkMultipleFormat, SINK_MULTIPLE_FORMAT.key(), supportFormats));
+        }
     }
 
     private JdbcOptions getJdbcOptions(ReadableConfig readableConfig) {
@@ -334,6 +385,12 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         optionalOptions.add(FactoryUtil.SINK_PARALLELISM);
         optionalOptions.add(MAX_RETRY_TIMEOUT);
         optionalOptions.add(DIALECT_IMPL);
+        optionalOptions.add(SINK_MULTIPLE_ENABLE);
+        optionalOptions.add(SINK_MULTIPLE_FORMAT);
+        optionalOptions.add(SINK_MULTIPLE_DATABASE_PATTERN);
+        optionalOptions.add(SINK_MULTIPLE_TABLE_PATTERN);
+        optionalOptions.add(SINK_MULTIPLE_SCHEMA_PATTERN);
+        optionalOptions.add(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
         optionalOptions.add(INLONG_METRIC);
         optionalOptions.add(INLONG_AUDIT);
         return optionalOptions;

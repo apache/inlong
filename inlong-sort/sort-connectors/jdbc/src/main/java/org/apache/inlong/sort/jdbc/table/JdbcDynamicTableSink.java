@@ -28,6 +28,7 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.jdbc.internal.GenericJdbcSinkFunction;
@@ -52,9 +53,15 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
     private final TableSchema tableSchema;
     private final String dialectName;
 
+    private final boolean multipleSink;
     private final String inlongMetric;
     private final String auditHostAndPorts;
     private final boolean appendMode;
+    private final String sinkMultipleFormat;
+    private final String databasePattern;
+    private final String tablePattern;
+    private final String schemaPattern;
+    private final SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy;
 
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
@@ -65,8 +72,14 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
             JdbcDmlOptions dmlOptions,
             TableSchema tableSchema,
             boolean appendMode,
+            boolean multipleSink,
+            String sinkMultipleFormat,
+            String databasePattern,
+            String tablePattern,
+            String schemaPattern,
             String inlongMetric,
             String auditHostAndPorts,
+            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy,
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink) {
         this.jdbcOptions = jdbcOptions;
@@ -75,15 +88,23 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
         this.tableSchema = tableSchema;
         this.dialectName = dmlOptions.getDialect().dialectName();
         this.appendMode = appendMode;
+        this.multipleSink = multipleSink;
+        this.sinkMultipleFormat = sinkMultipleFormat;
+        this.databasePattern = databasePattern;
+        this.tablePattern = tablePattern;
+        this.schemaPattern = schemaPattern;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
     }
 
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
-        validatePrimaryKey(requestedMode);
+        if (!multipleSink) {
+            validatePrimaryKey(requestedMode);
+        }
         return ChangelogMode.newBuilder()
                 .addContainedKind(RowKind.INSERT)
                 .addContainedKind(RowKind.DELETE)
@@ -103,25 +124,37 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
         final TypeInformation<RowData> rowDataTypeInformation =
                 context.createTypeInformation(tableSchema.toRowDataType());
         final JdbcDynamicOutputFormatBuilder builder = new JdbcDynamicOutputFormatBuilder();
-
         builder.setAppendMode(appendMode);
         builder.setJdbcOptions(jdbcOptions);
         builder.setJdbcDmlOptions(dmlOptions);
         builder.setJdbcExecutionOptions(executionOptions);
-        builder.setRowDataTypeInfo(rowDataTypeInformation);
-        builder.setFieldDataTypes(tableSchema.getFieldDataTypes());
         builder.setInLongMetric(inlongMetric);
         builder.setAuditHostAndPorts(auditHostAndPorts);
         builder.setDirtyOptions(dirtyOptions);
         builder.setDirtySink(dirtySink);
-        return SinkFunctionProvider.of(
-                new GenericJdbcSinkFunction<>(builder.build()), jdbcOptions.getParallelism());
+        if (multipleSink) {
+            builder.setSinkMultipleFormat(sinkMultipleFormat);
+            builder.setDatabasePattern(databasePattern);
+            builder.setTablePattern(tablePattern);
+            builder.setSchemaPattern(schemaPattern);
+            builder.setSchemaUpdatePolicy(schemaUpdateExceptionPolicy);
+            return SinkFunctionProvider.of(
+                    new GenericJdbcSinkFunction<>(builder.buildMulti()), jdbcOptions.getParallelism());
+        } else {
+            builder.setRowDataTypeInfo(rowDataTypeInformation);
+            builder.setFieldDataTypes(tableSchema.getFieldDataTypes());
+            return SinkFunctionProvider.of(
+                    new GenericJdbcSinkFunction<>(builder.build()), jdbcOptions.getParallelism());
+        }
     }
 
     @Override
     public DynamicTableSink copy() {
         return new JdbcDynamicTableSink(jdbcOptions, executionOptions, dmlOptions,
-                tableSchema, appendMode, inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
+                tableSchema, appendMode, multipleSink, sinkMultipleFormat,
+                databasePattern, tablePattern, schemaPattern,
+                inlongMetric, auditHostAndPorts,
+                schemaUpdateExceptionPolicy, dirtyOptions, dirtySink);
     }
 
     @Override
