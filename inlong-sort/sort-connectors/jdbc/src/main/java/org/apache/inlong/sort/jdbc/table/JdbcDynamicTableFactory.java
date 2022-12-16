@@ -41,9 +41,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.base.util.JdbcUrlUtils;
 
 import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
@@ -183,7 +188,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                 FactoryUtil.createTableFactoryHelper(this, context);
         final ReadableConfig config = helper.getOptions();
 
-        helper.validate();
+        helper.validateExcept(DIRTY_PREFIX);
         validateConfigOptions(config);
         JdbcOptions jdbcOptions = getJdbcOptions(config);
         TableSchema physicalSchema =
@@ -191,6 +196,9 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         boolean appendMode = config.get(SINK_APPEND_MODE);
         String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = config.getOptional(INLONG_AUDIT).orElse(null);
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         return new JdbcDynamicTableSink(
                 jdbcOptions,
                 getJdbcExecutionOptions(config),
@@ -198,7 +206,9 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                 physicalSchema,
                 appendMode,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                dirtyOptions,
+                dirtySink);
     }
 
     @Override

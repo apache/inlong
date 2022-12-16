@@ -40,6 +40,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -72,8 +73,15 @@ public class OracleLoadSqlParseTest extends AbstractTestBase {
                                 new FieldInfo("NAME", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("AGE", new IntFormatInfo())));
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("dirty.side-output.connector", "log");
+        properties.put("dirty.ignore", "true");
+        properties.put("dirty.side-output.enable", "true");
+        properties.put("dirty.side-output.format", "csv");
+        properties.put("dirty.side-output.labels",
+                "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=test&table=test2");
         return new OracleLoadNode("2", "oracle_output", fields, relations, null,
-                null, null, null, "jdbc:oracle:thin:@localhost:1521:xe",
+                null, null, properties, "jdbc:oracle:thin:@localhost:1521:xe",
                 "flinkuser", "flinkpw", "student", "ID");
     }
 
