@@ -37,6 +37,7 @@ import static com.ververica.cdc.connectors.mongodb.MongoDBSource.POLL_MAX_BATCH_
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SOURCE_MULTIPLE_ENABLE;
 
 /**
  * Factory for creating configured instance of {@link MongoDBTableSource}.
@@ -186,6 +187,18 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
                                     + "of the connector "
                                     + "for low volume namespaces. Use 0 to disable. Defaults to 0.");
 
+    public static final ConfigOption<String> ROW_KINDS_FILTERED =
+            ConfigOptions.key("row-kinds-filtered")
+                    .stringType()
+                    .defaultValue("+I&-U&+U&-D&-T&-K&+R&+B")
+                    .withDescription("row kinds to be filtered,"
+                            + " here filtered means keep the data of certain row kind"
+                            + "the format follows rowKind1&rowKind2, supported row kinds are "
+                            + "\"+I\" represents INSERT.\n"
+                            + "\"-U\" represents UPDATE_BEFORE.\n"
+                            + "\"+U\" represents UPDATE_AFTER.\n"
+                            + "\"-D\" represents DELETE.");
+
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
         final FactoryUtil.TableFactoryHelper helper =
@@ -224,10 +237,15 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
                         : ZoneId.of(zoneId);
         final String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         final String inlongAudit = config.get(INLONG_AUDIT);
-
+        final Boolean sourceMultipleEnable = config.get(SOURCE_MULTIPLE_ENABLE);
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
-        checkArgument(physicalSchema.getPrimaryKey().isPresent(), "Primary key must be present");
-        checkPrimaryKey(physicalSchema.getPrimaryKey().get(), "Primary key must be _id field");
+        if (!sourceMultipleEnable) {
+            checkArgument(physicalSchema.getPrimaryKey().isPresent(), "Primary key must be present");
+            checkPrimaryKey(physicalSchema.getPrimaryKey().get(), "Primary key must be _id field");
+        }
+        final String rowKindFiltered = config.get(ROW_KINDS_FILTERED).isEmpty()
+                ? ROW_KINDS_FILTERED.defaultValue()
+                : config.get(ROW_KINDS_FILTERED);
 
         return new MongoDBTableSource(
                 physicalSchema,
@@ -248,7 +266,9 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
                 heartbeatIntervalMillis,
                 localTimeZone,
                 inlongMetric,
-                inlongAudit);
+                inlongAudit,
+                rowKindFiltered,
+                sourceMultipleEnable);
     }
 
     private void checkPrimaryKey(UniqueConstraint pk, String message) {
@@ -286,6 +306,8 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
         options.add(POLL_MAX_BATCH_SIZE);
         options.add(POLL_AWAIT_TIME_MILLIS);
         options.add(HEARTBEAT_INTERVAL_MILLIS);
+        options.add(ROW_KINDS_FILTERED);
+        options.add(SOURCE_MULTIPLE_ENABLE);
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
         return options;

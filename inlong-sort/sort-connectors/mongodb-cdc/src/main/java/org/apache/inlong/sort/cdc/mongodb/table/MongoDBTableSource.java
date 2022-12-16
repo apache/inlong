@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.cdc.mongodb.table;
 
-import com.ververica.cdc.connectors.mongodb.table.MongoDBConnectorDeserializationSchema;
-import com.ververica.cdc.connectors.mongodb.table.MongoDBReadableMetadata;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.table.MetadataConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
@@ -35,6 +31,10 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.cdc.mongodb.DebeziumSourceFunction;
 import org.apache.inlong.sort.cdc.mongodb.MongoDBSource;
+import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.mongodb.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.mongodb.debezium.table.MongoDBConnectorDeserializationSchema;
+import org.apache.inlong.sort.cdc.mongodb.table.filter.RowKindValidator;
 
 import javax.annotation.Nullable;
 import java.time.ZoneId;
@@ -77,6 +77,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
 
     private final String inlongMetric;
     private final String inlongAudit;
+    private final String rowValidator;
+    private final boolean sourceMultipleEnable;
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
@@ -107,7 +109,9 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
             @Nullable Integer heartbeatIntervalMillis,
             ZoneId localTimeZone,
             String inlongMetric,
-            String inlongAudit) {
+            String inlongAudit,
+            String rowFilter,
+            Boolean sourceMultipleEnable) {
         this.physicalSchema = physicalSchema;
         this.hosts = checkNotNull(hosts);
         this.username = username;
@@ -129,15 +133,21 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
         this.metadataKeys = Collections.emptyList();
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
+        this.rowValidator = rowFilter;
+        this.sourceMultipleEnable = sourceMultipleEnable;
     }
 
     @Override
     public ChangelogMode getChangelogMode() {
-        return ChangelogMode.newBuilder()
-                .addContainedKind(RowKind.INSERT)
-                .addContainedKind(RowKind.UPDATE_AFTER)
-                .addContainedKind(RowKind.DELETE)
-                .build();
+        if (this.sourceMultipleEnable) {
+            return ChangelogMode.all();
+        } else {
+            return ChangelogMode.newBuilder()
+                    .addContainedKind(RowKind.INSERT)
+                    .addContainedKind(RowKind.UPDATE_AFTER)
+                    .addContainedKind(RowKind.DELETE)
+                    .build();
+        }
     }
 
     @Override
@@ -149,8 +159,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
 
         DebeziumDeserializationSchema<RowData> deserializer =
                 new MongoDBConnectorDeserializationSchema(
-                        physicalDataType, metadataConverters, typeInfo, localTimeZone);
-
+                        physicalDataType, metadataConverters, typeInfo,
+                        localTimeZone, new RowKindValidator(rowValidator), sourceMultipleEnable);
         MongoDBSource.Builder<RowData> builder =
                 MongoDBSource.<RowData>builder().hosts(hosts).deserializer(deserializer);
 
@@ -245,7 +255,9 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                         heartbeatIntervalMillis,
                         localTimeZone,
                         inlongMetric,
-                        inlongAudit);
+                        inlongAudit,
+                        rowValidator,
+                        sourceMultipleEnable);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

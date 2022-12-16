@@ -23,12 +23,12 @@ import com.mongodb.kafka.connect.source.MongoSourceConfig;
 import com.mongodb.kafka.connect.source.MongoSourceConfig.ErrorTolerance;
 import com.mongodb.kafka.connect.source.MongoSourceConfig.OutputFormat;
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceConnector;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.Validator;
 import io.debezium.heartbeat.Heartbeat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
+import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
