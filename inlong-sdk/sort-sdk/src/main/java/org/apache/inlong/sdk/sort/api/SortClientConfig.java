@@ -183,18 +183,10 @@ public class SortClientConfig implements Serializable {
         this.pulsarReceiveQueueSize = pulsarReceiveQueueSize;
     }
 
-    /**
-     * get statsIntervalSeconds
-     * @return the statsIntervalSeconds
-     */
     public long getStatsIntervalSeconds() {
         return statsIntervalSeconds;
     }
     
-    /**
-     * set statsIntervalSeconds
-     * @param statsIntervalSeconds the statsIntervalSeconds to set
-     */
     public void setStatsIntervalSeconds(long statsIntervalSeconds) {
         this.statsIntervalSeconds = statsIntervalSeconds;
     }
