@@ -140,6 +140,7 @@ public class MongoDBSource {
         private DebeziumDeserializationSchema<T> deserializer;
         private String inlongMetric;
         private String inlongAudit;
+        private boolean migrateAll;
 
         /** The comma-separated list of hostname and port pairs of mongodb servers. */
         public Builder<T> hosts(String hosts) {
@@ -327,6 +328,11 @@ public class MongoDBSource {
             return this;
         }
 
+        public Builder<T> migrateAll(Boolean migrateAll) {
+            this.migrateAll = migrateAll;
+            return this;
+        }
+
         /** Build connection uri. */
         @VisibleForTesting
         public ConnectionString buildConnectionUri() {
@@ -446,7 +452,8 @@ public class MongoDBSource {
                     Heartbeat.HEARTBEAT_TOPICS_PREFIX.name(), HEARTBEAT_TOPIC_NAME_DEFAULT);
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, null, Validator.getDefaultValidator(), inlongMetric, inlongAudit);
+                    deserializer, props, null, Validator.getDefaultValidator(),
+                    inlongMetric, inlongAudit, migrateAll);
         }
     }
 }
