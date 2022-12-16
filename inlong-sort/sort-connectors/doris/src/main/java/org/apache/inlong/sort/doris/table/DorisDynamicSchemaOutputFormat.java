@@ -268,6 +268,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         if (metricOption != null) {
             metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }
+        if (dirtySink != null) {
+            try {
+                dirtySink.open(new Configuration());
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
+        }
         if (executionOptions.getBatchIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
             this.scheduler = new ScheduledThreadPoolExecutor(1,
                     new ExecutorThreadFactory("doris-streamload-output-format"));
@@ -358,12 +365,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
         if (row instanceof RowData) {
             RowData rowData = (RowData) row;
-            JsonNode rootNode = null;
+            JsonNode rootNode;
             try {
                 rootNode = jsonDynamicSchemaFormat.deserialize(rowData.getBinary(0));
             } catch (Exception e) {
                 LOG.error(String.format("deserialize error, raw data: %s", new String(rowData.getBinary(0))), e);
                 handleDirtyData(new String(rowData.getBinary(0)), DirtyType.DESERIALIZE_ERROR, e);
+                return;
             }
             boolean isDDL = jsonDynamicSchemaFormat.extractDDLFlag(rootNode);
             if (isDDL) {
@@ -478,6 +486,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                         .setDirtyType(dirtyType)
                         .setLabels(dirtyOptions.getLabels())
                         .setLogTag(dirtyOptions.getLogTag())
+                        .setDirtyMessage(e.getMessage())
                         .setIdentifier(dirtyOptions.getIdentifier());
                 dirtySink.invoke(builder.build());
             } catch (Exception ex) {

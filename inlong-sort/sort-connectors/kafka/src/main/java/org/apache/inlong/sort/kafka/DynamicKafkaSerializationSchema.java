@@ -170,6 +170,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                         null,
                         valueSerialized);
             }
+            return null;
         }
         final byte[] keySerialized;
         boolean mayDirtyData = false;
@@ -228,6 +229,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                             .setDirtyType(dirtyType)
                             .setLabels(dirtyOptions.getLabels())
                             .setLogTag(dirtyOptions.getLogTag())
+                            .setDirtyMessage(e.getMessage())
                             .setIdentifier(dirtyOptions.getIdentifier());
                     dirtySink.invoke(builder.build());
                 } catch (Exception ex) {
@@ -260,6 +262,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                             .setDirtyType(DirtyType.VALUE_DESERIALIZE_ERROR)
                             .setLabels(jsonDynamicSchemaFormat.parse(rootNode, dirtyOptions.getLabels()))
                             .setLogTag(jsonDynamicSchemaFormat.parse(rootNode, dirtyOptions.getLogTag()))
+                            .setDirtyMessage(e.getMessage())
                             .setIdentifier(jsonDynamicSchemaFormat.parse(rootNode, dirtyOptions.getIdentifier()));
                     dirtySink.invoke(builder.build());
                 } catch (Exception ex) {

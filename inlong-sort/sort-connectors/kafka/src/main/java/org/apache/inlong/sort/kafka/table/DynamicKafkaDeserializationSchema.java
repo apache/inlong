@@ -166,7 +166,6 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
                 outputMetrics(record);
             }
         }
-
         keyCollector.buffer.clear();
     }
 
@@ -186,6 +185,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
                                 .setDirtyType(dirtyType)
                                 .setLabels(dirtyOptions.getLabels())
                                 .setLogTag(dirtyOptions.getLogTag())
+                                .setDirtyMessage(e.getMessage())
                                 .setIdentifier(dirtyOptions.getIdentifier());
                         dirtySink.invoke(builder.build());
                     } catch (Exception ex) {

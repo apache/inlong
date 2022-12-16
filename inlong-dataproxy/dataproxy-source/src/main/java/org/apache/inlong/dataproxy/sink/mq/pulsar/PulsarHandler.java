@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.sink.mq.pulsar;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
@@ -48,6 +49,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_STATS_INTERVAL_SECONDS;
 
 /**
  * PulsarHandler
@@ -125,6 +128,8 @@ public class PulsarHandler implements MessageQueueHandler {
                     .ioThreads(context.getInteger(KEY_IOTHREADS, 1))
                     .memoryLimit(context.getLong(KEY_MEMORYLIMIT, 1073741824L), SizeUnit.BYTES)
                     .connectionsPerBroker(context.getInteger(KEY_CONNECTIONSPERBROKER, 10))
+                    .statsInterval(NumberUtils.toLong(config.getParams().get(KEY_STATS_INTERVAL_SECONDS), -1),
+                            TimeUnit.SECONDS)
                     .build();
             this.baseBuilder = client.newProducer();
             // Map<String, Object> builderConf = new HashMap<>();
