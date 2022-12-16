@@ -17,23 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone.impl.pulsarzone;
 
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_AUTHENTICATION;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXBYTES;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXMESSAGES;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXPUBLISHDELAY;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BLOCKIFQUEUEFULL;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_COMPRESSIONTYPE;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_CONNECTIONSPERBROKER;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_ENABLEBATCHING;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_IOTHREADS;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MAXPENDINGMESSAGES;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MAXPENDINGMESSAGESACROSSPARTITIONS;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MEMORYLIMIT;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_NAMESPACE;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_SENDTIMEOUT;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_SERVICE_URL;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_TENANT;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
@@ -58,6 +42,25 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_AUTHENTICATION;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXBYTES;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXMESSAGES;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BATCHINGMAXPUBLISHDELAY;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_BLOCKIFQUEUEFULL;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_COMPRESSIONTYPE;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_CONNECTIONSPERBROKER;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_ENABLEBATCHING;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_IOTHREADS;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MAXPENDINGMESSAGES;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MAXPENDINGMESSAGESACROSSPARTITIONS;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_MEMORYLIMIT;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_NAMESPACE;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_ROUNDROBINROUTERBATCHINGPARTITIONSWITCHFREQUENCY;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_SENDTIMEOUT;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_SERVICE_URL;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_STATS_INTERVAL_SECONDS;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_TENANT;
 
 /**
  * PulsarClusterProducer
@@ -105,6 +108,8 @@ public class PulsarClusterProducer extends AbstractZoneClusterProducer {
                     .ioThreads(producerContext.getInteger(KEY_IOTHREADS, 1))
                     .memoryLimit(producerContext.getLong(KEY_MEMORYLIMIT, 1073741824L), SizeUnit.BYTES)
                     .connectionsPerBroker(producerContext.getInteger(KEY_CONNECTIONSPERBROKER, 10))
+                    .statsInterval(NumberUtils.toLong(config.getParams().get(KEY_STATS_INTERVAL_SECONDS), -1),
+                            TimeUnit.SECONDS)
                     .build();
             this.baseBuilder = client.newProducer();
             // Map<String, Object> builderConf = new HashMap<>();
@@ -141,17 +146,17 @@ public class PulsarClusterProducer extends AbstractZoneClusterProducer {
     private CompressionType getPulsarCompressionType() {
         String type = this.producerContext.getString(KEY_COMPRESSIONTYPE, CompressionType.SNAPPY.name());
         switch (type) {
-            case "LZ4":
+            case "LZ4" :
                 return CompressionType.LZ4;
-            case "NONE":
+            case "NONE" :
                 return CompressionType.NONE;
-            case "ZLIB":
+            case "ZLIB" :
                 return CompressionType.ZLIB;
-            case "ZSTD":
+            case "ZSTD" :
                 return CompressionType.ZSTD;
-            case "SNAPPY":
+            case "SNAPPY" :
                 return CompressionType.SNAPPY;
-            default:
+            default :
                 return CompressionType.NONE;
         }
     }

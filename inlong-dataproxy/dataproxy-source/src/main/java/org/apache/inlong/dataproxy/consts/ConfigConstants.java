@@ -144,6 +144,7 @@ public class ConfigConstants {
 
     public static final String KEY_SERVICE_URL = "serviceUrl";
     public static final String KEY_AUTHENTICATION = "authentication";
+    public static final String KEY_STATS_INTERVAL_SECONDS = "statsIntervalSeconds";
 
     public static final String KEY_ENABLEBATCHING = "enableBatching";
     public static final String KEY_BATCHINGMAXBYTES = "batchingMaxBytes";

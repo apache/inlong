@@ -24,6 +24,7 @@ public class ConfigConstants {
 
     public static final String CALLBACK_QUEUE_SIZE = "callbackQueueSize";
     public static final String PULSAR_RECEIVE_QUEUE_SIZE = "pulsarReceiveQueueSize";
+    public static final String STATS_INTERVAL_SECONDS = "statsIntervalSeconds";
     public static final String KAFKA_FETCH_WAIT_MS = "kafkaFetchWaitMs";
     public static final String KAFKA_FETCH_SIZE_BYTES = "kafkaFetchSizeBytes";
     public static final String KAFKA_SOCKET_RECV_BUFFER_SIZE = "kafkaSocketRecvBufferSize";
