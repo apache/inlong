@@ -17,7 +17,9 @@
 
 package org.apache.inlong.sort.cdc.mongodb;
 
+import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
 import com.ververica.cdc.debezium.Validator;
+import io.debezium.connector.SnapshotRecord;
 import io.debezium.document.DocumentReader;
 import io.debezium.document.DocumentWriter;
 import io.debezium.embedded.Connect;
@@ -51,6 +53,7 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumChangeConsumer;
@@ -63,6 +66,8 @@ import org.apache.inlong.sort.cdc.mongodb.debezium.internal.FlinkOffsetBackingSt
 import org.apache.inlong.sort.cdc.mongodb.debezium.internal.Handover;
 import org.apache.inlong.sort.cdc.mongodb.debezium.internal.SchemaRecord;
 import org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil;
+import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,7 +236,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private String inlongAudit;
 
-    private SourceMetricData sourceMetricData;
+    private SourceTableMetricData sourceMetricData;
+
+    private boolean migrateAll;
 
     private transient ListState<MetricState> metricStateListState;
 
@@ -243,13 +250,15 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             DebeziumDeserializationSchema<T> deserializer,
             Properties properties,
             @Nullable DebeziumOffset specificOffset,
-            Validator validator, String inlongMetric, String inlongAudit) {
+            Validator validator, String inlongMetric,
+            String inlongAudit, boolean migrateAll) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
         this.validator = validator;
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
+        this.migrateAll = migrateAll;
     }
 
     @Override
@@ -445,7 +454,11 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption, metricGroup);
+            sourceMetricData = new SourceTableMetricData(metricOption, metricGroup);
+            if (migrateAll) {
+                // register sub source metric data from metric state
+                sourceMetricData.registerSubMetricsGroup(metricState);
+            }
         }
         properties.setProperty("name", "engine");
         properties.setProperty("offset.storage", FlinkOffsetBackingStore.class.getCanonicalName());
@@ -485,7 +498,19 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
-                                if (sourceMetricData != null) {
+                                if (sourceMetricData != null && record != null && migrateAll) {
+                                    Struct value = (Struct) record.value();
+                                    Struct source = value.getStruct(MongoDBEnvelope.NAMESPACE_FIELD);
+                                    if (null == source) {
+                                        source = value.getStruct(RecordUtils.DOCUMENT_TO_FIELD);
+                                    }
+                                    String dbName = source.getString(MongoDBEnvelope.NAMESPACE_DATABASE_FIELD);
+                                    String tableName = source.getString(MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD);
+                                    SnapshotRecord snapshotRecord = SnapshotRecord.fromSource(source);
+                                    boolean isSnapshotRecord = (SnapshotRecord.TRUE == snapshotRecord);
+                                    sourceMetricData
+                                            .outputMetricsWithEstimate(dbName, tableName, isSnapshotRecord, value);
+                                } else if (sourceMetricData != null && record != null) {
                                     sourceMetricData.outputMetricsWithEstimate(record.value());
                                 }
                                 deserializer.deserialize(record, out);
