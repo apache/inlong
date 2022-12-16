@@ -187,9 +187,9 @@ public class DataNodeServiceImpl implements DataNodeService {
         if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED);
         }
-        PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<DataNodeEntity> entityPage = (Page<DataNodeEntity>) dataNodeMapper.selectByCondition(request);
-        return entityPage.stream()
+        // query result
+        List<DataNodeEntity> nodeEntities = dataNodeMapper.selectByCondition(request);
+        return nodeEntities.stream()
                 .map(entity -> {
                     DataNodeOperator dataNodeOperator = operatorFactory.getInstance(entity.getType());
                     return dataNodeOperator.getFromEntity(entity);

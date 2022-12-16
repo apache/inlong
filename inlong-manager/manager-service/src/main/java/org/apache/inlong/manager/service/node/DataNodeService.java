@@ -84,7 +84,7 @@ public interface DataNodeService {
     PageResult<DataNodeInfo> list(DataNodePageRequest request);
 
     /**
-     * Paging query nodes according to conditions.
+     * Query nodes according to conditions.
      *
      * @param request page request conditions
      * @param opInfo  userinfo of operator

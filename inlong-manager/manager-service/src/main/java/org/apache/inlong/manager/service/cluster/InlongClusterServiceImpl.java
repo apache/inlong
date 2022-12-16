@@ -237,20 +237,19 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (opInfo == null) {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
-        request.setCurrentUser(opInfo.getName());
-        PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<InlongClusterTagEntity> entityPage = (Page<InlongClusterTagEntity>) clusterTagMapper
-                .selectByCondition(request);
         List<InlongClusterTagEntity> filterResult = new ArrayList<>();
-        for (InlongClusterTagEntity entity : entityPage) {
-            // only the person in charges can query
-            if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
-                List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
-                if (!inCharges.contains(opInfo.getName())) {
-                    continue;
+        List<InlongClusterTagEntity> clusterTagEntities = clusterTagMapper.selectByCondition(request);
+        if (CollectionUtils.isNotEmpty(clusterTagEntities)) {
+            for (InlongClusterTagEntity tagEntity : clusterTagEntities) {
+                // only the person in charges can query
+                if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+                    List<String> inCharges = Arrays.asList(tagEntity.getInCharges().split(InlongConstants.COMMA));
+                    if (!inCharges.contains(opInfo.getName())) {
+                        continue;
+                    }
                 }
+                filterResult.add(tagEntity);
             }
-            filterResult.add(entity);
         }
         return CommonBeanUtils.copyListProperties(filterResult, ClusterTagResponse::new);
     }
@@ -608,16 +607,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (opInfo == null) {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
-        PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<InlongClusterEntity> entityPage = (Page<InlongClusterEntity>) clusterMapper.selectByCondition(request);
-        List<ClusterInfo> queryResult = entityPage.stream()
-                .map(entity -> {
-                    InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
-                    return instance.getFromEntity(entity);
-                })
-                .collect(Collectors.toList());
-        List<ClusterInfo> filterResult = new ArrayList<>();
-        for (ClusterInfo entity : queryResult) {
+        // get and filter records
+        List<InlongClusterEntity> clusterEntities = clusterMapper.selectByCondition(request);
+        List<InlongClusterEntity> filterResult = new ArrayList<>();
+        for (InlongClusterEntity entity : clusterEntities) {
             // only the person in charges can query
             if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
                 List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
@@ -627,7 +620,11 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             }
             filterResult.add(entity);
         }
-        return filterResult;
+        // transfer records
+        return filterResult.stream().map(entity -> {
+            InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
+            return instance.getFromEntity(entity);
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -1126,9 +1123,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                             "Current user does not have permission to get cluster node list");
                 }
             }
-            Page<InlongClusterNodeEntity> entityPage =
-                    (Page<InlongClusterNodeEntity>) clusterNodeMapper.selectByCondition(request);
-            return CommonBeanUtils.copyListProperties(entityPage, ClusterNodeResponse::new);
+            return CommonBeanUtils.copyListProperties(
+                    clusterNodeMapper.selectByCondition(request), ClusterNodeResponse::new);
         } else {
             List<InlongClusterNodeEntity> allNodeList = new ArrayList<>();
             List<InlongClusterEntity> clusterList =

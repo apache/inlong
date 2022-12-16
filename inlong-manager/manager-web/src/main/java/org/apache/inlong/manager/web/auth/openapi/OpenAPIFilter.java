@@ -21,6 +21,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.common.util.BasicAuth;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -73,7 +75,12 @@ public class OpenAPIFilter implements Filter {
             ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-        filterChain.doFilter(servletRequest, servletResponse);
+        LoginUserUtils.setUserLoginInfo((UserInfo) subject.getPrincipal());
+        try {
+            filterChain.doFilter(servletRequest, servletResponse);
+        } finally {
+            LoginUserUtils.removeUserLoginInfo();
+        }
     }
 
     private SecretToken parseBasicAuth(HttpServletRequest servletRequest) {
