@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * Basic config for master service
  */
 public class MasterConfig extends AbstractFileConfig {
+
     private static final Logger logger = LoggerFactory.getLogger(MasterConfig.class);
 
     private String hostName;
@@ -299,7 +300,7 @@ public class MasterConfig extends AbstractFileConfig {
             int promHttpPort = this.promConfig.getPromHttpPort();
             if ((promHttpPort == this.port || promHttpPort == this.webPort
                     || (tlsConfig.isTlsEnable()
-                    && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
+                            && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
                 throw new IllegalArgumentException(new StringBuilder(512)
                         .append("Illegal port value configuration, the value of ")
                         .append("port or webPort or tlsPort cannot be the same as the value of promHttpPort!")
@@ -362,8 +363,8 @@ public class MasterConfig extends AbstractFileConfig {
                 this.hostName = AddressUtils.getIPV4LocalAddress();
             } catch (Throwable e) {
                 throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Get default master hostName failure : ")
-                    .append(e.getMessage()).toString());
+                        .append("Get default master hostName failure : ")
+                        .append(e.getMessage()).toString());
             }
         }
         // web port
@@ -508,12 +509,12 @@ public class MasterConfig extends AbstractFileConfig {
         if (this.needBrokerVisitAuth) {
             if (TStringUtils.isBlank(masterConf.get("visitName"))) {
                 throw new IllegalArgumentException(new StringBuilder(256)
-                        .append("visitName is null or Blank in ").append(SECT_TOKEN_BROKER)
+                        .append("visitName is null or Blank in ").append(SECT_TOKEN_MASTER)
                         .append(" section!").toString());
             }
             if (TStringUtils.isBlank(masterConf.get("visitPassword"))) {
                 throw new IllegalArgumentException(new StringBuilder(256)
-                        .append("visitPassword is null or Blank in ").append(SECT_TOKEN_BROKER)
+                        .append("visitPassword is null or Blank in ").append(SECT_TOKEN_MASTER)
                         .append(" section!").toString());
             }
             this.visitName = masterConf.get("visitName").trim();

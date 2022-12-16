@@ -48,11 +48,7 @@
         where source_id = #{sourceId,jdbcType=INTEGER}
         and is_deleted = 0
     </select>
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-        delete
-        from stream_source_field
-        where id = #{id,jdbcType=INTEGER}
-    </delete>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StreamSourceFieldEntity">
         insert into stream_source_field (id, inlong_group_id, inlong_stream_id,
@@ -230,6 +226,15 @@
             rank_num         = #{rankNum,jdbcType=SMALLINT},
             is_deleted       = #{isDeleted,jdbcType=INTEGER}
         where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByRelatedId">
+        update stream_source_field
+        <set>
+            is_deleted = id
+        </set>
+        where is_deleted = 0
+        and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
     </update>
 
     <insert id="insertAll" parameterType="org.apache.inlong.manager.dao.entity.StreamSourceFieldEntity">

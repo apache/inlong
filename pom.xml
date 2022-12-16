@@ -17,11 +17,9 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
@@ -30,62 +28,14 @@
 
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong</artifactId>
-    <version>1.4.0-SNAPSHOT</version>
+    <version>1.5.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>Apache InLong</name>
 
     <description>InLong is a one-stop integration framework for massive data donated by Tencent to
         the Apache community.
         It provides automatic, safe, reliable, and high-performance data transmission capabilities
-        to facilitate the construction of streaming-based data analysis, modeling, and applications.
-    </description>
-    <url>https://github.com/apache/inlong</url>
-
-    <organization>
-        <name>Apache Software Foundation</name>
-        <url>https://www.apache.org/</url>
-    </organization>
-    <inceptionYear>2013</inceptionYear>
-
-    <developers>
-        <developer>
-            <organization>Apache InLong developers</organization>
-            <organizationUrl>https://inlong.apache.org/</organizationUrl>
-        </developer>
-    </developers>
-
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <scm>
-        <url>https://github.com/apache/inlong</url>
-        <connection>scm:git:https://github.com/apache/inlong.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:apache/inlong.git
-        </developerConnection>
-    </scm>
-
-    <ciManagement>
-        <system>GitHub Actions</system>
-        <url>https://github.com/apache/inlong/actions</url>
-    </ciManagement>
-
-    <issueManagement>
-        <system>Github</system>
-        <url>https://github.com/apache/inlong/issues</url>
-    </issueManagement>
-
-    <mailingLists>
-        <mailingList>
-            <name>InLong Developer List</name>
-            <post>dev@inlong.apache.org</post>
-            <subscribe>dev-subscribe@inlong.apache.org</subscribe>
-            <unsubscribe>dev-unsubscribe@inlong.apache.org</unsubscribe>
-        </mailingList>
-    </mailingLists>
+        to facilitate the construction of streaming-based data analysis, modeling, and applications.</description>
 
     <modules>
         <module>inlong-common</module>
@@ -115,7 +65,7 @@
         <exec.maven.version>1.6.0</exec.maven.version>
         <build.helper.maven.version>3.0.0</build.helper.maven.version>
 
-        <checkstyle.version>6.19</checkstyle.version>
+        <spotless.version>2.27.2</spotless.version>
         <dockerfile.maven.version>1.4.13</dockerfile.maven.version>
         <testcontainers.version>1.17.2</testcontainers.version>
         <docker.organization>inlong</docker.organization>
@@ -129,9 +79,6 @@
         <httpclient.version>4.5.13</httpclient.version>
         <okhttp.version>3.14.9</okhttp.version>
         <retrofit.version>2.9.0</retrofit.version>
-        <okhttp2.version>2.7.5</okhttp2.version>
-        <okio.version>1.12.0</okio.version>
-        <logging-interceptor.version>2.7.5</logging-interceptor.version>
 
         <spring.boot.version>2.6.6</spring.boot.version>
         <spring.version>5.3.20</spring.version>
@@ -141,7 +88,7 @@
         <pagehelper.springboot.version>1.4.2</pagehelper.springboot.version>
         <pagehelper.version>5.3.1</pagehelper.version>
 
-        <h2.version>2.1.210</h2.version>
+        <h2.version>2.1.214</h2.version>
         <h2.mysql.version>2.0.0</h2.mysql.version>
         <debezium.version>1.8.0.Final</debezium.version>
         <rocksdb.version>6.14.6</rocksdb.version>
@@ -156,10 +103,10 @@
         <druid.version>1.2.6</druid.version>
         <elasticsearch6.version>6.8.17</elasticsearch6.version>
         <elasticsearch7.version>7.9.2</elasticsearch7.version>
-        <shiro.version>1.9.1</shiro.version>
+        <shiro.version>1.10.1</shiro.version>
 
         <snappy.version>1.1.8.4</snappy.version>
-        <protobuf.version>3.19.4</protobuf.version>
+        <protobuf.version>3.19.6</protobuf.version>
         <bytebuddy.version>1.12.9</bytebuddy.version>
         <reflections.version>0.10.2</reflections.version>
 
@@ -174,7 +121,6 @@
         <commons.lang3.version>3.11</commons.lang3.version>
         <commons.collections.version>3.2.2</commons.collections.version>
         <commons.collections4.version>4.3</commons.collections4.version>
-        <commons-logging.version>1.2</commons-logging.version>
 
         <guava.version>31.0.1-jre</guava.version>
         <lombok.version>1.18.22</lombok.version>
@@ -198,11 +144,13 @@
         <ini4j.version>0.5.4</ini4j.version>
         <dom4j.version>2.1.3</dom4j.version>
 
+        <aws.sdk.version>1.12.346</aws.sdk.version>
         <zookeeper.version>3.6.3</zookeeper.version>
         <pulsar.version>2.8.1</pulsar.version>
         <pulsar.testcontainers.version>1.15.3</pulsar.testcontainers.version>
         <kafka.version>2.4.1</kafka.version>
         <iceberg.version>0.13.2</iceberg.version>
+        <hudi.version>0.12.1</hudi.version>
         <flink.version>1.13.5</flink.version>
         <flink.minor.version>1.13</flink.minor.version>
         <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
@@ -210,14 +158,12 @@
         <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
         <flink.connector.postgres.cdc.version>2.2.1</flink.connector.postgres.cdc.version>
         <flink.connector.sqlserver.cdc.version>2.2.1</flink.connector.sqlserver.cdc.version>
-        <flink.pulsar.version>1.13.6.1-rc9</flink.pulsar.version>
+        <flink.pulsar.version>1.13.6.2</flink.pulsar.version>
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
         <flink.connector.mongodb.cdc.version>2.2.1</flink.connector.mongodb.cdc.version>
         <flink.connector.oracle.cdc.version>2.2.1</flink.connector.oracle.cdc.version>
         <flink.connector.doris.version>1.0.3</flink.connector.doris.version>
         <flink.connector.redis>1.1.0</flink.connector.redis>
-        <qcloud.flink.cos.fs.hadoop.version>1.10.0-0.1.10</qcloud.flink.cos.fs.hadoop.version>
-        <qcloud.chdfs.version>2.5</qcloud.chdfs.version>
 
         <curator.version>2.12.0</curator.version>
 
@@ -246,12 +192,6 @@
         <jcommander.version>1.78</jcommander.version>
         <je.version>7.3.7</je.version>
         <tencentcloud.cls.version>1.0.9</tencentcloud.cls.version>
-        <tencentcloud.api.version>3.1.545</tencentcloud.api.version>
-        <cos.hadoop.version>2.7.5-5.9.3</cos.hadoop.version>
-        <cos.bundle.version>5.6.35</cos.bundle.version>
-        <dlc.client.version>1.1.1</dlc.client.version>
-        <dlc.jdbc.version>2.2.6</dlc.jdbc.version>
-        <cos.lakefs.plugin.version>1.0</cos.lakefs.plugin.version>
         <esri-geometry-api.version>2.0.0</esri-geometry-api.version>
         <HikariCP.version>4.0.3</HikariCP.version>
         <caffeine.version>2.9.3</caffeine.version>
@@ -259,6 +199,8 @@
         <paho.client.version>1.2.5</paho.client.version>
 
         <kubernetes.client.version>6.0.0</kubernetes.client.version>
+        <protobuf.maven.plugin.version>0.6.1</protobuf.maven.plugin.version>
+        <os.maven.plugin.version>1.6.0</os.maven.plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -431,16 +373,16 @@
                 <version>${hadoop.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>jersey-json</artifactId>
                         <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-json</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>snappy-java</artifactId>
                         <groupId>org.xerial.snappy</groupId>
+                        <artifactId>snappy-java</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>commons-logging</artifactId>
                         <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>commons-io</groupId>
@@ -498,8 +440,8 @@
                         <artifactId>log4j-slf4j-impl</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>protobuf-java</artifactId>
                         <groupId>com.google.protobuf</groupId>
+                        <artifactId>protobuf-java</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -608,6 +550,12 @@
 
             <dependency>
                 <groupId>io.debezium</groupId>
+                <artifactId>debezium-connector-sqlserver</artifactId>
+                <version>${debezium.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.debezium</groupId>
                 <artifactId>debezium-connector-mongodb</artifactId>
                 <version>${debezium.version}</version>
             </dependency>
@@ -617,6 +565,13 @@
                 <artifactId>debezium-connector-postgres</artifactId>
                 <version>${debezium.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-connector-oracle</artifactId>
+                <version>${debezium.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
@@ -857,21 +812,6 @@
                 <artifactId>converter-jackson</artifactId>
                 <version>${retrofit.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.squareup.okhttp</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>${okhttp2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.squareup.okio</groupId>
-                <artifactId>okio</artifactId>
-                <version>${okio.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.squareup.okhttp</groupId>
-                <artifactId>logging-interceptor</artifactId>
-                <version>${logging-interceptor.version}</version>
-            </dependency>
 
             <!-- elastic search -->
             <dependency>
@@ -1111,6 +1051,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-s3</artifactId>
+                <version>${aws.sdk.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>io.streamnative.connectors</groupId>
                 <artifactId>pulsar-flink-connector_${scala.binary.version}</artifactId>
                 <version>${flink.pulsar.version}</version>
@@ -1150,16 +1096,11 @@
                 <version>${iceberg.version}</version>
             </dependency>
 
-            <!-- qcloud -->
+            <!-- hudi -->
             <dependency>
-                <groupId>com.qcloud</groupId>
-                <artifactId>chdfs_hadoop_plugin_network</artifactId>
-                <version>${qcloud.chdfs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.qcloud.cos</groupId>
-                <artifactId>flink-cos-fs-hadoop</artifactId>
-                <version>${qcloud.flink.cos.fs.hadoop.version}</version>
+                <groupId>org.apache.hudi</groupId>
+                <artifactId>hudi-flink1.13-bundle</artifactId>
+                <version>${hudi.version}</version>
             </dependency>
 
             <!-- lombok -->
@@ -1239,8 +1180,8 @@
                 <version>${protobuf.version}</version>
             </dependency>
             <dependency>
-                <artifactId>byte-buddy</artifactId>
                 <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
                 <version>${bytebuddy.version}</version>
             </dependency>
 
@@ -1319,18 +1260,18 @@
                 <version>${commons.lang3.version}</version>
             </dependency>
             <dependency>
-                <artifactId>commons-dbutils</artifactId>
                 <groupId>commons-dbutils</groupId>
+                <artifactId>commons-dbutils</artifactId>
                 <version>${commons.dbutils.version}</version>
             </dependency>
             <dependency>
-                <artifactId>commons-cli</artifactId>
                 <groupId>commons-cli</groupId>
+                <artifactId>commons-cli</artifactId>
                 <version>${commons.cli.version}</version>
             </dependency>
             <dependency>
-                <artifactId>commons-io</artifactId>
                 <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
                 <version>${commons.io.version}</version>
             </dependency>
             <dependency>
@@ -1347,11 +1288,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>${commons.collections4.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>${commons-logging.version}</version>
             </dependency>
             <!-- metric -->
             <dependency>
@@ -1415,17 +1351,6 @@
                 <version>${log4j2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-1.2-api</artifactId>
                 <version>${log4j2.version}</version>
@@ -1436,7 +1361,17 @@
                 <artifactId>log4j-jcl</artifactId>
                 <version>${log4j2.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>provided</scope>
+            </dependency>
             <!-- logback -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -1504,10 +1439,10 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <artifactId>awaitility</artifactId>
                 <groupId>org.awaitility</groupId>
-                <scope>test</scope>
+                <artifactId>awaitility</artifactId>
                 <version>${awaitility.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
@@ -1570,40 +1505,10 @@
                 <version>${tencentcloud.cls.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>protobuf-java</artifactId>
                         <groupId>com.google.protobuf</groupId>
+                        <artifactId>protobuf-java</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.tencentcloudapi</groupId>
-                <artifactId>tencentcloud-sdk-java</artifactId>
-                <version>${tencentcloud.api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.qcloud.cos</groupId>
-                <artifactId>hadoop-cos</artifactId>
-                <version>${cos.hadoop.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.qcloud</groupId>
-                <artifactId>cos_api-bundle</artifactId>
-                <version>${cos.bundle.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.qcloud</groupId>
-                <artifactId>dlc-data-catalog-metastore-client</artifactId>
-                <version>${dlc.client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.qcloud.cos</groupId>
-                <artifactId>lakefs-cloud-plugin</artifactId>
-                <version>${cos.lakefs.plugin.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.qcloud</groupId>
-                <artifactId>dlc-jdbc</artifactId>
-                <version>${dlc.jdbc.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
@@ -1644,33 +1549,60 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.1</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>8.29</version>
-                    </dependency>
-                </dependencies>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
                 <configuration>
-                    <configLocation>codestyle/checkstyle.xml</configLocation>
-                    <suppressionsLocation>codestyle/suppressions.xml</suppressionsLocation>
-                    <encoding>UTF-8</encoding>
-                    <consoleOutput>true</consoleOutput>
-                    <failOnViolation>true</failOnViolation>
-                    <includeResources>false</includeResources>
-                    <includeTestResources>false</includeTestResources>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <java>
+                        <eclipse>
+                            <file>codestyle/spotless_inlong_formatter.xml</file>
+                        </eclipse>
+                        <licenseHeader>
+                            <file>codestyle/license-header</file>
+                        </licenseHeader>
+                        <removeUnusedImports />
+                        <replaceRegex>
+                            <name>Remove wildcard imports</name>
+                            <searchRegex>import\s+[^\*\s]+\*;(\r\n|\r|\n)</searchRegex>
+                            <replacement>$1</replacement>
+                        </replaceRegex>
+                    </java>
+                    <pom>
+                        <sortPom>
+                            <encoding>UTF-8</encoding>
+                            <nrOfIndentSpace>4</nrOfIndentSpace>
+                            <keepBlankLines>true</keepBlankLines>
+                            <indentBlankLines>false</indentBlankLines>
+                            <indentSchemaLocation>true</indentSchemaLocation>
+                            <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
+                            <sortModules>false</sortModules>
+                            <sortExecutions>false</sortExecutions>
+                            <predefinedSortOrder>custom_1</predefinedSortOrder>
+                            <expandEmptyElements>false</expandEmptyElements>
+                            <sortProperties>false</sortProperties>
+                        </sortPom>
+                        <replace>
+                            <name>Leading blank line</name>
+                            <search>project</search>
+                            <replacement>project</replacement>
+                        </replace>
+                    </pom>
+                    <markdown>
+                        <includes>
+                            <include>docs/**/*.md</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/.github/**/*.md</exclude>
+                        </excludes>
+                        <flexmark />
+                    </markdown>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>checkstyle</id>
-                        <phase>validate</phase>
                         <goals>
-                            <goal>check</goal>
+                            <goal>apply</goal>
                         </goals>
+                        <phase>compile</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -1686,28 +1618,18 @@
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
                 <version>0.14</version>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <consoleOutput>true</consoleOutput>
                     <excludeSubProjects>false</excludeSubProjects>
                     <numUnapprovedLicenses>0</numUnapprovedLicenses>
                     <licenses>
-                        <license
-                                implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
+                        <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
                             <licenseFamilyCategory>AL2</licenseFamilyCategory>
                             <licenseFamilyName>Apache License 2.0</licenseFamilyName>
-                            <notes/>
+                            <notes />
                             <patterns>
                                 <pattern>Licensed to the Apache Software Foundation (ASF) under
-                                    one
-                                </pattern>
+                                    one</pattern>
                             </patterns>
                         </license>
                     </licenses>
@@ -1717,13 +1639,11 @@
                         </licenseFamily>
                     </licenseFamilies>
                     <excludes>
-                        <!-- Exclude license copies -->
                         <exclude>licenses/**</exclude>
 
                         <!-- Generated content -->
                         <exclude>LICENSE</exclude>
                         <exclude>NOTICE</exclude>
-                        <exclude>codestyle/checkstyle.xml</exclude>
 
                         <!-- Documents -->
                         <exclude>**/*.md</exclude>
@@ -1768,9 +1688,7 @@
                         <!-- Test case : temporary data for test cases -->
                         <exclude>**/AgentBaseTestsHelper/**</exclude>
                         <!-- Test case : example jar for test cases -->
-                        <exclude>
-                            **/manager-service/src/test/resources/plugins/manager-plugin-examples.jar
-                        </exclude>
+                        <exclude>**/manager-service/src/test/resources/plugins/manager-plugin-examples.jar</exclude>
                         <!-- Test case: flink sql comments statement support limit for end2end test cases -->
                         <exclude>**/resources/flinkSql/**</exclude>
 
@@ -1790,8 +1708,63 @@
 
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
+    <url>https://github.com/apache/inlong</url>
+    <inceptionYear>2013</inceptionYear>
+
+    <organization>
+        <name>Apache Software Foundation</name>
+        <url>https://www.apache.org/</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <organization>Apache InLong developers</organization>
+            <organizationUrl>https://inlong.apache.org/</organizationUrl>
+        </developer>
+    </developers>
+
+    <mailingLists>
+        <mailingList>
+            <name>InLong Developer List</name>
+            <subscribe>dev-subscribe@inlong.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@inlong.apache.org</unsubscribe>
+            <post>dev@inlong.apache.org</post>
+        </mailingList>
+    </mailingLists>
+
+    <scm>
+        <connection>scm:git:https://github.com/apache/inlong.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:apache/inlong.git</developerConnection>
+        <url>https://github.com/apache/inlong</url>
+    </scm>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/apache/inlong/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>GitHub Actions</system>
+        <url>https://github.com/apache/inlong/actions</url>
+    </ciManagement>
 
 </project>

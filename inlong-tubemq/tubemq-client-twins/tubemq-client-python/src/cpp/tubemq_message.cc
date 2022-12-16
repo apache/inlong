@@ -47,5 +47,6 @@ PYBIND11_MODULE(tubemq_message, m) {
         .def("hasProperty", &Message::HasProperty)
         .def("getProperty", &Message::GetProperty)
         .def("getFilterItem", &Message::GetFilterItem)
-        .def("addProperty", &Message::AddProperty);
+        .def("addProperty", &Message::AddProperty)
+        .def("putSystemHeader", &Message::PutSystemHeader);
 }

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -65,7 +65,7 @@ public interface ClientBalanceConsumer extends Shutdownable {
      * @return  true if call success, false if failure
      */
     boolean start(Map<String, TreeSet<String>> topicAndFilterCondMap,
-                  int sourceCount, int nodeId, ProcessResult result) throws TubeClientException;
+            int sourceCount, int nodeId, ProcessResult result) throws TubeClientException;
 
     /**
      * Query partition configure information from Master
@@ -99,7 +99,7 @@ public interface ClientBalanceConsumer extends Shutdownable {
      * @return  true if call success, false if failure
      */
     boolean connect2Partition(String partitionKey, long boostrapOffset,
-                              ProcessResult result) throws TubeClientException;
+            ProcessResult result) throws TubeClientException;
 
     /**
      * Disconnect from the registered partition for partition release
@@ -111,7 +111,7 @@ public interface ClientBalanceConsumer extends Shutdownable {
      * @return  true if call success, false if failure
      */
     boolean disconnectFromPartition(String partitionKey,
-                                    ProcessResult result) throws TubeClientException;
+            ProcessResult result) throws TubeClientException;
 
     /**
      * Get consume offset information of the current registered partitions
@@ -144,6 +144,6 @@ public interface ClientBalanceConsumer extends Shutdownable {
      * @return  true if call success, false if failure
      */
     boolean confirmConsume(String confirmContext, boolean isConsumed,
-                           ConfirmResult result) throws TubeClientException;
+            ConfirmResult result) throws TubeClientException;
 
 }

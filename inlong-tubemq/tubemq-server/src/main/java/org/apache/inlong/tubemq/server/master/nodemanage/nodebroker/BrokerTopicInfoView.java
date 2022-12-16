@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -37,12 +37,12 @@ import org.apache.inlong.tubemq.server.common.utils.SerialIdUtils;
  * Topic view of Broker's current operations
  */
 public class BrokerTopicInfoView {
+
     public AtomicLong topicChangeId = new AtomicLong(0);
-    private final ConcurrentHashMap<String/* topicName */,
-            ConcurrentHashMap<Integer/* brokerId */, TopicInfo>> topicConfInfoMap =
+    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashMap<Integer/* brokerId */, TopicInfo>> topicConfInfoMap =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String/* topicName */>>
-            brokerIdIndexMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String/* topicName */>> brokerIdIndexMap =
+            new ConcurrentHashMap<>();
 
     public BrokerTopicInfoView() {
 
@@ -57,7 +57,7 @@ public class BrokerTopicInfoView {
      *                    if topicInfoMap is empty, clear current configure.
      */
     public void updBrokerTopicConfInfo(int brokerId,
-                                       Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         if (topicInfoMap == null) {
             return;
         }
@@ -78,7 +78,7 @@ public class BrokerTopicInfoView {
      * @return if fast sync data
      */
     public boolean fastUpdBrokerTopicConfInfo(int brokerId,
-                                              Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         if (topicInfoMap == null) {
             return true;
         }
@@ -99,7 +99,7 @@ public class BrokerTopicInfoView {
      * @return   max configure broker count for each topic
      */
     public int getMaxTopicBrokerCnt(Set<String> topicSet,
-                                    Set<Integer> enableSubBrokerIdSet) {
+            Set<Integer> enableSubBrokerIdSet) {
         int tmpSize;
         int maxCount = -1;
         ConcurrentHashMap<Integer, TopicInfo> topicInfoView;
@@ -138,7 +138,7 @@ public class BrokerTopicInfoView {
      * @return  query result
      */
     public Map<String, Partition> getAcceptSubParts(Set<String> topicSet,
-                                                    Set<Integer> enableSubBrokerIdSet) {
+            Set<Integer> enableSubBrokerIdSet) {
         Map<String, Partition> partMap = new HashMap<>();
         if (topicSet == null || topicSet.isEmpty()) {
             return partMap;
@@ -200,7 +200,7 @@ public class BrokerTopicInfoView {
      * @return  query result
      */
     public Map<String, String> getAcceptPubPartInfo(Map<String, Integer> topicSizeMap,
-                                                    Set<Integer> enablePubBrokerIdSet) {
+            Set<Integer> enablePubBrokerIdSet) {
         TopicInfo topicInfo;
         ConcurrentHashMap<Integer, TopicInfo> topicInfoView;
         Map<String, String> topicPartStrMap = new HashMap<>();
@@ -335,7 +335,7 @@ public class BrokerTopicInfoView {
 
     // remove broker special topic info
     private boolean rmvBrokerTopicInfo(int brokerId,
-                                       Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         boolean changed = false;
         Set<String> delTopicSet = new HashSet<>();
         ConcurrentHashSet<String> curTopicSet = brokerIdIndexMap.get(brokerId);
@@ -372,7 +372,7 @@ public class BrokerTopicInfoView {
 
     // add or update broker special topic info
     private void repBrokerTopicInfo(int brokerId,
-                                    Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         if (topicInfoMap == null || topicInfoMap.isEmpty()) {
             return;
         }
@@ -408,7 +408,7 @@ public class BrokerTopicInfoView {
 
     // update current broker special topic info
     private Tuple2<Boolean, Boolean> updBrokerTopicInfo(int brokerId,
-                                                        Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         boolean isChanged = false;
         boolean isFastSync = true;
         Tuple2<Boolean, Boolean> retResult = new Tuple2<>();

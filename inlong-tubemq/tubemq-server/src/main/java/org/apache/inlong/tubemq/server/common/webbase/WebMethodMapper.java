@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WebMethodMapper {
+
     // log printer
     private static final Logger logger =
             LoggerFactory.getLogger(WebMethodMapper.class);
@@ -35,10 +36,10 @@ public class WebMethodMapper {
     }
 
     public static void registerWebMethod(String webMethodName,
-                                         String clsMethodName,
-                                         boolean onlyMasterOp,
-                                         boolean needAuthToken,
-                                         Object webHandler) {
+            String clsMethodName,
+            boolean onlyMasterOp,
+            boolean needAuthToken,
+            Object webHandler) {
         Method[] methods = webHandler.getClass().getMethods();
         for (Method item : methods) {
             if (item.getName().equals(clsMethodName)) {
@@ -73,15 +74,16 @@ public class WebMethodMapper {
     }
 
     public static class WebApiRegInfo {
+
         public Method method;
         public Object webHandler;
         public boolean onlyMasterOp = false;
         public boolean needAuthToken = false;
 
         public WebApiRegInfo(Method method,
-                             Object webHandler,
-                             boolean onlyMasterOp,
-                             boolean needAuthToken) {
+                Object webHandler,
+                boolean onlyMasterOp,
+                boolean needAuthToken) {
             this.method = method;
             this.webHandler = webHandler;
             this.onlyMasterOp = onlyMasterOp;

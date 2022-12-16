@@ -112,7 +112,7 @@ public class ConvertUtils {
     }
 
     public static ClusterVo convertToClusterVo(ClusterEntry clusterEntry,
-                                               List<MasterEntry> masterEntries, ClusterVo clusterVo) {
+            List<MasterEntry> masterEntries, ClusterVo clusterVo) {
         ClusterVo cluster = new ClusterVo();
         cluster.setClusterId(clusterEntry.getClusterId());
         cluster.setMasterEntries(masterEntries);

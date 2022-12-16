@@ -20,6 +20,7 @@ package org.apache.inlong.sort.cdc.oracle.table;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
+import io.debezium.relational.Column;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
@@ -38,7 +39,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
-import org.apache.inlong.sort.cdc.oracle.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -46,11 +47,14 @@ import org.apache.kafka.connect.source.SourceRecord;
 /** Defines the supported metadata columns for {@link OracleTableSource}. */
 public enum OracleReadableMetaData {
 
-    /** Name of the table that contain the row. */
+    /**
+     * Name of the table that contain the row.
+     */
     TABLE_NAME(
             "table_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -58,11 +62,15 @@ public enum OracleReadableMetaData {
                     return StringData.fromString(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
                 }
             }),
-    /** Name of the schema that contain the row. */
+
+    /**
+     * Name of the schema that contain the row.
+     */
     SCHEMA_NAME(
             "schema_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -71,11 +79,14 @@ public enum OracleReadableMetaData {
                 }
             }),
 
-    /** Name of the database that contain the row. */
+    /**
+     * Name of the database that contain the row.
+     */
     DATABASE_NAME(
             "database_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -85,19 +96,86 @@ public enum OracleReadableMetaData {
             }),
 
     /**
-     * It indicates the time that the change was made in the database. If the record is read from
-     * snapshot of the table instead of the change stream, the value is always 0.
+     * It indicates the time that the change was made in the database.
      */
     OP_TS(
             "op_ts",
-            DataTypes.TIMESTAMP_LTZ(3).notNull(),
+            DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
                 public Object read(SourceRecord record) {
                     Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
+                    Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
+                    return TimestampData.fromEpochMillis(
+                            (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
+                }
+            }),
+
+    /**
+     * Name of the table that contain the row.
+     */
+    META_TABLE_NAME(
+            "meta.table_name",
+            DataTypes.STRING().notNull(),
+            new MetadataConverter() {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
+                }
+            }),
+
+    /**
+     * Name of the schema that contain the row.
+     */
+    META_SCHEMA_NAME(
+            "meta.schema_name",
+            DataTypes.STRING().notNull(),
+            new MetadataConverter() {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.SCHEMA_NAME_KEY));
+                }
+            }),
+
+    /**
+     * Name of the database that contain the row.
+     */
+    META_DATABASE_NAME(
+            "meta.database_name",
+            DataTypes.STRING().notNull(),
+            new MetadataConverter() {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY));
+                }
+            }),
+
+    /**
+     * It indicates the time that the change was made in the database.
+     */
+    META_OP_TS(
+            "meta.op_ts",
+            DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
+            new MetadataConverter() {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    Struct messageStruct = (Struct) record.value();
+                    Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
                     return TimestampData.fromEpochMillis(
                             (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
                 }
@@ -107,6 +185,7 @@ public enum OracleReadableMetaData {
             "meta.data",
             DataTypes.STRING(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -125,6 +204,7 @@ public enum OracleReadableMetaData {
             "meta.data_canal",
             DataTypes.STRING(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -140,83 +220,18 @@ public enum OracleReadableMetaData {
             }),
 
     /**
-     * Name of the table that contain the row. .
-     */
-    META_TABLE_NAME(
-            "meta.table_name",
-            DataTypes.STRING().notNull(),
-            new MetadataConverter() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public Object read(SourceRecord record) {
-                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
-                }
-            }),
-
-    /**
-     * Name of the database that contain the row.
-     */
-    META_DATABASE_NAME(
-            "meta.database_name",
-            DataTypes.STRING().notNull(),
-            new MetadataConverter() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public Object read(SourceRecord record) {
-                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY));
-                }
-            }),
-
-    /**
-     * It indicates the time that the change was made in the database. If the record is read from
-     * snapshot of the table instead of the binlog, the value is always 0.
-     */
-    META_OP_TS(
-            "meta.op_ts",
-            DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
-            new MetadataConverter() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public Object read(SourceRecord record) {
-                    Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
-                    return TimestampData.fromEpochMillis(
-                            (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
-                }
-            }),
-
-    /**
      * Operation type, INSERT/UPDATE/DELETE.
      */
     OP_TYPE(
             "meta.op_type",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
                 public Object read(SourceRecord record) {
                     return StringData.fromString(getOpType(record));
-                }
-            }),
-
-    /**
-     * Not important, a simple increment counter.
-     */
-    BATCH_ID(
-            "meta.batch_id",
-            DataTypes.BIGINT().nullable(),
-            new MetadataConverter() {
-                private static final long serialVersionUID = 1L;
-
-                private long id = 0;
-
-                @Override
-                public Object read(SourceRecord record) {
-                    return id++;
                 }
             }),
 
@@ -227,6 +242,7 @@ public enum OracleReadableMetaData {
             "meta.is_ddl",
             DataTypes.BOOLEAN().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -235,34 +251,11 @@ public enum OracleReadableMetaData {
                 }
             }),
 
-    /**
-     * The update-before data for UPDATE record.
-     */
-    OLD(
-            "meta.update_before",
-            DataTypes.ARRAY(
-                            DataTypes.MAP(
-                                            DataTypes.STRING().nullable(),
-                                            DataTypes.STRING().nullable())
-                                    .nullable())
-                    .nullable(),
-            new MetadataConverter() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public Object read(SourceRecord record) {
-                    final Envelope.Operation op = Envelope.operationFor(record);
-                    if (op != Envelope.Operation.UPDATE) {
-                        return null;
-                    }
-                    return record;
-                }
-            }),
-
-    MYSQL_TYPE(
-            "meta.mysql_type",
+    ORACLE_TYPE(
+            "meta.oracle_type",
             DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable()).nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -273,24 +266,11 @@ public enum OracleReadableMetaData {
                 @Override
                 public Object read(
                         SourceRecord record, @Nullable TableChanges.TableChange tableSchema) {
-                    if (tableSchema == null) {
+                    Map<String, String> oracleType = getOracleType(tableSchema);
+                    if (oracleType == null) {
                         return null;
                     }
-                    Map<StringData, StringData> mysqlType = new HashMap<>();
-                    final Table table = tableSchema.getTable();
-                    table.columns()
-                            .forEach(
-                                    column -> {
-                                        mysqlType.put(
-                                                StringData.fromString(column.name()),
-                                                StringData.fromString(
-                                                        String.format(
-                                                                "%s(%d)",
-                                                                column.typeName(),
-                                                                column.length())));
-                                    });
-
-                    return new GenericMapData(mysqlType);
+                    return new GenericMapData(oracleType);
                 }
             }),
 
@@ -298,6 +278,7 @@ public enum OracleReadableMetaData {
             "meta.pk_names",
             DataTypes.ARRAY(DataTypes.STRING().nullable()).nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -322,6 +303,7 @@ public enum OracleReadableMetaData {
             "meta.sql",
             DataTypes.STRING().nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -334,6 +316,7 @@ public enum OracleReadableMetaData {
             "meta.sql_type",
             DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.INT().nullable()).nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -347,17 +330,17 @@ public enum OracleReadableMetaData {
                     if (tableSchema == null) {
                         return null;
                     }
-                    Map<StringData, Integer> mysqlType = new HashMap<>();
+                    Map<StringData, Integer> sqlType = new HashMap<>();
                     final Table table = tableSchema.getTable();
                     table.columns()
                             .forEach(
                                     column -> {
-                                        mysqlType.put(
+                                        sqlType.put(
                                                 StringData.fromString(column.name()),
                                                 column.jdbcType());
                                     });
 
-                    return new GenericMapData(mysqlType);
+                    return new GenericMapData(sqlType);
                 }
             }),
 
@@ -365,6 +348,7 @@ public enum OracleReadableMetaData {
             "meta.ts",
             DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -415,6 +399,13 @@ public enum OracleReadableMetaData {
 
     private final MetadataConverter converter;
 
+    private static final String OP_INSERT = "INSERT";
+    private static final String OP_DELETE = "DELETE";
+    private static final String OP_UPDATE = "UPDATE";
+    private static final String REGEX_FORMATTED = "\\w.+\\([\\d ,]+\\)";
+    private static final String FORMAT_PRECISION = "%s(%d)";
+    private static final String FORMAT_PRECISION_SCALE = "%s(%d, %d)";
+
     OracleReadableMetaData(String key, DataType dataType, MetadataConverter converter) {
         this.key = key;
         this.dataType = dataType;
@@ -425,11 +416,11 @@ public enum OracleReadableMetaData {
         String opType;
         final Envelope.Operation op = Envelope.operationFor(record);
         if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
-            opType = "INSERT";
+            opType = OP_INSERT;
         } else if (op == Envelope.Operation.DELETE) {
-            opType = "DELETE";
+            opType = OP_DELETE;
         } else {
-            opType = "UPDATE";
+            opType = OP_UPDATE;
         }
         return opType;
     }
@@ -447,16 +438,23 @@ public enum OracleReadableMetaData {
         }
         Map<String, String> oracleType = new LinkedHashMap<>();
         final Table table = tableSchema.getTable();
-        table.columns()
-                .forEach(
-                        column -> {
-                            oracleType.put(
-                                    column.name(),
-                                    String.format(
-                                            "%s(%d)",
-                                            column.typeName(),
-                                            column.length()));
-                        });
+        for (Column column : table.columns()) {
+            // The typeName contains precision and does not need to be formatted.
+            if (column.typeName().matches(REGEX_FORMATTED)) {
+                oracleType.put(column.name(), column.typeName());
+                continue;
+            }
+            if (column.scale().isPresent()) {
+                oracleType.put(
+                        column.name(),
+                        String.format(FORMAT_PRECISION_SCALE,
+                                column.typeName(), column.length(), column.scale().get()));
+            } else {
+                oracleType.put(
+                        column.name(),
+                        String.format(FORMAT_PRECISION, column.typeName(), column.length()));
+            }
+        }
         return oracleType;
     }
 
@@ -464,16 +462,16 @@ public enum OracleReadableMetaData {
         if (tableSchema == null) {
             return null;
         }
-        Map<String, Integer> mysqlType = new LinkedHashMap<>();
+        Map<String, Integer> sqlType = new LinkedHashMap<>();
         final Table table = tableSchema.getTable();
         table.columns()
                 .forEach(
                         column -> {
-                            mysqlType.put(
+                            sqlType.put(
                                     column.name(),
                                     column.jdbcType());
                         });
-        return mysqlType;
+        return sqlType;
     }
 
     private static String getMetaData(SourceRecord record, String tableNameKey) {

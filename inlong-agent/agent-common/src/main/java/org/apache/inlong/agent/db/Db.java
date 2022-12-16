@@ -76,7 +76,6 @@ public interface Db extends Closeable {
      */
     List<KeyValueEntity> search(StateSearchKey searchKey);
 
-
     /**
      * search keyValue list by search key.
      *

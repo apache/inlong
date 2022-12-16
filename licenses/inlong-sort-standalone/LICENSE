@@ -582,7 +582,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   com.jcraft:jsch:0.1.55 - JSch (http://www.jcraft.com/jsch/), (Revised BSD)
   com.google.code.findbugs:jsr305:3.0.2 - FindBugs-jsr305 (http://findbugs.sourceforge.net/), (New BSD License)
   org.fusesource.leveldbjni:leveldbjni-all:1.8 - leveldbjni-all (https://github.com/fusesource/leveldbjni/tree/leveldbjni-1.8), (The BSD 3-Clause License)
-  com.google.protobuf:protobuf-java:3.19.4 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf/tree/v3.19.4), (3-Clause BSD License)
+  com.google.protobuf:protobuf-java:3.19.6 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf/tree/v3.19.6), (3-Clause BSD License)
   com.google.protobuf:protobuf-java-util:3.15.3 - Protocol Buffers [Util] (https://github.com/protocolbuffers/protobuf/tree/v3.15.3), (3-Clause BSD License)
   org.codehaus.woodstox:stax2-api:3.1.4 - Stax2 API (https://github.com/FasterXML/stax2-api), (The BSD License)
   xmlenc:xmlenc:0.52 - xmlenc Library (http://xmlenc.sourceforge.net), (The BSD License)

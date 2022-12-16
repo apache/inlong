@@ -59,6 +59,7 @@ import java.util.stream.Collectors;
  * Kafka multi topics fetcher
  */
 public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarMultiTopicsFetcher.class);
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap;
     private final ConcurrentHashMap<TopicPartition, ConcurrentSkipListMap<Long, Boolean>> ackOffsetMap;

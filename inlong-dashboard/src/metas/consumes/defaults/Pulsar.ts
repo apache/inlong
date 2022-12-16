@@ -18,13 +18,19 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import { ConsumeInfo } from '../common/ConsumeInfo';
 
-const { I18n, FormField } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
 
-export default class PulsarConsume extends ConsumeInfo implements DataWithBackend {
-  @FormField({
+export default class PulsarConsume
+  extends ConsumeInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'radio',
     initialValue: 0,
     rules: [{ required: true }],
@@ -44,7 +50,7 @@ export default class PulsarConsume extends ConsumeInfo implements DataWithBacken
   @I18n('isDlq')
   isDlq: 0 | 1;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     visible: values => values?.isDlq,
@@ -52,7 +58,7 @@ export default class PulsarConsume extends ConsumeInfo implements DataWithBacken
   @I18n('deadLetterTopic')
   deadLetterTopic: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     initialValue: 0,
     rules: [{ required: true }],
@@ -73,7 +79,7 @@ export default class PulsarConsume extends ConsumeInfo implements DataWithBacken
   @I18n('isRlq')
   isRlq: 0 | 1;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     visible: values => values?.isDlq && values?.isRlq,

@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -80,12 +79,10 @@ public class InLongMsgUtils {
                     Types.SQL_TIMESTAMP,
                     Types.LIST(Types.STRING),
                     Types.LIST(Types.STRING),
-                    Types.MAP(Types.STRING, Types.STRING)
-            );
+                    Types.MAP(Types.STRING, Types.STRING));
 
     public static RowFormatInfo getDataFormatInfo(
-            DescriptorProperties descriptorProperties
-    ) {
+            DescriptorProperties descriptorProperties) {
         if (descriptorProperties.containsKey(TableFormatConstants.FORMAT_SCHEMA)) {
             return TableFormatUtils.deserializeRowFormatInfo(descriptorProperties);
         } else {
@@ -150,8 +147,7 @@ public class InLongMsgUtils {
                 INLONGMSG_ATTR_ENTRY_DELIMITER,
                 INLONGMSG_ATTR_KV_DELIMITER,
                 null,
-                null
-        );
+                null);
     }
 
     public static Timestamp parseEpochTime(String value) {
@@ -198,9 +194,7 @@ public class InLongMsgUtils {
                     Integer.parseInt(
                             key.substring(
                                     INLONGMSG_ATTR_ADD_COLUMN_PREFIX.length(),
-                                    key.indexOf('_', INLONGMSG_ATTR_ADD_COLUMN_PREFIX.length())
-                            )
-                    );
+                                    key.indexOf('_', INLONGMSG_ATTR_ADD_COLUMN_PREFIX.length())));
 
             predefinedFields.put(index, head.get(key));
         }
@@ -217,8 +211,7 @@ public class InLongMsgUtils {
     public static Row buildMixedRow(
             InLongMsgHead head,
             InLongMsgBody body,
-            String tid
-    ) {
+            String tid) {
         Row row = new Row(7);
         row.setField(0, head.getAttributes());
         row.setField(1, body.getData());
@@ -270,8 +263,7 @@ public class InLongMsgUtils {
     public static void validateFieldNames(
             String timeFieldName,
             String attributesFieldName,
-            RowFormatInfo rowFormatInfo
-    ) {
+            RowFormatInfo rowFormatInfo) {
         if (Objects.equals(timeFieldName, attributesFieldName)) {
             throw new ValidationException("The names of the time and attributes fields are same.");
         }
@@ -284,7 +276,7 @@ public class InLongMsgUtils {
 
             if (dataFieldName.equals(attributesFieldName)) {
                 throw new ValidationException("The attributes field "
-                          + attributesFieldName + " is already defined in the schema.");
+                        + attributesFieldName + " is already defined in the schema.");
             }
         }
     }
@@ -300,8 +292,7 @@ public class InLongMsgUtils {
     public static TypeInformation<Row> buildRowType(
             String timeFieldName,
             String attributesFieldName,
-            RowFormatInfo rowFormatInfo
-    ) {
+            RowFormatInfo rowFormatInfo) {
         String[] dataFieldNames = rowFormatInfo.getFieldNames();
         String[] fieldNames = new String[dataFieldNames.length + 2];
         fieldNames[0] = timeFieldName;

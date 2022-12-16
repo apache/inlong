@@ -32,7 +32,6 @@ public enum KafkaOffset {
     TIMESTAMP_MILLIS("timestamp_millis"),
     NONE("none");
 
-
     @Getter
     private final String name;
 

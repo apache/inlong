@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -61,8 +61,8 @@ public class ConsumerServiceAdminEventHandler extends AbstractAdminEventHandler 
         LOG.info("start to process admin task:{}", cmd);
         String sortTaskId = event.getHeaders().get(ConsumerServiceMBean.KEY_TASKNAME);
         switch (cmd) {
-            case METHOD_STOPCONSUMER :
-            case METHOD_RECOVERCONSUMER :
+            case METHOD_STOPCONSUMER:
+            case METHOD_RECOVERCONSUMER:
                 if (sortTaskId == null) {
                     break;
                 }
@@ -72,7 +72,7 @@ public class ConsumerServiceAdminEventHandler extends AbstractAdminEventHandler 
                     this.processOne(cmd, sortTaskId, response);
                 }
                 break;
-            default :
+            default:
                 break;
         }
         LOG.info("end to process admin task:{}", cmd);

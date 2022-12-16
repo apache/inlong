@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.util;
@@ -28,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class TimeUtil {
+
     private static final Logger logger = LoggerFactory.getLogger(TimeUtil.class);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final String KEY_SDK_START_TIME = "sortSdk.startTime";

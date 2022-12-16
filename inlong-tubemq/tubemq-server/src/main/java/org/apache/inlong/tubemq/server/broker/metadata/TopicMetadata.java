@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -32,6 +32,7 @@ import org.apache.inlong.tubemq.server.common.TStatusConstants;
  * Topic's metadata. Contains topic name, partitions count, etc.
  */
 public class TopicMetadata {
+
     // topic name.
     private String topic;
     // metadata status.
@@ -167,8 +168,8 @@ public class TopicMetadata {
      * @param numPartitions        the topic partition count
      */
     public TopicMetadata(BrokerDefMetadata brokerDefMetadata,
-                         String topicName, int numTopicStores,
-                         int numPartitions) {
+            String topicName, int numTopicStores,
+            int numPartitions) {
         this.topic = topicName;
         this.numTopicStores = numTopicStores;
         this.numPartitions = numPartitions;
@@ -188,13 +189,13 @@ public class TopicMetadata {
     }
 
     private TopicMetadata(String topic, int unflushThreshold,
-                          int unflushInterval, int unflushDataHold,
-                          String dataPath, String deleteWhen, String deletePolicy,
-                          int numPartitions, boolean acceptPublish,
-                          boolean acceptSubscribe, int statusId,
-                          int numTopicStores, int memCacheMsgSize,
-                          int memCacheMsgCnt, int memCacheFlushIntvl,
-                          int maxMsgSize, int minMemCacheSize) {
+            int unflushInterval, int unflushDataHold,
+            String dataPath, String deleteWhen, String deletePolicy,
+            int numPartitions, boolean acceptPublish,
+            boolean acceptSubscribe, int statusId,
+            int numTopicStores, int memCacheMsgSize,
+            int memCacheMsgCnt, int memCacheFlushIntvl,
+            int maxMsgSize, int minMemCacheSize) {
         this.topic = topic;
         this.unflushThreshold = unflushThreshold;
         this.unflushInterval = unflushInterval;

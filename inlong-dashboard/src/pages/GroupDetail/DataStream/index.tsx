@@ -17,14 +17,15 @@
  * under the License.
  */
 
-import React, { useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useImperativeHandle, forwardRef, useMemo } from 'react';
 import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
-import { useLoadMeta, useDefaultMeta } from '@/metas';
+import { useLoadMeta, useDefaultMeta, StreamMetaType } from '@/metas';
+import { GroupLogs } from '@/components/GroupLogs';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';
 import { getFilterFormContent } from './config';
@@ -47,6 +48,14 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     inlongGroupId,
   });
 
+  const [groupLogs, setGroupLogs] = useState({
+    visible: false,
+    inlongGroupId,
+    inlongStreamId: '',
+  });
+
+  const [groupStatus, setGroupStatus] = useState();
+
   const {
     data,
     loading,
@@ -64,6 +73,10 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
       refreshDeps: [options],
     },
   );
+
+  useRequest(`/group/get/${inlongGroupId}`, {
+    onSuccess: result => setGroupStatus(result.status),
+  });
 
   const onOk = () => {
     return Promise.resolve();
@@ -85,6 +98,14 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     setStreamItemModal(prev => ({ ...prev, visible: true, inlongStreamId: record.inlongStreamId }));
   };
 
+  const openModal = record => {
+    setGroupLogs({
+      visible: true,
+      inlongGroupId: inlongGroupId,
+      inlongStreamId: record.inlongStreamId,
+    });
+  };
+
   const onDelete = record => {
     Modal.confirm({
       title: t('basic.DeleteConfirm'),
@@ -99,6 +120,23 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
         });
         await getList();
         message.success(t('basic.DeleteSuccess'));
+      },
+    });
+  };
+
+  const onWorkflow = record => {
+    Modal.confirm({
+      title: t('meta.Stream.ExecuteConfirm'),
+      onOk: async () => {
+        await request({
+          url: `/stream/startProcess/${inlongGroupId}/${record?.inlongStreamId}`,
+          method: 'POST',
+          params: {
+            sync: false,
+          },
+        });
+        await getList();
+        message.success(t('meta.Stream.ExecuteSuccess'));
       },
     });
   };
@@ -125,9 +163,13 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     total: data?.total,
   };
 
-  const { Entity } = useLoadMeta('stream', defaultValue);
+  const { Entity } = useLoadMeta<StreamMetaType>('stream', defaultValue);
 
-  const columns = Entity?.ColumnList?.concat([
+  const entityColumns = useMemo(() => {
+    return Entity ? new Entity().renderList() : [];
+  }, [Entity]);
+
+  const columns = entityColumns?.concat([
     {
       title: t('basic.Operating'),
       dataIndex: 'action',
@@ -142,6 +184,16 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
             <Button type="link" onClick={() => onDelete(record)}>
               {t('basic.Delete')}
             </Button>
+            {record?.status && (groupStatus === 120 || groupStatus === 130) && (
+              <Button type="link" onClick={() => onWorkflow(record)}>
+                {t('meta.Stream.ExecuteWorkflow')}
+              </Button>
+            )}
+            {record?.status && (record?.status === 120 || record?.status === 130) && (
+              <Button type="link" onClick={() => openModal(record)}>
+                {t('pages.GroupDashboard.config.ExecuteLog')}
+              </Button>
+            )}
           </>
         ),
     },
@@ -179,6 +231,12 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
           setStreamItemModal(prev => ({ ...prev, visible: false }));
         }}
         onCancel={() => setStreamItemModal(prev => ({ ...prev, visible: false }))}
+      />
+
+      <GroupLogs
+        {...groupLogs}
+        onOk={() => setGroupLogs({ visible: false, inlongGroupId: '', inlongStreamId: '' })}
+        onCancel={() => setGroupLogs({ visible: false, inlongGroupId: '', inlongStreamId: '' })}
       />
     </>
   );

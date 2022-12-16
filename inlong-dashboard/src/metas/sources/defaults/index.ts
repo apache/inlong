@@ -18,26 +18,57 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { SourceMetaType } from '../types';
 
-export const allDefaultSources: MetaExportWithBackendList = [
+export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
   {
     label: 'ALL',
     value: '',
     LoadEntity: () => import('../common/SourceInfo').then(r => ({ default: r.SourceInfo })),
   },
   {
-    label: 'Auto Push',
+    label: 'Auto-Push',
     value: 'AUTO_PUSH',
     LoadEntity: () => import('./AutoPush'),
-  },
-  {
-    label: 'MySQL BinLog',
-    value: 'MYSQL_BINLOG',
-    LoadEntity: () => import('./MysqlBinlog'),
   },
   {
     label: 'File',
     value: 'FILE',
     LoadEntity: () => import('./File'),
+  },
+  {
+    label: 'MySQL-BinLog',
+    value: 'MYSQL_BINLOG',
+    LoadEntity: () => import('./MySQLBinlog'),
+  },
+  {
+    label: 'Mongodb',
+    value: 'MONGODB',
+    LoadEntity: () => import('./Mongodb'),
+  },
+  {
+    label: 'Mqtt',
+    value: 'MQTT',
+    LoadEntity: () => import('./MQTT'),
+  },
+  {
+    label: 'Oracle',
+    value: 'ORACLE',
+    LoadEntity: () => import('./Oracle'),
+  },
+  {
+    label: 'PostgreSQL',
+    value: 'POSTGRESQL',
+    LoadEntity: () => import('./PostgreSQL'),
+  },
+  {
+    label: 'Redis',
+    value: 'REDIS',
+    LoadEntity: () => import('./Redis'),
+  },
+  {
+    label: 'SQLServer',
+    value: 'SQLSERVER',
+    LoadEntity: () => import('./SQLServer'),
   },
 ];

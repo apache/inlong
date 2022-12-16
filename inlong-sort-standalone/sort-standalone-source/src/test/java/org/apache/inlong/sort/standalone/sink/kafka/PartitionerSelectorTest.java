@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sort.standalone.sink.kafka;
@@ -57,7 +56,7 @@ public class PartitionerSelectorTest {
             obj.configure(configs);
             Cluster cluster = new Cluster("clusterId", nodes, partitionInfos,
                     new HashSet<String>(), new HashSet<String>());
-            obj.partition(V_INLONG_ID_TOPIC, null, null, null,null, cluster);
+            obj.partition(V_INLONG_ID_TOPIC, null, null, null, null, cluster);
             obj.partition(V_INLONG_ID_TOPIC, "", V_INLONG_ID.getBytes(),
                     V_INLONG_ID.getBytes(), V_INLONG_ID.getBytes(), cluster);
             obj.onNewBatch(V_INLONG_ID_TOPIC, cluster, 0);

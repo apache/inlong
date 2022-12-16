@@ -54,10 +54,11 @@ class Message {
   void SetFlag(int32_t flag);
   const map<string, string>& GetProperties() const;
   int32_t GetPropertie(string& attribute);
-  bool HasProperty(const string& key);
-  bool GetProperty(const string& key, string& value);
+  bool HasProperty(const string& key) const;
+  bool GetProperty(const string& key, string& value) const;
   bool GetFilterItem(string& value);
   bool AddProperty(string& err_info, const string& key, const string& value);
+  void PutSystemHeader(const string& msg_type, const string& msg_time);
 
  private:
   void clearData();

@@ -29,6 +29,7 @@ public class AllBrokersOffsetRes {
 
     @Data
     public static class OffsetInfo {
+
         private int brokerId;
         private String brokerIp;
         private List<OffsetPartitionRes> offsets;

@@ -32,7 +32,6 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequest;
@@ -196,7 +195,7 @@ public class FlinkService {
     private String submitJobBySavepoint(FlinkInfo flinkInfo, SavepointRestoreSettings settings) throws Exception {
         String localJarPath = flinkInfo.getLocalJarPath();
         final File jarFile = new File(localJarPath);
-        final String[] programArgs = genProgramArgsV2(flinkInfo, flinkConfig);
+        final String[] programArgs = genProgramArgs(flinkInfo, flinkConfig);
 
         List<URL> connectorJars = flinkInfo.getConnectorJarPaths().stream().map(p -> {
             try {
@@ -254,30 +253,7 @@ public class FlinkService {
     /**
      * Build the program of the Flink job.
      */
-    @Deprecated
     private String[] genProgramArgs(FlinkInfo flinkInfo, FlinkConfig flinkConfig) {
-        List<String> list = new ArrayList<>();
-        list.add("-cluster-id");
-        list.add(flinkInfo.getJobName());
-        list.add("-dataflow.info.file");
-        list.add(flinkInfo.getLocalConfPath());
-        list.add("-source.type");
-        list.add(flinkInfo.getSourceType());
-        list.add("-sink.type");
-        list.add(flinkInfo.getSinkType());
-        list.add("-metrics.audit.proxy.hosts");
-        list.add(flinkConfig.getAuditProxyHosts());
-        // TODO Support more than one stream with one group
-        if (flinkInfo.getInlongStreamInfoList() != null
-                && !flinkInfo.getInlongStreamInfoList().isEmpty()) {
-            InlongStreamInfo inlongStreamInfo = flinkInfo.getInlongStreamInfoList().get(0);
-            list.add("-job.orderly.output");
-            list.add(String.valueOf(inlongStreamInfo.getSyncSend()));
-        }
-        return list.toArray(new String[0]);
-    }
-
-    private String[] genProgramArgsV2(FlinkInfo flinkInfo, FlinkConfig flinkConfig) {
         List<String> list = new ArrayList<>();
         list.add("-cluster-id");
         list.add(flinkInfo.getJobName());
@@ -285,6 +261,8 @@ public class FlinkService {
         list.add(flinkInfo.getLocalConfPath());
         list.add("-checkpoint.interval");
         list.add("60000");
+        list.add("-metrics.audit.proxy.hosts");
+        list.add(flinkConfig.getAuditProxyHosts());
         return list.toArray(new String[0]);
     }
 

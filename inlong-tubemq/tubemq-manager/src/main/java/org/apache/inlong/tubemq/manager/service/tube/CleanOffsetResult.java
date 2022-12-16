@@ -25,6 +25,7 @@ import lombok.Data;
 
 @Data
 public class CleanOffsetResult {
+
     private List<String> failBrokers = Lists.newArrayList();
 
     private List<String> successBrokers = Lists.newArrayList();

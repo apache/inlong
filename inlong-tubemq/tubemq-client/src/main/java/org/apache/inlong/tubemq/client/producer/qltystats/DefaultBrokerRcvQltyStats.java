@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * An implementation of BrokerRcvQltyStats.
  */
 public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
+
     private static final Logger logger =
             LoggerFactory.getLogger(DefaultBrokerRcvQltyStats.class);
     private final TubeClientConfig clientConfig;
@@ -68,7 +69,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     // The time of last link quality statistic.
     private long lastLinkStatisticTime = System.currentTimeMillis();
     // Analyze the broker quality based on the request response. We calculate the quality metric by
-    //     success response number / total request number
+    // success response number / total request number
     // in a time range. The time range is same when we compare the quality of different brokers.
     // We think the quality is better when the successful ratio is higher. The bad quality brokers
     // will be blocked. The blocking ratio and time can be configured.
@@ -84,10 +85,11 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
      * @param producerConfig     the producer configure
      */
     public DefaultBrokerRcvQltyStats(final RpcServiceFactory rpcServiceFactory,
-                                     final TubeClientConfig producerConfig) {
+            final TubeClientConfig producerConfig) {
         this.clientConfig = producerConfig;
         this.rpcServiceFactory = rpcServiceFactory;
         this.statisticThread = new Thread(new Runnable() {
+
             @Override
             public void run() {
                 while (!isStopped()) {
@@ -149,7 +151,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
         for (Map.Entry<Integer, List<Partition>> oldBrokerPartEntry : brokerPartList.entrySet()) {
             Long lastAddTime = unAvailableBrokerMap.get(oldBrokerPartEntry.getKey());
             if ((lastAddTime != null)
-                && (curTime - lastAddTime <= clientConfig.getUnAvailableFbdDurationMs())) {
+                    && (curTime - lastAddTime <= clientConfig.getUnAvailableFbdDurationMs())) {
                 continue;
             }
             if (this.brokerForbiddenMap.containsKey(oldBrokerPartEntry.getKey())) {
@@ -200,8 +202,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
                 }
             }
             if (allowedCount > 0) {
-                for (Map.Entry<Integer, BrokerStatsDltTuple> brokerEntry :
-                        this.cachedLinkQualities) {
+                for (Map.Entry<Integer, BrokerStatsDltTuple> brokerEntry : this.cachedLinkQualities) {
                     if (allowedBrokerIds.contains(brokerEntry.getKey())) {
                         partList.addAll(brokerPartList.get(brokerEntry.getKey()));
                         allowedCount--;
@@ -233,19 +234,16 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     public void statisticDltBrokerStatus() {
         // #lizard forgives
         long currentTime = System.currentTimeMillis();
-        if ((currentTime - this.lastLinkStatisticTime
-                < this.clientConfig.getSessionStatisticCheckDuration())
-                && (currentTime - this.lastQualityStatisticTime
-                < this.clientConfig.getMaxForbiddenCheckDuration())) {
+        if ((currentTime - this.lastLinkStatisticTime < this.clientConfig.getSessionStatisticCheckDuration())
+                && (currentTime - this.lastQualityStatisticTime < this.clientConfig.getMaxForbiddenCheckDuration())) {
             return;
         }
-        if (currentTime - this.lastLinkStatisticTime
-                > this.clientConfig.getSessionStatisticCheckDuration()) {
+        if (currentTime - this.lastLinkStatisticTime > this.clientConfig.getSessionStatisticCheckDuration()) {
             this.lastLinkStatisticTime = System.currentTimeMillis();
             this.cachedLinkQualities = getCurBrokerSentWaitStats();
         }
-        if (System.currentTimeMillis() - this.lastQualityStatisticTime
-                < this.clientConfig.getMaxForbiddenCheckDuration()) {
+        if (System.currentTimeMillis() - this.lastQualityStatisticTime < this.clientConfig
+                .getMaxForbiddenCheckDuration()) {
             return;
         }
         StringBuilder sBuilder = new StringBuilder(512);
@@ -263,7 +261,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
             }
             if (!rpcServiceFactory.getUnavailableBrokerMap().isEmpty()) {
                 logger.info(sBuilder.append("[status check]: current service unavailable brokerMap is ")
-                    .append(rpcServiceFactory.getUnavailableBrokerMap().toString()).toString());
+                        .append(rpcServiceFactory.getUnavailableBrokerMap().toString()).toString());
                 sBuilder.delete(0, sBuilder.length());
             }
         }
@@ -285,8 +283,8 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
             }
         }
         for (Map.Entry<Integer, Long> brokerForbiddenEntry : brokerForbiddenMap.entrySet()) {
-            if (System.currentTimeMillis() - brokerForbiddenEntry.getValue()
-                    > this.clientConfig.getMaxForbiddenCheckDuration()) {
+            if (System.currentTimeMillis() - brokerForbiddenEntry.getValue() > this.clientConfig
+                    .getMaxForbiddenCheckDuration()) {
                 changed = true;
                 brokerForbiddenMap.remove(brokerForbiddenEntry.getKey());
             }
@@ -340,10 +338,10 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
                 tmpBrokerForbiddenMap.put(brokerDltNumEntry.getKey(), true);
                 if (logger.isDebugEnabled()) {
                     logger.debug(sBuilder.append("[forbidden statistic] brokerId=")
-                        .append(brokerDltNumEntry.getKey()).append(",succRecvNum=")
-                        .append(succRecvNum).append(",avgSuccRecNumThreshold=")
-                        .append(avgSuccRecNumThreshold).append(",succSendNumThreshold=")
-                        .append(succSendNumThreshold).toString());
+                            .append(brokerDltNumEntry.getKey()).append(",succRecvNum=")
+                            .append(succRecvNum).append(",avgSuccRecNumThreshold=")
+                            .append(avgSuccRecNumThreshold).append(",succSendNumThreshold=")
+                            .append(succSendNumThreshold).toString());
                     sBuilder.delete(0, sBuilder.length());
                 }
             }
@@ -447,7 +445,9 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     }
 
     private static class BrokerStatsDltTupleComparator
-            implements Comparator<Map.Entry<Integer, BrokerStatsDltTuple>> {
+            implements
+                Comparator<Map.Entry<Integer, BrokerStatsDltTuple>> {
+
         // Descending sort or ascending sort
         private boolean isDescSort = true;
 
@@ -457,7 +457,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
 
         @Override
         public int compare(final Map.Entry<Integer, BrokerStatsDltTuple> o1,
-                           final Map.Entry<Integer, BrokerStatsDltTuple> o2) {
+                final Map.Entry<Integer, BrokerStatsDltTuple> o2) {
             if (o1.getValue().getSuccRecvNum() == o2.getValue().getSuccRecvNum()) {
                 return 0;
             } else {

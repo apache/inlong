@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -36,6 +36,7 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
  * and receive statistics. When the message time statistics dimension is used.
  */
 public class Message implements Serializable {
+
     static final long serialVersionUID = -1L;
     protected int flag;
     private long indexId;
@@ -257,11 +258,12 @@ public class Message implements Serializable {
         if ((keyVal.contains(TokenConstants.ARRAY_SEP)
                 || keyVal.contains(TokenConstants.EQ))
                 || (valueVal.contains(TokenConstants.ARRAY_SEP)
-                || valueVal.contains(TokenConstants.EQ))) {
+                        || valueVal.contains(TokenConstants.EQ))) {
             throw new IllegalArgumentException(new StringBuilder(512).append("(")
                     .append(TokenConstants.ARRAY_SEP).append(",")
                     .append(TokenConstants.EQ).append(
-                            ") are reserved tokens, can't include in keyVal or valueVal!").toString());
+                            ") are reserved tokens, can't include in keyVal or valueVal!")
+                    .toString());
         }
         if (TStringUtils.isBlank(this.attribute)) {
             this.attribute = keyVal + TokenConstants.EQ + valueVal;

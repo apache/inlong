@@ -39,7 +39,6 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STRE
  */
 public class TestMongoDBReader {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(TestMongoDBReader.class);
 
     /**

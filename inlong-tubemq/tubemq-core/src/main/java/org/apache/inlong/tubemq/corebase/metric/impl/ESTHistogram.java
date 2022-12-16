@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -31,6 +31,7 @@ import org.apache.inlong.tubemq.corebase.metric.Histogram;
  *  only the output is not 0 according to different requirements
  */
 public class ESTHistogram extends BaseMetric implements Histogram {
+
     // Total number of exponential statistic blocks
     private static final int NUM_BUCKETS = 18;
     // The upper boundary index of exponential statistic blocks
@@ -82,8 +83,10 @@ public class ESTHistogram extends BaseMetric implements Histogram {
         this.count.incValue();
         this.min.update(newValue);
         this.max.update(newValue);
-        int index = (newValue <= 0L) ? 0 : ((newValue >= POWER_2_17)
-                ? MAX_BUCKET_INDEX : ((int) (Math.log(newValue) / LOG2_VALUE)));
+        int index = (newValue <= 0L) ? 0
+                : ((newValue >= POWER_2_17)
+                        ? MAX_BUCKET_INDEX
+                        : ((int) (Math.log(newValue) / LOG2_VALUE)));
         this.buckets[index].incValue();
     }
 

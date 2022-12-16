@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -205,8 +205,7 @@ public class CliConsumer extends CliAbstractBase {
                 for (int i = 0; i < clientCount; i++) {
                     PushMessageConsumer consumer1 =
                             msgSessionFactory.createPushConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer1.subscribe(entry.getKey(), entry.getValue(), msgListener);
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
@@ -220,8 +219,7 @@ public class CliConsumer extends CliAbstractBase {
                     this.sessionFactoryList.add(msgSessionFactory);
                     PushMessageConsumer consumer1 =
                             msgSessionFactory.createPushConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer1.subscribe(entry.getKey(), entry.getValue(), msgListener);
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
@@ -237,8 +235,7 @@ public class CliConsumer extends CliAbstractBase {
                 for (int i = 0; i < clientCount; i++) {
                     PullMessageConsumer consumer2 =
                             msgSessionFactory.createPullConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer2.subscribe(entry.getKey(), entry.getValue());
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
@@ -253,8 +250,7 @@ public class CliConsumer extends CliAbstractBase {
                     this.sessionFactoryList.add(msgSessionFactory);
                     PullMessageConsumer consumer2 =
                             msgSessionFactory.createPullConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer2.subscribe(entry.getKey(), entry.getValue());
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
@@ -279,6 +275,7 @@ public class CliConsumer extends CliAbstractBase {
     }
 
     private static class TupleValue {
+
         public Thread[] fetchRunners = null;
 
         public TupleValue(PullMessageConsumer consumer, long msgCount, int fetchThreadCnt) {

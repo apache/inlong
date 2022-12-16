@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -40,16 +40,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsumeGroupInfo {
+
     private static final Logger logger =
             LoggerFactory.getLogger(ConsumeGroupInfo.class);
     private final String groupName;
     private final ConsumeType consumeType;
-    private final long createTime;                                        //create time
-    private final Set<String> topicSet = new HashSet<>();                 //topic set
-    private final Map<String, TreeSet<String>> topicConditions =          //filter condition set
+    private final long createTime; // create time
+    private final Set<String> topicSet = new HashSet<>(); // topic set
+    private final Map<String, TreeSet<String>> topicConditions = // filter condition set
             new HashMap<>();
     private final ReadWriteLock csmInfoRWLock = new ReentrantReadWriteLock();
-    private final Map<String, ConsumerInfo> consumerInfoMap =   //consumer info
+    private final Map<String, ConsumerInfo> consumerInfoMap = // consumer info
             new HashMap<>();
     // session key, the same batch consumer have the same session key
     private String sessionKey = "";
@@ -117,8 +118,8 @@ public class ConsumeGroupInfo {
      * @return           whether the addition is successful
      */
     public boolean addConsumer(ConsumerInfo inConsumer,
-                               StringBuilder sBuffer,
-                               ParamCheckResult result) {
+            StringBuilder sBuffer,
+            ParamCheckResult result) {
         try {
             csmInfoRWLock.writeLock().lock();
             if (this.consumerInfoMap.isEmpty()) {
@@ -427,9 +428,9 @@ public class ConsumeGroupInfo {
      * @param isRebalanced     Whether balanced
      */
     public void setConsumeResourceInfo(int confResourceRate,
-                                       int curResourceRate,
-                                       int minReqClientCnt,
-                                       boolean isRebalanced) {
+            int curResourceRate,
+            int minReqClientCnt,
+            boolean isRebalanced) {
         this.confResourceRate = confResourceRate;
         this.curResourceRate = curResourceRate;
         this.minReqClientCnt = minReqClientCnt;
@@ -624,8 +625,8 @@ public class ConsumeGroupInfo {
      * @return true if valid, or false if invalid
      */
     private boolean validConsumerInfo(ConsumerInfo inConsumer,
-                                      StringBuilder sBuffer,
-                                      ParamCheckResult result) {
+            StringBuilder sBuffer,
+            ParamCheckResult result) {
         // check whether the consumer behavior is consistent
         if (inConsumer.getConsumeType() != this.consumeType) {
             sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
@@ -642,7 +643,7 @@ public class ConsumeGroupInfo {
         // check the topics of consumption
         if (CollectionUtils.isNotEmpty(topicSet)
                 && (topicSet.size() != inConsumer.getTopicSet().size()
-                || !topicSet.containsAll(inConsumer.getTopicSet()))) {
+                        || !topicSet.containsAll(inConsumer.getTopicSet()))) {
             sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
                     .append(" subscribed topics ").append(inConsumer.getTopicSet())
                     .append(" is inconsistency with other consumers in the group, existedTopics: ")
@@ -684,10 +685,10 @@ public class ConsumeGroupInfo {
                             .append(topicConditions);
                 } else {
                     for (String topicKey : existedCondTopics) {
-                        if ((topicConditions.get(topicKey).size()
-                                != inConsumer.getTopicConditions().get(topicKey).size())
+                        if ((topicConditions.get(topicKey).size() != inConsumer.getTopicConditions().get(topicKey)
+                                .size())
                                 || (!topicConditions.get(topicKey).containsAll(
-                                inConsumer.getTopicConditions().get(topicKey)))) {
+                                        inConsumer.getTopicConditions().get(topicKey)))) {
                             isCondEqual = false;
                             sBuffer.append("[Inconsistency subscribe] ")
                                     .append(inConsumer.getConsumerId())
@@ -765,8 +766,8 @@ public class ConsumeGroupInfo {
      * @return true if valid, or false if invalid
      */
     private boolean validBoundParameters(ConsumerInfo inConsumer,
-                                         StringBuilder sBuffer,
-                                         ParamCheckResult result) {
+            StringBuilder sBuffer,
+            ParamCheckResult result) {
         if (consumeType != ConsumeType.CONSUME_BAND) {
             result.setCheckData("");
             return true;

@@ -76,7 +76,7 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
      * Delete sink info by sink id.
      */
     public void deleteSink(Integer sinkId) {
-        boolean result = sinkService.delete(sinkId, globalOperator);
+        boolean result = sinkService.delete(sinkId, false, globalOperator);
         Assertions.assertTrue(result);
     }
 
@@ -136,8 +136,7 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
     private List<MySQLColumnInfo> buildAddColumns() {
         List<MySQLColumnInfo> list = Lists.newArrayList(
                 new MySQLColumnInfo("add_column1", "int(12)", ""),
-                new MySQLColumnInfo("add_column2", "varchar(22)", "")
-        );
+                new MySQLColumnInfo("add_column2", "varchar(22)", ""));
         return list;
     }
 
@@ -154,8 +153,7 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
                 new MySQLColumnInfo("age", "int(12)", "age"),
                 new MySQLColumnInfo("cell", "varchar(20)", "cell"),
                 new MySQLColumnInfo("name", "varchar(40)", "name"),
-                new MySQLColumnInfo("create_time", "datetime", "create time")
-        );
+                new MySQLColumnInfo("create_time", "datetime", "create time"));
 
         MySQLTableInfo tableInfo = new MySQLTableInfo();
         tableInfo.setColumns(columnInfoList);

@@ -25,7 +25,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.group.BaseInlongGroup;
 
 import javax.validation.constraints.NotNull;
 
@@ -37,7 +39,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong group info for Pulsar")
-public class InlongPulsarDTO {
+public class InlongPulsarDTO extends BaseInlongGroup {
 
     @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
             + "serial: single partition, low throughput, and orderly messages")
@@ -77,19 +79,7 @@ public class InlongPulsarDTO {
      * Get the dto instance from the request
      */
     public static InlongPulsarDTO getFromRequest(InlongPulsarRequest request) {
-        return InlongPulsarDTO.builder()
-                .queueModule(request.getQueueModule())
-                .partitionNum(request.getPartitionNum())
-                .ensemble(request.getEnsemble())
-                .writeQuorum(request.getWriteQuorum())
-                .ackQuorum(request.getAckQuorum())
-                .retentionTime(request.getRetentionTime())
-                .retentionTimeUnit(request.getRetentionTimeUnit())
-                .retentionSize(request.getRetentionSize())
-                .retentionSizeUnit(request.getRetentionSizeUnit())
-                .ttl(request.getTtl())
-                .ttlUnit(request.getTtlUnit())
-                .build();
+        return CommonBeanUtils.copyProperties(request, InlongPulsarDTO::new, true);
     }
 
     /**

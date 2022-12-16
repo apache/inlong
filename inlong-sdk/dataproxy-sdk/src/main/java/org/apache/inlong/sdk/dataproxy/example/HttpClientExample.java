@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,20 +29,13 @@ public class HttpClientExample {
 
     public static void main(String[] args) {
         /*
-         * 1. if 'isLocalVisit' is true use local config from file in ${configBasePath}
-         * directory/${dataProxyGroupId}
-         * .local
-         * such as :
-         *  configBasePath = /data/inlong/dataproxy/conf
-         *  dataProxyGroupId = test
-         * so config file is :
-         *  /data/inlong/dataproxy/conf/test.local
-         * and config context like this:
-         *  {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host":"127.0.0
+         * 1. if 'isLocalVisit' is true use local config from file in ${configBasePath} directory/${dataProxyGroupId}
+         * .local such as : configBasePath = /data/inlong/dataproxy/conf dataProxyGroupId = test so config file is :
+         * /data/inlong/dataproxy/conf/test.local and config context like this:
+         * {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host":"127.0.0
          * .1","port":"46802"},{"host":"127.0.0.1","port":"46802"}]}
          *
-         * 2. if 'isLocalVisit' is false
-         *  sdk will get config from manager auto.
+         * 2. if 'isLocalVisit' is false sdk will get config from manager auto.
          */
         String dataProxyGroup = "test";
         String inlongGroupId = "test_group_id";

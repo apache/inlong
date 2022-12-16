@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -69,10 +68,8 @@ public class UdpClientExample {
         UdpClientExample demo = new UdpClientExample();
         Channel channel = demo.initUdpChannel();
         /*
-         * It is recommended to use msg type 7. For others, please refer to the official related
-         * documents
-         * Therefore, use type 7 to assemble the message.
-         * For other types, please refer to the sdk source code
+         * It is recommended to use msg type 7. For others, please refer to the official related documents Therefore,
+         * use type 7 to assemble the message. For other types, please refer to the sdk source code
          */
         try {
             int count = 0;
@@ -280,6 +277,7 @@ public class UdpClientExample {
                 .channel(NioDatagramChannel.class)
                 .option(ChannelOption.SO_BROADCAST, true)
                 .handler(new SimpleChannelInboundHandler<DatagramPacket>() {
+
                     protected void channelRead0(ChannelHandlerContext var1,
                             DatagramPacket dmsg) throws Exception {
                         String msg = dmsg.content().toString(StandardCharsets.UTF_8);

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -49,8 +49,8 @@ public class ResponseWrapper implements Serializable {
      * @param responseData   the response data
      */
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int locVersion,
-                           int methodId, Object responseData) {
+            int serviceType, int locVersion,
+            int methodId, Object responseData) {
         this.serialNo = serialNo;
         this.serviceType = serviceType;
         this.protocolVersion = locVersion;
@@ -71,8 +71,8 @@ public class ResponseWrapper implements Serializable {
      * @param exception      the exception
      */
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int rmtVersion,
-                           int locVersion, Throwable exception) {
+            int serviceType, int rmtVersion,
+            int locVersion, Throwable exception) {
         this.serialNo = serialNo;
         this.flagId = flagId;
         this.serviceType = serviceType;
@@ -109,8 +109,8 @@ public class ResponseWrapper implements Serializable {
      * @param stackTrace     the stack trace information
      */
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int locVersion,
-                           String errorMsg, String stackTrace) {
+            int serviceType, int locVersion,
+            String errorMsg, String stackTrace) {
         this.serialNo = serialNo;
         this.flagId = flagId;
         this.serviceType = serviceType;

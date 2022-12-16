@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -89,11 +88,10 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
         final List<ReadableMetadata> readableMetadata =
                 metadataKeys.stream()
                         .map(
-                                k ->
-                                        Stream.of(ReadableMetadata.values())
-                                                .filter(rm -> rm.key.equals(k))
-                                                .findFirst()
-                                                .<IllegalStateException>orElseThrow(IllegalStateException::new))
+                                k -> Stream.of(ReadableMetadata.values())
+                                        .filter(rm -> rm.key.equals(k))
+                                        .findFirst()
+                                        .<IllegalStateException>orElseThrow(IllegalStateException::new))
                         .collect(Collectors.toList());
 
         final List<DataTypes.Field> metadataFields =
@@ -115,8 +113,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 updateBeforeInclude,
                 ignoreParseErrors,
                 timestampFormat,
-                isMigrateAll
-        );
+                isMigrateAll);
     }
 
     @Override
@@ -150,12 +147,14 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
      * List of metadata that can be read with this format.
      */
     public enum ReadableMetadata {
+
         SCHEMA(
                 "schema",
                 DataTypes.STRING().nullable(),
                 false,
                 DataTypes.FIELD("schema", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -170,6 +169,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("ts_ms", DataTypes.BIGINT()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -184,6 +184,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -203,6 +204,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -217,6 +219,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -231,6 +234,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -247,6 +251,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

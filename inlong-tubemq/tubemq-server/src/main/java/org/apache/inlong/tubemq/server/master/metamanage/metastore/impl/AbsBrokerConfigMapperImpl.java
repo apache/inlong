@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -37,15 +37,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
+
     protected static final Logger logger =
             LoggerFactory.getLogger(AbsBrokerConfigMapperImpl.class);
     // broker config store
-    private final ConcurrentHashMap<Integer/* brokerId */, BrokerConfEntity>
-            brokerConfCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* brokerIP */, Integer/* brokerId */>
-            brokerIpIndexCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer/* regionId */, ConcurrentHashSet<Integer>>
-            regionIndexCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer/* brokerId */, BrokerConfEntity> brokerConfCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* brokerIP */, Integer/* brokerId */> brokerIpIndexCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer/* regionId */, ConcurrentHashSet<Integer>> regionIndexCache =
+            new ConcurrentHashMap<>();
 
     public AbsBrokerConfigMapperImpl() {
         // initial instance
@@ -53,7 +54,7 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
 
     @Override
     public boolean addBrokerConf(BrokerConfEntity entity,
-                                 StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Check whether the brokerId or broker Ip conflict with existing records
         if (brokerConfCache.get(entity.getBrokerId()) != null
                 || brokerIpIndexCache.get(entity.getBrokerIp()) != null) {
@@ -81,7 +82,7 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
 
     @Override
     public boolean updBrokerConf(BrokerConfEntity entity,
-                                 StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Check the existence of records by brokerId
         BrokerConfEntity curEntity =
                 brokerConfCache.get(entity.getBrokerId());
@@ -125,8 +126,8 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
 
     @Override
     public boolean updBrokerMngStatus(BaseEntity opEntity,
-                                      int brokerId, ManageStatus newMngStatus,
-                                      StringBuilder strBuff, ProcessResult result) {
+            int brokerId, ManageStatus newMngStatus,
+            StringBuilder strBuff, ProcessResult result) {
         // Check the existence of records by brokerId
         BrokerConfEntity curEntity = brokerConfCache.get(brokerId);
         if (curEntity == null) {
@@ -205,8 +206,8 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
 
     @Override
     public Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
-                                                            Set<String> brokerIpSet,
-                                                            BrokerConfEntity qryEntity) {
+            Set<String> brokerIpSet,
+            BrokerConfEntity qryEntity) {
         Set<Integer> idHitSet = null;
         Set<Integer> ipHitSet = null;
         Set<Integer> totalMatchedSet = null;
@@ -257,7 +258,7 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
         }
         // get broker configures
         if (totalMatchedSet == null) {
-            for (BrokerConfEntity entity :  brokerConfCache.values()) {
+            for (BrokerConfEntity entity : brokerConfCache.values()) {
                 if (entity == null
                         || (qryEntity != null && !entity.isMatched(qryEntity))) {
                     continue;
@@ -352,8 +353,8 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
      * @return the process result
      */
     protected abstract boolean putConfig2Persistent(BrokerConfEntity entity,
-                                                    StringBuilder strBuff,
-                                                    ProcessResult result);
+            StringBuilder strBuff,
+            ProcessResult result);
 
     /**
      * Delete broker configure information from persistent storage
@@ -394,16 +395,16 @@ public abstract class AbsBrokerConfigMapperImpl implements BrokerConfigMapper {
      * @return  true for valid, false for invalid
      */
     private boolean isValidMngStatusChange(BrokerConfEntity newEntity,
-                                           BrokerConfEntity curEntity,
-                                           StringBuilder strBuff,
-                                           ProcessResult result) {
+            BrokerConfEntity curEntity,
+            StringBuilder strBuff,
+            ProcessResult result) {
         if (newEntity.getManageStatus() == curEntity.getManageStatus()) {
             return true;
         }
         if (((newEntity.getManageStatus().getCode() < ManageStatus.STATUS_MANAGE_ONLINE.getCode())
                 && (curEntity.getManageStatus().getCode() >= ManageStatus.STATUS_MANAGE_ONLINE.getCode()))
                 || ((newEntity.getManageStatus().getCode() > ManageStatus.STATUS_MANAGE_ONLINE.getCode())
-                && (curEntity.getManageStatus().getCode() < ManageStatus.STATUS_MANAGE_ONLINE.getCode()))) {
+                        && (curEntity.getManageStatus().getCode() < ManageStatus.STATUS_MANAGE_ONLINE.getCode()))) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
                     strBuff.append("Illegal manage status, cannot reverse ")
                             .append(WebFieldDef.MANAGESTATUS.name).append(" from ")

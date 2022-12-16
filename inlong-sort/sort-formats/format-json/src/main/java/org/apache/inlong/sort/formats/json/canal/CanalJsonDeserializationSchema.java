@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,6 +60,7 @@ import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.Readabl
  * @see <a href="https://github.com/alibaba/canal">Alibaba Canal</a>
  */
 public final class CanalJsonDeserializationSchema implements DeserializationSchema<RowData> {
+
     private static final long serialVersionUID = 1L;
 
     private static final String FIELD_OLD = "old";
@@ -148,6 +148,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     /** A builder for creating a {@link CanalJsonDeserializationSchema}. */
     @Internal
     public static final class Builder {
+
         private final DataType physicalDataType;
         private final List<ReadableMetadata> requestedMetadata;
         private final TypeInformation<RowData> producedTypeInfo;
@@ -303,8 +304,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
         for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
             metadataMap.put(
                     StringData.fromString(getMysqlMetadataKey(requestedMetadata.get(metadataPos))),
-                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString())
-            );
+                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString()));
         }
         producedRow.setField(0, new GenericMapData(metadataMap));
 
@@ -381,6 +381,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     private static MetadataConverter convert(RowType jsonRowType, ReadableMetadata metadata) {
         final int pos = jsonRowType.getFieldNames().indexOf(metadata.requiredJsonField.getName());
         return new MetadataConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override

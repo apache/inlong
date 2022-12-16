@@ -18,21 +18,30 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { fieldTypes as sourceFieldsTypes } from '@/metas/sinks/common/sourceFields';
 import { statusList, genStatusTag } from './status';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18nMap, I18n } = DataWithBackend;
+const { FieldList, FieldDecorator } = RenderRow;
+const { ColumnList, ColumnDecorator } = RenderList;
 
-export class StreamDefaultInfo extends DataWithBackend {
+export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList {
+  static I18nMap = I18nMap;
+  static FieldList = FieldList;
+  static ColumnList = ColumnList;
+
   readonly id: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
-    props: {
-      maxLength: 32,
-    },
+    props: values => ({
+      disabled: Boolean(values?.status),
+      maxLength: 64,
+    }),
     rules: [
       { required: true },
       {
@@ -41,18 +50,18 @@ export class StreamDefaultInfo extends DataWithBackend {
       },
     ],
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Stream.StreamId')
   inlongStreamId: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Stream.StreamName')
   name: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'textarea',
     props: {
       showCount: true,
@@ -62,15 +71,15 @@ export class StreamDefaultInfo extends DataWithBackend {
   @I18n('meta.Stream.Description')
   description: string;
 
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('basic.Creator')
   readonly creator: string;
 
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('basic.CreateTime')
   readonly createTime: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     props: {
       allowClear: true,
@@ -79,45 +88,35 @@ export class StreamDefaultInfo extends DataWithBackend {
     },
     visible: false,
   })
-  @TableColumn({
+  @ColumnDecorator({
     render: text => genStatusTag(text),
   })
   @I18n('basic.Status')
   status: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     initialValue: 'CSV',
-    tooltip: i18n.t('meta.Stream.DataTypeCsvHelp'),
-    props: {
+    tooltip: i18n.t('meta.Stream.DataTypeHelp'),
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
       options: [
         {
           label: 'CSV',
           value: 'CSV',
         },
-        {
-          label: 'KEY-VALUE',
-          value: 'KEY-VALUE',
-        },
-        {
-          label: 'JSON',
-          value: 'JSON',
-        },
-        {
-          label: 'AVRO',
-          value: 'AVRO',
-        },
       ],
-    },
+    }),
     rules: [{ required: true }],
   })
   @I18n('meta.Stream.DataType')
   dataType: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     initialValue: 'UTF-8',
-    props: {
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
       options: [
         {
           label: 'UTF-8',
@@ -128,16 +127,17 @@ export class StreamDefaultInfo extends DataWithBackend {
           value: 'GBK',
         },
       ],
-    },
+    }),
     rules: [{ required: true }],
   })
   @I18n('meta.Stream.DataEncoding')
   dataEncoding: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     initialValue: '124',
-    props: {
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
       dropdownMatchSelectWidth: false,
       options: [
         {
@@ -170,7 +170,7 @@ export class StreamDefaultInfo extends DataWithBackend {
         placeholder: 'ASCII',
       },
       style: { width: 100 },
-    },
+    }),
     rules: [
       {
         required: true,
@@ -184,10 +184,11 @@ export class StreamDefaultInfo extends DataWithBackend {
   @I18n('meta.Stream.DataSeparator')
   dataSeparator: string;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
-    props: {
+    props: values => ({
       size: 'small',
+      canDelete: record => !(record.id && [110, 130].includes(values?.status)),
       columns: [
         {
           title: i18n.t('meta.Stream.FieldName'),
@@ -199,15 +200,19 @@ export class StreamDefaultInfo extends DataWithBackend {
               message: i18n.t('meta.Stream.FieldNameRule'),
             },
           ],
+          props: (text, record) => ({
+            disabled: record.id && [110, 130].includes(values?.status),
+          }),
         },
         {
           title: i18n.t('meta.Stream.FieldType'),
           dataIndex: 'fieldType',
           type: 'select',
           initialValue: sourceFieldsTypes[0].value,
-          props: {
+          props: (text, record) => ({
+            disabled: record.id && [110, 130].includes(values?.status),
             options: sourceFieldsTypes,
-          },
+          }),
           rules: [{ required: true }],
         },
         {
@@ -215,7 +220,7 @@ export class StreamDefaultInfo extends DataWithBackend {
           dataIndex: 'fieldComment',
         },
       ],
-    },
+    }),
   })
   @I18n('meta.Stream.SourceDataField')
   rowTypeFields: Record<string, string>[];
@@ -226,5 +231,15 @@ export class StreamDefaultInfo extends DataWithBackend {
 
   stringify(data) {
     return data;
+  }
+
+  renderRow() {
+    const constructor = this.constructor as typeof StreamDefaultInfo;
+    return constructor.FieldList;
+  }
+
+  renderList() {
+    const constructor = this.constructor as typeof StreamDefaultInfo;
+    return constructor.ColumnList;
   }
 }

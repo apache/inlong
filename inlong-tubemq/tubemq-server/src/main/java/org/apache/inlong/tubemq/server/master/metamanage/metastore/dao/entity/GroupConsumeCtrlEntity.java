@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -29,6 +29,7 @@ import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilter
  *
  */
 public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
+
     private String recordKey = "";
     private String topicName = "";
     private String groupName = "";
@@ -44,7 +45,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     public GroupConsumeCtrlEntity(BaseEntity opInfoEntity,
-                                  String groupName, String topicName) {
+            String groupName, String topicName) {
         super(opInfoEntity);
         setGroupAndTopic(groupName, topicName);
     }
@@ -123,11 +124,9 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         return consumeEnable.isEnable();
     }
 
-    public void setConsumeEnable(boolean enableConsume) {
-        if (enableConsume) {
-            this.consumeEnable = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.consumeEnable = EnableStatus.STATUS_DISABLE;
+    public void setConsumeEnable(EnableStatus consumeEnable) {
+        if (consumeEnable != null) {
+            this.consumeEnable = consumeEnable;
         }
     }
 
@@ -143,11 +142,9 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         return filterEnable == EnableStatus.STATUS_ENABLE;
     }
 
-    private void setFilterEnable(boolean enableFilter) {
-        if (enableFilter) {
-            this.filterEnable = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.filterEnable = EnableStatus.STATUS_DISABLE;
+    public void setFilterEnable(EnableStatus filterEnable) {
+        if (filterEnable != null) {
+            this.filterEnable = filterEnable;
         }
     }
 
@@ -174,9 +171,9 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      *
      * @return    whether data is changed
      */
-    public boolean updModifyInfo(long dataVerId, Boolean consumeEnable,
-                                 String disableRsn, Boolean filterEnable,
-                                 String filterCondStr) {
+    public boolean updModifyInfo(long dataVerId, EnableStatus consumeEnable,
+            String disableRsn, EnableStatus filterEnable,
+            String filterCondStr) {
         boolean changed = false;
         // check and set brokerPort info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -186,8 +183,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set consumeEnable info
         if (consumeEnable != null
-                && (this.consumeEnable == EnableStatus.STATUS_UNDEFINE
-                || this.consumeEnable.isEnable() != consumeEnable)) {
+                && consumeEnable != EnableStatus.STATUS_UNDEFINE
+                && this.consumeEnable != consumeEnable) {
             changed = true;
             setConsumeEnable(consumeEnable);
         }
@@ -197,10 +194,10 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
             changed = true;
             disableReason = disableRsn;
         }
-        // check and set consumeEnable info
+        // check and set filterEnable info
         if (filterEnable != null
-                && (this.filterEnable == EnableStatus.STATUS_UNDEFINE
-                || this.filterEnable.isEnable() != filterEnable)) {
+                && filterEnable != EnableStatus.STATUS_UNDEFINE
+                && this.filterEnable != filterEnable) {
             changed = true;
             setFilterEnable(filterEnable);
         }
@@ -247,11 +244,11 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         return (TStringUtils.isBlank(target.getTopicName())
                 || target.getTopicName().equals(this.topicName))
                 && (TStringUtils.isBlank(target.getGroupName())
-                || target.getGroupName().equals(this.groupName))
+                        || target.getGroupName().equals(this.groupName))
                 && (target.getConsumeEnable() == EnableStatus.STATUS_UNDEFINE
-                || target.getConsumeEnable() == this.consumeEnable)
+                        || target.getConsumeEnable() == this.consumeEnable)
                 && (target.getFilterEnable() == EnableStatus.STATUS_UNDEFINE
-                || target.getFilterEnable() == this.filterEnable);
+                        || target.getFilterEnable() == this.filterEnable);
     }
 
     /**
@@ -263,8 +260,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      * @return   process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         String tmpFilterConds = filterCondStr;
         if (tmpFilterConds.length() <= 2) {
             tmpFilterConds = "";
@@ -332,8 +329,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     @Override
     public GroupConsumeCtrlEntity clone() {
         GroupConsumeCtrlEntity copy = (GroupConsumeCtrlEntity) super.clone();
-        copy.setConsumeEnable(getConsumeEnable().isEnable());
-        copy.setFilterEnable(getFilterEnable().isEnable());
+        copy.setConsumeEnable(getConsumeEnable());
+        copy.setFilterEnable(getFilterEnable());
         return copy;
     }
 }

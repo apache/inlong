@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,6 +60,7 @@ import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDecodingFormat.R
  */
 @Internal
 public final class DebeziumJsonDeserializationSchema implements DeserializationSchema<RowData> {
+
     private static final long serialVersionUID = 1L;
 
     private static final String OP_READ = "r"; // snapshot read
@@ -235,15 +235,13 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
         for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
             metadataMap.put(
                     StringData.fromString(getMysqlMetadataKey(requestedMetadata.get(metadataPos))),
-                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString())
-            );
+                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString()));
         }
 
         if (isMigrateAll) {
             metadataMap.put(
                     StringData.fromString(MysqlBinLogData.MYSQL_METADATA_DATA),
-                    (StringData) physicalRow.getField(0)
-            );
+                    (StringData) physicalRow.getField(0));
         }
 
         producedRow.setField(0, new GenericMapData(metadataMap));
@@ -347,6 +345,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     private static MetadataConverter convertInRoot(RowType jsonRowType, ReadableMetadata metadata) {
         final int pos = findFieldPos(metadata, jsonRowType);
         return new MetadataConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -361,6 +360,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
         if (schemaInclude) {
             final int pos = findFieldPos(metadata, (RowType) jsonRowType.getChildren().get(0));
             return new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override

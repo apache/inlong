@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
+
     private static final Logger logger =
             LoggerFactory.getLogger(ZKMetaConfigMapperImpl.class);
     private final MetaConfigSamplePrint metaSamplePrint =
@@ -113,6 +114,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         initMetaStore(strBuff);
         this.executorService =
                 Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
                     @Override
                     public Thread newThread(Runnable r) {
                         return new Thread(r, "Master selector thread");
@@ -239,7 +241,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     protected void initMetaStore(StringBuilder strBuff) {
         clusterConfigMapper = new ZKClusterConfigMapperImpl(metaZkRoot, zkWatcher, strBuff);
         brokerConfigMapper = new ZKBrokerConfigMapperImpl(metaZkRoot, zkWatcher, strBuff);
-        topicDeployMapper =  new ZKTopicDeployMapperImpl(metaZkRoot, zkWatcher, strBuff);
+        topicDeployMapper = new ZKTopicDeployMapperImpl(metaZkRoot, zkWatcher, strBuff);
         groupResCtrlMapper = new ZKGroupResCtrlMapperImpl(metaZkRoot, zkWatcher, strBuff);
         topicCtrlMapper = new ZKTopicCtrlMapperImpl(metaZkRoot, zkWatcher, strBuff);
         consumeCtrlMapper = new ZKConsumeCtrlMapperImpl(metaZkRoot, zkWatcher, strBuff);
@@ -249,6 +251,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
      * Master selector logic
      */
     private class MasterSelectorTask implements Runnable {
+
         @Override
         public void run() {
             long startTime = System.currentTimeMillis();

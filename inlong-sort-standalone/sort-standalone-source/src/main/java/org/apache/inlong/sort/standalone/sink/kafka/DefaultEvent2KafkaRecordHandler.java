@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -63,7 +63,7 @@ public class DefaultEvent2KafkaRecordHandler implements IEvent2KafkaRecordHandle
         byte separator = (byte) delimiter.charAt(0);
         outMsg.reset();
         switch (idConfig.getDataType()) {
-            case TEXT :
+            case TEXT:
                 currentDate.setTime(event.getRawLogTime());
                 String ftime = dateFormat.format(currentDate);
                 outMsg.write(ftime.getBytes());
@@ -72,11 +72,11 @@ public class DefaultEvent2KafkaRecordHandler implements IEvent2KafkaRecordHandle
                 outMsg.write(extinfo.getBytes());
                 outMsg.write(separator);
                 break;
-            case PB :
-            case JCE :
-            case UNKNOWN :
+            case PB:
+            case JCE:
+            case UNKNOWN:
                 break;
-            default :
+            default:
                 break;
         }
         outMsg.write(event.getBody());

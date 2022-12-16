@@ -25,6 +25,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class AddTopicReq extends BaseReq {
+
     private String topicName;
     private String brokerId;
     private Integer numPartitions;

@@ -41,5 +41,4 @@ public class JarRunRequest {
 
     private String savepointPath;
 
-
 }

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -21,7 +21,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 
 public class FlowCtrlItem {
 
-    private int type = 0;   // 0: current limit, 1: frequency limit, 2: SSD transfer 3: request frequency control
+    private int type = 0; // 0: current limit, 1: frequency limit, 2: SSD transfer 3: request frequency control
     private int startTime = TBaseConstants.META_VALUE_UNDEFINED;
     private int endTime = TBaseConstants.META_VALUE_UNDEFINED;
     private long dltInM = TBaseConstants.META_VALUE_UNDEFINED;
@@ -30,7 +30,7 @@ public class FlowCtrlItem {
     private int zeroCnt = TBaseConstants.META_VALUE_UNDEFINED;
 
     public FlowCtrlItem(int type, int startTime, int endTime,
-                        long dltInM, long dataLtInSZ, int freqLtInMs) {
+            long dltInM, long dataLtInSZ, int freqLtInMs) {
         this.type = type;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -40,7 +40,7 @@ public class FlowCtrlItem {
     }
 
     public FlowCtrlItem(int type,
-                        int normFreqLtInMs, int filterFreqInMs, int minDataFilterFreqInMs) {
+            int normFreqLtInMs, int filterFreqInMs, int minDataFilterFreqInMs) {
         this.type = type;
         this.freqLtInMs = filterFreqInMs;
         this.dataLtInSZ = normFreqLtInMs;

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -44,6 +44,7 @@ import sun.nio.ch.DirectBuffer;
  * Message's memory storage. It use direct memory store messages that received but not have been flushed to disk.
  */
 public class MsgMemStore implements Closeable {
+
     private static final Logger logger = LoggerFactory.getLogger(MsgMemStore.class);
     // statistics of memory store
     private final AtomicInteger cacheDataOffset = new AtomicInteger(0);
@@ -78,7 +79,7 @@ public class MsgMemStore implements Closeable {
      * @param writeIndexStartPos    the data start position
      */
     public MsgMemStore(int maxCacheSize, int maxMsgCount,
-                       long writeDataStartPos, long writeIndexStartPos) {
+            long writeDataStartPos, long writeIndexStartPos) {
         this.maxDataCacheSize = maxCacheSize;
         this.maxAllowedMsgCount = maxMsgCount;
         this.maxIndexCacheSize = this.maxAllowedMsgCount * DataStoreUtils.STORE_INDEX_HEAD_LEN;
@@ -125,9 +126,9 @@ public class MsgMemStore implements Closeable {
      * @return    the process result
      */
     public boolean appendMsg(MsgStoreStatsHolder memStatsHolder,
-                             int partitionId, int keyCode, long timeRecv,
-                             ByteBuffer indexEntry, int dataEntryLength,
-                             ByteBuffer dataEntry, AppendResult appendResult) {
+            int partitionId, int keyCode, long timeRecv,
+            ByteBuffer indexEntry, int dataEntryLength,
+            ByteBuffer dataEntry, AppendResult appendResult) {
         long dataOffset;
         long indexOffset;
         int indexSizePos;
@@ -190,10 +191,10 @@ public class MsgMemStore implements Closeable {
      * @return                      read result
      */
     public GetCacheMsgResult getMessages(long lstRdDataOffset, long lstRdIndexOffset,
-                                         int maxReadSize, int maxReadCount,
-                                         int partitionId, boolean isSecond,
-                                         boolean isFilterConsume, Set<Integer> filterKeySet,
-                                         long reqRcvTime) {
+            int maxReadSize, int maxReadCount,
+            int partitionId, boolean isSecond,
+            boolean isFilterConsume, Set<Integer> filterKeySet,
+            long reqRcvTime) {
         // #lizard forgives
         Integer lastWritePos = 0;
         boolean hasMsg = false;
@@ -261,11 +262,10 @@ public class MsgMemStore implements Closeable {
         ByteBuffer tmpIndexRdBuf = this.cachedIndexSegment.asReadOnlyBuffer();
         ByteBuffer tmpDataRdBuf = this.cacheDataSegment.asReadOnlyBuffer();
         // loop read by index
-        for (int count = 0; count < maxReadCount;
-             count++, startReadOff += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
+        for (int count = 0; count < maxReadCount; count++, startReadOff += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
             // cannot find matched message, return
             if ((startReadOff >= currIndexOffset)
-                || (startReadOff + DataStoreUtils.STORE_INDEX_HEAD_LEN > currIndexOffset)) {
+                    || (startReadOff + DataStoreUtils.STORE_INDEX_HEAD_LEN > currIndexOffset)) {
                 break;
             }
             // read index content.
@@ -321,7 +321,7 @@ public class MsgMemStore implements Closeable {
      * @throws IOException    the exception during processing
      */
     public void batchFlush(MsgFileStore msgFileStore,
-                           StringBuilder strBuffer) throws Throwable {
+            StringBuilder strBuffer) throws Throwable {
         if (this.curMessageCount.get() == 0) {
             return;
         }
@@ -331,7 +331,7 @@ public class MsgMemStore implements Closeable {
         tmpDataReadBuf.flip();
         long startTime = System.currentTimeMillis();
         msgFileStore.appendMsg(true, startTime, strBuffer, curMessageCount.get(),
-            cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(),
+                cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(),
                 tmpDataReadBuf, leftAppendTime.get(), rightAppendTime.get());
         BrokerSrvStatsHolder.updDiskSyncDataDlt(System.currentTimeMillis() - startTime);
     }

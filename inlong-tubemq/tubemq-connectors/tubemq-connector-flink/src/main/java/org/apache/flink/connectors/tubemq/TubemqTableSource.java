@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,11 +42,12 @@ import org.apache.flink.types.Row;
 /**
  * TubeMQ {@link StreamTableSource}.
  */
-public class TubemqTableSource implements
-    StreamTableSource<Row>,
-    DefinedProctimeAttribute,
-    DefinedRowtimeAttributes,
-    DefinedFieldMapping {
+public class TubemqTableSource
+        implements
+            StreamTableSource<Row>,
+            DefinedProctimeAttribute,
+            DefinedRowtimeAttributes,
+            DefinedFieldMapping {
 
     /**
      * Deserialization schema for records from TubeMQ.
@@ -116,33 +116,32 @@ public class TubemqTableSource implements
      * @param configuration       the configure
      */
     public TubemqTableSource(
-        DeserializationSchema<Row> deserializationSchema,
-        TableSchema schema,
-        Optional<String> proctimeAttribute,
-        List<RowtimeAttributeDescriptor> rowtimeAttributeDescriptors,
-        Map<String, String> fieldMapping,
-        String masterAddress,
-        String topic,
-        TreeSet<String> tidSet,
-        String consumerGroup,
-        Configuration configuration
-    ) {
+            DeserializationSchema<Row> deserializationSchema,
+            TableSchema schema,
+            Optional<String> proctimeAttribute,
+            List<RowtimeAttributeDescriptor> rowtimeAttributeDescriptors,
+            Map<String, String> fieldMapping,
+            String masterAddress,
+            String topic,
+            TreeSet<String> tidSet,
+            String consumerGroup,
+            Configuration configuration) {
         checkNotNull(deserializationSchema,
-            "The deserialization schema must not be null.");
+                "The deserialization schema must not be null.");
         checkNotNull(schema,
-            "The schema must not be null.");
+                "The schema must not be null.");
         checkNotNull(fieldMapping,
-            "The field mapping must not be null.");
+                "The field mapping must not be null.");
         checkNotNull(masterAddress,
-            "The master address must not be null.");
+                "The master address must not be null.");
         checkNotNull(topic,
-            "The topic must not be null.");
+                "The topic must not be null.");
         checkNotNull(tidSet,
-            "The tid set must not be null.");
+                "The tid set must not be null.");
         checkNotNull(consumerGroup,
-            "The consumer group must not be null.");
+                "The consumer group must not be null.");
         checkNotNull(configuration,
-            "The configuration must not be null.");
+                "The configuration must not be null.");
 
         this.deserializationSchema = deserializationSchema;
         this.schema = schema;
@@ -154,9 +153,9 @@ public class TubemqTableSource implements
         this.configuration = configuration;
 
         this.proctimeAttribute =
-            validateProcTimeAttribute(proctimeAttribute);
+                validateProcTimeAttribute(proctimeAttribute);
         this.rowtimeAttributeDescriptors =
-            validateRowTimeAttributeDescriptors(rowtimeAttributeDescriptors);
+                validateRowTimeAttributeDescriptors(rowtimeAttributeDescriptors);
     }
 
     @Override
@@ -182,26 +181,23 @@ public class TubemqTableSource implements
 
     @Override
     public DataStream<Row> getDataStream(
-        StreamExecutionEnvironment streamExecutionEnvironment
-    ) {
+            StreamExecutionEnvironment streamExecutionEnvironment) {
         SourceFunction<Row> sourceFunction =
-            new TubemqSourceFunction<>(
-                masterAddress,
-                topic,
-                tidSet,
-                consumerGroup,
-                deserializationSchema,
-                configuration
-            );
+                new TubemqSourceFunction<>(
+                        masterAddress,
+                        topic,
+                        tidSet,
+                        consumerGroup,
+                        deserializationSchema,
+                        configuration);
 
         return streamExecutionEnvironment
-            .addSource(sourceFunction)
-            .name(explainSource());
+                .addSource(sourceFunction)
+                .name(explainSource());
     }
 
     private Optional<String> validateProcTimeAttribute(
-        Optional<String> proctimeAttribute
-    ) {
+            Optional<String> proctimeAttribute) {
         return proctimeAttribute.map((attribute) -> {
             Optional<TypeInformation<?>> tpe = schema.getFieldType(attribute);
             if (!tpe.isPresent()) {
@@ -216,8 +212,7 @@ public class TubemqTableSource implements
     }
 
     private List<RowtimeAttributeDescriptor> validateRowTimeAttributeDescriptors(
-        List<RowtimeAttributeDescriptor> attributeDescriptors
-    ) {
+            List<RowtimeAttributeDescriptor> attributeDescriptors) {
         checkNotNull(attributeDescriptors);
 
         for (RowtimeAttributeDescriptor desc : attributeDescriptors) {

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -42,6 +42,7 @@ import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
@@ -61,7 +62,7 @@ public class WebParameterUtils {
     }
 
     public static StringBuilder buildFailResultWithBlankData(int errcode, String errMsg,
-                                                             StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         return sBuffer.append("{\"result\":false,\"errCode\":").append(errcode)
                 .append(",\"errMsg\":\"").append(errMsg).append("\",\"data\":[]}");
     }
@@ -96,13 +97,14 @@ public class WebParameterUtils {
      * @return the process result
      */
     public static <T> boolean getAUDBaseInfo(T paramCntr, boolean isAdd,
-                                             BaseEntity defOpEntity,
-                                             StringBuilder sBuffer,
-                                             ProcessResult result) {
+            BaseEntity defOpEntity,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get data version id
         if (!WebParameterUtils.getLongParamValue(paramCntr, WebFieldDef.DATAVERSIONID,
                 false, (defOpEntity == null
-                        ? TBaseConstants.META_VALUE_UNDEFINED : defOpEntity.getDataVerId()),
+                        ? TBaseConstants.META_VALUE_UNDEFINED
+                        : defOpEntity.getDataVerId()),
                 sBuffer, result)) {
             return result.isSuccess();
         }
@@ -122,7 +124,8 @@ public class WebParameterUtils {
             // check and get create date
             if (!WebParameterUtils.getDateParameter(paramCntr, WebFieldDef.CREATEDATE, false,
                     ((defOpEntity == null || defOpEntity.getCreateDate() == null)
-                            ? createDate : defOpEntity.getCreateDate()),
+                            ? createDate
+                            : defOpEntity.getCreateDate()),
                     sBuffer, result)) {
                 return result.isSuccess();
             }
@@ -139,7 +142,8 @@ public class WebParameterUtils {
         // check and get modify date
         if (!WebParameterUtils.getDateParameter(paramCntr, WebFieldDef.MODIFYDATE, false,
                 ((defOpEntity == null || defOpEntity.getModifyDate() == null)
-                        ? createDate : defOpEntity.getModifyDate()),
+                        ? createDate
+                        : defOpEntity.getModifyDate()),
                 sBuffer, result)) {
             return result.isSuccess();
         }
@@ -159,7 +163,7 @@ public class WebParameterUtils {
      * @return process result
      */
     public static boolean getQueriedOperateInfo(HttpServletRequest req, BaseEntity qryEntity,
-                                                StringBuilder sBuffer, ProcessResult result) {
+            StringBuilder sBuffer, ProcessResult result) {
         // check and get data version id
         if (!WebParameterUtils.getLongParamValue(req, WebFieldDef.DATAVERSIONID,
                 false, TBaseConstants.META_VALUE_UNDEFINED, sBuffer, result)) {
@@ -197,9 +201,9 @@ public class WebParameterUtils {
      */
     // get QryPriorityId parameter value
     public static <T> boolean getQryPriorityIdParameter(T paramCntr, boolean required,
-                                                        int defValue, int minValue,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result) {
+            int defValue, int minValue,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!getIntParamValue(paramCntr, WebFieldDef.QRYPRIORITYID,
                 required, defValue, minValue, sBuffer, result)) {
             return result.isSuccess();
@@ -238,6 +242,35 @@ public class WebParameterUtils {
     }
 
     /**
+     * Parse the parameter value from an object value to a EnableStatus value
+     *
+     * @param paramCntr   parameter container object
+     * @param required   a boolean value represent whether the parameter is must required
+     * @param defValue   a default value returned if failed to parse value from the given object
+     * @param sBuffer     string buffer
+     * @param result     process result of parameter value
+     * @return the process result
+     */
+    public static <T> boolean getEnableStatusValue(T paramCntr, WebFieldDef fieldDef,
+            boolean required, EnableStatus defValue,
+            StringBuilder sBuffer,
+            ProcessResult result) {
+        if (!WebParameterUtils.getBooleanParamValue(paramCntr, fieldDef,
+                required, null, sBuffer, result)) {
+            return result.isSuccess();
+        }
+        Boolean enableValue = (Boolean) result.getRetData();
+        if (enableValue == null) {
+            result.setSuccResult(defValue);
+        } else if (enableValue) {
+            result.setSuccResult(EnableStatus.STATUS_ENABLE);
+        } else {
+            result.setSuccResult(EnableStatus.STATUS_DISABLE);
+        }
+        return result.isSuccess();
+    }
+
+    /**
      * Decode the deletePolicy parameter value from an object value
      * the value must like {method},{digital}[s|m|h]
      *
@@ -249,8 +282,8 @@ public class WebParameterUtils {
      * @return the process result
      */
     public static <T> boolean getDeletePolicyParameter(T paramCntr, boolean required,
-                                                       String defValue, StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            String defValue, StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(paramCntr,
                 WebFieldDef.DELETEPOLICY, required, defValue, sBuffer, result)) {
             return result.isSuccess();
@@ -347,10 +380,10 @@ public class WebParameterUtils {
      * @return the process result
      */
     public static boolean getTopicStatusParamValue(HttpServletRequest req,
-                                                   boolean isRequired,
-                                                   TopicStatus defVal,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            boolean isRequired,
+            TopicStatus defVal,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // get topicStatusId field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.TOPICSTATUSID,
                 isRequired, defVal.getCode(), TopicStatus.STATUS_TOPIC_UNDEFINED.getCode(),
@@ -382,8 +415,8 @@ public class WebParameterUtils {
      * @return   true for valid, false for invalid
      */
     public static boolean isValidPortsSet(int brokerPort, int brokerTlsPort,
-                                          int brokerWebPort, StringBuilder strBuff,
-                                          ProcessResult result) {
+            int brokerWebPort, StringBuilder strBuff,
+            ProcessResult result) {
         if (brokerPort == brokerWebPort || brokerTlsPort == brokerWebPort) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
                     strBuff.append(DataOpErrCode.DERR_CONFLICT_VALUE.getDescription())
@@ -408,7 +441,7 @@ public class WebParameterUtils {
      * @return process result
      */
     public static <T> boolean getTopicPropInfo(T paramCntr, TopicPropGroup defVal,
-                                               StringBuilder sBuffer, ProcessResult result) {
+            StringBuilder sBuffer, ProcessResult result) {
         TopicPropGroup newConf = new TopicPropGroup();
         // get numTopicStores parameter value
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.NUMTOPICSTORES, false,
@@ -501,8 +534,8 @@ public class WebParameterUtils {
      * @return process result
      */
     public static <T> boolean getLongParamValue(T paramCntr, WebFieldDef fieldDef,
-                                                boolean required, long defValue,
-                                                StringBuilder sBuffer, ProcessResult result) {
+            boolean required, long defValue,
+            StringBuilder sBuffer, ProcessResult result) {
         if (!getStringParamValue(paramCntr, fieldDef,
                 required, null, sBuffer, result)) {
             return result.isSuccess();
@@ -534,8 +567,8 @@ public class WebParameterUtils {
      * @return process result
      */
     public static <T> boolean getFlowCtrlStatusParamValue(T paramCntr, boolean required,
-                                                          Boolean defValue, StringBuilder sBuffer,
-                                                          ProcessResult result) {
+            EnableStatus defValue, StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get statusId field
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.STATUSID, required,
                 TBaseConstants.META_VALUE_UNDEFINED, 0, 1, sBuffer, result)) {
@@ -546,9 +579,9 @@ public class WebParameterUtils {
             result.setSuccResult(defValue);
         } else {
             if (paramValue == 1) {
-                result.setSuccResult(Boolean.TRUE);
+                result.setSuccResult(EnableStatus.STATUS_ENABLE);
             } else {
-                result.setSuccResult(Boolean.FALSE);
+                result.setSuccResult(EnableStatus.STATUS_DISABLE);
             }
         }
         return result.isSuccess();
@@ -565,8 +598,8 @@ public class WebParameterUtils {
      * @return process result
      */
     public static <T> boolean getIntParamValue(T paramCntr, WebFieldDef fieldDef,
-                                               boolean required, StringBuilder sBuffer,
-                                               ProcessResult result) {
+            boolean required, StringBuilder sBuffer,
+            ProcessResult result) {
         return getIntParamValue(paramCntr, fieldDef, required,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
@@ -587,8 +620,8 @@ public class WebParameterUtils {
      * @return process result
      */
     public static <T> boolean getIntParamValue(T paramCntr, WebFieldDef fieldDef,
-                                               boolean required, int defValue, int minValue,
-                                               StringBuilder sBuffer, ProcessResult result) {
+            boolean required, int defValue, int minValue,
+            StringBuilder sBuffer, ProcessResult result) {
         return getIntParamValue(paramCntr, fieldDef, required,
                 true, defValue, true, minValue,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
@@ -609,21 +642,21 @@ public class WebParameterUtils {
      * @return process result
      */
     public static <T> boolean getIntParamValue(T paramCntr, WebFieldDef fieldDef,
-                                               boolean required, int defValue,
-                                               int minValue, int maxValue,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            boolean required, int defValue,
+            int minValue, int maxValue,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return getIntParamValue(paramCntr, fieldDef, required, true,
                 defValue, true, minValue, true, maxValue, sBuffer, result);
     }
 
     // get int value from parameter string value
     private static <T> boolean getIntParamValue(T paramCntr,
-                                                WebFieldDef fieldDef, boolean required,
-                                                boolean hasDefVal, int defValue,
-                                                boolean hasMinVal, int minValue,
-                                                boolean hasMaxVal, int maxValue,
-                                                StringBuilder sBuffer, ProcessResult result) {
+            WebFieldDef fieldDef, boolean required,
+            boolean hasDefVal, int defValue,
+            boolean hasMinVal, int minValue,
+            boolean hasMaxVal, int maxValue,
+            StringBuilder sBuffer, ProcessResult result) {
         if (!getStringParamValue(paramCntr, fieldDef,
                 required, null, sBuffer, result)) {
             return result.isSuccess();
@@ -672,9 +705,9 @@ public class WebParameterUtils {
      * @return valid result for the parameter value
      */
     public static <T> boolean getBooleanParamValue(T paramCntr, WebFieldDef fieldDef,
-                                                   boolean required, Boolean defValue,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            boolean required, Boolean defValue,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!getStringParamValue(paramCntr, fieldDef,
                 required, null, sBuffer, result)) {
             return result.isSuccess();
@@ -709,8 +742,8 @@ public class WebParameterUtils {
      * @return valid result for the parameter value
      */
     public static <T> boolean getStringParamValue(T paramCntr, WebFieldDef fieldDef,
-                                                  boolean required, String defValue,
-                                                  StringBuilder sBuffer, ProcessResult result) {
+            boolean required, String defValue,
+            StringBuilder sBuffer, ProcessResult result) {
         String paramValue;
         // get parameter value
         if (paramCntr instanceof Map) {
@@ -751,8 +784,8 @@ public class WebParameterUtils {
      * @return valid result for the parameter value
      */
     private static boolean checkStrParamValue(String paramValue, WebFieldDef fieldDef,
-                                              boolean required, String defValue,
-                                              StringBuilder sBuffer, ProcessResult result) {
+            boolean required, String defValue,
+            StringBuilder sBuffer, ProcessResult result) {
         if (TStringUtils.isNotBlank(paramValue)) {
             // Cleanup value extra characters
             paramValue = escDoubleQuotes(paramValue.trim());
@@ -825,11 +858,11 @@ public class WebParameterUtils {
      * @return process result
      */
     public static boolean getAndValidTopicNameInfo(HttpServletRequest req,
-                                                   MetaDataService defMetaDataService,
-                                                   boolean required,
-                                                   String defValue,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            MetaDataService defMetaDataService,
+            boolean required,
+            String defValue,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, required, defValue, sBuffer, result)) {
             return result.isSuccess();
@@ -860,9 +893,9 @@ public class WebParameterUtils {
      * @return process result
      */
     public static <T> boolean getFilterCondString(T paramCntr, boolean required,
-                                                  boolean transBlank,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            boolean transBlank,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!getFilterCondSet(paramCntr, required, false, sBuffer, result)) {
             return result.isSuccess();
         }
@@ -893,9 +926,9 @@ public class WebParameterUtils {
      * @return process result
      */
     public static <T> boolean getFilterCondSet(T paramCntr, boolean required,
-                                               boolean transCondItem,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            boolean transCondItem,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(paramCntr,
                 WebFieldDef.FILTERCONDS, required, null, sBuffer, result)) {
             return result.isSuccess();
@@ -931,7 +964,7 @@ public class WebParameterUtils {
         }
         if (confFilterStr == null
                 || (confFilterStr.length() == 2
-                && confFilterStr.equals(TServerConstants.BLANK_FILTER_ITEM_STR))) {
+                        && confFilterStr.equals(TServerConstants.BLANK_FILTER_ITEM_STR))) {
             return false;
         }
         boolean allInc = true;
@@ -955,10 +988,10 @@ public class WebParameterUtils {
      * @return valid result for the parameter value
      */
     public static boolean getJsonDictParamValue(HttpServletRequest req,
-                                                WebFieldDef fieldDef,
-                                                boolean required,
-                                                Map<String, Long> defValue,
-                                                ProcessResult result) {
+            WebFieldDef fieldDef,
+            boolean required,
+            Map<String, Long> defValue,
+            ProcessResult result) {
         // get parameter value
         String paramValue = req.getParameter(fieldDef.name);
         if (paramValue == null) {
@@ -1009,7 +1042,8 @@ public class WebParameterUtils {
         // parse data
         try {
             Map<String, Long> manOffsets = new Gson().fromJson(paramValue,
-                    new TypeToken<Map<String, Long>>(){}.getType());
+                    new TypeToken<Map<String, Long>>() {
+                    }.getType());
             result.setSuccResult(manOffsets);
         } catch (Throwable e) {
             result.setFailResult(new StringBuilder(512)
@@ -1031,10 +1065,10 @@ public class WebParameterUtils {
      * @return valid result for the parameter value
      */
     public static boolean getJsonArrayParamValue(HttpServletRequest req,
-                                                 WebFieldDef fieldDef,
-                                                 boolean required,
-                                                 List<Map<String, String>> defValue,
-                                                 ProcessResult result) {
+            WebFieldDef fieldDef,
+            boolean required,
+            List<Map<String, String>> defValue,
+            ProcessResult result) {
         // get parameter value
         String paramValue = req.getParameter(fieldDef.name);
         if (paramValue == null) {
@@ -1085,7 +1119,8 @@ public class WebParameterUtils {
         // parse data
         try {
             List<Map<String, String>> arrayValue = new Gson().fromJson(paramValue,
-                    new TypeToken<List<Map<String, String>>>(){}.getType());
+                    new TypeToken<List<Map<String, String>>>() {
+                    }.getType());
             result.setSuccResult(arrayValue);
         } catch (Throwable e) {
             result.setFailResult(new StringBuilder(512)
@@ -1108,9 +1143,9 @@ public class WebParameterUtils {
      * @return valid result for the parameter value
      */
     public static <T> boolean getDateParameter(T paramCntr, WebFieldDef fieldDef,
-                                               boolean required, Date defValue,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            boolean required, Date defValue,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!getStringParamValue(paramCntr, fieldDef,
                 required, null, sBuffer, result)) {
             return result.isSuccess();
@@ -1143,8 +1178,8 @@ public class WebParameterUtils {
      * @return valid result for the parameter value
      */
     public static boolean validReqAuthorizeInfo(HttpServletRequest req, boolean required,
-                                                TMaster master, StringBuilder sBuffer,
-                                                ProcessResult result) {
+            TMaster master, StringBuilder sBuffer,
+            ProcessResult result) {
         if (!getStringParamValue(req, WebFieldDef.ADMINAUTHTOKEN,
                 required, null, sBuffer, result)) {
             return result.isSuccess();
@@ -1167,8 +1202,8 @@ public class WebParameterUtils {
      * @return process result for default value of parameter
      */
     private static boolean procStringDefValue(boolean isCompFieldType,
-                                              String defValue,
-                                              ProcessResult result) {
+            String defValue,
+            ProcessResult result) {
         if (isCompFieldType) {
             TreeSet<String> valItemSet = new TreeSet<>();
             if (TStringUtils.isNotBlank(defValue)) {
@@ -1192,7 +1227,7 @@ public class WebParameterUtils {
      * @return check result for string value of parameter
      */
     private static boolean checkStrValueNorms(WebFieldDef fieldDef, String paramVal,
-                                              StringBuilder sBuffer, ProcessResult result) {
+            StringBuilder sBuffer, ProcessResult result) {
         paramVal = paramVal.trim();
         if (TStringUtils.isBlank(paramVal)) {
             result.setSuccResult(null);
@@ -1240,9 +1275,9 @@ public class WebParameterUtils {
      * @return check result for string value of parameter
      */
     private static boolean checkIntValueNorms(WebFieldDef fieldDef, String paramValue,
-                                              boolean hasMinVal, int minValue,
-                                              boolean hasMaxVal, int maxValue,
-                                              StringBuilder sBuffer, ProcessResult result) {
+            boolean hasMinVal, int minValue,
+            boolean hasMaxVal, int maxValue,
+            StringBuilder sBuffer, ProcessResult result) {
         try {
             int paramIntVal = Integer.parseInt(paramValue);
             if (hasMinVal && paramIntVal < minValue) {
@@ -1277,8 +1312,8 @@ public class WebParameterUtils {
      * @throws Exception if failed to decode the filter conditions
      */
     public static String checkAndGetFilterConds(String inFilterConds,
-                                                boolean isTransBlank,
-                                                StringBuilder sb) throws Exception {
+            boolean isTransBlank,
+            StringBuilder sb) throws Exception {
         if (TStringUtils.isNotBlank(inFilterConds)) {
             inFilterConds = escDoubleQuotes(inFilterConds.trim());
         }
@@ -1305,8 +1340,8 @@ public class WebParameterUtils {
                 if (!filterCond.matches(TBaseConstants.META_TMP_FILTER_VALUE)) {
                     sb.delete(0, sb.length());
                     throw new Exception(sb.append("Illegal value: the value of ")
-                        .append(filterCond).append(" in filterCond parameter ")
-                        .append("must only contain characters,numbers,and underscores").toString());
+                            .append(filterCond).append(" in filterCond parameter ")
+                            .append("must only contain characters,numbers,and underscores").toString());
                 }
                 filterConds.add(filterCond);
             }
@@ -1335,9 +1370,9 @@ public class WebParameterUtils {
      * @throws Exception if failed to decode the filter conditions
      */
     public static Set<String> checkAndGetFilterCondSet(String inFilterConds,
-                                                       boolean transCondItem,
-                                                       boolean checkTotalCnt,
-                                                       StringBuilder sb) throws Exception {
+            boolean transCondItem,
+            boolean checkTotalCnt,
+            StringBuilder sb) throws Exception {
         Set<String> filterCondSet = new HashSet<>();
         if (TStringUtils.isBlank(inFilterConds)) {
             return filterCondSet;
@@ -1360,8 +1395,8 @@ public class WebParameterUtils {
                 if (!filterCond.matches(TBaseConstants.META_TMP_FILTER_VALUE)) {
                     sb.delete(0, sb.length());
                     throw new Exception(sb.append("Illegal value: the value of ")
-                        .append(filterCond).append(" in filterCond parameter must ")
-                        .append("only contain characters,numbers,and underscores").toString());
+                            .append(filterCond).append(" in filterCond parameter must ")
+                            .append("only contain characters,numbers,and underscores").toString());
                 }
                 if (transCondItem) {
                     filterCondSet.add(sb.append(TokenConstants.ARRAY_SEP)
@@ -1374,8 +1409,8 @@ public class WebParameterUtils {
             if (checkTotalCnt) {
                 if (filterCondSet.size() > TBaseConstants.CFG_FLT_MAX_FILTER_ITEM_COUNT) {
                     throw new Exception(sb.append("Illegal value: the count of filterCond's ")
-                        .append("value over max allowed count(")
-                        .append(TBaseConstants.CFG_FLT_MAX_FILTER_ITEM_COUNT).append(")!").toString());
+                            .append("value over max allowed count(")
+                            .append(TBaseConstants.CFG_FLT_MAX_FILTER_ITEM_COUNT).append(")!").toString());
                 }
             }
         }
@@ -1393,10 +1428,10 @@ public class WebParameterUtils {
      * @return the batched group names
      */
     public static Set<String> getBatchGroupNames(String inputGroupName,
-                                                 boolean checkEmpty,
-                                                 boolean checkResToken,
-                                                 Set<String> resTokens,
-                                                 StringBuilder sb) throws Exception {
+            boolean checkEmpty,
+            boolean checkResToken,
+            Set<String> resTokens,
+            StringBuilder sb) throws Exception {
         Set<String> batchOpGroupNames = new HashSet<>();
         if (TStringUtils.isNotBlank(inputGroupName)) {
             inputGroupName = escDoubleQuotes(inputGroupName.trim());
@@ -1410,7 +1445,7 @@ public class WebParameterUtils {
         String[] strGroupNames = inputGroupName.split(TokenConstants.ARRAY_SEP);
         if (strGroupNames.length > TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT) {
             throw new Exception(sb.append("Illegal value: groupName's batch count over max count ")
-                .append(TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT).toString());
+                    .append(TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT).toString());
         }
         for (int i = 0; i < strGroupNames.length; i++) {
             if (TStringUtils.isBlank(strGroupNames[i])) {
@@ -1421,7 +1456,7 @@ public class WebParameterUtils {
                 if (resTokens != null && !resTokens.isEmpty()) {
                     if (resTokens.contains(groupName)) {
                         throw new Exception(sb.append("Illegal value: in groupName parameter, '")
-                            .append(groupName).append("' is a system reserved token!").toString());
+                                .append(groupName).append("' is a system reserved token!").toString());
                     }
                 }
             }
@@ -1433,8 +1468,8 @@ public class WebParameterUtils {
             }
             if (!groupName.matches(TBaseConstants.META_TMP_GROUP_VALUE)) {
                 throw new Exception(sb.append("Illegal value: the value of ").append(groupName)
-                    .append("in groupName parameter must begin with a letter, can only contain ")
-                    .append("characters,numbers,hyphen,and underscores").toString());
+                        .append("in groupName parameter must begin with a letter, can only contain ")
+                        .append("characters,numbers,hyphen,and underscores").toString());
             }
             batchOpGroupNames.add(groupName);
         }
@@ -1454,7 +1489,7 @@ public class WebParameterUtils {
      * @return the batched broker ids
      */
     public static Set<String> getBatchBrokerIpSet(String inStrBrokerIps,
-                                                  boolean checkEmpty) throws Exception {
+            boolean checkEmpty) throws Exception {
         Set<String> batchBrokerIps = new HashSet<>();
         if (TStringUtils.isNotBlank(inStrBrokerIps)) {
             inStrBrokerIps = escDoubleQuotes(inStrBrokerIps.trim());
@@ -1496,9 +1531,9 @@ public class WebParameterUtils {
      * @throws Exception
      */
     public static List<Map<String, String>> checkAndGetJsonArray(String paramName,
-                                                                 String paramValue,
-                                                                 int paramMaxLen,
-                                                                 boolean required) throws Exception {
+            String paramValue,
+            int paramMaxLen,
+            boolean required) throws Exception {
         String tmpParamValue = checkParamCommonRequires(paramName, paramValue, required);
         if (TStringUtils.isBlank(tmpParamValue) && !required) {
             return null;
@@ -1529,7 +1564,8 @@ public class WebParameterUtils {
                         .append(" characters").toString());
             }
         }
-        return new Gson().fromJson(decTmpParamVal, new TypeToken<List<Map<String, String>>>(){}.getType());
+        return new Gson().fromJson(decTmpParamVal, new TypeToken<List<Map<String, String>>>() {
+        }.getType());
     }
 
     /**
@@ -1618,7 +1654,7 @@ public class WebParameterUtils {
      * @return the parameter value without quotes
      */
     public static String checkParamCommonRequires(String paramName, String paramValue,
-                                                  boolean required) throws Exception {
+            boolean required) throws Exception {
         String temParamValue = null;
         if (paramValue == null) {
             if (required) {
@@ -1648,8 +1684,8 @@ public class WebParameterUtils {
      * @return the count of flow control rule
      */
     public static <T> int getAndCheckFlowRules(T paramCntr, String defValue,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // get parameter value
         String paramValue;
         // get parameter value
@@ -1695,8 +1731,8 @@ public class WebParameterUtils {
 
     // valid flow control rule informations
     private static int validFlowRuleValue(String paramValue,
-                                          StringBuilder sBuffer,
-                                          ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         int ruleCnt = 0;
         paramValue = paramValue.trim();
         List<Integer> ruleTypes = Arrays.asList(0, 1, 2, 3);

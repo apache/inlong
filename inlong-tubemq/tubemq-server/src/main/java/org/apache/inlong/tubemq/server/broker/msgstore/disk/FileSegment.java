@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * It is mini particle of topic expire policy. It will be marked deleted when expired.
  */
 public class FileSegment implements Segment {
+
     private static final Logger logger =
             LoggerFactory.getLogger(FileSegment.class);
     private final long start;
@@ -62,17 +63,17 @@ public class FileSegment implements Segment {
     }
 
     public FileSegment(long start, File file,
-                       boolean mutable, SegmentType type) throws IOException {
+            boolean mutable, SegmentType type) throws IOException {
         this(start, file, mutable, type, Long.MAX_VALUE);
     }
 
     public FileSegment(long start, File file,
-                       SegmentType type, long checkOffset) throws IOException {
+            SegmentType type, long checkOffset) throws IOException {
         this(start, file, true, type, checkOffset);
     }
 
     private FileSegment(long start, File file, boolean mutable,
-                        SegmentType type, long checkOffset) throws IOException {
+            SegmentType type, long checkOffset) throws IOException {
         super();
         this.segmentType = type;
         this.start = start;
@@ -272,8 +273,8 @@ public class FileSegment implements Segment {
         return (this.getCachedSize() == 0
                 && offset == this.start
                 || this.getCachedSize() > 0
-                && offset >= this.start
-                && offset <= this.start + this.getCachedSize() - 1);
+                        && offset >= this.start
+                        && offset <= this.start + this.getCachedSize() - 1);
     }
 
     /**
@@ -362,10 +363,10 @@ public class FileSegment implements Segment {
     @Override
     public void read(ByteBuffer bf, long absOffset) throws IOException {
         if (this.isExpired()) {
-            //Todo: conduct file closed and expired cases.
+            // Todo: conduct file closed and expired cases.
         }
         int size = 0;
-        long startPos  = absOffset - start;
+        long startPos = absOffset - start;
         while (bf.hasRemaining()) {
             final int l = this.channel.read(bf, startPos + size);
             if (l < 0) {
@@ -378,7 +379,7 @@ public class FileSegment implements Segment {
     @Override
     public void relRead(final ByteBuffer bf, long relOffset) throws IOException {
         if (this.isExpired()) {
-            //Todo: conduct file closed and expired cases.
+            // Todo: conduct file closed and expired cases.
         }
         int size = 0;
         while (bf.hasRemaining()) {
@@ -565,6 +566,7 @@ public class FileSegment implements Segment {
     }
 
     private static class RecoverResult {
+
         private final long truncated;
         private final boolean isEqual;
 

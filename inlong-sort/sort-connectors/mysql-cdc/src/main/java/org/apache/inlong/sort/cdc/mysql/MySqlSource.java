@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,9 +18,9 @@
 package org.apache.inlong.sort.cdc.mysql;
 
 import io.debezium.connector.mysql.MySqlConnector;
-import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
 import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.debezium.internal.DebeziumOffset;
 import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
 
 import java.util.HashMap;
@@ -72,6 +71,7 @@ public class MySqlSource {
         private DebeziumDeserializationSchema<T> deserializer;
         private String inlongMetric;
         private String inlongAudit;
+        private boolean migrateAll;
 
         public Builder<T> hostname(String hostname) {
             this.hostname = hostname;
@@ -179,6 +179,11 @@ public class MySqlSource {
             return this;
         }
 
+        public Builder<T> migrateAll(boolean migrateAll) {
+            this.migrateAll = migrateAll;
+            return this;
+        }
+
         /**
          * builder
          */
@@ -273,7 +278,8 @@ public class MySqlSource {
             }
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, specificOffset, new MySqlValidator(props), inlongMetric, inlongAudit);
+                    deserializer, props, specificOffset, new MySqlValidator(props), inlongMetric, inlongAudit,
+                    migrateAll);
         }
     }
 }

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -82,20 +82,20 @@ public final class MessagePullConsumerExample {
         // 2.1 set consume from latest position if the consumer group is first consume
         consumerConfig.setConsumePosition(ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
         // 2.2 build session factory object
-        //     Attention: here we are using the TubeSingleSessionFactory object(a
-        //                singleton session factory can only create one object in a process,
-        //                requiring all topics to be in one cluster.
-        //                If the topics subscribed to by the objects in the process are
-        //                in different clusters, then need to use the TubeMultiSessionFactory class,
-        //                please refer to the example of TubeMultiSessionFactory usage)
+        // Attention: here we are using the TubeSingleSessionFactory object(a
+        // singleton session factory can only create one object in a process,
+        // requiring all topics to be in one cluster.
+        // If the topics subscribed to by the objects in the process are
+        // in different clusters, then need to use the TubeMultiSessionFactory class,
+        // please refer to the example of TubeMultiSessionFactory usage)
         sessionFactory = new TubeSingleSessionFactory(consumerConfig);
 
         // 3 build consumer object
-        //    we can construct multiple consumers after the creation of the session factory object
+        // we can construct multiple consumers after the creation of the session factory object
         pullConsumer = sessionFactory.createPullConsumer(consumerConfig);
         // 3.1 Set the Topic and the filter item set corresponding to the consumption
-        //     if you not need filter consumption,
-        //    set the parameter filterConds is null or empty set
+        // if you not need filter consumption,
+        // set the parameter filterConds is null or empty set
         for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
             pullConsumer.subscribe(entry.getKey(), entry.getValue());
         }
@@ -106,6 +106,7 @@ public final class MessagePullConsumerExample {
         Thread[] fetchRunners = new Thread[fetchThreadCnt];
         for (int i = 0; i < fetchRunners.length; i++) {
             fetchRunners[i] = new Thread(new Runnable() {
+
                 @Override
                 public void run() {
                     ConsumerResult csmResult;
@@ -135,18 +136,18 @@ public final class MessagePullConsumerExample {
                                 }
                                 // 4.2.1.1 confirm consume result
                                 // Notice:
-                                //    1. If the processing fails, the parameter isConsumed can
-                                //       be set to false, but this is likely to cause
-                                //       an infinite loop of data consumption, so
-                                //       it is strongly recommended to set this parameter
-                                //       to true when using it, and the failed data can
-                                //       be processed in other ways
-                                //    2. The messageList returned by getMessage() may be empty,
-                                //       and confirmConsume() is still required call in this case
+                                // 1. If the processing fails, the parameter isConsumed can
+                                // be set to false, but this is likely to cause
+                                // an infinite loop of data consumption, so
+                                // it is strongly recommended to set this parameter
+                                // to true when using it, and the failed data can
+                                // be processed in other ways
+                                // 2. The messageList returned by getMessage() may be empty,
+                                // and confirmConsume() is still required call in this case
                                 pullConsumer.confirmConsume(csmResult.getConfirmContext(), true);
                             } else {
                                 // 4.2.2 process failure when getMessage() return false
-                                //       Any failure can be ignored
+                                // Any failure can be ignored
                                 if (!IGNORE_ERROR_SET.contains(csmResult.getErrCode())) {
                                     logger.debug(
                                             "Receive messages errorCode is {}, Error message is {}",
@@ -189,4 +190,3 @@ public final class MessagePullConsumerExample {
         // msgRecvStats.stopStats();
     }
 }
-

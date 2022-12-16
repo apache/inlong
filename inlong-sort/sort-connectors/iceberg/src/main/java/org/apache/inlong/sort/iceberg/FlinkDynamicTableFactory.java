@@ -1,20 +1,18 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.sort.iceberg;
@@ -36,6 +34,7 @@ import org.apache.flink.table.factories.DynamicTableSinkFactory;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.flink.util.Preconditions;
+import org.apache.iceberg.actions.ActionsProvider;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.common.DynMethods;
 import org.apache.iceberg.exceptions.AlreadyExistsException;
@@ -44,25 +43,30 @@ import org.apache.iceberg.flink.IcebergTableSource;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 
 import java.util.Map;
 import java.util.Set;
 
+import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_PK_AUTO_GENERATED;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
-import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
 
 /**
  * Copy from org.apache.iceberg.flink:iceberg-flink-runtime-1.13:0.13.2
  *
  * <p>
  * Factory for creating configured instances of {@link IcebergTableSource} and {@link
- * IcebergTableSink}.We modify KafkaDynamicTableSink to support append-mode .
+ * IcebergTableSink}.We modify IcebergDynamicTableSink to support append-mode .
  * </p>
  */
 public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, DynamicTableSourceFactory {
@@ -92,6 +96,12 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
                     .stringType()
                     .noDefaultValue()
                     .withDescription("Table name managed in the underlying iceberg catalog and database.");
+
+    private static final ConfigOption<String> ACTION_IMPL =
+            ConfigOptions.key("action-impl")
+                    .stringType()
+                    .defaultValue("org.apache.inlong.sort.iceberg.FlinkActions$FlinkDefaultActions")
+                    .withDescription("Iceberg action provider implement.");
 
     // Flink 1.13.x change the return type from CatalogTable interface to ResolvedCatalogTable which extends the
     // CatalogTable. Here we use the dynamic method loading approach to avoid adding explicit CatalogTable or
@@ -177,6 +187,19 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         return TableLoader.fromCatalog(catalog.getCatalogLoader(), catalog.toIdentifier(objectPath));
     }
 
+    private static ActionsProvider createActionLoader(ClassLoader cl, Map<String, String> tableProps) {
+        String actionClass = tableProps.getOrDefault(ACTION_IMPL.key(), ACTION_IMPL.defaultValue());
+        try {
+            FlinkActions actionsProvider = (FlinkActions) cl.loadClass(actionClass).newInstance();
+            actionsProvider.init(tableProps);
+            return actionsProvider;
+        } catch (ClassNotFoundException
+                | IllegalAccessException
+                | InstantiationException e) {
+            throw new RuntimeException("Can not new instance for custom class from " + actionClass, e);
+        }
+    }
+
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
         ObjectIdentifier objectIdentifier = context.getObjectIdentifier();
@@ -201,12 +224,16 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         CatalogTable catalogTable = loadCatalogTable(context);
         Map<String, String> tableProps = catalogTable.getOptions();
         TableSchema tableSchema = TableSchemaUtils.getPhysicalSchema(catalogTable.getSchema());
-
+        ActionsProvider actionsLoader = createActionLoader(context.getClassLoader(), tableProps);
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(Configuration.fromMap(tableProps));
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         boolean multipleSink = Boolean.parseBoolean(
                 tableProps.getOrDefault(SINK_MULTIPLE_ENABLE.key(), SINK_MULTIPLE_ENABLE.defaultValue().toString()));
         if (multipleSink) {
             CatalogLoader catalogLoader = createCatalogLoader(tableProps);
-            return new IcebergTableSink(null, tableSchema, catalogTable, catalogLoader);
+            return new IcebergTableSink(null, tableSchema, catalogTable,
+                    catalogLoader, actionsLoader, dirtyOptions, dirtySink);
         } else {
             TableLoader tableLoader;
             if (catalog != null) {
@@ -215,7 +242,8 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
                 tableLoader = createTableLoader(catalogTable, tableProps, objectPath.getDatabaseName(),
                         objectPath.getObjectName());
             }
-            return new IcebergTableSink(tableLoader, tableSchema, catalogTable, null);
+            return new IcebergTableSink(tableLoader, tableSchema, catalogTable,
+                    null, actionsLoader, dirtyOptions, dirtySink);
         }
     }
 
@@ -232,7 +260,8 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         Set<ConfigOption<?>> options = Sets.newHashSet();
         options.add(CATALOG_DATABASE);
         options.add(CATALOG_TABLE);
-        options.add(ICEBERG_IGNORE_ALL_CHANGELOG);
+        options.add(ACTION_IMPL);
+        options.add(IGNORE_ALL_CHANGELOG);
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
 
@@ -241,6 +270,8 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         options.add(SINK_MULTIPLE_DATABASE_PATTERN);
         options.add(SINK_MULTIPLE_TABLE_PATTERN);
         options.add(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
+        options.add(SINK_MULTIPLE_PK_AUTO_GENERATED);
+        options.add(SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK);
         return options;
     }
 
@@ -249,4 +280,3 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         return FACTORY_IDENTIFIER;
     }
 }
-

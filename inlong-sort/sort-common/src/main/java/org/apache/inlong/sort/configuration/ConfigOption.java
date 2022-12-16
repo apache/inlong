@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -204,8 +203,8 @@ public class ConfigOption<T> {
      */
     @Deprecated
     public Iterable<String> deprecatedKeys() {
-        return fallbackKeys == EMPTY ? Collections.<String>emptyList() :
-                Arrays.stream(fallbackKeys)
+        return fallbackKeys == EMPTY ? Collections.<String>emptyList()
+                : Arrays.stream(fallbackKeys)
                         .filter(FallbackKey::isDeprecated)
                         .map(FallbackKey::getKey)
                         .collect(Collectors.toList());
@@ -248,8 +247,8 @@ public class ConfigOption<T> {
             ConfigOption<?> that = (ConfigOption<?>) o;
             return this.key.equals(that.key)
                     && Arrays.equals(this.fallbackKeys, that.fallbackKeys)
-                    && (this.defaultValue == null ? that.defaultValue == null :
-                    (that.defaultValue != null && this.defaultValue.equals(that.defaultValue)));
+                    && (this.defaultValue == null ? that.defaultValue == null
+                            : (that.defaultValue != null && this.defaultValue.equals(that.defaultValue)));
         } else {
             return false;
         }

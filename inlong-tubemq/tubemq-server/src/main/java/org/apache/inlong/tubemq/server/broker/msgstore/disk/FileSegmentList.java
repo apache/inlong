@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
  * FileSegments management. Contains two types FileSegment: data and index.
  */
 public class FileSegmentList implements SegmentList {
+
     private static final Logger logger =
             LoggerFactory.getLogger(FileSegmentList.class);
     // list of segments.
@@ -196,7 +197,7 @@ public class FileSegmentList implements SegmentList {
             }
             return curViews[i].getStart();
         }
-        return  last;
+        return last;
     }
 
     /**
@@ -277,7 +278,7 @@ public class FileSegmentList implements SegmentList {
         if (curViews.length == 0) {
             return null;
         }
-        int minStart  = 0;
+        int minStart = 0;
         for (minStart = 0; minStart < curViews.length; minStart++) {
             if (curViews[minStart] == null
                     || curViews[minStart].isExpired()) {
@@ -319,7 +320,7 @@ public class FileSegmentList implements SegmentList {
         if (curViews.length == 0) {
             return null;
         }
-        int minStart  = 0;
+        int minStart = 0;
         for (minStart = 0; minStart < curViews.length; minStart++) {
             if (curViews[minStart] == null
                     || curViews[minStart].isExpired()) {

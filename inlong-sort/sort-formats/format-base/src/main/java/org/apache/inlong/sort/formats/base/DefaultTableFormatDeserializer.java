@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,15 +47,13 @@ public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
 
     public DefaultTableFormatDeserializer(
             DeserializationSchema<Row> deserializationSchema,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         this.deserializationSchema = deserializationSchema;
         this.ignoreErrors = ignoreErrors;
     }
 
     public DefaultTableFormatDeserializer(
-            DeserializationSchema<Row> deserializationSchema
-    ) {
+            DeserializationSchema<Row> deserializationSchema) {
         this(deserializationSchema, TableFormatConstants.DEFAULT_IGNORE_ERRORS);
     }
 
@@ -68,8 +65,7 @@ public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
     @Override
     public void flatMap(
             byte[] bytes,
-            Collector<Row> collector
-    ) throws Exception {
+            Collector<Row> collector) throws Exception {
         Row row;
 
         try {
@@ -101,7 +97,7 @@ public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
 
         DefaultTableFormatDeserializer that = (DefaultTableFormatDeserializer) o;
         return ignoreErrors == that.ignoreErrors
-               && Objects.equals(deserializationSchema, that.deserializationSchema);
+                && Objects.equals(deserializationSchema, that.deserializationSchema);
     }
 
     @Override
@@ -112,8 +108,8 @@ public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
     @Override
     public String toString() {
         return "DefaultTableFormatDeserializer{"
-               + "deserializationSchema=" + deserializationSchema
-               + ", ignoreErrors=" + ignoreErrors
-               + '}';
+                + "deserializationSchema=" + deserializationSchema
+                + ", ignoreErrors=" + ignoreErrors
+                + '}';
     }
 }

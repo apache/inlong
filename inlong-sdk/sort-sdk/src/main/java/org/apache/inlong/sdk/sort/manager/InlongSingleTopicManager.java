@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.manager;
@@ -33,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InlongTopicTypeEnum;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
@@ -263,22 +263,23 @@ public class InlongSingleTopicManager extends TopicManager {
         }
 
         List<String> newTopics = assignedTopics.stream()
+                .filter(inlongTopic -> StringUtils.isNotBlank(inlongTopic.getTopic()))
                 .map(InLongTopic::getTopicKey)
                 .collect(Collectors.toList());
         LOGGER.debug("assignedTopics name: {}", Arrays.toString(newTopics.toArray()));
 
         List<String> oldTopics = new ArrayList<>(fetchers.keySet());
         LOGGER.debug("oldTopics :{}", Arrays.toString(oldTopics.toArray()));
-        //get need be offline topics
+        // get need be offline topics
         oldTopics.removeAll(newTopics);
         LOGGER.debug("removed oldTopics: {}", Arrays.toString(oldTopics.toArray()));
 
-        //get new topics
+        // get new topics
         newTopics.removeAll(new ArrayList<>(fetchers.keySet()));
         LOGGER.debug("really new topics :{}", Arrays.toString(newTopics.toArray()));
-        //offline need be offlined topics
+        // offline need be offlined topics
         offlineRemovedTopic(oldTopics);
-        //online new topics
+        // online new topics
         onlineNewTopic(assignedTopics, newTopics);
         // update remain topics
         updateRemainTopics(assignedTopics);
@@ -386,7 +387,7 @@ public class InlongSingleTopicManager extends TopicManager {
         if (!tubeFactories.containsKey(inLongTopic.getInLongCluster().getClusterId())) {
             if (inLongTopic.getInLongCluster().getBootstraps() != null) {
                 try {
-                    //create MessageSessionFactory
+                    // create MessageSessionFactory
                     TubeClientConfig tubeConfig = new TubeClientConfig(inLongTopic.getInLongCluster().getBootstraps());
                     MessageSessionFactory messageSessionFactory = new TubeSingleSessionFactory(tubeConfig);
                     TubeConsumerCreator tubeConsumerCreator = new TubeConsumerCreator(messageSessionFactory,
@@ -451,7 +452,7 @@ public class InlongSingleTopicManager extends TopicManager {
                 logger.warn("assign is stoped");
                 return;
             }
-            //get sortTask conf from manager
+            // get sortTask conf from manager
             if (queryConsumeConfig != null) {
                 long start = System.currentTimeMillis();
                 context.getDefaultStateCounter().addRequestManagerTimes(1);

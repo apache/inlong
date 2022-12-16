@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class RowLock {
+
     private static final Logger logger = LoggerFactory.getLogger(RowLock.class);
     private static final Random rand = new Random();
     private final ConcurrentHashMap<HashedBytes, CountDownLatch> lockedRows =
@@ -51,8 +52,8 @@ public class RowLock {
     }
 
     protected Integer getLock(Integer lockId,
-                              HashedBytes row,
-                              boolean waitForLock) throws IOException {
+            HashedBytes row,
+            boolean waitForLock) throws IOException {
         Integer lid;
         if (lockId == null) {
             lid = internalObtainRowLock(row, waitForLock);
@@ -70,7 +71,7 @@ public class RowLock {
     }
 
     private Integer internalObtainRowLock(final HashedBytes rowKey,
-                                          boolean waitForLock) throws IOException {
+            boolean waitForLock) throws IOException {
         CountDownLatch rowLatch = new CountDownLatch(1);
         while (true) {
             CountDownLatch existingLatch =

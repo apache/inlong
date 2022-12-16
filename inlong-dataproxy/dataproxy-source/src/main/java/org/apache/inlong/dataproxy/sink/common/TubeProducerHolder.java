@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TubeProducerHolder {
+
     private static final Logger logger =
             LoggerFactory.getLogger(TubeProducerHolder.class);
     private static final long SEND_FAILURE_WAIT = 30000L;
@@ -51,8 +52,7 @@ public class TubeProducerHolder {
     private final Map<String, MessageProducer> producerMap = new ConcurrentHashMap<>();
     private MessageProducer lastProducer = null;
     private final AtomicInteger lastPubTopicCnt = new AtomicInteger(0);
-    private static final ConcurrentHashMap<String, AtomicLong> FROZEN_TOPIC_MAP
-            = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, AtomicLong> FROZEN_TOPIC_MAP = new ConcurrentHashMap<>();
 
     public TubeProducerHolder(String sinkName, String clusterAddr, MQClusterConfig tubeConfig) {
         Preconditions.checkState(StringUtils.isNotBlank(clusterAddr),
@@ -211,7 +211,7 @@ public class TubeProducerHolder {
      *
      * @param cfgTopicSet  the configured topic set
      */
-    public void createProducersByTopicSet(Set<String> cfgTopicSet) throws Exception {
+    public synchronized void createProducersByTopicSet(Set<String> cfgTopicSet) throws Exception {
         if (cfgTopicSet == null || cfgTopicSet.isEmpty()) {
             return;
         }
@@ -234,7 +234,8 @@ public class TubeProducerHolder {
         int allocTotalCnt = filteredTopics.size();
         List<Integer> topicGroupCnt = new ArrayList<>();
         int paddingCnt = (lastPubTopicCnt.get() <= 0)
-                ? 0 : (maxPublishTopicCnt - lastPubTopicCnt.get());
+                ? 0
+                : (maxPublishTopicCnt - lastPubTopicCnt.get());
         while (allocTotalCnt > 0) {
             if (paddingCnt > 0) {
                 topicGroupCnt.add(Math.min(allocTotalCnt, paddingCnt));
@@ -263,7 +264,11 @@ public class TubeProducerHolder {
                 lastProducer = sessionFactory.createProducer();
                 lastPubTopicCnt.set(0);
             }
-            lastProducer.publish(subTopicSet);
+            try {
+                lastProducer.publish(subTopicSet);
+            } catch (Throwable e) {
+                logger.info(sinkName + " meta sink publish fail.", e);
+            }
             lastPubTopicCnt.addAndGet(subTopicSet.size());
             for (String topicItem : subTopicSet) {
                 producerMap.put(topicItem, lastProducer);

@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,8 +52,11 @@ import org.apache.inlong.sort.formats.inlongmsg.InLongMsgValidator;
  * serializer and deserializer.
  */
 public final class InLongMsgCsvFormatFactory
-        extends TableFormatFactoryBase<Row>
-        implements TableFormatDeserializerFactory, InLongMsgMixedFormatFactory {
+        extends
+            TableFormatFactoryBase<Row>
+        implements
+            TableFormatDeserializerFactory,
+            InLongMsgMixedFormatFactory {
 
     public InLongMsgCsvFormatFactory() {
         super(InLongMsgCsv.FORMAT_TYPE_VALUE, 1, true);
@@ -78,8 +80,7 @@ public final class InLongMsgCsvFormatFactory
 
     @Override
     public TableFormatDeserializer createFormatDeserializer(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
@@ -139,14 +140,12 @@ public final class InLongMsgCsvFormatFactory
                 quoteCharacter,
                 nullLiteral,
                 deleteHeadDelimiter,
-                ignoreErrors
-        );
+                ignoreErrors);
     }
 
     @Override
     public InLongMsgCsvMixedFormatDeserializer createMixedFormatDeserializer(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
@@ -185,14 +184,12 @@ public final class InLongMsgCsvFormatFactory
                 escapeCharacter,
                 quoteCharacter,
                 deleteHeadDelimiter,
-                ignoreErrors
-        );
+                ignoreErrors);
     }
 
     @Override
     public InLongMsgCsvMixedFormatConverter createMixedFormatConverter(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
@@ -224,7 +221,6 @@ public final class InLongMsgCsvFormatFactory
                 timeFieldName,
                 attributesFieldName,
                 nullLiteral,
-                ignoreErrors
-        );
+                ignoreErrors);
     }
 }

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -31,31 +31,32 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstan
 
 @Entity
 public class BdbGroupFlowCtrlEntity implements Serializable {
+
     private static final long serialVersionUID = 2533735122504168321L;
     @PrimaryKey
-    private String groupName;           //group name
-    private long serialId = -1L;        //serial id
-    private int statusId = -1;         // 0:not active; 1: active
+    private String groupName; // group name
+    private long serialId = -1L; // serial id
+    private int statusId = -1; // 0:not active; 1: active
     private String flowCtrlInfo;
-    private int ruleCnt = 0;            //flow control rule count
+    private int ruleCnt = 0; // flow control rule count
     private long ssdTranslateId = System.currentTimeMillis();
-    private boolean needSSDProc = false;    //ssd
-    private String attributes;          //extra attributes
+    private boolean needSSDProc = false; // ssd
+    private String attributes; // extra attributes
     // ** Based on the data compatibility consideration of the original version:
-    //     the creation information in this example is the last modified information,
-    //     and the modified information is the creation information
-    private String createUser;          //create user
-    private Date createDate;            //create date
+    // the creation information in this example is the last modified information,
+    // and the modified information is the creation information
+    private String createUser; // create user
+    private Date createDate; // create date
 
     public BdbGroupFlowCtrlEntity() {
 
     }
 
-    //Constructor
+    // Constructor
     public BdbGroupFlowCtrlEntity(final String flowCtrlInfo, final int statusId,
-                                  final int ruleCnt, final int qryPriorityId,
-                                  final String attributes, final boolean curNeedSSDProc,
-                                  final String modifyUser, final Date modifyDate) {
+            final int ruleCnt, final int qryPriorityId,
+            final String attributes, final boolean curNeedSSDProc,
+            final String modifyUser, final Date modifyDate) {
         this.statusId = statusId;
         this.groupName = TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL;
         this.serialId = System.currentTimeMillis();
@@ -69,12 +70,12 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
         this.setQryPriorityId(qryPriorityId);
     }
 
-    //Constructor
+    // Constructor
     public BdbGroupFlowCtrlEntity(final String groupName, final String flowCtrlInfo,
-                                  final int statusId, final int ruleCnt,
-                                  final int qryPriorityId, final String attributes,
-                                  final boolean needSSDProc, final String modifyUser,
-                                  final Date modifyDate) {
+            final int statusId, final int ruleCnt,
+            final int qryPriorityId, final String attributes,
+            final boolean needSSDProc, final String modifyUser,
+            final Date modifyDate) {
         this.groupName = groupName;
         this.serialId = System.currentTimeMillis();
         this.statusId = statusId;
@@ -88,12 +89,12 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
         this.setQryPriorityId(qryPriorityId);
     }
 
-    //Constructor
+    // Constructor
     public BdbGroupFlowCtrlEntity(final String groupName, final String flowCtrlInfo,
-                                  final int statusId, final int ruleCnt,
-                                  final String attributes, final long ssdTranslateId,
-                                  final boolean needSSDProc, final String modifyUser,
-                                  final Date modifyDate) {
+            final int statusId, final int ruleCnt,
+            final String attributes, final long ssdTranslateId,
+            final boolean needSSDProc, final String modifyUser,
+            final Date modifyDate) {
         this.groupName = groupName;
         this.serialId = System.currentTimeMillis();
         this.statusId = statusId;
@@ -106,11 +107,11 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
         this.ssdTranslateId = ssdTranslateId;
     }
 
-    //Constructor
+    // Constructor
     public BdbGroupFlowCtrlEntity(long serialId, String groupName, String flowCtrlInfo,
-                                  int statusId, int ruleCnt, int qryPriorityId,
-                                  String attributes, String modifyUser,
-                                  Date modifyDate) {
+            int statusId, int ruleCnt, int qryPriorityId,
+            String attributes, String modifyUser,
+            Date modifyDate) {
         this.groupName = groupName;
         this.serialId = serialId;
         this.statusId = statusId;

@@ -19,7 +19,7 @@ package org.apache.inlong.dataproxy.config;
 
 import com.google.common.base.Splitter;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +35,8 @@ import static org.apache.inlong.dataproxy.config.ConfigManager.CONFIG_HOLDER_LIS
 
 public abstract class ConfigHolder {
 
-    public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(AttributeConstants.SEPARATOR)
-            .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
+    public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(AttrConstants.SEPARATOR)
+            .trimResults().withKeyValueSeparator(AttrConstants.KEY_VALUE_SEPARATOR);
     private static final Logger LOG = LoggerFactory.getLogger(ConfigHolder.class);
     private final String fileName;
     private final AtomicBoolean fileChanged = new AtomicBoolean(false);

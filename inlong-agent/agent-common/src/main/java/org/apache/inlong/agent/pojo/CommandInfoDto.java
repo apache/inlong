@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class CommandInfoDto {
+
     private int commandResult;
     private String dataTime;
     private String deliveryTime;

@@ -1,19 +1,18 @@
 /*
- *   Licensed to the Apache Software Foundation (ASF) under one
- *   or more contributor license agreements.  See the NOTICE file
- *   distributed with this work for additional information
- *   regarding copyright ownership.  The ASF licenses this file
- *   to you under the Apache License, Version 2.0 (the
- *   "License"); you may not use this file except in compliance
- *   with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.sort.kafka;
@@ -104,7 +103,10 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
  */
 @Internal
 public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFunction<T>
-        implements CheckpointListener, ResultTypeQueryable<T>, CheckpointedFunction {
+        implements
+            CheckpointListener,
+            ResultTypeQueryable<T>,
+            CheckpointedFunction {
 
     private static final long serialVersionUID = -6272159445203409112L;
 
@@ -138,7 +140,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
     private static final String OFFSETS_STATE_NAME = "topic-partition-offset-states";
 
     // ------------------------------------------------------------------------
-    //  configuration state, set on the client relevant for all subtasks
+    // configuration state, set on the client relevant for all subtasks
     // ------------------------------------------------------------------------
 
     /**
@@ -205,7 +207,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
     private Long startupOffsetsTimestamp;
 
     // ------------------------------------------------------------------------
-    //  runtime state (used individually by each parallel subtask)
+    // runtime state (used individually by each parallel subtask)
     // ------------------------------------------------------------------------
 
     /**
@@ -250,7 +252,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
     private volatile boolean running = true;
 
     // ------------------------------------------------------------------------
-    //  internal metrics
+    // internal metrics
     // ------------------------------------------------------------------------
 
     /**
@@ -338,7 +340,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
         }
     }
     // ------------------------------------------------------------------------
-    //  Configuration
+    // Configuration
     // ------------------------------------------------------------------------
 
     /**
@@ -617,7 +619,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
     }
 
     // ------------------------------------------------------------------------
-    //  Work methods
+    // Work methods
     // ------------------------------------------------------------------------
 
     @Override
@@ -646,14 +648,13 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
                 }
             }
 
-            for (Map.Entry<KafkaTopicPartition, Long> restoredStateEntry :
-                    restoredState.entrySet()) {
+            for (Map.Entry<KafkaTopicPartition, Long> restoredStateEntry : restoredState.entrySet()) {
                 // seed the partition discoverer with the union state while filtering out
                 // restored partitions that should not be subscribed by this subtask
                 if (KafkaTopicPartitionAssigner.assign(
                         restoredStateEntry.getKey(),
-                        getRuntimeContext().getNumberOfParallelSubtasks())
-                        == getRuntimeContext().getIndexOfThisSubtask()) {
+                        getRuntimeContext().getNumberOfParallelSubtasks()) == getRuntimeContext()
+                                .getIndexOfThisSubtask()) {
                     subscribedPartitionsToStartOffsets.put(
                             restoredStateEntry.getKey(), restoredStateEntry.getValue());
                 }
@@ -723,8 +724,8 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
                                         + ", but no startup timestamp was specified.");
                     }
 
-                    for (Map.Entry<KafkaTopicPartition, Long> partitionToOffset :
-                            fetchOffsetsWithTimestamp(allPartitions, startupOffsetsTimestamp)
+                    for (Map.Entry<KafkaTopicPartition, Long> partitionToOffset : fetchOffsetsWithTimestamp(
+                            allPartitions, startupOffsetsTimestamp)
                                     .entrySet()) {
                         subscribedPartitionsToStartOffsets.put(
                                 partitionToOffset.getKey(),
@@ -786,10 +787,9 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 
                         List<KafkaTopicPartition> partitionsDefaultedToGroupOffsets =
                                 new ArrayList<>(subscribedPartitionsToStartOffsets.size());
-                        for (Map.Entry<KafkaTopicPartition, Long> subscribedPartition :
-                                subscribedPartitionsToStartOffsets.entrySet()) {
-                            if (subscribedPartition.getValue()
-                                    == KafkaTopicPartitionStateSentinel.GROUP_OFFSET) {
+                        for (Map.Entry<KafkaTopicPartition, Long> subscribedPartition : subscribedPartitionsToStartOffsets
+                                .entrySet()) {
+                            if (subscribedPartition.getValue() == KafkaTopicPartitionStateSentinel.GROUP_OFFSET) {
                                 partitionsDefaultedToGroupOffsets.add(subscribedPartition.getKey());
                             }
                         }
@@ -858,6 +858,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 
         this.offsetCommitCallback =
                 new KafkaCommitCallback() {
+
                     @Override
                     public void onSuccess() {
                         successfulCommits.inc();
@@ -886,10 +887,10 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
                 getRuntimeContext().getIndexOfThisSubtask(),
                 subscribedPartitionsToStartOffsets);
         // from this point forward:
-        //   - 'snapshotState' will draw offsets from the fetcher,
-        //     instead of being built from `subscribedPartitionsToStartOffsets`
-        //   - 'notifyCheckpointComplete' will start to do work (i.e. commit offsets to
-        //     Kafka through the fetcher, if configured to do so)
+        // - 'snapshotState' will draw offsets from the fetcher,
+        // instead of being built from `subscribedPartitionsToStartOffsets`
+        // - 'notifyCheckpointComplete' will start to do work (i.e. commit offsets to
+        // Kafka through the fetcher, if configured to do so)
         this.kafkaFetcher =
                 createFetcher(
                         sourceContext,
@@ -906,9 +907,9 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 
         // depending on whether we were restored with the current state version (1.3),
         // remaining logic branches off into 2 paths:
-        //  1) New state - partition discovery loop executed as separate thread, with this
-        //                 thread running the main fetcher loop
-        //  2) Old state - partition discovery is disabled and only the main fetcher loop is
+        // 1) New state - partition discovery loop executed as separate thread, with this
+        // thread running the main fetcher loop
+        // 2) Old state - partition discovery is disabled and only the main fetcher loop is
         // executed
         if (discoveryIntervalMillis == PARTITION_DISCOVERY_DISABLED) {
             kafkaFetcher.runFetchLoop();
@@ -1061,7 +1062,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
     }
 
     // ------------------------------------------------------------------------
-    //  Checkpoint and restore
+    // Checkpoint and restore
     // ------------------------------------------------------------------------
 
     @Override
@@ -1080,7 +1081,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
                     stateStore.getUnionListState(
                             new ListStateDescriptor<>(
                                     INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                            })));
+                                    })));
         }
 
         if (context.isRestored()) {
@@ -1115,8 +1116,8 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
             if (fetcher == null) {
                 // the fetcher has not yet been initialized, which means we need to return the
                 // originally restored offsets or the assigned partitions
-                for (Map.Entry<KafkaTopicPartition, Long> subscribedPartition :
-                        subscribedPartitionsToStartOffsets.entrySet()) {
+                for (Map.Entry<KafkaTopicPartition, Long> subscribedPartition : subscribedPartitionsToStartOffsets
+                        .entrySet()) {
                     unionOffsetStates.add(
                             Tuple2.of(
                                     subscribedPartition.getKey(), subscribedPartition.getValue()));
@@ -1140,8 +1141,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
                     pendingOffsetsToCommit.put(context.getCheckpointId(), currentOffsets);
                 }
 
-                for (Map.Entry<KafkaTopicPartition, Long> kafkaTopicPartitionLongEntry :
-                        currentOffsets.entrySet()) {
+                for (Map.Entry<KafkaTopicPartition, Long> kafkaTopicPartitionLongEntry : currentOffsets.entrySet()) {
                     unionOffsetStates.add(
                             Tuple2.of(
                                     kafkaTopicPartitionLongEntry.getKey(),
@@ -1225,7 +1225,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
     }
 
     // ------------------------------------------------------------------------
-    //  Kafka Consumer specific methods
+    // Kafka Consumer specific methods
     // ------------------------------------------------------------------------
 
     /**
@@ -1270,7 +1270,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
             Collection<KafkaTopicPartition> partitions, long timestamp);
 
     // ------------------------------------------------------------------------
-    //  ResultTypeQueryable methods
+    // ResultTypeQueryable methods
     // ------------------------------------------------------------------------
 
     @Override
@@ -1279,7 +1279,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
     }
 
     // ------------------------------------------------------------------------
-    //  Test utilities
+    // Test utilities
     // ------------------------------------------------------------------------
 
     @VisibleForTesting

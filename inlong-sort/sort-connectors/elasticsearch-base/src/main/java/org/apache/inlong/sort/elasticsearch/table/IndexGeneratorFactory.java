@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -74,6 +73,7 @@ public final class IndexGeneratorFactory {
     }
 
     interface DynamicFormatter extends Serializable {
+
         String format(@Nonnull Object fieldValue, DateTimeFormatter formatter);
     }
 
@@ -104,6 +104,7 @@ public final class IndexGeneratorFactory {
                     createFormatFunction(indexFieldType, indexFieldLogicalTypeRoot);
 
             return new AbstractTimeIndexGenerator(index, dateTimeFormat) {
+
                 @Override
                 public String generate(RowData row) {
                     Object fieldOrNull = fieldGetter.getFieldOrNull(row);
@@ -120,6 +121,7 @@ public final class IndexGeneratorFactory {
         }
         // general dynamic index pattern
         return new IndexGeneratorBase(index) {
+
             @Override
             public String generate(RowData row) {
                 Object indexField = fieldGetter.getFieldOrNull(row);
@@ -170,6 +172,7 @@ public final class IndexGeneratorFactory {
      * type ans parse index format from pattern.
      */
     private static class IndexHelper {
+
         private static final Pattern dynamicIndexPattern = Pattern.compile("\\{[^\\{\\}]+\\}?");
         private static final Pattern dynamicIndexTimeExtractPattern =
                 Pattern.compile(".*\\{.+\\|.*\\}.*");

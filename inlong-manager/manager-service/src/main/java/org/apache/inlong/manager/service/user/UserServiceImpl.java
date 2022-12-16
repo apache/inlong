@@ -35,17 +35,26 @@ import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.user.UserLoginLockStatus;
+import org.apache.inlong.manager.pojo.user.UserLoginRequest;
 import org.apache.inlong.manager.pojo.user.UserRequest;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * User service layer implementation
@@ -56,6 +65,14 @@ public class UserServiceImpl implements UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private static final Integer SECRET_KEY_SIZE = 16;
+
+    /**
+     * locked time, the unit is minute
+     */
+    private static final Integer LOCKED_TIME = 3;
+    private static final Integer LOCKED_THRESHOLD = 10;
+
+    private final Map<String, UserLoginLockStatus> loginLockStatusMap = new ConcurrentHashMap<>();
 
     @Autowired
     private UserEntityMapper userMapper;
@@ -105,7 +122,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity curUser = userMapper.selectByName(currentUser);
         Preconditions.checkTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
-                        || Objects.equals(entity.getName(), currentUser),
+                || Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to get other users' info");
 
         UserInfo result = new UserInfo();
@@ -194,7 +211,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity targetUserEntity = userMapper.selectByName(updateName);
         Preconditions.checkTrue(Objects.isNull(targetUserEntity)
-                        || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
+                || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
                 "Username [" + updateName + "] already exists");
 
         // if the current user is not a manager, needs to check the password before updating user info
@@ -243,6 +260,51 @@ public class UserServiceImpl implements UserService {
 
         LOGGER.debug("success to delete user by id={}, current user={}", userId, currentUser);
         return true;
+    }
+
+    /**
+     * This implementation is just to intercept some error requests and reduce the pressure on the database.
+     * <p/>
+     * This is a memory-based implementation. There is a problem with concurrency security when there are
+     * multiple service nodes because the data in memory cannot be shared.
+     *
+     * @param req username login request
+     */
+    @Override
+    public void login(UserLoginRequest req) {
+        String username = req.getUsername();
+        UserLoginLockStatus userLoginLockStatus = loginLockStatusMap.getOrDefault(username, new UserLoginLockStatus());
+        LocalDateTime lockoutTime = userLoginLockStatus.getLockoutTime();
+        if (lockoutTime != null && lockoutTime.isAfter(LocalDateTime.now())) {
+            // part of a minute counts as one minute
+            long waitMinutes = Duration.between(LocalDateTime.now(), lockoutTime).toMinutes() + 1;
+            throw new BusinessException("account has been locked, please try again in " + waitMinutes + " minutes");
+        }
+
+        Subject subject = SecurityUtils.getSubject();
+        UsernamePasswordToken token = new UsernamePasswordToken(username, req.getPassword());
+        try {
+            subject.login(token);
+        } catch (AuthenticationException e) {
+            LOGGER.error("login error for request {}", req, e);
+            int loginErrorCount = userLoginLockStatus.getLoginErrorCount() + 1;
+
+            if (loginErrorCount % LOCKED_THRESHOLD == 0) {
+                LocalDateTime lockedTime = LocalDateTime.now().plusMinutes(LOCKED_TIME);
+                userLoginLockStatus.setLockoutTime(lockedTime);
+                LOGGER.error("account {} is locked, lockout time: {}", username, lockedTime);
+            }
+            userLoginLockStatus.setLoginErrorCount(loginErrorCount);
+
+            loginLockStatusMap.put(username, userLoginLockStatus);
+            throw e;
+        }
+
+        LoginUserUtils.setUserLoginInfo((UserInfo) subject.getPrincipal());
+
+        // login successfully, clear error count
+        userLoginLockStatus.setLoginErrorCount(0);
+        loginLockStatusMap.put(username, userLoginLockStatus);
     }
 
 }

@@ -34,15 +34,13 @@
 #include <unistd.h>
 #include <sstream>
 #include <vector>
+#include <chrono>
 #include "const_config.h"
 #include "const_rpc.h"
-
-
 
 namespace tubemq {
 
 using std::stringstream;
-
 
 static const char kWhitespaceCharSet[] = " \n\r\t\f\v";
 
@@ -289,8 +287,7 @@ bool Utils::ValidGroupName(string& err_info, const string& group_name, string& t
   int cflags = REG_EXTENDED;
   regex_t reg;
   regmatch_t pmatch[1];
-  //  const char* patRule = "^[a-zA-Z][\\w-]+$";
-  const char* patRule = "^[a-zA-Z]\\w+$";
+  const char* patRule = "^[a-zA-Z](\\w|-)+$";
   regcomp(&reg, patRule, cflags);
   int status = regexec(&reg, tgt_group_name.c_str(), 1, pmatch, 0);
   regfree(&reg);
@@ -298,9 +295,7 @@ bool Utils::ValidGroupName(string& err_info, const string& group_name, string& t
     stringstream ss;
     ss << "Illegal parameter: ";
     ss << group_name;
-    ss << " must begin with a letter,can only contain characters,numbers,and underscores";
-    //  ss << " must begin with a letter,can only contain ";
-    //  ss << "characters,numbers,hyphen,and underscores";
+    ss << " must begin with a letter,can only contain characters,numbers,hyphen,and underscores";
     err_info = ss.str();
     return false;
   }
@@ -326,12 +321,12 @@ bool Utils::ValidFilterItem(string& err_info, const string& src_filteritem,
   int cflags = REG_EXTENDED;
   regex_t reg;
   regmatch_t pmatch[1];
-  const char* patRule = "^[_A-Za-z0-9]+$";
+  const char* patRule = "^[_A-Za-z0-9\\-]+$";
   regcomp(&reg, patRule, cflags);
   int status = regexec(&reg, tgt_filteritem.c_str(), 1, pmatch, 0);
   regfree(&reg);
   if (status == REG_NOMATCH) {
-    err_info = "value only contain characters,numbers,and underscores";
+    err_info = "value only contain characters,numbers,hyphen,and underscores";
     return false;
   }
   err_info = "Ok";
@@ -518,6 +513,35 @@ string Utils::GenBrokerAuthenticateToken(const string& username,
   return "";
 }
 
+int64_t Utils::CurrentTimeMillis() {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch()).count();
+}
+
+// Reference: java producer: MixedUtils.buildTestData, only for demo
+void Utils::BuildTestData(string& data, uint32_t body_size) {
+  std::string transmit_data = "This is a test data!";
+  stringstream ss;
+  size_t data_len = 0;
+  size_t transmit_data_size = transmit_data.size();
+  while ((data_len + transmit_data_size) <= body_size) {
+    ss << transmit_data;
+    data_len += transmit_data_size;
+  }
+
+  if (data_len < body_size) {
+    ss << transmit_data.substr(0, body_size - data_len);
+  }
+
+  data = ss.str();
+}
+
+void Utils::GetTopicSet(set<string>& topic_set, const string& topics) {
+  vector<string> topic_vec;
+  Utils::Split(topics, topic_vec, delimiter::kDelimiterComma);
+  for (size_t i = 0; i < topic_vec.size(); i++) {
+    topic_set.insert(topic_vec[i]);
+  }
+}
 
 }  // namespace tubemq
-

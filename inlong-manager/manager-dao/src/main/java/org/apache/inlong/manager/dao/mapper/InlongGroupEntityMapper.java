@@ -24,6 +24,7 @@ import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
 import org.springframework.stereotype.Repository;
 
@@ -49,6 +50,8 @@ public interface InlongGroupEntityMapper {
     List<InlongGroupBriefInfo> selectBriefList(InlongGroupPageRequest request);
 
     List<InlongGroupEntity> selectByClusterTag(@Param(value = "inlongClusterTag") String inlongClusterTag);
+
+    List<InlongGroupEntity> selectByTopicRequest(InlongGroupTopicRequest request);
 
     /**
      * Select all group info for sort sdk.

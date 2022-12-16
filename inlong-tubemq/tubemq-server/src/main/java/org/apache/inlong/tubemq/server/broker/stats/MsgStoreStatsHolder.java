@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -42,6 +42,7 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
  * This part supports index comparison output before and after data collection.
  */
 public class MsgStoreStatsHolder {
+
     // Switchable statistic items
     private final MsgStoreStatsItemSet[] msgStoreStatsSets = new MsgStoreStatsItemSet[2];
     // Current writable index
@@ -116,8 +117,8 @@ public class MsgStoreStatsHolder {
      * @param isMsgCntFull       whether the cached message count is full
      */
     public void addCacheFullType(boolean isDataSizeFull,
-                                 boolean isIndexSizeFull,
-                                 boolean isMsgCntFull) {
+            boolean isIndexSizeFull,
+            boolean isMsgCntFull) {
         if (isClosed) {
             return;
         }
@@ -161,11 +162,11 @@ public class MsgStoreStatsHolder {
      * @param dltAppendTime      the duration of the append operation
      */
     public void addFileFlushStatsInfo(int msgCnt, int msgIndexSize, int msgDataSize,
-                                      long flushedMsgCnt, long flushedDataSize,
-                                      boolean isDataSegFlush, boolean isIndexSegFlush,
-                                      boolean isDataSizeFull, boolean isMsgCntFull,
-                                      boolean isCacheTimeFull, boolean isForceMetadata,
-                                      long dltAppendTime) {
+            long flushedMsgCnt, long flushedDataSize,
+            boolean isDataSegFlush, boolean isIndexSegFlush,
+            boolean isDataSizeFull, boolean isMsgCntFull,
+            boolean isCacheTimeFull, boolean isForceMetadata,
+            long dltAppendTime) {
         if (isClosed) {
             return;
         }
@@ -208,8 +209,8 @@ public class MsgStoreStatsHolder {
      * @param isForceMetadata    whether force push metadata
      */
     public void addFileTimeoutFlushStats(long flushedMsgCnt,
-                                         long flushedDataSize,
-                                         boolean isForceMetadata) {
+            long flushedDataSize,
+            boolean isForceMetadata) {
         if (isClosed) {
             return;
         }
@@ -233,8 +234,7 @@ public class MsgStoreStatsHolder {
      */
     public synchronized void chkStatsExpired(long checkTime) {
         if (!this.isClosed) {
-            if ((checkTime - this.lstQueryTime.get())
-                    >= TServerConstants.CFG_STORE_STATS_MAX_REFRESH_DURATION) {
+            if ((checkTime - this.lstQueryTime.get()) >= TServerConstants.CFG_STORE_STATS_MAX_REFRESH_DURATION) {
                 this.isClosed = true;
             }
         }
@@ -355,8 +355,7 @@ public class MsgStoreStatsHolder {
     private boolean switchStatsSets() {
         long curSwitchTime = lstSnapshotTime.get();
         // Avoid frequent snapshots
-        if ((System.currentTimeMillis() - curSwitchTime)
-                >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
+        if ((System.currentTimeMillis() - curSwitchTime) >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
             if (lstSnapshotTime.compareAndSet(curSwitchTime, System.currentTimeMillis())) {
                 msgStoreStatsSets[getIndex(writableIndex.get() - 1)].clear();
                 msgStoreStatsSets[getIndex(writableIndex.getAndIncrement())]
@@ -394,8 +393,8 @@ public class MsgStoreStatsHolder {
      * @param statsMap     the read result
      */
     private void getStatsValue(boolean isWriting,
-                               MsgStoreStatsItemSet statsSet,
-                               Map<String, Long> statsMap) {
+            MsgStoreStatsItemSet statsSet,
+            Map<String, Long> statsMap) {
         statsMap.put(statsSet.resetTime.getFullName(),
                 statsSet.resetTime.getSinceTime());
         statsMap.put("isClosed", (isStatsClosed() ? 1L : 0L));
@@ -455,8 +454,8 @@ public class MsgStoreStatsHolder {
      * @param strBuff     the return buffer
      */
     private void getStatsValue(boolean isWriting,
-                               MsgStoreStatsItemSet statsSet,
-                               StringBuilder strBuff) {
+            MsgStoreStatsItemSet statsSet,
+            StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.resetTime.getFullName())
                 .append("\":\"").append(statsSet.resetTime.getStrSinceTime())
                 .append("\",\"isClosed\":").append(isStatsClosed()).append(",");
@@ -516,6 +515,7 @@ public class MsgStoreStatsHolder {
      *
      */
     private static class MsgStoreStatsItemSet {
+
         // The reset time of statistics set
         protected final SinceTime resetTime =
                 new SinceTime("reset_time", null);

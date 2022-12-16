@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,8 +57,7 @@ public class KvDeserializationSchemaTest {
                             StringFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE
-                    }
-            );
+                    });
 
     @Test
     public void testNormal() throws Exception {
@@ -86,8 +84,7 @@ public class KvDeserializationSchemaTest {
     public void testNullIteral() throws Exception {
         String nullLiteral = "n/a";
         String nullField = "f=n/a";
-        Consumer<KvDeserializationSchema.Builder> config = builder ->
-                                                                   builder.setNullLiteral(nullLiteral);
+        Consumer<KvDeserializationSchema.Builder> config = builder -> builder.setNullLiteral(nullLiteral);
 
         testBasicDeserialization(config, StringFormatInfo.INSTANCE, null, nullField);
         testBasicDeserialization(config, BooleanFormatInfo.INSTANCE, null, nullField);
@@ -105,80 +102,69 @@ public class KvDeserializationSchemaTest {
 
     @Test
     public void testDelimiter() throws Exception {
-        Consumer<KvDeserializationSchema.Builder> config = builder ->
-                                                                   builder.setEntryDelimiter('|').setKvDelimiter(',');
+        Consumer<KvDeserializationSchema.Builder> config =
+                builder -> builder.setEntryDelimiter('|').setKvDelimiter(',');
 
         testRowDeserialization(
                 config,
                 Row.of(10, "aa", "bb", "cc"),
-                "f1,10|f2,aa|f3,bb|f4,cc".getBytes()
-        );
+                "f1,10|f2,aa|f3,bb|f4,cc".getBytes());
     }
 
     @Test
     public void testEscape() throws Exception {
-        Consumer<KvDeserializationSchema.Builder> config = builder ->
-                                                                   builder.setEscapeCharacter('\\')
-                                                                           .setQuoteCharacter('\"');
+        Consumer<KvDeserializationSchema.Builder> config = builder -> builder.setEscapeCharacter('\\')
+                .setQuoteCharacter('\"');
 
         testRowDeserialization(
                 config,
                 Row.of(10, "field1&field2", "field3", "field4"),
-                "f1=10&f2=field1\\&field2&f3=field3&f4=field4".getBytes()
-        );
+                "f1=10&f2=field1\\&field2&f3=field3&f4=field4".getBytes());
         testRowDeserialization(
                 config,
                 Row.of(10, "field1\\", "field2", "field3"),
-                "f1=10&f2=field1\\\\&f3=field2&f4=field3".getBytes()
-        );
+                "f1=10&f2=field1\\\\&f3=field2&f4=field3".getBytes());
         testRowDeserialization(
                 config,
                 Row.of(10, "field1\"", "field2", "field3"),
-                "f1=10&f2=field1\\\"&f3=field2&f4=field3".getBytes()
-        );
+                "f1=10&f2=field1\\\"&f3=field2&f4=field3".getBytes());
     }
 
     @Test
     public void testQuote() throws Exception {
-        Consumer<KvDeserializationSchema.Builder> config = builder ->
-                                                                   builder.setEscapeCharacter('\\')
-                                                                           .setQuoteCharacter('\"');
+        Consumer<KvDeserializationSchema.Builder> config = builder -> builder.setEscapeCharacter('\\')
+                .setQuoteCharacter('\"');
 
         testRowDeserialization(
                 config,
                 Row.of(10, "field1&field2", "field3", "field4"),
-                "f1=10&f2=\"field1&field2\"&f3=field3&f4=field4".getBytes()
-        );
+                "f1=10&f2=\"field1&field2\"&f3=field3&f4=field4".getBytes());
         testRowDeserialization(
                 config,
                 Row.of(10, "field1\\", "field2", "field3"),
-                "f1=10&f2=\"field1\\\"&f3=field2&f4=field3".getBytes()
-        );
+                "f1=10&f2=\"field1\\\"&f3=field2&f4=field3".getBytes());
     }
 
     @Test
     public void testExtractSpecificKeys() throws Exception {
-        Consumer<KvDeserializationSchema.Builder> config = builder ->
-                                                                   builder.setEscapeCharacter('\\')
-                                                                           .setQuoteCharacter('\"');
+        Consumer<KvDeserializationSchema.Builder> config = builder -> builder.setEscapeCharacter('\\')
+                .setQuoteCharacter('\"');
 
         testRowDeserialization(
                 config,
                 Row.of(10, "field1", "field2", "field3"),
-                "f1=10&f2=field1&f3=field2&f4=field3&f5=field4".getBytes()
-        );
+                "f1=10&f2=field1&f3=field2&f4=field3&f5=field4".getBytes());
     }
 
     @Test
     public void testCharset() throws Exception {
-        Consumer<KvDeserializationSchema.Builder> config = builder ->
-                                                                   builder.setCharset(StandardCharsets.UTF_16.name());
+        Consumer<KvDeserializationSchema.Builder> config =
+                builder -> builder.setCharset(StandardCharsets.UTF_16.name());
 
         testRowDeserialization(
                 config,
                 Row.of(10, "aa", "bb", "cc"),
-                "f1=10&f2=aa&f3=bb&f4=cc".getBytes(StandardCharsets.UTF_16)
-        );
+                "f1=10&f2=aa&f3=bb&f4=cc".getBytes(StandardCharsets.UTF_16));
     }
 
     @Test(expected = Exception.class)
@@ -188,8 +174,7 @@ public class KvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(null, "field1", "field2", "field3"),
-                "f1=na&f2=field1&f3=field2&f4=field3".getBytes()
-        );
+                "f1=na&f2=field1&f3=field2&f4=field3".getBytes());
     }
 
     @Test
@@ -200,8 +185,7 @@ public class KvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(null, "aa", "bb", "cc"),
-                "f2=aa&f3=bb&f4=cc".getBytes()
-        );
+                "f2=aa&f3=bb&f4=cc".getBytes());
     }
 
     @Test
@@ -212,21 +196,18 @@ public class KvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(10, "aa", "bb", "cc"),
-                "f1=10&f2=aa&f3=bb&f4=cc&f5=dd".getBytes()
-        );
+                "f1=10&f2=aa&f3=bb&f4=cc&f5=dd".getBytes());
     }
 
     private static <T> void testBasicDeserialization(
             Consumer<KvDeserializationSchema.Builder> config,
             BasicFormatInfo<T> basicFormatInfo,
             T expectedRecord,
-            String text
-    ) throws IOException {
+            String text) throws IOException {
         RowFormatInfo rowFormatInfo =
                 new RowFormatInfo(
                         new String[]{"f"},
-                        new FormatInfo[]{basicFormatInfo}
-                );
+                        new FormatInfo[]{basicFormatInfo});
 
         KvDeserializationSchema.Builder builder =
                 new KvDeserializationSchema.Builder(rowFormatInfo);
@@ -242,8 +223,7 @@ public class KvDeserializationSchemaTest {
     private void testRowDeserialization(
             Consumer<KvDeserializationSchema.Builder> config,
             Row expectedRow,
-            byte[] bytes
-    ) throws Exception {
+            byte[] bytes) throws Exception {
         KvDeserializationSchema.Builder builder =
                 new KvDeserializationSchema.Builder(TEST_ROW_INFO);
         config.accept(builder);

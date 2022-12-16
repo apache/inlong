@@ -17,12 +17,12 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/components/Icons';
 import { Button } from 'antd';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, GroupMetaType } from '@/metas';
 import { statusList } from '@/metas/groups/common/status';
 
 export const dashCardList = [
@@ -73,7 +73,11 @@ export const getFilterFormContent = defaultValues => [
 export const useColumns = ({ onDelete, openModal }) => {
   const { defaultValue } = useDefaultMeta('group');
 
-  const { Entity } = useLoadMeta('group', defaultValue);
+  const { Entity } = useLoadMeta<GroupMetaType>('group', defaultValue);
+
+  const entityColumns = useMemo(() => {
+    return Entity ? new Entity().renderList() : [];
+  }, [Entity]);
 
   const genCreateUrl = record => `/group/create/${record.inlongGroupId}`;
   const genDetailUrl = record =>
@@ -81,35 +85,37 @@ export const useColumns = ({ onDelete, openModal }) => {
       ? genCreateUrl(record)
       : `/group/detail/${record.inlongGroupId}`;
 
-  return Entity?.ColumnList?.map(item => {
-    if (item.dataIndex === 'inlongGroupId') {
-      return { ...item, render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link> };
-    }
-    return item;
-  }).concat([
-    {
-      title: i18n.t('basic.Operating'),
-      dataIndex: 'action',
-      render: (text, record) => (
-        <>
-          <Button type="link">
-            <Link to={genDetailUrl(record)}>{i18n.t('basic.Detail')}</Link>
-          </Button>
-          {[102].includes(record?.status) && (
+  return entityColumns
+    ?.map(item => {
+      if (item.dataIndex === 'inlongGroupId') {
+        return { ...item, render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link> };
+      }
+      return item;
+    })
+    .concat([
+      {
+        title: i18n.t('basic.Operating'),
+        dataIndex: 'action',
+        render: (text, record) => (
+          <>
             <Button type="link">
-              <Link to={genCreateUrl(record)}>{i18n.t('basic.Edit')}</Link>
+              <Link to={genDetailUrl(record)}>{i18n.t('basic.Detail')}</Link>
             </Button>
-          )}
-          <Button type="link" onClick={() => onDelete(record)}>
-            {i18n.t('basic.Delete')}
-          </Button>
-          {record?.status && (record?.status === 120 || record?.status === 130) && (
-            <Button type="link" onClick={() => openModal(record)}>
-              {i18n.t('pages.GroupDashboard.config.ExecuteLog')}
+            {[102].includes(record?.status) && (
+              <Button type="link">
+                <Link to={genCreateUrl(record)}>{i18n.t('basic.Edit')}</Link>
+              </Button>
+            )}
+            <Button type="link" onClick={() => onDelete(record)}>
+              {i18n.t('basic.Delete')}
             </Button>
-          )}
-        </>
-      ),
-    },
-  ]);
+            {record?.status && (record?.status === 120 || record?.status === 130) && (
+              <Button type="link" onClick={() => openModal(record)}>
+                {i18n.t('pages.GroupDashboard.config.ExecuteLog')}
+              </Button>
+            )}
+          </>
+        ),
+      },
+    ]);
 };

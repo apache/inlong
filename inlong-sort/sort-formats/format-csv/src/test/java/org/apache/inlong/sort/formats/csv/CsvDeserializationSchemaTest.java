@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,8 +57,7 @@ public class CsvDeserializationSchemaTest {
                             StringFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE
-                    }
-            );
+                    });
 
     @Test
     public void testNormal() throws Exception {
@@ -112,8 +110,7 @@ public class CsvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(10, "field1", "field2", "field3"),
-                "10|field1|field2|field3".getBytes()
-        );
+                "10|field1|field2|field3".getBytes());
     }
 
     @Test
@@ -124,20 +121,17 @@ public class CsvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(10, "field1,field2", "field3", "field4"),
-                "10,field1\\,field2,field3,field4".getBytes()
-        );
+                "10,field1\\,field2,field3,field4".getBytes());
 
         testRowDeserialization(
                 config,
                 Row.of(10, "field1\\", "field2", "field3"),
-                "10,field1\\\\,field2,field3".getBytes()
-        );
+                "10,field1\\\\,field2,field3".getBytes());
 
         testRowDeserialization(
                 config,
                 Row.of(10, "field1\"", "field2", "field3"),
-                "10,field1\\\",field2,field3".getBytes()
-        );
+                "10,field1\\\",field2,field3".getBytes());
     }
 
     @Test
@@ -148,14 +142,12 @@ public class CsvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(10, "field1,field2", "field3", "field4"),
-                "10,\"field1,field2\",field3,field4".getBytes()
-        );
+                "10,\"field1,field2\",field3,field4".getBytes());
 
         testRowDeserialization(
                 config,
                 Row.of(10, "field1\\", "field2", "field3"),
-                "10,\"field1\\\",field2,field3".getBytes()
-        );
+                "10,\"field1\\\",field2,field3".getBytes());
     }
 
     @Test
@@ -166,8 +158,7 @@ public class CsvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(10, "field1", "field2", "field3"),
-                "10,field1,field2,field3".getBytes(StandardCharsets.UTF_16)
-        );
+                "10,field1,field2,field3".getBytes(StandardCharsets.UTF_16));
     }
 
     @Test
@@ -178,14 +169,12 @@ public class CsvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(1, "field1", "field2", null),
-                "1,field1,field2".getBytes()
-        );
+                "1,field1,field2".getBytes());
 
         testRowDeserialization(
                 config,
                 Row.of(1, "field1", "field2", "field3"),
-                "1,field1,field2,field3,field4".getBytes()
-        );
+                "1,field1,field2,field3,field4".getBytes());
     }
 
     @Test(expected = Exception.class)
@@ -196,21 +185,18 @@ public class CsvDeserializationSchemaTest {
         testRowDeserialization(
                 config,
                 Row.of(null, "field1", "field2", "field3"),
-                "na,field1,field2,field3".getBytes()
-        );
+                "na,field1,field2,field3".getBytes());
     }
 
     private static <T> void testBasicDeserialization(
             Consumer<CsvDeserializationSchema.Builder> config,
             BasicFormatInfo<T> basicFormatInfo,
             T expectedRecord,
-            String text
-    ) throws IOException {
+            String text) throws IOException {
         RowFormatInfo rowFormatInfo =
                 new RowFormatInfo(
                         new String[]{"f"},
-                        new FormatInfo[]{basicFormatInfo}
-                );
+                        new FormatInfo[]{basicFormatInfo});
 
         CsvDeserializationSchema.Builder builder =
                 new CsvDeserializationSchema.Builder(rowFormatInfo);
@@ -226,8 +212,7 @@ public class CsvDeserializationSchemaTest {
     private void testRowDeserialization(
             Consumer<CsvDeserializationSchema.Builder> config,
             Row expectedRow,
-            byte[] bytes
-    ) throws Exception {
+            byte[] bytes) throws Exception {
         CsvDeserializationSchema.Builder builder =
                 new CsvDeserializationSchema.Builder(TEST_ROW_INFO);
         config.accept(builder);

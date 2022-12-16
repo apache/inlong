@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -62,14 +62,14 @@ public class EventUtils {
         byte[] srcBytes = objs.toByteArray();
         byte[] compressedBytes = null;
         switch (compressedType) {
-            case INLONG_SNAPPY :
+            case INLONG_SNAPPY:
                 compressedBytes = Snappy.compress(srcBytes);
                 break;
-            case INLONG_GZ :
+            case INLONG_GZ:
                 compressedBytes = GzipUtils.compress(srcBytes);
                 break;
-            case INLONG_NO_COMPRESS :
-            default :
+            case INLONG_NO_COMPRESS:
+            default:
                 compressedBytes = srcBytes;
                 break;
         }
@@ -112,14 +112,14 @@ public class EventUtils {
         byte[] compressBytes = packObject.getCompressBytes().toByteArray();
         byte[] srcBytes = null;
         switch (header.getCompressType()) {
-            case INLONG_SNAPPY :
+            case INLONG_SNAPPY:
                 srcBytes = Snappy.uncompress(compressBytes);
                 break;
-            case INLONG_GZ :
+            case INLONG_GZ:
                 srcBytes = GzipUtils.decompress(compressBytes);
                 break;
-            case INLONG_NO_COMPRESS :
-            default :
+            case INLONG_NO_COMPRESS:
+            default:
                 srcBytes = compressBytes;
                 break;
         }
@@ -161,14 +161,14 @@ public class EventUtils {
         // compress
         byte[] compressBytes = null;
         switch (compressedType) {
-            case INLONG_SNAPPY :
+            case INLONG_SNAPPY:
                 compressBytes = Snappy.compress(srcBytes);
                 break;
-            case INLONG_GZ :
+            case INLONG_GZ:
                 compressBytes = GzipUtils.compress(srcBytes);
                 break;
-            case INLONG_NO_COMPRESS :
-            default :
+            case INLONG_NO_COMPRESS:
+            default:
                 compressBytes = srcBytes;
                 break;
         }
@@ -190,14 +190,14 @@ public class EventUtils {
         // uncompress
         byte[] srcBytes = null;
         switch (compressedType) {
-            case INLONG_SNAPPY :
+            case INLONG_SNAPPY:
                 srcBytes = Snappy.uncompress(msgBody);
                 break;
-            case INLONG_GZ :
+            case INLONG_GZ:
                 srcBytes = GzipUtils.decompress(msgBody);
                 break;
-            case INLONG_NO_COMPRESS :
-            default :
+            case INLONG_NO_COMPRESS:
+            default:
                 srcBytes = msgBody;
                 break;
         }

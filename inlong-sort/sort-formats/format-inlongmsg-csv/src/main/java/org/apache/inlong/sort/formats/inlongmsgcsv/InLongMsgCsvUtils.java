@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,8 +49,7 @@ public class InLongMsgCsvUtils {
             char delimiter,
             Character escapeChar,
             Character quoteChar,
-            boolean deleteHeadDelimiter
-    ) {
+            boolean deleteHeadDelimiter) {
 
         String bodyText;
         if (bytes[0] == delimiter && deleteHeadDelimiter) {
@@ -66,8 +64,7 @@ public class InLongMsgCsvUtils {
                 bytes,
                 null,
                 Arrays.asList(fieldTexts),
-                Collections.emptyMap()
-        );
+                Collections.emptyMap());
     }
 
     public static Row buildRow(
@@ -76,15 +73,14 @@ public class InLongMsgCsvUtils {
             Timestamp time,
             Map<String, String> attributes,
             List<String> predefinedFields,
-            List<String> fields
-    ) {
+            List<String> fields) {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
         int actualNumFields = predefinedFields.size() + fields.size();
         if (actualNumFields != fieldNames.length) {
             LOG.warn("The number of fields mismatches: " + fieldNames.length
-                     + " expected, but was " + actualNumFields + ".");
+                    + " expected, but was " + actualNumFields + ".");
         }
 
         Row row = new Row(2 + fieldNames.length);
@@ -107,8 +103,7 @@ public class InLongMsgCsvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral
-                    );
+                            nullLiteral);
             row.setField(i + 2, field);
         }
 
@@ -128,8 +123,7 @@ public class InLongMsgCsvUtils {
                             fieldName,
                             fieldFormatInfo,
                             fieldText,
-                            nullLiteral
-                    );
+                            nullLiteral);
             row.setField(i + predefinedFields.size() + 2, field);
         }
 

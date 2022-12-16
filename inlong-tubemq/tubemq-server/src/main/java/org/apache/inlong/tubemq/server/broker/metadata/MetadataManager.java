@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -26,21 +26,22 @@ import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
  * Metadata's management interface.
  */
 public interface MetadataManager {
+
     void close(long waitTimeMs);
 
     void updateBrokerTopicConfigMap(long newBrokerMetaConfId,
-                                    int newConfCheckSumId,
-                                    String newBrokerDefMetaConfInfo,
-                                    List<String> newTopicMetaConfInfoLst,
-                                    boolean isForce,
-                                    StringBuilder sb);
+            int newConfCheckSumId,
+            String newBrokerDefMetaConfInfo,
+            List<String> newTopicMetaConfInfoLst,
+            boolean isForce,
+            StringBuilder sb);
 
     boolean updateBrokerRemoveTopicMap(boolean isTakeRemoveTopics,
-                                       List<String> rmvTopicMetaConfInfoLst,
-                                       StringBuilder sb);
+            List<String> rmvTopicMetaConfInfoLst,
+            StringBuilder sb);
 
     void addPropertyChangeListener(String propertyName,
-                                   PropertyChangeListener listener);
+            PropertyChangeListener listener);
 
     List<String> getTopics();
 

@@ -18,26 +18,34 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import UserSelect from '@/components/UserSelect';
 import { nodes, defaultValue } from '..';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18nMap, I18n } = DataWithBackend;
+const { FieldList, FieldDecorator } = RenderRow;
+const { ColumnList, ColumnDecorator } = RenderList;
 
-export class NodeDefaultInfo extends DataWithBackend {
+export class NodeDefaultInfo implements DataWithBackend, RenderRow, RenderList {
+  static I18nMap = I18nMap;
+  static FieldList = FieldList;
+  static ColumnList = ColumnList;
+
   readonly id: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: {
       maxLength: 128,
     },
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Nodes.Name')
   name: string;
 
-  @FormField({
+  @FieldDecorator({
     type: nodes.length > 3 ? 'select' : 'radio',
     initialValue: defaultValue,
     rules: [{ required: true }],
@@ -50,11 +58,11 @@ export class NodeDefaultInfo extends DataWithBackend {
         })),
     },
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Nodes.Type')
   type: string;
 
-  @FormField({
+  @FieldDecorator({
     type: UserSelect,
     rules: [{ required: true }],
     props: {
@@ -62,13 +70,13 @@ export class NodeDefaultInfo extends DataWithBackend {
       currentUserClosable: false,
     },
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Nodes.Owners')
   inCharges: string;
 
   clusterTags: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'textarea',
     props: {
       maxLength: 256,
@@ -85,5 +93,15 @@ export class NodeDefaultInfo extends DataWithBackend {
 
   stringify(data) {
     return data;
+  }
+
+  renderRow() {
+    const constructor = this.constructor as typeof NodeDefaultInfo;
+    return constructor.FieldList;
+  }
+
+  renderList() {
+    const constructor = this.constructor as typeof NodeDefaultInfo;
+    return constructor.ColumnList;
   }
 }

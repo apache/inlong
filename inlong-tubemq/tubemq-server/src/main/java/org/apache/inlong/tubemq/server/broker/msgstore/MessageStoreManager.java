@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -51,8 +51,8 @@ import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
-import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
-import org.apache.inlong.tubemq.server.broker.offset.RecordItem;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetCsmRecord;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetHistoryInfo;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
@@ -63,14 +63,14 @@ import org.slf4j.LoggerFactory;
  * Message storage management. It contains all topics on broker. In charge of store, expire, and flush operation,
  */
 public class MessageStoreManager implements StoreService {
+
     private static final Logger logger = LoggerFactory.getLogger(MessageStoreManager.class);
     private final BrokerConfig tubeConfig;
     private final TubeBroker tubeBroker;
     // metadata manager, get metadata from master.
     private final MetadataManager metadataManager;
     // storeId to store on each topic.
-    private final ConcurrentHashMap<String/* topic */,
-            ConcurrentHashMap<Integer/* storeId */, MessageStore>> dataStores =
+    private final ConcurrentHashMap<String/* topic */, ConcurrentHashMap<Integer/* storeId */, MessageStore>> dataStores =
             new ConcurrentHashMap<>();
     // store service status
     private final AtomicBoolean stopped = new AtomicBoolean(false);
@@ -93,7 +93,7 @@ public class MessageStoreManager implements StoreService {
      * @throws IOException    the exception during processing
      */
     public MessageStoreManager(final TubeBroker tubeBroker,
-                               final BrokerConfig tubeConfig) throws IOException {
+            final BrokerConfig tubeConfig) throws IOException {
         super();
         this.tubeConfig = tubeConfig;
         this.tubeBroker = tubeBroker;
@@ -102,18 +102,18 @@ public class MessageStoreManager implements StoreService {
         this.maxMsgTransferSize =
                 Math.min(tubeConfig.getTransferSize(), DataStoreUtils.MAX_MSG_TRANSFER_SIZE);
         this.metadataManager.addPropertyChangeListener("topicConfigMap", new PropertyChangeListener() {
+
             @Override
             public void propertyChange(final PropertyChangeEvent evt) {
-                Map<String, TopicMetadata> oldTopicConfigMap
-                        = (Map<String, TopicMetadata>) evt.getOldValue();
-                Map<String, TopicMetadata> newTopicConfigMap
-                        = (Map<String, TopicMetadata>) evt.getNewValue();
+                Map<String, TopicMetadata> oldTopicConfigMap = (Map<String, TopicMetadata>) evt.getOldValue();
+                Map<String, TopicMetadata> newTopicConfigMap = (Map<String, TopicMetadata>) evt.getNewValue();
                 MessageStoreManager.this.refreshMessageStoresHoldVals(oldTopicConfigMap, newTopicConfigMap);
 
             }
         });
         this.logClearScheduler =
                 Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
                     @Override
                     public Thread newThread(Runnable r) {
                         return new Thread(r, "Broker Log Clear Thread");
@@ -121,6 +121,7 @@ public class MessageStoreManager implements StoreService {
                 });
         this.unFlushDiskScheduler =
                 Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
                     @Override
                     public Thread newThread(Runnable r) {
                         return new Thread(r, "Broker Log Disk Flush Thread");
@@ -128,6 +129,7 @@ public class MessageStoreManager implements StoreService {
                 });
         this.unFlushMemScheduler =
                 Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
                     @Override
                     public Thread newThread(Runnable r) {
                         return new Thread(r, "Broker Log Mem Flush Thread");
@@ -173,8 +175,7 @@ public class MessageStoreManager implements StoreService {
             this.logClearScheduler.shutdownNow();
             this.unFlushDiskScheduler.shutdownNow();
             this.unFlushMemScheduler.shutdownNow();
-            for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry :
-                    this.dataStores.entrySet()) {
+            for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry : this.dataStores.entrySet()) {
                 if (entry.getValue() != null) {
                     ConcurrentHashMap<Integer, MessageStore> subMap = entry.getValue();
                     for (Map.Entry<Integer, MessageStore> subEntry : subMap.entrySet()) {
@@ -223,6 +224,7 @@ public class MessageStoreManager implements StoreService {
             if (targetTopics.isEmpty()) {
                 return removedTopics;
             }
+            logger.info("[Remove Topic] start remove topics : {}", targetTopics);
             for (String tmpTopic : targetTopics) {
                 ConcurrentHashMap<Integer, MessageStore> topicStores =
                         dataStores.get(tmpTopic);
@@ -246,14 +248,15 @@ public class MessageStoreManager implements StoreService {
                 if (tmpTopicConf != null) {
                     StringBuilder sBuilder = new StringBuilder(512);
                     for (int storeId = 0; storeId < tmpTopicConf.getNumTopicStores(); storeId++) {
-                        String storeDir = sBuilder.append(tmpTopicConf.getDataPath())
+                        String storeDir = sBuilder.append(tubeConfig.getPrimaryPath())
                                 .append(File.separator).append(tmpTopic).append("-")
                                 .append(storeId).toString();
                         sBuilder.delete(0, sBuilder.length());
+                        logger.info("[Remove Topic] remove topic files : {}", storeDir);
                         try {
                             delTopicFiles(storeDir);
                         } catch (Throwable e) {
-                            logger.error("[Remove Topic] Remove topic data error : ", e);
+                            logger.error("[Remove Topic] remove topic files error : ", e);
                         }
                         ThreadUtils.sleep(50);
                     }
@@ -262,6 +265,7 @@ public class MessageStoreManager implements StoreService {
                 }
                 ThreadUtils.sleep(100);
             }
+            logger.info("[Remove Topic] finished remove topics : {}", removedTopics);
             return removedTopics;
         } finally {
             this.isRemovingTopic.set(false);
@@ -276,8 +280,7 @@ public class MessageStoreManager implements StoreService {
      */
     @Override
     public Collection<MessageStore> getMessageStoresByTopic(final String topic) {
-        final ConcurrentHashMap<Integer, MessageStore> map
-                = this.dataStores.get(topic);
+        final ConcurrentHashMap<Integer, MessageStore> map = this.dataStores.get(topic);
         if (map == null) {
             return Collections.emptyList();
         }
@@ -294,12 +297,14 @@ public class MessageStoreManager implements StoreService {
      */
     @Override
     public MessageStore getOrCreateMessageStore(final String topic,
-                                                final int partition) throws Throwable {
+            final int partition) throws Throwable {
         StringBuilder sBuilder = new StringBuilder(512);
         final int storeId = partition < TBaseConstants.META_STORE_INS_BASE
-                ? 0 : partition / TBaseConstants.META_STORE_INS_BASE;
+                ? 0
+                : partition / TBaseConstants.META_STORE_INS_BASE;
         int realPartition = partition < TBaseConstants.META_STORE_INS_BASE
-                ? partition : partition % TBaseConstants.META_STORE_INS_BASE;
+                ? partition
+                : partition % TBaseConstants.META_STORE_INS_BASE;
         final String dataStoreToken = sBuilder.append("tube_store_manager_").append(topic).toString();
         sBuilder.delete(0, sBuilder.length());
         if (realPartition < 0 || realPartition >= this.metadataManager.getNumPartitions(topic)) {
@@ -358,10 +363,10 @@ public class MessageStoreManager implements StoreService {
      * @throws IOException    the exception during processing
      */
     public GetMessageResult getMessages(final MessageStore msgStore,
-                                        final String topic,
-                                        final int partitionId,
-                                        final int msgCount,
-                                        final Set<String> filterCondSet) throws IOException {
+            final String topic,
+            final int partitionId,
+            final int msgCount,
+            final Set<String> filterCondSet) throws IOException {
         long requestOffset = 0L;
         try {
             final long maxOffset = msgStore.getIndexMaxOffset();
@@ -459,18 +464,17 @@ public class MessageStoreManager implements StoreService {
      *
      */
     @Override
-    public void getTopicPublishInfos(Map<String, OffsetRecordInfo> groupOffsetMap) {
+    public void getTopicPublishInfos(Map<String, OffsetHistoryInfo> groupOffsetMap) {
         MessageStore store = null;
         Map<Integer, MessageStore> storeMap;
-        Map<String, Map<Integer, RecordItem>> topicOffsetMap;
-        for (Map.Entry<String, OffsetRecordInfo> entry : groupOffsetMap.entrySet()) {
+        Map<String, Map<Integer, OffsetCsmRecord>> topicOffsetMap;
+        for (Map.Entry<String, OffsetHistoryInfo> entry : groupOffsetMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
             topicOffsetMap = entry.getValue().getOffsetMap();
             // Get offset records by topic
-            for (Map.Entry<String, Map<Integer, RecordItem>> entryTopic
-                    : topicOffsetMap.entrySet()) {
+            for (Map.Entry<String, Map<Integer, OffsetCsmRecord>> entryTopic : topicOffsetMap.entrySet()) {
                 if (entryTopic == null
                         || entryTopic.getKey() == null
                         || entryTopic.getValue() == null) {
@@ -481,8 +485,7 @@ public class MessageStoreManager implements StoreService {
                 if (storeMap == null) {
                     continue;
                 }
-                for (Map.Entry<Integer, RecordItem> entryRcd
-                        : entryTopic.getValue().entrySet()) {
+                for (Map.Entry<Integer, OffsetCsmRecord> entryRcd : entryTopic.getValue().entrySet()) {
                     store = storeMap.get(entryRcd.getValue().getStoreId());
                     if (store == null) {
                         continue;
@@ -577,6 +580,7 @@ public class MessageStoreManager implements StoreService {
                 final int storeId = Integer.parseInt(name.substring(index + 1));
                 final MessageStoreManager messageStoreManager = this;
                 tasks.add(new Callable<MessageStore>() {
+
                     @Override
                     public MessageStore call() throws Exception {
                         MessageStore msgStore = null;
@@ -676,7 +680,7 @@ public class MessageStoreManager implements StoreService {
      * @param newTopicConfigMap     the newly topic configure map
      */
     public void refreshMessageStoresHoldVals(Map<String, TopicMetadata> oldTopicConfigMap,
-                                             Map<String, TopicMetadata> newTopicConfigMap) {
+            Map<String, TopicMetadata> newTopicConfigMap) {
         if (((newTopicConfigMap == null) || newTopicConfigMap.isEmpty())
                 || ((oldTopicConfigMap == null) || oldTopicConfigMap.isEmpty())) {
             return;

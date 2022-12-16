@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -45,12 +45,12 @@ public class TSSLEngineUtil {
      * @throws Exception            the exception information while creating
      */
     public static SSLEngine createSSLEngine(InputStream keyStoreStream,
-                                            String keyStorePassword,
-                                            InputStream trustStoreStream,
-                                            String trustStorePassword,
-                                            boolean isClientMode,
-                                            boolean needTwoWayAuth)
-        throws Exception {
+            String keyStorePassword,
+            InputStream trustStoreStream,
+            String trustStorePassword,
+            boolean isClientMode,
+            boolean needTwoWayAuth)
+            throws Exception {
 
         KeyManagerFactory kmf = null;
         TrustManagerFactory tmf = null;
@@ -82,7 +82,7 @@ public class TSSLEngineUtil {
 
         SSLContext serverContext = SSLContext.getInstance("TLS");
         serverContext.init(kmf == null ? null : kmf.getKeyManagers(),
-            tmf == null ? null : tmf.getTrustManagers(), null);
+                tmf == null ? null : tmf.getTrustManagers(), null);
         SSLEngine sslEngine = serverContext.createSSLEngine();
         sslEngine.setUseClientMode(isClientMode);
         sslEngine.setNeedClientAuth(needTwoWayAuth);
@@ -103,14 +103,14 @@ public class TSSLEngineUtil {
      * @throws Exception            the exception information while creating
      */
     public static SSLEngine createSSLEngine(String keyStorePath, String trustStorePath,
-                                            String keyStorePassword, String trustStorePassword,
-                                            boolean isClientMode, boolean needTwoWayAuth)
-        throws Exception {
+            String keyStorePassword, String trustStorePassword,
+            boolean isClientMode, boolean needTwoWayAuth)
+            throws Exception {
 
         InputStream keyStoreStream = new FileInputStream(new File(keyStorePath));
         InputStream trustStoreStream = new FileInputStream(new File(trustStorePath));
 
         return createSSLEngine(keyStoreStream, keyStorePassword, trustStoreStream,
-            trustStorePassword, isClientMode, needTwoWayAuth);
+                trustStorePassword, isClientMode, needTwoWayAuth);
     }
 }

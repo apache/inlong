@@ -55,7 +55,7 @@ public interface InlongClusterEntityMapper {
     @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
     Cursor<SortSourceClusterInfo> selectAllClusters();
 
-    List<InlongClusterEntity> selectByClusterTag(String clusterTag);
+    List<InlongClusterEntity> selectByClusterTag(@Param("clusterTag") String clusterTag);
 
     int updateById(InlongClusterEntity record);
 

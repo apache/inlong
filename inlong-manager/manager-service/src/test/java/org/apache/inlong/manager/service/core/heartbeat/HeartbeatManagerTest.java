@@ -66,6 +66,7 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
         nodeRequest.setIp(msg.getIp());
         nodeRequest.setPort(Integer.valueOf(msg.getPort()));
         nodeRequest.setProtocolType(ProtocolType.HTTP);
+        nodeRequest.setNodeLoad(0xFFFF);
         InlongClusterNodeEntity clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
         Assertions.assertNotNull(clusterNode);
         Assertions.assertEquals((int) clusterNode.getStatus(), NodeStatus.NORMAL.getStatus());
@@ -86,8 +87,9 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp("127.0.0.1");
         heartbeatMsg.setPort("46802");
+        heartbeatMsg.setClusterTag("default_cluster");
         heartbeatMsg.setProtocolType(ProtocolType.HTTP);
-        heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getName());
+        heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getType());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         return heartbeatMsg;
     }

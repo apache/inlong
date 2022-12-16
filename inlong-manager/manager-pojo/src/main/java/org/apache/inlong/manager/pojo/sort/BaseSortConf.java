@@ -36,6 +36,7 @@ public abstract class BaseSortConf {
     public static final String SORT_USER_DEFINED = "user_defined";
 
     public enum SortType {
+
         FLINK(SORT_FLINK),
         LOCAL(SORT_LOCAL),
         USER_DEFINED(SORT_USER_DEFINED);

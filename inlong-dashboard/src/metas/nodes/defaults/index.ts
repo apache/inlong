@@ -18,16 +18,37 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { NodeMetaType } from '../types';
 
-export const allDefaultNodes: MetaExportWithBackendList = [
+export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
   {
     label: 'ALL',
     value: '',
     LoadEntity: () => import('../common/NodeInfo').then(r => ({ default: r.NodeInfo })),
   },
   {
+    label: 'Clickhouse',
+    value: 'CLICKHOUSE',
+    LoadEntity: () => import('./ClickHouse'),
+  },
+  {
+    label: 'Elasticsearch',
+    value: 'ELASTICSEARCH',
+    LoadEntity: () => import('./Elasticsearch'),
+  },
+  {
     label: 'Hive',
     value: 'HIVE',
     LoadEntity: () => import('./Hive'),
+  },
+  {
+    label: 'Iceberg',
+    value: 'ICEBERG',
+    LoadEntity: () => import('./Iceberg'),
+  },
+  {
+    label: 'MySQL',
+    value: 'MYSQL',
+    LoadEntity: () => import('./MySQL'),
   },
 ];

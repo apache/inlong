@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -67,8 +67,8 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
                     "Illegal value: userName is not equal in authenticateToken!");
             return result;
         }
-        if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp())
-                > masterConfig.getAuthValidTimeStampPeriodMs()) {
+        if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp()) > masterConfig
+                .getAuthValidTimeStampPeriodMs()) {
             result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: timestamp out of effective period in authenticateToken!");
             return result;
@@ -88,7 +88,7 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
 
     @Override
     public CertifiedResult identityValidUserInfo(final ClientMaster.MasterCertificateInfo certificateInfo,
-                                                 boolean isProduce) {
+            boolean isProduce) {
         String inUserName = "";
         String authorizedToken = "";
         String othParams = "";
@@ -130,14 +130,14 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
             return result;
         }
         String inSignature = authInfo.getSignature().trim();
-        if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp())
-                > masterConfig.getAuthValidTimeStampPeriodMs()) {
+        if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp()) > masterConfig
+                .getAuthValidTimeStampPeriodMs()) {
             result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: timestamp out of effective period in authenticateToken!");
             return result;
         }
-        // get username and password from certificate center  begin
-        // get username and password from certificate center  end
+        // get username and password from certificate center begin
+        // get username and password from certificate center end
         // get identified userName and authorized token info and return
         result.setSuccessResult(inUserName, authorizedToken);
         return result;
@@ -158,7 +158,7 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
 
     @Override
     public CertifiedResult validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
-                                                      Map<String, TreeSet<String>> topicConds, String clientIp) {
+            Map<String, TreeSet<String>> topicConds, String clientIp) {
         CertifiedResult result = new CertifiedResult();
         if (!masterConfig.isStartProduceAuthorize()) {
             result.setSuccessResult("", "");

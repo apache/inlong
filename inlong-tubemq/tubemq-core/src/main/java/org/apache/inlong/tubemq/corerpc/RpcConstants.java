@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -63,7 +63,7 @@ public final class RpcConstants {
     public static final String RPC_LQ_MAX_ALLOWED_FAIL_COUNT = "rpc.link.quality.max.allowed.fail.count";
     public static final String RPC_LQ_MAX_FAIL_FORBIDDEN_RATE = "rpc.link.quality.max.fail.forbidden.rate";
     public static final String RPC_SERVICE_UNAVAILABLE_FORBIDDEN_DURATION =
-        "rpc.unavailable.service.forbidden.duration";
+            "rpc.unavailable.service.forbidden.duration";
     public static final int RPC_PROTOCOL_BEGIN_TOKEN = 0xFF7FF4FE;
     public static final int RPC_MAX_BUFFER_SIZE = 8192;
     public static final int MAX_FRAME_MAX_LIST_SIZE =
@@ -101,7 +101,7 @@ public final class RpcConstants {
     public static final int RPC_MSG_BROKER_CONSUMER_GETMESSAGE = 17;
     public static final int RPC_MSG_BROKER_CONSUMER_COMMIT = 18;
     public static final int RPC_MSG_BROKER_CONSUMER_CLOSE = 19;
-    //public static final int RPC_MSG_BROKER_METHOD_END = 19;
+    // public static final int RPC_MSG_BROKER_METHOD_END = 19;
 
     public static final int RPC_MSG_MASTER_CONSUMER_REGISTER_V2 = 20;
     public static final int RPC_MSG_MASTER_CONSUMER_HEARTBEAT_V2 = 21;

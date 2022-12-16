@@ -76,7 +76,7 @@ const Comp: React.FC = () => {
         <img src={config.logo} style={{ width: '100%' }} alt={config.title} />
         <FormGenerator form={form} content={formConfig} />
         <Button type="primary" onClick={login} style={{ width: '100%' }} size="large">
-          {t('pages.Login.LogIn')}
+          {t('pages.Login.Login')}
         </Button>
       </div>
     </div>

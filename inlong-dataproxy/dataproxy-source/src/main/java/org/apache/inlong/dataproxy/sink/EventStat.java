@@ -19,7 +19,6 @@ package org.apache.inlong.dataproxy.sink;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.flume.Event;
-import org.apache.inlong.dataproxy.base.OrderEvent;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 
 public class EventStat {
@@ -28,18 +27,19 @@ public class EventStat {
     private Event event;
     private AtomicInteger myRetryCnt = new AtomicInteger(0);
     private boolean isOrderMessage = false;
+    private boolean isSinkRspType = false;
 
     public EventStat(Event event) {
         this.event = event;
-        this.isOrderMessage = MessageUtils
-                .isSyncSendForOrder(event) && (event instanceof OrderEvent);
+        this.isSinkRspType = MessageUtils.isSinkRspType(event);
+        this.isOrderMessage = MessageUtils.isSyncSendForOrder(event);
     }
 
     public EventStat(Event event, int retryCnt) {
         this.event = event;
         this.myRetryCnt.set(retryCnt);
-        this.isOrderMessage = MessageUtils
-                .isSyncSendForOrder(event) && (event instanceof OrderEvent);
+        this.isSinkRspType = MessageUtils.isSinkRspType(event);
+        this.isOrderMessage = MessageUtils.isSyncSendForOrder(event);
     }
 
     public Event getEvent() {
@@ -64,6 +64,10 @@ public class EventStat {
 
     public boolean isOrderMessage() {
         return isOrderMessage;
+    }
+
+    public boolean isSinkRspType() {
+        return isSinkRspType;
     }
 
     public boolean shouldDrop() {

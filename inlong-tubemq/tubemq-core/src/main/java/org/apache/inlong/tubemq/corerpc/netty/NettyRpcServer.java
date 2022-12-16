@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -154,6 +154,7 @@ public class NettyRpcServer implements ServiceRpcServer {
             return;
         }
         bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
+
             @Override
             public void initChannel(SocketChannel socketChannel) {
                 if (isOverTLS) {
@@ -191,7 +192,7 @@ public class NettyRpcServer implements ServiceRpcServer {
 
     @Override
     public void publishService(String serviceName, Object serviceInstance,
-                               ExecutorService threadPool) throws Exception {
+            ExecutorService threadPool) throws Exception {
         Protocol protocol = protocols.get(protocolType);
         if (protocol == null) {
             if (ProtocolFactory.getProtocol(protocolType) == null) {
@@ -361,8 +362,8 @@ public class NettyRpcServer implements ServiceRpcServer {
          * @return
          */
         protected List<ByteBuffer> prepareResponse(Object value, int rmtVersion,
-                                                   RPCProtos.ResponseHeader.Status status,
-                                                   String errorClass, String error) {
+                RPCProtos.ResponseHeader.Status status,
+                String errorClass, String error) {
             ByteBufferOutputStream buf = new ByteBufferOutputStream();
             DataOutputStream out = new DataOutputStream(buf);
             errorClass = MixUtils.replaceClassNamePrefix(errorClass, true, rmtVersion);

@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +31,10 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.flink.util.StringUtils;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.elasticsearch.table.ElasticsearchValidationUtils;
 
 import java.util.Set;
@@ -39,6 +42,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLASH_MAX_SIZE_OPTION;
@@ -70,23 +74,23 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
             Stream.of(HOSTS_OPTION, INDEX_OPTION, DOCUMENT_TYPE_OPTION).collect(Collectors.toSet());
     private static final Set<ConfigOption<?>> optionalOptions =
             Stream.of(
-                            KEY_DELIMITER_OPTION,
-                            ROUTING_FIELD_NAME,
-                            FAILURE_HANDLER_OPTION,
-                            FLUSH_ON_CHECKPOINT_OPTION,
-                            BULK_FLASH_MAX_SIZE_OPTION,
-                            BULK_FLUSH_MAX_ACTIONS_OPTION,
-                            BULK_FLUSH_INTERVAL_OPTION,
-                            BULK_FLUSH_BACKOFF_TYPE_OPTION,
-                            BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION,
-                            BULK_FLUSH_BACKOFF_DELAY_OPTION,
-                            CONNECTION_MAX_RETRY_TIMEOUT_OPTION,
-                            CONNECTION_PATH_PREFIX,
-                            FORMAT_OPTION,
-                            PASSWORD_OPTION,
-                            USERNAME_OPTION,
-                            INLONG_METRIC,
-                            INLONG_AUDIT)
+                    KEY_DELIMITER_OPTION,
+                    ROUTING_FIELD_NAME,
+                    FAILURE_HANDLER_OPTION,
+                    FLUSH_ON_CHECKPOINT_OPTION,
+                    BULK_FLASH_MAX_SIZE_OPTION,
+                    BULK_FLUSH_MAX_ACTIONS_OPTION,
+                    BULK_FLUSH_INTERVAL_OPTION,
+                    BULK_FLUSH_BACKOFF_TYPE_OPTION,
+                    BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION,
+                    BULK_FLUSH_BACKOFF_DELAY_OPTION,
+                    CONNECTION_MAX_RETRY_TIMEOUT_OPTION,
+                    CONNECTION_PATH_PREFIX,
+                    FORMAT_OPTION,
+                    PASSWORD_OPTION,
+                    USERNAME_OPTION,
+                    INLONG_METRIC,
+                    INLONG_AUDIT)
                     .collect(Collectors.toSet());
 
     @Override
@@ -99,7 +103,7 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
         final EncodingFormat<SerializationSchema<RowData>> format =
                 helper.discoverEncodingFormat(SerializationFormatFactory.class, FORMAT_OPTION);
 
-        helper.validate();
+        helper.validateExcept(DIRTY_PREFIX);
         Configuration configuration = new Configuration();
         context.getCatalogTable().getOptions().forEach(configuration::setString);
         Elasticsearch6Configuration config =
@@ -110,9 +114,12 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
         String inlongMetric = helper.getOptions().getOptional(INLONG_METRIC).orElse(null);
 
         String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(null);
-
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
+        final DirtySinkHelper<Object> dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
         return new Elasticsearch6DynamicSink(
-                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema), inlongMetric, auditHostAndPorts);
+                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema),
+                inlongMetric, auditHostAndPorts, dirtySinkHelper);
     }
 
     private void validate(Elasticsearch6Configuration config, Configuration originalConfiguration) {
@@ -124,40 +131,36 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
         int maxActions = config.getBulkFlushMaxActions();
         validate(
                 maxActions == -1 || maxActions >= 1,
-                () ->
-                        String.format(
-                                "'%s' must be at least 1. Got: %s",
-                                BULK_FLUSH_MAX_ACTIONS_OPTION.key(), maxActions));
+                () -> String.format(
+                        "'%s' must be at least 1. Got: %s",
+                        BULK_FLUSH_MAX_ACTIONS_OPTION.key(), maxActions));
         long maxSize = config.getBulkFlushMaxByteSize();
         long mb1 = 1024 * 1024;
         validate(
                 maxSize == -1 || (maxSize >= mb1 && maxSize % mb1 == 0),
-                () ->
-                        String.format(
-                                "'%s' must be in MB granularity. Got: %s",
-                                BULK_FLASH_MAX_SIZE_OPTION.key(),
-                                originalConfiguration
-                                        .get(BULK_FLASH_MAX_SIZE_OPTION)
-                                        .toHumanReadableString()));
+                () -> String.format(
+                        "'%s' must be in MB granularity. Got: %s",
+                        BULK_FLASH_MAX_SIZE_OPTION.key(),
+                        originalConfiguration
+                                .get(BULK_FLASH_MAX_SIZE_OPTION)
+                                .toHumanReadableString()));
         validate(
                 config.getBulkFlushBackoffRetries().map(retries -> retries >= 1).orElse(true),
-                () ->
-                        String.format(
-                                "'%s' must be at least 1. Got: %s",
-                                BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION.key(),
-                                config.getBulkFlushBackoffRetries().get()));
+                () -> String.format(
+                        "'%s' must be at least 1. Got: %s",
+                        BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION.key(),
+                        config.getBulkFlushBackoffRetries().get()));
         if (config.getUsername().isPresent()
                 && !StringUtils.isNullOrWhitespaceOnly(config.getUsername().get())) {
             validate(
                     config.getPassword().isPresent()
                             && !StringUtils.isNullOrWhitespaceOnly(config.getPassword().get()),
-                    () ->
-                            String.format(
-                                    "'%s' and '%s' must be set at the same time. Got: username '%s' and password '%s'",
-                                    USERNAME_OPTION.key(),
-                                    PASSWORD_OPTION.key(),
-                                    config.getUsername().get(),
-                                    config.getPassword().orElse("")));
+                    () -> String.format(
+                            "'%s' and '%s' must be set at the same time. Got: username '%s' and password '%s'",
+                            USERNAME_OPTION.key(),
+                            PASSWORD_OPTION.key(),
+                            config.getUsername().get(),
+                            config.getPassword().orElse("")));
         }
     }
 

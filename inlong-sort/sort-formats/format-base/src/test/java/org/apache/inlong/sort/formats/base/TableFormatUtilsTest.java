@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,8 +39,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "data",
-                        null
-                );
+                        null);
         assertEquals("data", result1);
 
         Object result2 =
@@ -49,8 +47,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "",
-                        null
-                );
+                        null);
         assertEquals("", result2);
     }
 
@@ -61,8 +58,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "data",
-                        null
-                );
+                        null);
         assertEquals("data", result1);
 
         String result2 =
@@ -70,8 +66,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "",
-                        null
-                );
+                        null);
         assertEquals("", result2);
     }
 
@@ -82,8 +77,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "data",
-                        "n/a"
-                );
+                        "n/a");
         assertEquals("data", result1);
 
         Object result2 =
@@ -91,8 +85,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "",
-                        "n/a"
-                );
+                        "n/a");
         assertEquals("", result2);
 
         Object result3 =
@@ -100,8 +93,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "n/a",
-                        "n/a"
-                );
+                        "n/a");
         assertNull(result3);
     }
 
@@ -112,8 +104,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "data",
-                        "n/a"
-                );
+                        "n/a");
         assertEquals("data", result1);
 
         String result2 =
@@ -121,8 +112,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         "",
-                        "n/a"
-                );
+                        "n/a");
         assertEquals("", result2);
 
         String result3 =
@@ -130,8 +120,7 @@ public class TableFormatUtilsTest {
                         "f",
                         StringFormatInfo.INSTANCE,
                         null,
-                        "n/a"
-                );
+                        "n/a");
         assertEquals("n/a", result3);
     }
 
@@ -142,8 +131,7 @@ public class TableFormatUtilsTest {
                         "f",
                         IntFormatInfo.INSTANCE,
                         "1",
-                        null
-                );
+                        null);
         assertEquals(1, result1);
 
         Object result2 =
@@ -151,8 +139,7 @@ public class TableFormatUtilsTest {
                         "f",
                         IntFormatInfo.INSTANCE,
                         "",
-                        null
-                );
+                        null);
         assertNull(result2);
     }
 
@@ -163,8 +150,7 @@ public class TableFormatUtilsTest {
                         "f",
                         IntFormatInfo.INSTANCE,
                         1,
-                        null
-                );
+                        null);
         assertEquals("1", result1);
 
         String result2 =
@@ -172,8 +158,7 @@ public class TableFormatUtilsTest {
                         "f",
                         IntFormatInfo.INSTANCE,
                         null,
-                        null
-                );
+                        null);
         assertEquals("", result2);
     }
 
@@ -184,8 +169,7 @@ public class TableFormatUtilsTest {
                         "f",
                         IntFormatInfo.INSTANCE,
                         "1",
-                        "n/a"
-                );
+                        "n/a");
         assertEquals(1, result1);
 
         try {
@@ -193,8 +177,7 @@ public class TableFormatUtilsTest {
                     "f",
                     IntFormatInfo.INSTANCE,
                     "",
-                    "n/a"
-            );
+                    "n/a");
             fail("The method is expected to throw an exception.");
         } catch (Exception e) {
             // ignored
@@ -205,8 +188,7 @@ public class TableFormatUtilsTest {
                         "f",
                         IntFormatInfo.INSTANCE,
                         "n/a",
-                        "n/a"
-                );
+                        "n/a");
         assertNull(result2);
     }
 
@@ -217,8 +199,7 @@ public class TableFormatUtilsTest {
                         "f",
                         IntFormatInfo.INSTANCE,
                         1,
-                        "n/a"
-                );
+                        "n/a");
         assertEquals("1", result1);
 
         String result2 =
@@ -226,8 +207,7 @@ public class TableFormatUtilsTest {
                         "f",
                         IntFormatInfo.INSTANCE,
                         null,
-                        "n/a"
-                );
+                        "n/a");
         assertEquals("n/a", result2);
     }
 }

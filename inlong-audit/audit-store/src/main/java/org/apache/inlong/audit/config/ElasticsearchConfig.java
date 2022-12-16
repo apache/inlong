@@ -104,8 +104,8 @@ public class ElasticsearchConfig {
         if (authEnable) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-            restClientBuilder.setHttpClientConfigCallback(httpAsyncClientBuilder ->
-                    httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+            restClientBuilder.setHttpClientConfigCallback(httpAsyncClientBuilder -> httpAsyncClientBuilder
+                    .setDefaultCredentialsProvider(credentialsProvider));
         }
 
         restClientBuilder.setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WebApiServlet extends HttpServlet {
+
     public static final int MAX_MULTIPART_POST_DATA_SIZE = 67108864; // 64M, could be bigger if needed
     private static final Logger logger = LoggerFactory.getLogger(WebFilter.class);
     private static final String DEFAULT_CONFIG_PATH = "/WEB-INF/simple-mvc.xml";
@@ -59,7 +60,8 @@ public class WebApiServlet extends HttpServlet {
         }
 
         String charset = (req.getCharacterEncoding() == null)
-                ? TBaseConstants.META_DEFAULT_CHARSET_NAME : req.getCharacterEncoding();
+                ? TBaseConstants.META_DEFAULT_CHARSET_NAME
+                : req.getCharacterEncoding();
         resp.setCharacterEncoding(charset);
         RequestContext context = new RequestContext(this.config, req, resp);
         if (this.config.containsType(context.requestType())) {

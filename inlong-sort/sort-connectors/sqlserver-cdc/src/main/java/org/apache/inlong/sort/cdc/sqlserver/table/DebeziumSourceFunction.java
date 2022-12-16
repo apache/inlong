@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -94,7 +93,10 @@ import org.slf4j.LoggerFactory;
  */
 @PublicEvolving
 public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
-        implements CheckpointedFunction, CheckpointListener, ResultTypeQueryable<T> {
+        implements
+            CheckpointedFunction,
+            CheckpointListener,
+            ResultTypeQueryable<T> {
 
     private static final long serialVersionUID = -5808108641062931623L;
 
@@ -143,8 +145,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /**
      * The specific binlog offset to read from when the first startup.
      */
-    private final @Nullable
-    DebeziumOffset specificOffset;
+    private final @Nullable DebeziumOffset specificOffset;
 
     /**
      * Data for pending but uncommitted offsets.
@@ -232,7 +233,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             Properties properties,
             @Nullable DebeziumOffset specificOffset,
             Validator validator, String inlongMetric,
-        String auditHostAndPorts) {
+            String auditHostAndPorts) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
@@ -253,7 +254,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     }
 
     // ------------------------------------------------------------------------
-    //  Checkpoint and restore
+    // Checkpoint and restore
     // ------------------------------------------------------------------------
 
     @Override
@@ -271,17 +272,17 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
         if (this.inlongMetric != null) {
             this.metricStateListState =
-                stateStore.getUnionListState(
-                    new ListStateDescriptor<>(
-                        INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                    stateStore.getUnionListState(
+                            new ListStateDescriptor<>(
+                                    INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+                                    })));
         }
 
         if (context.isRestored()) {
             restoreOffsetState();
             restoreHistoryRecordsState();
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
-                getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
+                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
         } else {
             if (specificOffset != null) {
                 byte[] serializedOffset =
@@ -353,7 +354,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             snapshotHistoryRecordsState();
             if (sourceMetricData != null && metricStateListState != null) {
                 MetricStateUtils.snapshotMetricStateForSourceMetricData(metricStateListState, sourceMetricData,
-                    getRuntimeContext().getIndexOfThisSubtask());
+                        getRuntimeContext().getIndexOfThisSubtask());
             }
         }
     }
@@ -471,6 +472,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 new DebeziumChangeFetcher<>(
                         sourceContext,
                         new DebeziumDeserializationSchema<T>() {
+
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
                                 if (sourceMetricData != null) {

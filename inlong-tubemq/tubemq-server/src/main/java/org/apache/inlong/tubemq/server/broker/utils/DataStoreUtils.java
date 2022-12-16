@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -36,17 +36,17 @@ public class DataStoreUtils {
     // Data storage format definition
 
     // Message storage structure
-    // message length       4
-    // + dataType           4
-    // + checksum           4
-    // + queueId            4
-    // + queueLogicOffset   8
-    // + receivedTime       8
-    // + reportAddr         4
-    // + keyCode            4
-    // + msgId              8
-    // + flag               4
-    // + data               0
+    // message length 4
+    // + dataType 4
+    // + checksum 4
+    // + queueId 4
+    // + queueLogicOffset 8
+    // + receivedTime 8
+    // + reportAddr 4
+    // + keyCode 4
+    // + msgId 8
+    // + flag 4
+    // + data 0
     //
     public static final int MAX_MSG_TRANSFER_SIZE = 1024 * 1024;
 
@@ -70,11 +70,11 @@ public class DataStoreUtils {
     public static final long MAX_FILE_VALID_DURATION = 168 * 3600L * 1000L;
 
     // Index storage structure
-    // partitionId         4
-    // offset              8
-    // + getCachedSize     4
-    // + keyCode           4
-    // + timeInMillSec     8
+    // partitionId 4
+    // offset 8
+    // + getCachedSize 4
+    // + keyCode 4
+    // + timeInMillSec 8
     public static final int STORE_INDEX_HEAD_LEN = 28;
     public static final int INDEX_POS_PARTITIONID = 0;
     public static final int INDEX_POS_DATAOFFSET = 4;
@@ -85,8 +85,7 @@ public class DataStoreUtils {
     public static final int MAX_MSG_DATA_STORE_SIZE =
             TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT
                     + TBaseConstants.META_MB_UNIT_SIZE * 8;
-    public static final int STORE_MAX_MESSAGE_STORE_LEN
-            = STORE_DATA_HEADER_LEN + MAX_MSG_DATA_STORE_SIZE;
+    public static final int STORE_MAX_MESSAGE_STORE_LEN = STORE_DATA_HEADER_LEN + MAX_MSG_DATA_STORE_SIZE;
 
     public static final String DATA_FILE_SUFFIX = ".tube";
     public static final String INDEX_FILE_SUFFIX = ".index";
@@ -114,9 +113,9 @@ public class DataStoreUtils {
      * @return                the converted messages
      */
     public static ClientBroker.TransferedMessage getTransferMsg(ByteBuffer dataBuffer, int dataTotalSize,
-                                                                HashMap<String, TrafficInfo> countMap,
-                                                                String statisKeyBase,
-                                                                StringBuilder sBuilder) {
+            HashMap<String, TrafficInfo> countMap,
+            String statisKeyBase,
+            StringBuilder sBuilder) {
         if (dataBuffer.array().length < dataTotalSize) {
             return null;
         }

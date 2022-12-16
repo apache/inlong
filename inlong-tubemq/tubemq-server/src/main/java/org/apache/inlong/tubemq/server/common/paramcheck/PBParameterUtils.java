@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -52,7 +52,7 @@ public class PBParameterUtils {
      * @return the check result
      */
     public static ParamCheckResult checkProducerTopicList(final List<String> reqTopicLst,
-                                                          final StringBuilder strBuffer) {
+            final StringBuilder strBuffer) {
         ParamCheckResult retResult = new ParamCheckResult();
         if (reqTopicLst == null) {
             retResult.setCheckResult(false,
@@ -101,9 +101,9 @@ public class PBParameterUtils {
      * @return the check result
      */
     public static boolean checkConsumerTopicList(Set<String> depTopicSet,
-                                                 List<String> reqTopicLst,
-                                                 ProcessResult result,
-                                                 StringBuilder strBuff) {
+            List<String> reqTopicLst,
+            ProcessResult result,
+            StringBuilder strBuff) {
         if ((reqTopicLst == null) || (reqTopicLst.isEmpty())) {
             result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     "Request miss necessary subscribed topicList data!");
@@ -158,9 +158,9 @@ public class PBParameterUtils {
      * @return the check result
      */
     public static ParamCheckResult checkConsumerOffsetSetInfo(ConsumeType csmType,
-                                                              final Set<String> reqTopicSet,
-                                                              final String requiredParts,
-                                                              final StringBuilder strBuffer) {
+            final Set<String> reqTopicSet,
+            final String requiredParts,
+            final StringBuilder strBuffer) {
         Map<String, Long> requiredPartMap = new HashMap<>();
         ParamCheckResult retResult = new ParamCheckResult();
         if (csmType != ConsumeType.CONSUME_BAND) {
@@ -223,10 +223,10 @@ public class PBParameterUtils {
      * @return the check result
      */
     public static ParamCheckResult checkConsumerInputInfo(ConsumerInfo inConsumerInfo,
-                                                          MasterConfig masterConfig,
-                                                          MetaDataService defMetaDataService,
-                                                          BrokerRunManager brokerRunManager,
-                                                          StringBuilder strBuffer) throws Exception {
+            MasterConfig masterConfig,
+            MetaDataService defMetaDataService,
+            BrokerRunManager brokerRunManager,
+            StringBuilder strBuffer) throws Exception {
         ParamCheckResult retResult = new ParamCheckResult();
         if (!inConsumerInfo.isRequireBound()) {
             retResult.setCheckData(inConsumerInfo);
@@ -260,7 +260,8 @@ public class PBParameterUtils {
         }
         int allowRate = (offsetResetGroupEntity != null
                 && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
-                ? offsetResetGroupEntity.getAllowedBrokerClientRate() : masterConfig.getMaxGroupBrokerConsumeRate();
+                        ? offsetResetGroupEntity.getAllowedBrokerClientRate()
+                        : masterConfig.getMaxGroupBrokerConsumeRate();
         int maxBrokerCount =
                 brokerRunManager.getSubTopicMaxBrokerCount(inConsumerInfo.getTopicSet());
         int curBClientRate = (int) Math.floor(maxBrokerCount / inConsumerInfo.getSourceCount());
@@ -288,7 +289,7 @@ public class PBParameterUtils {
      * @return the check result
      */
     public static ParamCheckResult checkBrokerId(final String brokerId,
-                                                 final StringBuilder strBuffer) {
+            final StringBuilder strBuffer) {
         ParamCheckResult retResult = new ParamCheckResult();
         if (TStringUtils.isBlank(brokerId)) {
             retResult.setCheckResult(false,
@@ -346,9 +347,9 @@ public class PBParameterUtils {
     }
 
     private static ParamCheckResult validStringParameter(final String paramName,
-                                                         final String paramValue,
-                                                         int paramMaxLen,
-                                                         final StringBuilder strBuffer) {
+            final String paramValue,
+            int paramMaxLen,
+            final StringBuilder strBuffer) {
         ParamCheckResult retResult = new ParamCheckResult();
         if (TStringUtils.isBlank(paramValue)) {
             retResult.setCheckResult(false,
@@ -382,9 +383,9 @@ public class PBParameterUtils {
      * @return result success or failure
      */
     public static boolean getStringParameter(WebFieldDef fieldDef,
-                                             String paramValue,
-                                             StringBuilder strBuffer,
-                                             ProcessResult result) {
+            String paramValue,
+            StringBuilder strBuffer,
+            ProcessResult result) {
         if (TStringUtils.isBlank(paramValue)) {
             result.setFailResult(strBuffer.append("Request miss necessary ")
                     .append(fieldDef.name).append(" data!").toString());
@@ -413,9 +414,9 @@ public class PBParameterUtils {
      * @return the check result
      */
     public static boolean getTopicNameParameter(String topicName,
-                                                MetadataManager metadataManager,
-                                                StringBuilder strBuffer,
-                                                ProcessResult result) {
+            MetadataManager metadataManager,
+            StringBuilder strBuffer,
+            ProcessResult result) {
         if (!getStringParameter(WebFieldDef.TOPICNAME,
                 topicName, strBuffer, result)) {
             return result.isSuccess();
@@ -443,10 +444,10 @@ public class PBParameterUtils {
      * @return the check result
      */
     public static boolean getTopicNamePartIdInfo(boolean isProduce,
-                                                 String topicName, int partitionId,
-                                                 MetadataManager metadataManager,
-                                                 StringBuilder strBuffer,
-                                                 ProcessResult result) {
+            String topicName, int partitionId,
+            MetadataManager metadataManager,
+            StringBuilder strBuffer,
+            ProcessResult result) {
         // Check and get topic name
         if (!getStringParameter(WebFieldDef.TOPICNAME,
                 topicName, strBuffer, result)) {
@@ -482,7 +483,8 @@ public class PBParameterUtils {
             return result.isSuccess();
         }
         int realPartition = partitionId < TBaseConstants.META_STORE_INS_BASE
-                ? partitionId : partitionId % TBaseConstants.META_STORE_INS_BASE;
+                ? partitionId
+                : partitionId % TBaseConstants.META_STORE_INS_BASE;
         if ((realPartition < 0) || (realPartition >= topicMetadata.getNumPartitions())) {
             result.setFailResult(TErrCodeConstants.FORBIDDEN,
                     strBuffer.append(WebFieldDef.PARTITIONID.name)

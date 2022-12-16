@@ -123,8 +123,7 @@ public class SQLServerSqlBuilder {
                 .forEach(column -> {
                     sqls.add(
                             buildAddColumnComment(table.getSchemaName(), table.getTableName(), column.getName(),
-                                    column.getComment())
-                    );
+                                    column.getComment()));
                 });
         LOGGER.info("create table sql: {}", sqls);
         return sqls;
@@ -156,8 +155,7 @@ public class SQLServerSqlBuilder {
                 .filter(column -> StringUtils.isNotEmpty(column.getComment()))
                 .forEach(column -> {
                     sqls.add(
-                            buildAddColumnComment(schemaName, tableName, column.getName(), column.getComment())
-                    );
+                            buildAddColumnComment(schemaName, tableName, column.getName(), column.getComment()));
                 });
         LOGGER.info("add columns sql={}", sqls);
         return sqls;

@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,7 +62,8 @@ import static org.apache.flink.util.TimeUtils.parseDuration;
  * @param <T> The type of records produced by this data source
  */
 public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
-        implements CheckpointedFunction {
+        implements
+            CheckpointedFunction {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkTubeMQConsumer.class);
     private static final String TUBE_OFFSET_STATE = "tube-offset-state";
@@ -162,8 +162,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
             DeserializationSchema<T> deserializationSchema,
             Configuration configuration,
             String sessionKey,
-            Boolean innerFormat
-    ) {
+            Boolean innerFormat) {
         checkNotNull(masterAddress, "The master address must not be null.");
         checkNotNull(topic, "The topic must not be null.");
         checkNotNull(tidSet, "The tid set must not be null.");
@@ -178,7 +177,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
         this.deserializationSchema = deserializationSchema;
         this.sessionKey = sessionKey;
 
-        //those param set default
+        // those param set default
         this.consumeFromMax = configuration.getBoolean(TubeMQOptions.BOOTSTRAP_FROM_MAX);
         this.messageNotFoundWaitPeriod = parseDuration(configuration.getString(
                 TubeMQOptions.MESSAGE_NOT_FOUND_WAIT_PERIOD));
@@ -265,8 +264,7 @@ public class FlinkTubeMQConsumer<T> extends RichParallelSourceFunction<T>
                 }
                 currentOffsets.put(
                         consumeResult.getPartitionKey(),
-                        consumeResult.getCurrOffset()
-                );
+                        consumeResult.getCurrOffset());
             }
 
             ConsumerResult confirmResult = messagePullConsumer

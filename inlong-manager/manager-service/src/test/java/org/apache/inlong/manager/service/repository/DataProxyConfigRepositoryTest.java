@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -102,7 +102,7 @@ public class DataProxyConfigRepositoryTest {
                 DataProxyConfigRepository.KEY_SINK_NAME, CLS_DATA_NODE_OLD,
                 DataProxyConfigRepository.KEY_SORT_TASK_NAME, CLS_DATA_NODE_OLD,
                 DataProxyConfigRepository.KEY_DATA_NODE_NAME, CLS_DATA_NODE_OLD,
-                DataProxyConfigRepository.KEY_SORT_CONSUEMER_GROUP, CLS_DATA_NODE_OLD));
+                DataProxyConfigRepository.KEY_SORT_CONSUMER_GROUP, CLS_DATA_NODE_OLD));
         clusters.add(clsCluster);
         InlongClusterEntity kafkaCluster = new InlongClusterEntity();
         kafkaCluster.setName("kafka_1");
@@ -117,7 +117,7 @@ public class DataProxyConfigRepositoryTest {
                 DataProxyConfigRepository.KEY_SINK_NAME, CLS_DATA_NODE_NEW,
                 DataProxyConfigRepository.KEY_SORT_TASK_NAME, CLS_DATA_NODE_NEW,
                 DataProxyConfigRepository.KEY_DATA_NODE_NAME, CLS_DATA_NODE_NEW,
-                DataProxyConfigRepository.KEY_SORT_CONSUEMER_GROUP, CLS_DATA_NODE_NEW));
+                DataProxyConfigRepository.KEY_SORT_CONSUMER_GROUP, CLS_DATA_NODE_NEW));
         clusters.add(clsCluster2);
         InlongClusterEntityMapper mapper = PowerMockito.mock(InlongClusterEntityMapper.class);
         PowerMockito.when(mapper.selectByCondition(any())).thenReturn(clusters);

@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,20 +45,20 @@ public class RowKindValidator implements RowValidator {
 
     public RowKindValidator(List<String> rowKinds) {
         Preconditions.checkArgument(!rowKinds.isEmpty(),
-            "rowKinds should not be empty");
+                "rowKinds should not be empty");
         for (String rowKind : rowKinds) {
             Arrays.stream(RowKind.values()).filter(value -> value.shortString().equals(rowKind))
-                .findFirst().ifPresent(rowKindsFiltered::add);
+                    .findFirst().ifPresent(rowKindsFiltered::add);
         }
     }
 
     public RowKindValidator(String rowKinds) {
         Preconditions.checkArgument(Pattern.matches(pattern, rowKinds),
-             String.format("rowKinds is not valid, should match the pattern %s,"
-                 + " the input value is %s", pattern, rowKinds));
+                String.format("rowKinds is not valid, should match the pattern %s,"
+                        + " the input value is %s", pattern, rowKinds));
         for (String rowKind : rowKinds.split(DELIMITER)) {
             Arrays.stream(RowKind.values()).filter(value -> value.shortString().equals(rowKind))
-                .findFirst().ifPresent(rowKindsFiltered::add);
+                    .findFirst().ifPresent(rowKindsFiltered::add);
         }
     }
 

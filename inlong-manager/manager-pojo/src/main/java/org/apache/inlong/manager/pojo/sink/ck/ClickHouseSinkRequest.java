@@ -66,8 +66,7 @@ public class ClickHouseSinkRequest extends SinkRequest {
     @ApiModelProperty("Partition strategy, support: BALANCE, RANDOM, HASH")
     private String partitionStrategy;
 
-    @ApiModelProperty(value = "Partition files, separate with commas",
-            notes = "Necessary when partitionStrategy is HASH, must be one of the field list")
+    @ApiModelProperty(value = "Partition files, separate with commas", notes = "Necessary when partitionStrategy is HASH, must be one of the field list")
     private String partitionFields;
 
     @ApiModelProperty("Key field names, separate with commas")

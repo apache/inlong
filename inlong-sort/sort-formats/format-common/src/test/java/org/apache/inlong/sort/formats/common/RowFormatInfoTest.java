@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,8 +35,7 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                                 StringFormatInfo.INSTANCE,
                                 IntFormatInfo.INSTANCE,
                                 StringFormatInfo.INSTANCE
-                        }
-                );
+                        });
 
         RowFormatInfo formatInfo2 =
                 new RowFormatInfo(
@@ -45,10 +43,8 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                         new FormatInfo[]{
                                 new MapFormatInfo(
                                         StringFormatInfo.INSTANCE,
-                                        IntFormatInfo.INSTANCE
-                                )
-                        }
-                );
+                                        IntFormatInfo.INSTANCE)
+                        });
 
         RowFormatInfo formatInfo3 =
                 new RowFormatInfo(
@@ -56,14 +52,11 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                         new FormatInfo[]{
                                 new RowFormatInfo(
                                         new String[]{"f1"},
-                                        new FormatInfo[]{IntFormatInfo.INSTANCE}
-                                ),
+                                        new FormatInfo[]{IntFormatInfo.INSTANCE}),
                                 new MapFormatInfo(
                                         StringFormatInfo.INSTANCE,
-                                        new TimeFormatInfo("hh:mm:ss.SSS")
-                                )
-                        }
-                );
+                                        new TimeFormatInfo("hh:mm:ss.SSS"))
+                        });
 
         return Arrays.asList(formatInfo1, formatInfo2, formatInfo3);
     }
@@ -75,8 +68,7 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                 new FormatInfo[]{
                         StringFormatInfo.INSTANCE,
                         IntFormatInfo.INSTANCE
-                }
-        );
+                });
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -86,7 +78,6 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                 new FormatInfo[]{
                         StringFormatInfo.INSTANCE,
                         IntFormatInfo.INSTANCE
-                }
-        );
+                });
     }
 }

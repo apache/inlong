@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -72,8 +73,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryTopicCtrlInfo(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         TopicCtrlEntity qryEntity = new TopicCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -115,8 +116,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminAddTopicCtrlInfo(HttpServletRequest req,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdTopicCtrlInfo(req, sBuffer, result, true);
 
     }
@@ -130,8 +131,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchAddTopicCtrlInfo(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdTopicCtrlInfo(req, sBuffer, result, true);
     }
 
@@ -144,8 +145,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminModTopicCtrlInfo(HttpServletRequest req,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdTopicCtrlInfo(req, sBuffer, result, false);
     }
 
@@ -158,8 +159,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchModTopicCtrlInfo(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdTopicCtrlInfo(req, sBuffer, result, false);
     }
 
@@ -172,8 +173,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminDeleteTopicCtrlInfo(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -198,9 +199,9 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innAddOrUpdTopicCtrlInfo(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result,
-                                                   boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -227,12 +228,12 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
             topicNameId = (int) result.getRetData();
         }
         // get authCtrlStatus info
-        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.AUTHCTRLENABLE,
-                false, (isAddOp ? false : null), sBuffer, result)) {
+        if (!WebParameterUtils.getEnableStatusValue(req, WebFieldDef.AUTHCTRLENABLE,
+                false, (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean enableTopicAuth = (Boolean) result.getRetData();
+        EnableStatus enableTopicAuth = (EnableStatus) result.getRetData();
         // check and get max message size
         ClusterSettingEntity defClusterSetting =
                 defMetaDataService.getClusterDefSetting(false);
@@ -255,9 +256,9 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innBatchAddOrUpdTopicCtrlInfo(HttpServletRequest req,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result,
-                                                        boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -277,8 +278,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     }
 
     private boolean getTopicCtrlJsonSetInfo(HttpServletRequest req, boolean isAddOp,
-                                            BaseEntity defOpEntity, StringBuilder sBuffer,
-                                            ProcessResult result) {
+            BaseEntity defOpEntity, StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.TOPICCTRLSET, true, null, result)) {
             return result.isSuccess();
@@ -323,11 +324,11 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
             }
             int itemTopicNameId = (int) result.getRetData();
             // get authCtrlStatus info
-            if (!WebParameterUtils.getBooleanParamValue(itemConfMap, WebFieldDef.AUTHCTRLENABLE,
-                    false, (isAddOp ? false : null), sBuffer, result)) {
+            if (!WebParameterUtils.getEnableStatusValue(itemConfMap, WebFieldDef.AUTHCTRLENABLE,
+                    false, (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
                 return result.isSuccess();
             }
-            Boolean enableTopicAuth = (Boolean) result.getRetData();
+            EnableStatus enableTopicAuth = (EnableStatus) result.getRetData();
             itemConf = new TopicCtrlEntity(itemOpEntity, topicName);
             itemConf.updModifyInfo(itemOpEntity.getDataVerId(),
                     itemTopicNameId, itemMaxMsgSizeMB, enableTopicAuth);
@@ -347,7 +348,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<TopicProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (TopicProcessResult entry : retInfo) {

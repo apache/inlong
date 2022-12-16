@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -79,16 +79,15 @@ public class KafkaProducerCluster implements LifecycleAware {
         this.state = LifecycleState.START;
         try {
             Properties props = new Properties();
+            props.putAll(context.getParameters());
             props.put(
                     ProducerConfig.PARTITIONER_CLASS_CONFIG,
                     context.getString(ProducerConfig.PARTITIONER_CLASS_CONFIG, PartitionerSelector.class.getName()));
             props.put(
                     ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                     context.getString(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
-            props.put(
-                    ProducerConfig.CLIENT_ID_CONFIG,
-                    context.getString(ProducerConfig.CLIENT_ID_CONFIG) + "-" + workerName);
-            props.putAll(context.getParameters());
+            props.put(ProducerConfig.CLIENT_ID_CONFIG,
+                    context.getString(ProducerConfig.CLIENT_ID_CONFIG, cacheClusterName) + "-" + workerName);
             LOG.info("init kafka client info: " + props);
             producer = new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
             Preconditions.checkNotNull(producer);

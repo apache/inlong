@@ -33,14 +33,14 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "region", uniqueConstraints =
-        {
-                @UniqueConstraint(columnNames = {"clusterId", "regionId"}),
-                @UniqueConstraint(columnNames = {"id"})
-        })
+@Table(name = "region", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"clusterId", "regionId"}),
+        @UniqueConstraint(columnNames = {"id"})
+})
 @Data
 @EntityListeners(AuditingEntityListener.class)
 public class RegionEntry {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sort.jdbc.dialect;
@@ -37,10 +36,9 @@ public class SqlServerDialect extends AbstractJdbcDialect {
 
     private static final long serialVersionUID = 5401176426209040158L;
 
-
-    // Note:The timestamp syntax is deprecated. This feature will be removed 
-    // in a future version of Microsoft SQL Server. Avoid using this feature 
-    // in new development work, and plan to modify applications that currently 
+    // Note:The timestamp syntax is deprecated. This feature will be removed
+    // in a future version of Microsoft SQL Server. Avoid using this feature
+    // in new development work, and plan to modify applications that currently
     // use this feature.
     // https://docs.microsoft.com/en-us/sql/t-sql/data-types/rowversion-transact-sql?redirectedfrom=MSDN&view=sql-server-ver15
     // Define MAX/MIN precision of TIMESTAMP type according to SqlServer docs:
@@ -173,23 +171,21 @@ public class SqlServerDialect extends AbstractJdbcDialect {
     }
 
     private String buildConditions(String[] uniqueKeyFields) {
-        return
-                Arrays
-                        .stream(uniqueKeyFields)
-                        .map(col -> "T1." + quoteIdentifier(col) + "=T2." + quoteIdentifier(col))
-                        .collect(Collectors.joining(","));
+        return Arrays
+                .stream(uniqueKeyFields)
+                .map(col -> "T1." + quoteIdentifier(col) + "=T2." + quoteIdentifier(col))
+                .collect(Collectors.joining(","));
     }
 
     private String buildUpdateConnection(String[] fieldNames, String[] uniqueKeyFields) {
         List<String> uniqueKeyList = Arrays.asList(uniqueKeyFields);
-        return
-                Arrays
-                        .stream(fieldNames)
-                        .filter(col -> !uniqueKeyList.contains(col))
-                        .map(col -> quoteIdentifier("T1") + "." + quoteIdentifier(col)
-                                + " =ISNULL(" + quoteIdentifier("T2") + "." + quoteIdentifier(col)
-                                + "," + quoteIdentifier("T1") + "." + quoteIdentifier(col) + ")")
-                        .collect(Collectors.joining(","));
+        return Arrays
+                .stream(fieldNames)
+                .filter(col -> !uniqueKeyList.contains(col))
+                .map(col -> quoteIdentifier("T1") + "." + quoteIdentifier(col)
+                        + " =ISNULL(" + quoteIdentifier("T2") + "." + quoteIdentifier(col)
+                        + "," + quoteIdentifier("T1") + "." + quoteIdentifier(col) + ")")
+                .collect(Collectors.joining(","));
     }
 
 }

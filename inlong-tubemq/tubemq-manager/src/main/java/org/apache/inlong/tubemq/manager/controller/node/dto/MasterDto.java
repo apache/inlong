@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class MasterDto {
+
     private Long clusterId;
     private String token;
     private String ip;

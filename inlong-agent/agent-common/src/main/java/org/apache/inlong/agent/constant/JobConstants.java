@@ -34,7 +34,6 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_SOURCE_CLASS = "job.source";
     public static final String JOB_SOURCE_TYPE = "job.sourceType";
 
-    public static final String JOB_SINK = "job.sink";
     public static final String JOB_CHANNEL = "job.channel";
     public static final String JOB_NAME = "job.name";
     public static final String JOB_LINE_FILTER_PATTERN = "job.pattern";
@@ -44,7 +43,14 @@ public class JobConstants extends CommonConstants {
     public static final String DEFAULT_JOB_DESCRIPTION = "default job description";
     public static final String DEFAULT_JOB_LINE_FILTER = "";
 
-    //File job
+    // sink config
+    public static final String JOB_SINK = "job.sink";
+    public static final String JOB_PROXY_SEND = "job.proxySend";
+    public static final boolean DEFAULT_JOB_PROXY_SEND = false;
+    public static final String JOB_MQ_ClUSTERS = "job.mqClusters";
+    public static final String JOB_MQ_TOPIC = "job.topicInfo";
+
+    // File job
     public static final String JOB_TRIGGER = "job.fileJob.trigger";
     public static final String JOB_DIR_FILTER_PATTERN = "job.fileJob.dir.pattern";
     public static final String JOB_FILE_TIME_OFFSET = "job.fileJob.timeOffset";
@@ -61,7 +67,7 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_FILE_MONITOR_STATUS = "job.fileJob.monitorStatus";
     public static final String JOB_FILE_MONITOR_EXPIRE = "job.fileJob.monitorExpire";
 
-    //Binlog job
+    // Binlog job
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";
     public static final String JOB_DATABASE_PASSWORD = "job.binlogJob.password";
     public static final String JOB_DATABASE_HOSTNAME = "job.binlogJob.hostname";
@@ -79,7 +85,7 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_DATABASE_HISTORY_MONITOR_DDL = "job.binlogJob.ddl";
     public static final String JOB_DATABASE_PORT = "job.binlogJob.port";
 
-    //Kafka job
+    // Kafka job
     public static final String JOB_KAFKA_TOPIC = "job.kafkaJob.topic";
     public static final String JOB_KAFKA_BOOTSTRAP_SERVERS = "job.kafkaJob.bootstrap.servers";
     public static final String JOB_KAFKA_GROUP_ID = "job.kafkaJob.group.id";
@@ -88,7 +94,6 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_KAFKA_OFFSET = "job.kafkaJob.partition.offset";
     public static final String JOB_KAFKA_READ_TIMEOUT = "job.kafkaJob.read.timeout";
     public static final String JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET = "job.kafkaJob.autoOffsetReset";
-
 
     public static final String JOB_MONGO_HOSTS = "job.mongoJob.hosts";
     public static final String JOB_MONGO_USER = "job.mongoJob.user";
@@ -186,6 +191,5 @@ public class JobConstants extends CommonConstants {
      * default value is -1 and stand for not expire time.
      */
     public static final String JOB_FILE_MONITOR_DEFAULT_EXPIRE = "-1";
-
 
 }

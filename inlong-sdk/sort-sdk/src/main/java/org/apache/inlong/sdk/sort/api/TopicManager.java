@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.api;
@@ -27,6 +26,7 @@ import java.util.Set;
  * A manager to maintain different type of fetchers
  */
 public abstract class TopicManager implements Cleanable {
+
     protected ClientContext context;
     protected QueryConsumeConfig queryConsumeConfig;
 

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -103,16 +103,15 @@ public class NettyClient implements Client {
         this.closed.set(false);
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.inlong.tubemq.corerpc.client.Client#call(
-     *    org.apache.inlong.tubemq.corerpc.RequestWrapper,
-     *    org.apache.inlong.tubemq.corerpc.client.Callback,
-     *    long,
-     *    java.util.concurrent.TimeUnit)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.inlong.tubemq.corerpc.client.Client#call( org.apache.inlong.tubemq.corerpc.RequestWrapper,
+     * org.apache.inlong.tubemq.corerpc.client.Callback, long, java.util.concurrent.TimeUnit)
      */
     @Override
     public ResponseWrapper call(RequestWrapper request, Callback callback,
-                                long timeout, TimeUnit timeUnit) throws Exception {
+            long timeout, TimeUnit timeUnit) throws Exception {
         if (closed.get()) {
             throw new ClientClosedException("Netty client has bean closed!");
         }
@@ -148,7 +147,7 @@ public class NettyClient implements Client {
                 return future.get(timeout, timeUnit);
             } catch (Throwable e) {
                 Callback<ResponseWrapper> callback1 =
-                    requests.remove(request.getSerialNo());
+                        requests.remove(request.getSerialNo());
                 if (callback1 != null) {
                     if (closed.get()) {
                         throw new ClientClosedException("Netty client has bean closed!");
@@ -165,11 +164,11 @@ public class NettyClient implements Client {
                 timeouts.put(request.getSerialNo(),
                         timer.newTimeout(new TimeoutTask(request.getSerialNo()), timeout, timeUnit));
                 inserted = true;
-                //write data after build Timeout to avoid one request processed twice
+                // write data after build Timeout to avoid one request processed twice
                 getChannel().writeAndFlush(pack);
             } catch (Throwable e) {
                 Callback<ResponseWrapper> callback1 =
-                    requests.remove(request.getSerialNo());
+                        requests.remove(request.getSerialNo());
                 if (callback1 != null) {
                     if (inserted) {
                         Timeout timeout1 = timeouts.remove(request.getSerialNo());
@@ -379,7 +378,7 @@ public class NettyClient implements Client {
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) throws Exception {
             Throwable t = e.getCause();
             if ((t instanceof IOException || t instanceof ReadTimeoutException
-                || t instanceof UnresolvedAddressException)) {
+                    || t instanceof UnresolvedAddressException)) {
                 if (t instanceof ReadTimeoutException) {
                     logger.info("Close client {} due to idle.", ctx.channel());
                 }

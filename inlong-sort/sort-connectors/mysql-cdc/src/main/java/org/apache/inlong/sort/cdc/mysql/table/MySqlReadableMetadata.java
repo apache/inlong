@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,7 +33,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
-import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson.Source;
@@ -51,6 +50,7 @@ import java.util.Map;
  * Defines the supported metadata columns for {@link MySqlTableSource}.
  */
 public enum MySqlReadableMetadata {
+
     /**
      * Name of the table that contain the row.
      */
@@ -58,6 +58,7 @@ public enum MySqlReadableMetadata {
             "table_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -73,6 +74,7 @@ public enum MySqlReadableMetadata {
             "database_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -89,6 +91,7 @@ public enum MySqlReadableMetadata {
             "op_ts",
             DataTypes.TIMESTAMP_LTZ(3).notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -101,28 +104,10 @@ public enum MySqlReadableMetadata {
             }),
 
     DATA_DEFAULT(
-        "meta.data",
-        DataTypes.STRING(),
-        new MetadataConverter() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public Object read(SourceRecord record) {
-                return null;
-            }
-
-            @Override
-            public Object read(SourceRecord record,
-                @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
-                // construct canal json
-                return getCanalData(record, (GenericRowData) rowData, tableSchema);
-            }
-        }),
-
-    DATA(
-            "meta.data_canal",
+            "meta.data",
             DataTypes.STRING(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -132,50 +117,71 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record,
-                                   @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+                        @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+                    // construct canal json
+                    return getCanalData(record, (GenericRowData) rowData, tableSchema);
+                }
+            }),
+
+    DATA(
+            "meta.data_canal",
+            DataTypes.STRING(),
+            new MetadataConverter() {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    return null;
+                }
+
+                @Override
+                public Object read(SourceRecord record,
+                        @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
                     // construct canal json
                     return getCanalData(record, (GenericRowData) rowData, tableSchema);
                 }
             }),
 
     DATA_DEBEZIUM(
-        "meta.data_debezium",
-        DataTypes.STRING(),
-        new MetadataConverter() {
-            private static final long serialVersionUID = 1L;
+            "meta.data_debezium",
+            DataTypes.STRING(),
+            new MetadataConverter() {
 
-            @Override
-            public Object read(SourceRecord record) {
-                return null;
-            }
+                private static final long serialVersionUID = 1L;
 
-            @Override
-            public Object read(SourceRecord record,
-                @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
-                // construct debezium json
-                Struct messageStruct = (Struct) record.value();
-                Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
-                GenericRowData data = (GenericRowData) rowData;
-                Map<String, Object> field = (Map<String, Object>) data.getField(0);
-
-                Source source = Source.builder().db(getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY))
-                    .table(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY))
-                    .name(sourceStruct.getString(AbstractSourceInfo.SERVER_NAME_KEY))
-                    .sqlType(getSqlType(tableSchema))
-                    .pkNames(getPkNames(tableSchema))
-                    .mysqlType(getMysqlType(tableSchema))
-                    .build();
-                DebeziumJson debeziumJson = DebeziumJson.builder().after(field).source(source)
-                        .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getOpType(record))
-                    .tableChange(tableSchema).build();
-
-                try {
-                    return StringData.fromString(OBJECT_MAPPER.writeValueAsString(debeziumJson));
-                } catch (Exception e) {
-                    throw new IllegalStateException("exception occurs when get meta data", e);
+                @Override
+                public Object read(SourceRecord record) {
+                    return null;
                 }
-            }
-        }),
+
+                @Override
+                public Object read(SourceRecord record,
+                        @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+                    // construct debezium json
+                    Struct messageStruct = (Struct) record.value();
+                    Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
+                    GenericRowData data = (GenericRowData) rowData;
+                    Map<String, Object> field = (Map<String, Object>) data.getField(0);
+
+                    Source source = Source.builder().db(getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY))
+                            .table(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY))
+                            .name(sourceStruct.getString(AbstractSourceInfo.SERVER_NAME_KEY))
+                            .sqlType(getSqlType(tableSchema))
+                            .pkNames(getPkNames(tableSchema))
+                            .mysqlType(getMysqlType(tableSchema))
+                            .build();
+                    DebeziumJson debeziumJson = DebeziumJson.builder().after(field).source(source)
+                            .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getDebeziumOpType(record))
+                            .tableChange(tableSchema).build();
+
+                    try {
+                        return StringData.fromString(OBJECT_MAPPER.writeValueAsString(debeziumJson));
+                    } catch (Exception e) {
+                        throw new IllegalStateException("exception occurs when get meta data", e);
+                    }
+                }
+            }),
 
     /**
      * Name of the table that contain the row. .
@@ -184,6 +190,7 @@ public enum MySqlReadableMetadata {
             "meta.table_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -199,6 +206,7 @@ public enum MySqlReadableMetadata {
             "meta.database_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -215,6 +223,7 @@ public enum MySqlReadableMetadata {
             "meta.op_ts",
             DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -233,11 +242,12 @@ public enum MySqlReadableMetadata {
             "meta.op_type",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
                 public Object read(SourceRecord record) {
-                    return StringData.fromString(getOpType(record));
+                    return StringData.fromString(getCanalOpType(record));
                 }
             }),
 
@@ -248,6 +258,7 @@ public enum MySqlReadableMetadata {
             "meta.batch_id",
             DataTypes.BIGINT().nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 private long id = 0;
@@ -265,6 +276,7 @@ public enum MySqlReadableMetadata {
             "meta.is_ddl",
             DataTypes.BOOLEAN().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -279,12 +291,13 @@ public enum MySqlReadableMetadata {
     OLD(
             "meta.update_before",
             DataTypes.ARRAY(
-                            DataTypes.MAP(
-                                            DataTypes.STRING().nullable(),
-                                            DataTypes.STRING().nullable())
-                                    .nullable())
+                    DataTypes.MAP(
+                            DataTypes.STRING().nullable(),
+                            DataTypes.STRING().nullable())
+                            .nullable())
                     .nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -301,6 +314,7 @@ public enum MySqlReadableMetadata {
             "meta.mysql_type",
             DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable()).nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -336,6 +350,7 @@ public enum MySqlReadableMetadata {
             "meta.pk_names",
             DataTypes.ARRAY(DataTypes.STRING().nullable()).nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -360,6 +375,7 @@ public enum MySqlReadableMetadata {
             "meta.sql",
             DataTypes.STRING().nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -372,6 +388,7 @@ public enum MySqlReadableMetadata {
             "meta.sql_type",
             DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.INT().nullable()).nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -403,6 +420,7 @@ public enum MySqlReadableMetadata {
             "meta.ts",
             DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -414,7 +432,7 @@ public enum MySqlReadableMetadata {
             });
 
     private static StringData getCanalData(SourceRecord record, GenericRowData rowData,
-        TableChange tableSchema) {
+            TableChange tableSchema) {
         Struct messageStruct = (Struct) record.value();
         Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
         // tableName
@@ -432,10 +450,10 @@ public enum MySqlReadableMetadata {
         dataList.add(field);
 
         CanalJson canalJson = CanalJson.builder()
-            .data(dataList).database(databaseName)
-            .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
-            .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
-            .type(getOpType(record)).sqlType(getSqlType(tableSchema)).build();
+                .data(dataList).database(databaseName)
+                .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
+                .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
+                .type(getCanalOpType(record)).sqlType(getSqlType(tableSchema)).build();
 
         try {
             return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
@@ -455,7 +473,7 @@ public enum MySqlReadableMetadata {
         this.converter = converter;
     }
 
-    private static String getOpType(SourceRecord record) {
+    private static String getCanalOpType(SourceRecord record) {
         String opType;
         final Envelope.Operation op = Envelope.operationFor(record);
         if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
@@ -464,6 +482,19 @@ public enum MySqlReadableMetadata {
             opType = "DELETE";
         } else {
             opType = "UPDATE";
+        }
+        return opType;
+    }
+
+    private static String getDebeziumOpType(SourceRecord record) {
+        String opType;
+        final Envelope.Operation op = Envelope.operationFor(record);
+        if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
+            opType = "c";
+        } else if (op == Envelope.Operation.DELETE) {
+            opType = "d";
+        } else {
+            opType = "u";
         }
         return opType;
     }
@@ -506,8 +537,7 @@ public enum MySqlReadableMetadata {
         Map<String, Integer> sqlType = new LinkedHashMap<>();
         final Table table = tableSchema.getTable();
         table.columns().forEach(
-                column -> sqlType.put(column.name(), column.jdbcType())
-        );
+                column -> sqlType.put(column.name(), column.jdbcType()));
         return sqlType;
     }
 

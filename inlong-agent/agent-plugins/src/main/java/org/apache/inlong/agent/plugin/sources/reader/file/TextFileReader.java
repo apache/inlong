@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
@@ -61,7 +60,7 @@ public final class TextFileReader extends AbstractFileReader {
         LOGGER.info("path is {}, position is {}, data reads size {}", fileReaderOperator.file.getName(),
                 fileReaderOperator.position, lines.size());
         List<String> resultLines = new ArrayList<>();
-        //TODO line regular expression matching
+        // TODO line regular expression matching
         if (fileReaderOperator.jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
             Pattern pattern = Pattern.compile(fileReaderOperator.jobConf.get(JOB_FILE_LINE_END_PATTERN));
             lines.forEach(line -> {

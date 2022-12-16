@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -75,6 +74,7 @@ import org.slf4j.LoggerFactory;
  * Make tubemq as one of flume sinks
  */
 public class TubemqSink extends AbstractSink implements Configurable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TubemqSink.class);
 
     public TubeMultiSessionFactory sessionFactory;
@@ -348,6 +348,7 @@ public class TubemqSink extends AbstractSink implements Configurable {
             // send message with callback
             Message message = new Message(es.getTopic(), es.getEvent().getBody());
             producer.sendMessage(message, new MessageSentCallback() {
+
                 @Override
                 public void onMessageSent(MessageSentResult result) {
                     if (!result.isSuccess()) {

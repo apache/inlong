@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -50,10 +50,11 @@ import org.slf4j.LoggerFactory;
  * Message file's storage. Contains data file and index file.
  */
 public class MsgFileStore implements Closeable {
+
     private static final Logger logger = LoggerFactory.getLogger(MsgFileStore.class);
     private static final int MAX_META_REFRESH_DUR = 1000 * 60 * 60;
     private static final DiskSamplePrint samplePrintCtrl =
-        new DiskSamplePrint(logger);
+            new DiskSamplePrint(logger);
     // storage ID
     private final String storeKey;
     // data file storage directory
@@ -93,9 +94,9 @@ public class MsgFileStore implements Closeable {
      * @param offsetIfCreate   the offset if create
      */
     public MsgFileStore(final MessageStore messageStore,
-                        final BrokerConfig tubeConfig,
-                        final String baseStorePath,
-                        final long offsetIfCreate) throws IOException {
+            final BrokerConfig tubeConfig,
+            final String baseStorePath,
+            final long offsetIfCreate) throws IOException {
         final StringBuilder sBuilder = new StringBuilder(512);
         this.tubeConfig = tubeConfig;
         this.messageStore = messageStore;
@@ -131,15 +132,15 @@ public class MsgFileStore implements Closeable {
      * @return      file storage status, the index and data offsets of the added message
      */
     public Tuple3<Boolean, Long, Long> appendMsg(boolean fromMem, long currTime,
-                                                 StringBuilder sb, int msgCnt,
-                                                 int indexSize, ByteBuffer indexBuffer,
-                                                 int dataSize, ByteBuffer dataBuffer,
-                                                 long leftTime, long rightTime) {
+            StringBuilder sb, int msgCnt,
+            int indexSize, ByteBuffer indexBuffer,
+            int dataSize, ByteBuffer dataBuffer,
+            long leftTime, long rightTime) {
         // append message, put in data file first, then index file.
         if (this.closed.get()) {
             throw new IllegalStateException(new StringBuilder(512)
-                .append("Closed MessageStore for storeKey ")
-                .append(this.storeKey).toString());
+                    .append("Closed MessageStore for storeKey ")
+                    .append(this.storeKey).toString());
         }
         // Various parameters that trigger data refresh
         boolean isDataSegFlushed = false;
@@ -185,8 +186,8 @@ public class MsgFileStore implements Closeable {
                 isDataSegFlushed = true;
                 long newDataOffset = curDataSeg.flush(true);
                 File newDataFile =
-                    new File(this.dataDir,
-                        DataStoreUtils.nameFromOffset(newDataOffset, DataStoreUtils.DATA_FILE_SUFFIX));
+                        new File(this.dataDir,
+                                DataStoreUtils.nameFromOffset(newDataOffset, DataStoreUtils.DATA_FILE_SUFFIX));
                 curDataSeg.setMutable(false);
                 newDataFilePath = newDataFile.getAbsolutePath();
                 this.dataSegments.append(new FileSegment(newDataOffset, newDataFile, SegmentType.DATA));
@@ -194,17 +195,16 @@ public class MsgFileStore implements Closeable {
             // filling index data.
             indexOffset = curIndexSeg.append(indexBuffer, leftTime, rightTime);
             // judge whether we need to create a new index segment.
-            if (curIndexSeg.getCachedSize()
-                >= this.tubeConfig.getMaxIndexSegmentSize()) {
+            if (curIndexSeg.getCachedSize() >= this.tubeConfig.getMaxIndexSegmentSize()) {
                 isIndexSegFlushed = true;
                 long newIndexOffset = curIndexSeg.flush(true);
                 curIndexSeg.setMutable(false);
                 File newIndexFile =
-                    new File(this.indexDir,
-                        DataStoreUtils.nameFromOffset(newIndexOffset, DataStoreUtils.INDEX_FILE_SUFFIX));
+                        new File(this.indexDir,
+                                DataStoreUtils.nameFromOffset(newIndexOffset, DataStoreUtils.INDEX_FILE_SUFFIX));
                 newIndexFilePath = newIndexFile.getAbsolutePath();
                 this.indexSegments.append(new FileSegment(newIndexOffset,
-                    newIndexFile, SegmentType.INDEX));
+                        newIndexFile, SegmentType.INDEX));
             }
             // check whether we need to flush to disk.
             pendingMsgSizeExceed = (messageStore.getUnflushDataHold() > 0)
@@ -216,7 +216,7 @@ public class MsgFileStore implements Closeable {
             if (pendingMsgCntExceed || pendingMsgTimeExceed
                     || pendingMsgSizeExceed || isDataSegFlushed || isIndexSegFlushed) {
                 isForceMetadata = (isDataSegFlushed || isIndexSegFlushed
-                    || (currTime - this.lastMetaFlushTime.get() > MAX_META_REFRESH_DUR));
+                        || (currTime - this.lastMetaFlushTime.get() > MAX_META_REFRESH_DUR));
                 if (!isDataSegFlushed) {
                     curDataSeg.flush(isForceMetadata);
                 }
@@ -235,13 +235,13 @@ public class MsgFileStore implements Closeable {
                 ServiceStatusHolder.addWriteIOErrCnt();
                 BrokerSrvStatsHolder.incDiskIOExcCnt();
                 logger.error(sb.append("[File Store]: appendMsg data Error, storekey=")
-                    .append(this.storeKey).append(",msgCnt=").append(msgCnt)
-                    .append(",indexSize=").append(indexSize)
-                    .append(",inIndexOffset=").append(inIndexOffset)
-                    .append(",indexOffset=").append(indexOffset)
-                    .append(",dataSize=").append(dataSize)
-                    .append(",inDataOffset=").append(inDataOffset)
-                    .append(",dataOffset=").append(dataOffset).toString());
+                        .append(this.storeKey).append(",msgCnt=").append(msgCnt)
+                        .append(",indexSize=").append(indexSize)
+                        .append(",inIndexOffset=").append(inIndexOffset)
+                        .append(",indexOffset=").append(indexOffset)
+                        .append(",dataSize=").append(dataSize)
+                        .append(",inDataOffset=").append(inDataOffset)
+                        .append(",dataOffset=").append(dataOffset).toString());
                 sb.delete(0, sb.length());
             } else {
                 fileStoreOK = true;
@@ -291,12 +291,12 @@ public class MsgFileStore implements Closeable {
      * @return                      read result
      */
     public GetMessageResult getMessages(int partitionId, long lastRdOffset,
-                                        long reqOffset, ByteBuffer indexBuffer,
-                                        boolean isFilterConsume,
-                                        Set<Integer> filterKeySet,
-                                        String statsKeyBase,
-                                        int maxMsgTransferSize,
-                                        long reqRcvTime) {
+            long reqOffset, ByteBuffer indexBuffer,
+            boolean isFilterConsume,
+            Set<Integer> filterKeySet,
+            String statsKeyBase,
+            int maxMsgTransferSize,
+            long reqRcvTime) {
         // #lizard forgives
         // Orderly read from index file, then random read from data file.
         int retCode = 0;
@@ -323,8 +323,8 @@ public class MsgFileStore implements Closeable {
         List<ClientBroker.TransferedMessage> transferedMessageList =
                 new ArrayList<>();
         // read data file by index.
-        for (curIndexOffset = 0; curIndexOffset < indexBuffer.remaining();
-             curIndexOffset += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
+        for (curIndexOffset = 0; curIndexOffset < indexBuffer.remaining(); curIndexOffset +=
+                DataStoreUtils.STORE_INDEX_HEAD_LEN) {
             curIndexPartitionId = indexBuffer.getInt();
             curIndexDataOffset = indexBuffer.getLong();
             curIndexDataSize = indexBuffer.getInt();
@@ -348,7 +348,7 @@ public class MsgFileStore implements Closeable {
             // conduct filter operation.
             if (curIndexPartitionId != partitionId
                     || (isFilterConsume
-                    && !filterKeySet.contains(curIndexKeyCode))) {
+                            && !filterKeySet.contains(curIndexKeyCode))) {
                 lastRdDataOffset = maxDataLimitOffset;
                 readedOffset = curIndexOffset + DataStoreUtils.STORE_INDEX_HEAD_LEN;
                 continue;
@@ -360,7 +360,7 @@ public class MsgFileStore implements Closeable {
                 // get data from data file by index one by one.
                 if (recordSeg == null
                         || !((curIndexDataOffset >= recordSeg.getStart())
-                        && (maxDataLimitOffset <= recordSeg.getStart() + recordSeg.getCommitSize()))) {
+                                && (maxDataLimitOffset <= recordSeg.getStart() + recordSeg.getCommitSize()))) {
                     if (recordSeg != null) {
                         recordSeg.relViewRef();
                         recordSeg = null;
@@ -392,7 +392,7 @@ public class MsgFileStore implements Closeable {
                     BrokerSrvStatsHolder.incDiskIOExcCnt();
                 }
                 samplePrintCtrl.printExceptionCaught(e2,
-                    messageStore.getStoreKey(), String.valueOf(partitionId));
+                        messageStore.getStoreKey(), String.valueOf(partitionId));
                 retCode = TErrCodeConstants.INTERNAL_SERVER_ERROR;
                 sBuilder.delete(0, sBuilder.length());
                 errInfo = sBuilder.append("Get message from file failure : ")
@@ -611,9 +611,9 @@ public class MsgFileStore implements Closeable {
     }
 
     private void loadSegments(SegmentType segType, long offsetIfCreate,
-                              StringBuilder sBuilder) throws IOException {
+            StringBuilder sBuilder) throws IOException {
         String segTypeStr = "Data";
-        File   segListDir = this.dataDir;
+        File segListDir = this.dataDir;
         String fileSuffix = DataStoreUtils.DATA_FILE_SUFFIX;
         if (segType == SegmentType.INDEX) {
             segTypeStr = "Index";
@@ -655,6 +655,7 @@ public class MsgFileStore implements Closeable {
         } else {
             // The list of segments is required to be arranged continuously from low to high
             accum.sort(new Comparator<Segment>() {
+
                 @Override
                 public int compare(final Segment o1, final Segment o2) {
                     return Long.compare(o1.getStart(), o2.getStart());
@@ -663,8 +664,8 @@ public class MsgFileStore implements Closeable {
             validateSegments(segTypeStr, accum);
             Segment last = accum.get(accum.size() - 1);
             if ((last.getCachedSize() > 0)
-                    && (System.currentTimeMillis() - last.getFile().lastModified()
-                    >= DataStoreUtils.MAX_FILE_NO_WRITE_DURATION)) {
+                    && (System.currentTimeMillis()
+                            - last.getFile().lastModified() >= DataStoreUtils.MAX_FILE_NO_WRITE_DURATION)) {
                 // If the last segment is not written for a long time, it will be aged at startup
                 final long newOffset = last.getCommitLast();
                 final File newFile =
@@ -714,7 +715,7 @@ public class MsgFileStore implements Closeable {
     }
 
     private long getTimeStamp(Segment recordSeg, long relReadPos,
-                              long curDataMinOffset, ByteBuffer readBuffer) {
+            long curDataMinOffset, ByteBuffer readBuffer) {
         int curIndexPartitionId = 0;
         long curIndexDataOffset = 0L;
         int curIndexDataSize = 0;

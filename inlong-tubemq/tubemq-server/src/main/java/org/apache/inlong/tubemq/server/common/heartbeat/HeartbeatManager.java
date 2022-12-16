@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -121,10 +121,11 @@ public class HeartbeatManager {
     }
 
     private void registerCheckBusiness(final String businessType,
-                                       final Map<String, TimeoutInfo> nodeMap,
-                                       final TimeoutListener listener) {
+            final Map<String, TimeoutInfo> nodeMap,
+            final TimeoutListener listener) {
 
         timeoutScanService.submit(new Runnable() {
+
             @Override
             public void run() {
                 while (!isStopped) {
@@ -202,8 +203,8 @@ public class HeartbeatManager {
      * @return the timeout info of the registered consumer
      */
     public TimeoutInfo regConsumerNode(final String nodeId,
-                                       final String consumerId,
-                                       final String partStr) {
+            final String consumerId,
+            final String partStr) {
         return this.consumerRegMap.put(nodeId,
                 new TimeoutInfo(consumerId, partStr, this.consumerTimeoutDlt));
     }
@@ -253,7 +254,7 @@ public class HeartbeatManager {
      * @throws HeartbeatException if the timeout info of the node is not found
      */
     public boolean updBrokerNode(String nodeId, String createId,
-                                 StringBuilder sBuffer, ProcessResult result) {
+            StringBuilder sBuffer, ProcessResult result) {
         TimeoutInfo timeoutInfo = brokerRegMap.get(nodeId);
         if (timeoutInfo == null) {
             result.setFailResult(TErrCodeConstants.HB_NO_NODE,

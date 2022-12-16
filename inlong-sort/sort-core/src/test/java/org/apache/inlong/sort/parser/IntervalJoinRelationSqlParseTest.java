@@ -1,19 +1,18 @@
 /*
- *   Licensed to the Apache Software Foundation (ASF) under one
- *   or more contributor license agreements.  See the NOTICE file
- *   distributed with this work for additional information
- *   regarding copyright ownership.  The ASF licenses this file
- *   to you under the Apache License, Version 2.0 (the
- *   "License"); you may not use this file except in compliance
- *   with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.sort.parser;
@@ -73,8 +72,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("price", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
                 new FieldInfo("order_time", new TimestampFormatInfo(3)),
-                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME)
-        );
+                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME));
         return new KafkaExtractNode("1", "kafka_input_1", fields,
                 new WatermarkField(new FieldInfo("order_time", new TimestampFormatInfo(3))),
                 null, "orders", "localhost:9092",
@@ -87,8 +85,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
                 new FieldInfo("update_time", new TimestampFormatInfo(3)),
-                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME)
-        );
+                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME));
         return new KafkaExtractNode("2", "kafka_input_2", fields,
                 new WatermarkField(new FieldInfo("update_time", new TimestampFormatInfo(3))),
                 null, "currency_rates", "localhost:9092",
@@ -101,8 +98,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("price", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
                 new FieldInfo("order_time", new TimestampFormatInfo(3)),
-                new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2))
-        );
+                new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)));
         List<FieldRelation> relations = Arrays.asList(
                 new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
                         new FieldInfo("id", new LongFormatInfo())),
@@ -113,8 +109,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldRelation(new FieldInfo("order_time", "1", new TimestampFormatInfo(3)),
                         new FieldInfo("order_time", new TimestampFormatInfo(3))),
                 new FieldRelation(new FieldInfo("conversion_rate", "2", new DecimalFormatInfo(32, 2)),
-                        new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)))
-        );
+                        new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2))));
         return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
                 null, "orders_output", "localhost:9092", new CanalJsonFormat(),
                 null, null, null);
@@ -136,8 +131,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                         EmptyOperator.getInstance(),
                         new FieldInfo("currency", "1", new StringFormatInfo()),
                         EqualOperator.getInstance(),
-                        new FieldInfo("currency", "2", new StringFormatInfo())
-                ),
+                        new FieldInfo("currency", "2", new StringFormatInfo())),
                 new BetweenFunction(
                         AndOperator.getInstance(),
                         new FieldInfo("order_time", "1", new TimestampFormatInfo()),
@@ -146,9 +140,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                                         TimeUnit.SECOND))),
                         new AddFunction(new FieldInfo("update_time", "2", new TimestampFormatInfo()),
                                 new IntervalFunction(new StringConstantParam("5"), new TimeUnitConstantParam(
-                                        TimeUnit.SECOND)))
-                )
-        ));
+                                        TimeUnit.SECOND))))));
         return new IntervalJoinRelation(inputIds, outputIds, conditionMap);
     }
 
@@ -177,8 +169,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 Arrays.asList(leftStream, rightStream, kafkaLoadNode),
                 Collections.singletonList(
                         buildNodeRelation(Arrays.asList(leftStream, rightStream),
-                                Collections.singletonList(kafkaLoadNode)))
-        );
+                                Collections.singletonList(kafkaLoadNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

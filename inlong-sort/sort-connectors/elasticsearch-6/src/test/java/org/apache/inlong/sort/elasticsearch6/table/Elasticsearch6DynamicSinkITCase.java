@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -113,28 +112,26 @@ public class Elasticsearch6DynamicSinkITCase {
         Elasticsearch6DynamicSinkFactory sinkFactory = new Elasticsearch6DynamicSinkFactory();
 
         SinkFunctionProvider sinkRuntimeProvider =
-                (SinkFunctionProvider)
-                        sinkFactory
-                                .createDynamicTableSink(
-                                        context()
-                                                .withSchema(schema)
-                                                .withOption(
-                                                        ElasticsearchOptions.INDEX_OPTION.key(),
-                                                        index)
-                                                .withOption(
-                                                        ElasticsearchOptions.DOCUMENT_TYPE_OPTION
-                                                                .key(),
-                                                        myType)
-                                                .withOption(
-                                                        ElasticsearchOptions.HOSTS_OPTION.key(),
-                                                        elasticsearchContainer.getHttpHostAddress())
-                                                .withOption(
-                                                        ElasticsearchOptions
-                                                                .FLUSH_ON_CHECKPOINT_OPTION
-                                                                .key(),
-                                                        "false")
-                                                .build())
-                                .getSinkRuntimeProvider(new MockContext());
+                (SinkFunctionProvider) sinkFactory
+                        .createDynamicTableSink(
+                                context()
+                                        .withSchema(schema)
+                                        .withOption(
+                                                ElasticsearchOptions.INDEX_OPTION.key(),
+                                                index)
+                                        .withOption(
+                                                ElasticsearchOptions.DOCUMENT_TYPE_OPTION
+                                                        .key(),
+                                                myType)
+                                        .withOption(
+                                                ElasticsearchOptions.HOSTS_OPTION.key(),
+                                                elasticsearchContainer.getHttpHostAddress())
+                                        .withOption(
+                                                ElasticsearchOptions.FLUSH_ON_CHECKPOINT_OPTION
+                                                        .key(),
+                                                "false")
+                                        .build())
+                        .getSinkRuntimeProvider(new MockContext());
 
         SinkFunction<RowData> sinkFunction = sinkRuntimeProvider.createSinkFunction();
         StreamExecutionEnvironment environment =
@@ -414,32 +411,30 @@ public class Elasticsearch6DynamicSinkITCase {
         Elasticsearch6DynamicSinkFactory sinkFactory = new Elasticsearch6DynamicSinkFactory();
 
         SinkFunctionProvider sinkRuntimeProvider =
-                (SinkFunctionProvider)
-                        sinkFactory
-                                .createDynamicTableSink(
-                                        context()
-                                                .withSchema(schema)
-                                                .withOption(
-                                                        ElasticsearchOptions.INDEX_OPTION.key(),
-                                                        index)
-                                                .withOption(
-                                                        ElasticsearchOptions.DOCUMENT_TYPE_OPTION
-                                                                .key(),
-                                                        myType)
-                                                .withOption(
-                                                        ElasticsearchOptions.ROUTING_FIELD_NAME
-                                                                .key(),
-                                                        "c")
-                                                .withOption(
-                                                        ElasticsearchOptions.HOSTS_OPTION.key(),
-                                                        elasticsearchContainer.getHttpHostAddress())
-                                                .withOption(
-                                                        ElasticsearchOptions
-                                                                .FLUSH_ON_CHECKPOINT_OPTION
-                                                                .key(),
-                                                        "false")
-                                                .build())
-                                .getSinkRuntimeProvider(new MockContext());
+                (SinkFunctionProvider) sinkFactory
+                        .createDynamicTableSink(
+                                context()
+                                        .withSchema(schema)
+                                        .withOption(
+                                                ElasticsearchOptions.INDEX_OPTION.key(),
+                                                index)
+                                        .withOption(
+                                                ElasticsearchOptions.DOCUMENT_TYPE_OPTION
+                                                        .key(),
+                                                myType)
+                                        .withOption(
+                                                ElasticsearchOptions.ROUTING_FIELD_NAME
+                                                        .key(),
+                                                "c")
+                                        .withOption(
+                                                ElasticsearchOptions.HOSTS_OPTION.key(),
+                                                elasticsearchContainer.getHttpHostAddress())
+                                        .withOption(
+                                                ElasticsearchOptions.FLUSH_ON_CHECKPOINT_OPTION
+                                                        .key(),
+                                                "false")
+                                        .build())
+                        .getSinkRuntimeProvider(new MockContext());
 
         SinkFunction<RowData> sinkFunction = sinkRuntimeProvider.createSinkFunction();
         StreamExecutionEnvironment environment =
@@ -464,6 +459,7 @@ public class Elasticsearch6DynamicSinkITCase {
     }
 
     private static class MockContext implements DynamicTableSink.Context {
+
         @Override
         public boolean isBounded() {
             return false;

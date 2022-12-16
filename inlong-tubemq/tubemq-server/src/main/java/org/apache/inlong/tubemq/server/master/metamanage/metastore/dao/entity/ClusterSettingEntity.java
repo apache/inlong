@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -141,10 +141,10 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @return if changed
      */
     public boolean updModifyInfo(long dataVerId, int brokerPort, int brokerTLSPort,
-                                 int brokerWebPort, int maxMsgSizeMB,
-                                 int qryPriorityId, Boolean flowCtrlEnable,
-                                 int flowRuleCnt, String flowCtrlRuleInfo,
-                                 TopicPropGroup defTopicProps) {
+            int brokerWebPort, int maxMsgSizeMB,
+            int qryPriorityId, EnableStatus flowCtrlEnable,
+            int flowRuleCnt, String flowCtrlRuleInfo,
+            TopicPropGroup defTopicProps) {
         boolean changed = false;
         // check and set dataVerId info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -186,10 +186,10 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         }
         // check and set flowCtrl info
         if (flowCtrlEnable != null
-                && (this.gloFlowCtrlStatus == EnableStatus.STATUS_UNDEFINE
-                || this.gloFlowCtrlStatus.isEnable() != flowCtrlEnable)) {
+                && flowCtrlEnable != EnableStatus.STATUS_UNDEFINE
+                && this.gloFlowCtrlStatus != flowCtrlEnable) {
+            this.gloFlowCtrlStatus = flowCtrlEnable;
             changed = true;
-            setEnableFlowCtrl(flowCtrlEnable);
         }
         if (TStringUtils.isNotBlank(flowCtrlRuleInfo)
                 && !flowCtrlRuleInfo.equals(gloFlowCtrlRuleInfo)) {
@@ -285,8 +285,8 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @return  the serialized result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         if (isLongName) {
             sBuilder.append("{\"brokerPort\":").append(brokerPort)
                     .append(",\"brokerTLSPort\":").append(brokerTLSPort)
@@ -321,7 +321,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @param isLongName if return field key is long name
      */
     public void getConfigureInfo(Map<String, String> paramMap,
-                                 boolean isLongName) {
+            boolean isLongName) {
         if (brokerPort != TBaseConstants.META_VALUE_UNDEFINED) {
             paramMap.put((isLongName ? "brokerPort" : "bPort"),
                     String.valueOf(brokerPort));
@@ -365,7 +365,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @return           the build result
      */
     public StringBuilder toOldVerFlowCtrlWebJsonStr(StringBuilder sBuilder,
-                                                    boolean isLongName) {
+            boolean isLongName) {
         int statusId = gloFlowCtrlStatus.isEnable() ? 1 : 0;
         if (isLongName) {
             sBuilder.append("{\"statusId\":").append(statusId)
@@ -416,20 +416,14 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     }
 
     private void setGloFlowCtrlStatus(EnableStatus gloFlowCtrlStatus) {
-        this.gloFlowCtrlStatus = gloFlowCtrlStatus;
+        if (gloFlowCtrlStatus != null) {
+            this.gloFlowCtrlStatus = gloFlowCtrlStatus;
+        }
     }
 
     private void setGloFlowCtrlInfo(int flowCtrlCnt, String flowCtrlInfo) {
         this.gloFlowCtrlRuleCnt = flowCtrlCnt;
         this.gloFlowCtrlRuleInfo = flowCtrlInfo;
-    }
-
-    private void setEnableFlowCtrl(boolean enableFlowCtrl) {
-        if (enableFlowCtrl) {
-            this.gloFlowCtrlStatus = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.gloFlowCtrlStatus = EnableStatus.STATUS_DISABLE;
-        }
     }
 
     private void setClsDefTopicProps(TopicPropGroup clsDefTopicProps) {

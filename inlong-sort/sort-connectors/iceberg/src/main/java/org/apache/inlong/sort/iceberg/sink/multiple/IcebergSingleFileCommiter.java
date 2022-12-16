@@ -1,19 +1,18 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements. See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License. You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
@@ -35,6 +34,8 @@ import org.apache.iceberg.RowDelta;
 import org.apache.iceberg.Snapshot;
 import org.apache.iceberg.SnapshotUpdate;
 import org.apache.iceberg.Table;
+import org.apache.iceberg.actions.ActionsProvider;
+import org.apache.iceberg.actions.RewriteDataFiles;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.io.WriteResult;
@@ -46,6 +47,7 @@ import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.types.Comparators;
 import org.apache.iceberg.types.Types;
 import org.apache.iceberg.util.PropertyUtil;
+import org.apache.inlong.sort.iceberg.FlinkActions;
 import org.apache.inlong.sort.iceberg.sink.DeltaManifests;
 import org.apache.inlong.sort.iceberg.sink.DeltaManifestsSerializer;
 import org.apache.inlong.sort.iceberg.sink.FlinkManifestUtil;
@@ -62,7 +64,10 @@ import java.util.NavigableMap;
 import java.util.SortedMap;
 
 public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResult, Void>
-        implements CheckpointedFunction, CheckpointListener {
+        implements
+            CheckpointedFunction,
+            CheckpointListener {
+
     private static final long serialVersionUID = 1L;
     private static final long INITIAL_CHECKPOINT_ID = -1L;
     private static final byte[] EMPTY_MANIFEST_DATA = new byte[0];
@@ -110,11 +115,20 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
     private final ListStateDescriptor<SortedMap<Long, byte[]>> stateDescriptor;
     private transient ListState<SortedMap<Long, byte[]>> checkpointsState;
 
-    public IcebergSingleFileCommiter(TableIdentifier tableId, TableLoader tableLoader, boolean replacePartitions) {
+    // compact file action
+    private ActionsProvider flinkActions;
+    private transient RewriteDataFiles compactAction;
+
+    public IcebergSingleFileCommiter(
+            TableIdentifier tableId,
+            TableLoader tableLoader,
+            boolean replacePartitions,
+            ActionsProvider actionProvider) {
         // Here must distinguish state descriptor with tableId, because all icebergSingleFileCommiter state in
         // one IcebergMultipleFilesCommiter use same StateStore.
         this.tableLoader = tableLoader;
         this.replacePartitions = replacePartitions;
+        this.flinkActions = actionProvider;
         this.jobIdDescriptor = new ListStateDescriptor<>(
                 String.format("iceberg(%s)-flink-job-id", tableId.toString()), BasicTypeInfo.STRING_TYPE_INFO);
         this.stateDescriptor = buildStateDescriptor(tableId);
@@ -128,6 +142,12 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
         this.tableLoader.open();
         this.table = tableLoader.loadTable();
 
+        // compact file
+        if (flinkActions != null
+                && PropertyUtil.propertyAsBoolean(
+                        table.properties(), FlinkActions.COMPACT_ENABLED, FlinkActions.COMPACT_ENABLED_DEFAULT)) {
+            compactAction = flinkActions.rewriteDataFiles(table);
+        }
         maxContinuousEmptyCommits = PropertyUtil.propertyAsInt(table.properties(), MAX_CONTINUOUS_EMPTY_COMMITS, 10);
         Preconditions.checkArgument(maxContinuousEmptyCommits > 0,
                 MAX_CONTINUOUS_EMPTY_COMMITS + " must be positive");
@@ -182,15 +202,19 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
     @Override
     public void notifyCheckpointComplete(long checkpointId) throws Exception {
         // It's possible that we have the following events:
-        //   1. snapshotState(ckpId);
-        //   2. snapshotState(ckpId+1);
-        //   3. notifyCheckpointComplete(ckpId+1);
-        //   4. notifyCheckpointComplete(ckpId);
+        // 1. snapshotState(ckpId);
+        // 2. snapshotState(ckpId+1);
+        // 3. notifyCheckpointComplete(ckpId+1);
+        // 4. notifyCheckpointComplete(ckpId);
         // For step#4, we don't need to commit iceberg table again because in step#3 we've committed all the files,
         // Besides, we need to maintain the max-committed-checkpoint-id to be increasing.
         if (checkpointId > maxCommittedCheckpointId) {
             commitUpToCheckpoint(dataFilesPerCheckpoint, flinkJobId, checkpointId);
             this.maxCommittedCheckpointId = checkpointId;
+            // every interval checkpoint do a small file compact
+            if (compactAction != null) {
+                compactAction.execute();
+            }
         }
     }
 
@@ -364,8 +388,7 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
         Comparator<Long> longComparator = Comparators.forType(Types.LongType.get());
         // Construct a SortedMapTypeInfo.
         SortedMapTypeInfo<Long, byte[]> sortedMapTypeInfo = new SortedMapTypeInfo<>(
-                BasicTypeInfo.LONG_TYPE_INFO, PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO, longComparator
-        );
+                BasicTypeInfo.LONG_TYPE_INFO, PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO, longComparator);
         return new ListStateDescriptor<>(
                 String.format("iceberg(%s)-files-committer-state", tableId.toString()), sortedMapTypeInfo);
     }

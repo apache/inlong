@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -45,7 +45,7 @@ public class MessageFetchManager {
     private Thread[] fetchWorkerPool;
 
     public MessageFetchManager(final ConsumerConfig consumerConfig,
-                               final SimplePushMessageConsumer pushConsumer) {
+            final SimplePushMessageConsumer pushConsumer) {
         this.consumerConfig = consumerConfig;
         this.pushConsumer = pushConsumer;
     }
@@ -163,6 +163,7 @@ public class MessageFetchManager {
     }
 
     private class FetchTaskWorker implements Runnable {
+
         @Override
         public void run() {
             StringBuilder sBuilder = new StringBuilder(256);
@@ -202,7 +203,7 @@ public class MessageFetchManager {
                         }
                         MessageFetchManager.this.pushConsumer
                                 .getBaseConsumer().pushReqReleasePartition(partition.getPartitionKey(),
-                                usedToken, result);
+                                        usedToken, result);
                         partSelectResult = null;
                         continue;
                     }

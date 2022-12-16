@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,24 +35,24 @@ public class TubemqTest extends DescriptorTestBase {
     @Override
     protected List<Descriptor> descriptors() {
         final Descriptor descriptor1 =
-            new Tubemq()
-                .topic("test-topic-1")
-                .master("localhost:9001")
-                .group("test-group-1");
+                new Tubemq()
+                        .topic("test-topic-1")
+                        .master("localhost:9001")
+                        .group("test-group-1");
 
         final Descriptor descriptor2 =
-            new Tubemq()
-                .topic("test-topic-2")
-                .master("localhost:9001")
-                .group("test-group-2")
-                .property("bootstrap.from.max", "true");
+                new Tubemq()
+                        .topic("test-topic-2")
+                        .master("localhost:9001")
+                        .group("test-group-2")
+                        .property("bootstrap.from.max", "true");
 
         final Descriptor descriptor3 =
-            new Tubemq()
-                .topic("test-topic-3")
-                .master("localhost:9001")
-                .group("test-group-3")
-                .tids("test-tid-1,test-tid-2");
+                new Tubemq()
+                        .topic("test-topic-3")
+                        .master("localhost:9001")
+                        .group("test-group-3")
+                        .tids("test-tid-1,test-tid-2");
 
         return Arrays.asList(descriptor1, descriptor2, descriptor3);
     }

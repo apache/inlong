@@ -86,13 +86,12 @@ public class TaskServiceImpl implements TaskService {
                         + existTopicNames + " already in adding status", ErrorCode.TASK_EXIST.getCode());
             }
             topicNames.forEach(
-                topicName -> {
-                    TopicTaskEntry entry = new TopicTaskEntry();
-                    entry.setClusterId(clusterId);
-                    entry.setTopicName(topicName);
-                    topicTaskEntries.add(entry);
-                }
-            );
+                    topicName -> {
+                        TopicTaskEntry entry = new TopicTaskEntry();
+                        entry.setClusterId(clusterId);
+                        entry.setTopicName(topicName);
+                        topicTaskEntries.add(entry);
+                    });
             topicTaskRepository.saveAll(topicTaskEntries);
         } catch (Exception e) {
             log.error("save topic tasks to db fail, topics : {}", topicNames, e);
@@ -102,9 +101,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private Set<String> findExistTopics(Long clusterId, Set<String> topicNames) {
-        Set<String> existTopicName = topicNames.stream().filter(topicName ->
-                hasAlreadyExistTopicTask(clusterId, topicName, TaskStatusEnum.ADDING
-                        .getCode())).collect(Collectors.toSet());
+        Set<String> existTopicName = topicNames.stream()
+                .filter(topicName -> hasAlreadyExistTopicTask(clusterId, topicName, TaskStatusEnum.ADDING
+                        .getCode()))
+                .collect(Collectors.toSet());
         return existTopicName;
     }
 
@@ -146,7 +146,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Async("asyncExecutor")
     public void doReloadBrokers(long clusterId, MasterEntry masterEntry,
-                                TubeHttpBrokerInfoList brokerInfoList, ClusterEntry clusterEntry) {
+            TubeHttpBrokerInfoList brokerInfoList, ClusterEntry clusterEntry) {
         nodeService.handleReloadBroker(masterEntry, brokerInfoList.getNeedReloadList(), clusterEntry);
         updateCreateTopicTaskStatus(clusterId);
     }
@@ -178,8 +178,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private void updateTaskRepo(List<TopicTaskEntry> topicTasks,
-                                Map<String, TopicView.TopicViewInfo> topicViewMap,
-                                TubeHttpBrokerInfoList brokerInfoList) {
+            Map<String, TopicView.TopicViewInfo> topicViewMap,
+            TubeHttpBrokerInfoList brokerInfoList) {
         int size = brokerInfoList.getAllBrokerIdList().size();
         for (TopicTaskEntry topicTask : topicTasks) {
             TopicView.TopicViewInfo topicViewInfo = topicViewMap.get(topicTask.getTopicName());

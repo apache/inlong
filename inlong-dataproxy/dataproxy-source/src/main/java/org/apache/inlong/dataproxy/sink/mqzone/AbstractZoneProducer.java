@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -45,7 +45,7 @@ public abstract class AbstractZoneProducer {
     protected AtomicInteger clusterIndex = new AtomicInteger(0);
 
     public AbstractZoneProducer(String workerName,
-                                AbstractZoneSinkContext context) {
+            AbstractZoneSinkContext context) {
         this.workerName = workerName;
         this.context = context;
     }
@@ -125,14 +125,14 @@ public abstract class AbstractZoneProducer {
                 }
             }
             // remove
-            for (AbstractZoneClusterProducer cluster :  this.clusterList) {
+            for (AbstractZoneClusterProducer cluster : this.clusterList) {
                 if (newClusterNames.contains(cluster.getCacheClusterName())) {
                     newClusterList.add(cluster);
                 } else {
                     deletingClusterList.add(cluster);
                 }
             }
-            this.clusterList =  newClusterList;
+            this.clusterList = newClusterList;
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }

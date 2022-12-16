@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.listener.sort;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -76,11 +77,17 @@ public class SortConfigListener implements SortOperateListener {
 
         GroupOperateType operateType = form.getGroupOperateType();
         if (operateType == GroupOperateType.SUSPEND || operateType == GroupOperateType.DELETE) {
-            LOGGER.info("not build sort config for groupId={}, as the group operate type={}", groupId, operateType);
+            LOGGER.info("no need to build sort config for groupId={} as the operate type is {}", groupId, operateType);
             return ListenerResult.success();
         }
+
         InlongGroupInfo groupInfo = form.getGroupInfo();
         List<InlongStreamInfo> streamInfos = form.getStreamInfos();
+        if (CollectionUtils.isEmpty(streamInfos)) {
+            LOGGER.warn("no need to build sort config for groupId={}, as not found any stream", groupId);
+            return ListenerResult.success();
+        }
+
         int sinkCount = streamInfos.stream()
                 .map(stream -> stream.getSinkList() == null ? 0 : stream.getSinkList().size())
                 .reduce(0, Integer::sum);

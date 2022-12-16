@@ -202,6 +202,11 @@ public abstract class AbstractConfiguration {
         return value == null ? defaultValue : value.getAsBoolean();
     }
 
+    public float getFloat(String key, float defaultValue) {
+        JsonElement value = configStorage.get(key);
+        return value == null ? defaultValue : value.getAsFloat();
+    }
+
     /**
      * get string
      *
@@ -275,7 +280,6 @@ public abstract class AbstractConfiguration {
     Map<String, JsonPrimitive> getConfigStorage() {
         return configStorage;
     }
-
 
     /**
      * get configStorage list, item format: "key=value"

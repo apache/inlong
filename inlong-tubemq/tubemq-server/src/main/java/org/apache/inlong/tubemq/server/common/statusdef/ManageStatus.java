@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -37,8 +37,8 @@ public enum ManageStatus {
     private boolean isAcceptSubscribe;
 
     ManageStatus(int code, String description,
-                 boolean acceptPublish,
-                 boolean acceptSubscribe) {
+            boolean acceptPublish,
+            boolean acceptSubscribe) {
         this.code = code;
         this.description = description;
         this.isAcceptPublish = acceptPublish;
@@ -104,8 +104,8 @@ public enum ManageStatus {
      * @return   current broker's new manage status
      */
     public static ManageStatus getNewStatus(ManageStatus oldStatus,
-                                            Boolean acceptPublish,
-                                            Boolean acceptSubscribe) {
+            Boolean acceptPublish,
+            Boolean acceptSubscribe) {
         if (acceptPublish == null && acceptSubscribe == null) {
             return oldStatus;
         }

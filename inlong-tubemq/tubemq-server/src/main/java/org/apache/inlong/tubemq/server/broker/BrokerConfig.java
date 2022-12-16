@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * Config of broker. Read from broker.ini config file.
  */
 public class BrokerConfig extends AbstractFileConfig {
+
     static final long serialVersionUID = -1L;
     private static final Logger logger = LoggerFactory.getLogger(BrokerConfig.class);
     // broker id
@@ -229,7 +230,7 @@ public class BrokerConfig extends AbstractFileConfig {
             int promHttpPort = this.prometheusConfig.getPromHttpPort();
             if ((promHttpPort == this.port || promHttpPort == this.webPort
                     || (tlsConfig.isTlsEnable()
-                    && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
+                            && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
                 throw new IllegalArgumentException(new StringBuilder(512)
                         .append("Illegal port value configuration, the value of ")
                         .append("port or webPort or tlsPort cannot be the same as the value of promHttpPort!")
@@ -269,8 +270,8 @@ public class BrokerConfig extends AbstractFileConfig {
                 this.hostName = AddressUtils.getIPV4LocalAddress(this.defEthName);
             } catch (Throwable e) {
                 throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Get default broker hostName failure : ")
-                    .append(e.getMessage()).toString());
+                        .append("Get default broker hostName failure : ")
+                        .append(e.getMessage()).toString());
             }
         }
         if (TStringUtils.isBlank(brokerSect.get("masterAddressList"))) {
@@ -313,7 +314,7 @@ public class BrokerConfig extends AbstractFileConfig {
         if (TStringUtils.isNotBlank(brokerSect.get("visitTokenCheckInValidTimeMs"))) {
             long tmpPeriodMs = this.getLong(brokerSect, "visitTokenCheckInValidTimeMs");
             this.visitTokenCheckInValidTimeMs =
-                tmpPeriodMs < 60000 ? 60000 : tmpPeriodMs > 300000 ? 300000 : tmpPeriodMs;
+                    tmpPeriodMs < 60000 ? 60000 : tmpPeriodMs > 300000 ? 300000 : tmpPeriodMs;
         }
         if (TStringUtils.isNotBlank(brokerSect.get("socketSendBuffer"))) {
             this.socketSendBuffer = getLong(brokerSect, "socketSendBuffer");

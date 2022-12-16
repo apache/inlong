@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -132,9 +131,8 @@ public class StatefulTaskContext {
                         .maxQueueSize(queueSize)
                         .maxQueueSizeInBytes(connectorConfig.getMaxQueueSizeInBytes())
                         .loggingContextSupplier(
-                                () ->
-                                        taskContext.configureLoggingContext(
-                                                "mysql-cdc-connector-task"))
+                                () -> taskContext.configureLoggingContext(
+                                        "mysql-cdc-connector-task"))
                         // do not buffer any element, we use signal event
                         // .buffering()
                         .build();
@@ -279,6 +277,7 @@ public class StatefulTaskContext {
      * Copied from debezium for accessing here.
      */
     public static class MySqlEventMetadataProvider implements EventMetadataProvider {
+
         public static final String SERVER_ID_KEY = "server_id";
 
         public static final String GTID_KEY = "gtid";

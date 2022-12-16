@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,8 +17,14 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import static org.apache.inlong.dataproxy.config.loader.ConfigLoader.RELOAD_INTERVAL;
-import static org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader.IDTOPIC_CONFIG_TYPE;
+import org.apache.commons.lang.ClassUtils;
+import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
+import org.apache.inlong.dataproxy.config.loader.ContextIdTopicConfigLoader;
+import org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader;
+import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,17 +34,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.flume.Context;
-import org.apache.flume.conf.Configurable;
-import org.apache.inlong.dataproxy.config.loader.ContextIdTopicConfigLoader;
-import org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader;
-import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.dataproxy.config.loader.ConfigLoader.RELOAD_INTERVAL;
+import static org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader.IDTOPIC_CONFIG_TYPE;
 
 /**
- * 
  * IdTopicConfigHolder
  */
 public class IdTopicConfigHolder implements Configurable {
@@ -55,7 +54,6 @@ public class IdTopicConfigHolder implements Configurable {
 
     /**
      * configure
-     * 
      * @param context
      */
     @Override
@@ -140,7 +138,6 @@ public class IdTopicConfigHolder implements Configurable {
 
     /**
      * get configList
-     * 
      * @return the configList
      */
     public List<IdTopicConfig> getConfigList() {
@@ -149,7 +146,6 @@ public class IdTopicConfigHolder implements Configurable {
 
     /**
      * getTopic
-     * 
      * @param  uid
      * @return
      */
@@ -159,5 +155,12 @@ public class IdTopicConfigHolder implements Configurable {
             return config.getTopicName();
         }
         return null;
+    }
+
+    /**
+     * getIdConfig
+     */
+    public IdTopicConfig getIdConfig(String uid) {
+        return this.configMap.get(uid);
     }
 }

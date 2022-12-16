@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -34,16 +34,16 @@ import org.apache.inlong.tubemq.server.common.utils.SerialIdUtils;
 public class BaseEntity implements Serializable, Cloneable {
 
     private long dataVersionId =
-            TBaseConstants.META_VALUE_UNDEFINED;    // -2: undefined, other: version
+            TBaseConstants.META_VALUE_UNDEFINED; // -2: undefined, other: version
     private AtomicLong serialId =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private String createUser = "";        // create user
-    private Date createDate = null;        // create date
-    private String modifyUser = "";       // modify user
-    private Date modifyDate = null;        // modify date
-    private String attributes = "";        // attribute info
-    private String createDateStr = "";     // create data string
-    private String modifyDateStr = "";     // create data string
+    private String createUser = ""; // create user
+    private Date createDate = null; // create date
+    private String modifyUser = ""; // modify user
+    private Date modifyDate = null; // modify date
+    private String attributes = ""; // attribute info
+    private String createDateStr = ""; // create data string
+    private String modifyDateStr = ""; // create data string
 
     public BaseEntity() {
 
@@ -72,14 +72,14 @@ public class BaseEntity implements Serializable, Cloneable {
     }
 
     public BaseEntity(String createUser, Date createDate,
-                      String modifyUser, Date modifyDate) {
+            String modifyUser, Date modifyDate) {
         this(TServerConstants.DEFAULT_DATA_VERSION,
                 createUser, createDate, modifyUser, modifyDate);
     }
 
     public BaseEntity(long dataVersionId,
-                      String createUser, Date createDate,
-                      String modifyUser, Date modifyDate) {
+            String createUser, Date createDate,
+            String modifyUser, Date modifyDate) {
         this.dataVersionId = dataVersionId;
         setCreateInfo(createUser, createDate);
         setModifyInfo(modifyUser, modifyDate);
@@ -121,8 +121,8 @@ public class BaseEntity implements Serializable, Cloneable {
      * @return  whether changed current value
      */
     public boolean updQueryKeyInfo(long newDataVerId,
-                                   String newCreateUser,
-                                   String newModifyUser) {
+            String newCreateUser,
+            String newModifyUser) {
         boolean changed = false;
         // check and set dataVersionId field
         if (newDataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -237,9 +237,9 @@ public class BaseEntity implements Serializable, Cloneable {
         return (target.getDataVerId() == TBaseConstants.META_VALUE_UNDEFINED
                 || this.getDataVerId() == target.getDataVerId())
                 && (TStringUtils.isBlank(target.getCreateUser())
-                || target.getCreateUser().equals(createUser))
+                        || target.getCreateUser().equals(createUser))
                 && (TStringUtils.isBlank(target.getModifyUser())
-                || target.getModifyUser().equals(modifyUser));
+                        || target.getModifyUser().equals(modifyUser));
     }
 
     /**
@@ -257,7 +257,7 @@ public class BaseEntity implements Serializable, Cloneable {
                     .append(",\"createDate\":\"").append(createDateStr).append("\"")
                     .append(",\"modifyUser\":\"").append(modifyUser).append("\"")
                     .append(",\"modifyDate\":\"").append(modifyDateStr).append("\"");
-                    //.append(",\"attributes\":\"").append(attributes).append("\"");
+            // .append(",\"attributes\":\"").append(attributes).append("\"");
         } else {
             sBuilder.append(",\"dVerId\":").append(dataVersionId)
                     .append(",\"serialId\":").append(serialId.get())
@@ -265,7 +265,7 @@ public class BaseEntity implements Serializable, Cloneable {
                     .append(",\"cDate\":\"").append(createDateStr).append("\"")
                     .append(",\"mur\":\"").append(modifyUser).append("\"")
                     .append(",\"mDate\":\"").append(modifyDateStr).append("\"");
-                    //.append(",\"attrs\":\"").append(attributes).append("\"");
+            // .append(",\"attrs\":\"").append(attributes).append("\"");
         }
         return sBuilder;
     }
@@ -277,7 +277,7 @@ public class BaseEntity implements Serializable, Cloneable {
      * @param isLongName if return field key is long name
      */
     public void getConfigureInfo(Map<String, String> paramMap,
-                                 boolean isLongName) {
+            boolean isLongName) {
         if (dataVersionId != TBaseConstants.META_VALUE_UNDEFINED) {
             paramMap.put((isLongName ? "dataVersionId" : "dVerId"),
                     String.valueOf(dataVersionId));
@@ -328,7 +328,7 @@ public class BaseEntity implements Serializable, Cloneable {
                 && Objects.equals(createDateStr, other.createDateStr)
                 && Objects.equals(modifyUser, other.modifyUser)
                 && Objects.equals(modifyDateStr, other.modifyDateStr);
-                // && Objects.equals(attributes, other.attributes);
+        // && Objects.equals(attributes, other.attributes);
     }
 
     @Override

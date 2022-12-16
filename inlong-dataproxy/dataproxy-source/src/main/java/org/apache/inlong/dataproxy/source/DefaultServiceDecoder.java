@@ -30,8 +30,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.exception.ErrorCode;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
@@ -87,8 +88,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
                 + attrLen + BIN_HB_FORMAT_SIZE)) || (msgMagic != BIN_MSG_MAGIC)) {
 
             LOG.error("err msg, bodyLen + attrLen > totalDataLen, "
-                            + "and bodyLen={},attrLen={},totalDataLen={},magic={};Connection "
-                            + "info:{}",
+                    + "and bodyLen={},attrLen={},totalDataLen={},magic={};Connection "
+                    + "info:{}",
                     bodyLen, attrLen, totalDataLen, Integer.toHexString(msgMagic), channel.toString());
 
             return resultMap;
@@ -109,8 +110,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
     }
 
     private void handleDateTime(Map<String, String> commonAttrMap, long uniq,
-                                long dataTime, int msgCount, String strRemoteIP,
-                                long msgRcvTime) {
+            long dataTime, int msgCount, String strRemoteIP,
+            long msgRcvTime) {
         commonAttrMap.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
         String time = String.valueOf(dataTime);
         commonAttrMap.put(AttributeConstants.SEQUENCE_ID,
@@ -150,8 +151,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
     }
 
     private ByteBuffer handleTrace(Channel channel, ByteBuf cb, int extendField,
-                                   int msgHeadPos, int totalDataLen, int attrLen,
-                                   String strAttr, int bodyLen, long msgRcvTime) {
+            int msgHeadPos, int totalDataLen, int attrLen,
+            String strAttr, int bodyLen, long msgRcvTime) {
         // whether enable trace
         ByteBuffer dataBuf;
         boolean enableTrace = (((extendField & 0x2) >> 1) == 0x1);
@@ -204,10 +205,10 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * extract bin data, message type is 7
      */
     private Map<String, Object> extractNewBinData(Map<String, Object> resultMap,
-                                                  ByteBuf cb, Channel channel,
-                                                  int totalDataLen, MsgType msgType,
-                                                  String strRemoteIP,
-                                                  long msgRcvTime) throws Exception {
+            ByteBuf cb, Channel channel,
+            int totalDataLen, MsgType msgType,
+            String strRemoteIP,
+            long msgRcvTime) throws Exception {
         int msgHeadPos = cb.readerIndex() - 5;
         // get body length
         int bodyLen = cb.getInt(msgHeadPos + BIN_MSG_BODYLEN_OFFSET);
@@ -274,14 +275,14 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             String groupId = commonAttrMap.get(AttributeConstants.GROUP_ID);
             String streamId = commonAttrMap.get(AttributeConstants.STREAM_ID);
             if ((groupId != null) && (streamId != null)) {
-                commonAttrMap.put(AttributeConstants.NUM2NAME, "FALSE");
+                commonAttrMap.put(AttrConstants.NUM2NAME, "FALSE");
                 dataBuf.putShort(BIN_MSG_EXTEND_OFFSET, (short) (extendField | 0x4));
             } else {
                 boolean hasNumGroupId = (((extendField & 0x4) >> 2) == 0x0);
                 if (hasNumGroupId && (0 != groupIdNum) && (0 != streamIdNum)) {
-                    commonAttrMap.put(AttributeConstants.NUM2NAME, "TRUE");
-                    commonAttrMap.put(AttributeConstants.GROUPID_NUM, String.valueOf(groupIdNum));
-                    commonAttrMap.put(AttributeConstants.STREAMID_NUM, String.valueOf(streamIdNum));
+                    commonAttrMap.put(AttrConstants.NUM2NAME, "TRUE");
+                    commonAttrMap.put(AttrConstants.GROUPID_NUM, String.valueOf(groupIdNum));
+                    commonAttrMap.put(AttrConstants.STREAMID_NUM, String.valueOf(streamIdNum));
                 }
             }
             // build ProxyMessage
@@ -308,9 +309,9 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * extract bin data, message type less than 7
      */
     private Map<String, Object> extractDefaultData(Map<String, Object> resultMap,
-                                                   ByteBuf cb, int totalDataLen,
-                                                   MsgType msgType, String strRemoteIP,
-                                                   long msgRcvTime) throws Exception {
+            ByteBuf cb, int totalDataLen,
+            MsgType msgType, String strRemoteIP,
+            long msgRcvTime) throws Exception {
         int bodyLen = cb.readInt();
         if (bodyLen == 0) {
             throw new Exception("Error msg: bodyLen is empty, connection info:" + strRemoteIP);
@@ -425,7 +426,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      */
     @Override
     public Map<String, Object> extractData(ByteBuf cb, String strRemoteIP,
-                                           long msgRcvTime, Channel channel) throws Exception {
+            long msgRcvTime, Channel channel) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
         if (null == cb) {
             LOG.error("cb == null");

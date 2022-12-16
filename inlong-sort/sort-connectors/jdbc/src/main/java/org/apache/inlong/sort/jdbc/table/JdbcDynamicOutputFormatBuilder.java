@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -134,15 +133,14 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
         return dialect.getUpsertStatement(tableName, fieldNames, pkNames)
                 .map(sql -> createSimpleRowExecutor(dialect, fieldNames, fieldTypes, sql))
                 .orElseGet(
-                        () ->
-                                createInsertOrUpdateExecutor(
-                                        dialect,
-                                        tableName,
-                                        fieldNames,
-                                        fieldTypes,
-                                        pkFields,
-                                        pkNames,
-                                        pkTypes));
+                        () -> createInsertOrUpdateExecutor(
+                                dialect,
+                                tableName,
+                                fieldNames,
+                                fieldTypes,
+                                pkFields,
+                                pkNames,
+                                pkTypes));
     }
 
     private static JdbcBatchStatementExecutor<RowData> createDeleteExecutor(
@@ -155,8 +153,7 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
             JdbcDialect dialect, String[] fieldNames, LogicalType[] fieldTypes, final String sql) {
         final JdbcRowConverter rowConverter = dialect.getRowConverter(RowType.of(fieldTypes));
         return new TableSimpleStatementExecutor(
-                connection ->
-                        FieldNamedPreparedStatement.prepareStatement(connection, sql, fieldNames),
+                connection -> FieldNamedPreparedStatement.prepareStatement(connection, sql, fieldNames),
                 rowConverter);
     }
 
@@ -172,15 +169,12 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
         final String insertStmt = dialect.getInsertIntoStatement(tableName, fieldNames);
         final String updateStmt = dialect.getUpdateStatement(tableName, fieldNames, pkNames);
         return new TableInsertOrUpdateStatementExecutor(
-                connection ->
-                        FieldNamedPreparedStatement.prepareStatement(
-                                connection, existStmt, pkNames),
-                connection ->
-                        FieldNamedPreparedStatement.prepareStatement(
-                                connection, insertStmt, fieldNames),
-                connection ->
-                        FieldNamedPreparedStatement.prepareStatement(
-                                connection, updateStmt, fieldNames),
+                connection -> FieldNamedPreparedStatement.prepareStatement(
+                        connection, existStmt, pkNames),
+                connection -> FieldNamedPreparedStatement.prepareStatement(
+                        connection, insertStmt, fieldNames),
+                connection -> FieldNamedPreparedStatement.prepareStatement(
+                        connection, updateStmt, fieldNames),
                 dialect.getRowConverter(RowType.of(pkTypes)),
                 dialect.getRowConverter(RowType.of(fieldTypes)),
                 dialect.getRowConverter(RowType.of(fieldTypes)),
@@ -260,9 +254,8 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
             return new JdbcBatchingOutputFormat<>(
                     new SimpleJdbcConnectionProvider(jdbcOptions),
                     executionOptions,
-                    ctx ->
-                            createBufferReduceExecutor(
-                                    dmlOptions, ctx, rowDataTypeInformation, logicalTypes),
+                    ctx -> createBufferReduceExecutor(
+                            dmlOptions, ctx, rowDataTypeInformation, logicalTypes),
                     JdbcBatchingOutputFormat.RecordExtractor.identity(),
                     inlongMetric,
                     auditHostAndPorts);
@@ -276,14 +269,13 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
             return new JdbcBatchingOutputFormat<>(
                     new SimpleJdbcConnectionProvider(jdbcOptions),
                     executionOptions,
-                    ctx ->
-                            createSimpleBufferedExecutor(
-                                    ctx,
-                                    dmlOptions.getDialect(),
-                                    dmlOptions.getFieldNames(),
-                                    logicalTypes,
-                                    sql,
-                                    rowDataTypeInformation),
+                    ctx -> createSimpleBufferedExecutor(
+                            ctx,
+                            dmlOptions.getDialect(),
+                            dmlOptions.getFieldNames(),
+                            logicalTypes,
+                            sql,
+                            rowDataTypeInformation),
                     JdbcBatchingOutputFormat.RecordExtractor.identity(),
                     inlongMetric,
                     auditHostAndPorts);

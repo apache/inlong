@@ -24,6 +24,7 @@ import lombok.Data;
  */
 @Data
 public class IpIdRelation {
+
     private Integer brokerId;
     private String brokerIp;
     private String success;

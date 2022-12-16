@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -95,7 +94,7 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
         DynamicTubeMQDeserializationSchema that = (DynamicTubeMQDeserializationSchema) o;
         return ignoreErrors == that.ignoreErrors
                 && Objects.equal(Arrays.stream(metadataConverters).collect(Collectors.toList()),
-                Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
+                        Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
                 && Objects.equal(deserializationSchema, that.deserializationSchema)
                 && Objects.equal(producedTypeInfo, that.producedTypeInfo);
     }
@@ -104,7 +103,7 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
     public int hashCode() {
         return Objects.hashCode(deserializationSchema, metadataConverters, producedTypeInfo, ignoreErrors);
     }
-    
+
     /**
      * add metadata column
      */

@@ -31,8 +31,7 @@ import java.util.List;
 @ApiModel("Workflow approval request")
 public class WorkflowApprovalRequest {
 
-    @ApiModelProperty(value = "Transferor persons",
-            notes = "When transferring the task, specify who needs to be transferred to")
+    @ApiModelProperty(value = "Transferor persons", notes = "When transferring the task, specify who needs to be transferred to")
     public List<String> transferTo;
 
     @ApiModelProperty(value = "Remarks info")

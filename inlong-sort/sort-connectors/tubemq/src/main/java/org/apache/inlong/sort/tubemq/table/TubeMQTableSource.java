@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sort.tubemq.table;
@@ -73,7 +72,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
      */
     private final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat;
 
-    //-------------------------------------------------------------------
+    // -------------------------------------------------------------------
     /**
      * The address of TubeMQ master, format eg: 127.0.0.1:8715,127.0.0.2:8715.
      */
@@ -311,10 +310,12 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     // --------------------------------------------------------------------------------------------
 
     enum ReadableMetadata {
+
         TOPIC(
                 "topic",
                 DataTypes.STRING().notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -74,6 +74,7 @@ import org.slf4j.LoggerFactory;
  * An implementation of MessageConsumer.
  */
 public class BaseMessageConsumer implements MessageConsumer {
+
     private static final Logger logger =
             LoggerFactory.getLogger(BaseMessageConsumer.class);
     private static final int REBALANCE_QUEUE_SIZE = 5000;
@@ -128,8 +129,8 @@ public class BaseMessageConsumer implements MessageConsumer {
      * @throws TubeClientException
      */
     public BaseMessageConsumer(final InnerSessionFactory sessionFactory,
-                               final ConsumerConfig consumerConfig,
-                               boolean isPullConsume) throws TubeClientException {
+            final ConsumerConfig consumerConfig,
+            boolean isPullConsume) throws TubeClientException {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
         if (sessionFactory == null || consumerConfig == null) {
@@ -163,6 +164,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                         this.consumerConfig.getMasterInfo(), this.rpcConfig);
         this.heartService2Master =
                 Executors.newScheduledThreadPool(1, new ThreadFactory() {
+
                     @Override
                     public Thread newThread(Runnable r) {
                         Thread t = new Thread(r, new StringBuilder(512)
@@ -173,6 +175,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                     }
                 });
         this.rebalanceThread = new Thread(new Runnable() {
+
             @Override
             public void run() {
                 StringBuilder strBuffer = new StringBuilder(256);
@@ -233,8 +236,8 @@ public class BaseMessageConsumer implements MessageConsumer {
      * @throws TubeClientException
      */
     protected MessageConsumer subscribe(String topic,
-                                        TreeSet<String> filterConds,
-                                        MessageListener messageListener) throws TubeClientException {
+            TreeSet<String> filterConds,
+            MessageListener messageListener) throws TubeClientException {
         this.checkClientRunning();
         if (TStringUtils.isBlank(topic)) {
             throw new TubeClientException("Parameter error: topic is Blank!");
@@ -304,9 +307,9 @@ public class BaseMessageConsumer implements MessageConsumer {
 
     @Override
     public void completeSubscribe(final String sessionKey,
-                                  final int sourceCount,
-                                  final boolean isSelectBig,
-                                  final Map<String, Long> partOffsetMap) throws TubeClientException {
+            final int sourceCount,
+            final boolean isSelectBig,
+            final Map<String, Long> partOffsetMap) throws TubeClientException {
         this.checkClientRunning();
         if (consumeSubInfo.isSubscribedTopicEmpty()) {
             throw new TubeClientException("Not subscribe any topic, please subscribe first!");
@@ -325,8 +328,8 @@ public class BaseMessageConsumer implements MessageConsumer {
                     if (entry.getValue() != null) {
                         if (entry.getValue() < 0) {
                             throw new TubeClientException(sBuilder
-                                .append("Parameter error: Offset must over or equal zero of partOffsetMap  key ")
-                                .append(entry.getKey()).append(", value is ").append(entry.getValue()).toString());
+                                    .append("Parameter error: Offset must over or equal zero of partOffsetMap  key ")
+                                    .append(entry.getKey()).append(", value is ").append(entry.getValue()).toString());
                         }
                     }
                 }
@@ -517,7 +520,7 @@ public class BaseMessageConsumer implements MessageConsumer {
     }
 
     private void freezeOrUnFreezeParts(List<String> partitionKeys,
-                                       boolean isFreeze) throws TubeClientException {
+            boolean isFreeze) throws TubeClientException {
         if (partitionKeys == null || partitionKeys.isEmpty()) {
             return;
         }
@@ -531,29 +534,29 @@ public class BaseMessageConsumer implements MessageConsumer {
     }
 
     private String validPartitionKey(StringBuilder sBuilder,
-                                     String partitionKey) throws TubeClientException {
+            String partitionKey) throws TubeClientException {
         if (partitionKey == null) {
             throw new TubeClientException(sBuilder
-                .append("Parameter error: partitionKey is null!").toString());
+                    .append("Parameter error: partitionKey is null!").toString());
         }
         String[] keyItems = partitionKey.split(TokenConstants.ATTR_SEP);
         if (keyItems.length != 3) {
             throw new TubeClientException(sBuilder
-                .append("Parameter error: partitionKey ")
-                .append(partitionKey)
-                .append(" format error: value must be aaaa:bbbb:cccc !").toString());
+                    .append("Parameter error: partitionKey ")
+                    .append(partitionKey)
+                    .append(" format error: value must be aaaa:bbbb:cccc !").toString());
         }
         if (!consumeSubInfo.isSubscribedTopicContain(keyItems[1].trim())) {
             throw new TubeClientException(sBuilder
-                .append("Parameter error: not included in subcribed topic list: ")
-                .append("partitionKey is ")
-                .append(partitionKey).append(", subscribed topics are ")
-                .append(consumeSubInfo.getSubscribedTopics().toString()).toString());
+                    .append("Parameter error: not included in subcribed topic list: ")
+                    .append("partitionKey is ")
+                    .append(partitionKey).append(", subscribed topics are ")
+                    .append(consumeSubInfo.getSubscribedTopics().toString()).toString());
         }
         if (partitionKey.contains(TokenConstants.ARRAY_SEP)) {
             throw new TubeClientException(sBuilder
-                .append("Parameter error: illegal format error of ")
-                .append(partitionKey).append(" : value must not include ',' char!").toString());
+                    .append("Parameter error: illegal format error of ")
+                    .append(partitionKey).append(" : value must not include ',' char!").toString());
         }
         String tmpKey = sBuilder.append(keyItems[0].trim())
                 .append(TokenConstants.ATTR_SEP).append(keyItems[1].trim())
@@ -622,8 +625,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                         throw new TubeClientException(strBuffer
                                 .append("Register to master failed! ConsumeGroup forbidden, ")
                                 .append(response.getErrMsg()).toString());
-                    } else if (response.getErrCode()
-                            == TErrCodeConstants.CONSUME_CONTENT_FORBIDDEN) {
+                    } else if (response.getErrCode() == TErrCodeConstants.CONSUME_CONTENT_FORBIDDEN) {
                         throw new TubeClientException(strBuffer
                                 .append("Register to master failed! Restricted consume content, ")
                                 .append(response.getErrMsg()).toString());
@@ -755,8 +757,8 @@ public class BaseMessageConsumer implements MessageConsumer {
     }
 
     protected void pushReqReleasePartition(String partitionKey,
-                                           long usedTime,
-                                           boolean isLastPackConsumed) {
+            long usedTime,
+            boolean isLastPackConsumed) {
         rmtDataCache.errReqRelease(partitionKey, usedTime, isLastPackConsumed);
     }
 
@@ -808,7 +810,7 @@ public class BaseMessageConsumer implements MessageConsumer {
      * @throws InterruptedException
      */
     private void registerPartitions(Map<BrokerInfo, List<Partition>> registerInfoMap,
-                                    List<Partition> unRegPartitions) throws InterruptedException {
+            List<Partition> unRegPartitions) throws InterruptedException {
         int retryTimesRegister2Broker = 0;
         StringBuilder strBuffer = new StringBuilder(512);
         while ((!unRegPartitions.isEmpty())
@@ -826,52 +828,52 @@ public class BaseMessageConsumer implements MessageConsumer {
                             continue;
                         }
                         ClientBroker.RegisterResponseB2C responseB2C =
-                            getBrokerService(partition.getBroker())
-                                .consumerRegisterC2B(createBrokerRegisterRequest(partition),
-                                    AddressUtils.getLocalAddress(), consumerConfig.isTlsEnable());
+                                getBrokerService(partition.getBroker())
+                                        .consumerRegisterC2B(createBrokerRegisterRequest(partition),
+                                                AddressUtils.getLocalAddress(), consumerConfig.isTlsEnable());
                         if (responseB2C != null && responseB2C.getSuccess()) {
                             clientStatsInfo.bookReg2Broker(false);
                             long currOffset =
-                                responseB2C.hasCurrOffset() ? responseB2C.getCurrOffset()
-                                        : TBaseConstants.META_VALUE_UNDEFINED;
+                                    responseB2C.hasCurrOffset() ? responseB2C.getCurrOffset()
+                                            : TBaseConstants.META_VALUE_UNDEFINED;
                             long maxOffset =
                                     responseB2C.hasMaxOffset() ? responseB2C.getMaxOffset()
                                             : TBaseConstants.META_VALUE_UNDEFINED;
                             rmtDataCache.addPartition(partition, currOffset, maxOffset);
                             unRegPartitions.remove(partition);
                             logger.info(strBuffer.append("Registered partition: consumer is ")
-                                .append(consumerId).append(", partition is:")
-                                .append(partition.toString()).toString());
+                                    .append(consumerId).append(", partition is:")
+                                    .append(partition.toString()).toString());
                             strBuffer.delete(0, strBuffer.length());
                         } else {
                             clientStatsInfo.bookReg2Broker(true);
                             if (responseB2C == null) {
                                 logger.warn(strBuffer.append("register2broker error! ")
-                                    .append(retryTimesRegister2Broker).append(" register ")
-                                    .append(partition.toString()).append(" return null!")
-                                    .toString());
+                                        .append(retryTimesRegister2Broker).append(" register ")
+                                        .append(partition.toString()).append(" return null!")
+                                        .toString());
                             } else {
                                 if (responseB2C.getErrCode() == TErrCodeConstants.PARTITION_OCCUPIED
-                                    || responseB2C.getErrCode() == TErrCodeConstants.CERTIFICATE_FAILURE) {
+                                        || responseB2C.getErrCode() == TErrCodeConstants.CERTIFICATE_FAILURE) {
                                     unRegPartitions.remove(partition);
                                     if (responseB2C.getErrCode() == TErrCodeConstants.PARTITION_OCCUPIED) {
                                         if (logger.isDebugEnabled()) {
                                             logger.debug(strBuffer
-                                                .append("[Partition occupied], curr consumerId: ")
-                                                .append(consumerId).append(", returned message : ")
-                                                .append(responseB2C.getErrMsg()).toString());
+                                                    .append("[Partition occupied], curr consumerId: ")
+                                                    .append(consumerId).append(", returned message : ")
+                                                    .append(responseB2C.getErrMsg()).toString());
                                         }
                                     } else {
                                         logger.warn(strBuffer
-                                            .append("[Certificate failure], curr consumerId: ")
-                                            .append(consumerId).append(", returned message : ")
-                                            .append(responseB2C.getErrMsg()).toString());
+                                                .append("[Certificate failure], curr consumerId: ")
+                                                .append(consumerId).append(", returned message : ")
+                                                .append(responseB2C.getErrMsg()).toString());
                                     }
                                 } else {
                                     logger.warn(strBuffer.append("register2broker error! ")
-                                        .append(retryTimesRegister2Broker).append(" register ")
-                                        .append(partition.toString()).append(" return ")
-                                        .append(responseB2C.getErrMsg()).toString());
+                                            .append(retryTimesRegister2Broker).append(" register ")
+                                            .append(partition.toString()).append(" return ")
+                                            .append(responseB2C.getErrMsg()).toString());
                                 }
                             }
                             strBuffer.delete(0, strBuffer.length());
@@ -912,8 +914,7 @@ public class BaseMessageConsumer implements MessageConsumer {
             Map<BrokerInfo, List<PartitionSelectResult>> unRegisterInfoMap) {
         StringBuilder strBuffer = new StringBuilder(512);
         strBuffer.append("Unregister info:");
-        for (Map.Entry<BrokerInfo, List<PartitionSelectResult>> entry
-                : unRegisterInfoMap.entrySet()) {
+        for (Map.Entry<BrokerInfo, List<PartitionSelectResult>> entry : unRegisterInfoMap.entrySet()) {
             for (PartitionSelectResult partResult : entry.getValue()) {
                 try {
                     getBrokerService(partResult.getPartition().getBroker())
@@ -994,8 +995,8 @@ public class BaseMessageConsumer implements MessageConsumer {
     }
 
     private ClientMaster.HeartRequestC2M createMasterHeartbeatRequest(ConsumerEvent event,
-                                                                      List<SubscribeInfo> subInfoList,
-                                                                      boolean reportSubscribeInfo) throws Exception {
+            List<SubscribeInfo> subInfoList,
+            boolean reportSubscribeInfo) throws Exception {
         ClientMaster.HeartRequestC2M.Builder builder = ClientMaster.HeartRequestC2M.newBuilder();
         builder.setClientId(this.consumerId);
         builder.setGroupName(this.consumerConfig.getConsumerGroup());
@@ -1064,7 +1065,7 @@ public class BaseMessageConsumer implements MessageConsumer {
     }
 
     private ClientBroker.RegisterRequestC2B createBrokerUnregisterRequest(Partition partition,
-                                                                          boolean isLastConsumered) {
+            boolean isLastConsumered) {
         ClientBroker.RegisterRequestC2B.Builder builder =
                 ClientBroker.RegisterRequestC2B.newBuilder();
         builder.setClientId(consumerId);
@@ -1095,7 +1096,7 @@ public class BaseMessageConsumer implements MessageConsumer {
     }
 
     private void processRegisterAllocAndRspFlowRules(ClientMaster.RegisterResponseM2C response,
-                                                     StringBuilder strBuffer) {
+            StringBuilder strBuffer) {
         if (response.hasNotAllocated() && !response.getNotAllocated()) {
             consumeSubInfo.compareAndSetIsNotAllocated(true, false);
         }
@@ -1109,7 +1110,7 @@ public class BaseMessageConsumer implements MessageConsumer {
     }
 
     private void procHeartBeatRspAllocAndFlowRules(ClientMaster.HeartResponseM2C response,
-                                                   StringBuilder strBuffer) {
+            StringBuilder strBuffer) {
         if (response.hasNotAllocated() && !response.getNotAllocated()) {
             consumeSubInfo.compareAndSetIsNotAllocated(true, false);
         }
@@ -1195,7 +1196,7 @@ public class BaseMessageConsumer implements MessageConsumer {
 
     // #lizard forgives
     protected FetchContext fetchMessage(PartitionSelectResult partSelectResult,
-                                        final StringBuilder strBuffer) {
+            final StringBuilder strBuffer) {
         // Fetch task context based on selected partition
         FetchContext taskContext =
                 new FetchContext(partSelectResult);
@@ -1265,20 +1266,24 @@ public class BaseMessageConsumer implements MessageConsumer {
                     }
                     // Set the process result of current stage. Process the result based on the response
                     long dataDltVal = msgRspB2C.hasCurrDataDlt()
-                            ? msgRspB2C.getCurrDataDlt() : -1;
+                            ? msgRspB2C.getCurrDataDlt()
+                            : -1;
                     long currOffset = msgRspB2C.hasCurrOffset()
-                            ? msgRspB2C.getCurrOffset() : TBaseConstants.META_VALUE_UNDEFINED;
+                            ? msgRspB2C.getCurrOffset()
+                            : TBaseConstants.META_VALUE_UNDEFINED;
                     long maxOffset = msgRspB2C.hasMaxOffset()
-                            ? msgRspB2C.getMaxOffset() : TBaseConstants.META_VALUE_UNDEFINED;
+                            ? msgRspB2C.getMaxOffset()
+                            : TBaseConstants.META_VALUE_UNDEFINED;
                     boolean isRequireSlow =
                             (msgRspB2C.hasRequireSlow() && msgRspB2C.getRequireSlow());
                     rmtDataCache
-                        .setPartitionContextInfo(partitionKey, currOffset, 1,
-                            msgRspB2C.getErrCode(), isEscLimit, msgSize, 0,
-                            dataDltVal, isRequireSlow, maxOffset);
+                            .setPartitionContextInfo(partitionKey, currOffset, 1,
+                                    msgRspB2C.getErrCode(), isEscLimit, msgSize, 0,
+                                    dataDltVal, isRequireSlow, maxOffset);
                     taskContext.setSuccessProcessResult(currOffset,
-                        strBuffer.append(partitionKey).append(TokenConstants.ATTR_SEP)
-                            .append(taskContext.getUsedToken()).toString(), messageList, maxOffset);
+                            strBuffer.append(partitionKey).append(TokenConstants.ATTR_SEP)
+                                    .append(taskContext.getUsedToken()).toString(),
+                            messageList, maxOffset);
                     strBuffer.delete(0, strBuffer.length());
                     clientStatsInfo.bookSuccGetMsg(dltTime,
                             topic, partitionKey, msgCount, msgSize);
@@ -1296,7 +1301,8 @@ public class BaseMessageConsumer implements MessageConsumer {
                     // Process with server side speed limit
                     long defDltTime =
                             msgRspB2C.hasMinLimitTime()
-                                    ? msgRspB2C.getMinLimitTime() : consumerConfig.getMsgNotFoundWaitPeriodMs();
+                                    ? msgRspB2C.getMinLimitTime()
+                                    : consumerConfig.getMsgNotFoundWaitPeriodMs();
                     rmtDataCache.errRspRelease(partitionKey, topic,
                             taskContext.getUsedToken(), false, TBaseConstants.META_VALUE_UNDEFINED,
                             0, msgRspB2C.getErrCode(), false, 0,
@@ -1334,9 +1340,9 @@ public class BaseMessageConsumer implements MessageConsumer {
                         }
                     }
                     rmtDataCache.errRspRelease(partitionKey, topic,
-                        taskContext.getUsedToken(), false, TBaseConstants.META_VALUE_UNDEFINED,
-                        0, msgRspB2C.getErrCode(), false, 0,
-                        limitDlt, isFilterConsume(topic), -1, TBaseConstants.META_VALUE_UNDEFINED);
+                            taskContext.getUsedToken(), false, TBaseConstants.META_VALUE_UNDEFINED,
+                            0, msgRspB2C.getErrCode(), false, 0,
+                            limitDlt, isFilterConsume(topic), -1, TBaseConstants.META_VALUE_UNDEFINED);
                     taskContext.setFailProcessResult(msgRspB2C.getErrCode(), msgRspB2C.getErrMsg());
                     break;
                 }
@@ -1415,6 +1421,7 @@ public class BaseMessageConsumer implements MessageConsumer {
 
     // #lizard forgives
     private class HeartTask2MasterWorker implements Runnable {
+
         // Heartbeat logic between master and worker
         @Override
         public void run() {
@@ -1455,25 +1462,24 @@ public class BaseMessageConsumer implements MessageConsumer {
                         clientStatsInfo.bookHB2MasterTimeout();
                         try {
                             ClientMaster.RegisterResponseM2C regResponse =
-                                masterService.consumerRegisterC2M(createMasterRegisterRequest(),
-                                    AddressUtils.getLocalAddress(), consumerConfig.isTlsEnable());
+                                    masterService.consumerRegisterC2M(createMasterRegisterRequest(),
+                                            AddressUtils.getLocalAddress(), consumerConfig.isTlsEnable());
                             // Print the log when registration fails
                             if (regResponse == null || !regResponse.getSuccess()) {
                                 if (regResponse == null) {
                                     logger.error(strBuffer.append("[Re-Register Failed] ")
-                                        .append(consumerId)
-                                        .append(" register to master return null!").toString());
+                                            .append(consumerId)
+                                            .append(" register to master return null!").toString());
                                 } else {
                                     // If the consumer group is forbidden, output the log
-                                    if (response.getErrCode()
-                                            == TErrCodeConstants.CONSUME_GROUP_FORBIDDEN) {
+                                    if (response.getErrCode() == TErrCodeConstants.CONSUME_GROUP_FORBIDDEN) {
                                         logger.error(strBuffer.append("[Re-Register Failed] ")
-                                            .append(consumerId).append(" ConsumeGroup forbidden, ")
-                                            .append(response.getErrMsg()).toString());
+                                                .append(consumerId).append(" ConsumeGroup forbidden, ")
+                                                .append(response.getErrMsg()).toString());
                                     } else {
                                         logger.error(strBuffer.append("[Re-Register Failed] ")
-                                            .append(consumerId).append(" ")
-                                            .append(response.getErrMsg()).toString());
+                                                .append(consumerId).append(" ")
+                                                .append(response.getErrMsg()).toString());
                                     }
                                 }
                                 strBuffer.delete(0, strBuffer.length());
@@ -1532,8 +1538,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 }
                 // Warning if heartbeat interval is too long
                 long currentTime = System.currentTimeMillis();
-                if ((currentTime - lastHeartbeatTime2Master)
-                        > consumerConfig.getHeartbeatPeriodMs() * 2) {
+                if ((currentTime - lastHeartbeatTime2Master) > consumerConfig.getHeartbeatPeriodMs() * 2) {
                     logger.warn(strBuffer.append(consumerId)
                             .append(" heartbeat interval to master is too long,please check! Total time : ")
                             .append(currentTime - lastHeartbeatTime2Master).toString());
@@ -1568,6 +1573,7 @@ public class BaseMessageConsumer implements MessageConsumer {
 
     // #lizard forgives
     private class HeartTask2BrokerWorker implements Runnable {
+
         @Override
         public void run() {
             StringBuilder strBuffer = new StringBuilder(256);
@@ -1577,8 +1583,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                     // there may be some system hang up(e.g. long time gc, CPU is too busy).
                     // Print the warning message.
                     long currentTime = System.currentTimeMillis();
-                    if ((currentTime - lastHeartbeatTime2Broker)
-                            > (consumerConfig.getHeartbeatPeriodMs() * 2)) {
+                    if ((currentTime - lastHeartbeatTime2Broker) > (consumerConfig.getHeartbeatPeriodMs() * 2)) {
                         logger.warn(strBuffer.append(consumerId)
                                 .append(" heartbeat interval to broker is too long,please check! Total time : ")
                                 .append(currentTime - lastHeartbeatTime2Broker).toString());
@@ -1650,8 +1655,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                                     }
                                 } else {
                                     clientStatsInfo.bookHB2BrokerException();
-                                    if (heartBeatResponseV2.getErrCode()
-                                            == TErrCodeConstants.CERTIFICATE_FAILURE) {
+                                    if (heartBeatResponseV2.getErrCode() == TErrCodeConstants.CERTIFICATE_FAILURE) {
                                         for (Partition partition : partitions) {
                                             removePartition(partition);
                                         }

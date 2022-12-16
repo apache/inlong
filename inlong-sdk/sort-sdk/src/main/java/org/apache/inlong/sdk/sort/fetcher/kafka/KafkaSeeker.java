@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.fetcher.kafka;
@@ -42,6 +41,7 @@ import java.util.stream.Collectors;
  * 3. Reset these topics and partitions to the corresponding offset
  */
 public class KafkaSeeker implements Seeker {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSeeker.class);
     private long seekTime = -1;
     private String topic;
@@ -74,8 +74,8 @@ public class KafkaSeeker implements Seeker {
                     .collect(Collectors.toMap(tp -> tp, tp -> seekTime));
             Map<TopicPartition, OffsetAndTimestamp> offsetMap = consumer.offsetsForTimes(timestampsToSearch);
             List<TopicPartition> endOffsetsTopicPartitions = new ArrayList<>();
-            offsetMap.forEach((tp, offsetAndTimestamp) ->
-                    resetOffset(tp, offsetAndTimestamp, endOffsetsTopicPartitions));
+            offsetMap.forEach(
+                    (tp, offsetAndTimestamp) -> resetOffset(tp, offsetAndTimestamp, endOffsetsTopicPartitions));
             LOGGER.info("topic partition {} should be seek to end", endOffsetsTopicPartitions);
             if (!endOffsetsTopicPartitions.isEmpty()) {
                 consumer.seekToEnd(endOffsetsTopicPartitions);

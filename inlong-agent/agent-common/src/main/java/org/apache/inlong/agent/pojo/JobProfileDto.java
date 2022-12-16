@@ -22,6 +22,7 @@ import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.pojo.FileJob.Line;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
@@ -37,6 +38,7 @@ public class JobProfileDto {
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
+    public static final String PULSAR_SINK = "org.apache.inlong.agent.plugin.sinks.PulsarSink";
 
     /**
      * file source
@@ -55,9 +57,17 @@ public class JobProfileDto {
      */
     public static final String MONGO_SOURCE = "org.apache.inlong.agent.plugin.sources.MongoDBSource";
     /**
+     * oracle source
+     */
+    public static final String ORACLE_SOURCE = "org.apache.inlong.agent.plugin.sources.OracleSource";
+    /**
      * mqtt source
      */
     public static final String MQTT_SOURCE = "org.apache.inlong.agent.plugin.sources.MqttSource";
+    /**
+     * sqlserver source
+     */
+    public static final String SQLSERVER_SOURCE = "org.apache.inlong.agent.plugin.sources.SqlServerSource";
 
     private static final Gson GSON = new Gson();
 
@@ -226,6 +236,62 @@ public class JobProfileDto {
         return mongoJob;
     }
 
+    private static OracleJob getOracleJob(DataConfig dataConfigs) {
+        OracleJob.OracleJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                OracleJob.OracleJobConfig.class);
+        OracleJob oracleJob = new OracleJob();
+        oracleJob.setUser(config.getUser());
+        oracleJob.setHostname(config.getHostname());
+        oracleJob.setPassword(config.getPassword());
+        oracleJob.setPort(config.getPort());
+        oracleJob.setServerName(config.getServerName());
+        oracleJob.setDbname(config.getDbname());
+
+        OracleJob.Offset offset = new OracleJob.Offset();
+        offset.setFilename(config.getOffsetFilename());
+        offset.setSpecificOffsetFile(config.getSpecificOffsetFile());
+        offset.setSpecificOffsetPos(config.getSpecificOffsetPos());
+        oracleJob.setOffset(offset);
+
+        OracleJob.Snapshot snapshot = new OracleJob.Snapshot();
+        snapshot.setMode(config.getSnapshotMode());
+        oracleJob.setSnapshot(snapshot);
+
+        OracleJob.History history = new OracleJob.History();
+        history.setFilename(config.getHistoryFilename());
+        oracleJob.setHistory(history);
+
+        return oracleJob;
+    }
+
+    private static SqlServerJob getSqlServerJob(DataConfig dataConfigs) {
+        SqlServerJob.SqlserverJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                SqlServerJob.SqlserverJobConfig.class);
+        SqlServerJob sqlServerJob = new SqlServerJob();
+        sqlServerJob.setUser(config.getUser());
+        sqlServerJob.setHostname(config.getHostname());
+        sqlServerJob.setPassword(config.getPassword());
+        sqlServerJob.setPort(config.getPort());
+        sqlServerJob.setServerName(config.getServerName());
+        sqlServerJob.setDbname(config.getDbname());
+
+        SqlServerJob.Offset offset = new SqlServerJob.Offset();
+        offset.setFilename(config.getOffsetFilename());
+        offset.setSpecificOffsetFile(config.getSpecificOffsetFile());
+        offset.setSpecificOffsetPos(config.getSpecificOffsetPos());
+        sqlServerJob.setOffset(offset);
+
+        SqlServerJob.Snapshot snapshot = new SqlServerJob.Snapshot();
+        snapshot.setMode(config.getSnapshotMode());
+        sqlServerJob.setSnapshot(snapshot);
+
+        SqlServerJob.History history = new SqlServerJob.History();
+        history.setFilename(config.getHistoryFilename());
+        sqlServerJob.setHistory(history);
+
+        return sqlServerJob;
+    }
+
     public static MqttJob getMqttJob(DataConfig dataConfigs) {
         MqttJob.MqttJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
                 MqttJob.MqttJobConfig.class);
@@ -286,8 +352,24 @@ public class JobProfileDto {
         job.setOp(dataConfig.getOp());
         job.setDeliveryTime(dataConfig.getDeliveryTime());
         job.setUuid(dataConfig.getUuid());
-        job.setSink(DEFAULT_DATAPROXY_SINK);
         job.setVersion(dataConfig.getVersion());
+        // set sink type
+        if (dataConfig.getDataReportType() == 0) {
+            job.setSink(DEFAULT_DATAPROXY_SINK);
+            job.setProxySend(false);
+        } else if (dataConfig.getDataReportType() == 1) {
+            job.setSink(DEFAULT_DATAPROXY_SINK);
+            job.setProxySend(true);
+        } else {
+            String mqType = dataConfig.getMqClusters().get(0).getMqType();
+            job.setMqClusters(GSON.toJson(dataConfig.getMqClusters()));
+            job.setTopicInfo(GSON.toJson(dataConfig.getTopicInfo()));
+            if (mqType.equals(MQType.PULSAR)) {
+                job.setSink(PULSAR_SINK);
+            } else {
+                throw new IllegalArgumentException("input dataConfig" + dataConfig + "is invalid please check");
+            }
+        }
         TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfig.getTaskType());
         switch (requireNonNull(taskType)) {
             case SQL:
@@ -309,6 +391,18 @@ public class JobProfileDto {
                 job.setSource(KAFKA_SOURCE);
                 profileDto.setJob(job);
                 break;
+            case ORACLE:
+                OracleJob oracleJob = getOracleJob(dataConfig);
+                job.setOracleJob(oracleJob);
+                job.setSource(ORACLE_SOURCE);
+                profileDto.setJob(job);
+                break;
+            case SQLSERVER:
+                SqlServerJob sqlserverJob = getSqlServerJob(dataConfig);
+                job.setSqlserverJob(sqlserverJob);
+                job.setSource(SQLSERVER_SOURCE);
+                profileDto.setJob(job);
+                break;
             case MONGODB:
                 MongoJob mongoJob = getMongoJob(dataConfig);
                 job.setMongoJob(mongoJob);
@@ -319,6 +413,9 @@ public class JobProfileDto {
                 MqttJob mqttJob = getMqttJob(dataConfig);
                 job.setMqttJob(mqttJob);
                 job.setSource(MQTT_SOURCE);
+                profileDto.setJob(job);
+                break;
+            case MOCK:
                 profileDto.setJob(job);
                 break;
             default:
@@ -343,12 +440,17 @@ public class JobProfileDto {
         private String deliveryTime;
         private String uuid;
         private Integer version;
+        private boolean proxySend;
+        private String mqClusters;
+        private String topicInfo;
 
         private FileJob fileJob;
         private BinlogJob binlogJob;
         private KafkaJob kafkaJob;
+        private OracleJob oracleJob;
         private MongoJob mongoJob;
         private MqttJob mqttJob;
+        private SqlServerJob sqlserverJob;
     }
 
     @Data

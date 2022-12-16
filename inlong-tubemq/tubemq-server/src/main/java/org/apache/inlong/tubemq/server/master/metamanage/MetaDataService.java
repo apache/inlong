@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.Server;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStsChgType;
@@ -98,9 +99,9 @@ public interface MetaDataService extends Server {
      * @return true is authorized, false not
      */
     boolean isConsumeTargetAuthorized(String consumerId, String groupName,
-                                      Set<String> reqTopicSet,
-                                      Map<String, TreeSet<String>> reqTopicCondMap,
-                                      StringBuilder strBuff, ProcessResult result);
+            Set<String> reqTopicSet,
+            Map<String, TreeSet<String>> reqTopicCondMap,
+            StringBuilder strBuff, ProcessResult result);
 
     // //////////////////////////////////////////////////////////////////////
 
@@ -121,11 +122,11 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     boolean addOrUpdClusterDefSetting(BaseEntity opEntity, int brokerPort,
-                                      int brokerTlsPort, int brokerWebPort,
-                                      int maxMsgSizeMB, int qryPriorityId,
-                                      Boolean flowCtrlEnable, int flowRuleCnt,
-                                      String flowCtrlInfo, TopicPropGroup topicProps,
-                                      StringBuilder strBuff, ProcessResult result);
+            int brokerTlsPort, int brokerWebPort,
+            int maxMsgSizeMB, int qryPriorityId,
+            EnableStatus flowCtrlEnable, int flowRuleCnt,
+            String flowCtrlInfo, TopicPropGroup topicProps,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get cluster configure information
@@ -156,11 +157,11 @@ public interface MetaDataService extends Server {
      * @return  the return result, include updated information
      */
     BrokerProcessResult addOrUpdBrokerConfig(boolean isAddOp, BaseEntity opEntity,
-                                             int brokerId, String brokerIp, int brokerPort,
-                                             int brokerTlsPort, int brokerWebPort,
-                                             int regionId, int groupId, ManageStatus mngStatus,
-                                             TopicPropGroup topicProps, StringBuilder strBuff,
-                                             ProcessResult result);
+            int brokerId, String brokerIp, int brokerPort,
+            int brokerTlsPort, int brokerWebPort,
+            int regionId, int groupId, ManageStatus mngStatus,
+            TopicPropGroup topicProps, StringBuilder strBuff,
+            ProcessResult result);
 
     /**
      * Add or update broker configure information
@@ -172,7 +173,7 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     BrokerProcessResult addOrUpdBrokerConfig(boolean isAddOp, BrokerConfEntity entity,
-                                             StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Change broker configure status
@@ -185,8 +186,8 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     BrokerProcessResult changeBrokerConfStatus(BaseEntity opEntity,
-                                               int brokerId, ManageStatus newMngStatus,
-                                               StringBuilder strBuff, ProcessResult result);
+            int brokerId, ManageStatus newMngStatus,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Sync broker configure to broker node
@@ -198,7 +199,7 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     BrokerProcessResult reloadBrokerConfInfo(BaseEntity opEntity, int brokerId,
-                                             StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete broker configure information
@@ -211,8 +212,8 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     BrokerProcessResult delBrokerConfInfo(String operator, boolean rsvData,
-                                          int brokerId, StringBuilder strBuff,
-                                          ProcessResult result);
+            int brokerId, StringBuilder strBuff,
+            ProcessResult result);
 
     /**
      * Query broker configure information
@@ -231,8 +232,8 @@ public interface MetaDataService extends Server {
      * @return broker configure information
      */
     Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
-                                                     Set<String> brokerIpSet,
-                                                     BrokerConfEntity qryEntity);
+            Set<String> brokerIpSet,
+            BrokerConfEntity qryEntity);
 
     /**
      * Delete cleaned topic deploy configures
@@ -244,8 +245,7 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     boolean delCleanedTopicDeployInfo(int brokerId, List<String> removedTopics,
-                                      StringBuilder strBuff, ProcessResult result);
-
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get broker's topicName set,
@@ -311,11 +311,11 @@ public interface MetaDataService extends Server {
      * @return                true if success otherwise false
      */
     TopicProcessResult addOrUpdTopicDeployInfo(boolean isAddOp, BaseEntity opEntity,
-                                               int brokerId, String topicName,
-                                               TopicStatus deployStatus,
-                                               TopicPropGroup topicPropInfo,
-                                               StringBuilder strBuff,
-                                               ProcessResult result);
+            int brokerId, String topicName,
+            TopicStatus deployStatus,
+            TopicPropGroup topicPropInfo,
+            StringBuilder strBuff,
+            ProcessResult result);
 
     /**
      * Add or update topic deploy configure info
@@ -327,7 +327,7 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     TopicProcessResult addOrUpdTopicDeployInfo(boolean isAddOp, TopicDeployEntity deployEntity,
-                                               StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Change topic deploy status info
@@ -341,8 +341,8 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     TopicProcessResult updTopicDeployStatusInfo(BaseEntity opEntity, int brokerId,
-                                                String topicName, TopicStsChgType chgType,
-                                                StringBuilder strBuff, ProcessResult result);
+            String topicName, TopicStsChgType chgType,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get broker topic entity, if query entity is null, return all topic entity
@@ -353,8 +353,8 @@ public interface MetaDataService extends Server {
      * @return topic deploy information map
      */
     Map<String, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
-                                                               Set<Integer> brokerIdSet,
-                                                               TopicDeployEntity qryEntity);
+            Set<Integer> brokerIdSet,
+            TopicDeployEntity qryEntity);
 
     /**
      * Get topic deploy information, if the result matched is null, then return empty
@@ -364,7 +364,7 @@ public interface MetaDataService extends Server {
      * @return topic deploy information map
      */
     Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
-                                                                Set<Integer> brokerIdSet);
+            Set<Integer> brokerIdSet);
 
     /**
      * Get topic deploy information
@@ -374,7 +374,7 @@ public interface MetaDataService extends Server {
      * @return topic deploy information map
      */
     Map<String, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(Set<String> topicNameSet,
-                                                                            Set<Integer> brokerIdSet);
+            Set<Integer> brokerIdSet);
 
     /**
      * Get deployed topic information
@@ -384,7 +384,7 @@ public interface MetaDataService extends Server {
      * @return   the deployed topic information map
      */
     Map<String, String> getBrokerTopicStrConfigInfo(BrokerConfEntity brokerConfEntity,
-                                                    StringBuilder strBuff);
+            StringBuilder strBuff);
 
     /**
      * Get removed topic information
@@ -397,7 +397,6 @@ public interface MetaDataService extends Server {
             BrokerConfEntity brokerConfEntity, StringBuilder strBuff);
 
     // //////////////////////////////////////////////////////////////////////////////
-
 
     /**
      * Add or Update topic control configure info
@@ -413,9 +412,9 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     List<TopicProcessResult> addOrUpdTopicCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                                   Set<String> topicNameSet, int topicNameId,
-                                                   Boolean enableTopicAuth, int maxMsgSizeInMB,
-                                                   StringBuilder strBuff, ProcessResult result);
+            Set<String> topicNameSet, int topicNameId,
+            EnableStatus enableTopicAuth, int maxMsgSizeInMB,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add or Update topic control configure info
@@ -427,22 +426,22 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     List<TopicProcessResult> addOrUpdTopicCtrlConf(boolean isAddOp,
-                                                   Map<String, TopicCtrlEntity> entityMap,
-                                                   StringBuilder strBuff, ProcessResult result);
+            Map<String, TopicCtrlEntity> entityMap,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Insert topic control configure info
      *
      * @param opEntity operator information
      * @param topicName topic info
-     * @param enableTopicAuth if authenticate check
+     * @param enableTopicAuth authenticate check status
      * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     TopicProcessResult insertTopicCtrlConf(BaseEntity opEntity, String topicName,
-                                           Boolean enableTopicAuth, StringBuilder strBuff,
-                                           ProcessResult result);
+            EnableStatus enableTopicAuth, StringBuilder strBuff,
+            ProcessResult result);
 
     /**
      * Insert topic control configure info
@@ -453,8 +452,8 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     TopicProcessResult insertTopicCtrlConf(TopicCtrlEntity entity,
-                                           StringBuilder strBuff,
-                                           ProcessResult result);
+            StringBuilder strBuff,
+            ProcessResult result);
 
     /**
      * Delete topic control configure
@@ -466,7 +465,7 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     boolean delTopicCtrlConf(String operator, String topicName,
-                             StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get topic control record by topic name
@@ -484,7 +483,6 @@ public interface MetaDataService extends Server {
      */
     int getTopicMaxMsgSizeInMB(String topicName);
 
-
     /**
      * Get topic control information
      *
@@ -493,7 +491,7 @@ public interface MetaDataService extends Server {
      * @return    the topic control configures
      */
     Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
-                                                  TopicCtrlEntity qryEntity);
+            TopicCtrlEntity qryEntity);
 
     /**
      * get topic max message size configure info from store
@@ -523,11 +521,11 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     GroupProcessResult addOrUpdGroupCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                             String groupName, Boolean resCheckEnable,
-                                             int allowedBClientRate, int qryPriorityId,
-                                             Boolean flowCtrlEnable, int flowRuleCnt,
-                                             String flowCtrlInfo, StringBuilder strBuff,
-                                             ProcessResult result);
+            String groupName, EnableStatus resCheckEnable,
+            int allowedBClientRate, int qryPriorityId,
+            EnableStatus flowCtrlEnable, int flowRuleCnt,
+            String flowCtrlInfo, StringBuilder strBuff,
+            ProcessResult result);
 
     /**
      * Add group control configure info
@@ -538,7 +536,7 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     GroupProcessResult addOrUpdGroupCtrlConf(boolean isAddOp, GroupResCtrlEntity entity,
-                                             StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add group control configure, or update records if data exists
@@ -554,10 +552,9 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     GroupProcessResult insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                           int qryPriorityId, Boolean flowCtrlEnable,
-                                           int flowRuleCnt, String flowCtrlRuleInfo,
-                                           StringBuilder strBuff, ProcessResult result);
-
+            int qryPriorityId, EnableStatus flowCtrlEnable,
+            int flowRuleCnt, String flowCtrlRuleInfo,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add group control configure, or update records if data exists
@@ -571,8 +568,8 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     GroupProcessResult insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                           Boolean resChkEnable, int allowedB2CRate,
-                                           StringBuilder strBuff, ProcessResult result);
+            EnableStatus resChkEnable, int allowedB2CRate,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add group control configure, or update records if data exists
@@ -583,7 +580,7 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     GroupProcessResult insertGroupCtrlConf(GroupResCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete group resource control configure
@@ -595,7 +592,7 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     GroupProcessResult delGroupResCtrlConf(String operator, String groupName,
-                                           StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get group control information by group and query condition
@@ -605,7 +602,7 @@ public interface MetaDataService extends Server {
      * @return    query result
      */
     Map<String, GroupResCtrlEntity> getGroupCtrlConf(Set<String> groupSet,
-                                                     GroupResCtrlEntity qryEntity);
+            GroupResCtrlEntity qryEntity);
 
     /**
      * Get group control information by group name
@@ -633,10 +630,10 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     GroupProcessResult addOrUpdConsumeCtrlInfo(boolean isAddOp, BaseEntity opEntity,
-                                               String groupName, String topicName,
-                                               Boolean enableCsm, String disableRsn,
-                                               Boolean enableFlt, String fltCondStr,
-                                               StringBuilder strBuff, ProcessResult result);
+            String groupName, String topicName,
+            EnableStatus enableCsm, String disableRsn,
+            EnableStatus enableFlt, String fltCondStr,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * add or update group's consume control information
@@ -648,7 +645,7 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     GroupProcessResult addOrUpdConsumeCtrlInfo(boolean isAddOp, GroupConsumeCtrlEntity entity,
-                                               StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add consume control information, or update records if data exists
@@ -665,10 +662,10 @@ public interface MetaDataService extends Server {
      * @return    process result
      */
     GroupProcessResult insertConsumeCtrlInfo(BaseEntity opEntity, String groupName,
-                                             String topicName, Boolean enableCsm,
-                                             String disReason, Boolean enableFlt,
-                                             String fltCondStr, StringBuilder strBuff,
-                                             ProcessResult result);
+            String topicName, EnableStatus enableCsm,
+            String disReason, EnableStatus enableFlt,
+            String fltCondStr, StringBuilder strBuff,
+            ProcessResult result);
 
     /**
      * Add consume control information, or update records if data exists
@@ -679,7 +676,7 @@ public interface MetaDataService extends Server {
      * @return    process result
      */
     GroupProcessResult insertConsumeCtrlInfo(GroupConsumeCtrlEntity entity,
-                                             StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete consume control configure
@@ -692,8 +689,8 @@ public interface MetaDataService extends Server {
      * @return    process result
      */
     boolean delConsumeCtrlConf(String operator,
-                               String groupName, String topicName,
-                               StringBuilder strBuff, ProcessResult result);
+            String groupName, String topicName,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get consume control records by group name

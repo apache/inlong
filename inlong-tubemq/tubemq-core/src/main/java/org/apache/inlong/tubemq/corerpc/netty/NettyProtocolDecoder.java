@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
+
     private static final Logger logger = LoggerFactory.getLogger(NettyProtocolDecoder.class);
 
     private static final ConcurrentHashMap<String, AtomicLong> errProtolAddrMap =
@@ -139,8 +140,8 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
                 if (curTime - befTime > 180000) {
                     if (lastProtolTime.compareAndSet(befTime, System.currentTimeMillis())) {
                         logger.warn("[Abnormal Visit] OSS Tube  [inParamValue = {} vs "
-                                        + "allowTokenVal = {}] visit "
-                                        + "list is : {}",
+                                + "allowTokenVal = {}] visit "
+                                + "list is : {}",
                                 inParamValue, allowTokenVal,
                                 errProtolAddrMap.toString());
                         errProtolAddrMap.clear();
@@ -154,7 +155,7 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
     }
 
     private void filterIllegalPackageSize(boolean isFrameSize, int inParamValue,
-                                          int allowSize, Channel channel) throws UnknownProtocolException {
+            int allowSize, Channel channel) throws UnknownProtocolException {
         if (inParamValue < 0 || inParamValue > allowSize) {
             String rmtaddrIp = getRemoteAddressIP(channel);
             if (rmtaddrIp != null) {

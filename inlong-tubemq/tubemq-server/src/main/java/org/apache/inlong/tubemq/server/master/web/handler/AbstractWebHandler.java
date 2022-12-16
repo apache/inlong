@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -35,12 +35,12 @@ public abstract class AbstractWebHandler {
     public abstract void registerWebApiMethod();
 
     protected void registerQueryWebMethod(String webMethodName,
-                                          String clsMethodName) {
+            String clsMethodName) {
         innRegisterWebMethod(webMethodName, clsMethodName, false, false);
     }
 
     protected void registerModifyWebMethod(String webMethodName,
-                                           String clsMethodName) {
+            String clsMethodName) {
         innRegisterWebMethod(webMethodName, clsMethodName, true, true);
     }
 
@@ -49,9 +49,9 @@ public abstract class AbstractWebHandler {
     }
 
     private void innRegisterWebMethod(String webMethodName,
-                                      String clsMethodName,
-                                      boolean onlyMasterOp,
-                                      boolean needAuthToken) {
+            String clsMethodName,
+            boolean onlyMasterOp,
+            boolean needAuthToken) {
         registerWebMethod(webMethodName, clsMethodName,
                 onlyMasterOp, needAuthToken, this);
     }

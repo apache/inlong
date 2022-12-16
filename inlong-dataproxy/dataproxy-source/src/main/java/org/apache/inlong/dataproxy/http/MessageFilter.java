@@ -19,7 +19,10 @@ package org.apache.inlong.dataproxy.http;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.ChannelException;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,81 +51,98 @@ public class MessageFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException {
+    public void doFilter(ServletRequest request,
+            ServletResponse response,
+            FilterChain chain) throws IOException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
-
-        int code = StatusCode.SUCCESS;
-        String message = "success";
 
         String pathInfo = req.getPathInfo();
         if (pathInfo.startsWith("/")) {
             pathInfo = pathInfo.substring(1);
         }
         if ("heartbeat".equals(pathInfo)) {
-            resp.setCharacterEncoding(req.getCharacterEncoding());
-            resp.setStatus(HttpServletResponse.SC_OK);
-            resp.flushBuffer();
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.SUCCESS.getErrCode(),
+                    DataProxyErrCode.SUCCESS.getErrMsg());
             return;
         }
-
-        String invalidKey = null;
+        // check sink service status
+        if (!ConfigManager.getInstance().isMqClusterReady()) {
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.SINK_SERVICE_UNREADY.getErrCode(),
+                    DataProxyErrCode.SINK_SERVICE_UNREADY.getErrMsg());
+            return;
+        }
+        // get and check groupId
         String groupId = req.getParameter(AttributeConstants.GROUP_ID);
-        String streamId = req.getParameter(AttributeConstants.STREAM_ID);
-        String dt = req.getParameter(AttributeConstants.DATA_TIME);
-        String body = req.getParameter(AttributeConstants.BODY);
-
         if (StringUtils.isEmpty(groupId)) {
-            invalidKey = "groupId";
-        } else if (StringUtils.isEmpty(streamId)) {
-            invalidKey = "streamId";
-        } else if (StringUtils.isEmpty(dt)) {
-            invalidKey = "dt";
-        } else if (StringUtils.isEmpty(body)) {
-            invalidKey = "body";
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.MISS_REQUIRED_GROUPID_ARGUMENT.getErrCode(),
+                    DataProxyErrCode.MISS_REQUIRED_GROUPID_ARGUMENT.getErrMsg());
+            return;
         }
-
+        // get and check streamId
+        String streamId = req.getParameter(AttributeConstants.STREAM_ID);
+        if (StringUtils.isEmpty(streamId)) {
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.MISS_REQUIRED_STREAMID_ARGUMENT.getErrCode(),
+                    DataProxyErrCode.MISS_REQUIRED_STREAMID_ARGUMENT.getErrMsg());
+            return;
+        }
+        // get and check dt
+        String dt = req.getParameter(AttributeConstants.DATA_TIME);
+        if (StringUtils.isEmpty(dt)) {
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.MISS_REQUIRED_DT_ARGUMENT.getErrCode(),
+                    DataProxyErrCode.MISS_REQUIRED_DT_ARGUMENT.getErrMsg());
+            return;
+        }
+        // get and check body
+        String body = req.getParameter(AttrConstants.BODY);
+        if (StringUtils.isEmpty(body)) {
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.MISS_REQUIRED_BODY_ARGUMENT.getErrCode(),
+                    DataProxyErrCode.MISS_REQUIRED_BODY_ARGUMENT.getErrMsg());
+            return;
+        }
+        // check body length
+        if (body.length() > maxMsgLength) {
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.BODY_EXCEED_MAX_LEN.getErrCode(),
+                    "Bad request, body length exceeds the limit:" + maxMsgLength);
+            return;
+        }
         try {
-            if (invalidKey != null) {
-                LOG.warn("Received bad request from client. " + invalidKey + " is empty.");
-                code = StatusCode.ILLEGAL_ARGUMENT;
-                message = "Bad request from client. " + invalidKey + " must not be empty.";
-            } else if (body.length() > maxMsgLength) {
-                LOG.warn("Received bad request from client. Body length is " + body.length());
-                code = StatusCode.EXCEED_LEN;
-                message = "Bad request from client. Body length is exceeding the limit:" + maxMsgLength;
-            } else {
-                chain.doFilter(request, response);
-            }
+            chain.doFilter(request, response);
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.SUCCESS.getErrCode(),
+                    DataProxyErrCode.SUCCESS.getErrMsg());
         } catch (Throwable t) {
-            code = StatusCode.SERVICE_ERR;
+            String errMsg;
             if ((t instanceof ChannelException)) {
-                message = "Channel error!";
+                errMsg = "Channel error! " + t.getMessage();
             } else {
-                message = "Service error!";
-                LOG.error("Request error!", t);
+                errMsg = "Service error! " + t.getMessage();
             }
+            LOG.error("Request error!", t);
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.UNKNOWN_ERROR.getErrCode(), errMsg);
         }
-
-        resp.setCharacterEncoding(req.getCharacterEncoding());
-        resp.setStatus(HttpServletResponse.SC_OK);
-        resp.getWriter().write(getResultContent(code, message));
-        resp.flushBuffer();
     }
 
     @Override
     public void destroy() {
     }
 
-    private String getResultContent(int code, String message) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{\"code\":\"");
-        builder.append(code);
-        builder.append("\",\"msg\":\"");
-        builder.append(message);
-        builder.append("\"}");
-
-        return builder.toString();
+    private void returnRspPackage(HttpServletResponse resp, String charEncoding,
+            int errCode, String errMsg) throws IOException {
+        StringBuilder builder =
+                new StringBuilder().append("{\"code\":\"").append(errCode)
+                        .append("\",\"msg\":\"").append(errMsg).append("\"}");
+        resp.setCharacterEncoding(charEncoding);
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.getWriter().write(builder.toString());
+        resp.flushBuffer();
     }
-
 }

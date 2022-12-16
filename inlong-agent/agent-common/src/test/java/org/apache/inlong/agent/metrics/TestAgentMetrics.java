@@ -41,7 +41,7 @@ import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
 public class TestAgentMetrics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestAgentMetrics.class);
-    //metric
+    // metric
     protected static final AtomicLong METRIC_INDEX = new AtomicLong(0);
     protected static AgentMetricItemSet metricItemSet;
     protected static Map<String, String> dimensions;

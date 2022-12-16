@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -85,7 +85,7 @@ public final class MessageProducerExample {
         statisticThread.start();
 
         // 4. build the content of the message to be sent
-        //    include message body, attributes, and time information template
+        // include message body, attributes, and time information template
         final byte[] bodyData =
                 MixedUtils.buildTestData(pkgSize);
         List<Tuple2<String, String>> buildTopicFilterTuples =
@@ -109,21 +109,21 @@ public final class MessageProducerExample {
                 // 5.2.2 Send message synchronous, not recommended
                 // MessageSentResult result = messageProducer.sendMessage(message);
                 // if (!result.isSuccess()) {
-                //    logger.error("Sync-send message failed!" + result.getErrMsg());
+                // logger.error("Sync-send message failed!" + result.getErrMsg());
                 // }
             } catch (TubeClientException | InterruptedException e) {
                 logger.error("Send message failed!", e);
             }
 
             // 5.3 Cool sending
-            //     Attention: only used in the test link, to solve the problem of
-            //                frequent sending failures caused by insufficient test resources.
+            // Attention: only used in the test link, to solve the problem of
+            // frequent sending failures caused by insufficient test resources.
             MixedUtils.coolSending(sentCount);
         }
 
         // 6. Clean up resources and exit the service after the task is completed
-        //    Attention: TubeMQ client is suitable for serving as a resident service,
-        //               not suitable for creating Producer objects message by message
+        // Attention: TubeMQ client is suitable for serving as a resident service,
+        // not suitable for creating Producer objects message by message
         messageProducer.shutdown();
         sessionFactory.shutdown();
         msgSendStats.stopStats();

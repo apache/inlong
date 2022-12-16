@@ -1,20 +1,18 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.audit.channel;
@@ -41,7 +39,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FailoverChannelProcessor
-        extends ChannelProcessor {
+        extends
+            ChannelProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FailoverChannelProcessor.class);
 
@@ -134,7 +133,7 @@ public class FailoverChannelProcessor
 
             for (Channel ch : reqChannels) {
                 List<Event> eventQueue = reqChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//reqChannelQueue
+                        .computeIfAbsent(ch, k -> new ArrayList<Event>());// reqChannelQueue
                 eventQueue.add(event);
             }
 
@@ -142,7 +141,7 @@ public class FailoverChannelProcessor
 
             for (Channel ch : optChannels) {
                 List<Event> eventQueue = optChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//optChannelQueue
+                        .computeIfAbsent(ch, k -> new ArrayList<Event>());// optChannelQueue
 
                 eventQueue.add(event);
             }
@@ -285,7 +284,8 @@ public class FailoverChannelProcessor
                     } else {
                         throw new ChannelException(
                                 "FailoverChannelProcessor Unable to put event on "
-                                        + "optionalChannels: " + optChannel, t);
+                                        + "optionalChannels: " + optChannel,
+                                t);
                     }
                 } finally {
                     if (tx != null) {

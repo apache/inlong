@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.http.StatusCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +80,7 @@ public class ConfigMessageServlet extends HttpServlet {
     }
 
     private void responseToJson(HttpServletResponse response,
-                                ResponseResult result) throws IOException {
+            ResponseResult result) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String jsonStr = gson.toJson(result);
@@ -91,7 +91,8 @@ public class ConfigMessageServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        ResponseResult result = new ResponseResult(StatusCode.SERVICE_ERR, "");
+        ResponseResult result =
+                new ResponseResult(DataProxyErrCode.UNKNOWN_ERROR.getErrCode(), "");
         BufferedReader reader = null;
         try {
             reader = req.getReader();
@@ -110,7 +111,7 @@ public class ConfigMessageServlet extends HttpServlet {
             }
 
             if (isSuccess) {
-                result.setCode(StatusCode.SUCCESS);
+                result.setCode(DataProxyErrCode.SUCCESS.getErrCode());
             } else {
                 result.setMessage("cannot operate config update, please check it");
             }

@@ -88,7 +88,7 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
      * Delete sink info by sink id.
      */
     public void deleteSink(Integer sinkId) {
-        boolean result = sinkService.delete(sinkId, globalOperator);
+        boolean result = sinkService.delete(sinkId, false, globalOperator);
         Assertions.assertTrue(result);
     }
 
@@ -114,7 +114,6 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
 
         deleteSink(sinkId);
     }
-
 
     /**
      * Just using in local test.
@@ -149,8 +148,7 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
         List<GreenplumColumnInfo> addColums = Lists.newArrayList(
                 new GreenplumColumnInfo("test1", "int", "test1"),
                 new GreenplumColumnInfo("test2", "varchar(30)", "test2"),
-                new GreenplumColumnInfo("Test1", "varchar(50)", "Test1")
-        );
+                new GreenplumColumnInfo("Test1", "varchar(50)", "Test1"));
         return addColums;
     }
 
@@ -166,8 +164,7 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
         List<GreenplumColumnInfo> columns = Lists.newArrayList(
                 new GreenplumColumnInfo("id", "int", "id"),
                 new GreenplumColumnInfo("cell", "varchar(25)", "cell"),
-                new GreenplumColumnInfo("name", "varchar(50)", "name")
-        );
+                new GreenplumColumnInfo("name", "varchar(50)", "name"));
         final GreenplumTableInfo tableInfo = new GreenplumTableInfo();
         tableInfo.setColumns(columns);
         tableInfo.setTableName(tableName);

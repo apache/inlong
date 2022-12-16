@@ -1,19 +1,18 @@
 /*
- *   Licensed to the Apache Software Foundation (ASF) under one
- *   or more contributor license agreements.  See the NOTICE file
- *   distributed with this work for additional information
- *   regarding copyright ownership.  The ASF licenses this file
- *   to you under the Apache License, Version 2.0 (the
- *   "License"); you may not use this file except in compliance
- *   with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.sort.filesystem;
@@ -77,6 +76,8 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.utils.PartitionPathUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.filesystem.stream.StreamingSink;
 
 import javax.annotation.Nullable;
@@ -105,7 +106,10 @@ import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
  * File system {@link DynamicTableSink}.
  */
 public class FileSystemTableSink extends AbstractFileSystemTable
-        implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
+        implements
+            DynamicTableSink,
+            SupportsPartitioning,
+            SupportsOverwrite {
 
     // For compaction reading
     @Nullable
@@ -126,10 +130,12 @@ public class FileSystemTableSink extends AbstractFileSystemTable
     private LinkedHashMap<String, String> staticPartitions = new LinkedHashMap<>();
 
     @Nullable
-    private Integer configuredParallelism;
+    private final Integer configuredParallelism;
 
-    private String inlongMetric;
-    private String inlongAudit;
+    private final String inlongMetric;
+    private final String inlongAudit;
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
 
     FileSystemTableSink(
             DynamicTableFactory.Context context,
@@ -137,7 +143,9 @@ public class FileSystemTableSink extends AbstractFileSystemTable
             @Nullable DecodingFormat<DeserializationSchema<RowData>> deserializationFormat,
             @Nullable FileSystemFormatFactory formatFactory,
             @Nullable EncodingFormat<BulkWriter.Factory<RowData>> bulkWriterFormat,
-            @Nullable EncodingFormat<SerializationSchema<RowData>> serializationFormat) {
+            @Nullable EncodingFormat<SerializationSchema<RowData>> serializationFormat,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         super(context);
         this.bulkReaderFormat = bulkReaderFormat;
         this.deserializationFormat = deserializationFormat;
@@ -156,6 +164,8 @@ public class FileSystemTableSink extends AbstractFileSystemTable
         this.configuredParallelism = tableOptions.get(FileSystemOptions.SINK_PARALLELISM);
         this.inlongMetric = tableOptions.get(INLONG_METRIC);
         this.inlongAudit = tableOptions.get(INLONG_AUDIT);
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
@@ -232,21 +242,21 @@ public class FileSystemTableSink extends AbstractFileSystemTable
 
         BucketsBuilder<RowData, String, ? extends BucketsBuilder<RowData, ?, ?>> bucketsBuilder;
         if (isEncoder) {
-            //noinspection unchecked
+            // noinspection unchecked
             bucketsBuilder =
                     StreamingFileSink.forRowFormat(
-                                    path,
-                                    new ProjectionEncoder((Encoder<RowData>) writer, computer))
+                            path,
+                            new ProjectionEncoder((Encoder<RowData>) writer, computer))
                             .withBucketAssigner(assigner)
                             .withOutputFileConfig(fileNamingConfig)
                             .withRollingPolicy(rollingPolicy);
         } else {
-            //noinspection unchecked
+            // noinspection unchecked
             bucketsBuilder =
                     StreamingFileSink.forBulkFormat(
-                                    path,
-                                    new ProjectionBulkFactory(
-                                            (BulkWriter.Factory<RowData>) writer, computer))
+                            path,
+                            new ProjectionBulkFactory(
+                                    (BulkWriter.Factory<RowData>) writer, computer))
                             .withBucketAssigner(assigner)
                             .withOutputFileConfig(fileNamingConfig)
                             .withRollingPolicy(rollingPolicy);
@@ -265,10 +275,9 @@ public class FileSystemTableSink extends AbstractFileSystemTable
             CompactReader.Factory<RowData> reader =
                     createCompactReaderFactory(sinkContext)
                             .orElseThrow(
-                                    () ->
-                                            new TableException(
-                                                    "Please implement available reader for compaction:"
-                                                            + " BulkFormat, FileInputFormat."));
+                                    () -> new TableException(
+                                            "Please implement available reader for compaction:"
+                                                    + " BulkFormat, FileInputFormat."));
 
             writerStream =
                     StreamingSink.compactionWriter(
@@ -281,11 +290,14 @@ public class FileSystemTableSink extends AbstractFileSystemTable
                             compactionSize,
                             parallelism,
                             inlongMetric,
-                            inlongAudit);
+                            inlongAudit,
+                            dirtyOptions,
+                            dirtySink);
         } else {
             writerStream =
                     StreamingSink.writer(
-                            dataStream, bucketCheckInterval, bucketsBuilder, parallelism, inlongMetric, inlongAudit);
+                            dataStream, bucketCheckInterval, bucketsBuilder, parallelism,
+                            inlongMetric, inlongAudit, dirtyOptions, dirtySink);
         }
 
         return StreamingSink.sink(
@@ -308,7 +320,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
         } else if (formatFactory != null) {
             InputFormat<RowData, ?> format = formatFactory.createReader(createReaderContext());
             if (format instanceof FileInputFormat) {
-                //noinspection unchecked
+                // noinspection unchecked
                 return Optional.of(
                         FileInputFormatCompactReader.factory((FileInputFormat<RowData>) format));
             }
@@ -328,6 +340,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
 
     private DynamicTableSource.Context createSourceContext(Context context) {
         return new DynamicTableSource.Context() {
+
             @Override
             public <T> TypeInformation<T> createTypeInformation(DataType producedDataType) {
                 return context.createTypeInformation(producedDataType);
@@ -343,6 +356,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
 
     private FileSystemFormatFactory.ReaderContext createReaderContext() {
         return new FileSystemFormatFactory.ReaderContext() {
+
             @Override
             public TableSchema getSchema() {
                 return schema;
@@ -539,7 +553,9 @@ public class FileSystemTableSink extends AbstractFileSystemTable
                         deserializationFormat,
                         formatFactory,
                         bulkWriterFormat,
-                        serializationFormat);
+                        serializationFormat,
+                        dirtyOptions,
+                        dirtySink);
         sink.overwrite = overwrite;
         sink.dynamicGrouping = dynamicGrouping;
         sink.staticPartitions = staticPartitions;

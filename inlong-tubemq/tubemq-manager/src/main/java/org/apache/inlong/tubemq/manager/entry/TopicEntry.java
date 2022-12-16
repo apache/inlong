@@ -36,6 +36,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Data
 @EntityListeners(AuditingEntityListener.class) // support CreationTimestamp annotation
 public class TopicEntry {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long businessId;
@@ -118,7 +119,7 @@ public class TopicEntry {
     private String issueMethod;
 
     public TopicEntry(String businessName, String schemaName,
-                      String username, String passwd, String topic, String encodingType) {
+            String username, String passwd, String topic, String encodingType) {
         this.businessName = businessName;
         this.schemaName = schemaName;
         this.username = username;

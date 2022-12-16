@@ -34,6 +34,8 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.interceptor.Interceptor;
 import org.apache.flume.interceptor.InterceptorBuilderFactory;
 import org.apache.flume.interceptor.InterceptorChain;
+import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
@@ -41,7 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FailoverChannelProcessor
-        extends ChannelProcessor {
+        extends
+            ChannelProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FailoverChannelProcessor.class);
     private static final LogCounter logPrinter = new LogCounter(10, 10000, 60 * 1000);
@@ -149,7 +152,7 @@ public class FailoverChannelProcessor
 
             for (Channel ch : reqChannels) {
                 List<Event> eventQueue = reqChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//reqChannelQueue
+                        .computeIfAbsent(ch, k -> new ArrayList<Event>());// reqChannelQueue
                 eventQueue.add(event);
             }
 
@@ -157,7 +160,7 @@ public class FailoverChannelProcessor
 
             for (Channel ch : optChannels) {
                 List<Event> eventQueue = optChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//optChannelQueue
+                        .computeIfAbsent(ch, k -> new ArrayList<Event>());// optChannelQueue
 
                 eventQueue.add(event);
             }
@@ -239,7 +242,7 @@ public class FailoverChannelProcessor
         if (event == null) {
             return;
         }
-
+        String errMsg = "";
         boolean success = true;
         List<Channel> requiredChannels = selector.getRequiredChannels(event);
         for (Channel reqChannel : requiredChannels) {
@@ -253,11 +256,12 @@ public class FailoverChannelProcessor
                 tx.commit();
 
             } catch (Throwable t) {
+                errMsg = "Unable to put event on channel" + reqChannel.getName()
+                        + ", error message is " + t.getMessage();
                 if (logPrinter.shouldPrint()) {
                     LOG.error("FailoverChannelProcessor Unable to put event on required channel: "
                             + reqChannel.getName(), t);
                 }
-
                 success = false;
                 try {
                     tx.rollback();
@@ -271,8 +275,12 @@ public class FailoverChannelProcessor
                 tx.close();
             }
         }
-
-        if (!success && !MessageUtils.isSyncSendForOrder(event)) {
+        if (!success) {
+            if (MessageUtils.isSyncSendForOrder(event)) {
+                MessageUtils.sinkReturnRspPackage((SinkRspEvent) event,
+                        DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE, errMsg);
+                return;
+            }
             List<Channel> optionalChannels = selector.getOptionalChannels(event);
             for (Channel optChannel : optionalChannels) {
                 Transaction tx = null;
@@ -308,7 +316,8 @@ public class FailoverChannelProcessor
                     } else {
                         throw new ChannelException(
                                 "FailoverChannelProcessor Unable to put event on "
-                                        + "optionalChannels: " + optChannel, t);
+                                        + "optionalChannels: " + optChannel,
+                                t);
                     }
                 } finally {
                     if (tx != null) {

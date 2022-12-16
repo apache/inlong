@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -36,8 +36,8 @@ public class PbEnDecoderTest {
         byte[] data = PbEnDecoder.pbEncode(object);
 
         // decode bytes
-        ClientMaster.RegisterRequestP2M decodeObject = (ClientMaster.RegisterRequestP2M)
-                PbEnDecoder.pbDecode(true, RpcConstants.RPC_MSG_MASTER_PRODUCER_REGISTER, data);
+        ClientMaster.RegisterRequestP2M decodeObject = (ClientMaster.RegisterRequestP2M) PbEnDecoder.pbDecode(true,
+                RpcConstants.RPC_MSG_MASTER_PRODUCER_REGISTER, data);
 
         assertEquals(decodeObject.getClientId(), object.getClientId());
         assertEquals(decodeObject.getBrokerCheckSum(), object.getBrokerCheckSum());

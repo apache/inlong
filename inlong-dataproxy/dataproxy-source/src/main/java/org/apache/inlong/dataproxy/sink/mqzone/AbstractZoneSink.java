@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractZoneSink extends AbstractSink implements Configurable {
+
     public static final Logger LOG = LoggerFactory.getLogger(AbstractZoneSink.class);
 
     protected Context parentContext;
@@ -81,10 +82,10 @@ public abstract class AbstractZoneSink extends AbstractSink implements Configura
             // dispatch
             this.scheduledPool.scheduleWithFixedDelay(new Runnable() {
 
-                                                          public void run() {
-                                                              dispatchManager.setNeedOutputOvertimeData();
-                                                          }
-                                                      }, this.dispatchManager.getDispatchTimeout(),
+                public void run() {
+                    dispatchManager.setNeedOutputOvertimeData();
+                }
+            }, this.dispatchManager.getDispatchTimeout(),
                     this.dispatchManager.getDispatchTimeout(),
                     TimeUnit.MILLISECONDS);
             // create worker
@@ -106,7 +107,7 @@ public abstract class AbstractZoneSink extends AbstractSink implements Configura
 
     @Deprecated
     public void diffUpdatePulsarClient(PulsarClientService pulsarClientService, Map<String, String> originalCluster,
-                                       Map<String, String> endCluster) {
+            Map<String, String> endCluster) {
         this.workers.forEach(worker -> {
             worker.zoneProducer.reload();
         });

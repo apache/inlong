@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -69,8 +70,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryBookedResCtrlGroups(HttpServletRequest req,
-                                                       StringBuilder strBuff,
-                                                       ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         return innQueryGroupResCtrlInfo(req, strBuff, result, true);
     }
 
@@ -83,8 +84,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryGroupResCtrlConf(HttpServletRequest req,
-                                                    StringBuilder strBuff,
-                                                    ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         return innQueryGroupResCtrlInfo(req, strBuff, result, false);
     }
 
@@ -97,8 +98,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminAddGroupResCtrlConf(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdGroupResCtrlConf(req, sBuffer, result, true);
     }
 
@@ -111,8 +112,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchAddGroupResCtrlConf(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdGroupResCtrlConf(req, sBuffer, result, true);
     }
 
@@ -125,8 +126,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminModGroupResCtrlConf(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdGroupResCtrlConf(req, sBuffer, result, false);
     }
 
@@ -139,8 +140,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchUpdGroupResCtrlConf(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdGroupResCtrlConf(req, sBuffer, result, false);
     }
 
@@ -153,8 +154,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminDelGroupResCtrlConf(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -187,9 +188,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     private StringBuilder innQueryGroupResCtrlInfo(HttpServletRequest req,
-                                                   StringBuilder strBuff,
-                                                   ProcessResult result,
-                                                   boolean onlyRetGroup) {
+            StringBuilder strBuff,
+            ProcessResult result,
+            boolean onlyRetGroup) {
         // build query entity
         GroupResCtrlEntity qryEntity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -205,12 +206,12 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         final Set<String> inGroupSet = (Set<String>) result.getRetData();
         // get resCheckStatus info
-        if (!WebParameterUtils.getBooleanParamValue(req,
+        if (!WebParameterUtils.getEnableStatusValue(req,
                 WebFieldDef.RESCHECKENABLE, false, null, strBuff, result)) {
             WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
             return strBuff;
         }
-        Boolean resCheckEnable = (Boolean) result.getRetData();
+        EnableStatus resCheckEnable = (EnableStatus) result.getRetData();
         // get and valid qryPriorityId info
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
@@ -220,12 +221,12 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         int inQryPriorityId = (int) result.getRetData();
         // get flowCtrlEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
+        if (!WebParameterUtils.getEnableStatusValue(req,
                 WebFieldDef.FLOWCTRLENABLE, false, null, strBuff, result)) {
             WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
             return strBuff;
         }
-        Boolean flowCtrlEnable = (Boolean) result.getRetData();
+        EnableStatus flowCtrlEnable = (EnableStatus) result.getRetData();
         // query matched records
         qryEntity.updModifyInfo(qryEntity.getDataVerId(),
                 resCheckEnable, TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId,
@@ -261,9 +262,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innAddOrUpdGroupResCtrlConf(HttpServletRequest req,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result,
-                                                      boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -278,12 +279,12 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         final Set<String> batchGroupNames = (Set<String>) result.getRetData();
         // get resCheckStatus info
-        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.RESCHECKENABLE,
-                false, (isAddOp ? false : null), sBuffer, result)) {
+        if (!WebParameterUtils.getEnableStatusValue(req, WebFieldDef.RESCHECKENABLE,
+                false, (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean resCheckEnable = (Boolean) result.getRetData();
+        EnableStatus resCheckEnable = (EnableStatus) result.getRetData();
         // get and valid allowedBrokerClientRate info
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.ALWDBCRATE,
                 false, (isAddOp ? TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN
@@ -306,12 +307,12 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         int qryPriorityId = (int) result.getRetData();
         // get flowCtrlEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.FLOWCTRLENABLE,
-                false, (isAddOp ? false : null), sBuffer, result)) {
+        if (!WebParameterUtils.getEnableStatusValue(req, WebFieldDef.FLOWCTRLENABLE,
+                false, (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean flowCtrlEnable = (Boolean) result.getRetData();
+        EnableStatus flowCtrlEnable = (EnableStatus) result.getRetData();
         // get and flow control rule info
         int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
                 (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);
@@ -331,9 +332,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innBatchAddOrUpdGroupResCtrlConf(HttpServletRequest req,
-                                                           StringBuilder sBuffer,
-                                                           ProcessResult result,
-                                                           boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -357,8 +358,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private boolean getGroupResCtrlJsonSetInfo(HttpServletRequest req, boolean isAddOp,
-                                               BaseEntity defOpEntity, StringBuilder sBuffer,
-                                               ProcessResult result) {
+            BaseEntity defOpEntity, StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.GROUPRESCTRLSET, true, null, result)) {
             return result.isSuccess();
@@ -386,11 +387,11 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             }
             final String groupName = (String) result.getRetData();
             // get resCheckStatus info
-            if (!WebParameterUtils.getBooleanParamValue(itemValueMap, WebFieldDef.RESCHECKENABLE,
-                    false, (isAddOp ? false : null), sBuffer, result)) {
+            if (!WebParameterUtils.getEnableStatusValue(itemValueMap, WebFieldDef.RESCHECKENABLE,
+                    false, (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
                 return result.isSuccess();
             }
-            final Boolean resCheckEnable = (Boolean) result.getRetData();
+            final EnableStatus resCheckEnable = (EnableStatus) result.getRetData();
             // get and valid allowedBrokerClientRate info
             if (!WebParameterUtils.getIntParamValue(itemValueMap, WebFieldDef.ALWDBCRATE,
                     false, (isAddOp ? TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN
@@ -409,12 +410,12 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             }
             final int qryPriorityId = (int) result.getRetData();
             // get flowCtrlEnable info
-            if (!WebParameterUtils.getBooleanParamValue(itemValueMap,
+            if (!WebParameterUtils.getEnableStatusValue(itemValueMap,
                     WebFieldDef.FLOWCTRLENABLE, false,
-                    (isAddOp ? false : null), sBuffer, result)) {
+                    (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
                 return result.isSuccess();
             }
-            Boolean flowCtrlEnable = (Boolean) result.getRetData();
+            EnableStatus flowCtrlEnable = (EnableStatus) result.getRetData();
             // get and flow control rule info
             int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(itemValueMap,
                     (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);
@@ -443,7 +444,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<GroupProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (GroupProcessResult entry : retInfo) {

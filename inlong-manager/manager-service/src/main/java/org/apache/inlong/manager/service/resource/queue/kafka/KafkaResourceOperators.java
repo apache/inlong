@@ -18,7 +18,8 @@
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -52,13 +53,13 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     private static final String KAFKA_CONSUMER_GROUP = "%s_%s_consumer_group";
 
     @Autowired
-    private InlongClusterService clusterService;
+    private KafkaOperator kafkaOperator;
     @Autowired
     private InlongStreamService streamService;
     @Autowired
-    private KafkaOperator kafkaOperator;
-    @Autowired
     private InlongConsumeService consumeService;
+    @Autowired
+    private InlongClusterService clusterService;
 
     @Override
     public boolean accept(String mqType) {
@@ -67,26 +68,8 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
     @Override
     public void createQueueForGroup(@NotNull InlongGroupInfo groupInfo, @NotBlank String operator) {
-        String groupId = groupInfo.getInlongGroupId();
-        log.info("begin to create kafka resource for groupId={}", groupId);
-
-        InlongKafkaInfo inlongKafkaInfo = (InlongKafkaInfo) groupInfo;
-        try {
-            // 1. create kafka Topic - each Inlong Stream corresponds to a Kafka Topic
-            List<InlongStreamBriefInfo> streamInfoList = streamService.getTopicList(groupId);
-            if (streamInfoList == null || streamInfoList.isEmpty()) {
-                log.warn("skip to create kafka topic and subscription as no streams for groupId={}", groupId);
-                return;
-            }
-            for (InlongStreamBriefInfo streamInfo : streamInfoList) {
-                this.createKafkaTopic(inlongKafkaInfo, streamInfo.getInlongStreamId());
-            }
-        } catch (Exception e) {
-            String msg = String.format("failed to create kafka resource for groupId=%s", groupId);
-            log.error(msg, e);
-            throw new WorkflowListenerException(msg + ": " + e.getMessage());
-        }
-        log.info("success to create kafka resource for groupId={}, cluster={}", groupId, inlongKafkaInfo);
+        log.info("skip to create kafka topic for groupId={}, just create in each inlong stream",
+                groupInfo.getInlongGroupId());
     }
 
     @Override
@@ -103,7 +86,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
                 return;
             }
             for (InlongStreamBriefInfo streamInfo : streamInfoList) {
-                this.deleteKafkaTopic(groupInfo, streamInfo.getInlongStreamId());
+                this.deleteKafkaTopic(groupInfo, streamInfo.getMqResource());
             }
         } catch (Exception e) {
             log.error("failed to delete kafka resource for groupId=" + groupId, e);
@@ -113,8 +96,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     }
 
     @Override
-    public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            String operator) {
+    public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
         Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
         Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
         Preconditions.checkNotNull(operator, "operator cannot be null");
@@ -126,7 +108,13 @@ public class KafkaResourceOperators implements QueueResourceOperator {
         try {
             InlongKafkaInfo inlongKafkaInfo = (InlongKafkaInfo) groupInfo;
             // create kafka topic
-            this.createKafkaTopic(inlongKafkaInfo, streamInfo.getInlongStreamId());
+            String topicName = streamInfo.getMqResource();
+            if (topicName.equals(streamId)) {
+                // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
+                topicName = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT,
+                        inlongKafkaInfo.getMqResource(), streamInfo.getMqResource());
+            }
+            this.createKafkaTopic(inlongKafkaInfo, topicName);
         } catch (Exception e) {
             String msg = String.format("failed to create kafka topic for groupId=%s, streamId=%s", groupId, streamId);
             log.error(msg, e);
@@ -136,8 +124,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     }
 
     @Override
-    public void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            String operator) {
+    public void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
         Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
         Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
 
@@ -159,10 +146,9 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     /**
      * Create Kafka Topic and Subscription, and save the consumer group info.
      */
-    private void createKafkaTopic(InlongKafkaInfo kafkaInfo, String streamId) throws Exception {
-        // 1. create kafka topic
+    private void createKafkaTopic(InlongKafkaInfo kafkaInfo, String topicName) throws Exception {
+        // create Kafka topic
         ClusterInfo clusterInfo = clusterService.getOne(kafkaInfo.getInlongClusterTag(), null, ClusterType.KAFKA);
-        String topicName = kafkaInfo.getInlongGroupId() + "_" + streamId;
         kafkaOperator.createTopic(kafkaInfo, (KafkaClusterInfo) clusterInfo, topicName);
 
         boolean exist = kafkaOperator.topicIsExists((KafkaClusterInfo) clusterInfo, topicName);
@@ -172,25 +158,20 @@ public class KafkaResourceOperators implements QueueResourceOperator {
             throw new WorkflowListenerException("topic=" + topicName + " not exists in " + bootStrapServers);
         }
 
-        // 2. create a subscription for the kafka topic
-        kafkaOperator.createSubscription(kafkaInfo, (KafkaClusterInfo) clusterInfo, topicName);
-        String groupId = kafkaInfo.getInlongGroupId();
-        log.info("success to create kafka subscription for groupId={}, topic={}, consumeGroup={}",
-                groupId, topicName, topicName);
+        // Kafka consumers do not need to register in advance
 
-        // 3. insert the consumer group info
+        // save the consumer group info for the Kafka topic
         String consumeGroup = String.format(KAFKA_CONSUMER_GROUP, kafkaInfo.getInlongClusterTag(), topicName);
         Integer id = consumeService.saveBySystem(kafkaInfo, topicName, consumeGroup);
         log.info("success to save inlong consume [{}] for consumerGroup={}, groupId={}, topic={}",
-                id, consumeGroup, groupId, topicName);
+                id, consumeGroup, kafkaInfo.getInlongGroupId(), topicName);
     }
 
     /**
      * Delete Kafka Topic and Subscription, and delete the consumer group info.
      */
-    private void deleteKafkaTopic(InlongGroupInfo groupInfo, String streamId) {
+    private void deleteKafkaTopic(InlongGroupInfo groupInfo, String topicName) {
         ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.KAFKA);
-        String topicName = groupInfo.getInlongGroupId() + "_" + streamId;
         kafkaOperator.forceDeleteTopic((KafkaClusterInfo) clusterInfo, topicName);
     }
 }

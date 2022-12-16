@@ -42,6 +42,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
+
 /**
  * Operation related to inlong stream process
  */
@@ -49,12 +54,12 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class InlongStreamProcessService {
 
-    private final ExecutorService executorService = new ThreadPoolExecutor(
-            20,
-            40,
-            0L,
+    private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
+            CORE_POOL_SIZE,
+            MAX_POOL_SIZE,
+            ALIVE_TIME_MS,
             TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(),
+            new LinkedBlockingQueue<>(QUEUE_SIZE),
             new ThreadFactoryBuilder().setNameFormat("inlong-stream-process-%s").build(),
             new CallerRunsPolicy());
 
@@ -70,12 +75,13 @@ public class InlongStreamProcessService {
      */
     public boolean startProcess(String groupId, String streamId, String operator, boolean sync) {
         log.info("begin to start stream process for groupId={} streamId={}", groupId, streamId);
+
         InlongGroupInfo groupInfo = groupService.get(groupId);
         Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
         if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL && groupStatus != GroupStatus.RESTARTED) {
-            throw new BusinessException(
-                    String.format("group status=%s not support start stream for groupId=%s", groupStatus, groupId));
+            throw new BusinessException(String.format("group status=%s not support start stream"
+                    + " for groupId=%s", groupStatus, groupId));
         }
 
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
@@ -85,6 +91,7 @@ public class InlongStreamProcessService {
             log.warn("stream status={}, not need restart for groupId={} streamId={}", status, groupId, streamId);
             return true;
         }
+
         if (StreamStatus.notAllowedUpdate(status)) {
             String errMsg = String.format("stream status=%s not support start stream for groupId=%s streamId=%s",
                     status, groupId, streamId);
@@ -92,14 +99,15 @@ public class InlongStreamProcessService {
             throw new BusinessException(errMsg);
         }
 
-        StreamResourceProcessForm processForm = genStreamProcessForm(groupInfo, streamInfo, GroupOperateType.INIT);
+        StreamResourceProcessForm processForm = StreamResourceProcessForm.getProcessForm(groupInfo,
+                streamInfo, GroupOperateType.INIT);
         ProcessName processName = ProcessName.CREATE_STREAM_RESOURCE;
         if (sync) {
             WorkflowResult workflowResult = workflowService.start(processName, operator, processForm);
             ProcessStatus processStatus = workflowResult.getProcessInfo().getStatus();
             return processStatus == ProcessStatus.COMPLETED;
         } else {
-            executorService.execute(() -> workflowService.start(processName, operator, processForm));
+            EXECUTOR_SERVICE.execute(() -> workflowService.start(processName, operator, processForm));
             return true;
         }
     }
@@ -109,39 +117,37 @@ public class InlongStreamProcessService {
      */
     public boolean suspendProcess(String groupId, String streamId, String operator, boolean sync) {
         log.info("begin to suspend stream process for groupId={} streamId={}", groupId, streamId);
+
         InlongGroupInfo groupInfo = groupService.get(groupId);
-        if (groupInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
+        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL
-                && groupStatus != GroupStatus.RESTARTED
-                && groupStatus != GroupStatus.SUSPENDED) {
-            throw new BusinessException(
-                    String.format("group status=%s not support suspend stream for groupId=%s", groupStatus, groupId));
+        if (!GroupStatus.allowedSuspend(groupStatus)) {
+            throw new BusinessException(String.format("group status=%s not support suspend stream"
+                    + " for groupId=%s", groupStatus, groupId));
         }
+
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
-        if (streamInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
-        }
+        Preconditions.checkNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
         if (status == StreamStatus.SUSPENDED || status == StreamStatus.SUSPENDING) {
-            log.warn("GroupId={}, StreamId={} is already in {}", groupId, streamId, status);
+            log.warn("groupId={}, streamId={} is already in {}", groupId, streamId, status);
             return true;
         }
+
         if (status != StreamStatus.CONFIG_SUCCESSFUL && status != StreamStatus.RESTARTED) {
-            throw new BusinessException(
-                    String.format("stream status=%s not support suspend stream for groupId=%s streamId=%s",
-                            status, groupId, streamId));
+            throw new BusinessException(String.format("stream status=%s not support suspend stream"
+                    + " for groupId=%s streamId=%s", status, groupId, streamId));
         }
-        StreamResourceProcessForm processForm = genStreamProcessForm(groupInfo, streamInfo, GroupOperateType.SUSPEND);
+
+        StreamResourceProcessForm processForm = StreamResourceProcessForm.getProcessForm(groupInfo, streamInfo,
+                GroupOperateType.SUSPEND);
         ProcessName processName = ProcessName.SUSPEND_STREAM_RESOURCE;
         if (sync) {
             WorkflowResult workflowResult = workflowService.start(processName, operator, processForm);
             ProcessStatus processStatus = workflowResult.getProcessInfo().getStatus();
             return processStatus == ProcessStatus.COMPLETED;
         } else {
-            executorService.execute(() -> workflowService.start(processName, operator, processForm));
+            EXECUTOR_SERVICE.execute(() -> workflowService.start(processName, operator, processForm));
             return true;
         }
     }
@@ -151,38 +157,37 @@ public class InlongStreamProcessService {
      */
     public boolean restartProcess(String groupId, String streamId, String operator, boolean sync) {
         log.info("begin to restart stream process for groupId={} streamId={}", groupId, streamId);
+
         InlongGroupInfo groupInfo = groupService.get(groupId);
-        if (groupInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
+        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL
-                && groupStatus != GroupStatus.RESTARTED) {
+        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL && groupStatus != GroupStatus.RESTARTED) {
             throw new BusinessException(
                     String.format("group status=%s not support restart stream for groupId=%s", groupStatus, groupId));
         }
+
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
-        if (streamInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
-        }
+        Preconditions.checkNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
         if (status == StreamStatus.RESTARTED || status == StreamStatus.RESTARTING) {
-            log.warn("GroupId={}, StreamId={} is already in {}", groupId, streamId, status);
+            log.warn("inlong stream was already in {} for groupId={}, streamId={}", status, groupId, streamId);
             return true;
         }
+
         if (status != StreamStatus.SUSPENDED) {
-            throw new BusinessException(
-                    String.format("stream status=%s not support restart stream for groupId=%s streamId=%s",
-                            status, groupId, streamId));
+            throw new BusinessException(String.format("stream status=%s not support restart stream"
+                    + " for groupId=%s streamId=%s", status, groupId, streamId));
         }
-        StreamResourceProcessForm processForm = genStreamProcessForm(groupInfo, streamInfo, GroupOperateType.RESTART);
+
+        StreamResourceProcessForm processForm = StreamResourceProcessForm.getProcessForm(groupInfo, streamInfo,
+                GroupOperateType.RESTART);
         ProcessName processName = ProcessName.RESTART_STREAM_RESOURCE;
         if (sync) {
             WorkflowResult workflowResult = workflowService.start(processName, operator, processForm);
             ProcessStatus processStatus = workflowResult.getProcessInfo().getStatus();
             return processStatus == ProcessStatus.COMPLETED;
         } else {
-            executorService.execute(() -> workflowService.start(processName, operator, processForm));
+            EXECUTOR_SERVICE.execute(() -> workflowService.start(processName, operator, processForm));
             return true;
         }
     }
@@ -192,35 +197,30 @@ public class InlongStreamProcessService {
      */
     public boolean deleteProcess(String groupId, String streamId, String operator, boolean sync) {
         log.info("begin to delete stream process for groupId={} streamId={}", groupId, streamId);
+
         InlongGroupInfo groupInfo = groupService.get(groupId);
-        if (groupInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
+        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL
-                && groupStatus != GroupStatus.RESTARTED
-                && groupStatus != GroupStatus.SUSPENDED
-                && groupStatus != GroupStatus.DELETING) {
-            throw new BusinessException(
-                    String.format("group status=%s not support delete stream for groupId=%s", groupStatus, groupId));
+        if (GroupStatus.notAllowedTransition(groupStatus, GroupStatus.DELETING)) {
+            throw new BusinessException(String.format("group status=%s not support delete stream"
+                    + " for groupId=%s", groupStatus, groupId));
         }
+
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
-        if (streamInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
-        }
+        Preconditions.checkNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
         if (status == StreamStatus.DELETED || status == StreamStatus.DELETING) {
-            log.warn("GroupId={}, StreamId={} is already in {}", groupId, streamId, status);
+            log.warn("groupId={}, streamId={} is already in {}", groupId, streamId, status);
             return true;
         }
-        if (status == StreamStatus.CONFIG_ING
-                || status == StreamStatus.RESTARTING
-                || status == StreamStatus.SUSPENDING) {
-            throw new BusinessException(
-                    String.format("stream status=%s not support delete stream for groupId=%s streamId=%s",
-                            status, groupId, streamId));
+
+        if (StreamStatus.notAllowedDelete(status)) {
+            throw new BusinessException(String.format("stream status=%s not support delete stream"
+                    + " for groupId=%s streamId=%s", status, groupId, streamId));
         }
-        StreamResourceProcessForm processForm = genStreamProcessForm(groupInfo, streamInfo, GroupOperateType.DELETE);
+
+        StreamResourceProcessForm processForm = StreamResourceProcessForm.getProcessForm(groupInfo, streamInfo,
+                GroupOperateType.DELETE);
         ProcessName processName = ProcessName.DELETE_STREAM_RESOURCE;
         if (sync) {
             WorkflowResult workflowResult = workflowService.start(processName, operator, processForm);
@@ -231,7 +231,7 @@ public class InlongStreamProcessService {
                 return false;
             }
         } else {
-            executorService.execute(() -> {
+            EXECUTOR_SERVICE.execute(() -> {
                 WorkflowResult workflowResult = workflowService.start(processName, operator, processForm);
                 ProcessStatus processStatus = workflowResult.getProcessInfo().getStatus();
                 if (processStatus == ProcessStatus.COMPLETED) {
@@ -242,12 +242,4 @@ public class InlongStreamProcessService {
         }
     }
 
-    private StreamResourceProcessForm genStreamProcessForm(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            GroupOperateType operateType) {
-        StreamResourceProcessForm processForm = new StreamResourceProcessForm();
-        processForm.setGroupInfo(groupInfo);
-        processForm.setStreamInfo(streamInfo);
-        processForm.setGroupOperateType(operateType);
-        return processForm;
-    }
 }

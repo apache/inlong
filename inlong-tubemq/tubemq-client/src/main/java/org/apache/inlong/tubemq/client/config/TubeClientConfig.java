@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.corerpc.RpcConstants;
  * Configuration of the Tube client.
  */
 public class TubeClientConfig {
+
     // Master information.
     private final MasterInfo masterInfo;
     // Rpc read time out.
@@ -376,8 +377,8 @@ public class TubeClientConfig {
      * @param usrPassWord     the password
      */
     public void setAuthenticInfo(boolean needAuthentic,
-                                 String usrName,
-                                 String usrPassWord) {
+            String usrName,
+            String usrPassWord) {
         if (needAuthentic) {
             if (TStringUtils.isBlank(usrName)) {
                 throw new IllegalArgumentException("Illegal parameter: usrName is Blank!");
@@ -416,18 +417,12 @@ public class TubeClientConfig {
         this.tlsConfig.setTlsTrustStorePassword(trustStorePassword);
         this.tlsConfig.setTlsTwoWayAuthEnable(false);
         /*
-        if (tlsTwoWayAuthEnable) {
-            if (TStringUtils.isBlank(keyStorePath)) {
-                throw new Exception("Illegal parameter: keyStorePath is Blank!");
-            }
-            if (TStringUtils.isBlank(keyStorePassword)) {
-                throw new Exception("Illegal parameter: keyStorePassword is Blank!");
-            }
-            this.tlsConfig.setTlsTwoWayAuthEnable(tlsTwoWayAuthEnable);
-            this.tlsConfig.setTlsKeyStorePath(keyStorePath);
-            this.tlsConfig.setTlsKeyStorePassword(keyStorePassword);
-        }
-        */
+         * if (tlsTwoWayAuthEnable) { if (TStringUtils.isBlank(keyStorePath)) { throw new
+         * Exception("Illegal parameter: keyStorePath is Blank!"); } if (TStringUtils.isBlank(keyStorePassword)) { throw
+         * new Exception("Illegal parameter: keyStorePassword is Blank!"); }
+         * this.tlsConfig.setTlsTwoWayAuthEnable(tlsTwoWayAuthEnable); this.tlsConfig.setTlsKeyStorePath(keyStorePath);
+         * this.tlsConfig.setTlsKeyStorePassword(keyStorePassword); }
+         */
     }
 
     public boolean isTlsEnable() {
@@ -471,7 +466,7 @@ public class TubeClientConfig {
     }
 
     public void setStatsConfig(StatsLevel statsLevel, boolean enableSelfPrint,
-                               long selfPrintPeriodMs, long forcedResetPeriodMs) {
+            long selfPrintPeriodMs, long forcedResetPeriodMs) {
         this.statsConfig.updateStatsConfig(statsLevel,
                 enableSelfPrint, selfPrintPeriodMs, forcedResetPeriodMs);
     }

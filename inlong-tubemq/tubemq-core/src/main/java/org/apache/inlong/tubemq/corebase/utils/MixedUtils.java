@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -28,6 +28,7 @@ import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
 public class MixedUtils {
+
     // java version cache
     private static String javaVersion = "";
 
@@ -86,7 +87,7 @@ public class MixedUtils {
         // initial send target
         List<Tuple2<String, String>> topicFilterTuples = new ArrayList<>();
         // initial topic send round
-        for (Map.Entry<String, TreeSet<String>> entry: topicAndFiltersMap.entrySet()) {
+        for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
             if (entry.getValue().isEmpty()) {
                 topicFilterTuples.add(new Tuple2<>(entry.getKey()));
             } else {
@@ -115,7 +116,7 @@ public class MixedUtils {
     // build message to be sent
     // only for demo
     public static Message buildMessage(String topicName, String filterItem,
-                                       byte[] bodyData, long serialId) {
+            byte[] bodyData, long serialId) {
         // build message to be sent
         Message message = new Message(topicName, bodyData);
         long currTimeMillis = System.currentTimeMillis();

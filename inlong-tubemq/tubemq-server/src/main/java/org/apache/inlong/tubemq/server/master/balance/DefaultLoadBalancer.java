@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 /* Load balance class for server side load balance, (partition size) mod (consumer size) */
 public class DefaultLoadBalancer implements LoadBalancer {
+
     private static final Logger logger = LoggerFactory.getLogger(LoadBalancer.class);
     private static final Random RANDOM = new Random(System.currentTimeMillis());
 
@@ -73,8 +74,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             StringBuilder strBuffer) {
         // #lizard forgives
         // load balance according to group
-        Map<String/* consumer */,
-                Map<String/* topic */, List<Partition>>> finalSubInfoMap =
+        Map<String/* consumer */, Map<String/* topic */, List<Partition>>> finalSubInfoMap =
                 new HashMap<>();
         Map<String, RebProcessInfo> rejGroupClientInfoMap = new HashMap<>();
         Set<String> onlineOfflineGroupSet = new HashSet<>();
@@ -113,9 +113,11 @@ public class DefaultLoadBalancer implements LoadBalancer {
                         defMetaDataService.getGroupCtrlConf(group);
                 int confAllowBClientRate = (offsetResetGroupEntity != null
                         && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
-                        ? offsetResetGroupEntity.getAllowedBrokerClientRate() : -2;
+                                ? offsetResetGroupEntity.getAllowedBrokerClientRate()
+                                : -2;
                 int allowRate = confAllowBClientRate > 0
-                        ? confAllowBClientRate : consumerHolder.getDefResourceRate();
+                        ? confAllowBClientRate
+                        : consumerHolder.getDefResourceRate();
                 int maxBrokerCount =
                         brokerRunManager.getSubTopicMaxBrokerCount(topicSet);
                 int curBClientRate = (int) Math.floor(maxBrokerCount / newConsumerList.size());
@@ -223,8 +225,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     groupsNeedToBalance, clusterState, rejGroupClientInfoMap);
         }
         if (!rejGroupClientInfoMap.isEmpty()) {
-            for (Entry<String, RebProcessInfo> entry :
-                    rejGroupClientInfoMap.entrySet()) {
+            for (Entry<String, RebProcessInfo> entry : rejGroupClientInfoMap.entrySet()) {
                 consumerHolder.setRebNodeProcessed(entry.getKey(),
                         entry.getValue().needProcessList);
             }
@@ -352,8 +353,8 @@ public class DefaultLoadBalancer implements LoadBalancer {
     }
 
     private void assign(Partition partition,
-                        Map<String, Map<String, List<Partition>>> clusterState,
-                        String consumerId) {
+            Map<String, Map<String, List<Partition>>> clusterState,
+            String consumerId) {
         Map<String, List<Partition>> partitions =
                 clusterState.computeIfAbsent(consumerId, k -> new HashMap<>());
         List<Partition> ps = partitions.computeIfAbsent(
@@ -371,10 +372,10 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param filterList
      */
     private void randomAssign(Map<String, Partition> partitionToAssignMap,
-                              List<ConsumerInfo> consumerList,
-                              Map<String, Map<String, List<Partition>>> clusterState,
-                              Map<String, Map<String, Map<String, Partition>>> oldClusterState,
-                              List<String> filterList) {
+            List<ConsumerInfo> consumerList,
+            Map<String, Map<String, List<Partition>>> clusterState,
+            Map<String, Map<String, Map<String, Partition>>> oldClusterState,
+            List<String> filterList) {
         int searched = 1;
         int consumerSize = consumerList.size();
         for (Partition partition : partitionToAssignMap.values()) {
@@ -422,7 +423,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
      */
     @Override
     public Map<String, List<Partition>> roundRobinAssignment(List<Partition> partitions,
-                                                             List<String> consumers) {
+            List<String> consumers) {
         if (partitions.isEmpty() || consumers.isEmpty()) {
             return null;
         }
@@ -496,9 +497,11 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     defMetaDataService.getGroupCtrlConf(group);
             int confAllowBClientRate = (offsetResetGroupEntity != null
                     && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
-                    ? offsetResetGroupEntity.getAllowedBrokerClientRate() : -2;
+                            ? offsetResetGroupEntity.getAllowedBrokerClientRate()
+                            : -2;
             int allowRate = confAllowBClientRate > 0
-                    ? confAllowBClientRate : consumerHolder.getDefResourceRate();
+                    ? confAllowBClientRate
+                    : consumerHolder.getDefResourceRate();
             int maxBrokerCount =
                     brokerRunManager.getSubTopicMaxBrokerCount(topicSet);
             int curBClientRate = (int) Math.floor(maxBrokerCount / consumerList.size());

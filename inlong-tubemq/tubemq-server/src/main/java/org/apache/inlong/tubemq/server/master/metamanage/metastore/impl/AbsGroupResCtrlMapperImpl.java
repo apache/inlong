@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -29,10 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
+
     protected static final Logger logger =
             LoggerFactory.getLogger(AbsGroupResCtrlMapperImpl.class);
-    private final ConcurrentHashMap<String/* groupName */, GroupResCtrlEntity>
-            groupBaseCtrlCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* groupName */, GroupResCtrlEntity> groupBaseCtrlCache =
+            new ConcurrentHashMap<>();
 
     public AbsGroupResCtrlMapperImpl() {
         // Initial instant
@@ -40,7 +41,7 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
 
     @Override
     public boolean addGroupResCtrlConf(GroupResCtrlEntity entity,
-                                       StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         GroupResCtrlEntity curEntity = groupBaseCtrlCache.get(entity.getGroupName());
         if (curEntity != null) {
@@ -59,7 +60,7 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
 
     @Override
     public boolean updGroupResCtrlConf(GroupResCtrlEntity entity,
-                                       StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         GroupResCtrlEntity curEntity = groupBaseCtrlCache.get(entity.getGroupName());
         if (curEntity == null) {
@@ -73,8 +74,8 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
         GroupResCtrlEntity newEntity = curEntity.clone();
         newEntity.updBaseModifyInfo(entity);
         if (!newEntity.updModifyInfo(entity.getDataVerId(),
-                entity.isEnableResCheck(), entity.getAllowedBrokerClientRate(),
-                entity.getQryPriorityId(), entity.isFlowCtrlEnable(),
+                entity.getResCheckStatus(), entity.getAllowedBrokerClientRate(),
+                entity.getQryPriorityId(), entity.getFlowCtrlStatus(),
                 entity.getRuleCnt(), entity.getFlowCtrlInfo())) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                     "Group control configure not changed!");
@@ -109,7 +110,7 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
 
     @Override
     public Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupNameSet,
-                                                               GroupResCtrlEntity qryEntry) {
+            GroupResCtrlEntity qryEntry) {
         Map<String, GroupResCtrlEntity> retMap = new HashMap<>();
         if (groupNameSet == null || groupNameSet.isEmpty()) {
             for (GroupResCtrlEntity entry : groupBaseCtrlCache.values()) {
@@ -156,7 +157,7 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
      * @return the process result
      */
     protected abstract boolean putConfig2Persistent(GroupResCtrlEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete group control configure information from persistent storage

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -60,8 +60,10 @@ import com.google.common.base.Throwables;
 /**
  * AdminHttpSource
  */
-public class AdminHttpSource extends SslContextAwareAbstractSource implements
-        EventDrivenSource, Configurable {
+public class AdminHttpSource extends SslContextAwareAbstractSource
+        implements
+            EventDrivenSource,
+            Configurable {
     /*
      * There are 2 ways of doing this: a. Have a static server instance and use connectors in each source which binds to
      * the port defined for that source. b. Each source starts its own server instance, which binds to the source's
@@ -143,7 +145,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
         }
         srv = new Server(threadPool);
 
-//Register with JMX for advanced monitoring
+        // Register with JMX for advanced monitoring
         MBeanContainer mbContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
         srv.addEventListener(mbContainer);
         srv.addBean(mbContainer);

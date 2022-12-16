@@ -25,7 +25,7 @@ import HighTable from '@/components/HighTable';
 import { PageContainer } from '@/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, ClusterMetaType } from '@/metas';
 import CreateModal from './CreateModal';
 import request from '@/utils/request';
 import { timestampFormat } from '@/utils';
@@ -111,12 +111,12 @@ const Comp: React.FC = () => {
         name: 'keyword',
       },
       {
-        type: 'radiobutton',
+        type: 'select',
         name: 'type',
         label: i18n.t('pages.Clusters.Type'),
         initialValue: defaultValues.type,
         props: {
-          buttonStyle: 'solid',
+          dropdownMatchSelectWidth: false,
           options: clusters,
         },
       },
@@ -124,12 +124,14 @@ const Comp: React.FC = () => {
     [clusters],
   );
 
-  const { Entity } = useLoadMeta('cluster', options.type);
+  const { Entity } = useLoadMeta<ClusterMetaType>('cluster', options.type);
+
+  const entityColumns = useMemo(() => {
+    return Entity ? new Entity().renderList() : [];
+  }, [Entity]);
 
   const columns = useMemo(() => {
-    if (!Entity) return [];
-
-    return Entity.ColumnList?.concat([
+    return entityColumns?.concat([
       {
         title: i18n.t('pages.Clusters.LastModifier'),
         dataIndex: 'modifier',
@@ -162,7 +164,7 @@ const Comp: React.FC = () => {
         ),
       } as any,
     ]);
-  }, [Entity, onDelete]);
+  }, [entityColumns, onDelete]);
 
   return (
     <PageContainer useDefaultBreadcrumb={false}>
@@ -188,6 +190,7 @@ const Comp: React.FC = () => {
 
       <CreateModal
         {...createModal}
+        defaultType={options.type}
         visible={createModal.visible as boolean}
         onOk={async () => {
           await getList();

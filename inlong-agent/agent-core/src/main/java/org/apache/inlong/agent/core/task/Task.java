@@ -32,9 +32,10 @@ public class Task {
     private final Sink sink;
     private final Channel channel;
     private final JobProfile jobConf;
+    private volatile boolean isInited = false;
 
     public Task(String taskId, Reader reader, Sink sink, Channel channel,
-        JobProfile jobConf) {
+            JobProfile jobConf) {
         this.reader = reader;
         this.sink = sink;
         this.taskId = taskId;
@@ -70,6 +71,11 @@ public class Task {
         this.channel.init(jobConf);
         this.sink.init(jobConf);
         this.reader.init(jobConf);
+        isInited = true;
+    }
+
+    public boolean isTaskFinishInit() {
+        return isInited;
     }
 
     public void destroy() {

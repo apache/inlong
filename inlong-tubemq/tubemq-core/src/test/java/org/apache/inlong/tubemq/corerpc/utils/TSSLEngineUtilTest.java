@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -36,14 +36,14 @@ public class TSSLEngineUtilTest {
         String keyStorePassword = "tubeserver";
         // trust store file path
         InputStream trustStoreStream = this.getClass()
-            .getResourceAsStream("tubeServerTrustStore.keystore");
+                .getResourceAsStream("tubeServerTrustStore.keystore");
         // trust store file password
         String trustStorePassword = "tubeserver";
         SSLEngine sslEngine = null;
         try {
             // create engine
             sslEngine = TSSLEngineUtil.createSSLEngine(keyStoreStream, keyStorePassword,
-                trustStoreStream, trustStorePassword, true, false);
+                    trustStoreStream, trustStorePassword, true, false);
         } catch (Throwable e) {
             e.printStackTrace();
         }

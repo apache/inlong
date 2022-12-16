@@ -50,6 +50,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.DATA_TYPE_RAW_PREFIX;
+
 /**
  * Pulsar stream source operator
  */
@@ -113,7 +115,8 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
         String adminUrl = pulsarCluster.getAdminUrl();
         String serviceUrl = pulsarCluster.getUrl();
         String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
-                ? InlongConstants.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
+                ? InlongConstants.DEFAULT_PULSAR_TENANT
+                : pulsarCluster.getTenant();
 
         Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
         streamInfos.forEach(streamInfo -> {
@@ -126,6 +129,10 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             pulsarSource.setAdminUrl(adminUrl);
             pulsarSource.setServiceUrl(serviceUrl);
             pulsarSource.setInlongComponent(true);
+
+            // CSV: InLong message type whose message body is raw CSV
+            // Raw-CSV: messages are separated by a specific separator
+            pulsarSource.setWrapWithInlongMsg(streamInfo.getDataType().startsWith(DATA_TYPE_RAW_PREFIX));
 
             // set the token info
             if (StringUtils.isNotBlank(pulsarCluster.getToken())) {
@@ -142,6 +149,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
                         && StringUtils.isNotEmpty(sourceInfo.getSerializationType())) {
                     pulsarSource.setSerializationType(sourceInfo.getSerializationType());
                 }
+                // currently, only reuse the primary key from Kafka source
                 if (SourceType.KAFKA.equals(sourceInfo.getSourceType())) {
                     pulsarSource.setPrimaryKey(((KafkaSource) sourceInfo).getPrimaryKey());
                 }
@@ -149,9 +157,9 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
 
             // if the SerializationType is still null, set it to the CSV
             if (StringUtils.isEmpty(pulsarSource.getSerializationType())) {
-                pulsarSource.setSerializationType(DataTypeEnum.CSV.getName());
+                pulsarSource.setSerializationType(DataTypeEnum.CSV.getType());
             }
-            if (DataTypeEnum.CSV.getName().equalsIgnoreCase(pulsarSource.getSerializationType())) {
+            if (DataTypeEnum.CSV.getType().equalsIgnoreCase(pulsarSource.getSerializationType())) {
                 pulsarSource.setDataSeparator(streamInfo.getDataSeparator());
                 if (StringUtils.isEmpty(pulsarSource.getDataSeparator())) {
                     pulsarSource.setDataSeparator(String.valueOf((int) ','));

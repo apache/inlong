@@ -18,7 +18,8 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { ClusterMetaType } from '../types';
 
-export const allExtendsClusters: MetaExportWithBackendList = [
+export const allExtendsClusters: MetaExportWithBackendList<ClusterMetaType> = [
   // You can extends at here...
 ];

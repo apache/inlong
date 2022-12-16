@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,10 +29,10 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.base.filter.RowKindValidator;
 import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
 
@@ -191,8 +190,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             boolean migrateAll,
             String inlongMetric,
             String inlongAudit,
-            String rowKindsFiltered
-            ) {
+            String rowKindsFiltered) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -255,7 +253,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         .setAppendSource(appendSource)
                         .setValidator(new RowKindValidator(rowKindsFiltered))
                         .setUserDefinedConverterFactory(
-                            MySqlDeserializationConverterFactory.instance())
+                                MySqlDeserializationConverterFactory.instance())
                         .setMigrateAll(migrateAll)
                         .build();
         if (enableParallelRead) {
@@ -301,6 +299,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .startupOptions(startupOptions)
                             .inlongMetric(inlongMetric)
                             .inlongAudit(inlongAudit)
+                            .migrateAll(migrateAll)
                             .deserializer(deserializer);
             Optional.ofNullable(serverId)
                     .ifPresent(serverId -> builder.serverId(Integer.parseInt(serverId)));
@@ -316,17 +315,15 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(MySqlReadableMetadata.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(MySqlReadableMetadata.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(
-                        m ->
-                                m == MySqlReadableMetadata.OLD
-                                        ? new OldFieldMetadataConverter(
+                        m -> m == MySqlReadableMetadata.OLD
+                                ? new OldFieldMetadataConverter(
                                         physicalDataType, serverTimeZone)
-                                        : m.getConverter())
+                                : m.getConverter())
                 .toArray(MetadataConverter[]::new);
     }
 

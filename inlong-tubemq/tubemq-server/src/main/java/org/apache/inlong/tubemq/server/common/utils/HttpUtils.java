@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * currently does not support https
  */
 public class HttpUtils {
+
     // log printer
     private static final Logger logger =
             LoggerFactory.getLogger(HttpUtils.class);
@@ -54,7 +55,7 @@ public class HttpUtils {
      * @param inParamMap     the parameter map
      */
     public static JsonObject requestWebService(String url,
-                                               Map<String, String> inParamMap) throws Exception {
+            Map<String, String> inParamMap) throws Exception {
         if (url == null) {
             throw new Exception("Web service url is null!");
         }
@@ -143,7 +144,7 @@ public class HttpUtils {
         inParamMap.put("brokerId", "170399798");
         String masterAddr = "127.0.0.1:8082,127.0.0.1:8080";
         // build visit object
-        MasterInfo masterInfo =  new MasterInfo(masterAddr.trim());
+        MasterInfo masterInfo = new MasterInfo(masterAddr.trim());
         JsonObject jsonRes = null;
         // call master nodes
         for (String address : masterInfo.getNodeHostPortList()) {

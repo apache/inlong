@@ -57,8 +57,7 @@ public abstract class SinkRequest {
 
     @NotBlank(message = "sinkName cannot be blank")
     @Length(min = 1, max = 100, message = "sinkName length must be between 1 and 100")
-    @Pattern(regexp = "^[a-z0-9_-]{1,100}$",
-            message = "sinkName only supports lowercase letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[a-z0-9_-]{1,100}$", message = "sinkName only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty("Sink name, unique in one stream")
     private String sinkName;
 
@@ -79,6 +78,9 @@ public abstract class SinkRequest {
 
     @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. Default is 1")
     private Integer enableCreateResource = 1;
+
+    @ApiModelProperty(value = "Whether to start the process after saving or updating. Default is false")
+    private Boolean startProcess = false;
 
     @ApiModelProperty("Sink field list")
     private List<SinkField> sinkFieldList;

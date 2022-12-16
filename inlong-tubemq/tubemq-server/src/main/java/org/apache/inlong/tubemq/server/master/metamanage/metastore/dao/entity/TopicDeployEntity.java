@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -33,9 +33,9 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
     private String recordKey = "";
     private String topicName = "";
     private int brokerId = TBaseConstants.META_VALUE_UNDEFINED;
-    private TopicStatus deployStatus = TopicStatus.STATUS_TOPIC_UNDEFINED;  // topic status
+    private TopicStatus deployStatus = TopicStatus.STATUS_TOPIC_UNDEFINED; // topic status
     private TopicPropGroup topicProps = new TopicPropGroup();
-    private String brokerIp =  "";
+    private String brokerIp = "";
     private int brokerPort = TBaseConstants.META_VALUE_UNDEFINED;
     private String brokerAddress = "";
     private int topicNameId = TBaseConstants.META_VALUE_UNDEFINED;
@@ -52,7 +52,7 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
     }
 
     public TopicDeployEntity(BaseEntity opInfoEntity, int brokerId,
-                             String topicName, TopicPropGroup topicProps) {
+            String topicName, TopicPropGroup topicProps) {
         super(opInfoEntity);
         this.brokerId = brokerId;
         this.topicName = topicName;
@@ -112,7 +112,7 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
     }
 
     private void setTopicDeployInfo(int brokerId, String brokerIp,
-                                    int brokerPort, String topicName) {
+            int brokerPort, String topicName) {
         this.brokerId = brokerId;
         this.brokerIp = brokerIp;
         this.brokerPort = brokerPort;
@@ -212,8 +212,8 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
      * @return if changed
      */
     public boolean updModifyInfo(long dataVerId, int topicNameId, int brokerPort,
-                                 String brokerIp, TopicStatus deployStatus,
-                                 TopicPropGroup topicProps) {
+            String brokerIp, TopicStatus deployStatus,
+            TopicPropGroup topicProps) {
         boolean changed = false;
         // check and set dataVerId info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -254,9 +254,9 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
             }
         }
         if (changed) {
-            updSerialId();
             this.brokerAddress =
                     KeyBuilderUtils.buildAddressInfo(this.brokerIp, this.brokerPort);
+            updSerialId();
         }
         return changed;
     }
@@ -280,16 +280,16 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
         return (target.getBrokerId() == TBaseConstants.META_VALUE_UNDEFINED
                 || target.getBrokerId() == this.brokerId)
                 && (target.getBrokerPort() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getBrokerPort() == this.brokerPort)
+                        || target.getBrokerPort() == this.brokerPort)
                 && (target.getTopicId() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getTopicId() == this.topicNameId)
+                        || target.getTopicId() == this.topicNameId)
                 && (TStringUtils.isBlank(target.getTopicName())
-                || target.getTopicName().equals(this.topicName))
+                        || target.getTopicName().equals(this.topicName))
                 && (TStringUtils.isBlank(target.getBrokerIp())
-                || target.getBrokerIp().equals(this.brokerIp))
+                        || target.getBrokerIp().equals(this.brokerIp))
                 && topicProps.isMatched(target.topicProps)
                 && (target.getTopicStatus() == TopicStatus.STATUS_TOPIC_UNDEFINED
-                || target.getTopicStatus() == this.deployStatus);
+                        || target.getTopicStatus() == this.deployStatus);
     }
 
     /**
@@ -301,8 +301,8 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
      * @return  the serialized content
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         if (isLongName) {
             sBuilder.append("{\"topicName\":\"").append(topicName).append("\"")
                     .append(",\"brokerId\":").append(brokerId)

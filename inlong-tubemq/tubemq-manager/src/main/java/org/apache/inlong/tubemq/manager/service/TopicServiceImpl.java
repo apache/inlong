@@ -88,7 +88,7 @@ public class TopicServiceImpl implements TopicService {
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
             TubeHttpGroupDetailInfo groupDetailInfo =
                     gson.fromJson(new InputStreamReader(response.getEntity()
-                                    .getContent(), StandardCharsets.UTF_8),
+                            .getContent(), StandardCharsets.UTF_8),
                             TubeHttpGroupDetailInfo.class);
             if (groupDetailInfo.getErrCode() == 0) {
                 return groupDetailInfo;
@@ -122,7 +122,7 @@ public class TopicServiceImpl implements TopicService {
         HttpGet httpget = new HttpGet(url);
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
             return gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
-                            StandardCharsets.UTF_8),
+                    StandardCharsets.UTF_8),
                     TopicView.class);
         } catch (Exception ex) {
             log.error("exception caught while requesting group status", ex);
@@ -162,7 +162,7 @@ public class TopicServiceImpl implements TopicService {
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
             TubeHttpTopicInfoList topicInfoList =
                     gson.fromJson(new InputStreamReader(response.getEntity()
-                                    .getContent(), StandardCharsets.UTF_8),
+                            .getContent(), StandardCharsets.UTF_8),
                             TubeHttpTopicInfoList.class);
             if (topicInfoList.getErrCode() == TubeConst.SUCCESS_CODE) {
                 return topicInfoList;
@@ -193,7 +193,7 @@ public class TopicServiceImpl implements TopicService {
                     consumerId);
             String url = TubeConst.SCHEMA + master.getIp() + ":" + master.getWebPort()
                     + "/" + TubeConst.TUBE_REQUEST_PATH + "?" + ConvertUtils
-                    .convertReqToQueryStr(rebalanceConsumerReq);
+                            .convertReqToQueryStr(rebalanceConsumerReq);
             TubeMQResult result = masterService.requestMaster(url);
             if (result.getErrCode() != 0) {
                 rebalanceGroupResult.getFailConsumers().add(consumerId);
@@ -285,8 +285,8 @@ public class TopicServiceImpl implements TopicService {
     }
 
     private void generateOffsetInfo(List<OffsetInfo> offsetPerBroker,
-                                    TubeHttpTopicInfoList.TopicInfoList.TopicInfo topicInfo,
-                                    OffsetQueryRes res) {
+            TubeHttpTopicInfoList.TopicInfoList.TopicInfo topicInfo,
+            OffsetQueryRes res) {
         OffsetInfo offsetInfo = new OffsetInfo();
         offsetInfo.setBrokerId(topicInfo.getBrokerId());
         offsetInfo.setBrokerIp(topicInfo.getBrokerIp());

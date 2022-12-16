@@ -38,8 +38,7 @@ public class MonitorIndexExt {
 
     public MonitorIndexExt(String name, int intervalSec, int maxCnt) {
         /*
-         * key
-         * Almost unchanging. Component indicators, flume_monitors.log
+         * key Almost unchanging. Component indicators, flume_monitors.log
          */
         this.intervalSec = intervalSec;
         /*
@@ -91,7 +90,8 @@ public class MonitorIndexExt {
     }
 
     private class IndexCollectThread
-            extends Thread {
+            extends
+                Thread {
 
         private boolean bShutDown = false;
 
@@ -131,4 +131,3 @@ public class MonitorIndexExt {
         }
     }
 }
-

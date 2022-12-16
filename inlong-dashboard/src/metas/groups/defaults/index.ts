@@ -18,12 +18,18 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { GroupMetaType } from '../types';
 
-export const allDefaultGroups: MetaExportWithBackendList = [
+export const allDefaultGroups: MetaExportWithBackendList<GroupMetaType> = [
   {
     label: 'ALL',
     value: '',
     LoadEntity: () => import('../common/GroupInfo').then(r => ({ default: r.GroupInfo })),
+  },
+  {
+    label: 'Kafka',
+    value: 'KAFKA',
+    LoadEntity: () => import('./Kafka'),
   },
   {
     label: 'Pulsar',
@@ -31,7 +37,7 @@ export const allDefaultGroups: MetaExportWithBackendList = [
     LoadEntity: () => import('./Pulsar'),
   },
   {
-    label: 'TubeMq',
+    label: 'TubeMQ',
     value: 'TUBEMQ',
     LoadEntity: () => import('./TubeMq'),
   },

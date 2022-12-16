@@ -19,8 +19,8 @@ package org.apache.inlong.dataproxy.sink.common;
 
 import java.util.Map;
 import org.apache.flume.Event;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;

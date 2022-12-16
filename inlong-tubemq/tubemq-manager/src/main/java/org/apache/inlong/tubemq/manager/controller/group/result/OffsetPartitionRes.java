@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class OffsetPartitionRes {
+
     private int partitionId;
     private long curOffset;
     private int flightOffset;

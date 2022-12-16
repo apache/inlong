@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,11 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -32,8 +27,14 @@ import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItemSet;
+import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
+
+import java.util.Date;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 
@@ -47,6 +48,8 @@ public class SinkContext {
     public static final String KEY_PROCESSINTERVAL = "processInterval";
     public static final String KEY_RELOADINTERVAL = "reloadInterval";
     public static final String KEY_TASK_NAME = "taskName";
+    public static final String KEY_MAX_BUFFERQUEUE_SIZE_KB = "maxBufferQueueSizeKb";
+    public static final int DEFAULT_MAX_BUFFERQUEUE_SIZE_KB = 128 * 1024;
 
     protected final String clusterId;
     protected final String taskName;
@@ -236,5 +239,16 @@ public class SinkContext {
         inlongStreamId = (StringUtils.isBlank(inlongStreamId)) ? "-" : inlongStreamId;
         dimensions.put(SortMetricItem.KEY_INLONG_GROUP_ID, inlongGroupId);
         dimensions.put(SortMetricItem.KEY_INLONG_STREAM_ID, inlongStreamId);
+    }
+
+    /**
+     * createBufferQueue
+     * @return
+     */
+    public static <U> BufferQueue<U> createBufferQueue() {
+        int maxBufferQueueSizeKb = CommonPropertiesHolder.getInteger(KEY_MAX_BUFFERQUEUE_SIZE_KB,
+                DEFAULT_MAX_BUFFERQUEUE_SIZE_KB);
+        BufferQueue<U> dispatchQueue = new BufferQueue<>(maxBufferQueueSizeKb);
+        return dispatchQueue;
     }
 }

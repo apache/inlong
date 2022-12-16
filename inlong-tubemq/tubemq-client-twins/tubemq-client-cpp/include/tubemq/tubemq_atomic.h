@@ -31,6 +31,10 @@ class Atomic {
  public:
   Atomic() : counter_(0) {}
   explicit Atomic(T initial_value) : counter_(initial_value) {}
+  Atomic<T>& operator=(const Atomic<T>& initial_obj) {
+    Set(initial_obj.Get());
+    return *this;
+  }
 
   inline T Get() const { return counter_.load(std::memory_order_relaxed); }
   inline void Set(T new_value) { counter_.store(new_value, std::memory_order_relaxed); }

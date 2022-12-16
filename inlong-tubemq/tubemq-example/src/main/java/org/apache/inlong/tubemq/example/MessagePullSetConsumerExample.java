@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -54,9 +54,9 @@ public final class MessagePullSetConsumerExample {
     private static final MsgSendReceiveStats msgRcvStats =
             new MsgSendReceiveStats(false);
     // The map of the master cluster and Multiple session factory
-    //    There may be multiple consumers in the same process and the topic sets subscribed
-    //    by different consumers are in different clusters. In this case,
-    //    we need to construct session factories by TubeMultiSessionFactory class.
+    // There may be multiple consumers in the same process and the topic sets subscribed
+    // by different consumers are in different clusters. In this case,
+    // we need to construct session factories by TubeMultiSessionFactory class.
     private static final ConcurrentHashMap<String, MessageSessionFactory> multSessFtyMap =
             new ConcurrentHashMap<>();
 
@@ -97,8 +97,8 @@ public final class MessagePullSetConsumerExample {
         PullMessageConsumer consumer1 =
                 createPullConsumer(masterServers, groupName);
         // 3.2. Set the Topic and the filter item set corresponding to the consumption
-        //     if you not need filter consumption,
-        //    set the parameter filterConds is null or empty set
+        // if you not need filter consumption,
+        // set the parameter filterConds is null or empty set
         for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
             consumer1.subscribe(entry.getKey(), entry.getValue());
         }
@@ -107,9 +107,9 @@ public final class MessagePullSetConsumerExample {
         int sourceCountFst = 1;
         boolean isSelectBig = false;
         // The map of partitionKey and last success offset
-        //    You can persist the information and use it when restarting or
-        //    re-rolling to keep the current consumption to start from
-        //    the offset required in the last round
+        // You can persist the information and use it when restarting or
+        // re-rolling to keep the current consumption to start from
+        // the offset required in the last round
         ConcurrentHashMap<String, Long> partOffsetMapFst =
                 new ConcurrentHashMap<>();
         consumer1.completeSubscribe(sessionKeyFst,
@@ -166,7 +166,7 @@ public final class MessagePullSetConsumerExample {
         }
     }
 
-    //  consumer object creation function
+    // consumer object creation function
     private static PullMessageConsumer createPullConsumer(
             String masterHostAndPorts, String groupName) throws Exception {
         // 1. initial configure and build session factory object
@@ -175,7 +175,7 @@ public final class MessagePullSetConsumerExample {
         // 1.2 set consume from latest position if the consumer group is first consume
         consumerConfig.setConsumePosition(ConsumePosition.CONSUMER_FROM_LATEST_OFFSET);
         // 2. build session factory object
-        //    find and initialize TubeMultiSessionFactory object according to the Master cluster information
+        // find and initialize TubeMultiSessionFactory object according to the Master cluster information
         MasterInfo masterInfo = consumerConfig.getMasterInfo();
 
         MessageSessionFactory sessionFactory;
@@ -200,8 +200,8 @@ public final class MessagePullSetConsumerExample {
         final int consumeCount;
 
         FetchRequestRunner(PullMessageConsumer messageConsumer,
-                           ConcurrentHashMap<String, Long> partOffsetMap,
-                           int msgCount) {
+                ConcurrentHashMap<String, Long> partOffsetMap,
+                int msgCount) {
             this.pullConsumer = messageConsumer;
             this.partOffsetMap = partOffsetMap;
             this.consumeCount = msgCount;
@@ -236,9 +236,9 @@ public final class MessagePullSetConsumerExample {
                             msgRcvStats.addMsgCount(csmResult.getTopicName(), messageList.size());
                         }
                         // 2.1.2 store the offset of processing message
-                        //       the offset returned by GetMessage() represents the initial offset of this request
-                        //       if consumer group is pure Pull mode, the initial offset can be saved;
-                        //       if not, we have to use the return value of confirmConsume()
+                        // the offset returned by GetMessage() represents the initial offset of this request
+                        // if consumer group is pure Pull mode, the initial offset can be saved;
+                        // if not, we have to use the return value of confirmConsume()
                         partOffsetMap.put(csmResult.getPartitionKey(), csmResult.getCurrOffset());
                         // 2.1.3 confirm consume result
                         cfmResult = pullConsumer.confirmConsume(
@@ -263,4 +263,3 @@ public final class MessagePullSetConsumerExample {
         }
     }
 }
-

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -19,8 +19,10 @@ package org.apache.inlong.dataproxy.config.pojo;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * 
  * IdTopicConfig
  */
 public class IdTopicConfig {
@@ -33,9 +35,10 @@ public class IdTopicConfig {
     private String fieldDelimiter = "|";
     private String fileDelimiter = "\n";
 
+    private Map<String, String> params = new HashMap<>();
+
     /**
      * get uid
-     * 
      * @return the uid
      */
     public String getUid() {
@@ -44,7 +47,6 @@ public class IdTopicConfig {
 
     /**
      * generateUid
-     * 
      * @param  inlongGroupId
      * @param  inlongStreamId
      * @return
@@ -67,7 +69,6 @@ public class IdTopicConfig {
 
     /**
      * get inlongGroupId
-     * 
      * @return the inlongGroupId
      */
     public String getInlongGroupId() {
@@ -76,7 +77,6 @@ public class IdTopicConfig {
 
     /**
      * set inlongGroupId
-     * 
      * @param inlongGroupId the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
@@ -86,7 +86,6 @@ public class IdTopicConfig {
 
     /**
      * get inlongStreamid
-     * 
      * @return the inlongStreamid
      */
     public String getInlongStreamid() {
@@ -95,7 +94,6 @@ public class IdTopicConfig {
 
     /**
      * set inlongStreamid
-     * 
      * @param inlongStreamid the inlongStreamid to set
      */
     public void setInlongStreamid(String inlongStreamid) {
@@ -105,7 +103,6 @@ public class IdTopicConfig {
 
     /**
      * get topicName
-     * 
      * @return the topicName
      */
     public String getTopicName() {
@@ -114,7 +111,6 @@ public class IdTopicConfig {
 
     /**
      * set topicName
-     * 
      * @param topicName the topicName to set
      */
     public void setTopicName(String topicName) {
@@ -123,7 +119,6 @@ public class IdTopicConfig {
 
     /**
      * get dataType
-     * 
      * @return the dataType
      */
     public DataType getDataType() {
@@ -132,7 +127,6 @@ public class IdTopicConfig {
 
     /**
      * set dataType
-     * 
      * @param dataType the dataType to set
      */
     public void setDataType(DataType dataType) {
@@ -141,7 +135,6 @@ public class IdTopicConfig {
 
     /**
      * get fieldDelimiter
-     * 
      * @return the fieldDelimiter
      */
     public String getFieldDelimiter() {
@@ -150,7 +143,6 @@ public class IdTopicConfig {
 
     /**
      * set fieldDelimiter
-     * 
      * @param fieldDelimiter the fieldDelimiter to set
      */
     public void setFieldDelimiter(String fieldDelimiter) {
@@ -159,7 +151,6 @@ public class IdTopicConfig {
 
     /**
      * get fileDelimiter
-     * 
      * @return the fileDelimiter
      */
     public String getFileDelimiter() {
@@ -168,11 +159,26 @@ public class IdTopicConfig {
 
     /**
      * set fileDelimiter
-     * 
      * @param fileDelimiter the fileDelimiter to set
      */
     public void setFileDelimiter(String fileDelimiter) {
         this.fileDelimiter = fileDelimiter;
+    }
+
+    /**
+     * get params
+     * @return the params
+     */
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    /**
+     * set params
+     * @param params the params to set
+     */
+    public void setParams(Map<String, String> params) {
+        this.params = params;
     }
 
     /**

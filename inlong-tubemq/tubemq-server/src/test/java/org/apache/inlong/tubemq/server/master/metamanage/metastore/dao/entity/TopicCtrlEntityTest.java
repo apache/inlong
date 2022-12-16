@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -67,7 +67,7 @@ public class TopicCtrlEntityTest {
         long dataVerId2 = 555;
         int topicId2 = 222;
         String topicName2 = "test_1";
-        boolean enableAuthControl2 = true;
+        EnableStatus enableAuthControl2 = EnableStatus.STATUS_ENABLE;
         String attributes2 = "";
         String createUser2 = "creater2";
         Date createDate2 = new Date();
@@ -119,5 +119,4 @@ public class TopicCtrlEntityTest {
         Assert.assertEquals(ctrlEntity4.getModifyDateStr(), ctrlEntity2.getModifyDateStr());
         Assert.assertEquals(ctrlEntity4.getDataVerId(), ctrlEntity2.getDataVerId());
     }
-
 }

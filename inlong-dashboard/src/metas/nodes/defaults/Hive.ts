@@ -17,14 +17,17 @@
  * under the License.
  */
 
-import i18n from '@/i18n';
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
+import i18n from '@/i18n';
 import { NodeInfo } from '../common/NodeInfo';
 
-const { I18n, FormField } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
 
-export default class HiveNode extends NodeInfo implements DataWithBackend {
-  @FormField({
+export default class HiveNode extends NodeInfo implements DataWithBackend, RenderRow, RenderList {
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     initialValue: 'jdbc:hive2://127.0.0.1:10000',
@@ -32,21 +35,21 @@ export default class HiveNode extends NodeInfo implements DataWithBackend {
   @I18n('JDBC URL')
   jdbcUrl: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.DataPathHelp'),
+    tooltip: i18n.t('meta.Nodes.Hive.DataPathHelp'),
     initialValue: 'hdfs://127.0.0.1:9000/user/hive/warehouse/default',
   })
-  @I18n('meta.Sinks.Hive.DataPath')
+  @I18n('meta.Nodes.Hive.DataPath')
   dataPath: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.Hive.ConfDirHelp'),
+    tooltip: i18n.t('meta.Nodes.Hive.ConfDirHelp'),
     initialValue: '/usr/hive/conf',
   })
-  @I18n('meta.Sinks.Hive.ConfDir')
+  @I18n('meta.Nodes.Hive.ConfDir')
   hiveConfDir: string;
 }

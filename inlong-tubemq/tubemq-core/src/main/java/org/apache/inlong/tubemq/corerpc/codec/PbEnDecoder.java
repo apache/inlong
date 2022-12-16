@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -28,6 +28,7 @@ import org.apache.inlong.tubemq.corerpc.RpcConstants;
  * PB corresponding method, service type codec util tools
  */
 public class PbEnDecoder {
+
     // The set of methods supported by RPC, only the methods in the map are accepted
     private static final Map<String, Integer> rpcMethodMap =
             new HashMap<>();
@@ -245,10 +246,10 @@ public class PbEnDecoder {
      * @throws Exception    the exception while processing.
      */
     public static boolean isValidServiceTypeAndMethod(int serviceId,
-                                                      int methodId,
-                                                      final StringBuilder sBuilder) throws Exception {
+            int methodId,
+            final StringBuilder sBuilder) throws Exception {
         // #lizard forgives
-        //First confirm the valid data according to the service ID according to the service ID.
+        // First confirm the valid data according to the service ID according to the service ID.
         switch (serviceId) {
             case RpcConstants.RPC_SERVICE_TYPE_MASTER_SERVICE: {
                 switch (methodId) {

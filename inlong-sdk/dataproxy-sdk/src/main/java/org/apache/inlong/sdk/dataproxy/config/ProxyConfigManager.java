@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -97,7 +96,7 @@ public class ProxyConfigManager extends Thread {
     private final Gson gson = new Gson();
     private final HashRing hashRing = HashRing.getInstance();
     private List<HostInfo> proxyInfoList = new ArrayList<HostInfo>();
-    /*the status of the cluster.if this value is changed,we need rechoose  three proxy*/
+    /* the status of the cluster.if this value is changed,we need rechoose three proxy */
     private int oldStat = 0;
     private String groupId;
     private String localMd5;
@@ -277,7 +276,7 @@ public class ProxyConfigManager extends Thread {
             if (proxyEntry != null) {
                 tryToWriteCacheProxyEntry(proxyEntry, configAddr);
             }
-            /* We should exit if no local IP list and can't request it from manager.*/
+            /* We should exit if no local IP list and can't request it from manager. */
             if (localMd5 == null && proxyEntry == null) {
                 LOGGER.error("Can't connect manager at the start of proxy API {}",
                         this.clientConfig.getProxyIPServiceURL());
@@ -331,7 +330,7 @@ public class ProxyConfigManager extends Thread {
                     clientManager.setProxyInfoList(proxyInfoList);
                     doworkTime = System.currentTimeMillis();
                 } else if (proxyEntry.getSwitchStat() != oldStat) {
-                    /*judge  cluster's switch state*/
+                    /* judge cluster's switch state */
                     oldStat = proxyEntry.getSwitchStat();
                     if ((System.currentTimeMillis() - doworkTime) > 3 * 60 * 1000) {
                         LOGGER.info("switch the cluster!");
@@ -433,7 +432,7 @@ public class ProxyConfigManager extends Thread {
                 fis = new FileInputStream(file);
                 is = new ObjectInputStream(fis);
                 entry = (EncryptConfigEntry) is.readObject();
-                //is.close();
+                // is.close();
                 fis.close();
                 return entry;
             } else {
@@ -470,7 +469,7 @@ public class ProxyConfigManager extends Thread {
             p = new ObjectOutputStream(fos);
             p.writeObject(entry);
             p.flush();
-            //p.close();
+            // p.close();
         } catch (Throwable e) {
             LOGGER.error("store EncryptConfigEntry " + entry.toString() + " exception ", e);
             e.printStackTrace();

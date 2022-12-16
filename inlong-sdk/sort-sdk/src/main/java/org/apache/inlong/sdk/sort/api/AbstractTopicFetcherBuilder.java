@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.api;
@@ -28,6 +27,7 @@ import java.util.List;
  * Abstract Builder of topic fetcher
  */
 public abstract class AbstractTopicFetcherBuilder implements TopicFetcherBuilder {
+
     protected Interceptor interceptor;
     protected Deserializer deserializer;
     protected ClientContext context;

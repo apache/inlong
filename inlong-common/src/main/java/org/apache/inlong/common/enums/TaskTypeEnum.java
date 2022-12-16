@@ -17,6 +17,9 @@
 
 package org.apache.inlong.common.enums;
 
+/**
+ * Enum of task type.
+ */
 public enum TaskTypeEnum {
 
     DATABASE_MIGRATION(0),
@@ -32,6 +35,9 @@ public enum TaskTypeEnum {
     TUBEMQ(10),
     REDIS(11),
     MQTT(12),
+
+    // only used for unit test
+    MOCK(201)
 
     ;
 
@@ -67,8 +73,10 @@ public enum TaskTypeEnum {
                 return TUBEMQ;
             case 12:
                 return MQTT;
+            case 201:
+                return MOCK;
             default:
-                throw new RuntimeException(String.format("Unsupported taskType=%s", taskType));
+                throw new RuntimeException("Unsupported task type " + taskType);
         }
     }
 

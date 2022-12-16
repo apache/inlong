@@ -31,3 +31,4 @@ endfunction()
 
 add_subdirectory (consumer)
 
+add_subdirectory (producer)

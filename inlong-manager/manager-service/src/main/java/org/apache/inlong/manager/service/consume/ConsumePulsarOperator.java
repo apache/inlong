@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.consume;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -119,7 +119,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         }
 
         // TODO when saving, save the enabled DLQ / RLQ into inlong_stream, then create Pulsar topic for them
-        //  when updating, delete the related DLQ / RLQ info if they were disabled.
+        // when updating, delete the related DLQ / RLQ info if they were disabled.
         String groupId = targetEntity.getInlongGroupId();
         if (dlqEnable) {
             String dlqTopic = PREFIX_DLQ + "_" + pulsarRequest.getDeadLetterTopic();

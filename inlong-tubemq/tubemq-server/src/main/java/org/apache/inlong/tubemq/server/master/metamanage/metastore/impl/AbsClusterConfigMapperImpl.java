@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper {
+
     protected static final Logger logger =
             LoggerFactory.getLogger(AbsClusterConfigMapperImpl.class);
     // data cache
@@ -40,7 +41,7 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
 
     @Override
     public boolean addUpdClusterConfig(ClusterSettingEntity entity,
-                                       StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         ClusterSettingEntity newEntity;
         // Check whether the configure record already exist
         ClusterSettingEntity curEntity = metaDataCache.get(entity.getRecordKey());
@@ -53,7 +54,7 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
             if (!newEntity.updModifyInfo(entity.getDataVerId(),
                     entity.getBrokerPort(), entity.getBrokerTLSPort(),
                     entity.getBrokerWebPort(), entity.getMaxMsgSizeInMB(),
-                    entity.getQryPriorityId(), entity.enableFlowCtrl(),
+                    entity.getQryPriorityId(), entity.getGloFlowCtrlStatus(),
                     entity.getGloFlowCtrlRuleCnt(), entity.getGloFlowCtrlRuleInfo(),
                     entity.getClsDefTopicProps())) {
                 result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
@@ -118,7 +119,7 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
      * @return the process result
      */
     protected abstract boolean putConfig2Persistent(ClusterSettingEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete cluster configure information from persistent storage

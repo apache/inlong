@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -30,12 +30,11 @@ public class ConsumerConfig extends TubeClientConfig {
 
     private final String consumerGroup;
 
-    /* consumeModel
-     *    Set the start position of the consumer group. The value can be [-1, 0, 1]. Default value is 0.
-     * -1: Start from 0 for the first time. Otherwise start from last consume position.
-     *  0: Start from the latest position for the first time. Otherwise start from last consume position.
-     *  1: Start from the latest consume position.
-    */
+    /*
+     * consumeModel Set the start position of the consumer group. The value can be [-1, 0, 1]. Default value is 0. -1:
+     * Start from 0 for the first time. Otherwise start from last consume position. 0: Start from the latest position
+     * for the first time. Otherwise start from last consume position. 1: Start from the latest consume position.
+     */
     private ConsumePosition consumePosition = ConsumePosition.CONSUMER_FROM_LATEST_OFFSET;
     private int maxSubInfoReportIntvlTimes =
             TClientConstants.MAX_SUBSCRIBE_REPORT_INTERVAL_TIMES;
@@ -74,13 +73,13 @@ public class ConsumerConfig extends TubeClientConfig {
 
     @Deprecated
     public ConsumerConfig(String localHostIP, String masterAddrInfo,
-                          String consumerGroup) throws Exception {
+            String consumerGroup) throws Exception {
         this(localHostIP, new MasterInfo(masterAddrInfo), consumerGroup);
     }
 
     @Deprecated
     public ConsumerConfig(String localHostIP, MasterInfo masterInfo,
-                          String consumerGroup) throws Exception {
+            String consumerGroup) throws Exception {
         super(localHostIP, masterInfo);
         validConsumerGroupParameter(consumerGroup);
         this.consumerGroup = consumerGroup.trim();
@@ -130,14 +129,14 @@ public class ConsumerConfig extends TubeClientConfig {
     // The value range is [negative value, 0, positive value] and the value directly determines
     // the behavior of the PullMessageConsumer.GetMessage() function:
     // 1. if it is set to a negative value, it means that the GetMessage() calling thread will
-    //    be blocked forever and will not return until the consumption conditions are met;
+    // be blocked forever and will not return until the consumption conditions are met;
     // 2. if If it is set to 0, it means that the GetMessage() calling thread will only block
-    //    the ConsumerConfig.getPullConsumeReadyChkSliceMs() interval when the consumption
-    //    conditions are not met and then return;
+    // the ConsumerConfig.getPullConsumeReadyChkSliceMs() interval when the consumption
+    // conditions are not met and then return;
     // 3. if it is set to a positive number, it will not meet the current user usage (including
-    //    unused partitions or allocated partitions, but these partitions do not meet the usage
-    //    conditions), the GetMessage() calling thread will be blocked until the total time of
-    //    ConsumerConfig.getPullConsumeReadyWaitPeriodMs expires
+    // unused partitions or allocated partitions, but these partitions do not meet the usage
+    // conditions), the GetMessage() calling thread will be blocked until the total time of
+    // ConsumerConfig.getPullConsumeReadyWaitPeriodMs expires
     public void setPullConsumeReadyWaitPeriodMs(long pullConsumeReadyWaitPeriodMs) {
         this.pullConsumeReadyWaitPeriodMs = pullConsumeReadyWaitPeriodMs;
     }

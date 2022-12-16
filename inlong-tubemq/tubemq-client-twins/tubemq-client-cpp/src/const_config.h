@@ -103,6 +103,8 @@ static const uint32_t kBrokerTlsPortDef = 8124;
 // invalid value
 static const int32_t kInvalidValue = -2;
 
+static const uint32_t kMetaStoreInsBase = 10000;
+
 // message flag's properties settings
 static const int32_t kMsgFlagIncProperties = 0x01;
 
@@ -110,6 +112,19 @@ static const int32_t kMsgFlagIncProperties = 0x01;
 static const char kRsvPropKeyFilterItem[] = "$msgType$";
 // reserved property key message send time
 static const char kRsvPropKeyMsgTime[] = "$msgTime$";
+
+// enum RegisterMasterStatus
+enum RegisterMasterStatus {
+  kMasterUnRegistered = 0,
+  kMasterRegistering = 1,
+  kMasterRegistered = 2
+}; 
+
+// enum MasterHBStatus
+enum MasterHBStatus {
+  kMasterHBWaiting = 0,
+  kMasterHBRunning = 1
+};
 
 }  // namespace tb_config
 

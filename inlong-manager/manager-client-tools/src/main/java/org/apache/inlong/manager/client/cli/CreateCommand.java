@@ -62,9 +62,7 @@ public class CreateCommand extends AbstractCommand {
         @Parameter()
         private List<String> params;
 
-        @Parameter(names = {"-f", "--file"},
-                converter = FileConverter.class,
-                description = "json file")
+        @Parameter(names = {"-f", "--file"}, converter = FileConverter.class, description = "json file")
         private File file;
 
         @Parameter(names = {"-s"}, description = "optional log string to create file")

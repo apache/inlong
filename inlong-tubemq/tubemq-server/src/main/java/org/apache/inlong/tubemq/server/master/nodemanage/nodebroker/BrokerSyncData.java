@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * Broker sync data holder
  */
 public class BrokerSyncData {
+
     private static final Logger logger =
             LoggerFactory.getLogger(BrokerSyncData.class);
     // current data push id
@@ -82,9 +83,9 @@ public class BrokerSyncData {
      *         f1 : configure changed
      */
     public Tuple2<Boolean, Boolean> updBrokerSyncData(boolean isForceSync, long dataPushId,
-                                                      ManageStatus mngStatus,
-                                                      String brokerConfInfo,
-                                                      Map<String, String> topicConfInfoMap) {
+            ManageStatus mngStatus,
+            String brokerConfInfo,
+            Map<String, String> topicConfInfoMap) {
         isStatusChanged = false;
         isConfChanged = false;
         // check parameters
@@ -126,9 +127,9 @@ public class BrokerSyncData {
      * @return whether the broker data synchronized
      */
     public boolean bookBrokerReportInfo(BrokerInfo brokerInfo,
-                                        long syncDataConfId, int syncDataChkSumId,
-                                        boolean isTakeData, String syncBrokerConfInfo,
-                                        List<String> syncTopicConfInfos) {
+            long syncDataConfId, int syncDataChkSumId,
+            boolean isTakeData, String syncBrokerConfInfo,
+            List<String> syncTopicConfInfos) {
         this.syncUpDataConfId = syncDataConfId;
         this.syncUpDataChkSumId = syncDataChkSumId;
         if (isTakeData) {
@@ -210,7 +211,7 @@ public class BrokerSyncData {
      * @return whether the sync-data is change
      */
     private boolean isSyncDataChanged(String brokerConfInfo,
-                                      Map<String, String> topicConfInfoMap) {
+            Map<String, String> topicConfInfoMap) {
         return !Objects.equals(syncDownBrokerConfInfo, brokerConfInfo)
                 || !Objects.equals(syncDownTopicConfInfoMap, topicConfInfoMap);
     }
@@ -303,7 +304,7 @@ public class BrokerSyncData {
      * @return the crc32 value
      */
     private int calculateConfigCrc32Value(String brokerConfInfo,
-                                          Map<String, String> topicConfInfoMap) {
+            Map<String, String> topicConfInfoMap) {
         int result = -1;
         int capacity = 0;
         List<String> topicConfInfoLst =
@@ -326,7 +327,7 @@ public class BrokerSyncData {
     }
 
     private int inCalcBufferResult(int capacity, String brokerConfInfo,
-                                   List<String> topicConfInfoLst) {
+            List<String> topicConfInfoLst) {
         final ByteBuffer buffer = ByteBuffer.allocate(capacity);
         buffer.put(StringUtils.getBytesUtf8(brokerConfInfo));
         for (String itemStr : topicConfInfoLst) {

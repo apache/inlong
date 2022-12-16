@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -33,7 +33,7 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
     private static final long serialVersionUID = 6801442997689232316L;
     @PrimaryKey
     private String consumeGroupName;
-    private int enableBind = -2;   // -2: undefine; 0: not started, 1: started
+    private int enableBind = -2; // -2: undefine; 0: not started, 1: started
     private Date lastBindUsedDate;
     private int allowedBrokerClientRate = -2;
     private String attributes;
@@ -45,8 +45,8 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
     } // Needed for deserialization.
 
     public BdbConsumeGroupSettingEntity(String consumeGroupName, int enableBind,
-                                        int allowedBrokerClientRate, String attributes,
-                                        String createUser, Date createDate) {
+            int allowedBrokerClientRate, String attributes,
+            String createUser, Date createDate) {
         this.consumeGroupName = consumeGroupName;
         this.enableBind = enableBind;
         this.allowedBrokerClientRate = allowedBrokerClientRate;

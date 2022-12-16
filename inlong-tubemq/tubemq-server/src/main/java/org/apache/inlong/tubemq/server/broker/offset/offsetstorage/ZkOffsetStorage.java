@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * A offset storage implementation with zookeeper
  */
 public class ZkOffsetStorage implements OffsetStorage {
+
     private static final Logger logger = LoggerFactory.getLogger(ZkOffsetStorage.class);
 
     static {
@@ -103,8 +104,8 @@ public class ZkOffsetStorage implements OffsetStorage {
 
     @Override
     public void commitOffset(String group,
-                             Collection<OffsetStorageInfo> offsetInfoList,
-                             boolean isFailRetry) {
+            Collection<OffsetStorageInfo> offsetInfoList,
+            boolean isFailRetry) {
         if (this.zkw == null
                 || offsetInfoList == null
                 || offsetInfoList.isEmpty()) {
@@ -161,7 +162,7 @@ public class ZkOffsetStorage implements OffsetStorage {
     }
 
     private void cfmOffset(StringBuilder sb, String group,
-                           Collection<OffsetStorageInfo> infoList) throws OffsetStoreException {
+            Collection<OffsetStorageInfo> infoList) throws OffsetStoreException {
         sb.delete(0, sb.length());
         for (final OffsetStorageInfo info : infoList) {
             long newOffset = -1;
@@ -206,7 +207,7 @@ public class ZkOffsetStorage implements OffsetStorage {
      */
     @Override
     public Map<Integer, Long> queryGroupOffsetInfo(String group, String topic,
-                                                  Set<Integer> partitionIds) {
+            Set<Integer> partitionIds) {
         StringBuilder strBuff = new StringBuilder(512);
         String basePath = strBuff.append(this.consumerZkDir).append("/")
                 .append(group).append("/offsets/").append(topic).append("/")
@@ -313,8 +314,7 @@ public class ZkOffsetStorage implements OffsetStorage {
     public void deleteGroupOffsetInfo(
             Map<String, Map<String, Set<Integer>>> groupTopicPartMap) {
         StringBuilder strBuff = new StringBuilder(512);
-        for (Map.Entry<String, Map<String, Set<Integer>>> entry
-                : groupTopicPartMap.entrySet()) {
+        for (Map.Entry<String, Map<String, Set<Integer>>> entry : groupTopicPartMap.entrySet()) {
             if (entry.getKey() == null
                     || entry.getValue() == null
                     || entry.getValue().isEmpty()) {

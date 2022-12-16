@@ -17,9 +17,16 @@
  * under the License.
  */
 
+import { streamLoader } from '@/loaders';
 import { allDefaultStreams } from './defaults';
 import { allExtendsStreams } from './extends';
+import type { StreamMetaType } from './types';
 
-export const streams = allDefaultStreams.concat(allExtendsStreams);
+export type { StreamMetaType };
 
-export const defaultValue = streams[0].value;
+export const streams = streamLoader.loadPluginList<StreamMetaType>(
+  allDefaultStreams,
+  allExtendsStreams,
+);
+
+export const defaultValue = streamLoader.loadDefaultPlugin<StreamMetaType>(streams);

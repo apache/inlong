@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,48 +31,39 @@ public class CsvUtilsTest {
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b", "c", "d"},
-                StringUtils.splitCsv("a|b|c|d", '|', null, null)
-        );
+                StringUtils.splitCsv("a|b|c|d", '|', null, null));
 
         Assert.assertArrayEquals(
                 new String[]{"", "a", "b", "c", "d"},
-                StringUtils.splitCsv("|a|b|c|d", '|', null, null)
-        );
+                StringUtils.splitCsv("|a|b|c|d", '|', null, null));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b", "c", "d", ""},
-                StringUtils.splitCsv("a|b|c|d|", '|', null, null)
-        );
+                StringUtils.splitCsv("a|b|c|d|", '|', null, null));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b|c", "d"},
-                StringUtils.splitCsv("a|b\\|c|d", '|', '\\', null)
-        );
+                StringUtils.splitCsv("a|b\\|c|d", '|', '\\', null));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b\\", "c", "d"},
-                StringUtils.splitCsv("a|b\\\\|c|d", '|', '\\', null)
-        );
+                StringUtils.splitCsv("a|b\\\\|c|d", '|', '\\', null));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b|c", "d"},
-                StringUtils.splitCsv("a|\"b|c\"|d", '|', '\\', '\"')
-        );
+                StringUtils.splitCsv("a|\"b|c\"|d", '|', '\\', '\"'));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "|b|c|", "d"},
-                StringUtils.splitCsv("a|\"|b|c|\"|d", '|', '\\', '\"')
-        );
+                StringUtils.splitCsv("a|\"|b|c|\"|d", '|', '\\', '\"'));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b\\c", "d"},
-                StringUtils.splitCsv("a|\"b\\c\"|d", '|', '\\', '\"')
-        );
+                StringUtils.splitCsv("a|\"b\\c\"|d", '|', '\\', '\"'));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "\"b", "c\"", "d"},
-                StringUtils.splitCsv("a|\\\"b|c\\\"|d", '|', '\\', '\"')
-        );
+                StringUtils.splitCsv("a|\\\"b|c\\\"|d", '|', '\\', '\"'));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -90,28 +80,23 @@ public class CsvUtilsTest {
     public void testConcatNormal() {
         Assert.assertEquals(
                 "a|b|c|d",
-                StringUtils.concatCsv(new String[]{"a", "b", "c", "d"}, '|', null, null)
-        );
+                StringUtils.concatCsv(new String[]{"a", "b", "c", "d"}, '|', null, null));
 
         Assert.assertEquals(
                 "a|\\|b|c|d",
-                StringUtils.concatCsv(new String[]{"a", "|b", "c", "d"}, '|', '\\', null)
-        );
+                StringUtils.concatCsv(new String[]{"a", "|b", "c", "d"}, '|', '\\', null));
 
         Assert.assertEquals(
                 "a|\\\\b|c|d",
-                StringUtils.concatCsv(new String[]{"a", "\\b", "c", "d"}, '|', '\\', null)
-        );
+                StringUtils.concatCsv(new String[]{"a", "\\b", "c", "d"}, '|', '\\', null));
 
         Assert.assertEquals(
                 "a|\\\"b|c|d",
-                StringUtils.concatCsv(new String[]{"a", "\"b", "c", "d"}, '|', '\\', '\"')
-        );
+                StringUtils.concatCsv(new String[]{"a", "\"b", "c", "d"}, '|', '\\', '\"'));
 
         Assert.assertEquals(
                 "a|\"|\"b|c|d",
-                StringUtils.concatCsv(new String[]{"a", "|b", "c", "d"}, '|', null, '\"')
-        );
+                StringUtils.concatCsv(new String[]{"a", "|b", "c", "d"}, '|', null, '\"'));
     }
 
     @Test(expected = IllegalArgumentException.class)

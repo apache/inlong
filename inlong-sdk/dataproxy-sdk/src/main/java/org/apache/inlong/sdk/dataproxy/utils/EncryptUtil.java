@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -111,7 +110,7 @@ public class EncryptUtil {
     public static RSAPublicKey loadPublicKeyByText(String publicKeyStr) {
         try {
             byte[] buffer = Base64.decodeBase64(publicKeyStr);
-//            byte[] buffer = publicKeyStr.getBytes();
+            // byte[] buffer = publicKeyStr.getBytes();
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(buffer);
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
@@ -127,7 +126,7 @@ public class EncryptUtil {
 
     public static RSAPublicKey loadPublicKeyByBinary(byte[] publicKeyByte) {
         try {
-            //byte[] buffer = Base64.decodeBase64(publicKeyStr);
+            // byte[] buffer = Base64.decodeBase64(publicKeyStr);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyByte);
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
@@ -202,7 +201,7 @@ public class EncryptUtil {
     public static RSAPrivateKey loadPrivateKeyByText(String privateKeyStr)
             throws Exception {
         try {
-            //byte[] buffer = Base64.decodeBase64(privateKeyStr);
+            // byte[] buffer = Base64.decodeBase64(privateKeyStr);
             byte[] buffer = privateKeyStr.getBytes();
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(buffer);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -219,7 +218,7 @@ public class EncryptUtil {
     public static RSAPrivateKey loadPrivateKeyByBinary(byte[] privateKeyByte)
             throws Exception {
         try {
-            //byte[] buffer = Base64.decodeBase64(privateKeyStr);
+            // byte[] buffer = Base64.decodeBase64(privateKeyStr);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyByte);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);

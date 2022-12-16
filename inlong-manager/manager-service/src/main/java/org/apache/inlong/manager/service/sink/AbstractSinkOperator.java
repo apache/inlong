@@ -52,11 +52,9 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractSinkOperator implements StreamSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSinkOperator.class);
-
     protected static final String KEY_GROUP_ID = "inlongGroupId";
     protected static final String KEY_STREAM_ID = "inlongStreamId";
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSinkOperator.class);
     @Autowired
     protected StreamSinkEntityMapper sinkMapper;
     @Autowired
@@ -170,7 +168,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         LOGGER.info("success to update sink field");
     }
 
-    protected void saveFieldOpt(SinkRequest request) {
+    @Override
+    public void saveFieldOpt(SinkRequest request) {
         List<SinkField> fieldList = request.getSinkFieldList();
         LOGGER.info("begin to save sink fields={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
@@ -221,16 +220,20 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         Map<String, String> param;
         try {
             param = JsonUtils.parseObject(streamSink.getExtParams(), HashMap.class);
+            // put group and stream info
+            assert param != null;
+            param.put(KEY_GROUP_ID, streamSink.getInlongGroupId());
+            param.put(KEY_STREAM_ID, streamSink.getInlongStreamId());
+            return param;
         } catch (Exception e) {
-            LOGGER.error("cannot parse properties of groupId={}, streamId={}, sinkName={}, the row properties is={}, "
-                            + "exception={}", streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
-                    streamSink.getSinkName(), streamSink.getExtParams(), e.getMessage());
+            LOGGER.error(String.format(
+                    "cannot parse properties for groupId=%s, streamId=%s, sinkName=%s, the row properties: %s",
+                    streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
+                    streamSink.getSinkName(), streamSink.getExtParams()),
+                    e);
+
             return null;
         }
-        // put group and stream info
-        param.put(KEY_GROUP_ID, streamSink.getInlongGroupId());
-        param.put(KEY_STREAM_ID, streamSink.getInlongStreamId());
-        return param;
     }
 
     /**

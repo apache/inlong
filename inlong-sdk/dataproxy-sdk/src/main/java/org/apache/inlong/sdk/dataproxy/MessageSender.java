@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +35,7 @@ public interface MessageSender {
      */
     @Deprecated
     public SendResult sendMessage(byte[] body, String attributes, String msgUUID,
-                                  long timeout, TimeUnit timeUnit);
+            long timeout, TimeUnit timeUnit);
 
     /**
      * This method provides a synchronized  function which you want to send data  without packing
@@ -45,7 +44,7 @@ public interface MessageSender {
      *             
      */
     public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-                                  long timeout, TimeUnit timeUnit);
+            long timeout, TimeUnit timeUnit);
 
     /**
      * This method provides a synchronized  function which you want to send data without packing
@@ -57,7 +56,7 @@ public interface MessageSender {
      *                     and each element of extraAttrMap contains a pair like attrKey,attrValue
      */
     public SendResult sendMessage(byte[] body, String groupId, String streamId, long dt, String msgUUID,
-                                  long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap);
+            long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap);
 
     /**
      * This method provides a synchronized  function which you want to send data  with packing
@@ -66,7 +65,7 @@ public interface MessageSender {
      * @param bodyList The data will be sent,which is a collection consisting of byte arrays
      */
     public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-                                  long timeout, TimeUnit timeUnit);
+            long timeout, TimeUnit timeUnit);
 
     /**
      * This method provides a synchronized  function which you want to send data with packing
@@ -78,7 +77,7 @@ public interface MessageSender {
      *                     and each element of extraAttrMap contains a pair like attrKey,attrValue
      */
     public SendResult sendMessage(List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-                                  long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap);
+            long timeout, TimeUnit timeUnit, Map<String, String> extraAttrMap);
 
     /**
      * This method provides an asynchronized  function which you want to send data
@@ -91,8 +90,8 @@ public interface MessageSender {
      */
     @Deprecated
     public void asyncSendMessage(SendMessageCallback callback,
-                                 byte[] body, String attributes, String msgUUID,
-                                 long timeout, TimeUnit timeUnit) throws ProxysdkException;
+            byte[] body, String attributes, String msgUUID,
+            long timeout, TimeUnit timeUnit) throws ProxysdkException;
 
     /**
      * This method provides a synchronized  function which you want to send data without packing
@@ -104,9 +103,9 @@ public interface MessageSender {
      *                     and each element of extraAttrMap contains a pair like attrKey,attrValue
      */
     public void asyncSendMessage(SendMessageCallback callback,
-                                 byte[] body, String groupId, String streamId, long dt, String msgUUID,
-                                 long timeout, TimeUnit timeUnit,
-                                 Map<String, String> extraAttrMap) throws ProxysdkException;
+            byte[] body, String groupId, String streamId, long dt, String msgUUID,
+            long timeout, TimeUnit timeUnit,
+            Map<String, String> extraAttrMap) throws ProxysdkException;
 
     /**
      * This method provides an asynchronized  function which you want to send data  without packing
@@ -116,8 +115,8 @@ public interface MessageSender {
      * @param body     The data will be sent
      */
     public void asyncSendMessage(SendMessageCallback callback,
-                                 byte[] body, String groupId, String streamId, long dt, String msgUUID,
-                                 long timeout, TimeUnit timeUnit) throws ProxysdkException;
+            byte[] body, String groupId, String streamId, long dt, String msgUUID,
+            long timeout, TimeUnit timeUnit) throws ProxysdkException;
 
     /**
      * This method provides an asynchronized  function which you want to send data  with packing
@@ -126,8 +125,8 @@ public interface MessageSender {
      * @param bodyList The data will be sent,which is a collection consisting of byte arrays
      */
     public void asyncSendMessage(SendMessageCallback callback,
-                                 List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-                                 long timeout, TimeUnit timeUnit) throws ProxysdkException;
+            List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
+            long timeout, TimeUnit timeUnit) throws ProxysdkException;
 
     /**
      * This method provides an asynchronized  function which you want to send data with packing
@@ -139,9 +138,9 @@ public interface MessageSender {
      *                     element of extraAttrMap contains a pair like attrKey,attrValue
      */
     public void asyncSendMessage(SendMessageCallback callback,
-                                 List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
-                                 long timeout, TimeUnit timeUnit,
-                                 Map<String, String> extraAttrMap) throws ProxysdkException;
+            List<byte[]> bodyList, String groupId, String streamId, long dt, String msgUUID,
+            long timeout, TimeUnit timeUnit,
+            Map<String, String> extraAttrMap) throws ProxysdkException;
 
     /**
      * This method provides an asynchronized function which you want to send data.<br>
@@ -153,9 +152,9 @@ public interface MessageSender {
      * @param callback callback can be null
      * @throws ProxysdkException
      */
-    void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body, SendMessageCallback callback) 
+    void asyncSendMessage(String inlongGroupId, String inlongStreamId, byte[] body, SendMessageCallback callback)
             throws ProxysdkException;
-    
+
     /**
      * This method provides an asynchronized function which you want to send datas.<br>
      * Sending timeout is configured by MessageSenderBuilder.<br>
@@ -166,7 +165,7 @@ public interface MessageSender {
      * @param callback callback can be null
      * @throws ProxysdkException
      */
-    void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList, 
+    void asyncSendMessage(String inlongGroupId, String inlongStreamId, List<byte[]> bodyList,
             SendMessageCallback callback) throws ProxysdkException;
 
     public void close();

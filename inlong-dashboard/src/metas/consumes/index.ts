@@ -17,9 +17,16 @@
  * under the License.
  */
 
+import { consumeLoader } from '@/loaders';
 import { allDefaultConsumes } from './defaults';
 import { allExtendsConsumes } from './extends';
+import type { ConsumeMetaType } from './types';
 
-export const consumes = allDefaultConsumes.concat(allExtendsConsumes);
+export type { ConsumeMetaType };
 
-export const defaultValue = consumes[0].value;
+export const consumes = consumeLoader.loadPluginList<ConsumeMetaType>(
+  allDefaultConsumes,
+  allExtendsConsumes,
+);
+
+export const defaultValue = consumeLoader.loadDefaultPlugin<ConsumeMetaType>(consumes);

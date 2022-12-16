@@ -138,8 +138,8 @@ public class TubeBrokerInfo {
         }
 
         private boolean isWorking() {
-            return RUNNING.equals(runStatus) && (
-                    ONLINE.equals(manageStatus) || ONLY_READ.equals(manageStatus) || ONLY_WRITE.equals(manageStatus));
+            return RUNNING.equals(runStatus) && (ONLINE.equals(manageStatus) || ONLY_READ.equals(manageStatus)
+                    || ONLY_WRITE.equals(manageStatus));
         }
 
         private boolean isConfigurable() {

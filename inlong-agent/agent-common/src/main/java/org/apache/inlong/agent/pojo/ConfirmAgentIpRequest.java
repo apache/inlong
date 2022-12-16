@@ -24,6 +24,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ConfirmAgentIpRequest {
+
     private String type;
     private List<String> ipList;
 }

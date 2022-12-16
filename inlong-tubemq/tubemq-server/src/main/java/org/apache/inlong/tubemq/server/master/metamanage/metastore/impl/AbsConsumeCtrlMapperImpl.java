@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -35,15 +35,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
+
     protected static final Logger logger =
             LoggerFactory.getLogger(AbsConsumeCtrlMapperImpl.class);
     // configure cache
-    private final ConcurrentHashMap<String/* recordKey */, GroupConsumeCtrlEntity>
-            consumeCtrlCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>>
-            topic2RecordCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* groupName */, ConcurrentHashSet<String>>
-            group2RecordCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* recordKey */, GroupConsumeCtrlEntity> consumeCtrlCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>> topic2RecordCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* groupName */, ConcurrentHashSet<String>> group2RecordCache =
+            new ConcurrentHashMap<>();
 
     public AbsConsumeCtrlMapperImpl() {
         // Initial instant
@@ -51,7 +52,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
 
     @Override
     public boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         GroupConsumeCtrlEntity curEntity = consumeCtrlCache.get(entity.getRecordKey());
         if (curEntity != null) {
@@ -70,7 +71,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
 
     @Override
     public boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         GroupConsumeCtrlEntity curEntity = consumeCtrlCache.get(entity.getRecordKey());
         if (curEntity == null) {
@@ -84,8 +85,8 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
         GroupConsumeCtrlEntity newEntity = curEntity.clone();
         newEntity.updBaseModifyInfo(entity);
         if (!newEntity.updModifyInfo(entity.getDataVerId(),
-                entity.isEnableConsume(), entity.getDisableReason(),
-                entity.isEnableFilterConsume(), entity.getFilterCondStr())) {
+                entity.getConsumeEnable(), entity.getDisableReason(),
+                entity.getFilterEnable(), entity.getFilterCondStr())) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                     "Consume control configure not changed!");
             return result.isSuccess();
@@ -114,8 +115,8 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
 
     @Override
     public boolean delGroupConsumeCtrlConf(String recordKey,
-                                           StringBuilder strBuff,
-                                           ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         GroupConsumeCtrlEntity curEntity =
                 consumeCtrlCache.get(recordKey);
         if (curEntity == null) {
@@ -130,7 +131,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
 
     @Override
     public boolean delGroupConsumeCtrlConf(String groupName, String topicName,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         ConcurrentHashSet<String> keySet =
                 new ConcurrentHashSet<>();
         // get need deleted record key
@@ -422,7 +423,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
      * @return the process result
      */
     protected abstract boolean putConfig2Persistent(GroupConsumeCtrlEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete consume control configure information from persistent storage
@@ -450,7 +451,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
         if (keySet != null) {
             keySet.remove(recordKey);
             if (keySet.isEmpty()) {
-                topic2RecordCache.remove(curEntity.getTopicName());
+                topic2RecordCache.remove(curEntity.getTopicName(), new ConcurrentHashSet<>());
             }
         }
         // delete group index
@@ -458,7 +459,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
         if (keySet != null) {
             keySet.remove(recordKey);
             if (keySet.isEmpty()) {
-                group2RecordCache.remove(curEntity.getGroupName());
+                group2RecordCache.remove(curEntity.getGroupName(), new ConcurrentHashSet<>());
             }
         }
     }

@@ -37,6 +37,7 @@ public class DebeziumJson {
     @Builder
     @Data
     public static class Source {
+
         private String name;
         private String db;
         private String table;

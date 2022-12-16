@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -25,6 +25,7 @@ import org.slf4j.Logger;
  * Compressed print disk exception's statistics.
  */
 public class DiskSamplePrint extends AbstractSamplePrint {
+
     private final Logger logger;
 
     public DiskSamplePrint(final Logger logger) {
@@ -33,8 +34,8 @@ public class DiskSamplePrint extends AbstractSamplePrint {
     }
 
     public DiskSamplePrint(final Logger logger,
-                           long sampleDetailDur, long sampleResetDur,
-                           long maxDetailCount, long maxTotalCount) {
+            long sampleDetailDur, long sampleResetDur,
+            long maxDetailCount, long maxTotalCount) {
         super(sampleDetailDur, sampleResetDur, maxDetailCount, maxTotalCount);
         this.logger = logger;
     }
@@ -85,13 +86,13 @@ public class DiskSamplePrint extends AbstractSamplePrint {
                 if (curPrintCnt < maxTotalCount) {
                     if (diffTime < sampleDetailDur && curPrintCnt < maxDetailCount) {
                         logger.warn(sBuilder
-                            .append("[File Store] Get message failure for IOException, storeKey=")
-                            .append(storeKey).append(", partitionId=").append(partitionId).toString(), e);
+                                .append("[File Store] Get message failure for IOException, storeKey=")
+                                .append(storeKey).append(", partitionId=").append(partitionId).toString(), e);
                     } else {
                         logger.warn(sBuilder
-                            .append("[File Store] Get message failure for IOException 2, storeKey=")
-                            .append(storeKey).append(", partitionId=").append(partitionId)
-                            .append(", error = ").append(e.toString()).toString());
+                                .append("[File Store] Get message failure for IOException 2, storeKey=")
+                                .append(storeKey).append(", partitionId=").append(partitionId)
+                                .append(", error = ").append(e.toString()).toString());
                     }
                     sBuilder.delete(0, sBuilder.length());
                 }
@@ -104,13 +105,13 @@ public class DiskSamplePrint extends AbstractSamplePrint {
                 final long curPrintCnt = totalUncheckCount.incrementAndGet();
                 if (curPrintCnt < maxUncheckDetailCount) {
                     logger.warn(sBuilder
-                        .append("[File Store] Get message failure for Exception 3, storeKey=")
-                        .append(storeKey).append(", partitionId=").append(partitionId).toString(), e);
+                            .append("[File Store] Get message failure for Exception 3, storeKey=")
+                            .append(storeKey).append(", partitionId=").append(partitionId).toString(), e);
                 } else {
                     logger.warn(sBuilder
-                        .append("[File Store] Get message failure for Exception 4, storeKey=")
-                        .append(storeKey).append(", partitionId=").append(partitionId)
-                        .append(", error = ").append(e.toString()).toString());
+                            .append("[File Store] Get message failure for Exception 4, storeKey=")
+                            .append(storeKey).append(", partitionId=").append(partitionId)
+                            .append(", error = ").append(e.toString()).toString());
                 }
                 sBuilder.delete(0, sBuilder.length());
             }

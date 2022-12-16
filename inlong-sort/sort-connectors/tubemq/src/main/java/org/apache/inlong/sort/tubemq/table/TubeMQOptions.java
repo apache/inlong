@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sort.tubemq.table;
@@ -56,11 +55,11 @@ public class TubeMQOptions {
     public static final String PROPERTIES_PREFIX = "properties.";
 
     // Start up offset.
-    //Always start from the max consume position.
+    // Always start from the max consume position.
     public static final String CONSUMER_FROM_MAX_OFFSET_ALWAYS = "max";
-    //Start from the latest position for the first time. Otherwise start from last consume position.
+    // Start from the latest position for the first time. Otherwise start from last consume position.
     public static final String CONSUMER_FROM_LATEST_OFFSET = "latest";
-    //Start from 0 for the first time. Otherwise start from last consume position.
+    // Start from 0 for the first time. Otherwise start from last consume position.
     public static final String CONSUMER_FROM_FIRST_OFFSET = "earliest";
 
     // --------------------------------------------------------------------------------------------
@@ -175,7 +174,6 @@ public class TubeMQOptions {
                     .stringType()
                     .defaultValue("500ms")
                     .withDescription("The time of waiting period if tubemq broker return message not found.");
-
 
     public static final ConfigOption<ValueFieldsStrategy> VALUE_FIELDS_INCLUDE =
             ConfigOptions.key("value.fields-include")
@@ -388,6 +386,7 @@ public class TubeMQOptions {
     public static TreeSet<String> getTiSet(ReadableConfig tableOptions) {
         TreeSet<String> set = new TreeSet<>();
         tableOptions.getOptional(TID).ifPresent(new Consumer<List<String>>() {
+
             @Override
             public void accept(List<String> strings) {
                 set.addAll(strings);

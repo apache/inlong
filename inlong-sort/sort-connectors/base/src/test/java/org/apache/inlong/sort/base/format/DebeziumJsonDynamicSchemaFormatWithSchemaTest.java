@@ -37,6 +37,8 @@ import java.util.Map;
  */
 public class DebeziumJsonDynamicSchemaFormatWithSchemaTest extends DynamicSchemaFormatBaseTest<JsonNode> {
 
+    private AbstractDynamicSchemaFormat schemaFormat = DynamicSchemaFormatFactory.getFormat("debezium-json");
+
     @Override
     protected String getSource() {
         return "{\n"
@@ -270,6 +272,6 @@ public class DebeziumJsonDynamicSchemaFormatWithSchemaTest extends DynamicSchema
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected AbstractDynamicSchemaFormat getDynamicSchemaFormat() {
-        return DebeziumJsonDynamicSchemaFormat.getInstance();
+        return schemaFormat;
     }
 }

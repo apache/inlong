@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +20,7 @@ package org.apache.inlong.sort.parser;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -49,13 +49,13 @@ public abstract class ElasticsearchSqlParseTest extends AbstractTestBase {
 
     private MySqlExtractNode buildMysqlExtractNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("age", new StringFormatInfo()),
-            new FieldInfo("name", new StringFormatInfo()));
+                new FieldInfo("name", new StringFormatInfo()));
         Map<String, String> map = new HashMap<>();
         return new MySqlExtractNode("1", "mysql_input", fields,
-            null, map, "age",
-            Collections.singletonList("user"), "localhost", "root", "888888",
-            "test", null, null,
-            true, null);
+                null, map, "age",
+                Collections.singletonList("user"), "localhost", "root", "888888",
+                "test", null, null,
+                true, null);
     }
 
     /**
@@ -66,18 +66,25 @@ public abstract class ElasticsearchSqlParseTest extends AbstractTestBase {
      */
     ElasticsearchLoadNode buildElasticsearchLoadNode(int version) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("age", new StringFormatInfo()),
-            new FieldInfo("name", new StringFormatInfo()));
+                new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
-            .asList(new FieldRelation(new FieldInfo("age", new StringFormatInfo()),
-                    new FieldInfo("age", new StringFormatInfo())),
-                new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                    new FieldInfo("name", new StringFormatInfo())));
+                .asList(new FieldRelation(new FieldInfo("age", new StringFormatInfo()),
+                        new FieldInfo("age", new StringFormatInfo())),
+                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                                new FieldInfo("name", new StringFormatInfo())));
         CsvFormat csvFormat = new CsvFormat();
         csvFormat.setDisableQuoteCharacter(true);
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("dirty.side-output.connector", "log");
+        properties.put("dirty.ignore", "true");
+        properties.put("dirty.side-output.enable", "true");
+        properties.put("dirty.side-output.format", "csv");
+        properties.put("dirty.side-output.labels",
+                "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&table=test");
         return new ElasticsearchLoadNode("2", "kafka_output", fields, relations, null, null,
-            2, null,
-            "test", "http://localhost:9200",
-            "elastic", "my_password", null, "age", version);
+                2, properties,
+                "test", "http://localhost:9200",
+                "elastic", "my_password", null, "age", version);
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -93,10 +100,10 @@ public abstract class ElasticsearchSqlParseTest extends AbstractTestBase {
      */
     public void testMysqlToElasticsearch(Node node) throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
-            .newInstance()
-            .useBlinkPlanner()
-            .inStreamingMode()
-            .build();
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
@@ -104,8 +111,8 @@ public abstract class ElasticsearchSqlParseTest extends AbstractTestBase {
         Node inputNode = buildMysqlExtractNode();
         Node outputNode = node;
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
-            Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
-                Collections.singletonList(outputNode))));
+                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
+                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

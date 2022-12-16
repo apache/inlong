@@ -79,7 +79,7 @@ public class HDFSStreamSinkServiceTest extends ServiceBaseTest {
      * Delete sink info by sink id.
      */
     public void deleteSink(Integer sinkId) {
-        boolean result = sinkService.delete(sinkId, globalOperator);
+        boolean result = sinkService.delete(sinkId, false, globalOperator);
         // Verify that the deletion was successful
         Assertions.assertTrue(result);
     }

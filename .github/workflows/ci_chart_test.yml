@@ -43,7 +43,7 @@ env:
 jobs:
   chart-test:
     name: Lint and test charts
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         kubernetes-version:
@@ -76,7 +76,7 @@ jobs:
         run: |
           changed=$(ct list-changed --config ${{ env.CT_CONFIG_PATH }} --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
-            echo "::set-output name=changed::true"
+            echo "changed=true" >> $GITHUB_OUTPUT
             echo "Changed charts: $changed"
           else
             echo "Charts are not changed, they will not be linted, validated, installed and tested."

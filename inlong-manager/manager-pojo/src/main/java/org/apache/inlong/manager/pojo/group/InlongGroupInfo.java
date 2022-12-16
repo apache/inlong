@@ -23,10 +23,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 
@@ -37,12 +36,12 @@ import java.util.List;
  * Inlong group info
  */
 @Data
-@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong group info")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
-public abstract class InlongGroupInfo {
+public abstract class InlongGroupInfo extends BaseInlongGroup {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -63,19 +62,23 @@ public abstract class InlongGroupInfo {
     @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
     private String mqType;
 
-    @ApiModelProperty(value = "MQ resource",
-            notes = "in inlong group, TubeMQ corresponds to Topic, Pulsar corresponds to Namespace")
+    @ApiModelProperty(value = "MQ resource", notes = "in inlong group, TubeMQ corresponds to Topic, Pulsar corresponds to Namespace")
     private String mqResource;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
-    @Builder.Default
     private Integer enableZookeeper = 0;
 
     @ApiModelProperty(value = "Whether to enable create resource? 0: disable, 1: enable")
-    private Integer enableCreateResource;
+    private Integer enableCreateResource = 0;
 
     @ApiModelProperty(value = "Whether to use lightweight mode, 0: no, 1: yes")
     private Integer lightweight;
+
+    @ApiModelProperty(value = "Data report type, default is 0.\n"
+            + " 0: report to DataProxy and respond when the DataProxy received data.\n"
+            + " 1: report to DataProxy and respond after DataProxy sends data.\n"
+            + " 2: report to MQ and respond when the MQ received data.", notes = "Current constraint is that all InLong Agents under one InlongGroup use the same type")
+    private Integer dataReportType = 0;
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
     private String inlongClusterTag;

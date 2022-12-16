@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -34,12 +34,13 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsTopic
 import org.apache.zookeeper.KeeperException;
 
 public class ZKTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
+
     private final ZooKeeperWatcher zkWatcher;
     private final String deployRootDir;
 
     public ZKTopicDeployMapperImpl(String metaNodePrefix,
-                                   ZooKeeperWatcher zkWatcher,
-                                   StringBuilder strBuff) {
+            ZooKeeperWatcher zkWatcher,
+            StringBuilder strBuff) {
         super();
         this.zkWatcher = zkWatcher;
         this.deployRootDir = strBuff.append(metaNodePrefix)
@@ -68,7 +69,8 @@ public class ZKTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
         // load data from ZooKeeper
         String recordStr;
         Gson gson = new Gson();
-        Type type = new TypeToken<TopicDeployEntity>() {}.getType();
+        Type type = new TypeToken<TopicDeployEntity>() {
+        }.getType();
         for (String itemKey : childNodes) {
             if (TStringUtils.isEmpty(itemKey)) {
                 continue;
@@ -94,7 +96,7 @@ public class ZKTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
     }
 
     protected boolean putConfig2Persistent(TopicDeployEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         String entityStr = entity.toString();
         String confNode = strBuff.append(deployRootDir)
                 .append(TokenConstants.SLASH).append(entity.getRecordKey()).toString();

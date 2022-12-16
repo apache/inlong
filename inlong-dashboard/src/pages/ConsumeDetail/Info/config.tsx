@@ -17,14 +17,19 @@
  * under the License.
  */
 
-import { useLoadMeta } from '@/metas';
+import { useMemo } from 'react';
+import { useLoadMeta, ConsumeMetaType } from '@/metas';
 import { excludeObjectArray } from '@/utils';
 
 export const useFormContent = ({ mqType, editing, isCreate }) => {
-  const { Entity } = useLoadMeta('consume', mqType);
+  const { Entity } = useLoadMeta<ConsumeMetaType>('consume', mqType);
+
+  const entityFields = useMemo(() => {
+    return Entity ? new Entity().renderRow() : [];
+  }, [Entity]);
 
   const excludeKeys = isCreate ? ['masterUrl'] : [];
-  const fields = excludeObjectArray(excludeKeys, Entity?.FieldList || []);
+  const fields = excludeObjectArray(excludeKeys, entityFields);
 
   return isCreate
     ? fields

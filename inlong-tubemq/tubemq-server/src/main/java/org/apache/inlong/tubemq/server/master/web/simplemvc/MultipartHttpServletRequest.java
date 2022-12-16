@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.Part;
 
 public class MultipartHttpServletRequest extends HttpServletRequestWrapper {
+
     private boolean parsed;
     private HashMap<String, String> cachedParams = new HashMap<>();
 
@@ -49,7 +50,7 @@ public class MultipartHttpServletRequest extends HttpServletRequestWrapper {
     private void extractParametersFromMultipartFormData(HttpServletRequest req) throws IOException, ServletException {
         for (Part dataPart : req.getParts()) {
             if (dataPart.getSize() > WebApiServlet.MAX_MULTIPART_POST_DATA_SIZE) {
-                continue;  // too big, so we simply skip
+                continue; // too big, so we simply skip
             }
 
             String dataKey = dataPart.getName();
@@ -64,7 +65,7 @@ public class MultipartHttpServletRequest extends HttpServletRequestWrapper {
     @Override
     public String getParameter(String name) {
         if (!parsed) {
-            parsed = true;  // invert here to ensure only once, or there would be infinite parse loops.
+            parsed = true; // invert here to ensure only once, or there would be infinite parse loops.
             try {
                 extractParametersFromMultipartFormData((HttpServletRequest) getRequest());
             } catch (Exception e) {

@@ -36,7 +36,6 @@ public enum SimpleGroupStatus {
     public static SimpleGroupStatus parseStatusByCode(int code) {
         GroupStatus groupStatus = GroupStatus.forCode(code);
         switch (groupStatus) {
-            case DRAFT:
             case TO_BE_SUBMIT:
             case TO_BE_APPROVAL:
                 return CREATE;
@@ -81,7 +80,6 @@ public enum SimpleGroupStatus {
         List<Integer> statusList = new ArrayList<>();
         switch (groupStatus) {
             case CREATE:
-                statusList.add(GroupStatus.DRAFT.getCode());
                 statusList.add(GroupStatus.TO_BE_SUBMIT.getCode());
                 return statusList;
             case OPERATING:
@@ -114,9 +112,8 @@ public enum SimpleGroupStatus {
                 statusList.add(GroupStatus.DELETED.getCode());
                 return statusList;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported status %s for group", status));
+                throw new IllegalArgumentException(String.format("Unsupported status %s for inlong group", status));
         }
     }
 
 }
-

@@ -27,6 +27,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class CloneTopicReq extends BaseReq {
+
     private String sourceTopicName;
     private List<Integer> brokerId;
     private List<String> targetTopicName;

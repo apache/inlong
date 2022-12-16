@@ -78,7 +78,7 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
      * Delete sink info by sink id.
      */
     public void deleteSink(Integer sinkId) {
-        boolean result = sinkService.delete(sinkId, globalOperator);
+        boolean result = sinkService.delete(sinkId, false, globalOperator);
         Assertions.assertTrue(result);
     }
 
@@ -138,8 +138,7 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
     private final List<SQLServerColumnInfo> buildAddColumns() {
         List<SQLServerColumnInfo> addCloums = Lists.newArrayList(
                 new SQLServerColumnInfo("test1", "varchar(40)", "test1"),
-                new SQLServerColumnInfo("test2", "varchar(40)", "test2")
-        );
+                new SQLServerColumnInfo("test2", "varchar(40)", "test2"));
         return addCloums;
     }
 
@@ -160,8 +159,7 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
         List<SQLServerColumnInfo> columnInfos = Lists.newArrayList(
                 new SQLServerColumnInfo("id", "int", "id"),
                 new SQLServerColumnInfo("cell", "varchar(20)", "cell"),
-                new SQLServerColumnInfo("name", "varchar(40)", "name")
-        );
+                new SQLServerColumnInfo("name", "varchar(40)", "name"));
         tableInfo.setColumns(columnInfos);
         return tableInfo;
     }

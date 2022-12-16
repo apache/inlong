@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -109,10 +109,14 @@ public class EsOutputChannel extends Thread {
                         new UsernamePasswordCredentials(userName, password));
                 builder.setHttpClientConfigCallback((httpAsyncClientBuilder) -> {
                     httpAsyncClientBuilder.disableAuthCaching();
-                    RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(120 * 1000).build();
+                    RequestConfig requestConfig = RequestConfig.custom()
+                            .setConnectionRequestTimeout(context.getConnectionRequestTimeout())
+                            .setMaxRedirects(context.getMaxRedirects())
+                            .setSocketTimeout(context.getSocketTimeout())
+                            .setConnectTimeout(120 * 1000).build();
                     return httpAsyncClientBuilder.setDefaultCredentialsProvider(provider)
                             .setMaxConnTotal(context.getMaxConnect())
-                            .setMaxConnPerRoute(context.getMaxConnect())
+                            .setMaxConnPerRoute(context.getMaxConnectPerRoute())
                             .setDefaultRequestConfig(requestConfig);
                 });
                 esClient = EsSinkFactory.createRestHighLevelClient(builder);
@@ -201,9 +205,16 @@ public class EsOutputChannel extends Thread {
                 return;
             }
             // get indexRequest
-            indexRequest = context.taskDispatchQueue();
+            indexRequest = context.takeDispatchQueue();
             if (indexRequest == null) {
                 Thread.sleep(context.getProcessInterval());
+                return;
+            }
+            // get id config
+            String uid = indexRequest.getEvent().getUid();
+            if (context.getIdConfig(uid) == null) {
+                context.addSendResultMetric(indexRequest.getEvent(), context.getTaskName(), false,
+                        indexRequest.getSendTime());
                 return;
             }
             // send

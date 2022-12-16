@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,6 +44,7 @@ import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSou
 import static org.junit.Assert.assertEquals;
 
 public class CanalJsonEnhancedFormatFactoryTest {
+
     private static final InternalTypeInfo<RowData> ROW_TYPE_INFO =
             InternalTypeInfo.of(PHYSICAL_TYPE);
 
@@ -66,7 +66,7 @@ public class CanalJsonEnhancedFormatFactoryTest {
         // test Deser
         CanalJsonEnhancedDeserializationSchema expectedDeser =
                 CanalJsonEnhancedDeserializationSchema.builder(
-                                PHYSICAL_DATA_TYPE, Collections.emptyList(), ROW_TYPE_INFO)
+                        PHYSICAL_DATA_TYPE, Collections.emptyList(), ROW_TYPE_INFO)
                         .setIgnoreParseErrors(true)
                         .setTimestampFormat(TimestampFormat.ISO_8601)
                         .setDatabase("mydb")
@@ -89,7 +89,7 @@ public class CanalJsonEnhancedFormatFactoryTest {
     }
 
     // ------------------------------------------------------------------------
-    //  Public Tools
+    // Public Tools
     // ------------------------------------------------------------------------
 
     public static DeserializationSchema<RowData> createDeserializationSchema(

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -55,9 +55,9 @@ public class PartitionExtTest {
                 1);
         int limitDlt = 4096;
         partition.setPullTempData(0, 200, false, 1024, limitDlt, 10, false);
-        //assertEquals(limitDlt, partition.procConsumeResult(false));
+        // assertEquals(limitDlt, partition.procConsumeResult(false));
         partition.setPullTempData(0, 200, true, 1024, limitDlt, 10, false);
-        //assertEquals(0, partition.procConsumeResult(false));
+        // assertEquals(0, partition.procConsumeResult(false));
 
     }
 
@@ -73,8 +73,8 @@ public class PartitionExtTest {
                 1);
         int limitDlt = 4096;
         partition.setPullTempData(0, 0, false, 1024, 4096, 10, false);
-        //assertEquals(limitDlt, partition.procConsumeResult(false));
+        // assertEquals(limitDlt, partition.procConsumeResult(false));
         partition.setPullTempData(0, 404, false, 0, 4096, 10, false);
-        //assertEquals(limitDlt, partition.procConsumeResult(false));
+        // assertEquals(limitDlt, partition.procConsumeResult(false));
     }
 }

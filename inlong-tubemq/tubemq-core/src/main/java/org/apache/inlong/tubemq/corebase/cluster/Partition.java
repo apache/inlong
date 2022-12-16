@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -42,8 +42,8 @@ public class Partition implements Comparable<Partition>, Serializable {
      * @param partitionId
      */
     public Partition(final BrokerInfo broker,
-                     final String topic,
-                     final int partitionId) {
+            final String topic,
+            final int partitionId) {
         super();
         this.broker = broker;
         this.topic = topic;
@@ -72,7 +72,7 @@ public class Partition implements Comparable<Partition>, Serializable {
      * @param partStr
      */
     public Partition(BrokerInfo broker,
-                     String partStr) {
+            String partStr) {
         this.broker = broker;
         this.topic = partStr.split(TokenConstants.ATTR_SEP)[0];
         this.partitionId = Integer.parseInt(partStr.split(TokenConstants.ATTR_SEP)[1]);

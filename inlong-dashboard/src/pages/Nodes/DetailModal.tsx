@@ -23,7 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect } from '@/hooks';
 import { dao } from '@/metas/nodes';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, NodeMetaType } from '@/metas';
 import i18n from '@/i18n';
 
 const { useFindNodeDao, useSaveNodeDao } = dao;
@@ -31,9 +31,10 @@ const { useFindNodeDao, useSaveNodeDao } = dao;
 export interface Props extends ModalProps {
   // Require when edit
   id?: string;
+  defaultType?: string;
 }
 
-const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
   const [form] = useForm();
 
   const { defaultValue } = useDefaultMeta('node');
@@ -67,21 +68,28 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       // open
       if (id) {
         getData(id);
+      } else {
+        form.setFieldsValue({ type: defaultType });
+        setType(defaultType);
       }
     } else {
       form.resetFields();
-      setType(defaultValue);
     }
   }, [modalProps.visible]);
 
-  const { Entity } = useLoadMeta('node', type);
+  const { Entity } = useLoadMeta<NodeMetaType>('node', type);
 
   const content = useMemo(() => {
-    return Entity ? Entity.FieldList : [];
+    return Entity ? new Entity().renderRow() : [];
   }, [Entity]);
 
   return (
-    <Modal {...modalProps} title={id ? i18n.t('basic.Detail') : i18n.t('basic.Create')} onOk={onOk}>
+    <Modal
+      {...modalProps}
+      width={720}
+      title={id ? i18n.t('basic.Detail') : i18n.t('basic.Create')}
+      onOk={onOk}
+    >
       <FormGenerator
         content={content}
         form={form}

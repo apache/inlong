@@ -98,6 +98,7 @@ public class ConfigConstants {
     public static final String PROXY_CLUSTER_NAME = "proxy.cluster.name";
     public static final String DEFAULT_PROXY_CLUSTER_NAME = "DataProxy";
     public static final String PROXY_CLUSTER_TAG = "proxy.cluster.tag";
+    public static final String PROXY_CLUSTER_EXT_TAG = "proxy.cluster.extTag";
     public static final String PROXY_CLUSTER_INCHARGES = "proxy.cluster.inCharges";
     public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
     public static final String SOURCE_NO_TOPIC_ACCEPT = "source.topic.notfound.accept";
@@ -137,7 +138,7 @@ public class ConfigConstants {
 
     public static final String MANAGER_AUTH_SECRET_ID = "manager.auth.secretId";
     public static final String MANAGER_AUTH_SECRET_KEY = "manager.auth.secretKey";
-    //Pulsar config
+    // Pulsar config
     public static final String KEY_TENANT = "tenant";
     public static final String KEY_NAMESPACE = "namespace";
 

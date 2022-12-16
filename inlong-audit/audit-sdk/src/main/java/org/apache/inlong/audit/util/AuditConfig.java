@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AuditConfig {
+
     private static final Logger logger = LoggerFactory.getLogger(AuditConfig.class);
     private static String FILE_PATH = "/data/inlong/audit/";
     private static final int FILE_SIZE = 500 * 1024 * 1024;

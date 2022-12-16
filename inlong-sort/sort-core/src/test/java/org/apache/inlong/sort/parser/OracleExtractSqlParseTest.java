@@ -1,19 +1,18 @@
 /*
- *   Licensed to the Apache Software Foundation (ASF) under one
- *   or more contributor license agreements.  See the NOTICE file
- *   distributed with this work for additional information
- *   regarding copyright ownership.  The ASF licenses this file
- *   to you under the Apache License, Version 2.0 (the
- *   "License"); you may not use this file except in compliance
- *   with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.sort.parser;
@@ -66,8 +65,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
                 new MetaFieldInfo("database_name", MetaField.DATABASE_NAME),
                 new MetaFieldInfo("table_name", MetaField.TABLE_NAME),
                 new MetaFieldInfo("op_ts", MetaField.OP_TS),
-                new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME)
-        );
+                new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME));
         return new OracleExtractNode("1", "oracle_input", fields,
                 null, null, "ID", "localhost",
                 "flinkuser", "flinkpw", "xE",
@@ -82,8 +80,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
                 new FieldInfo("database_name", new StringFormatInfo()),
                 new FieldInfo("table_name", new StringFormatInfo()),
                 new FieldInfo("op_ts", new TimestampFormatInfo()),
-                new FieldInfo("schema_name", new StringFormatInfo())
-        );
+                new FieldInfo("schema_name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays.asList(
                 new FieldRelation(new FieldInfo("ID", new LongFormatInfo()),
                         new FieldInfo("id", new LongFormatInfo())),
@@ -100,8 +97,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
                 new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
                         new FieldInfo("op_ts", new TimestampFormatInfo())),
                 new FieldRelation(new FieldInfo("schema_name", new StringFormatInfo()),
-                        new FieldInfo("schema_name", new StringFormatInfo()))
-        );
+                        new FieldInfo("schema_name", new StringFormatInfo())));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
                 null, "topic", "localhost:9092",
                 new CanalJsonFormat(), null,

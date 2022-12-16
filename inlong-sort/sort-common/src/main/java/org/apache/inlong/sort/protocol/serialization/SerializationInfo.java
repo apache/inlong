@@ -25,10 +25,7 @@ import java.io.Serializable;
 /**
  * interface for serialization infos
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = JsonSerializationInfo.class, name = "json"),
         @JsonSubTypes.Type(value = CanalSerializationInfo.class, name = "canal"),

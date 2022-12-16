@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -67,7 +67,7 @@ public class RpcServiceFactory {
     private final ConcurrentHashMap<Integer, Long> brokerUnavailableMap =
             new ConcurrentHashMap<>();
     private long unAvailableFbdDurationMs =
-        RpcConstants.CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS;
+            RpcConstants.CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS;
     private final AtomicLong lastLogPrintTime = new AtomicLong(0);
     private final AtomicLong lastCheckTime = new AtomicLong(0);
     private long linkStatsDurationMs =
@@ -118,8 +118,8 @@ public class RpcServiceFactory {
                 config.getDouble(RpcConstants.RPC_LQ_MAX_FAIL_FORBIDDEN_RATE,
                         RpcConstants.CFG_LQ_MAX_FAIL_FORBIDDEN_RATE);
         this.unAvailableFbdDurationMs =
-            config.getLong(RpcConstants.RPC_SERVICE_UNAVAILABLE_FORBIDDEN_DURATION,
-                RpcConstants.CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS);
+                config.getLong(RpcConstants.RPC_SERVICE_UNAVAILABLE_FORBIDDEN_DURATION,
+                        RpcConstants.CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS);
         connectionManager = new ConnectionManager();
         connectionManager.setName(new StringBuilder(256)
                 .append("rpcFactory-Thread-")
@@ -341,8 +341,8 @@ public class RpcServiceFactory {
      * @return             the service instance for the broker
      */
     public synchronized <T> T getService(Class<T> clazz,
-                                         BrokerInfo brokerInfo,
-                                         RpcConfig config) {
+            BrokerInfo brokerInfo,
+            RpcConfig config) {
         String serviceKey = getServiceKey(brokerInfo.getBrokerAddr(), clazz.getName());
         ServiceHolder h = servicesCache.get(serviceKey);
         if (h != null) {
@@ -369,8 +369,8 @@ public class RpcServiceFactory {
     }
 
     public <T> T getOrCreateService(Class<T> clazz,
-                                    BrokerInfo brokerInfo,
-                                    RpcConfig config) {
+            BrokerInfo brokerInfo,
+            RpcConfig config) {
         String serviceKey = getServiceKey(brokerInfo.getBrokerAddr(), clazz.getName());
         ServiceHolder h = servicesCache.get(serviceKey);
         if (h != null) {
@@ -389,8 +389,8 @@ public class RpcServiceFactory {
     }
 
     public synchronized <T> T getFailoverService(Class<T> clazz,
-                                                 MasterInfo masterInfo,
-                                                 RpcConfig config) {
+            MasterInfo masterInfo,
+            RpcConfig config) {
         String serviceKey = getFailoverServiceKey(masterInfo, clazz.getName());
         ServiceHolder h = servicesCache.get(serviceKey);
         if (h != null) {
@@ -417,7 +417,7 @@ public class RpcServiceFactory {
     }
 
     public synchronized void publishService(Class clazz, Object serviceInstance,
-                                            int listenPort, RpcConfig config) throws Exception {
+            int listenPort, RpcConfig config) throws Exception {
         publishService(clazz, serviceInstance, listenPort, null, config);
     }
 
@@ -432,8 +432,8 @@ public class RpcServiceFactory {
      * @throws Exception        the excepition while processing
      */
     public synchronized void publishService(Class clazz, Object serviceInstance,
-                                            int listenPort, ExecutorService threadPool,
-                                            RpcConfig config) throws Exception {
+            int listenPort, ExecutorService threadPool,
+            RpcConfig config) throws Exception {
         ServiceRpcServer server = servers.get(listenPort);
         if (server == null) {
             server = new NettyRpcServer(config);
@@ -488,6 +488,7 @@ public class RpcServiceFactory {
     }
 
     private static class ServiceHolder<T> implements Shutdownable {
+
         private T service;
         private AbstractServiceInvoker invoker;
 
@@ -507,13 +508,14 @@ public class RpcServiceFactory {
     }
 
     private static class ConnectionNode {
+
         private Class clazzType;
         private NodeAddrInfo addressInfo;
         private RpcConfig config;
 
         public ConnectionNode(Class clazzType,
-                              NodeAddrInfo nodeAddrInfo,
-                              RpcConfig config) {
+                NodeAddrInfo nodeAddrInfo,
+                RpcConfig config) {
             this.clazzType = clazzType;
             this.addressInfo = nodeAddrInfo;
             this.config = config;
@@ -541,6 +543,7 @@ public class RpcServiceFactory {
      * Manage and recycle network connection resources
      */
     private class ConnectionManager extends Thread {
+
         boolean isRunning = true;
 
         public void shutdown() {

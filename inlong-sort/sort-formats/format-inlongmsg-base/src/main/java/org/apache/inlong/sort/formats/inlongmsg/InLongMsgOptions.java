@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +23,7 @@ import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
 
 public class InLongMsgOptions {
+
     private InLongMsgOptions() {
     }
 
@@ -39,13 +39,13 @@ public class InLongMsgOptions {
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Optional flag to skip fields and rows with parse errors instead of failing;\n"
-                                        + "fields are set to null in case of errors");
+                            + "fields are set to null in case of errors");
 
     public static void validateDecodingFormatOptions(ReadableConfig config) {
         String innerFormat = config.get(INNER_FORMAT);
         if (innerFormat == null) {
             throw new ValidationException(
-                    INNER_FORMAT.key()  + " shouldn't be null.");
+                    INNER_FORMAT.key() + " shouldn't be null.");
         }
     }
 }

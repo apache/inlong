@@ -49,6 +49,7 @@ public class TubeHttpGroupDetailInfo {
 
         @Data
         public static class PartitionInfo {
+
             private String brokerAddr;
             private String topic;
             private Integer partId;

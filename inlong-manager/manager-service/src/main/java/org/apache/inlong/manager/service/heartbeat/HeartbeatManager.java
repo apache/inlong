@@ -33,6 +33,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterStatus;
 import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
@@ -78,7 +79,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     }
                 }).build();
 
-        // The expire time of cluster info cache must be greater than heartbeat cache
+        // The expiry time of cluster info cache must be greater than heartbeat cache
         // because the eviction handler needs to query cluster info cache
         clusterInfoCache = Caffeine.newBuilder()
                 .expireAfterAccess(expireTime * 2L, TimeUnit.SECONDS)
@@ -128,7 +129,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 if (clusterNode == null) {
                     handlerNum += insertClusterNode(clusterInfo, heartbeatMsg, clusterInfo.getCreator());
                 } else {
-                    handlerNum += updateClusterNode(clusterNode);
+                    handlerNum += updateClusterNode(clusterNode, heartbeatMsg);
                 }
             }
         }
@@ -152,6 +153,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
         // protocolType may be null, and the protocolTypes' length may be less than ports' length
         String[] ports = heartbeat.getPort().split(InlongConstants.COMMA);
+        String[] ips = heartbeat.getIp().split(InlongConstants.COMMA);
         String protocolType = heartbeat.getProtocolType();
         String[] protocolTypes = null;
         if (StringUtils.isNotBlank(protocolType) && ports.length > 1) {
@@ -166,6 +168,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             HeartbeatMsg heartbeatMsg = JsonUtils.parseObject(JsonUtils.toJsonByte(heartbeat), HeartbeatMsg.class);
             assert heartbeatMsg != null;
             heartbeatMsg.setPort(ports[i].trim());
+            heartbeatMsg.setIp(ips[i].trim());
             if (protocolTypes != null) {
                 heartbeatMsg.setProtocolType(protocolTypes[i]);
             } else {
@@ -199,6 +202,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setIp(heartbeat.getIp());
         clusterNode.setPort(Integer.valueOf(heartbeat.getPort()));
         clusterNode.setProtocolType(heartbeat.getProtocolType());
+        clusterNode.setNodeLoad(heartbeat.getLoad());
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
         clusterNode.setCreator(creator);
         clusterNode.setModifier(creator);
@@ -206,8 +210,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         return clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
     }
 
-    private int updateClusterNode(InlongClusterNodeEntity clusterNode) {
+    private int updateClusterNode(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
+        clusterNode.setNodeLoad(heartbeat.getLoad());
         return clusterNodeMapper.updateById(clusterNode);
     }
 
@@ -215,6 +220,10 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         final String clusterName = componentHeartbeat.getClusterName();
         final String type = componentHeartbeat.getComponentType();
         final String clusterTag = componentHeartbeat.getClusterTag();
+        final String extTag = componentHeartbeat.getExtTag();
+        Preconditions.checkNotNull(clusterTag, "cluster tag cannot be null");
+        Preconditions.checkNotNull(type, "cluster type cannot be null");
+        Preconditions.checkNotNull(clusterName, "cluster name cannot be null");
         InlongClusterEntity entity = clusterMapper.selectByNameAndType(clusterName, type);
         if (null != entity) {
             // TODO Load balancing needs to be considered.
@@ -226,6 +235,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         cluster.setName(clusterName);
         cluster.setType(type);
         cluster.setClusterTags(clusterTag);
+        cluster.setExtTag(extTag);
         String inCharges = componentHeartbeat.getInCharges();
         if (StringUtils.isBlank(inCharges)) {
             inCharges = InlongConstants.ADMIN_USER;

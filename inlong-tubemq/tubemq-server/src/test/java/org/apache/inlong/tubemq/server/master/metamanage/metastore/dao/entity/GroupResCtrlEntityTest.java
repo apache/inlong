@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -83,10 +83,10 @@ public class GroupResCtrlEntityTest {
         Assert.assertEquals(bdbEntity2.getSerialId(), resEntry3.getDataVerId());
         // case 4
         long newDataVerId = 99;
-        boolean resChkEnable = true;
+        EnableStatus resChkEnable = EnableStatus.STATUS_ENABLE;
         int newAllowedB2CRate = 5;
         int newQryPriorityId = 2;
-        boolean newFlowCtrlEnable =  false;
+        EnableStatus newFlowCtrlEnable = EnableStatus.STATUS_DISABLE;
         int newFlowRuleCnt = 2;
         String newFlowCtrlRuleInfo = "[{},{}]";
         GroupResCtrlEntity resEntry4 = resEntry3.clone();
@@ -94,10 +94,10 @@ public class GroupResCtrlEntityTest {
         Assert.assertTrue(resEntry4.updModifyInfo(newDataVerId, resChkEnable, newAllowedB2CRate,
                 newQryPriorityId, newFlowCtrlEnable, newFlowRuleCnt, newFlowCtrlRuleInfo));
         Assert.assertEquals(resEntry4.getDataVerId(), newDataVerId);
-        Assert.assertEquals(resEntry4.getResCheckStatus().isEnable(), resChkEnable);
+        Assert.assertEquals(resEntry4.getResCheckStatus(), resChkEnable);
         Assert.assertEquals(resEntry4.getAllowedBrokerClientRate(), newAllowedB2CRate);
         Assert.assertEquals(resEntry4.getQryPriorityId(), newQryPriorityId);
-        Assert.assertEquals(resEntry4.getFlowCtrlStatus().isEnable(), newFlowCtrlEnable);
+        Assert.assertEquals(resEntry4.getFlowCtrlStatus(), newFlowCtrlEnable);
         Assert.assertEquals(resEntry4.getRuleCnt(), newFlowRuleCnt);
         Assert.assertEquals(resEntry4.getFlowCtrlInfo(), newFlowCtrlRuleInfo);
         Assert.assertEquals(resEntry4.getGroupName(), resEntry3.getGroupName());
@@ -116,7 +116,7 @@ public class GroupResCtrlEntityTest {
         // case 5
         BdbGroupFlowCtrlEntity bdbEntity5 = resEntry4.buildBdbGroupFlowCtrlEntity();
         Assert.assertEquals(bdbEntity5.getSerialId(), newDataVerId);
-        Assert.assertEquals(bdbEntity5.getResCheckStatus().isEnable(), resChkEnable);
+        Assert.assertEquals(bdbEntity5.getResCheckStatus(), resChkEnable);
         Assert.assertEquals(bdbEntity5.getAllowedBrokerClientRate(), newAllowedB2CRate);
         Assert.assertEquals(bdbEntity5.getQryPriorityId(), newQryPriorityId);
         Assert.assertEquals(bdbEntity5.getStatusId(), 0);
@@ -127,7 +127,5 @@ public class GroupResCtrlEntityTest {
         Assert.assertEquals(resEntry4.getCreateDateStr(), bdbEntity5.getStrCreateDate());
         Assert.assertEquals(resEntry4.getModifyUser(), bdbEntity5.getModifyUser());
         Assert.assertEquals(resEntry4.getModifyDateStr(), bdbEntity5.getStrModifyDate());
-
     }
-
 }

@@ -88,11 +88,10 @@ public abstract class WebBaseTest extends BaseTest {
         loginUser.setPassword("inlong");
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/login")
-                                .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                post("/api/anno/login")
+                        .content(JsonUtils.toJsonString(loginUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -105,11 +104,10 @@ public abstract class WebBaseTest extends BaseTest {
     @SneakyThrows
     protected MvcResult postForSuccessMvcResult(String url, Object body) {
         return mockMvc.perform(
-                        post(url)
-                                .content(JsonUtils.toJsonString(body))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                post(url)
+                        .content(JsonUtils.toJsonString(body))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -117,10 +115,9 @@ public abstract class WebBaseTest extends BaseTest {
     @SneakyThrows
     protected MvcResult getForSuccessMvcResult(String url, Object... pathVariable) {
         return mockMvc.perform(
-                        get(url, pathVariable)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                get(url, pathVariable)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -128,10 +125,9 @@ public abstract class WebBaseTest extends BaseTest {
     @SneakyThrows
     protected MvcResult deleteForSuccessMvcResult(String url, Object... pathVariable) {
         return mockMvc.perform(
-                        delete(url, pathVariable)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                delete(url, pathVariable)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -142,11 +138,10 @@ public abstract class WebBaseTest extends BaseTest {
         loginUser.setPassword("inlong");
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/login")
-                                .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                post("/api/anno/login")
+                        .content(JsonUtils.toJsonString(loginUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -160,8 +155,7 @@ public abstract class WebBaseTest extends BaseTest {
         return objectMapper
                 .readValue(
                         mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8),
-                        objectMapper.getTypeFactory().constructParametricType(Response.class, t)
-                );
+                        objectMapper.getTypeFactory().constructParametricType(Response.class, t));
     }
 
     public <T> T getResBodyObj(MvcResult mvcResult, Class<T> t) throws Exception {
@@ -175,8 +169,7 @@ public abstract class WebBaseTest extends BaseTest {
         return objectMapper
                 .readValue(
                         jsonNode.get("data").toString(),
-                        objectMapper.getTypeFactory().constructParametricType(List.class, t)
-                );
+                        objectMapper.getTypeFactory().constructParametricType(List.class, t));
     }
 
     public <T, R> Map<T, R> getResBodyMap(MvcResult mvcResult, Class<T> keyType, Class<R> valueType) throws Exception {
@@ -184,8 +177,7 @@ public abstract class WebBaseTest extends BaseTest {
         return objectMapper
                 .readValue(
                         jsonNode.get("data").toString(),
-                        this.objectMapper.getTypeFactory().constructParametricType(HashMap.class, keyType, valueType)
-                );
+                        this.objectMapper.getTypeFactory().constructParametricType(HashMap.class, keyType, valueType));
     }
 
     public <T, R> Map<T, R> getResBodyListMap(MvcResult mvcResult, Class<T> keyType, Class<R> valueType)
@@ -194,8 +186,7 @@ public abstract class WebBaseTest extends BaseTest {
         return objectMapper
                 .readValue(
                         jsonNode.get("data").toString(),
-                        this.objectMapper.getTypeFactory().constructParametricType(HashMap.class, keyType, valueType)
-                );
+                        this.objectMapper.getTypeFactory().constructParametricType(HashMap.class, keyType, valueType));
     }
 
     public <T> List<T> getResBodyPageList(MvcResult mvcResult, Class<T> t) throws Exception {
@@ -203,7 +194,6 @@ public abstract class WebBaseTest extends BaseTest {
         return objectMapper
                 .readValue(
                         jsonNode.get("data").get("records").toString(),
-                        objectMapper.getTypeFactory().constructParametricType(List.class, t)
-                );
+                        objectMapper.getTypeFactory().constructParametricType(List.class, t));
     }
 }

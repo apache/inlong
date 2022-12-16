@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -33,19 +33,19 @@ import org.apache.inlong.tubemq.server.common.statusdef.CleanPolType;
  */
 public class TopicPropGroup implements Serializable, Cloneable {
 
-    private int numTopicStores = TBaseConstants.META_VALUE_UNDEFINED;        //store num
-    private int numPartitions = TBaseConstants.META_VALUE_UNDEFINED;        //partition num
-    private int unflushThreshold = TBaseConstants.META_VALUE_UNDEFINED;     //flush threshold
-    private int unflushInterval = TBaseConstants.META_VALUE_UNDEFINED;      //flush interval
-    private int unflushDataHold = TBaseConstants.META_VALUE_UNDEFINED;      // flush dataSize
-    private int memCacheMsgSizeInMB = TBaseConstants.META_VALUE_UNDEFINED;  // cache block size
-    private int memCacheMsgCntInK = TBaseConstants.META_VALUE_UNDEFINED;    // cache max count
-    private int memCacheFlushIntvl = TBaseConstants.META_VALUE_UNDEFINED;   // cache max interval
-    private Boolean acceptPublish = null;    //enable publish
-    private Boolean acceptSubscribe = null;  //enable subscribe
-    private int dataStoreType = TBaseConstants.META_VALUE_UNDEFINED;  // type
-    private String dataPath = "";   //data path
-    private String deletePolicy = "";        // delete policy
+    private int numTopicStores = TBaseConstants.META_VALUE_UNDEFINED; // store num
+    private int numPartitions = TBaseConstants.META_VALUE_UNDEFINED; // partition num
+    private int unflushThreshold = TBaseConstants.META_VALUE_UNDEFINED; // flush threshold
+    private int unflushInterval = TBaseConstants.META_VALUE_UNDEFINED; // flush interval
+    private int unflushDataHold = TBaseConstants.META_VALUE_UNDEFINED; // flush dataSize
+    private int memCacheMsgSizeInMB = TBaseConstants.META_VALUE_UNDEFINED; // cache block size
+    private int memCacheMsgCntInK = TBaseConstants.META_VALUE_UNDEFINED; // cache max count
+    private int memCacheFlushIntvl = TBaseConstants.META_VALUE_UNDEFINED; // cache max interval
+    private Boolean acceptPublish = null; // enable publish
+    private Boolean acceptSubscribe = null; // enable subscribe
+    private int dataStoreType = TBaseConstants.META_VALUE_UNDEFINED; // type
+    private String dataPath = ""; // data path
+    private String deletePolicy = ""; // delete policy
     // Retention period, unit ms
     private CleanPolType cleanPolicyType = CleanPolType.CLEAN_POL_DELETE;
     private long retPeriodInMs = TBaseConstants.META_VALUE_UNDEFINED;
@@ -55,11 +55,11 @@ public class TopicPropGroup implements Serializable, Cloneable {
     }
 
     public TopicPropGroup(int numTopicStores, int numPartitions,
-                          int unflushThreshold, int unflushInterval,
-                          int unflushDataHold, int memCacheMsgSizeInMB,
-                          int memCacheMsgCntInK, int memCacheFlushIntvl,
-                          boolean acceptPublish, boolean acceptSubscribe,
-                          String deletePolicy, int dataStoreType, String dataPath) {
+            int unflushThreshold, int unflushInterval,
+            int unflushDataHold, int memCacheMsgSizeInMB,
+            int memCacheMsgCntInK, int memCacheFlushIntvl,
+            boolean acceptPublish, boolean acceptSubscribe,
+            String deletePolicy, int dataStoreType, String dataPath) {
         this.numTopicStores = numTopicStores;
         this.numPartitions = numPartitions;
         this.unflushThreshold = unflushThreshold;
@@ -213,25 +213,25 @@ public class TopicPropGroup implements Serializable, Cloneable {
         return (target.getNumTopicStores() == TBaseConstants.META_VALUE_UNDEFINED
                 || target.getNumTopicStores() == this.numTopicStores)
                 && (target.getNumPartitions() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getNumPartitions() == this.numPartitions)
+                        || target.getNumPartitions() == this.numPartitions)
                 && (target.getUnflushThreshold() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getUnflushThreshold() == this.unflushThreshold)
+                        || target.getUnflushThreshold() == this.unflushThreshold)
                 && (target.getUnflushInterval() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getUnflushInterval() == this.unflushInterval)
+                        || target.getUnflushInterval() == this.unflushInterval)
                 && (target.getUnflushDataHold() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getUnflushDataHold() == this.unflushDataHold)
+                        || target.getUnflushDataHold() == this.unflushDataHold)
                 && (target.getMemCacheMsgSizeInMB() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getMemCacheMsgSizeInMB() == this.memCacheMsgSizeInMB)
+                        || target.getMemCacheMsgSizeInMB() == this.memCacheMsgSizeInMB)
                 && (target.getMemCacheMsgCntInK() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getMemCacheMsgCntInK() == this.memCacheMsgCntInK)
+                        || target.getMemCacheMsgCntInK() == this.memCacheMsgCntInK)
                 && (target.getMemCacheFlushIntvl() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getMemCacheFlushIntvl() == this.memCacheFlushIntvl)
+                        || target.getMemCacheFlushIntvl() == this.memCacheFlushIntvl)
                 && (target.getAcceptPublish() == null
-                || Objects.equals(target.getAcceptPublish(), this.acceptPublish))
+                        || Objects.equals(target.getAcceptPublish(), this.acceptPublish))
                 && (target.getAcceptSubscribe() == null
-                || Objects.equals(target.getAcceptSubscribe(), this.acceptSubscribe))
+                        || Objects.equals(target.getAcceptSubscribe(), this.acceptSubscribe))
                 && (TStringUtils.isBlank(target.getDeletePolicy())
-                || target.getDeletePolicy().equals(this.deletePolicy));
+                        || target.getDeletePolicy().equals(this.deletePolicy));
     }
 
     /**
@@ -281,7 +281,7 @@ public class TopicPropGroup implements Serializable, Cloneable {
      * @param isLongName  whether long field name
      */
     public void getConfigureInfo(Map<String, String> paramMap,
-                                 boolean isLongName) {
+            boolean isLongName) {
         if (numTopicStores != TBaseConstants.META_VALUE_UNDEFINED) {
             paramMap.put((isLongName ? "numTopicStores" : "numStore"),
                     String.valueOf(numTopicStores));

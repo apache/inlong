@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -149,7 +148,8 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
         LOG.info("Snapshot step 2 - Snapshotting data");
         createDataEvents(ctx, snapshotSplit.getTableId());
 
-        final BinlogOffset highWatermark = currentBinlogOffset(jdbcConnection);
+        BinlogOffset highWatermark = determineHighWatermark(lowWatermark);
+
         LOG.info(
                 "Snapshot step 3 - Determining high watermark {} for split {}",
                 highWatermark,
@@ -160,6 +160,21 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
                 .setHighWatermark(highWatermark);
 
         return SnapshotResult.completed(ctx.offset);
+    }
+
+    /**
+     * for chunk that equals to the whole table we do not need to normalize
+     * the snapshot data and the binlog data, just set high watermark to low watermark
+     * @return highWatermark
+     */
+    private BinlogOffset determineHighWatermark(BinlogOffset lowWatermark) {
+        if (snapshotSplit.isWholeSplit()) {
+            LOG.info("for split {}, set highWatermark to lowWatermark {} since"
+                    + " it reads the whole table ", snapshotSplit, lowWatermark);
+            return lowWatermark;
+        } else {
+            return currentBinlogOffset(jdbcConnection);
+        }
     }
 
     @Override
@@ -174,7 +189,8 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     }
 
     private static class MySqlSnapshotContext
-            extends RelationalSnapshotChangeEventSource.RelationalSnapshotContext {
+            extends
+                RelationalSnapshotChangeEventSource.RelationalSnapshotContext {
 
         public MySqlSnapshotContext() throws SQLException {
             super("");
@@ -216,15 +232,15 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
                 selectSql);
 
         try (PreparedStatement selectStatement =
-                        StatementUtils.readTableSplitDataStatement(
-                                jdbcConnection,
-                                selectSql,
-                                snapshotSplit.getSplitStart() == null,
-                                snapshotSplit.getSplitEnd() == null,
-                                snapshotSplit.getSplitStart(),
-                                snapshotSplit.getSplitEnd(),
-                                snapshotSplit.getSplitKeyType().getFieldCount(),
-                                connectorConfig.getQueryFetchSize());
+                StatementUtils.readTableSplitDataStatement(
+                        jdbcConnection,
+                        selectSql,
+                        snapshotSplit.getSplitStart() == null,
+                        snapshotSplit.getSplitEnd() == null,
+                        snapshotSplit.getSplitStart(),
+                        snapshotSplit.getSplitEnd(),
+                        snapshotSplit.getSplitKeyType().getFieldCount(),
+                        connectorConfig.getQueryFetchSize());
                 ResultSet rs = selectStatement.executeQuery()) {
 
             ColumnUtils.ColumnArray columnArray = ColumnUtils.toArray(rs, table);
@@ -352,9 +368,9 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
 
         try {
             return MySqlValueConverters.containsZeroValuesInDatePart(
-                            (new String(b.getBytes(1, (int) (b.length())), "UTF-8")), column, table)
-                    ? null
-                    : rs.getTimestamp(fieldNo, Calendar.getInstance());
+                    (new String(b.getBytes(1, (int) (b.length())), "UTF-8")), column, table)
+                            ? null
+                            : rs.getTimestamp(fieldNo, Calendar.getInstance());
         } catch (UnsupportedEncodingException e) {
             LOG.error("Could not read MySQL TIME value as UTF-8");
             throw new RuntimeException(e);

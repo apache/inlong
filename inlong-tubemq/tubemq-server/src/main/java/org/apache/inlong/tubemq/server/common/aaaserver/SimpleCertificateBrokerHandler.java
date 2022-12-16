@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -50,7 +50,7 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
         this.tubeBroker = tubeBroker;
         this.visitTokenList.set(new ArrayList<Long>());
         this.inValidTokenCheckTimeMs =
-            tubeBroker.getTubeConfig().getVisitTokenCheckInValidTimeMs();
+                tubeBroker.getTubeConfig().getVisitTokenCheckInValidTimeMs();
     }
 
     @Override
@@ -74,7 +74,7 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
         }
         String curBrokerVisitTokens = authorizedInfo.getVisitAuthorizedToken();
         if (TStringUtils.isBlank(curBrokerVisitTokens)
-            || lastUpdatedVisitTokens.equals(curBrokerVisitTokens)) {
+                || lastUpdatedVisitTokens.equals(curBrokerVisitTokens)) {
             return;
         }
         lastUpdatedVisitTokens = curBrokerVisitTokens;
@@ -110,11 +110,11 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
 
     @Override
     public CertifiedResult identityValidUserInfo(final ClientBroker.AuthorizedInfo authorizedInfo,
-                                                 boolean isProduce) {
+            boolean isProduce) {
         CertifiedResult result = new CertifiedResult();
         if (authorizedInfo == null) {
             result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
-                "Authorized Info is required!");
+                    "Authorized Info is required!");
             return result;
         }
         if (enableVisitTokenCheck) {
@@ -122,15 +122,15 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
             List<Long> currList = visitTokenList.get();
             if (tubeBroker.isKeepAlive()) {
                 if (!currList.contains(curVisitToken)
-                    && (System.currentTimeMillis() - tubeBroker.getLastRegTime() > inValidTokenCheckTimeMs)) {
+                        && (System.currentTimeMillis() - tubeBroker.getLastRegTime() > inValidTokenCheckTimeMs)) {
                     result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
-                        "Visit Authorized Token is invalid!");
+                            "Visit Authorized Token is invalid!");
                     return result;
                 }
             }
         }
         if ((isProduce && !enableProduceAuthenticate)
-            || (!isProduce && !enableConsumeAuthenticate)) {
+                || (!isProduce && !enableConsumeAuthenticate)) {
             result.setSuccessResult("", "");
             return result;
         }
@@ -148,8 +148,8 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
 
     @Override
     public CertifiedResult validConsumeAuthorizeInfo(final String userName, final String groupName,
-                                                     final String topicName, final Set<String> msgTypeLst,
-                                                     boolean isRegister, String clientIp) {
+            final String topicName, final Set<String> msgTypeLst,
+            boolean isRegister, String clientIp) {
         CertifiedResult result = new CertifiedResult();
         if (!enableConsumeAuthorize) {
             result.setSuccessResult("", "");
@@ -164,7 +164,7 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
 
     @Override
     public CertifiedResult validProduceAuthorizeInfo(final String userName, final String topicName,
-                                                     final String msgType, String clientIp) {
+            final String msgType, String clientIp) {
         CertifiedResult result = new CertifiedResult();
         if (!enableProduceAuthorize) {
             result.setSuccessResult("", "");

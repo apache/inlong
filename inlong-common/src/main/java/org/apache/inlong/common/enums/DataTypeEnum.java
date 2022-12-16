@@ -18,29 +18,37 @@
 package org.apache.inlong.common.enums;
 
 import java.util.Locale;
-import lombok.Getter;
 
+/**
+ * Enum of data type.
+ */
 public enum DataTypeEnum {
+
     CSV("csv"),
     AVRO("avro"),
     JSON("json"),
     CANAL("canal"),
     DEBEZIUM_JSON("debezium_json"),
-    RAW("raw");
+    RAW("raw"),
 
-    @Getter
-    private final String name;
+    ;
 
-    DataTypeEnum(String name) {
-        this.name = name;
+    private final String type;
+
+    DataTypeEnum(String type) {
+        this.type = type;
     }
 
-    public static DataTypeEnum forName(String name) {
+    public static DataTypeEnum forType(String type) {
         for (DataTypeEnum dataType : values()) {
-            if (dataType.getName().equals(name.toLowerCase(Locale.ROOT))) {
+            if (dataType.getType().equals(type.toLowerCase(Locale.ROOT))) {
                 return dataType;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupport dataType for Inlong:%s", name));
+        throw new IllegalArgumentException("Unsupported data type for " + type);
+    }
+
+    public String getType() {
+        return type;
     }
 }

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -39,7 +39,7 @@ public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
     private int masterNodeCnt;
 
     public RpcServiceFailoverInvoker(ClientFactory clientFactory, Class serviceClass,
-                                     RpcConfig conf, MasterInfo masterInfo) {
+            RpcConfig conf, MasterInfo masterInfo) {
         super(clientFactory, serviceClass, conf);
         this.masterInfo = masterInfo;
         this.masterNodeCnt = masterInfo.getNodeHostPortList().size();
@@ -48,7 +48,7 @@ public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
 
     @Override
     public Object callMethod(String targetInterface, String method,
-                             Object arg, Callback callback) throws Throwable {
+            Object arg, Callback callback) throws Throwable {
         if (currentClient == null
                 || !currentClient.isReady()) {
             getNextClient(false);

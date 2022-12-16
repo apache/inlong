@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -36,11 +36,11 @@ import java.util.List;
  * Inlong stream info
  */
 @Data
-@Builder
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong stream info")
-public class InlongStreamInfo {
+public class InlongStreamInfo extends BaseInlongStream {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -57,8 +57,7 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Inlong stream description")
     private String description;
 
-    @ApiModelProperty(value = "MQ resource for inlong stream. Default: ${inlongStreamId}",
-            notes = "in inlong stream, TubeMQ corresponds to filter consumption ID, Pulsar corresponds to Topic")
+    @ApiModelProperty(value = "MQ resource for inlong stream. Default: ${inlongStreamId}", notes = "in inlong stream, TubeMQ corresponds to filter consumption ID, Pulsar corresponds to Topic")
     private String mqResource;
 
     @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")
@@ -73,11 +72,9 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
 
-    @Builder.Default
-    @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes",
-            notes = "Each task under this stream sends data synchronously, "
-                    + "which will affect the throughput of data collection, please choose carefully")
-    private Integer syncSend = 0;
+    @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes", notes = "Each task under this stream sends data synchronously, "
+            + "which will affect the throughput of data collection, please choose carefully")
+    private Integer syncSend;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
     private Integer dailyRecords;
@@ -103,10 +100,6 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Previous status")
     private Integer previousStatus;
 
-    @Builder.Default
-    @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
-    private Integer isDeleted = 0;
-
     @ApiModelProperty(value = "Name of creator")
     private String creator;
 
@@ -125,20 +118,14 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Inlong stream Extension properties")
     private List<InlongStreamExtInfo> extList;
 
-    @Builder.Default
     @ApiModelProperty("Stream source infos")
     private List<StreamSource> sourceList = new ArrayList<>();
 
-    @Builder.Default
     @ApiModelProperty("Stream sink infos")
     private List<StreamSink> sinkList = new ArrayList<>();
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
-    public InlongStreamResponse genResponse() {
-        return CommonBeanUtils.copyProperties(this, InlongStreamResponse::new);
-    }
 
     public InlongStreamRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, InlongStreamRequest::new);

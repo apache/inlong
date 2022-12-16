@@ -32,14 +32,17 @@ public class ClusterType {
     public static final String PULSAR = "PULSAR";
     public static final String DATAPROXY = "DATAPROXY";
     public static final String KAFKA = "KAFKA";
+    public static final String ELASTICSEARCH = "ELASTICSEARCH";
 
     private static final Set<String> TYPE_SET = new HashSet<String>() {
+
         {
             add(ClusterType.AGENT);
             add(ClusterType.TUBEMQ);
             add(ClusterType.PULSAR);
             add(ClusterType.DATAPROXY);
             add(ClusterType.KAFKA);
+            add(ClusterType.ELASTICSEARCH);
         }
     };
 

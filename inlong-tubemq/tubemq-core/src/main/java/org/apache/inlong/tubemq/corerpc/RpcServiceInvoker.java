@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -29,10 +29,11 @@ import org.apache.inlong.tubemq.corerpc.protocol.RpcProtocol;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 
 public class RpcServiceInvoker extends AbstractServiceInvoker {
+
     private NodeAddrInfo targetAddress;
 
     public RpcServiceInvoker(ClientFactory clientFactory, Class serviceClass,
-                             RpcConfig conf, NodeAddrInfo targetAddress) {
+            RpcConfig conf, NodeAddrInfo targetAddress) {
         super(clientFactory, serviceClass, conf);
         this.targetAddress = targetAddress;
     }
@@ -43,7 +44,7 @@ public class RpcServiceInvoker extends AbstractServiceInvoker {
 
     @Override
     public Object callMethod(String targetInterface, String method,
-                             Object arg, Callback callback) throws Throwable {
+            Object arg, Callback callback) throws Throwable {
         Client client =
                 clientFactory.getClient(targetAddress, this.conf);
         if (client == null) {

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -25,6 +25,7 @@ import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.rv.RetValue;
 
 public class ConsumerResult extends RetValue {
+
     private String topicName = "";
     private PeerInfo peerInfo = new PeerInfo();
     private String confirmContext = "";
@@ -52,23 +53,23 @@ public class ConsumerResult extends RetValue {
     }
 
     public ConsumerResult(boolean isSuccess, int errCode, String errMsg,
-                          String topicName, Partition partition,
-                          long currOffset, long maxOffset) {
+            String topicName, Partition partition,
+            long currOffset, long maxOffset) {
         super(isSuccess, errCode, errMsg);
         this.topicName = topicName;
         this.peerInfo.setMsgSourceInfo(partition, currOffset, maxOffset);
     }
 
     public void setSuccResult(String topicName, Partition partition,
-                              long currOffset, long maxOffset) {
+            long currOffset, long maxOffset) {
         super.setSuccResult();
         this.topicName = topicName;
         this.peerInfo.setMsgSourceInfo(partition, currOffset, maxOffset);
     }
 
     public void setProcessResult(boolean isSuccess, int errCode, String errMsg,
-                                 String topicName, Partition partition,
-                                 long currOffset, long maxOffset) {
+            String topicName, Partition partition,
+            long currOffset, long maxOffset) {
         super.setFullInfo(isSuccess, errCode, errMsg);
         this.topicName = topicName;
         this.peerInfo.setMsgSourceInfo(partition, currOffset, maxOffset);

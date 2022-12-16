@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -40,7 +40,7 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
     private final BaseMessageConsumer baseConsumer;
 
     public SimplePullMessageConsumer(final InnerSessionFactory messageSessionFactory,
-                                     final ConsumerConfig consumerConfig) throws TubeClientException {
+            final ConsumerConfig consumerConfig) throws TubeClientException {
         baseConsumer =
                 new BaseMessageConsumer(messageSessionFactory, consumerConfig, true);
     }
@@ -107,7 +107,7 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
 
     @Override
     public PullMessageConsumer subscribe(String topic,
-                                         TreeSet<String> filterConds) throws TubeClientException {
+            TreeSet<String> filterConds) throws TubeClientException {
         baseConsumer.subscribe(topic, filterConds, null);
         return this;
     }
@@ -119,9 +119,9 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
 
     @Override
     public void completeSubscribe(final String sessionKey,
-                                  final int sourceCount,
-                                  final boolean isSelectBig,
-                                  final Map<String, Long> partOffsetMap) throws TubeClientException {
+            final int sourceCount,
+            final boolean isSelectBig,
+            final Map<String, Long> partOffsetMap) throws TubeClientException {
         baseConsumer.completeSubscribe(sessionKey, sourceCount, isSelectBig, partOffsetMap);
     }
 
@@ -143,8 +143,8 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
                 break;
             }
             if ((baseConsumer.getConsumerConfig().getPullConsumeReadyWaitPeriodMs() >= 0L)
-                && (System.currentTimeMillis() - startTime
-                    >= baseConsumer.getConsumerConfig().getPullConsumeReadyWaitPeriodMs())) {
+                    && (System.currentTimeMillis() - startTime >= baseConsumer.getConsumerConfig()
+                            .getPullConsumeReadyWaitPeriodMs())) {
                 return new ConsumerResult(selectResult.getErrCode(), selectResult.getErrMsg());
             }
             if (baseConsumer.getConsumerConfig().getPullConsumeReadyChkSliceMs() > 0L) {
@@ -163,7 +163,7 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
 
     @Override
     public ConsumerResult confirmConsume(final String confirmContext,
-                                         boolean isConsumed) throws TubeClientException {
+            boolean isConsumed) throws TubeClientException {
         baseConsumer.checkClientRunning();
         if (!baseConsumer.isSubscribed()) {
             throw new TubeClientException("Please complete topic's Subscribe call first!");
@@ -209,15 +209,15 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
         baseConsumer.clientStatsInfo.bookReturnDuration(keyId, midTime - timeStamp);
         if (this.baseConsumer.consumerConfig.isPullConfirmInLocal()) {
             baseConsumer.rmtDataCache.succRspRelease(keyId, topicName,
-                timeStamp, isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
+                    timeStamp, isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
             return new ConsumerResult(true, TErrCodeConstants.SUCCESS,
                     "OK!", topicName, curPartition, currOffset, maxOffset);
         } else {
             try {
                 ClientBroker.CommitOffsetResponseB2C commitResponse =
-                    baseConsumer.getBrokerService(curPartition.getBroker())
-                        .consumerCommitC2B(baseConsumer.createBrokerCommitRequest(curPartition, isConsumed),
-                            AddressUtils.getLocalAddress(), getConsumerConfig().isTlsEnable());
+                        baseConsumer.getBrokerService(curPartition.getBroker())
+                                .consumerCommitC2B(baseConsumer.createBrokerCommitRequest(curPartition, isConsumed),
+                                        AddressUtils.getLocalAddress(), getConsumerConfig().isTlsEnable());
                 if (commitResponse == null) {
                     return new ConsumerResult(TErrCodeConstants.BAD_REQUEST,
                             sBuilder.append("Confirm ").append(confirmContext)
@@ -239,7 +239,7 @@ public class SimplePullMessageConsumer implements PullMessageConsumer {
                         .append(confirmContext).append("'s offset failed.").toString(), e);
             } finally {
                 baseConsumer.rmtDataCache.succRspRelease(keyId, topicName,
-                    timeStamp, isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
+                        timeStamp, isConsumed, isFilterConsume(topicName), currOffset, maxOffset);
                 baseConsumer.clientStatsInfo.bookConfirmDuration(keyId,
                         System.currentTimeMillis() - midTime);
             }

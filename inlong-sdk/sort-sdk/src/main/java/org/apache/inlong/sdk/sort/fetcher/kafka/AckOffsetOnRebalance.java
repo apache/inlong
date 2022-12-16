@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.fetcher.kafka;
@@ -54,8 +53,7 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
     public AckOffsetOnRebalance(
             String clusterId,
             Seeker seeker,
-            ConcurrentHashMap<TopicPartition,
-            OffsetAndMetadata> commitOffsetMap,
+            ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap,
             KafkaConsumer<byte[], byte[]> consumer) {
         this(clusterId, seeker, commitOffsetMap, null, consumer);
     }

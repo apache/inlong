@@ -47,24 +47,20 @@ public class KafkaSourceRequest extends SourceRequest {
     @ApiModelProperty("Kafka servers address, such as: 127.0.0.1:9092")
     private String bootstrapServers;
 
-    @ApiModelProperty(value = "Limit the amount of data read per second",
-            notes = "Greater than or equal to 0, equal to zero means no limit")
+    @ApiModelProperty(value = "Limit the amount of data read per second", notes = "Greater than or equal to 0, equal to zero means no limit")
     private String recordSpeedLimit;
 
-    @ApiModelProperty(value = "Limit the number of bytes read per second",
-            notes = "Greater than or equal to 0, equal to zero means no limit")
+    @ApiModelProperty(value = "Limit the number of bytes read per second", notes = "Greater than or equal to 0, equal to zero means no limit")
     private String byteSpeedLimit;
 
-    @ApiModelProperty(value = "Topic partition offset",
-            notes = "For example,'partition:0,offset:42;partition:1,offset:300' "
-                    + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
+    @ApiModelProperty(value = "Topic partition offset", notes = "For example,'partition:0,offset:42;partition:1,offset:300' "
+            + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
     private String partitionOffsets;
 
     @ApiModelProperty(value = "timestamp is millis")
     private String timestampMillis;
 
-    @ApiModelProperty(value = "The strategy of auto offset reset",
-            notes = "including earliest, latest (the default), none")
+    @ApiModelProperty(value = "The strategy of auto offset reset", notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
     @ApiModelProperty("database pattern used for filter in canal format")

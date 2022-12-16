@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class ZKUtil {
+
     private static final Logger logger = LoggerFactory.getLogger(ZKUtil.class);
     private static final int RETRY_TIMES = 3;
     private static final int RETRY_INTERVAL = 1000;
@@ -69,7 +70,7 @@ public class ZKUtil {
      * @throws IOException if unable to connect to zk or config problem
      */
     public static RecoverableZooKeeper connect(ZKConfig zkConfig,
-                                               Watcher watcher) throws IOException {
+            Watcher watcher) throws IOException {
         if (zkConfig.getZkServerAddr() == null) {
             throw new IOException("Unable to determine ZooKeeper Server Address String");
         }
@@ -179,7 +180,7 @@ public class ZKUtil {
     }
 
     private static byte[] getDataInternal(ZooKeeperWatcher zkw, String zkNode, Stat stat,
-                                          boolean watcherSet) throws KeeperException {
+            boolean watcherSet) throws KeeperException {
         try {
             byte[] data = zkw.getRecoverableZooKeeper().getData(zkNode, zkw, stat);
             logRetrievedMsg(zkw, zkNode, data, watcherSet);
@@ -269,7 +270,7 @@ public class ZKUtil {
      * @param data  data to set for node
      */
     public static void createSetData(final ZooKeeperWatcher zkw,
-                                     final String zkNode, final byte[] data)
+            final String zkNode, final byte[] data)
             throws KeeperException {
         if (checkExists(zkw, zkNode) == -1) {
             createWithParents(zkw, zkNode);
@@ -407,7 +408,7 @@ public class ZKUtil {
     }
 
     private static void logRetrievedMsg(final ZooKeeperWatcher zkw, final String zkNode,
-                                        final byte[] data, final boolean watcherSet) {
+            final byte[] data, final boolean watcherSet) {
         if (!logger.isDebugEnabled()) {
             return;
         }
@@ -469,7 +470,7 @@ public class ZKUtil {
      * if necessary. Never throw NodeExistException.
      */
     public static void updatePersistentPath(final ZooKeeperWatcher zkw, final String path,
-                                            final String data) throws Exception {
+            final String data) throws Exception {
         byte[] bytes = (data == null ? null : StringUtils.getBytesUtf8(data));
         try {
             ZKUtil.setData(zkw, path, bytes);
@@ -531,6 +532,7 @@ public class ZKUtil {
      * Simple class to hold a node path and node data.
      */
     public static class NodeAndData {
+
         private final String node;
         private final byte[] data;
 
@@ -654,7 +656,7 @@ public class ZKUtil {
      *           if unexpected zookeeper exception
      */
     public static boolean createEphemeralNodeAndWatch(ZooKeeperWatcher zkw,
-                                                      String zNode, byte[] data) throws KeeperException {
+            String zNode, byte[] data) throws KeeperException {
         return createEphemeralNodeAndWatch(zkw, zNode, data, CreateMode.EPHEMERAL);
     }
 
@@ -677,7 +679,7 @@ public class ZKUtil {
      * @throws KeeperException process exception
      */
     public static boolean createEphemeralNodeAndWatch(ZooKeeperWatcher zkw, String zNode,
-                                                      byte[] data, CreateMode mode) throws KeeperException {
+            byte[] data, CreateMode mode) throws KeeperException {
         try {
             waitForZKConnectionIfAuthenticating(zkw);
             zkw.getRecoverableZooKeeper().create(zNode, data, createACL(zkw, zNode),

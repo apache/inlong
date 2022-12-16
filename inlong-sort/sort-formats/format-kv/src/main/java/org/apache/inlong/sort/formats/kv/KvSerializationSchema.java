@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -86,8 +85,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
-            @Nullable String nullLiteral
-    ) {
+            @Nullable String nullLiteral) {
         this.rowFormatInfo = rowFormatInfo;
         this.charset = charset;
         this.entryDelimiter = entryDelimiter;
@@ -98,8 +96,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
     }
 
     public KvSerializationSchema(
-            @Nonnull RowFormatInfo rowFormatInfo
-    ) {
+            @Nonnull RowFormatInfo rowFormatInfo) {
         this(
                 rowFormatInfo,
                 TableFormatConstants.DEFAULT_CHARSET,
@@ -107,8 +104,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
                 TableFormatConstants.DEFAULT_KV_DELIMITER,
                 null,
                 null,
-                null
-        );
+                null);
     }
 
     @Override
@@ -123,7 +119,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
 
         if (row.getArity() != fieldFormatInfos.length) {
             throw new RuntimeException("The number of fields mismatches: "
-                   + fieldFormatInfos.length + " expected, but was " + row.getArity() + ".");
+                    + fieldFormatInfos.length + " expected, but was " + row.getArity() + ".");
         }
 
         String[] fieldTexts = new String[row.getArity()];
@@ -136,8 +132,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
                             fieldNames[i],
                             fieldFormatInfos[i],
                             field,
-                            nullLiteral
-                    );
+                            nullLiteral);
 
             fieldTexts[i] = fieldText;
         }
@@ -149,8 +144,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
                         entryDelimiter,
                         kvDelimiter,
                         escapeChar,
-                        quoteChar
-                );
+                        quoteChar);
 
         return text.getBytes(Charset.forName(charset));
     }
@@ -167,12 +161,12 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
 
         KvSerializationSchema that = (KvSerializationSchema) o;
         return Objects.equals(rowFormatInfo, that.rowFormatInfo)
-                       && Objects.equals(charset, that.charset)
-                       && Objects.equals(entryDelimiter, that.entryDelimiter)
-                       && Objects.equals(kvDelimiter, that.kvDelimiter)
-                       && Objects.equals(escapeChar, that.escapeChar)
-                       && Objects.equals(quoteChar, that.quoteChar)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && Objects.equals(charset, that.charset)
+                && Objects.equals(entryDelimiter, that.entryDelimiter)
+                && Objects.equals(kvDelimiter, that.kvDelimiter)
+                && Objects.equals(escapeChar, that.escapeChar)
+                && Objects.equals(quoteChar, that.quoteChar)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override
@@ -242,8 +236,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
                     kvDelimiter,
                     escapeChar,
                     quoteChar,
-                    nullLiteral
-            );
+                    nullLiteral);
         }
     }
 }

@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
@@ -32,7 +33,7 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -325,8 +326,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         PageResult<ClusterInfo> pageResult = new PageResult<>(
                 list, entityPage.getTotal(),
-                entityPage.getPageNum(), entityPage.getPageSize()
-        );
+                entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list inlong cluster by {}", request);
         return pageResult;
@@ -587,8 +587,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         String message = "Current user does not have permission to get cluster node list";
         checkUser(cluster, currentUser, message);
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<InlongClusterNodeEntity> entityPage = (Page<InlongClusterNodeEntity>)
-                clusterNodeMapper.selectByCondition(request);
+        Page<InlongClusterNodeEntity> entityPage =
+                (Page<InlongClusterNodeEntity>) clusterNodeMapper.selectByCondition(request);
         List<ClusterNodeResponse> nodeList = CommonBeanUtils.copyListProperties(entityPage, ClusterNodeResponse::new);
 
         PageResult<ClusterNodeResponse> pageResult = new PageResult<>(nodeList, entityPage.getTotal(),
@@ -733,6 +733,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             nodeInfo.setIp(nodeEntity.getIp());
             nodeInfo.setPort(nodeEntity.getPort());
             nodeInfo.setProtocolType(nodeEntity.getProtocolType());
+            nodeInfo.setNodeLoad(nodeEntity.getNodeLoad());
             nodeList.add(nodeInfo);
         }
         response.setNodeList(nodeList);
@@ -843,13 +844,28 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 topicConfig.setInlongGroupId(groupId);
                 topicConfig.setTopic(mqResource);
                 topicList.add(topicConfig);
+            } else if (MQType.KAFKA.equals(mqType)) {
+                List<InlongStreamBriefInfo> streamList = streamMapper.selectBriefList(groupId);
+                for (InlongStreamBriefInfo streamInfo : streamList) {
+                    String streamId = streamInfo.getInlongStreamId();
+                    String topic = streamInfo.getMqResource();
+                    if (topic.equals(streamId)) {
+                        // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
+                        topic = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT,
+                                mqResource, streamInfo.getMqResource());
+                    }
+                    DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
+                    topicConfig.setInlongGroupId(groupId + "/" + streamId);
+                    topicConfig.setTopic(topic);
+                    topicList.add(topicConfig);
+                }
             }
         }
 
         // get mq cluster info
         LOGGER.debug("GetDPConfig: begin to get mq clusters by tags={}", clusterTagList);
         List<MQClusterInfo> mqSet = new ArrayList<>();
-        List<String> typeList = Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR);
+        List<String> typeList = Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR, ClusterType.KAFKA);
         ClusterPageRequest pageRequest = ClusterPageRequest.builder()
                 .typeList(typeList)
                 .clusterTagList(clusterTagList)

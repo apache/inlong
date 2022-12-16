@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -34,26 +34,26 @@ public interface OffsetService {
     void close(long waitTimeMs);
 
     OffsetStorageInfo loadOffset(MessageStore store, String group,
-                                 String topic, int partitionId,
-                                 int readStatus, long reqOffset,
-                                 StringBuilder sb);
+            String topic, int partitionId,
+            int readStatus, long reqOffset,
+            StringBuilder sb);
 
     long getOffset(MessageStore msgStore, String group,
-                   String topic, int partitionId,
-                   boolean isManCommit, boolean lastConsumed,
-                   StringBuilder sb);
+            String topic, int partitionId,
+            boolean isManCommit, boolean lastConsumed,
+            StringBuilder sb);
 
     long getOffset(String group, String topic, int partitionId);
 
     void bookOffset(String group, String topic, int partitionId,
-                    int readDalt, boolean isManCommit, boolean isMsgEmpty,
-                    StringBuilder sb);
+            int readDalt, boolean isManCommit, boolean isMsgEmpty,
+            StringBuilder sb);
 
     long commitOffset(String group, String topic,
-                      int partitionId, boolean isConsumed);
+            int partitionId, boolean isConsumed);
 
     long resetOffset(MessageStore store, String group, String topic,
-                     int partitionId, long reSetOffset, String modifier);
+            int partitionId, long reSetOffset, String modifier);
 
     long getTmpOffset(String group, String topic, int partitionId);
 
@@ -68,13 +68,13 @@ public interface OffsetService {
     Map<String, Map<Integer, Tuple2<Long, Long>>> queryGroupOffset(
             String group, Map<String, Set<Integer>> topicPartMap);
 
-    Map<String, OffsetRecordInfo> getOnlineGroupOffsetInfo();
+    Map<String, OffsetHistoryInfo> getOnlineGroupOffsetInfo();
 
     boolean modifyGroupOffset(Set<String> groups,
-                              List<Tuple3<String, Integer, Long>> topicPartOffsets,
-                              String modifier);
+            List<Tuple3<String, Integer, Long>> topicPartOffsets,
+            String modifier);
 
     void deleteGroupOffset(boolean onlyMemory,
-                           Map<String, Map<String, Set<Integer>>> groupTopicPartMap,
-                           String modifier);
+            Map<String, Map<String, Set<Integer>>> groupTopicPartMap,
+            String modifier);
 }

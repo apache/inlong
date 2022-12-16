@@ -73,7 +73,6 @@ import static org.apache.inlong.sort.protocol.constant.KafkaConstant.UPSERT_KAFK
 @NoArgsConstructor
 public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, Serializable {
 
-
     private static final long serialVersionUID = -558158965060708408L;
 
     @Nonnull
@@ -224,7 +223,7 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
                 metadataKey = "value.event-timestamp";
                 break;
             case OP_TYPE:
-                metadataKey = "value.op-type";
+                metadataKey = "value.type";
                 break;
             case DATA:
             case DATA_CANAL:
@@ -257,8 +256,8 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
     @Override
     public Set<MetaField> supportedMetaFields() {
         return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.OP_TYPE,
-            MetaField.DATABASE_NAME, MetaField.SQL_TYPE, MetaField.PK_NAMES, MetaField.TS,
-            MetaField.OP_TS, MetaField.IS_DDL, MetaField.MYSQL_TYPE, MetaField.BATCH_ID,
-            MetaField.UPDATE_BEFORE, MetaField.DATA_CANAL, MetaField.DATA);
+                MetaField.DATABASE_NAME, MetaField.SQL_TYPE, MetaField.PK_NAMES, MetaField.TS,
+                MetaField.OP_TS, MetaField.IS_DDL, MetaField.MYSQL_TYPE, MetaField.BATCH_ID,
+                MetaField.UPDATE_BEFORE, MetaField.DATA_CANAL, MetaField.DATA);
     }
 }

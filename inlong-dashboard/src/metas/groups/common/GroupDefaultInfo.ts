@@ -17,18 +17,26 @@
  * under the License.
  */
 
-import UserSelect from '@/components/UserSelect';
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
+import UserSelect from '@/components/UserSelect';
 import { statusList, genStatusTag } from './status';
 import { groups, defaultValue } from '..';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18nMap, I18n } = DataWithBackend;
+const { FieldList, FieldDecorator } = RenderRow;
+const { ColumnList, ColumnDecorator } = RenderList;
 
-export class GroupDefaultInfo extends DataWithBackend {
+export class GroupDefaultInfo implements DataWithBackend, RenderRow, RenderList {
+  static I18nMap = I18nMap;
+  static FieldList = FieldList;
+  static ColumnList = ColumnList;
+
   readonly id: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     props: {
       maxLength: 32,
@@ -41,11 +49,11 @@ export class GroupDefaultInfo extends DataWithBackend {
       },
     ],
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Group.InlongGroupId')
   inlongGroupId: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     props: {
       maxLength: 32,
@@ -54,7 +62,7 @@ export class GroupDefaultInfo extends DataWithBackend {
   @I18n('meta.Group.InlongGroupName')
   name: string;
 
-  @FormField({
+  @FieldDecorator({
     type: UserSelect,
     extra: i18n.t('meta.Group.InlongGroupOwnersExtra'),
     rules: [{ required: true }],
@@ -63,11 +71,11 @@ export class GroupDefaultInfo extends DataWithBackend {
       currentUserClosable: false,
     },
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Group.InlongGroupOwners')
   inCharges: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'textarea',
     props: {
       showCount: true,
@@ -77,7 +85,31 @@ export class GroupDefaultInfo extends DataWithBackend {
   @I18n('meta.Group.InlongGroupIntroduction')
   description: string;
 
-  @FormField({
+  @FieldDecorator({
+    type: 'select',
+    initialValue: 0,
+    rules: [{ required: true }],
+    props: {
+      options: [
+        {
+          label: i18n.t('meta.Group.DataReportType.DataProxyWithSource'),
+          value: 0,
+        },
+        {
+          label: i18n.t('meta.Group.DataReportType.DataProxyWithSink'),
+          value: 1,
+        },
+        {
+          label: i18n.t('meta.Group.DataReportType.MQ'),
+          value: 2,
+        },
+      ],
+    },
+  })
+  @I18n('meta.Group.DataReportType')
+  dataReportType: string;
+
+  @FieldDecorator({
     type: 'radio',
     initialValue: defaultValue,
     rules: [{ required: true }],
@@ -85,17 +117,17 @@ export class GroupDefaultInfo extends DataWithBackend {
       options: groups.filter(item => Boolean(item.value)),
     },
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Group.MQType')
   mqType: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'text',
   })
   @I18n('MQ Resource')
   readonly mqResource: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     props: {
       allowClear: true,
@@ -104,13 +136,13 @@ export class GroupDefaultInfo extends DataWithBackend {
     },
     visible: false,
   })
-  @TableColumn({
+  @ColumnDecorator({
     render: text => genStatusTag(text),
   })
   @I18n('basic.Status')
   readonly status: string;
 
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('basic.CreateTime')
   readonly createTime: string;
 
@@ -120,5 +152,15 @@ export class GroupDefaultInfo extends DataWithBackend {
 
   stringify(data) {
     return data;
+  }
+
+  renderRow() {
+    const constructor = this.constructor as typeof GroupDefaultInfo;
+    return constructor.FieldList;
+  }
+
+  renderList() {
+    const constructor = this.constructor as typeof GroupDefaultInfo;
+    return constructor.ColumnList;
   }
 }

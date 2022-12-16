@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -166,8 +165,7 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecord, MySqlSp
         final MySqlOffsetContext.Loader loader =
                 new MySqlOffsetContext.Loader(statefulTaskContext.getConnectorConfig());
         final MySqlOffsetContext mySqlOffsetContext =
-                (MySqlOffsetContext)
-                        loader.load(backfillBinlogSplit.getStartingOffset().getOffset());
+                (MySqlOffsetContext) loader.load(backfillBinlogSplit.getStartingOffset().getOffset());
         // we should only capture events for the current table,
         // otherwise, we may can't find corresponding schema
         Configuration dezConf =
@@ -188,8 +186,7 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecord, MySqlSp
                 statefulTaskContext.getErrorHandler(),
                 StatefulTaskContext.getClock(),
                 statefulTaskContext.getTaskContext(),
-                (MySqlStreamingChangeEventSourceMetrics)
-                        statefulTaskContext.getStreamingChangeEventSourceMetrics(),
+                (MySqlStreamingChangeEventSourceMetrics) statefulTaskContext.getStreamingChangeEventSourceMetrics(),
                 statefulTaskContext.getTopicSelector().getPrimaryTopic(),
                 backfillBinlogSplit);
     }
@@ -273,7 +270,8 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecord, MySqlSp
      * watermark for each {@link MySqlSnapshotSplit}.
      */
     public class SnapshotSplitChangeEventSourceContextImpl
-            implements ChangeEventSource.ChangeEventSourceContext {
+            implements
+                ChangeEventSource.ChangeEventSourceContext {
 
         private BinlogOffset lowWatermark;
         private BinlogOffset highWatermark;
@@ -305,7 +303,8 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecord, MySqlSp
      * of a snapshot split task.
      */
     public class SnapshotBinlogSplitChangeEventSourceContextImpl
-            implements ChangeEventSource.ChangeEventSourceContext {
+            implements
+                ChangeEventSource.ChangeEventSourceContext {
 
         public void finished() {
             currentTaskRunning = false;

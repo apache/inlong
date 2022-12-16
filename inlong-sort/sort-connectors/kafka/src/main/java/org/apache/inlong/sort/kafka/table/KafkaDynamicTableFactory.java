@@ -51,7 +51,9 @@ import org.apache.flink.table.formats.raw.RawFormatSerializationSchema;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
 import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
@@ -66,7 +68,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS_PREFIX;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FORMAT;
@@ -97,6 +98,7 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.get
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.validateTableSourceOptions;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
+import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
@@ -170,9 +172,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         return helper.discoverOptionalDecodingFormat(
                 DeserializationFormatFactory.class, FactoryUtil.FORMAT)
                 .orElseGet(
-                        () ->
-                                helper.discoverDecodingFormat(
-                                        DeserializationFormatFactory.class, VALUE_FORMAT));
+                        () -> helper.discoverDecodingFormat(
+                                DeserializationFormatFactory.class, VALUE_FORMAT));
     }
 
     private static EncodingFormat<SerializationSchema<RowData>> getValueEncodingFormat(
@@ -180,9 +181,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         return helper.discoverOptionalEncodingFormat(
                 SerializationFormatFactory.class, FactoryUtil.FORMAT)
                 .orElseGet(
-                        () ->
-                                helper.discoverEncodingFormat(
-                                        SerializationFormatFactory.class, VALUE_FORMAT));
+                        () -> helper.discoverEncodingFormat(
+                                SerializationFormatFactory.class, VALUE_FORMAT));
     }
 
     private static String getSinkMultipleFormat(
@@ -326,7 +326,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat =
                 getValueDecodingFormat(helper);
 
-        helper.validateExcept(PROPERTIES_PREFIX);
+        helper.validateExcept(PROPERTIES_PREFIX, DIRTY_PREFIX);
 
         validateTableSourceOptions(tableOptions);
 
@@ -358,7 +358,9 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         final String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
 
         final String auditHostAndPorts = tableOptions.getOptional(INLONG_AUDIT).orElse(null);
-
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
+        final DirtySink<String> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         return createKafkaTableSource(
                 physicalDataType,
                 keyDecodingFormat.orElse(null),
@@ -373,7 +375,9 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 startupOptions.specificOffsets,
                 startupOptions.startupTimestampMillis,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                dirtyOptions,
+                dirtySink);
     }
 
     @Override
@@ -391,7 +395,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 getValueEncodingFormat(helper);
 
         final String sinkMultipleFormat = getSinkMultipleFormat(helper);
-        helper.validateExcept(PROPERTIES_PREFIX);
+        helper.validateExcept(PROPERTIES_PREFIX, DIRTY_PREFIX);
 
         validateSinkPartitioner(tableOptions);
         validateSinkSemantic(tableOptions);
@@ -415,7 +419,9 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         final String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
 
         final String auditHostAndPorts = tableOptions.getOptional(INLONG_AUDIT).orElse(null);
-
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         return createKafkaTableSink(
                 physicalDataType,
                 keyEncodingFormat.orElse(null),
@@ -432,16 +438,16 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 inlongMetric,
                 auditHostAndPorts,
                 sinkMultipleFormat,
-                tableOptions.getOptional(TOPIC_PATTERN).orElse(null));
+                tableOptions.getOptional(TOPIC_PATTERN).orElse(null),
+                dirtyOptions,
+                dirtySink);
     }
 
     private void validateSinkMultipleFormatAndPhysicalDataType(DataType physicalDataType,
             EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat, String sinkMultipleFormat) {
-        if (valueEncodingFormat instanceof RawFormatSerializationSchema
-                && StringUtils.isNotBlank(sinkMultipleFormat)) {
+        if (multipleSink(valueEncodingFormat, sinkMultipleFormat)) {
             DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
-            List<String> supportFormats = DynamicSchemaFormatFactory.SUPPORT_FORMATS.stream().map(
-                    AbstractDynamicSchemaFormat::identifier).collect(Collectors.toList());
+            Set<String> supportFormats = DynamicSchemaFormatFactory.SUPPORT_FORMATS.keySet();
             if (!supportFormats.contains(sinkMultipleFormat)) {
                 throw new ValidationException(String.format(
                         "Unsupported value '%s' for '%s'. "
@@ -454,6 +460,12 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                                 + "when the option 'format' is 'raw' and option 'sink.multiple.format' is specified.");
             }
         }
+    }
+
+    private boolean multipleSink(EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat,
+            String sinkMultipleFormat) {
+        return valueEncodingFormat instanceof RawFormatSerializationSchema
+                && StringUtils.isNotBlank(sinkMultipleFormat);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -472,7 +484,9 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             Map<KafkaTopicPartition, Long> specificStartupOffsets,
             long startupTimestampMillis,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<String> dirtySink) {
         return new KafkaDynamicSource(
                 physicalDataType,
                 keyDecodingFormat,
@@ -488,7 +502,9 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 startupTimestampMillis,
                 false,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                dirtyOptions,
+                dirtySink);
     }
 
     protected KafkaDynamicSink createKafkaTableSink(
@@ -507,7 +523,9 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             String inlongMetric,
             String auditHostAndPorts,
             @Nullable String sinkMultipleFormat,
-            @Nullable String topicPattern) {
+            @Nullable String topicPattern,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         return new KafkaDynamicSink(
                 physicalDataType,
                 physicalDataType,
@@ -527,6 +545,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 inlongMetric,
                 auditHostAndPorts,
                 sinkMultipleFormat,
-                topicPattern);
+                topicPattern,
+                dirtyOptions,
+                dirtySink);
     }
 }

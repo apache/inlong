@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -80,71 +80,67 @@ public class PulsarResourceOperator implements QueueResourceOperator {
         Preconditions.checkNotNull(operator, "operator cannot be null");
 
         String groupId = groupInfo.getInlongGroupId();
-        log.info("begin to create pulsar resource for groupId={}", groupId);
+        String clusterTag = groupInfo.getInlongClusterTag();
+        log.info("begin to create pulsar resource for groupId={}, clusterTag={}", groupId, clusterTag);
 
         // get pulsar cluster via the inlong cluster tag from the inlong group
-        String clusterTag = groupInfo.getInlongClusterTag();
-        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(clusterTag, null,
-                ClusterType.PULSAR);
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            // create pulsar tenant and namespace
-            String tenant = pulsarCluster.getTenant();
-            if (StringUtils.isEmpty(tenant)) {
-                tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
-            }
-            String namespace = groupInfo.getMqResource();
-            InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
-            // if the group was not successful, need create tenant and namespace
-            if (!Objects.equal(GroupStatus.CONFIG_SUCCESSFUL.getCode(), groupInfo.getStatus())) {
-                pulsarOperator.createTenant(pulsarAdmin, tenant);
-                log.info("success to create pulsar tenant for groupId={}, tenant={}", groupId, tenant);
-                pulsarOperator.createNamespace(pulsarAdmin, pulsarInfo, tenant, namespace);
-                log.info("success to create pulsar namespace for groupId={}, namespace={}", groupId, namespace);
-            }
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
+        for (ClusterInfo clusterInfo : clusterInfos) {
+            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+            try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
+                // create pulsar tenant and namespace
+                String tenant = pulsarCluster.getTenant();
+                if (StringUtils.isEmpty(tenant)) {
+                    tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+                }
 
-            // create pulsar topic - each Inlong Stream corresponds to a Pulsar topic
-            List<InlongStreamBriefInfo> streamInfoList = streamService.getTopicList(groupId);
-            if (streamInfoList == null || streamInfoList.isEmpty()) {
-                log.warn("skip to create pulsar topic and subscription as no streams for groupId={}", groupId);
-                return;
+                // if the group was not successful, need create tenant and namespace
+                if (!Objects.equal(GroupStatus.CONFIG_SUCCESSFUL.getCode(), groupInfo.getStatus())) {
+                    pulsarOperator.createTenant(pulsarAdmin, tenant);
+                    String namespace = groupInfo.getMqResource();
+                    pulsarOperator.createNamespace(pulsarAdmin, (InlongPulsarInfo) groupInfo, tenant, namespace);
+
+                    log.info("success to create pulsar resource for groupId={}, tenant={}, namespace={}, cluster={}",
+                            groupId, tenant, namespace, pulsarCluster);
+                }
+            } catch (Exception e) {
+                String msg = "failed to create pulsar resource for groupId=" + groupId;
+                log.error(msg + ", cluster=" + pulsarCluster, e);
+                throw new WorkflowListenerException(msg + ": " + e.getMessage());
             }
-            // create pulsar topic and subscription
-            for (InlongStreamBriefInfo stream : streamInfoList) {
-                this.createTopic(pulsarInfo, pulsarCluster, stream.getMqResource());
-                this.createSubscription(pulsarInfo, pulsarCluster, stream.getMqResource(), stream.getInlongStreamId());
-            }
-        } catch (Exception e) {
-            String msg = String.format("failed to create pulsar resource for groupId=%s", groupId);
-            log.error(msg, e);
-            throw new WorkflowListenerException(msg + ": " + e.getMessage());
         }
 
-        log.info("success to create pulsar resource for groupId={}, cluster={}", groupId, pulsarCluster);
+        log.info("success to create pulsar resource for groupId={}, clusterTag={}", groupId, clusterTag);
     }
 
     @Override
     public void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {
         Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
-
         String groupId = groupInfo.getInlongGroupId();
-        log.info("begin to delete pulsar resource for groupId={}", groupId);
+        String clusterTag = groupInfo.getInlongClusterTag();
+        log.info("begin to delete pulsar resource for groupId={}, clusterTag={}", groupId, clusterTag);
 
-        ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.PULSAR);
-        try {
-            List<InlongStreamBriefInfo> streamInfoList = streamService.getTopicList(groupId);
-            if (streamInfoList == null || streamInfoList.isEmpty()) {
-                log.warn("skip to create pulsar topic and subscription as no streams for groupId={}", groupId);
-                return;
-            }
-            for (InlongStreamBriefInfo streamInfo : streamInfoList) {
-                this.deletePulsarTopic(groupInfo, (PulsarClusterInfo) clusterInfo, streamInfo.getMqResource());
-            }
-        } catch (Exception e) {
-            log.error("failed to delete pulsar resource for groupId=" + groupId, e);
-            throw new WorkflowListenerException("failed to delete pulsar resource: " + e.getMessage());
+        List<InlongStreamBriefInfo> streamInfos = streamService.getTopicList(groupId);
+        if (CollectionUtils.isEmpty(streamInfos)) {
+            log.warn("skip to delete pulsar resource as no streams for groupId={}", groupId);
+            return;
         }
 
-        log.info("success to delete pulsar resource for groupId={}, cluster={}", groupId, clusterInfo);
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
+        for (ClusterInfo clusterInfo : clusterInfos) {
+            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+            try {
+                for (InlongStreamBriefInfo streamInfo : streamInfos) {
+                    this.deletePulsarTopic(groupInfo, pulsarCluster, streamInfo.getMqResource());
+                }
+            } catch (Exception e) {
+                String msg = "failed to delete pulsar resource for groupId=" + groupId;
+                log.error(msg + ", cluster=" + pulsarCluster, e);
+                throw new WorkflowListenerException(msg + ": " + e.getMessage());
+            }
+        }
+
+        log.info("success to delete pulsar resource for groupId={}, clusterTag={}", groupId, clusterTag);
     }
 
     @Override
@@ -155,19 +151,27 @@ public class PulsarResourceOperator implements QueueResourceOperator {
 
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();
-        log.info("begin to create pulsar resource for groupId={}, streamId={}", groupId, streamId);
+        String clusterTag = groupInfo.getInlongClusterTag();
+        log.info("begin to create pulsar resource for groupId={}, streamId={}, clusterTag={}",
+                groupId, streamId, clusterTag);
 
-        try {
-            // get pulsar cluster via the inlong cluster tag from the inlong group
-            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(
-                    groupInfo.getInlongClusterTag(), null, ClusterType.PULSAR);
-            // create pulsar topic and subscription
-            this.createTopic((InlongPulsarInfo) groupInfo, pulsarCluster, streamInfo.getMqResource());
-            this.createSubscription((InlongPulsarInfo) groupInfo, pulsarCluster, streamInfo.getMqResource(), streamId);
-        } catch (Exception e) {
-            String msg = String.format("failed to create pulsar topic for groupId=%s, streamId=%s", groupId, streamId);
-            log.error(msg, e);
-            throw new WorkflowListenerException(msg + ": " + e.getMessage());
+        // get pulsar cluster via the inlong cluster tag from the inlong group
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
+        for (ClusterInfo clusterInfo : clusterInfos) {
+            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+            try {
+                // create pulsar topic and subscription
+                String topicName = streamInfo.getMqResource();
+                this.createTopic((InlongPulsarInfo) groupInfo, pulsarCluster, topicName);
+                this.createSubscription((InlongPulsarInfo) groupInfo, pulsarCluster, topicName, streamId);
+
+                log.info("success to create pulsar resource for groupId={}, streamId={}, topic={}, cluster={}",
+                        groupId, streamId, topicName, pulsarCluster);
+            } catch (Exception e) {
+                String msg = "failed to create pulsar resource for groupId=" + groupId + ", streamId=" + streamId;
+                log.error(msg + ", cluster=" + pulsarCluster, e);
+                throw new WorkflowListenerException(msg + ": " + e.getMessage());
+            }
         }
 
         log.info("success to create pulsar resource for groupId={}, streamId={}", groupId, streamId);
@@ -180,16 +184,22 @@ public class PulsarResourceOperator implements QueueResourceOperator {
 
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();
-        log.info("begin to delete pulsar resource for groupId={} streamId={}", groupId, streamId);
+        String clusterTag = groupInfo.getInlongClusterTag();
+        log.info("begin to delete pulsar resource for groupId={}, streamId={}, clusterTag={}",
+                groupId, streamId, clusterTag);
 
-        try {
-            ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.PULSAR);
-            this.deletePulsarTopic(groupInfo, (PulsarClusterInfo) clusterInfo, streamInfo.getMqResource());
-            log.info("success to delete pulsar topic for groupId={}, streamId={}", groupId, streamId);
-        } catch (Exception e) {
-            String msg = String.format("failed to delete pulsar topic for groupId=%s, streamId=%s", groupId, streamId);
-            log.error(msg, e);
-            throw new WorkflowListenerException(msg);
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
+        for (ClusterInfo clusterInfo : clusterInfos) {
+            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+            try {
+                this.deletePulsarTopic(groupInfo, pulsarCluster, streamInfo.getMqResource());
+                log.info("success to delete pulsar topic for groupId={}, streamId={}, topic={}, cluster={}",
+                        groupId, streamId, streamInfo.getMqResource(), pulsarCluster);
+            } catch (Exception e) {
+                String msg = "failed to delete pulsar topic for groupId=" + groupId + ", streamId=" + streamId;
+                log.error(msg + ", cluster=" + pulsarCluster, e);
+                throw new WorkflowListenerException(msg + ": " + e.getMessage());
+            }
         }
 
         log.info("success to delete pulsar resource for groupId={}, streamId={}", groupId, streamId);

@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,15 +17,6 @@
 
 package org.apache.inlong.sort.formats.json.canal;
 
-import static java.lang.String.format;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -44,6 +34,15 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDecodingFormat.ReadableMetadata;
 
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import static java.lang.String.format;
+
 /**
  * Deserialization schema from Canal JSON to Flink Table/SQL internal data structure {@link
  * RowData}. The deserialization schema knows Canal's schema definition and can extract the database
@@ -56,6 +55,7 @@ import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDecodingFormat
  * @see <a href="https://github.com/alibaba/canal">Alibaba Canal</a>
  */
 public final class CanalJsonEnhancedDeserializationSchema implements DeserializationSchema<RowData> {
+
     private static final long serialVersionUID = 1L;
 
     private static final String FIELD_OLD = "old";
@@ -64,37 +64,59 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
     private static final String OP_DELETE = "DELETE";
     private static final String OP_CREATE = "CREATE";
 
-    /** The deserializer to deserialize Canal JSON data. */
+    /**
+     * The deserializer to deserialize Canal JSON data.
+     */
     private final JsonRowDataDeserializationSchema jsonDeserializer;
 
-    /** Flag that indicates that an additional projection is required for metadata. */
+    /**
+     * Flag that indicates that an additional projection is required for metadata.
+     */
     private final boolean hasMetadata;
 
-    /** Metadata to be extracted for every record. */
+    /**
+     * Metadata to be extracted for every record.
+     */
     private final MetadataConverter[] metadataConverters;
 
-    /** {@link TypeInformation} of the produced {@link RowData} (physical + meta data). */
+    /**
+     * {@link TypeInformation} of the produced {@link RowData} (physical + meta data).
+     */
     private final TypeInformation<RowData> producedTypeInfo;
 
-    /** Only read changelogs from the specific database. */
+    /**
+     * Only read changelogs from the specific database.
+     */
     private final @Nullable String database;
 
-    /** Only read changelogs from the specific table. */
+    /**
+     * Only read changelogs from the specific table.
+     */
     private final @Nullable String table;
 
-    /** Flag indicating whether to ignore invalid fields/rows (default: throw an exception). */
+    /**
+     * Flag indicating whether to ignore invalid fields/rows (default: throw an exception).
+     */
     private final boolean ignoreParseErrors;
 
-    /** Names of fields. */
+    /**
+     * Names of fields.
+     */
     private final List<String> fieldNames;
 
-    /** Number of fields. */
+    /**
+     * Number of fields.
+     */
     private final int fieldCount;
 
-    /** Pattern of the specific database. */
+    /**
+     * Pattern of the specific database.
+     */
     private final Pattern databasePattern;
 
-    /** Pattern of the specific table. */
+    /**
+     * Pattern of the specific table.
+     */
     private final Pattern tablePattern;
 
     private CanalJsonEnhancedDeserializationSchema(
@@ -133,7 +155,9 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
     // Builder
     // ------------------------------------------------------------------------------------------
 
-    /** Creates A builder for building a {@link CanalJsonEnhancedDeserializationSchema}. */
+    /**
+     * Creates A builder for building a {@link CanalJsonEnhancedDeserializationSchema}.
+     */
     public static Builder builder(
             DataType physicalDataType,
             List<ReadableMetadata> requestedMetadata,
@@ -141,59 +165,49 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
         return new Builder(physicalDataType, requestedMetadata, producedTypeInfo);
     }
 
-    /** A builder for creating a {@link CanalJsonEnhancedDeserializationSchema}. */
-    @Internal
-    public static final class Builder {
-        private final DataType physicalDataType;
-        private final List<ReadableMetadata> requestedMetadata;
-        private final TypeInformation<RowData> producedTypeInfo;
-        private String database = null;
-        private String table = null;
-        private boolean ignoreParseErrors = false;
-        private TimestampFormat timestampFormat = TimestampFormat.SQL;
-
-        private Builder(
-                DataType physicalDataType,
-                List<ReadableMetadata> requestedMetadata,
-                TypeInformation<RowData> producedTypeInfo) {
-            this.physicalDataType = physicalDataType;
-            this.requestedMetadata = requestedMetadata;
-            this.producedTypeInfo = producedTypeInfo;
-        }
-
-        public Builder setDatabase(String database) {
-            this.database = database;
-            return this;
-        }
-
-        public Builder setTable(String table) {
-            this.table = table;
-            return this;
-        }
-
-        public Builder setIgnoreParseErrors(boolean ignoreParseErrors) {
-            this.ignoreParseErrors = ignoreParseErrors;
-            return this;
-        }
-
-        public Builder setTimestampFormat(TimestampFormat timestampFormat) {
-            this.timestampFormat = timestampFormat;
-            return this;
-        }
-
-        public CanalJsonEnhancedDeserializationSchema build() {
-            return new CanalJsonEnhancedDeserializationSchema(
-                    physicalDataType,
-                    requestedMetadata,
-                    producedTypeInfo,
-                    database,
-                    table,
-                    ignoreParseErrors,
-                    timestampFormat);
-        }
+    private static RowType createJsonRowType(
+            DataType physicalDataType, List<ReadableMetadata> readableMetadata) {
+        // Canal JSON contains other information, e.g. "ts", "sql", but we don't need them
+        DataType root =
+                DataTypes.ROW(
+                        DataTypes.FIELD("data", DataTypes.ARRAY(physicalDataType)),
+                        DataTypes.FIELD("old", DataTypes.ARRAY(physicalDataType)),
+                        ReadableMetadata.TYPE.requiredJsonField,
+                        ReadableMetadata.DATABASE.requiredJsonField,
+                        ReadableMetadata.TABLE.requiredJsonField);
+        // append fields that are required for reading metadata in the root
+        final List<DataTypes.Field> rootMetadataFields =
+                readableMetadata.stream()
+                        .filter(m -> m != ReadableMetadata.DATABASE
+                                && m != ReadableMetadata.TABLE
+                                && m != ReadableMetadata.TYPE)
+                        .map(m -> m.requiredJsonField)
+                        .distinct()
+                        .collect(Collectors.toList());
+        return (RowType) DataTypeUtils.appendRowFields(root, rootMetadataFields).getLogicalType();
     }
 
     // ------------------------------------------------------------------------------------------
+
+    private static MetadataConverter[] createMetadataConverters(
+            RowType jsonRowType, List<ReadableMetadata> requestedMetadata) {
+        return requestedMetadata.stream()
+                .map(m -> convert(jsonRowType, m))
+                .toArray(MetadataConverter[]::new);
+    }
+
+    private static MetadataConverter convert(RowType jsonRowType, ReadableMetadata metadata) {
+        final int pos = jsonRowType.getFieldNames().indexOf(metadata.requiredJsonField.getName());
+        return new MetadataConverter() {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Object convert(GenericRowData root, int unused) {
+                return metadata.converter.convert(root, pos);
+            }
+        };
+    }
 
     @Override
     public RowData deserialize(byte[] message) throws IOException {
@@ -315,6 +329,8 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
         return producedTypeInfo;
     }
 
+    // --------------------------------------------------------------------------------------------
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -345,49 +361,6 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
                 fieldCount);
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    private static RowType createJsonRowType(
-            DataType physicalDataType, List<ReadableMetadata> readableMetadata) {
-        // Canal JSON contains other information, e.g. "ts", "sql", but we don't need them
-        DataType root =
-                DataTypes.ROW(
-                        DataTypes.FIELD("data", DataTypes.ARRAY(physicalDataType)),
-                        DataTypes.FIELD("old", DataTypes.ARRAY(physicalDataType)),
-                        DataTypes.FIELD("type", DataTypes.STRING()),
-                        ReadableMetadata.DATABASE.requiredJsonField,
-                        ReadableMetadata.TABLE.requiredJsonField);
-        // append fields that are required for reading metadata in the root
-        final List<DataTypes.Field> rootMetadataFields =
-                readableMetadata.stream()
-                        .filter(m -> m != ReadableMetadata.DATABASE && m != ReadableMetadata.TABLE)
-                        .map(m -> m.requiredJsonField)
-                        .distinct()
-                        .collect(Collectors.toList());
-        return (RowType) DataTypeUtils.appendRowFields(root, rootMetadataFields).getLogicalType();
-    }
-
-    private static MetadataConverter[] createMetadataConverters(
-            RowType jsonRowType, List<ReadableMetadata> requestedMetadata) {
-        return requestedMetadata.stream()
-                .map(m -> convert(jsonRowType, m))
-                .toArray(MetadataConverter[]::new);
-    }
-
-    private static MetadataConverter convert(RowType jsonRowType, ReadableMetadata metadata) {
-        final int pos = jsonRowType.getFieldNames().indexOf(metadata.requiredJsonField.getName());
-        return new MetadataConverter() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public Object convert(GenericRowData root, int unused) {
-                return metadata.converter.convert(root, pos);
-            }
-        };
-    }
-
-    // --------------------------------------------------------------------------------------------
-
     /**
      * Converter that extracts a metadata field from the row that comes out of the JSON schema and
      * converts it to the desired data type.
@@ -400,5 +373,62 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
         }
 
         Object convert(GenericRowData row, int pos);
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    /**
+     * A builder for creating a {@link CanalJsonEnhancedDeserializationSchema}.
+     */
+    @Internal
+    public static final class Builder {
+
+        private final DataType physicalDataType;
+        private final List<ReadableMetadata> requestedMetadata;
+        private final TypeInformation<RowData> producedTypeInfo;
+        private String database = null;
+        private String table = null;
+        private boolean ignoreParseErrors = false;
+        private TimestampFormat timestampFormat = TimestampFormat.SQL;
+
+        private Builder(
+                DataType physicalDataType,
+                List<ReadableMetadata> requestedMetadata,
+                TypeInformation<RowData> producedTypeInfo) {
+            this.physicalDataType = physicalDataType;
+            this.requestedMetadata = requestedMetadata;
+            this.producedTypeInfo = producedTypeInfo;
+        }
+
+        public Builder setDatabase(String database) {
+            this.database = database;
+            return this;
+        }
+
+        public Builder setTable(String table) {
+            this.table = table;
+            return this;
+        }
+
+        public Builder setIgnoreParseErrors(boolean ignoreParseErrors) {
+            this.ignoreParseErrors = ignoreParseErrors;
+            return this;
+        }
+
+        public Builder setTimestampFormat(TimestampFormat timestampFormat) {
+            this.timestampFormat = timestampFormat;
+            return this;
+        }
+
+        public CanalJsonEnhancedDeserializationSchema build() {
+            return new CanalJsonEnhancedDeserializationSchema(
+                    physicalDataType,
+                    requestedMetadata,
+                    producedTypeInfo,
+                    database,
+                    table,
+                    ignoreParseErrors,
+                    timestampFormat);
+        }
     }
 }

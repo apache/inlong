@@ -64,7 +64,7 @@ public class KafkaSinkServiceTest extends ServiceBaseTest {
      * Delete sink info by sink id.
      */
     public void deleteSink(Integer sinkId) {
-        boolean result = sinkService.delete(sinkId, GLOBAL_OPERATOR);
+        boolean result = sinkService.delete(sinkId, false, GLOBAL_OPERATOR);
         Assertions.assertTrue(result);
     }
 

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
 public class ClientSubInfo {
+
     private final ConcurrentHashMap<String/* topic */, TopicProcessor> topicCondRegistry =
             new ConcurrentHashMap<>();
     private boolean requireBound = false;
@@ -79,7 +80,7 @@ public class ClientSubInfo {
     }
 
     public TopicProcessor putIfAbsentTopicProcessor(String topic,
-                                                    TopicProcessor topicProcessor) {
+            TopicProcessor topicProcessor) {
         TopicProcessor topicProcessor1 =
                 this.topicCondRegistry.putIfAbsent(topic, topicProcessor);
         if (topicProcessor1 == null) {
@@ -149,9 +150,9 @@ public class ClientSubInfo {
      *
      */
     public void setRequireBound(final String sessionKey,
-                                final int sourceCount,
-                                final boolean isSelectBig,
-                                final Map<String, Long> partOffsetMap) {
+            final int sourceCount,
+            final boolean isSelectBig,
+            final Map<String, Long> partOffsetMap) {
         this.requireBound = true;
         this.subscribedTime = System.currentTimeMillis();
         this.sessionKey = sessionKey;

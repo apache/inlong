@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -46,18 +46,18 @@ public interface BrokerRunManager {
     void delBrokerStaticInfo(int brokerId);
 
     boolean brokerRegister2M(String clientId, BrokerInfo brokerInfo,
-                             long reportConfigId, int reportCheckSumId,
-                             boolean isTackData, String repBrokerConfInfo,
-                             List<String> repTopicConfInfo, boolean isOnline,
-                             boolean isOverTLS, StringBuilder sBuffer,
-                             ProcessResult result);
+            long reportConfigId, int reportCheckSumId,
+            boolean isTackData, String repBrokerConfInfo,
+            List<String> repTopicConfInfo, boolean isOnline,
+            boolean isOverTLS, StringBuilder sBuffer,
+            ProcessResult result);
 
     boolean brokerHeartBeat2M(int brokerId, long reportConfigId, int reportCheckSumId,
-                              boolean isTackData, String repBrokerConfInfo,
-                              List<String> repTopicConfInfo,
-                              boolean isTackRmvInfo, List<String> removedTopics,
-                              int rptReadStatus, int rptWriteStatus, boolean isOnline,
-                              StringBuilder sBuffer, ProcessResult result);
+            boolean isTackData, String repBrokerConfInfo,
+            List<String> repTopicConfInfo,
+            boolean isTackRmvInfo, List<String> removedTopics,
+            int rptReadStatus, int rptWriteStatus, boolean isOnline,
+            StringBuilder sBuffer, ProcessResult result);
 
     boolean brokerClose2M(int brokerId, StringBuilder sBuffer, ProcessResult result);
 
@@ -70,25 +70,25 @@ public interface BrokerRunManager {
     Tuple3<ManageStatus, String, Map<String, String>> getBrokerMetaConfigInfo(int brokerId);
 
     void setRegisterDownConfInfo(int brokerId, StringBuilder sBuffer,
-                                 RegisterResponseM2B.Builder builder);
+            RegisterResponseM2B.Builder builder);
 
     void setHeatBeatDownConfInfo(int brokerId, StringBuilder sBuffer,
-                                 HeartResponseM2B.Builder builder);
+            HeartResponseM2B.Builder builder);
 
     BrokerInfo getBrokerInfo(int brokerId);
 
     Map<Integer, BrokerInfo> getBrokerInfoMap(List<Integer> brokerIds);
 
     void iniBrokerConfInfo(int brokerId, ManageStatus mngStatus,
-                           Map<String, TopicInfo> topicInfoMap);
+            Map<String, TopicInfo> topicInfoMap);
 
     boolean updBrokerCsmConfInfo(int brokerId,
-                                 ManageStatus mngStatus,
-                                 Map<String, TopicInfo> topicInfoMap);
+            ManageStatus mngStatus,
+            Map<String, TopicInfo> topicInfoMap);
 
     void updBrokerPrdConfInfo(int brokerId,
-                              ManageStatus mngStatus,
-                              Map<String, TopicInfo> topicInfoMap);
+            ManageStatus mngStatus,
+            Map<String, TopicInfo> topicInfoMap);
 
     BrokerAbnHolder getBrokerAbnHolder();
 
@@ -103,8 +103,8 @@ public interface BrokerRunManager {
     void getSubBrokerTopicInfo(int brokerId, String topic, Tuple2<Boolean, TopicInfo> result);
 
     void getPubBrokerTopicInfo(int brokerId, String topic,
-                               Tuple3<Boolean, Boolean, TopicInfo> result);
+            Tuple3<Boolean, Boolean, TopicInfo> result);
 
     void getPubBrokerPushedTopicInfo(int brokerId,
-                                     Tuple3<Boolean, Boolean, List<TopicInfo>> result);
+            Tuple3<Boolean, Boolean, List<TopicInfo>> result);
 }

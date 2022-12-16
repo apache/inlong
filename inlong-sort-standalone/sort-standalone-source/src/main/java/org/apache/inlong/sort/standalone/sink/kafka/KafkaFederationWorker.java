@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -19,12 +19,12 @@ package org.apache.inlong.sort.standalone.sink.kafka;
 
 import com.google.common.base.Preconditions;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /** Worker of */
 public class KafkaFederationWorker extends Thread {
+
     public static final Logger LOG = InlongLoggerFactory.getLogger(KafkaFederationWorker.class);
 
     private final String workerName;
@@ -105,8 +106,17 @@ public class KafkaFederationWorker extends Thread {
                     LOG.error("The type of row event is not compatible with ProfileEvent");
                     continue;
                 }
+
                 ProfileEvent profileEvent = (ProfileEvent) rowEvent;
-                String topic = this.fillTopic(profileEvent);
+                String topic = this.context.getTopic(profileEvent.getUid());
+                if (StringUtils.isBlank(topic)) {
+                    this.context.addSendResultMetric(profileEvent, profileEvent.getUid(),
+                            false, System.currentTimeMillis());
+                    profileEvent.ack();
+                    tx.commit();
+                    tx.close();
+                }
+                profileEvent.getHeaders().put(Constants.TOPIC, topic);
                 this.context.addSendMetric(profileEvent, topic);
                 this.producerFederation.send(profileEvent, tx);
             } catch (Exception e) {
@@ -122,21 +132,6 @@ public class KafkaFederationWorker extends Thread {
                 sleepOneInterval();
             }
         }
-    }
-
-    /**
-     * FillTopic
-     *
-     * @param event
-     */
-    private String fillTopic(Event event) {
-        Map<String, String> headers = event.getHeaders();
-        String inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
-        String inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
-        String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
-        String topic = this.context.getTopic(uid);
-        headers.put(Constants.TOPIC, topic);
-        return topic;
     }
 
     /** sleepOneInterval */

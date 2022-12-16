@@ -109,12 +109,12 @@ public class DateFormatRegex implements Filter {
         for (String regexStr : regexList) {
             if (regexStr.contains(YEAR) || regexStr.contains(YEAR_LOWERCASE)) {
                 String tmpRegexStr = regexStr.replace(YEAR, time.substring(0, 4))
-                        .replace(YEAR_LOWERCASE,time.substring(0, 4))
+                        .replace(YEAR_LOWERCASE, time.substring(0, 4))
                         .replace(MONTH, time.substring(4, 6))
                         .replace(DAY, time.substring(6, 8))
-                        .replace(DAY_LOWERCASE,time.substring(6, 8))
+                        .replace(DAY_LOWERCASE, time.substring(6, 8))
                         .replace(HOUR, time.substring(8, 10))
-                        .replace(MINUTE,time.substring(10));
+                        .replace(MINUTE, time.substring(10));
                 formattedList.add(tmpRegexStr);
                 formattedTime = time;
             } else {

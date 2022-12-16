@@ -20,13 +20,14 @@
 -->
 
 
-# Apache InLong
+# [A one-stop integration framework for massive data](https://inlong.apache.org/)
 [![Build Status](https://travis-ci.org/apache/inlong.svg?branch=master)](https://github.com/apache/inlong/actions)
 [![CodeCov](https://codecov.io/gh/apache/inlong/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/inlong)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.inlong/inlong/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.inlong)
-[![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://inlong.apache.org/download/main)
+[![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://inlong.apache.org/download/)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-
+[![Twitter](https://img.shields.io/twitter/url?label=Follow%20ApacheInlong&style=social&url=https%3A%2F%2Ftwitter.com%2FApacheInlong)](https://twitter.com/ApacheInlong)
+[![Slack](https://img.shields.io/badge/%20Slack-InLong%20Channel-blueviolet)](https://the-asf.slack.com/archives/C01QAG6U00L)
 
 - [What is Apache InLong?](#what-is-apache-inlong)
 - [Features](#features)
@@ -39,6 +40,10 @@
 - [License](#license)
 
 # What is Apache InLong?
+|                                       **Stargazers Over Time**                                        |                                                                                                **Contributors Over Time**                                                                                                |
+|:-----------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| [![Stargazers over time](https://starchart.cc/apache/inlong.svg)](https://starchart.cc/apache/inlong) | [![Contributor Over Time](https://contributor-overtime-api.git-contributor.com/contributors-svg?chart=contributorOverTime&repo=apache/inlong)](https://git-contributor.com?chart=contributorOverTime&repo=apache/inlong) |
+
 [Apache InLong](https://inlong.apache.org) is a one-stop integration framework for massive data that provides automatic, secure and reliable data transmission capabilities. InLong supports both batch and stream data processing at the same time, which offers great power to build data analysis, modeling and other real-time  applications based on streaming data.
 
 InLong (应龙) is a divine beast in Chinese mythology who guides the river into the sea, and it is regarded as a metaphor of the InLong system for reporting data streams.
@@ -72,26 +77,31 @@ You can use InLong in the following ways：
 | Extract Node | Auto Push         | None                         | Standard              |
 |              | File              | None                         | Standard              |
 |              | Kafka             | 2.x                          | Lightweight, Standard |
-|              | MySQL             | 5.6, 5.7, 8.0.x              | Lightweight, Standard |
 |              | MongoDB           | >= 3.6                       | Lightweight, Standard |
+|              | MQTT              | >= 3.1                       | Standard              |
+|              | MySQL             | 5.6, 5.7, 8.0.x              | Lightweight, Standard |
 |              | Oracle            | 11,12,19                     | Lightweight           |
 |              | PostgreSQL        | 9.6, 10, 11, 12              | Lightweight, Standard |
 |              | Pulsar            | 2.8.x                        | Lightweight           |
+|              | Redis             | 2.6.x                        | Standard              |
 |              | SQLServer         | 2012, 2014, 2016, 2017, 2019 | Lightweight, Standard |
 | Load Node    | Auto Consumption  | None                         | Standard              |
+|              | ClickHouse        | 20.7+                        | Lightweight, Standard |
+|              | Elasticsearch     | 6.x, 7.x                     | Lightweight, Standard |
+|              | Greenplum         | 4.x, 5.x, 6.x                | Lightweight, Standard |
+|              | HBase             | 2.2.x                        | Lightweight, Standard |
+|              | HDFS              | 2.x, 3.x                     | Lightweight, Standard |
 |              | Hive              | 1.x, 2.x, 3.x                | Lightweight, Standard |
 |              | Iceberg           | 0.12.x                       | Lightweight, Standard |
-|              | ClickHouse        | 20.7+                        | Lightweight, Standard |
+|              | Hudi              | 0.12.x                       | Lightweight, Standard |
 |              | Kafka             | 2.x                          | Lightweight, Standard |
-|              | HBase             | 2.2.x                        | Lightweight, Standard |
-|              | PostgreSQL        | 9.6, 10, 11, 12              | Lightweight, Standard |
-|              | Oracle            | 11, 12, 19                   | Lightweight, Standard |
 |              | MySQL             | 5.6, 5.7, 8.0.x              | Lightweight, Standard |
-|              | TDSQL-PostgreSQL  | 10.17                        | Lightweight, Standard |
-|              | Greenplum         | 4.x, 5.x, 6.x                | Lightweight, Standard |
-|              | Elasticsearch     | 6.x, 7.x                     | Lightweight, Standard |
+|              | Oracle            | 11, 12, 19                   | Lightweight, Standard |
+|              | PostgreSQL        | 9.6, 10, 11, 12              | Lightweight, Standard |
 |              | SQLServer         | 2012, 2014, 2016, 2017, 2019 | Lightweight, Standard |
-|              | HDFS              | 2.x, 3.x                     | Lightweight, Standard |
+|              | TDSQL-PostgreSQL  | 10.17                        | Lightweight, Standard |
+|              | Doris             | >= 0.13                      | Lightweight, Standard |
+|              | StarRocks         | >= 2.0                       | Lightweight, Standard |
 
 ## Build InLong
 More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/next/quick_start/how_to_build) section in the documentation.

@@ -89,4 +89,3 @@ public class HBaseSinkOperator extends AbstractSinkOperator {
     }
 
 }
-

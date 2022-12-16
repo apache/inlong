@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -74,6 +74,7 @@ import org.slf4j.LoggerFactory;
  * itself and is not affected by the server-side allocation cycle
  */
 public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
+
     private static final Logger logger =
             LoggerFactory.getLogger(SimpleClientBalanceConsumer.class);
 
@@ -123,7 +124,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
      * @throws TubeClientException    the exception while creating object.
      */
     public SimpleClientBalanceConsumer(final InnerSessionFactory messageSessionFactory,
-                                       final ConsumerConfig consumerConfig) throws TubeClientException {
+            final ConsumerConfig consumerConfig) throws TubeClientException {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
         if (messageSessionFactory == null || consumerConfig == null) {
@@ -156,6 +157,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                         this.consumerConfig.getMasterInfo(), this.rpcConfig);
         this.heartService2Master =
                 Executors.newScheduledThreadPool(1, new ThreadFactory() {
+
                     @Override
                     public Thread newThread(Runnable r) {
                         Thread t = new Thread(r, new StringBuilder(512)
@@ -169,8 +171,8 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
 
     @Override
     public boolean start(Map<String, TreeSet<String>> topicAndFilterCondMap,
-                         int sourceCount, int nodeId,
-                         ProcessResult result) throws TubeClientException {
+            int sourceCount, int nodeId,
+            ProcessResult result) throws TubeClientException {
         if (result == null) {
             throw new TubeClientException("Illegal parameter: parameter result is null!");
         }
@@ -196,13 +198,13 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                 case 2: {
                     result.setSuccResult();
                 }
-                break;
+                    break;
 
                 case 3: {
                     result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                             "The client is shutting down. Please try again later!");
                 }
-                break;
+                    break;
 
                 case 0:
                 case 1:
@@ -276,14 +278,14 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                             .append(this.consumerId)
                             .append(" is shutting down, do nothing...").toString());
                 }
-                break;
+                    break;
 
                 case 0: {
                     logger.info(strBuffer.append("[SHUTDOWN_CONSUMER] ")
                             .append(this.consumerId)
                             .append(" was already shutdown, do nothing...").toString());
                 }
-                break;
+                    break;
 
                 case 1:
                 default: {
@@ -371,8 +373,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                     "The client is not started or closed!");
             return result.isSuccess();
         }
-        if (System.currentTimeMillis() - lstMetaQueryTime.get()
-                >= consumerConfig.getPartMetaInfoCheckPeriodMs()) {
+        if (System.currentTimeMillis() - lstMetaQueryTime.get() >= consumerConfig.getPartMetaInfoCheckPeriodMs()) {
             if (metaReqStatusId.compareAndSet(0, 1)) {
                 try {
                     ClientMaster.GetPartMetaResponseM2C response =
@@ -421,8 +422,8 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
 
     @Override
     public boolean connect2Partition(String partitionKey,
-                                     long boostrapOffset,
-                                     ProcessResult result) throws TubeClientException {
+            long boostrapOffset,
+            ProcessResult result) throws TubeClientException {
         if (result == null) {
             throw new TubeClientException("Illegal parameter: parameter result is null!");
         }
@@ -447,8 +448,8 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
         }
         // check if high frequency request for failure partition
         Long lstTime = partRegFreqCtrlMap.get(partitionKey);
-        if (lstTime != null && (System.currentTimeMillis() - lstTime
-                < TClientConstants.CFG_MIN_META_QUERY_WAIT_PERIOD_MS)) {
+        if (lstTime != null
+                && (System.currentTimeMillis() - lstTime < TClientConstants.CFG_MIN_META_QUERY_WAIT_PERIOD_MS)) {
             result.setFailResult(TErrCodeConstants.CLIENT_HIGH_FREQUENCY_REQUEST,
                     sBuffer.append("High-frequency request, please call ").append(partitionKey)
                             .append(" at least ").append(TClientConstants.CFG_MIN_META_QUERY_WAIT_PERIOD_MS)
@@ -466,7 +467,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
         }
         if (!result.isSuccess()
                 && (result.getErrCode() == TErrCodeConstants.PARTITION_OCCUPIED
-                || result.getErrCode() == TErrCodeConstants.CERTIFICATE_FAILURE)) {
+                        || result.getErrCode() == TErrCodeConstants.CERTIFICATE_FAILURE)) {
             // only partition occupied or certificate failure need control frequency
             partRegFreqCtrlMap.put(partitionKey, System.currentTimeMillis());
         }
@@ -475,7 +476,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
 
     @Override
     public boolean disconnectFromPartition(String partitionKey,
-                                           ProcessResult result) throws TubeClientException {
+            ProcessResult result) throws TubeClientException {
         if (result == null) {
             throw new TubeClientException("Illegal parameter: parameter result is null!");
         }
@@ -530,8 +531,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                 break;
             }
             if ((consumerConfig.getPullConsumeReadyWaitPeriodMs() >= 0L)
-                    && ((System.currentTimeMillis() - startTime)
-                    >= consumerConfig.getPullConsumeReadyWaitPeriodMs())) {
+                    && ((System.currentTimeMillis() - startTime) >= consumerConfig.getPullConsumeReadyWaitPeriodMs())) {
                 result.setFailResult(selectResult.getErrCode(), selectResult.getErrMsg());
                 return result.isSuccess();
             }
@@ -553,7 +553,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
 
     @Override
     public boolean confirmConsume(String confirmContext, boolean isConsumed,
-                                  ConfirmResult result) throws TubeClientException {
+            ConfirmResult result) throws TubeClientException {
         if (result == null) {
             throw new TubeClientException("Illegal parameter: parameter result is null!");
         }
@@ -667,7 +667,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
      * @return process result
      */
     private boolean registerPartitions(Partition partition, long boostrapOffset,
-                                       ProcessResult result, StringBuilder sBuffer) {
+            ProcessResult result, StringBuilder sBuffer) {
         int maxRegisterRetryTimes = 2;
         int retryTimesRegister2Broker = 0;
         while (retryTimesRegister2Broker < maxRegisterRetryTimes) {
@@ -694,7 +694,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
     }
 
     private FetchContext fetchMessage(PartitionSelectResult partSelectResult,
-                                      StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         // Fetch task context based on selected partition
         FetchContext taskContext =
                 new FetchContext(partSelectResult);
@@ -764,11 +764,14 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                     }
                     // Set the process result of current stage. Process the result based on the response
                     long dataDltVal = msgRspB2C.hasCurrDataDlt()
-                            ? msgRspB2C.getCurrDataDlt() : -1;
+                            ? msgRspB2C.getCurrDataDlt()
+                            : -1;
                     long currOffset = msgRspB2C.hasCurrOffset()
-                            ? msgRspB2C.getCurrOffset() : TBaseConstants.META_VALUE_UNDEFINED;
+                            ? msgRspB2C.getCurrOffset()
+                            : TBaseConstants.META_VALUE_UNDEFINED;
                     long maxOffset = msgRspB2C.hasMaxOffset()
-                            ? msgRspB2C.getMaxOffset() : TBaseConstants.META_VALUE_UNDEFINED;
+                            ? msgRspB2C.getMaxOffset()
+                            : TBaseConstants.META_VALUE_UNDEFINED;
                     boolean isRequireSlow =
                             (msgRspB2C.hasRequireSlow() && msgRspB2C.getRequireSlow());
                     clientRmtDataCache
@@ -777,7 +780,8 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                                     dataDltVal, isRequireSlow, maxOffset);
                     taskContext.setSuccessProcessResult(currOffset,
                             sBuffer.append(partitionKey).append(TokenConstants.ATTR_SEP)
-                                    .append(taskContext.getUsedToken()).toString(), messageList, maxOffset);
+                                    .append(taskContext.getUsedToken()).toString(),
+                            messageList, maxOffset);
                     sBuffer.delete(0, sBuffer.length());
                     clientStatsInfo.bookSuccGetMsg(dltTime,
                             topic, partitionKey, msgCount, msgSize);
@@ -795,7 +799,8 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                     // Process with server side speed limit
                     long defDltTime =
                             msgRspB2C.hasMinLimitTime()
-                                    ? msgRspB2C.getMinLimitTime() : consumerConfig.getMsgNotFoundWaitPeriodMs();
+                                    ? msgRspB2C.getMinLimitTime()
+                                    : consumerConfig.getMsgNotFoundWaitPeriodMs();
                     clientRmtDataCache.errRspRelease(partitionKey, topic,
                             taskContext.getUsedToken(), false, TBaseConstants.META_VALUE_UNDEFINED,
                             0, msgRspB2C.getErrCode(), false, 0,
@@ -868,7 +873,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
      * @return  process result
      */
     private boolean startMasterAndBrokerThreads(ProcessResult result,
-                                                StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int registerRetryTimes = 0;
         while (registerRetryTimes < consumerConfig.getMaxRegisterRetryTimes()) {
             if (tryRegister2Master(result, sBuffer)) {
@@ -903,7 +908,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
     }
 
     private boolean validAndStoreConsumeTarget(Map<String, TreeSet<String>> consumeTargetMap,
-                                               StringBuilder sBuffer, ProcessResult result) {
+            StringBuilder sBuffer, ProcessResult result) {
         if (consumeTargetMap == null
                 || consumeTargetMap.isEmpty()) {
             result.setFailResult(TErrCodeConstants.BAD_REQUEST,
@@ -976,6 +981,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
 
     // #lizard forgives
     private class HeartTask2MasterWorker implements Runnable {
+
         // Heartbeat logic between master and worker
         @Override
         public void run() {
@@ -1040,8 +1046,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                 processHeartBeatAuthorizedToken(response);
                 // Warning if heartbeat interval is too long
                 long currentTime = System.currentTimeMillis();
-                if ((currentTime - lastHeartbeatTime2Master)
-                        > consumerConfig.getHeartbeatPeriodMs() * 2) {
+                if ((currentTime - lastHeartbeatTime2Master) > consumerConfig.getHeartbeatPeriodMs() * 2) {
                     logger.warn(strBuffer.append(consumerId)
                             .append(" heartbeat interval to master is too long,please check! Total time : ")
                             .append(currentTime - lastHeartbeatTime2Master).toString());
@@ -1075,7 +1080,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
     }
 
     private boolean tryRegister2Broker(Partition partition, long boostrapOffset,
-                                       ProcessResult result, StringBuilder sBuffer) {
+            ProcessResult result, StringBuilder sBuffer) {
         try {
             ClientBroker.RegisterResponseB2C response =
                     getBrokerService(partition.getBroker()).consumerRegisterC2B(
@@ -1091,9 +1096,11 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
             if (response.getSuccess()) {
                 clientStatsInfo.bookReg2Broker(false);
                 long currOffset = response.hasCurrOffset()
-                        ? response.getCurrOffset() : TBaseConstants.META_VALUE_UNDEFINED;
+                        ? response.getCurrOffset()
+                        : TBaseConstants.META_VALUE_UNDEFINED;
                 long maxOffset = response.hasMaxOffset()
-                        ? response.getMaxOffset() : TBaseConstants.META_VALUE_UNDEFINED;
+                        ? response.getMaxOffset()
+                        : TBaseConstants.META_VALUE_UNDEFINED;
                 clientRmtDataCache.addPartition(partition, currOffset, maxOffset);
                 logger.info(sBuffer.append("Registered partition: consumer is ")
                         .append(consumerId).append(", partition=")
@@ -1152,8 +1159,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
             if (response.getErrCode() != TErrCodeConstants.SUCCESS) {
                 clientStatsInfo.bookReg2Master(true);
                 // If the consumer group is forbidden, output the log
-                if (response.getErrCode()
-                        == TErrCodeConstants.CONSUME_GROUP_FORBIDDEN) {
+                if (response.getErrCode() == TErrCodeConstants.CONSUME_GROUP_FORBIDDEN) {
                     result.setFailResult(response.getErrCode(),
                             sBuffer.append("Register Failed: ").append(consumerId)
                                     .append("'s ConsumeGroup forbidden, ")
@@ -1185,6 +1191,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
 
     // #lizard forgives
     private class HeartTask2BrokerWorker implements Runnable {
+
         @Override
         public void run() {
             StringBuilder strBuffer = new StringBuilder(512);
@@ -1194,8 +1201,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                     // there may be some system hang up(e.g. long time gc, CPU is too busy).
                     // Print the warning message.
                     long currentTime = System.currentTimeMillis();
-                    if ((currentTime - lastHeartbeatTime2Broker)
-                            > (consumerConfig.getHeartbeatPeriodMs() * 2)) {
+                    if ((currentTime - lastHeartbeatTime2Broker) > (consumerConfig.getHeartbeatPeriodMs() * 2)) {
                         logger.warn(strBuffer.append(consumerId)
                                 .append(" heartbeat to broker is too long, please check! Total time : ")
                                 .append(currentTime - lastHeartbeatTime2Broker).toString());
@@ -1257,9 +1263,11 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                         }
                         if (response.getSuccess()) {
                             long currOffset = response.hasCurrOffset()
-                                    ? response.getCurrOffset() : TBaseConstants.META_VALUE_UNDEFINED;
+                                    ? response.getCurrOffset()
+                                    : TBaseConstants.META_VALUE_UNDEFINED;
                             long maxOffset = response.hasMaxOffset()
-                                    ? response.getMaxOffset() : TBaseConstants.META_VALUE_UNDEFINED;
+                                    ? response.getMaxOffset()
+                                    : TBaseConstants.META_VALUE_UNDEFINED;
                             clientRmtDataCache.updPartOffsetInfo(
                                     partitionKey, currOffset, maxOffset);
                             logger.info(sBuffer.append("[Admin Reset] consumer is ")
@@ -1387,7 +1395,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
     }
 
     private void unregisterPartition(Partition partition,
-                                     boolean isLastConsumed, StringBuilder sBuffer) {
+            boolean isLastConsumed, StringBuilder sBuffer) {
         try {
             getBrokerService(partition.getBroker())
                     .consumerRegisterC2B(createBrokerUnregisterRequest(partition,
@@ -1413,8 +1421,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
             Map<BrokerInfo, List<PartitionSelectResult>> unRegisterInfoMap) {
         StringBuilder strBuffer = new StringBuilder(512);
         strBuffer.append("Unregister info:");
-        for (Map.Entry<BrokerInfo, List<PartitionSelectResult>> entry
-                : unRegisterInfoMap.entrySet()) {
+        for (Map.Entry<BrokerInfo, List<PartitionSelectResult>> entry : unRegisterInfoMap.entrySet()) {
             for (PartitionSelectResult partResult : entry.getValue()) {
                 try {
                     getBrokerService(partResult.getPartition().getBroker())
@@ -1503,7 +1510,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
     }
 
     private ClientBroker.RegisterRequestC2B createBrokerRegisterRequest(Partition partition,
-                                                                        long boostrapOffset) {
+            long boostrapOffset) {
         ClientBroker.RegisterRequestC2B.Builder builder =
                 ClientBroker.RegisterRequestC2B.newBuilder();
         builder.setClientId(consumerId);
@@ -1527,7 +1534,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
     }
 
     private ClientBroker.RegisterRequestC2B createBrokerUnregisterRequest(Partition partition,
-                                                                          boolean isLastConsumered) {
+            boolean isLastConsumered) {
         ClientBroker.RegisterRequestC2B.Builder builder =
                 ClientBroker.RegisterRequestC2B.newBuilder();
         builder.setClientId(consumerId);

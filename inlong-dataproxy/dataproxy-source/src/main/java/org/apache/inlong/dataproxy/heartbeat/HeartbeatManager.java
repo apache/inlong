@@ -30,6 +30,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
+import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
@@ -127,11 +128,15 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         if (!validReportInfo(reportInfo)) {
             return null;
         }
+        heartbeatMsg.setNodeSrvStatus(ConfigManager.getInstance().isMqClusterReady()
+                ? NodeSrvStatus.OK
+                : NodeSrvStatus.SERVICE_UNREADY);
         heartbeatMsg.setIp(reportInfo.getIp());
         heartbeatMsg.setPort(reportInfo.getPort());
         heartbeatMsg.setProtocolType(reportInfo.getProtocolType());
-        heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getName());
+        heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getType());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
+        heartbeatMsg.setLoad(0xffff);
         Map<String, String> commonProperties = configManager.getCommonProperties();
         heartbeatMsg.setClusterTag(commonProperties.getOrDefault(
                 ConfigConstants.PROXY_CLUSTER_TAG, DEFAULT_CLUSTER_TAG));
@@ -139,6 +144,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 ConfigConstants.PROXY_CLUSTER_NAME, DEFAULT_CLUSTER_NAME));
         heartbeatMsg.setInCharges(commonProperties.getOrDefault(
                 ConfigConstants.PROXY_CLUSTER_INCHARGES, DEFAULT_CLUSTER_INCHARGES));
+        heartbeatMsg.setExtTag(commonProperties.get(ConfigConstants.PROXY_CLUSTER_EXT_TAG));
 
         Map<String, String> groupIdMappings = configManager.getGroupIdMappingProperties();
         Map<String, Map<String, String>> streamIdMappings = configManager.getStreamIdMappingProperties();

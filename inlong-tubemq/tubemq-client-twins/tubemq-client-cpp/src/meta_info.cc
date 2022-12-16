@@ -229,6 +229,27 @@ const uint32_t Partition::GetPartitionId() const { return partition_id_; }
 
 const string& Partition::ToString() const { return partition_info_; }
 
+void Partition::IncreRetries(int retries) {
+  retries_ += retries;
+  if (retries_ > 3) {
+    delay_timestamp_ = Utils::CurrentTimeMillis() + 3 * 1000;
+    retries_ = 0;
+  }
+}
+
+void Partition::ResetRetries() {
+  retries_ = 0;
+  delay_timestamp_ = 0;
+}
+
+int Partition::GetRetries() const {
+  return retries_;
+}
+
+int64_t Partition::GetDelayTimestamp() const {
+  return delay_timestamp_;
+}
+
 void Partition::buildPartitionKey() {
   stringstream ss1;
   ss1 << broker_info_.GetNodeId();
@@ -574,7 +595,29 @@ string ConsumerEvent::ToString() {
   return ss.str();
 }
 
+TopicInfo::TopicInfo(const NodeInfo& broker, const std::string& topic, int partition_num,
+                     int topic_store_num, bool accept_publish, bool accept_subscribe)
+    : broker_(broker),
+      topic_(topic),
+      partition_num_(partition_num),
+      topic_store_num_(topic_store_num),
+      accept_publish_(accept_publish),
+      accept_subscribe_(accept_subscribe) {}
 
+const std::string& TopicInfo::GetTopic() const {
+  return topic_;
+}
 
+int TopicInfo::GetPartitionNum() const {
+  return partition_num_;
+}
+
+int TopicInfo::GetTopicStoreNum() const {
+  return topic_store_num_;
+}
+
+const NodeInfo& TopicInfo::GetBroker() const {
+  return broker_;
+}
 
 };  // namespace tubemq

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -50,7 +50,7 @@ public class VelocityTemplateEngine implements TemplateEngine {
 
     @Override
     public String renderTemplate(String templateName,
-                                 RequestContext context) throws Exception {
+            RequestContext context) throws Exception {
         StringWriter writer = new StringWriter();
         renderTemplate(templateName, context, writer);
         return writer.toString();
@@ -58,8 +58,8 @@ public class VelocityTemplateEngine implements TemplateEngine {
 
     @Override
     public void renderTemplate(String templateName,
-                               RequestContext context,
-                               Writer writer) throws Exception {
+            RequestContext context,
+            Writer writer) throws Exception {
         Template t = engine.getTemplate(templateName);
         if (t != null) {
             t.merge(new VelocityContext(context.getMap()), writer);

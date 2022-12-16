@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,6 +36,8 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.kafka.DynamicKafkaSerializationSchema.MetadataConverter;
 import org.apache.kafka.common.header.Header;
 import org.slf4j.Logger;
@@ -145,6 +146,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
      */
     private final String auditHostAndPorts;
     private @Nullable final String sinkMultipleFormat;
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
     /**
      * Metadata that is appended at the end of a physical sink row.
      */
@@ -176,7 +179,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             String inlongMetric,
             String auditHostAndPorts,
             @Nullable String sinkMultipleFormat,
-            @Nullable String topicPattern) {
+            @Nullable String topicPattern,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         // Format attributes
         this.consumedDataType =
                 checkNotNull(consumedDataType, "Consumed data type must not be null.");
@@ -207,6 +212,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
         this.auditHostAndPorts = auditHostAndPorts;
         this.sinkMultipleFormat = sinkMultipleFormat;
         this.topicPattern = topicPattern;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
@@ -310,7 +317,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         inlongMetric,
                         auditHostAndPorts,
                         sinkMultipleFormat,
-                        topicPattern);
+                        topicPattern,
+                        dirtyOptions,
+                        dirtySink);
         copy.metadataKeys = metadataKeys;
         return copy;
     }
@@ -377,24 +386,21 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     protected FlinkKafkaProducer<RowData> createKafkaProducer(
             SerializationSchema<RowData> keySerialization,
             SerializationSchema<RowData> valueSerialization,
-            String sinkMultipleFormat
-    ) {
+            String sinkMultipleFormat) {
         final List<LogicalType> physicalChildren = physicalDataType.getLogicalType().getChildren();
 
         final RowData.FieldGetter[] keyFieldGetters =
                 Arrays.stream(keyProjection)
                         .mapToObj(
-                                targetField ->
-                                        RowData.createFieldGetter(
-                                                physicalChildren.get(targetField), targetField))
+                                targetField -> RowData.createFieldGetter(
+                                        physicalChildren.get(targetField), targetField))
                         .toArray(RowData.FieldGetter[]::new);
 
         final RowData.FieldGetter[] valueFieldGetters =
                 Arrays.stream(valueProjection)
                         .mapToObj(
-                                targetField ->
-                                        RowData.createFieldGetter(
-                                                physicalChildren.get(targetField), targetField))
+                                targetField -> RowData.createFieldGetter(
+                                        physicalChildren.get(targetField), targetField))
                         .toArray(RowData.FieldGetter[]::new);
 
         // determine the positions of metadata in the consumed row
@@ -425,7 +431,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         metadataPositions,
                         upsertMode,
                         sinkMultipleFormat,
-                        topicPattern);
+                        topicPattern,
+                        dirtyOptions,
+                        dirtySink);
 
         return new FlinkKafkaProducer<>(
                 topic,
@@ -437,8 +445,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 auditHostAndPorts);
     }
 
-    private @Nullable
-    SerializationSchema<RowData> createSerialization(
+    private @Nullable SerializationSchema<RowData> createSerialization(
             Context context,
             @Nullable EncodingFormat<SerializationSchema<RowData>> format,
             int[] projection,
@@ -459,12 +466,14 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     // --------------------------------------------------------------------------------------------
 
     enum WritableMetadata {
+
         HEADERS(
                 "headers",
                 // key and value of the map are nullable to make handling easier in queries
                 DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.BYTES().nullable())
                         .nullable(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -491,6 +500,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 "timestamp",
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).nullable(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

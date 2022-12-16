@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Br
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsBrokerConfigMapperImpl;
 
 public class BdbBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
+
     // broker config store
     private EntityStore brokerConfStore;
     private final PrimaryIndex<Integer/* brokerId */, BdbBrokerConfEntity> brokerConfIndex;
@@ -88,8 +89,8 @@ public class BdbBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
     }
 
     protected boolean putConfig2Persistent(BrokerConfEntity entity,
-                                           StringBuilder strBuff,
-                                           ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         BdbBrokerConfEntity bdbEntity =
                 entity.buildBdbBrokerConfEntity();
         try {

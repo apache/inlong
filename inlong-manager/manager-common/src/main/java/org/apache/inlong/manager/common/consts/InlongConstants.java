@@ -23,9 +23,21 @@ package org.apache.inlong.manager.common.consts;
 public class InlongConstants {
 
     /**
+     * Thread pool related config.
+     */
+    public static final int CORE_POOL_SIZE = 10;
+    public static final int MAX_POOL_SIZE = 20;
+    public static final long ALIVE_TIME_MS = 100L;
+    public static final int QUEUE_SIZE = 10000;
+
+    /**
      * Group config
      */
     public static final String COMMA = ",";
+
+    public static final String COLON = ":";
+
+    public static final String LEFT_BRACKET = "(";
 
     public static final String ADMIN_USER = "admin";
 
@@ -45,6 +57,18 @@ public class InlongConstants {
 
     public static final Integer DISABLE_CREATE_RESOURCE = 0;
     public static final Integer ENABLE_CREATE_RESOURCE = 1;
+
+    /**
+     * Data report type, support:
+     * <pre>
+     *     0: report to DataProxy and respond when the DataProxy received data.
+     *     1: report to DataProxy and respond after DataProxy sends data.
+     *     2: report to MQ and respond when the MQ received data.
+     * </pre>
+     */
+    public static final Integer REPORT_TO_DP_RECEIVED = 0;
+    public static final Integer REPORT_TO_DP_SENT = 1;
+    public static final Integer REPORT_TO_MQ_RECEIVED = 2;
 
     public static final Integer UN_SYNC_SEND = 0;
     public static final Integer SYNC_SEND = 1;
@@ -109,5 +133,7 @@ public class InlongConstants {
     public static final String DEFAULT_SORT_AUTHENTICATION_TYPE = "secret_and_token";
 
     public static final String SORT_PROPERTIES = "sort.properties";
+
+    public static final String DATA_TYPE_RAW_PREFIX = "RAW_";
 
 }

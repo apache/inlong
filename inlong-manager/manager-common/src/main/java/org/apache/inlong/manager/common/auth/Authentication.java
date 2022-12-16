@@ -30,6 +30,7 @@ public interface Authentication {
     void configure(Map<String, String> properties);
 
     enum AuthType {
+
         UNAME_PASSWD,
         TOKEN,
         SECRET,

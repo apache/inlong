@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -64,7 +64,7 @@ import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
-import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetHistoryInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficStatsService;
@@ -89,11 +89,12 @@ import org.slf4j.LoggerFactory;
  * Broker service. Receive and conduct client's request, store messages, query messages, print statistics, etc.
  */
 public class BrokerServiceServer implements BrokerReadService, BrokerWriteService, Server {
+
     private static final Logger logger =
             LoggerFactory.getLogger(BrokerServiceServer.class);
     private final TubeBroker tubeBroker;
     private final BrokerConfig tubeConfig;
-    // registered consumers. format : consumer group - topic - partition id  --> consumer info
+    // registered consumers. format : consumer group - topic - partition id --> consumer info
     private final ConcurrentHashMap<String/* group:topic-partitionId */, ConsumerNodeInfo> consumerRegisterMap =
             new ConcurrentHashMap<>();
     // metadata manager.
@@ -119,7 +120,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     private AtomicBoolean started = new AtomicBoolean(false);
 
     public BrokerServiceServer(final TubeBroker tubeBroker,
-                               final BrokerConfig tubeConfig) {
+            final BrokerConfig tubeConfig) {
         this.tubeConfig = tubeConfig;
         this.tubeBroker = tubeBroker;
         this.metadataManager = tubeBroker.getMetadataManager();
@@ -275,8 +276,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      */
     @Override
     public GetMessageResponseB2C getMessagesC2B(GetMessageRequestC2B request,
-                                                final String rmtAddress,
-                                                boolean overtls) throws Throwable {
+            final String rmtAddress,
+            boolean overtls) throws Throwable {
         final GetMessageResponseB2C.Builder builder =
                 GetMessageResponseB2C.newBuilder();
         builder.setSuccess(false);
@@ -438,12 +439,12 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      * @throws IOException the exception during processing
      */
     private GetMessageResult getMessages(final MessageStore msgStore,
-                                         final ConsumerNodeInfo consumerNodeInfo,
-                                         final String group, final String topic,
-                                         final int partitionId, final boolean lastConsumed,
-                                         final boolean isManualCommitOffset, final String sentAddr,
-                                         final String brokerAddr, final String rmtAddrInfo,
-                                         boolean isEscFlowCtrl, final StringBuilder sb) throws IOException {
+            final ConsumerNodeInfo consumerNodeInfo,
+            final String group, final String topic,
+            final int partitionId, final boolean lastConsumed,
+            final boolean isManualCommitOffset, final String sentAddr,
+            final String brokerAddr, final String rmtAddrInfo,
+            boolean isEscFlowCtrl, final StringBuilder sb) throws IOException {
         long requestOffset =
                 offsetManager.getOffset(msgStore, group, topic,
                         partitionId, isManualCommitOffset, lastConsumed, sb);
@@ -486,7 +487,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             sb.delete(0, sb.length());
             return new GetMessageResult(false, TErrCodeConstants.INTERNAL_SERVER_ERROR,
                     requestOffset, 0, sb.append("Get message failure, errMsg=")
-                    .append(e1.getMessage()).toString());
+                            .append(e1.getMessage()).toString());
         }
     }
 
@@ -502,8 +503,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      * @throws Exception       the exception during processing
      */
     public StringBuilder getMessageSnapshot(String topicName, int partitionId,
-                                            int msgCount, final Set<String> filterCondSet,
-                                            final StringBuilder sb) throws Exception {
+            int msgCount, final Set<String> filterCondSet,
+            final StringBuilder sb) throws Exception {
         MessageStore dataStore = null;
         if (!this.started.get()
                 || ServiceStatusHolder.isReadServiceStop()) {
@@ -592,8 +593,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      */
     @Override
     public SendMessageResponseB2P sendMessageP2B(SendMessageRequestP2B request,
-                                                 final String rmtAddress,
-                                                 boolean overtls) throws Throwable {
+            final String rmtAddress,
+            boolean overtls) throws Throwable {
         ProcessResult result = new ProcessResult();
         final StringBuilder strBuffer = new StringBuilder(512);
         SendMessageResponseB2P.Builder builder = SendMessageResponseB2P.newBuilder();
@@ -618,7 +619,6 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String producerId = (String) result.getRetData();
         // get and check topicName and partitionId field
         final int partitionId = request.getPartitionId();
         if (!PBParameterUtils.getTopicNamePartIdInfo(true, request.getTopicName(),
@@ -719,9 +719,9 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      * @param waitRetryMs  wait duration on overflow
      * @param strBuff    string buffer
      */
-    public void appendGroupOffsetInfo(Map<String, OffsetRecordInfo> groupOffsetMap,
-                                      int brokerAddrId, long storeTime, int retryCnt,
-                                      long waitRetryMs, StringBuilder strBuff) {
+    public void appendGroupOffsetInfo(Map<String, OffsetHistoryInfo> groupOffsetMap,
+            int brokerAddrId, long storeTime, int retryCnt,
+            long waitRetryMs, StringBuilder strBuff) {
         if (groupOffsetMap == null || groupOffsetMap.isEmpty()) {
             return;
         }
@@ -739,7 +739,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         AppendResult appendResult = new AppendResult();
         // get store time
         String sendTime = DateTimeConvertUtils.ms2yyyyMMddHHmm(storeTime);
-        for (Map.Entry<String, OffsetRecordInfo> entry : groupOffsetMap.entrySet()) {
+        for (Map.Entry<String, OffsetHistoryInfo> entry : groupOffsetMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
@@ -807,8 +807,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      */
     @Override
     public RegisterResponseB2C consumerRegisterC2B(RegisterRequestC2B request,
-                                                   final String rmtAddress,
-                                                   boolean overtls) throws Throwable {
+            final String rmtAddress,
+            boolean overtls) throws Throwable {
         RegisterResponseB2C.Builder builder = RegisterResponseB2C.newBuilder();
         builder.setSuccess(false);
         builder.setCurrOffset(-1);
@@ -923,11 +923,11 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      * @return             the response
      */
     private RegisterResponseB2C inProcessConsumerRegister(String clientId, String groupName,
-                                                          String topicName, String partStr,
-                                                          Set<String> filterCondSet, String msgRcvFrom,
-                                                          boolean overtls, RegisterRequestC2B request,
-                                                          RegisterResponseB2C.Builder builder,
-                                                          StringBuilder strBuffer) {
+            String topicName, String partStr,
+            Set<String> filterCondSet, String msgRcvFrom,
+            boolean overtls, RegisterRequestC2B request,
+            RegisterResponseB2C.Builder builder,
+            StringBuilder strBuffer) {
         String consumerId = null;
         ConsumerNodeInfo consumerNodeInfo = consumerRegisterMap.get(partStr);
         if (consumerNodeInfo != null) {
@@ -938,7 +938,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             long reqSessionTime = request.hasSessionTime() ? request.getSessionTime() : -1;
             String reqSessionKey = request.hasSessionKey() ? request.getSessionKey() : null;
             int reqQryPriorityId = request.hasQryPriorityId()
-                    ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
+                    ? request.getQryPriorityId()
+                    : TBaseConstants.META_VALUE_UNDEFINED;
             consumerNodeInfo =
                     new ConsumerNodeInfo(storeManager, reqQryPriorityId, groupName,
                             clientId, filterCondSet, reqSessionKey, reqSessionTime,
@@ -1020,10 +1021,10 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      * @return             the response
      */
     private RegisterResponseB2C inProcessConsumerUnregister(final String clientId, final String groupName,
-                                                            final String topicName, final String partStr,
-                                                            RegisterRequestC2B request, boolean overtls,
-                                                            RegisterResponseB2C.Builder builder,
-                                                            StringBuilder strBuffer) {
+            final String topicName, final String partStr,
+            RegisterRequestC2B request, boolean overtls,
+            RegisterResponseB2C.Builder builder,
+            StringBuilder strBuffer) {
         logger.info(strBuffer.append("[Consumer Unregister]").append(clientId)
                 .append(", isOverTLS=").append(overtls).toString());
         strBuffer.delete(0, strBuffer.length());
@@ -1086,8 +1087,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      */
     @Override
     public HeartBeatResponseB2C consumerHeartbeatC2B(HeartBeatRequestC2B request,
-                                                     final String rmtAddress,
-                                                     boolean overtls) throws Throwable {
+            final String rmtAddress,
+            boolean overtls) throws Throwable {
         ProcessResult result = new ProcessResult();
         final StringBuilder strBuffer = new StringBuilder(512);
         final HeartBeatResponseB2C.Builder builder = HeartBeatResponseB2C.newBuilder();
@@ -1121,7 +1122,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         }
         final String groupName = (String) result.getRetData();
         int reqQryPriorityId = request.hasQryPriorityId()
-                ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
+                ? request.getQryPriorityId()
+                : TBaseConstants.META_VALUE_UNDEFINED;
         List<Partition> partitions =
                 DataConverterUtil.convertPartitionInfo(request.getPartitionInfoList());
         CertifiedResult authorizeResult = null;
@@ -1207,8 +1209,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      */
     @Override
     public CommitOffsetResponseB2C consumerCommitC2B(CommitOffsetRequestC2B request,
-                                                     final String rmtAddress,
-                                                     boolean overtls) throws Throwable {
+            final String rmtAddress,
+            boolean overtls) throws Throwable {
         final CommitOffsetResponseB2C.Builder builder = CommitOffsetResponseB2C.newBuilder();
         builder.setSuccess(false);
         builder.setCurrOffset(-1);
@@ -1316,8 +1318,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     private int getRealQryPriorityId(final ConsumerNodeInfo consumerNodeInfo) {
         return consumerNodeInfo.getQryPriorityId() <= 0
                 ? (metadataManager.getFlowCtrlRuleHandler().getQryPriorityId() <= 0
-                ? TServerConstants.CFG_DEFAULT_CONSUME_RULE
-                : metadataManager.getFlowCtrlRuleHandler().getQryPriorityId())
+                        ? TServerConstants.CFG_DEFAULT_CONSUME_RULE
+                        : metadataManager.getFlowCtrlRuleHandler().getQryPriorityId())
                 : consumerNodeInfo.getQryPriorityId();
     }
 

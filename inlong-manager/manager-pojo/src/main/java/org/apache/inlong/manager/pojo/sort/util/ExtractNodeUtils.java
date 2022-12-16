@@ -131,19 +131,14 @@ public class ExtractNodeUtils {
         final List<String> tableNames = Splitter.on(",").splitToList(tables);
         List<FieldInfo> fieldInfos = parseFieldInfos(binlogSource.getFieldList(), binlogSource.getSourceName());
         final String serverTimeZone = binlogSource.getServerTimezone();
-        boolean incrementalSnapshotEnabled = true;
 
         // TODO Needs to be configurable for those parameters
         Map<String, String> properties = parseProperties(binlogSource.getProperties());
         if (binlogSource.isAllMigration()) {
             // Unique properties when migrate all tables in database
-            incrementalSnapshotEnabled = false;
             properties.put("migrate-all", "true");
         }
-        if (StringUtils.isEmpty(primaryKey)) {
-            incrementalSnapshotEnabled = false;
-            properties.put("scan.incremental.snapshot.enabled", "false");
-        }
+
         return new MySqlExtractNode(binlogSource.getSourceName(),
                 binlogSource.getSourceName(),
                 fieldInfos,
@@ -157,7 +152,7 @@ public class ExtractNodeUtils {
                 database,
                 port,
                 serverId,
-                incrementalSnapshotEnabled,
+                true,
                 serverTimeZone);
     }
 
@@ -171,30 +166,10 @@ public class ExtractNodeUtils {
         List<FieldInfo> fieldInfos = parseFieldInfos(kafkaSource.getFieldList(), kafkaSource.getSourceName());
         String topic = kafkaSource.getTopic();
         String bootstrapServers = kafkaSource.getBootstrapServers();
-        Format format;
-        DataTypeEnum dataType = DataTypeEnum.forName(kafkaSource.getSerializationType());
-        switch (dataType) {
-            case CSV:
-                format = new CsvFormat();
-                break;
-            case AVRO:
-                format = new AvroFormat();
-                break;
-            case JSON:
-                format = new JsonFormat();
-                break;
-            case CANAL:
-                format = new CanalJsonFormat();
-                break;
-            case DEBEZIUM_JSON:
-                format = new DebeziumJsonFormat();
-                break;
-            case RAW:
-                format = new RawFormat();
-                break;
-            default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
-        }
+
+        Format format = parsingFormat(kafkaSource.getSerializationType(),
+                kafkaSource.isWrapWithInlongMsg(), kafkaSource.getDataSeparator());
+
         KafkaOffset kafkaOffset = KafkaOffset.forName(kafkaSource.getAutoOffsetReset());
         KafkaScanStartupMode startupMode;
         switch (kafkaOffset) {
@@ -228,8 +203,7 @@ public class ExtractNodeUtils {
                 primaryKey,
                 groupId,
                 partitionOffset,
-                scanTimestampMillis
-        );
+                scanTimestampMillis);
     }
 
     /**
@@ -243,40 +217,9 @@ public class ExtractNodeUtils {
         String fullTopicName =
                 pulsarSource.getTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
 
-        Format format;
-        DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
-        switch (dataType) {
-            case CSV:
-                String separatorStr = pulsarSource.getDataSeparator();
-                if (StringUtils.isNumeric(separatorStr)) {
-                    char dataSeparator = (char) Integer.parseInt(pulsarSource.getDataSeparator());
-                    separatorStr = Character.toString(dataSeparator);
-                }
-                format = new CsvFormat(separatorStr);
-                break;
-            case AVRO:
-                format = new AvroFormat();
-                break;
-            case JSON:
-                format = new JsonFormat();
-                break;
-            case CANAL:
-                format = new CanalJsonFormat();
-                break;
-            case DEBEZIUM_JSON:
-                format = new DebeziumJsonFormat();
-                break;
-            case RAW:
-                format = new RawFormat();
-                break;
-            default:
-                throw new IllegalArgumentException(
-                        String.format("Unsupported dataType=%s for pulsar source", dataType));
-        }
-        if (pulsarSource.isInlongComponent()) {
-            Format innerFormat = format;
-            format = new InLongMsgFormat(innerFormat, false);
-        }
+        Format format = parsingFormat(pulsarSource.getSerializationType(),
+                pulsarSource.isWrapWithInlongMsg(), pulsarSource.getDataSeparator());
+
         PulsarScanStartupMode startupMode = PulsarScanStartupMode.forName(pulsarSource.getScanStartupMode());
         final String primaryKey = pulsarSource.getPrimaryKey();
         final String serviceUrl = pulsarSource.getServiceUrl();
@@ -304,12 +247,22 @@ public class ExtractNodeUtils {
     public static PostgresExtractNode createExtractNode(PostgreSQLSource postgreSQLSource) {
         List<FieldInfo> fieldInfos = parseFieldInfos(postgreSQLSource.getFieldList(), postgreSQLSource.getSourceName());
         Map<String, String> properties = parseProperties(postgreSQLSource.getProperties());
-        return new PostgresExtractNode(postgreSQLSource.getSourceName(), postgreSQLSource.getSourceName(),
-                fieldInfos, null, properties, postgreSQLSource.getPrimaryKey(),
-                postgreSQLSource.getTableNameList(), postgreSQLSource.getHostname(),
-                postgreSQLSource.getUsername(), postgreSQLSource.getPassword(),
-                postgreSQLSource.getDatabase(), postgreSQLSource.getSchema(),
-                postgreSQLSource.getPort(), postgreSQLSource.getDecodingPluginName());
+        return new PostgresExtractNode(postgreSQLSource.getSourceName(),
+                postgreSQLSource.getSourceName(),
+                fieldInfos,
+                null,
+                properties,
+                postgreSQLSource.getPrimaryKey(),
+                postgreSQLSource.getTableNameList(),
+                postgreSQLSource.getHostname(),
+                postgreSQLSource.getUsername(),
+                postgreSQLSource.getPassword(),
+                postgreSQLSource.getDatabase(),
+                postgreSQLSource.getSchema(),
+                postgreSQLSource.getPort(),
+                postgreSQLSource.getDecodingPluginName(),
+                postgreSQLSource.getServerTimeZone(),
+                postgreSQLSource.getScanStartupMode());
     }
 
     /**
@@ -321,7 +274,8 @@ public class ExtractNodeUtils {
     public static OracleExtractNode createExtractNode(OracleSource source) {
         List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
         ScanStartUpMode scanStartupMode = StringUtils.isBlank(source.getScanStartupMode())
-                ? null : ScanStartUpMode.forName(source.getScanStartupMode());
+                ? null
+                : ScanStartUpMode.forName(source.getScanStartupMode());
         Map<String, String> properties = parseProperties(source.getProperties());
         return new OracleExtractNode(
                 source.getSourceName(),
@@ -337,8 +291,7 @@ public class ExtractNodeUtils {
                 source.getSchemaName(),
                 source.getTableName(),
                 source.getPort(),
-                scanStartupMode
-        );
+                scanStartupMode);
     }
 
     /**
@@ -364,8 +317,7 @@ public class ExtractNodeUtils {
                 source.getDatabase(),
                 source.getSchemaName(),
                 source.getTableName(),
-                source.getServerTimezone()
-        );
+                source.getServerTimezone());
     }
 
     /**
@@ -387,8 +339,7 @@ public class ExtractNodeUtils {
                 source.getHosts(),
                 source.getUsername(),
                 source.getPassword(),
-                source.getDatabase()
-        );
+                source.getDatabase());
     }
 
     /**
@@ -411,8 +362,7 @@ public class ExtractNodeUtils {
                 source.getSerializationType(),
                 source.getGroupId(),
                 source.getSessionKey(),
-                source.getTid()
-        );
+                source.getTid());
     }
 
     /**
@@ -450,8 +400,51 @@ public class ExtractNodeUtils {
                 source.getMaxTotal(),
                 source.getMaxIdle(),
                 source.getMinIdle(),
-                lookupOptions
-        );
+                lookupOptions);
+    }
+
+    /**
+     * Parse format
+     *
+     * @param serializationType data serialization, support: csv, json, canal, avro, etc
+     * @param wrapWithInlongMsg whether wrap content with {@link InLongMsgFormat}
+     * @param separatorStr the separator of data content
+     * @return the format for serialized content
+     */
+    private static Format parsingFormat(String serializationType, boolean wrapWithInlongMsg, String separatorStr) {
+        Format format;
+        DataTypeEnum dataType = DataTypeEnum.forType(serializationType);
+        switch (dataType) {
+            case CSV:
+                if (StringUtils.isNumeric(separatorStr)) {
+                    char dataSeparator = (char) Integer.parseInt(separatorStr);
+                    separatorStr = Character.toString(dataSeparator);
+                }
+                format = new CsvFormat(separatorStr);
+                break;
+            case AVRO:
+                format = new AvroFormat();
+                break;
+            case JSON:
+                format = new JsonFormat();
+                break;
+            case CANAL:
+                format = new CanalJsonFormat();
+                break;
+            case DEBEZIUM_JSON:
+                format = new DebeziumJsonFormat();
+                break;
+            case RAW:
+                format = new RawFormat();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported dataType=%s", dataType));
+        }
+        if (wrapWithInlongMsg) {
+            Format innerFormat = format;
+            format = new InLongMsgFormat(innerFormat, false);
+        }
+        return format;
     }
 
     /**

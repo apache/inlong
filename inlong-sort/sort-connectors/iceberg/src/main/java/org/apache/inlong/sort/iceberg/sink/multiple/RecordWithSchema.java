@@ -1,19 +1,18 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements. See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License. You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
@@ -97,9 +96,9 @@ public class RecordWithSchema {
     }
 
     // todo: here RecordWithSchema is deserialized from network, it's `Schema` is the new object, the `Type` is the
-    //       same.However `Type` do not implement equals method, so some method will return unexpected result when
-    //       compare this schema with Table#schema loaded from catalog, For example, Schema#sameSchema will return false
-    //       even thought schema is the same, can't get the comparators of Type even thought type is the same.
+    // same.However `Type` do not implement equals method, so some method will return unexpected result when
+    // compare this schema with Table#schema loaded from catalog, For example, Schema#sameSchema will return false
+    // even thought schema is the same, can't get the comparators of Type even thought type is the same.
     public void replaceSchema() {
         List<NestedField> columns = schema.columns();
         List<NestedField> newColumns = new ArrayList<>();
@@ -136,7 +135,8 @@ public class RecordWithSchema {
                 return TimeType.get();
             case TIMESTAMP:
                 return ((TimestampType) type).shouldAdjustToUTC()
-                        ? TimestampType.withZone() : TimestampType.withoutZone();
+                        ? TimestampType.withZone()
+                        : TimestampType.withoutZone();
             case STRING:
                 return StringType.get();
             case UUID:

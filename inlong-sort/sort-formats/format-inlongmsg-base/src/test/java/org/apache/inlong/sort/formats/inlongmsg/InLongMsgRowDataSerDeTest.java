@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -69,8 +68,7 @@ public class InLongMsgRowDataSerDeTest {
                 GenericRowData.of(1L, BinaryStringData.fromString("asdqw")),
                 GenericRowData.of(2L, BinaryStringData.fromString("testData")),
                 GenericRowData.of(3L, BinaryStringData.fromString("dwqdqw")),
-                GenericRowData.of(4L, BinaryStringData.fromString("asdqdqwe"))
-        ).collect(Collectors.toList());
+                GenericRowData.of(4L, BinaryStringData.fromString("asdqdqwe"))).collect(Collectors.toList());
 
         // deserialize
         final Map<String, String> tableOptions =
@@ -79,8 +77,7 @@ public class InLongMsgRowDataSerDeTest {
                 });
         ResolvedSchema schema = ResolvedSchema.of(
                 Column.physical("id", DataTypes.BIGINT()),
-                Column.physical("name", DataTypes.STRING())
-        );
+                Column.physical("name", DataTypes.STRING()));
         DeserializationSchema<RowData> inLongMsgDeserializationSchema =
                 InLongMsgFormatFactoryTest.createDeserializationSchema(tableOptions, schema);
         List<RowData> deData = new ArrayList<>();
@@ -111,8 +108,7 @@ public class InLongMsgRowDataSerDeTest {
                 });
         ResolvedSchema schema = ResolvedSchema.of(
                 Column.physical("id", DataTypes.BIGINT()),
-                Column.physical("name", DataTypes.STRING())
-        );
+                Column.physical("name", DataTypes.STRING()));
         DeserializationSchema<RowData> inLongMsgDeserializationSchema =
                 InLongMsgFormatFactoryTest.createDeserializationSchema(tableOptions, schema);
         List<RowData> deData = new ArrayList<>();
@@ -147,8 +143,8 @@ public class InLongMsgRowDataSerDeTest {
                 GenericRowData.of(3L, BinaryStringData.fromString("dwqdqw"),
                         TimestampData.fromTimestamp(new Timestamp(1652153468000L))),
                 GenericRowData.of(4L, BinaryStringData.fromString("asdqdqwe"),
-                        TimestampData.fromTimestamp(new Timestamp(1652153469000L)))
-        ).collect(Collectors.toList());
+                        TimestampData.fromTimestamp(new Timestamp(1652153469000L))))
+                .collect(Collectors.toList());
 
         // deserialize
         final Map<String, String> tableOptions = new HashMap<>();
@@ -163,7 +159,7 @@ public class InLongMsgRowDataSerDeTest {
         // apply metadata
         InLongMsgFormatFactory factory = new InLongMsgFormatFactory();
         DecodingFormat<DeserializationSchema<RowData>> decodingFormat = factory.createDecodingFormat(FactoryMocks
-                        .createTableContext(schema, tableOptions), Configuration.fromMap(tableOptions));
+                .createTableContext(schema, tableOptions), Configuration.fromMap(tableOptions));
         decodingFormat.applyReadableMetadata(Stream.of("create-time").collect(Collectors.toList()));
         DeserializationSchema<RowData> inLongMsgDeserializationSchema = decodingFormat
                 .createRuntimeDecoder(ScanRuntimeProviderContext.INSTANCE, schema.toPhysicalRowDataType());

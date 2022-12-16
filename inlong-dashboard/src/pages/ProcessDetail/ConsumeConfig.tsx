@@ -17,15 +17,19 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
-import { useLoadMeta } from '@/metas';
+import { useLoadMeta, ConsumeMetaType } from '@/metas';
 
 export const useConsumeFormContent = (mqType = '') => {
-  const { Entity } = useLoadMeta('consume', mqType);
+  const { Entity } = useLoadMeta<ConsumeMetaType>('consume', mqType);
 
-  return Entity?.FieldList?.map(item => {
+  const entityFields = useMemo(() => {
+    return Entity ? new Entity().renderRow() : [];
+  }, [Entity]);
+
+  return entityFields?.map(item => {
     const obj = { ...item };
     if (typeof obj.suffix !== 'string') {
       delete obj.suffix;

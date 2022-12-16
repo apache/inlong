@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +31,9 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.types.RowKind;
+import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.TableName;
@@ -40,7 +42,12 @@ import org.apache.hadoop.hbase.client.BufferedMutator;
 import org.apache.hadoop.hbase.client.BufferedMutatorParams;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
+import org.apache.inlong.sort.base.dirty.DirtyData;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
@@ -49,6 +56,7 @@ import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
@@ -57,6 +65,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -71,10 +82,12 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
  */
 @Internal
 public class HBaseSinkFunction<T> extends RichSinkFunction<T>
-        implements CheckpointedFunction, BufferedMutator.ExceptionListener {
+        implements
+            CheckpointedFunction,
+            BufferedMutator.ExceptionListener {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(HBaseSinkFunction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HBaseSinkFunction.class);
 
     private final String hTableName;
     private final byte[] serializedConfig;
@@ -107,6 +120,8 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
     private transient volatile boolean closed = false;
     private Long dataSize = 0L;
     private Long rowSize = 0L;
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
 
     public HBaseSinkFunction(
             String hTableName,
@@ -116,7 +131,9 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             long bufferFlushMaxMutations,
             long bufferFlushIntervalMillis,
             String inlongMetric,
-            String inlongAudit) {
+            String inlongAudit,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         this.hTableName = hTableName;
         // Configuration is not serializable
         this.serializedConfig = HBaseConfigurationUtil.serializeConfiguration(conf);
@@ -126,11 +143,13 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
         this.bufferFlushIntervalMillis = bufferFlushIntervalMillis;
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        LOG.info("start open ...");
+        LOGGER.info("Start hbase sink function open ...");
         org.apache.hadoop.conf.Configuration config = prepareRuntimeConfiguration();
         try {
             this.runtimeContext = getRuntimeContext();
@@ -139,10 +158,15 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                     .withInlongAudit(inlongAudit)
                     .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                     .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                    .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                    .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                     .withRegisterMetric(RegisteredMetric.ALL)
                     .build();
             if (metricOption != null) {
                 sinkMetricData = new SinkMetricData(metricOption, runtimeContext.getMetricGroup());
+            }
+            if (dirtySink != null) {
+                dirtySink.open(parameters);
             }
             this.mutationConverter.open();
             this.numPendingRequests = new AtomicLong(0);
@@ -168,34 +192,20 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                                     if (closed) {
                                         return;
                                     }
-                                    try {
-                                        flush();
-                                        if (sinkMetricData != null) {
-                                            sinkMetricData.invoke(rowSize, dataSize);
-                                        }
-                                        resetStateAfterFlush();
-                                    } catch (Exception e) {
-                                        if (sinkMetricData != null) {
-                                            sinkMetricData.invokeDirty(rowSize, dataSize);
-                                        }
-                                        resetStateAfterFlush();
-                                        // fail the sink and skip the rest of the items
-                                        // if the failure handler decides to throw an exception
-                                        failureThrowable.compareAndSet(null, e);
-                                    }
+                                    reportMetricAfterFlush();
                                 },
                                 bufferFlushIntervalMillis,
                                 bufferFlushIntervalMillis,
                                 TimeUnit.MILLISECONDS);
             }
         } catch (TableNotFoundException tnfe) {
-            LOG.error("The table " + hTableName + " not found ", tnfe);
+            LOGGER.error("The table " + hTableName + " not found ", tnfe);
             throw new RuntimeException("HBase table '" + hTableName + "' not found.", tnfe);
         } catch (IOException ioe) {
-            LOG.error("Exception while creating connection to HBase.", ioe);
+            LOGGER.error("Exception while creating connection to HBase.", ioe);
             throw new RuntimeException("Cannot create connection to HBase.", ioe);
         }
-        LOG.info("end open.");
+        LOGGER.info("End hbase sink function open.");
     }
 
     private org.apache.hadoop.conf.Configuration prepareRuntimeConfiguration() throws IOException {
@@ -210,7 +220,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
 
         // do validation: check key option(s) in final runtime configuration
         if (StringUtils.isNullOrWhitespaceOnly(runtimeConfig.get(HConstants.ZOOKEEPER_QUORUM))) {
-            LOG.error(
+            LOGGER.error(
                     "Can not connect to HBase without {} configuration",
                     HConstants.ZOOKEEPER_QUORUM);
             throw new IOException(
@@ -225,34 +235,69 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
     private void checkErrorAndRethrow() {
         Throwable cause = failureThrowable.get();
         if (cause != null) {
-            throw new RuntimeException("An error occurred in HBaseSink.", cause);
+            LOGGER.error("An error occurred in HBaseSink.", cause);
+            throw new RuntimeException(cause);
         }
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
-    public void invoke(T value, Context context) throws Exception {
+    public void invoke(T value, Context context) {
         checkErrorAndRethrow();
-
-        mutator.mutate(mutationConverter.convertToMutation(value));
-        rowSize++;
-        dataSize = dataSize + value.toString().getBytes(StandardCharsets.UTF_8).length;
+        RowData rowData = (RowData) value;
+        if (RowKind.UPDATE_BEFORE != rowData.getRowKind()) {
+            Mutation mutation = null;
+            try {
+                mutation = Preconditions.checkNotNull(mutationConverter.convertToMutation(value));
+                rowSize++;
+                dataSize = dataSize + value.toString().getBytes(StandardCharsets.UTF_8).length;
+            } catch (Exception e) {
+                LOGGER.error("Convert to mutation error", e);
+                if (!dirtyOptions.ignoreDirty()) {
+                    throw new RuntimeException(e);
+                }
+                sinkMetricData.invokeDirty(1, value.toString().getBytes(StandardCharsets.UTF_8).length);
+                if (dirtySink != null) {
+                    DirtyData.Builder<Object> builder = DirtyData.builder();
+                    try {
+                        builder.setData(rowData)
+                                .setDirtyType(DirtyType.UNDEFINED)
+                                .setLabels(dirtyOptions.getLabels())
+                                .setLogTag(dirtyOptions.getLogTag())
+                                .setDirtyMessage(e.getMessage())
+                                .setIdentifier(dirtyOptions.getIdentifier());
+                        dirtySink.invoke(builder.build());
+                    } catch (Exception ex) {
+                        if (!dirtyOptions.ignoreSideOutputErrors()) {
+                            throw new RuntimeException(ex);
+                        }
+                        LOGGER.warn("Dirty sink failed", ex);
+                    }
+                }
+            }
+            try {
+                mutator.mutate(mutation);
+            } catch (Exception e) {
+                failureThrowable.compareAndSet(null, e);
+            }
+        }
         // flush when the buffer number of mutations greater than the configured max size.
         if (bufferFlushMaxMutations > 0
                 && numPendingRequests.incrementAndGet() >= bufferFlushMaxMutations) {
-            try {
-                flush();
-                if (sinkMetricData != null) {
-                    sinkMetricData.invoke(rowSize, dataSize);
-                }
-                resetStateAfterFlush();
-            } catch (Exception e) {
-                if (sinkMetricData != null) {
-                    sinkMetricData.invokeDirty(rowSize, dataSize);
-                }
-                resetStateAfterFlush();
-                throw e;
+            reportMetricAfterFlush();
+        }
+    }
+
+    private void reportMetricAfterFlush() {
+        try {
+            flush();
+            if (sinkMetricData != null) {
+                sinkMetricData.invoke(rowSize, dataSize);
             }
+            resetStateAfterFlush();
+        } catch (Exception e) {
+            // fail the sink and skip the rest of the items
+            // if the failure handler decides to throw an exception
+            failureThrowable.compareAndSet(null, e);
         }
     }
 
@@ -276,7 +321,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             try {
                 mutator.close();
             } catch (IOException e) {
-                LOG.warn("Exception occurs while closing HBase BufferedMutator.", e);
+                LOGGER.warn("Exception occurs while closing HBase BufferedMutator.", e);
             }
             this.mutator = null;
         }
@@ -285,7 +330,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             try {
                 connection.close();
             } catch (IOException e) {
-                LOG.warn("Exception occurs while closing HBase Connection.", e);
+                LOGGER.warn("Exception occurs while closing HBase Connection.", e);
             }
             this.connection = null;
         }
@@ -301,7 +346,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
         while (numPendingRequests.get() != 0) {
-            flush();
+            reportMetricAfterFlush();
         }
         if (sinkMetricData != null && metricStateListState != null) {
             MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, sinkMetricData,
@@ -315,7 +360,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,

@@ -98,7 +98,8 @@ public class MonitorIndex {
     }
 
     private class IndexCollectThread
-            extends Thread {
+            extends
+                Thread {
 
         private boolean bShutDown = false;
 
@@ -135,4 +136,3 @@ public class MonitorIndex {
         }
     }
 }
-

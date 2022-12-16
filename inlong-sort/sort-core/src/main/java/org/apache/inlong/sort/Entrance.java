@@ -58,6 +58,10 @@ public class Entrance {
         Parser parser;
         if (StringUtils.isEmpty(sqlFile)) {
             final GroupInfo groupInfo = getGroupInfoFromFile(config.getString(Constants.GROUP_INFO_FILE));
+            if (StringUtils.isNotEmpty(config.getString(Constants.METRICS_AUDIT_PROXY_HOSTS))) {
+                groupInfo.getProperties().putIfAbsent(Constants.METRICS_AUDIT_PROXY_HOSTS.key(),
+                        config.getString(Constants.METRICS_AUDIT_PROXY_HOSTS));
+            }
             parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         } else {
             String statements = getStatementSetFromFile(sqlFile);
@@ -69,7 +73,7 @@ public class Entrance {
     }
 
     private static String getStatementSetFromFile(String fileName) throws IOException {
-        return Files.toString(new File(fileName), StandardCharsets.UTF_8);
+        return Files.asCharSource(new File(fileName), StandardCharsets.UTF_8).read();
     }
 
     private static GroupInfo getGroupInfoFromFile(String fileName) throws IOException {

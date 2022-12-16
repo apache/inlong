@@ -1,19 +1,18 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements. See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License. You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.sort.base.sink;
@@ -29,7 +28,9 @@ import java.util.Objects;
  * TableChange represent requested changes to a table.
  */
 public interface TableChange {
+
     final class First implements ColumnPosition {
+
         private static final First INSTANCE = new First();
 
         private First() {
@@ -43,6 +44,7 @@ public interface TableChange {
     }
 
     final class After implements ColumnPosition {
+
         private final String column;
 
         private After(String column) {
@@ -89,10 +91,12 @@ public interface TableChange {
     }
 
     interface ColumnChange extends TableChange {
+
         String[] fieldNames();
     }
 
     final class AddColumn implements ColumnChange {
+
         private final String[] fieldNames;
         private final LogicalType dataType;
         private final boolean isNullable;
@@ -172,6 +176,7 @@ public interface TableChange {
     }
 
     final class DeleteColumn implements ColumnChange {
+
         @Override
         public String[] fieldNames() {
             return new String[0];
@@ -182,6 +187,7 @@ public interface TableChange {
      * Represents a column change that is not recognized by the connector.
      */
     final class UnknownColumnChange implements ColumnChange {
+
         private String description;
 
         public UnknownColumnChange(String description) {

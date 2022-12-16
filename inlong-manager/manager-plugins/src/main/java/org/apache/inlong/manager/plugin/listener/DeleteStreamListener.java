@@ -59,19 +59,19 @@ public class DeleteStreamListener implements SortOperateListener {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof StreamResourceProcessForm)) {
-            log.info("not add delete stream listener, not StreamResourceProcessForm for groupId [{}]", groupId);
+            log.info("not add delete stream listener, not StreamResourceProcessForm for groupId={}", groupId);
             return false;
         }
 
         StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
         String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
         if (streamProcessForm.getGroupOperateType() != GroupOperateType.DELETE) {
-            log.info("not add delete stream listener, as the operate was not DELETE for groupId [{}] streamId [{}]",
+            log.info("not add delete stream listener, as the operate was not DELETE for groupId={} streamId={}",
                     groupId, streamId);
             return false;
         }
 
-        log.info("add delete stream listener for groupId [{}] streamId [{}]", groupId, streamId);
+        log.info("add delete stream listener for groupId={} streamId={}", groupId, streamId);
         return true;
     }
 
@@ -81,26 +81,23 @@ public class DeleteStreamListener implements SortOperateListener {
         StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
         InlongGroupInfo groupInfo = streamResourceProcessForm.getGroupInfo();
         List<InlongGroupExtInfo> groupExtList = groupInfo.getExtList();
-        log.info("inlong group :{} ext info: {}", groupInfo.getInlongGroupId(), groupExtList);
+        log.info("inlong group: {} ext info: {}", groupInfo.getInlongGroupId(), groupExtList);
+
         InlongStreamInfo streamInfo = streamResourceProcessForm.getStreamInfo();
         List<InlongStreamExtInfo> streamExtList = streamInfo.getExtList();
-        log.info("inlong stream :{} ext info: {}", streamInfo.getInlongStreamId(), streamExtList);
+        log.info("inlong stream: {} ext info: {}", streamInfo.getInlongStreamId(), streamExtList);
 
         Map<String, String> kvConf = new HashMap<>();
         groupExtList.forEach(groupExtInfo -> kvConf.put(groupExtInfo.getKeyName(), groupExtInfo.getKeyValue()));
-        streamExtList.forEach(extInfo -> {
-            kvConf.put(extInfo.getKeyName(), extInfo.getKeyValue());
-        });
+        streamExtList.forEach(extInfo -> kvConf.put(extInfo.getKeyName(), extInfo.getKeyValue()));
 
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
         String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
-            String message = String.format(
-                    "delete sort failed for groupId [%s] and streamId [%s], as the sort properties is empty",
+            log.warn("no need to delete sort for groupId={} streamId={}, as the sort properties is empty",
                     groupId, streamId);
-            log.error(message);
-            return ListenerResult.fail(message);
+            return ListenerResult.success();
         }
 
         Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(
@@ -109,7 +106,7 @@ public class DeleteStreamListener implements SortOperateListener {
         kvConf.putAll(result);
         String jobId = kvConf.get(InlongConstants.SORT_JOB_ID);
         if (StringUtils.isBlank(jobId)) {
-            String message = String.format("sort job id is empty for groupId [%s] streamId [%s]", groupId, streamId);
+            String message = String.format("sort job id is empty for groupId=%s streamId=%s", groupId, streamId);
             return ListenerResult.fail(message);
         }
 
@@ -122,14 +119,14 @@ public class DeleteStreamListener implements SortOperateListener {
         FlinkOperation flinkOperation = new FlinkOperation(flinkService);
         try {
             flinkOperation.delete(flinkInfo);
-            log.info("job delete success for [{}]", jobId);
+            log.info("job delete success for jobId={}", jobId);
             return ListenerResult.success();
         } catch (Exception e) {
             flinkInfo.setException(true);
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
             flinkOperation.pollJobStatus(flinkInfo);
 
-            String message = String.format("delete sort failed for groupId [%s] streamId [%s]", groupId, streamId);
+            String message = String.format("delete sort failed for groupId=%s streamId=%s", groupId, streamId);
             log.error(message, e);
             return ListenerResult.fail(message + e.getMessage());
         }

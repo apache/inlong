@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -46,7 +46,7 @@ public class RcpService4BenchmarkClient {
      * @param invokeTimes   the invoke count
      */
     public RcpService4BenchmarkClient(String targetHost, int targetPort, int threadNum,
-                                      int invokeTimes) {
+            int invokeTimes) {
         this.targetHost = targetHost;
         this.targetPort = targetPort;
         this.threadNum = threadNum;
@@ -75,6 +75,7 @@ public class RcpService4BenchmarkClient {
     public void start() throws Exception {
         for (int i = 0; i < threadNum; i++) {
             executorService.submit(new Runnable() {
+
                 @Override
                 public void run() {
                     long startTime = System.currentTimeMillis();

@@ -88,7 +88,7 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
      * Delete sink info by sink id.
      */
     public void deleteSink(Integer sinkId) {
-        boolean result = sinkService.delete(sinkId, globalOperator);
+        boolean result = sinkService.delete(sinkId, false, globalOperator);
         Assertions.assertTrue(result);
     }
 
@@ -146,8 +146,7 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
     private List<OracleColumnInfo> buildAddColumns() {
         List<OracleColumnInfo> list = Lists.newArrayList(
                 new OracleColumnInfo("test1", "NUMBER(16)", "test1"),
-                new OracleColumnInfo("test2", "VARCHAR2(10)", "test2")
-        );
+                new OracleColumnInfo("test2", "VARCHAR2(10)", "test2"));
         return list;
     }
 
@@ -166,8 +165,7 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
         List<OracleColumnInfo> columnInfos = Lists.newArrayList(
                 new OracleColumnInfo("id", "NUMBER(6)", "id"),
                 new OracleColumnInfo("cell", "VARCHAR2(10)", "cell"),
-                new OracleColumnInfo("name", "VARCHAR2(20)", "name")
-        );
+                new OracleColumnInfo("name", "VARCHAR2(20)", "name"));
         oracleTableInfo.setColumns(columnInfos);
 
         return oracleTableInfo;

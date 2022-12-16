@@ -34,10 +34,7 @@ import java.io.Serializable;
  * It contains two subclasses, one is {@link TimeUnitConstantParam} for the definition of time unit constant,
  * and the other is {@link StringConstantParam} for the definition of string constant.
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
         @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant"),

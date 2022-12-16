@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,9 +55,13 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.oracle.debezium.utils.RecordUtils;
-import org.apache.inlong.sort.cdc.oracle.debezium.utils.TemporalConversions;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.table.AppendMetadataCollector;
+import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverterFactory;
+import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.util.RecordUtils;
+import org.apache.inlong.sort.cdc.base.util.TemporalConversions;
 import org.apache.kafka.connect.data.ConnectSchema;
 import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Field;
@@ -73,7 +76,8 @@ import org.slf4j.LoggerFactory;
  * RowData}.
  */
 public final class RowDataDebeziumDeserializeSchema
-        implements DebeziumDeserializationSchema<RowData> {
+        implements
+            DebeziumDeserializationSchema<RowData> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RowDataDebeziumDeserializeSchema.class);
 
@@ -83,8 +87,7 @@ public final class RowDataDebeziumDeserializeSchema
 
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
 
-    private static final DateTimeFormatter timestampFormatter = DateTimeFormatter.ofPattern(
-            "yyyy-MM-dd HH:mm:ss");
+    private static final ZoneId ZONE_UTC = ZoneId.of("UTC");
 
     /**
      * TypeInformation of the produced {@link RowData}. *
@@ -344,7 +347,7 @@ public final class RowDataDebeziumDeserializeSchema
 
             @Override
             public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
-                return convert(dbzObj,schema);
+                return convert(dbzObj, schema);
             }
         };
     }
@@ -377,7 +380,7 @@ public final class RowDataDebeziumDeserializeSchema
 
             @Override
             public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
-                return convert(dbzObj,schema);
+                return convert(dbzObj, schema);
             }
         };
     }
@@ -400,7 +403,7 @@ public final class RowDataDebeziumDeserializeSchema
 
             @Override
             public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
-                return convert(dbzObj,schema);
+                return convert(dbzObj, schema);
             }
         };
     }
@@ -427,7 +430,7 @@ public final class RowDataDebeziumDeserializeSchema
 
             @Override
             public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
-                return convert(dbzObj,schema);
+                return convert(dbzObj, schema);
             }
         };
     }
@@ -466,7 +469,7 @@ public final class RowDataDebeziumDeserializeSchema
 
             @Override
             public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
-                return convert(dbzObj,schema);
+                return convert(dbzObj, schema);
             }
         };
     }
@@ -544,7 +547,7 @@ public final class RowDataDebeziumDeserializeSchema
 
                     @Override
                     public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
-                        return convert(dbzObj,schema);
+                        return convert(dbzObj, schema);
                     }
                 };
             case BOOLEAN:
@@ -561,7 +564,7 @@ public final class RowDataDebeziumDeserializeSchema
 
                     @Override
                     public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
-                        return convert(dbzObj,schema);
+                        return convert(dbzObj, schema);
                     }
                 };
             case SMALLINT:
@@ -625,11 +628,10 @@ public final class RowDataDebeziumDeserializeSchema
                 rowType.getFields().stream()
                         .map(RowType.RowField::getType)
                         .map(
-                                logicType ->
-                                        createConverter(
-                                                logicType,
-                                                serverTimeZone,
-                                                userDefinedConverterFactory))
+                                logicType -> createConverter(
+                                        logicType,
+                                        serverTimeZone,
+                                        userDefinedConverterFactory))
                         .toArray(DeserializationRuntimeConverter[]::new);
         final String[] fieldNames = rowType.getFieldNames().toArray(new String[0]);
 
@@ -691,7 +693,7 @@ public final class RowDataDebeziumDeserializeSchema
                     if (schemaName != null) {
                         // normal type doesn't have schema name
                         // schema names are time schemas
-                        fieldValue = getTimeValue(fieldValue, schemaName);
+                        fieldValue = getValueWithSchema(fieldValue, schemaName);
                     }
                     data.put(fieldName, fieldValue);
                 }
@@ -714,11 +716,12 @@ public final class RowDataDebeziumDeserializeSchema
                     String fieldName = field.name();
                     Object fieldValue = struct.getWithoutDefault(fieldName);
                     Schema fieldSchema = schema.field(fieldName).schema();
+                    String schemaName = fieldSchema.name();
 
                     // struct type convert normal type
                     if (fieldValue instanceof Struct) {
                         Column column = tableSchema.getTable().columnWithName(fieldName);
-                        LogicalType logicType = RecordUtils.convertLogicType(column, (Struct)fieldValue);
+                        LogicalType logicType = RecordUtils.convertLogicType(column, (Struct) fieldValue);
                         DeserializationRuntimeConverter fieldConverter = createConverter(
                                 logicType,
                                 serverTimeZone,
@@ -731,6 +734,12 @@ public final class RowDataDebeziumDeserializeSchema
                         if (fieldValue instanceof TimestampData) {
                             fieldValue = ((TimestampData) fieldValue).toTimestamp();
                         }
+                    }
+                    if (schemaName != null) {
+                        fieldValue = getValueWithSchema(fieldValue, schemaName);
+                    }
+                    if (fieldValue instanceof ByteBuffer) {
+                        fieldValue = new String(((ByteBuffer) fieldValue).array());
                     }
 
                     data.put(fieldName, fieldValue);
@@ -745,33 +754,31 @@ public final class RowDataDebeziumDeserializeSchema
     }
 
     /**
-     * transform debezium time format to database format
+     * extract the data with the format provided by debezium
      *
      * @param fieldValue
      * @param schemaName
-     * @return
+     * @return the extracted data with schema
      */
-    private Object getTimeValue(Object fieldValue, String schemaName) {
-        switch (schemaName) {
-            case MicroTime.SCHEMA_NAME:
-                Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
-                fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant, serverTimeZone));
-                break;
-            case Date.SCHEMA_NAME:
-                fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
-                break;
-            case ZonedTimestamp.SCHEMA_NAME:
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
-                fieldValue = timestampFormatter.format(zonedDateTime
-                        .withZoneSameInstant(serverTimeZone).toLocalDateTime());
-                break;
-            case Timestamp.SCHEMA_NAME:
-                Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
-                fieldValue = timestampFormatter.format(LocalDateTime.ofInstant(instantTime,
-                        serverTimeZone));
-                break;
-            default:
-                LOG.error("parse schema {} error", schemaName);
+    private Object getValueWithSchema(Object fieldValue, String schemaName) {
+        if (fieldValue == null) {
+            return null;
+        }
+        if (MicroTime.SCHEMA_NAME.equals(schemaName)) {
+            Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
+            fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant, ZONE_UTC));
+        } else if (Date.SCHEMA_NAME.equals(schemaName)) {
+            fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
+        } else if (ZonedTimestamp.SCHEMA_NAME.equals(schemaName)) {
+            ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
+            fieldValue = zonedDateTime.withZoneSameInstant(serverTimeZone).toLocalDateTime()
+                    .atZone(ZONE_UTC).format(DateTimeFormatter.ISO_INSTANT);
+        } else if (Timestamp.SCHEMA_NAME.equals(schemaName)) {
+            Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
+            fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
+        } else if (MicroTimestamp.SCHEMA_NAME.equals(schemaName)) {
+            Instant instantTime = Instant.ofEpochMilli((Long) fieldValue / 1000);
+            fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
         }
         return fieldValue;
     }
@@ -783,7 +790,7 @@ public final class RowDataDebeziumDeserializeSchema
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out,
-                            TableChange tableSchema)
+            TableChange tableSchema)
             throws Exception {
         Envelope.Operation op = Envelope.operationFor(record);
         Struct value = (Struct) record.value();
@@ -828,8 +835,7 @@ public final class RowDataDebeziumDeserializeSchema
     }
 
     private void emit(SourceRecord inRecord, RowData physicalRow,
-                      TableChange tableChange, Collector<RowData> collector
-    ) {
+            TableChange tableChange, Collector<RowData> collector) {
         if (appendSource) {
             physicalRow.setRowKind(RowKind.INSERT);
         }

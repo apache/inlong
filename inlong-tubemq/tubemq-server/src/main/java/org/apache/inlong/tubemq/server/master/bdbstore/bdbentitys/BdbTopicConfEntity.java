@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -31,31 +31,32 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstan
 
 @Entity
 public class BdbTopicConfEntity implements Serializable {
+
     private static final long serialVersionUID = -3266492818900652275L;
 
     @PrimaryKey
     private String recordKey;
     private int topicStatusId = 0; // topic status, 0: valid, 1: soft deleted
-    private int brokerId = -2;      //broker id
-    private String brokerIp;        //broker ip
-    private int brokerPort;         //broker port
-    private String brokerAddress;   //broker address
-    private String topicName;       //topic name
-    private int numPartitions = -2;     //partition num
-    private int unflushThreshold = -2;  //flush threshold
-    private int unflushInterval = -2;   //flush interval
-    private boolean acceptPublish = true;   //enable publish
-    private boolean acceptSubscribe = true; //enable subscribe
-    private int numTopicStores = 1;     //store num
-    private String deleteWhen;          //delete policy execute time
-    private String deletePolicy;        //delete policy
-    private int dataStoreType = -2;     //type
-    private String dataPath;            //data path
-    private String attributes;          //extra attribute
-    private String createUser;          //create user
-    private Date createDate;            //create date
-    private String modifyUser;          //modify user
-    private Date modifyDate;            //modify date
+    private int brokerId = -2; // broker id
+    private String brokerIp; // broker ip
+    private int brokerPort; // broker port
+    private String brokerAddress; // broker address
+    private String topicName; // topic name
+    private int numPartitions = -2; // partition num
+    private int unflushThreshold = -2; // flush threshold
+    private int unflushInterval = -2; // flush interval
+    private boolean acceptPublish = true; // enable publish
+    private boolean acceptSubscribe = true; // enable subscribe
+    private int numTopicStores = 1; // store num
+    private String deleteWhen; // delete policy execute time
+    private String deletePolicy; // delete policy
+    private int dataStoreType = -2; // type
+    private String dataPath; // data path
+    private String attributes; // extra attribute
+    private String createUser; // create user
+    private Date createDate; // create date
+    private String modifyUser; // modify user
+    private Date modifyDate; // modify date
 
     public BdbTopicConfEntity() {
     }
@@ -82,14 +83,14 @@ public class BdbTopicConfEntity implements Serializable {
      * @param modifyDate          the modify date
      */
     public BdbTopicConfEntity(final int brokerId, final String brokerIp,
-                              final int brokerPort, final String topicName,
-                              final int numPartitions, final int unflushThreshold,
-                              final int unflushInterval, final String deleteWhen,
-                              final String deletePolicy, final boolean acceptPublish,
-                              final boolean acceptSubscribe, final int numTopicStores,
-                              final String attributes, final String createUser,
-                              final Date createDate, final String modifyUser,
-                              final Date modifyDate) {
+            final int brokerPort, final String topicName,
+            final int numPartitions, final int unflushThreshold,
+            final int unflushInterval, final String deleteWhen,
+            final String deletePolicy, final boolean acceptPublish,
+            final boolean acceptSubscribe, final int numTopicStores,
+            final String attributes, final String createUser,
+            final Date createDate, final String modifyUser,
+            final Date modifyDate) {
         StringBuilder sBuilder = new StringBuilder(512);
         this.recordKey = sBuilder.append(brokerId)
                 .append(TokenConstants.ATTR_SEP).append(topicName).toString();
@@ -116,7 +117,7 @@ public class BdbTopicConfEntity implements Serializable {
     }
 
     public void setBrokerAndTopicInfo(int brokerId, String brokerIp,
-                                      int brokerPort, String topicName) {
+            int brokerPort, String topicName) {
         StringBuilder sBuilder = new StringBuilder(512);
         this.recordKey = sBuilder.append(brokerId)
                 .append(TokenConstants.ATTR_SEP).append(topicName).toString();

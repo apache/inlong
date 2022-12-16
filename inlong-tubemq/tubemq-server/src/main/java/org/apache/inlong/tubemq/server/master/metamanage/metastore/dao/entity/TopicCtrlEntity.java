@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -47,7 +47,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     public TopicCtrlEntity(BaseEntity opEntity, String topicName,
-                           int topicNameId, int maxMsgSizeInMB) {
+            int topicNameId, int maxMsgSizeInMB) {
         super(opEntity.getDataVerId(),
                 opEntity.getModifyUser(),
                 opEntity.getModifyDate());
@@ -105,20 +105,14 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         return authCtrlStatus == EnableStatus.STATUS_ENABLE;
     }
 
-    public void setEnableAuthCtrl(boolean enableAuth) {
-        if (enableAuth) {
-            this.authCtrlStatus = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.authCtrlStatus = EnableStatus.STATUS_DISABLE;
-        }
-    }
-
     public EnableStatus getAuthCtrlStatus() {
         return authCtrlStatus;
     }
 
     public void setAuthCtrlStatus(EnableStatus authCtrlStatus) {
-        this.authCtrlStatus = authCtrlStatus;
+        if (authCtrlStatus != null) {
+            this.authCtrlStatus = authCtrlStatus;
+        }
     }
 
     public int getMaxMsgSizeInB() {
@@ -147,7 +141,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      * @return  whether changed
      */
     public boolean updModifyInfo(long dataVerId, int topicNameId,
-                                 int newMaxMsgSizeMB, Boolean enableTopicAuth) {
+            int newMaxMsgSizeMB, EnableStatus enableTopicAuth) {
         boolean changed = false;
         // check and set brokerPort info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -167,9 +161,9 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set authCtrlStatus info
         if (enableTopicAuth != null
-                && (this.authCtrlStatus == EnableStatus.STATUS_UNDEFINE
-                || this.authCtrlStatus.isEnable() != enableTopicAuth)) {
-            setEnableAuthCtrl(enableTopicAuth);
+                && enableTopicAuth != EnableStatus.STATUS_UNDEFINE
+                && this.authCtrlStatus != enableTopicAuth) {
+            setAuthCtrlStatus(enableTopicAuth);
             changed = true;
         }
         if (changed) {
@@ -218,11 +212,11 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         return (target.getMaxMsgSizeInB() == TBaseConstants.META_VALUE_UNDEFINED
                 || target.getMaxMsgSizeInB() == this.maxMsgSizeInB)
                 && (TStringUtils.isBlank(target.getTopicName())
-                || target.getTopicName().equals(this.topicName))
+                        || target.getTopicName().equals(this.topicName))
                 && (target.getAuthCtrlStatus() == EnableStatus.STATUS_UNDEFINE
-                || target.getAuthCtrlStatus() == this.authCtrlStatus)
+                        || target.getAuthCtrlStatus() == this.authCtrlStatus)
                 && (target.getTopicId() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getTopicId() == this.topicNameId);
+                        || target.getTopicId() == this.topicNameId);
     }
 
     /**
@@ -234,8 +228,8 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      * @return   process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         if (isLongName) {
             sBuilder.append("{\"topicName\":\"").append(topicName).append("\"")
                     .append(",\"topicNameId\":").append(topicNameId)

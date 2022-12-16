@@ -39,6 +39,7 @@ public class TubeHttpBrokerInfoList {
      */
     @Data
     public static class BrokerInfo {
+
         private int brokerId;
         private String brokerIp;
         private int brokerPort;
@@ -59,10 +60,9 @@ public class TubeHttpBrokerInfoList {
 
         private boolean isWorking() {
             if (runStatus != null && manageStatus != null) {
-                return RUNNING.equals(runStatus) && (
-                        ONLINE.equals(manageStatus)
-                                || ONLY_READ.equals(manageStatus)
-                                || ONLY_WRITE.equals(manageStatus));
+                return RUNNING.equals(runStatus) && (ONLINE.equals(manageStatus)
+                        || ONLY_READ.equals(manageStatus)
+                        || ONLY_WRITE.equals(manageStatus));
             }
             return false;
         }

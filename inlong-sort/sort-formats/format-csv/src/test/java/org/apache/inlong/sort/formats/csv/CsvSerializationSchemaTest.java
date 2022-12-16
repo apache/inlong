@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,8 +57,7 @@ public class CsvSerializationSchemaTest {
                             StringFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE,
                             StringFormatInfo.INSTANCE
-                    }
-            );
+                    });
 
     @Test
     public void testNormal() {
@@ -111,8 +109,7 @@ public class CsvSerializationSchemaTest {
         testRowSerialization(
                 config,
                 Row.of(10, "field1", "field2", "field3"),
-                "10|field1|field2|field3".getBytes()
-        );
+                "10|field1|field2|field3".getBytes());
     }
 
     @Test
@@ -123,18 +120,15 @@ public class CsvSerializationSchemaTest {
         testRowSerialization(
                 config,
                 Row.of(10, "field1,field2", "field3", "field4"),
-                "10,field1\\,field2,field3,field4".getBytes()
-        );
+                "10,field1\\,field2,field3,field4".getBytes());
         testRowSerialization(
                 config,
                 Row.of(10, "field1\\", "field2", "field3"),
-                "10,field1\\\\,field2,field3".getBytes()
-        );
+                "10,field1\\\\,field2,field3".getBytes());
         testRowSerialization(
                 config,
                 Row.of(10, "field1\"", "field2", "field3"),
-                "10,field1\\\",field2,field3".getBytes()
-        );
+                "10,field1\\\",field2,field3".getBytes());
     }
 
     @Test
@@ -145,8 +139,7 @@ public class CsvSerializationSchemaTest {
         testRowSerialization(
                 config,
                 Row.of(10, "field1,field2", "field3", "field4"),
-                "10,field1\",\"field2,field3,field4".getBytes()
-        );
+                "10,field1\",\"field2,field3,field4".getBytes());
     }
 
     @Test
@@ -157,8 +150,7 @@ public class CsvSerializationSchemaTest {
         testRowSerialization(
                 config,
                 Row.of(10, "field1", "field2", "field3"),
-                "10,field1,field2,field3".getBytes(StandardCharsets.UTF_16)
-        );
+                "10,field1,field2,field3".getBytes(StandardCharsets.UTF_16));
     }
 
     @Test(expected = Exception.class)
@@ -169,21 +161,18 @@ public class CsvSerializationSchemaTest {
         testRowSerialization(
                 config,
                 Row.of("na", "field1", "field2", "field3"),
-                ",field1,field2,field3".getBytes()
-        );
+                ",field1,field2,field3".getBytes());
     }
 
     private static <T> void testBasicSerialization(
             Consumer<CsvSerializationSchema.Builder> config,
             BasicFormatInfo<T> basicFormatInfo,
             T record,
-            String expectedText
-    ) {
+            String expectedText) {
         RowFormatInfo rowFormatInfo =
                 new RowFormatInfo(
                         new String[]{"f"},
-                        new FormatInfo[]{basicFormatInfo}
-                );
+                        new FormatInfo[]{basicFormatInfo});
 
         CsvSerializationSchema.Builder builder =
                 new CsvSerializationSchema.Builder(rowFormatInfo);
@@ -198,8 +187,7 @@ public class CsvSerializationSchemaTest {
     private static void testRowSerialization(
             Consumer<CsvSerializationSchema.Builder> config,
             Row row,
-            byte[] expectedBytes
-    ) {
+            byte[] expectedBytes) {
         CsvSerializationSchema.Builder builder =
                 new CsvSerializationSchema.Builder(TEST_ROW_INFO);
         config.accept(builder);

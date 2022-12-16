@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sort.protocol.node.extract;
@@ -41,7 +40,7 @@ public class TubeMQExtractNodeTest extends SerializeBaseTest<TubeMQExtractNode> 
                 new FieldInfo("salary", new FloatFormatInfo()));
 
         return new TubeMQExtractNode("1", "tubeMQ_input", fields, null, null,
-                "127.0.0.1:8715","inlong","json","test",null,null);
+                "127.0.0.1:8715", "inlong", "json", "test", null, null);
 
     }
 }

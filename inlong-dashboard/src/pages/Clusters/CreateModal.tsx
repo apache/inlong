@@ -23,15 +23,16 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import request from '@/utils/request';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, ClusterMetaType } from '@/metas';
 import i18n from '@/i18n';
 
 export interface Props extends ModalProps {
   // Require when edit
   id?: string;
+  defaultType?: string;
 }
 
-const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
   const [form] = useForm();
 
   const { defaultValue } = useDefaultMeta('cluster');
@@ -81,17 +82,19 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
     if (modalProps.visible) {
       if (id) {
         getData(id);
+      } else {
+        setType(defaultType);
+        form.setFieldsValue({ type: defaultType });
       }
     } else {
       form.resetFields();
-      setType(defaultValue);
     }
   }, [modalProps.visible]);
 
-  const { Entity } = useLoadMeta('cluster', type);
+  const { Entity } = useLoadMeta<ClusterMetaType>('cluster', type);
 
   const content = useMemo(() => {
-    return Entity ? Entity.FieldList : [];
+    return Entity ? new Entity().renderRow() : [];
   }, [Entity]);
 
   return (

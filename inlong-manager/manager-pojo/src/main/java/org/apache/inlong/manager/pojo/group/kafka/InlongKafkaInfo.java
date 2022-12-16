@@ -21,17 +21,15 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.consts.MQType;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 
 /**
  * Inlong group info for Kafka
  */
 @Data
-@SuperBuilder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = MQType.KAFKA)
@@ -42,10 +40,6 @@ public class InlongKafkaInfo extends InlongGroupInfo {
     private Integer numPartitions;
     // replicationFactor number
     private Short replicationFactor = 1;
-    //consumer grouping
-    private String groupId;
-    // autocommit interval
-    private String autoCommit;
 
     public InlongKafkaInfo() {
         this.setMqType(MQType.KAFKA);

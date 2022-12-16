@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -78,21 +78,21 @@ public class BdbGroupAdmin {
         ReplicationGroupAdmin rga = new ReplicationGroupAdmin(group, helpers);
 
         try {
-            //print node information before remove
+            // print node information before remove
             Set<String> nodeNames = new HashSet<>();
-            for (ReplicationNode repNode  : rga.getGroup().getNodes()) {
+            for (ReplicationNode repNode : rga.getGroup().getNodes()) {
                 nodeNames.add(repNode.getName());
             }
             System.out.println("Before remove, " + group
                     + " has " + nodeNames.size() + " nodes :" + nodeNames);
 
-            //do remove node
+            // do remove node
             rga.removeMember(nodeName2Remove);
             System.out.print("Remove " + nodeName2Remove + "successfully.");
 
-            //print node information after remove
+            // print node information after remove
             nodeNames.clear();
-            for (ReplicationNode repNode  : rga.getGroup().getNodes()) {
+            for (ReplicationNode repNode : rga.getGroup().getNodes()) {
                 nodeNames.add(repNode.getName());
             }
             System.out.println("After remove, " + group

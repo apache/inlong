@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * Metadata is got from Master service, it will refresh in heartbeat between broker and master.
  */
 public class BrokerMetadataManager implements MetadataManager {
+
     private static final Logger logger = LoggerFactory.getLogger(BrokerMetadataManager.class);
 
     protected final PropertyChangeSupport propertyChangeSupport =
@@ -124,14 +125,16 @@ public class BrokerMetadataManager implements MetadataManager {
     public int getNumPartitions(final String topic) {
         final TopicMetadata topicMetadata = topicConfigMap.get(topic);
         return topicMetadata != null
-                ? topicMetadata.getNumPartitions() : brokerDefMetadata.getNumPartitions();
+                ? topicMetadata.getNumPartitions()
+                : brokerDefMetadata.getNumPartitions();
     }
 
     @Override
     public int getNumTopicStores(final String topic) {
         final TopicMetadata topicMetadata = topicConfigMap.get(topic);
         return topicMetadata != null
-                ? topicMetadata.getNumTopicStores() : brokerDefMetadata.getNumTopicStores();
+                ? topicMetadata.getNumTopicStores()
+                : brokerDefMetadata.getNumTopicStores();
     }
 
     @Override
@@ -177,8 +180,7 @@ public class BrokerMetadataManager implements MetadataManager {
     @Override
     public List<String> getHardRemovedTopics() {
         List<String> targetTopics = new ArrayList<>();
-        for (Map.Entry<String, TopicMetadata> entry
-                : this.removedTopicConfigMap.entrySet()) {
+        for (Map.Entry<String, TopicMetadata> entry : this.removedTopicConfigMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
@@ -217,11 +219,11 @@ public class BrokerMetadataManager implements MetadataManager {
      */
     @Override
     public void updateBrokerTopicConfigMap(long newBrokerMetaConfId,
-                                           int newConfCheckSumId,
-                                           String newBrokerDefMetaConfInfo,
-                                           List<String> newTopicMetaConfInfoLst,
-                                           boolean isForce,
-                                           final StringBuilder sb) {
+            int newConfCheckSumId,
+            String newBrokerDefMetaConfInfo,
+            List<String> newTopicMetaConfInfoLst,
+            boolean isForce,
+            final StringBuilder sb) {
         if ((!isForce)
                 && (this.brokerMetadataConfId == newBrokerMetaConfId)
                 && (this.brokerConfCheckSumId == newConfCheckSumId)) {
@@ -286,8 +288,8 @@ public class BrokerMetadataManager implements MetadataManager {
      */
     @Override
     public boolean updateBrokerRemoveTopicMap(boolean isTakeRemoveTopics,
-                                              List<String> rmvTopicMetaConfInfoLst,
-                                              final StringBuilder sb) {
+            List<String> rmvTopicMetaConfInfoLst,
+            final StringBuilder sb) {
         // This part deletes the corresponding topic according to the instructions on the Master
         boolean needProcess = false;
         if (isTakeRemoveTopics) {
@@ -341,7 +343,7 @@ public class BrokerMetadataManager implements MetadataManager {
 
     @Override
     public void addPropertyChangeListener(final String propertyName,
-                                          final PropertyChangeListener listener) {
+            final PropertyChangeListener listener) {
         this.propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
@@ -353,7 +355,7 @@ public class BrokerMetadataManager implements MetadataManager {
      * @param topicConfigMap     the topic configure map to add
      */
     private void addSysHisOffsetTopic(BrokerDefMetadata brokerDefMeta, List<String> newTopics,
-                                      ConcurrentHashMap<String, TopicMetadata> topicConfigMap) {
+            ConcurrentHashMap<String, TopicMetadata> topicConfigMap) {
         if (newTopics.contains(TServerConstants.OFFSET_HISTORY_NAME)) {
             return;
         }

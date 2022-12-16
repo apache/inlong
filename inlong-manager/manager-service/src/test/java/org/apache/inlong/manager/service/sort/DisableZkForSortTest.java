@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.sort;
 
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
@@ -82,15 +82,15 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         sinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         List<SinkField> sinkFields = createStreamFields(streamInfo.getInlongGroupId(),
                 streamInfo.getInlongStreamId())
-                .stream()
-                .map(streamField -> {
-                    SinkField fieldInfo = new SinkField();
-                    fieldInfo.setFieldName(streamField.getFieldName());
-                    fieldInfo.setFieldType(streamField.getFieldType());
-                    fieldInfo.setFieldComment(streamField.getFieldComment());
-                    return fieldInfo;
-                })
-                .collect(Collectors.toList());
+                        .stream()
+                        .map(streamField -> {
+                            SinkField fieldInfo = new SinkField();
+                            fieldInfo.setFieldName(streamField.getFieldName());
+                            fieldInfo.setFieldType(streamField.getFieldType());
+                            fieldInfo.setFieldComment(streamField.getFieldComment());
+                            return fieldInfo;
+                        })
+                        .collect(Collectors.toList());
         sinkRequest.setSinkFieldList(sinkFields);
         sinkRequest.setEnableCreateResource(0);
         sinkRequest.setUsername(OPERATOR);
@@ -120,7 +120,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         return kafkaSourceRequest;
     }
 
-    //    @Test
+    // @Test
     public void testCreateSortConfigInUpdateWorkflow() {
         InlongGroupInfo groupInfo = createInlongGroup("test20", MQType.PULSAR);
         groupInfo.setEnableZookeeper(InlongConstants.ENABLE_ZK);

@@ -18,17 +18,18 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { SinkMetaType } from '../types';
 
-export const allDefaultSinks: MetaExportWithBackendList = [
+export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
   {
     label: 'ALL',
     value: '',
     LoadEntity: () => import('../common/SinkInfo').then(r => ({ default: r.SinkInfo })),
   },
   {
-    label: 'Clickhouse',
+    label: 'ClickHouse',
     value: 'CLICKHOUSE',
-    LoadEntity: () => import('./Clickhouse'),
+    LoadEntity: () => import('./ClickHouse'),
   },
   {
     label: 'Doris',
@@ -36,13 +37,68 @@ export const allDefaultSinks: MetaExportWithBackendList = [
     LoadEntity: () => import('./Doris'),
   },
   {
+    label: 'Elasticsearch',
+    value: 'ELASTICSEARCH',
+    LoadEntity: () => import('./Elasticsearch'),
+  },
+  {
+    label: 'Greenplum',
+    value: 'GREENPLUM',
+    LoadEntity: () => import('./Greenplum'),
+  },
+  {
     label: 'Hive',
     value: 'HIVE',
     LoadEntity: () => import('./Hive'),
   },
   {
+    label: 'HBase',
+    value: 'HBASE',
+    LoadEntity: () => import('./HBase'),
+  },
+  {
+    label: 'Iceberg',
+    value: 'ICEBERG',
+    LoadEntity: () => import('./Iceberg'),
+  },
+  {
+    label: 'Hudi',
+    value: 'HUDI',
+    LoadEntity: () => import('./Hudi'),
+  },
+  {
     label: 'Kafka',
     value: 'KAFKA',
     LoadEntity: () => import('./Kafka'),
+  },
+  {
+    label: 'MySQL',
+    value: 'MYSQL',
+    LoadEntity: () => import('./MySQL'),
+  },
+  {
+    label: 'Oracle',
+    value: 'ORACLE',
+    LoadEntity: () => import('./Oracle'),
+  },
+  {
+    label: 'PostgreSQL',
+    value: 'POSTGRESQL',
+    LoadEntity: () => import('./PostgreSQL'),
+  },
+  {
+    label: 'SQLServer',
+    value: 'SQLSERVER',
+    LoadEntity: () => import('./SQLServer'),
+  },
+  {
+    label: 'StarRocks',
+    value: 'STARROCKS',
+    LoadEntity: () => import('./StarRocks'),
+  },
+  {
+    label: 'TDSQLPostgreSQL',
+    value: 'TDSQLPOSTGRESQL',
+    LoadEntity: () => import('./TDSQLPostgreSQL'),
   },
 ];

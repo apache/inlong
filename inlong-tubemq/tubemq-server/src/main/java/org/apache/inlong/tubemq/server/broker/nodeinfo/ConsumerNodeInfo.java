@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -76,9 +76,9 @@ public class ConsumerNodeInfo {
      * @param msgRcvFrom      the address message received
      */
     public ConsumerNodeInfo(MessageStoreManager storeManager, String groupName,
-                            String consumerId, Set<String> filterCodes,
-                            String sessionKey, long sessionTime, String partStr,
-                            String msgRcvFrom) {
+            String consumerId, Set<String> filterCodes,
+            String sessionKey, long sessionTime, String partStr,
+            String msgRcvFrom) {
         this(storeManager, TBaseConstants.META_VALUE_UNDEFINED, groupName,
                 consumerId, filterCodes, sessionKey, sessionTime, false,
                 partStr, msgRcvFrom);
@@ -98,10 +98,10 @@ public class ConsumerNodeInfo {
      * @param msgRcvFrom         the address message received
      */
     public ConsumerNodeInfo(MessageStoreManager storeManager, int qryPriorityId,
-                            String groupName, String consumerId,
-                            Set<String> filterCodes, String sessionKey,
-                            long sessionTime, boolean isSupportLimit,
-                            String partStr, String msgRcvFrom) {
+            String groupName, String consumerId,
+            Set<String> filterCodes, String sessionKey,
+            long sessionTime, boolean isSupportLimit,
+            String partStr, String msgRcvFrom) {
         setConsumerId(consumerId);
         if (filterCodes != null) {
             for (String filterItem : filterCodes) {
@@ -134,9 +134,9 @@ public class ConsumerNodeInfo {
      * @return                      the allowed consumption size
      */
     public int getCurrentAllowedSize(final String storeKey,
-                                     final FlowCtrlRuleHandler flowCtrlRuleHandler,
-                                     final long currMaxDataOffset, int maxMsgTransferSize,
-                                     boolean isEscFlowCtrl) {
+            final FlowCtrlRuleHandler flowCtrlRuleHandler,
+            final long currMaxDataOffset, int maxMsgTransferSize,
+            boolean isEscFlowCtrl) {
         if (lastDataRdOffset >= 0) {
             long curDataDlt = currMaxDataOffset - lastDataRdOffset;
             long currTime = System.currentTimeMillis();
@@ -144,7 +144,7 @@ public class ConsumerNodeInfo {
                     currTime, maxMsgTransferSize, flowCtrlRuleHandler);
             if (isEscFlowCtrl
                     || (totalUnitSec > sentMsgSize
-                    && this.curFlowCtrlVal.dataLtInSize > totalUnitMin)) {
+                            && this.curFlowCtrlVal.dataLtInSize > totalUnitMin)) {
                 return this.sentUnit;
             } else {
                 if (this.isSupportLimit) {
@@ -283,7 +283,7 @@ public class ConsumerNodeInfo {
      * @param flowCtrlRuleHandler     the flow-control rule handler
      */
     private void recalcMsgLimitValue(long curDataDlt, long currTime, int maxMsgTransferSize,
-                                     final FlowCtrlRuleHandler flowCtrlRuleHandler) {
+            final FlowCtrlRuleHandler flowCtrlRuleHandler) {
         if (currTime > nextLimitUpdateTime) {
             this.curFlowCtrlVal = flowCtrlRuleHandler.getCurDataLimit(curDataDlt);
             if (this.curFlowCtrlVal == null) {

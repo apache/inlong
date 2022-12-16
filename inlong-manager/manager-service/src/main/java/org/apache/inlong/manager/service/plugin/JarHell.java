@@ -135,7 +135,8 @@ public class JarHell {
         private int comparePrePart(String prePart, String otherPrePart) {
             if (prePart.matches("\\d+")) {
                 return otherPrePart.matches("\\d+")
-                        ? (new BigInteger(prePart)).compareTo(new BigInteger(otherPrePart)) : -1;
+                        ? (new BigInteger(prePart)).compareTo(new BigInteger(otherPrePart))
+                        : -1;
             } else {
                 return otherPrePart.matches("\\d+") ? 1 : prePart.compareTo(otherPrePart);
             }

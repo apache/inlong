@@ -1,19 +1,18 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one or more
- *  contributor license agreements. See the NOTICE file distributed with
- *  this work for additional information regarding copyright ownership.
- *  The ASF licenses this file to You under the Apache License, Version 2.0
- *  (the "License"); you may not use this file except in compliance with
- *  the License. You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.sort.pulsar.withoutadmin;
@@ -70,6 +69,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  *           the Flink data stream.
  */
 public class PulsarFetcher<T> {
+
     private static final Logger log = LoggerFactory.getLogger(PulsarFetcher.class);
     private static final int NO_TIMESTAMPS_WATERMARKS = 0;
     private static final int WITH_WATERMARK_GENERATOR = 1;
@@ -151,7 +151,7 @@ public class PulsarFetcher<T> {
     private PoisonState poisonState;
 
     // ------------------------------------------------------------------------
-    //  Metrics
+    // Metrics
     // ------------------------------------------------------------------------
 
     /**
@@ -197,8 +197,7 @@ public class PulsarFetcher<T> {
                 deserializer,
                 metadataReader,
                 consumerMetricGroup,
-                useMetrics
-        );
+                useMetrics);
     }
 
     public PulsarFetcher(
@@ -388,7 +387,7 @@ public class PulsarFetcher<T> {
     }
 
     // ------------------------------------------------------------------------
-    //  emitting records
+    // emitting records
     // ------------------------------------------------------------------------
 
     /**
@@ -462,7 +461,7 @@ public class PulsarFetcher<T> {
     }
 
     // ------------------------------------------------------------------------
-    //  snapshot and restore the state
+    // snapshot and restore the state
     // ------------------------------------------------------------------------
 
     /**
@@ -662,15 +661,14 @@ public class PulsarFetcher<T> {
 
         private final long interval;
 
-        //-------------------------------------------------
+        // -------------------------------------------------
 
         PeriodicWatermarkEmitter(
                 Object checkpointLock,
                 List<PulsarTopicState<T>> allPartitions,
                 WatermarkOutputMultiplexer watermarkOutputMultiplexer,
                 ProcessingTimeService timerService,
-                long autoWatermarkInterval
-        ) {
+                long autoWatermarkInterval) {
             this.checkpointLock = checkpointLock;
             this.allPartitions = checkNotNull(allPartitions);
             this.watermarkOutputMultiplexer = watermarkOutputMultiplexer;
@@ -678,7 +676,7 @@ public class PulsarFetcher<T> {
             this.interval = autoWatermarkInterval;
         }
 
-        //-------------------------------------------------
+        // -------------------------------------------------
 
         public void start() {
             timerService.registerTimer(timerService.getCurrentProcessingTime() + interval, this);
@@ -700,6 +698,7 @@ public class PulsarFetcher<T> {
     }
 
     private static class BreakingException extends Exception {
+
         static final BreakingException INSTANCE = new BreakingException();
 
         private BreakingException() {

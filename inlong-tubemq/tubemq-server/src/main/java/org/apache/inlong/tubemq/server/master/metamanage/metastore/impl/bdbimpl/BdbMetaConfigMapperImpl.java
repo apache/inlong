@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -64,6 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
+
     private static final int REP_HANDLE_RETRY_MAX = 1;
     protected static final Logger logger =
             LoggerFactory.getLogger(BdbMetaConfigMapperImpl.class);
@@ -392,7 +393,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     protected void initMetaStore(StringBuilder strBuff) {
         clusterConfigMapper = new BdbClusterConfigMapperImpl(repEnv, storeConfig);
         brokerConfigMapper = new BdbBrokerConfigMapperImpl(repEnv, storeConfig);
-        topicDeployMapper =  new BdbTopicDeployMapperImpl(repEnv, storeConfig);
+        topicDeployMapper = new BdbTopicDeployMapperImpl(repEnv, storeConfig);
         groupResCtrlMapper = new BdbGroupResCtrlMapperImpl(repEnv, storeConfig);
         topicCtrlMapper = new BdbTopicCtrlMapperImpl(repEnv, storeConfig);
         consumeCtrlMapper = new BdbConsumeCtrlMapperImpl(repEnv, storeConfig);
@@ -405,6 +406,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
      *
      * */
     public class Listener implements StateChangeListener {
+
         @Override
         public void stateChange(StateChangeEvent stateChangeEvent) throws RuntimeException {
             if (repConfig != null) {
@@ -478,8 +480,8 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
      */
     private ReplicatedEnvironment getEnvironment() throws InterruptedException {
         DatabaseException exception = null;
-        //In this example we retry REP_HANDLE_RETRY_MAX times, but a production HA application may
-        //retry indefinitely.
+        // In this example we retry REP_HANDLE_RETRY_MAX times, but a production HA application may
+        // retry indefinitely.
         for (int i = 0; i < REP_HANDLE_RETRY_MAX; i++) {
             try {
                 return new ReplicatedEnvironment(envHome, repConfig, envConfig);

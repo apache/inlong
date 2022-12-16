@@ -33,7 +33,6 @@ public class HiveOptions {
                     .noDefaultValue()
                     .withDescription("The name of hive database to connect.");
 
-
     public static final ConfigOption<Boolean> TABLE_EXEC_HIVE_FALLBACK_MAPRED_READER =
             key("table.exec.hive.fallback-mapred-reader")
                     .defaultValue(false)

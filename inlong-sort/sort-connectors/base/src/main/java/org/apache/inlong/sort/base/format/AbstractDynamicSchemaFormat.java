@@ -187,11 +187,4 @@ public abstract class AbstractDynamicSchemaFormat<T> {
      * @throws IOException The exception will throws
      */
     public abstract String parse(T data, String pattern) throws IOException;
-
-    /**
-     * Get the identifier of this dynamic schema format
-     *
-     * @return The identifier of this dynamic schema format
-     */
-    public abstract String identifier();
 }

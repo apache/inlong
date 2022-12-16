@@ -18,6 +18,7 @@
 package org.apache.inlong.sdk.sort.api;
 
 public enum ReportApi {
+
     HEARTBEAT(0),
     UPDATE_FETCH_STATUS(2);
 

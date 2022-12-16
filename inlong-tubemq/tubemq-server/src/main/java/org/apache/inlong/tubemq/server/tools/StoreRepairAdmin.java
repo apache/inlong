@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class StoreRepairAdmin {
+
     private static final Logger logger =
             LoggerFactory.getLogger(StoreRepairAdmin.class);
 
@@ -120,6 +121,7 @@ public class StoreRepairAdmin {
                     }
                     final int storeId = Integer.parseInt(name.substring(index + 1));
                     tasks.add(new Callable<IndexRepairStore>() {
+
                         @Override
                         public IndexRepairStore call() throws Exception {
                             StringBuilder sBuilder = new StringBuilder(512);
@@ -167,6 +169,7 @@ public class StoreRepairAdmin {
     }
 
     private static class IndexRepairStore implements Closeable {
+
         private final String topic;
         private final int storeId;
         private final String basePath;
@@ -180,8 +183,8 @@ public class StoreRepairAdmin {
         private SegmentList segments;
 
         public IndexRepairStore(final String basePath,
-                               final String topic,
-                               final int storeId) {
+                final String topic,
+                final int storeId) {
             this.basePath = basePath;
             this.topic = topic;
             this.storeId = storeId;
@@ -251,6 +254,7 @@ public class StoreRepairAdmin {
             if (accum.size() > 0) {
                 // compare segment's start value, and sort order
                 Collections.sort(accum, new Comparator<Segment>() {
+
                     @Override
                     public int compare(final Segment o1, final Segment o2) {
                         if (o1.getStart() == o2.getStart()) {

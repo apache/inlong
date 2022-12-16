@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,10 +17,6 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
@@ -28,15 +24,17 @@ import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.DataType;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /**
- * 
  * ManagerIdTopicConfigLoader
  */
 public class ManagerIdTopicConfigLoader implements IdTopicConfigLoader {
 
     /**
      * load
-     * 
      * @return
      */
     @Override
@@ -61,6 +59,7 @@ public class ManagerIdTopicConfigLoader implements IdTopicConfigLoader {
             config.setDataType(DataType.convert(params.getOrDefault("dataType", DataType.TEXT.value())));
             config.setFieldDelimiter(params.getOrDefault("fieldDelimiter", "|"));
             config.setFileDelimiter(params.getOrDefault("fileDelimiter", "\n"));
+            config.setParams(params);
             configList.add(config);
         }
         return configList;
@@ -68,7 +67,6 @@ public class ManagerIdTopicConfigLoader implements IdTopicConfigLoader {
 
     /**
      * configure
-     * 
      * @param context
      */
     @Override

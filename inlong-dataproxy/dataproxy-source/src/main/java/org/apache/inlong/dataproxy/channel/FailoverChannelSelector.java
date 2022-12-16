@@ -28,7 +28,7 @@ import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
 import org.apache.flume.channel.AbstractChannelSelector;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.slf4j.Logger;
@@ -64,8 +64,7 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
             retChannels.add(agentFileMetricChannels.get(0));
         } else if (event.getHeaders().containsKey(ConfigConstants.SLA_METRIC_DATA)) {
             retChannels.add(slaMetricChannels.get(0));
-        } else if (MessageUtils.isSyncSendForOrder(event.getHeaders()
-                .get(AttributeConstants.MESSAGE_SYNC_SEND))) {
+        } else if (MessageUtils.isSyncSendForOrder(event)) {
             String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
             if (partitionKey == null) {
                 partitionKey = "";
@@ -113,7 +112,7 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
 
     @Override
     public void configure(Context context) {
-//        LOG.info(context.toString());
+        // LOG.info(context.toString());
         String masters = context.getString(MASTER_CHANNEL);
         String transfer = context.getString(TRANSFER_CHANNEL);
         String fileMertic = context.getString(FILE_METRIC_CHANNEL);

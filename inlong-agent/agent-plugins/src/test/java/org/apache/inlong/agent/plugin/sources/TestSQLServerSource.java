@@ -17,9 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.common.metric.MetricItem;
@@ -38,7 +36,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 import static org.powermock.api.support.membermodification.MemberMatcher.field;
@@ -84,20 +81,10 @@ public class TestSQLServerSource {
      */
     @Test
     public void testSplit() {
-        final String sql1 = "select * from dbo.test01";
-        final String sql2 = "select * from dbo.test${01,99}";
 
         // build mock
-        when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_GROUP_ID), anyString())).thenReturn("test_group");
-        when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_STREAM_ID), anyString())).thenReturn("test_stream");
-        when(jobProfile.get(eq(SQLServerSource.JOB_DATABASE_SQL), eq(StringUtils.EMPTY))).thenReturn(StringUtils.EMPTY,
-                sql1, sql2);
-
         final SQLServerSource source = new SQLServerSource();
-
         // assert
-        assertEquals(null, source.split(jobProfile));
         assertEquals(1, source.split(jobProfile).size());
-        assertEquals(99, source.split(jobProfile).size());
     }
 }

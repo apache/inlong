@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,43 +62,39 @@ public class TubemqTableSink implements AppendStreamTableSink<Row> {
     private final Configuration configuration;
 
     public TubemqTableSink(
-        SerializationSchema<Row> serializationSchema,
-        TableSchema schema,
-        String topic,
-        String masterAddress,
-        Configuration configuration
-    ) {
+            SerializationSchema<Row> serializationSchema,
+            TableSchema schema,
+            String topic,
+            String masterAddress,
+            Configuration configuration) {
         this.serializationSchema = checkNotNull(serializationSchema,
-            "The deserialization schema must not be null.");
+                "The deserialization schema must not be null.");
         this.schema = checkNotNull(schema,
-            "The schema must not be null.");
+                "The schema must not be null.");
         this.topic = checkNotNull(topic,
-            "Topic must not be null.");
+                "Topic must not be null.");
         this.masterAddress = checkNotNull(masterAddress,
-            "Master address must not be null.");
+                "Master address must not be null.");
         this.configuration = checkNotNull(configuration,
-            "The configuration must not be null.");
+                "The configuration must not be null.");
     }
 
     @Override
     public DataStreamSink<?> consumeDataStream(DataStream<Row> dataStream) {
 
         final SinkFunction<Row> tubemqSinkFunction =
-            new TubemqSinkFunction<>(
-                topic,
-                masterAddress,
-                serializationSchema,
-                configuration
-            );
+                new TubemqSinkFunction<>(
+                        topic,
+                        masterAddress,
+                        serializationSchema,
+                        configuration);
 
         return dataStream
-            .addSink(tubemqSinkFunction)
-            .name(
-                TableConnectorUtils.generateRuntimeName(
-                    getClass(),
-                    getFieldNames()
-                )
-            );
+                .addSink(tubemqSinkFunction)
+                .name(
+                        TableConnectorUtils.generateRuntimeName(
+                                getClass(),
+                                getFieldNames()));
     }
 
     @Override
@@ -120,7 +115,7 @@ public class TubemqTableSink implements AppendStreamTableSink<Row> {
     @Override
     public TubemqTableSink configure(String[] fieldNames, TypeInformation<?>[] fieldTypes) {
         if (!Arrays.equals(getFieldNames(), fieldNames)
-            || !Arrays.equals(getFieldTypes(), fieldTypes)) {
+                || !Arrays.equals(getFieldTypes(), fieldTypes)) {
             throw new ValidationException("Reconfiguration with different fields is not allowed. "
                     + "Expected: " + Arrays.toString(getFieldNames())
                     + " / " + Arrays.toString(getFieldTypes()) + ". "

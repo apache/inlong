@@ -31,6 +31,7 @@ import java.util.Set;
 import org.xerial.snappy.Snappy;
 
 public class InLongMsg {
+
     private static final int DEFAULT_CAPACITY = 4096;
     private final int capacity;
 
@@ -107,6 +108,7 @@ public class InLongMsg {
     }
 
     private enum Version {
+
         vn(-1), v0(0), v1(1),
         v2(2), v3(3), v4(4);
 
@@ -587,6 +589,7 @@ public class InLongMsg {
 
     // private LinkedHashMap<String, ByteBuffer> attr2Rawdata = null;
     static class DataByteBuffer {
+
         final int cnt;
         ByteBuffer buffer;
         DataOutputBuffer inoutBuffer;
@@ -753,7 +756,7 @@ public class InLongMsg {
                 + bodyLen + BIN_MSG_ATTRLEN_SIZE + attrLen) & 0xFFFF);
         dataTime = dataTime * 1000;
 
-        //read common attributes
+        // read common attributes
         if (attrLen != 0) {
             byte[] attr = new byte[attrLen];
             parsedBinInput.position(BIN_MSG_BODY_OFFSET + bodyLen + BIN_MSG_ATTRLEN_SIZE);
@@ -765,7 +768,7 @@ public class InLongMsg {
 
         commonAttrMap.put(AttributeConstants.DATA_TIME, String.valueOf(dataTime));
 
-        //unzip data
+        // unzip data
         ByteBuffer bodyBuffer;
         byte[] body = new byte[bodyLen + 1];
         parsedBinInput.position(BIN_MSG_BODY_OFFSET);
@@ -784,17 +787,17 @@ public class InLongMsg {
 
             case (BIN_MSG_NO_ZIP):
             default:
-                //set uncompress flag
+                // set uncompress flag
                 body[0] = 0;
                 bodyBuffer = ByteBuffer.wrap(body, 0, body.length);
                 break;
         }
 
-        //number groupId/streamId
+        // number groupId/streamId
         boolean isUseNumGroupId = ((extField & 0x4) == 0x0);
         if (isUseNumGroupId) {
             commonAttrMap.put(AttributeConstants.GROUP_ID, String.valueOf(groupIdNum));
-            commonAttrMap.put(AttributeConstants.INTERFACE_ID, String.valueOf(streamIdNum));
+            commonAttrMap.put(AttributeConstants.STREAM_ID, String.valueOf(streamIdNum));
         }
 
         boolean hasOtherAttr = ((extField & 0x1) == 0x1);
@@ -811,7 +814,7 @@ public class InLongMsg {
                     this.msgcnt * 10 / 7);
             Map<String, String> finalAttrMap = commonAttrMap;
 
-            //skip compress flag
+            // skip compress flag
             bodyBuffer.get();
             int bodyBufLen = bodyBuffer.capacity() - 1;
             while (bodyBufLen > 0) {

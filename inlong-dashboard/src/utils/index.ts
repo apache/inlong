@@ -130,6 +130,7 @@ export function filterObj(obj: Record<string, any>, keyList: string[]) {
  * @param key Flag
  */
 export function pickObjectArray(keys = [], sourceArr = [], key = 'name') {
+  if (!sourceArr || !sourceArr.length) return sourceArr;
   const map = new Map(sourceArr.map(item => [item[key], item]));
   if (isDevelopEnv()) {
     // Increase the log in the development environment to facilitate debugging
@@ -183,6 +184,7 @@ export function excludeObject<T>(keys = [], sourceObj: Record<string, unknown>):
  * @param key Flag
  */
 export function excludeObjectArray(keys = [], sourceArr = [], key = 'name') {
+  if (!sourceArr || !sourceArr.length) return sourceArr;
   const set = new Set(keys);
   return sourceArr.filter(item => !set.has(item[key]));
 }

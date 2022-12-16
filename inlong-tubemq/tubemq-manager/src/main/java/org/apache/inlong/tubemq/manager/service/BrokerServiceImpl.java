@@ -101,7 +101,7 @@ public class BrokerServiceImpl implements BrokerService {
     public TubeMQResult requestMaster(String brokerIp, int brokerWebPort, Object req) {
         String url = SCHEMA + brokerIp + ":" + brokerWebPort
                 + "/" + TUBE_REQUEST_PATH + "?" + ConvertUtils
-                .convertReqToQueryStr(req);
+                        .convertReqToQueryStr(req);
         return masterService.requestMaster(url);
     }
 
@@ -109,7 +109,7 @@ public class BrokerServiceImpl implements BrokerService {
     public OffsetQueryRes queryOffset(String brokerIp, int brokerWebPort, QueryOffsetReq req) {
         String url = SCHEMA + brokerIp + ":" + brokerWebPort
                 + "/" + TUBE_REQUEST_PATH + "?" + ConvertUtils
-                .convertReqToQueryStr(req);
+                        .convertReqToQueryStr(req);
         return gson.fromJson(masterService.queryMaster(url), OffsetQueryRes.class);
     }
 }

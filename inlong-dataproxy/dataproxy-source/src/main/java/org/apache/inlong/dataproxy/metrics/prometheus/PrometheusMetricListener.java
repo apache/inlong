@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -60,20 +60,18 @@ import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.exporter.HTTPServer;
 
 /**
- *
  * PrometheusMetricListener
  */
 public class PrometheusMetricListener extends Collector implements MetricListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PrometheusMetricListener.class);
     public static final String KEY_PROMETHEUS_HTTP_PORT = "prometheusHttpPort";
     public static final int DEFAULT_PROMETHEUS_HTTP_PORT = 8080;
     public static final String DEFAULT_DIMENSION_LABEL = "dimension";
-
+    private static final Logger LOG = LoggerFactory.getLogger(PrometheusMetricListener.class);
+    protected HTTPServer httpServer;
     private String metricName;
     private DataProxyMetricItem metricItem;
     private Map<String, AtomicLong> metricValueMap = new ConcurrentHashMap<>();
-    protected HTTPServer httpServer;
     private Map<String, MetricItemValue> dimensionMetricValueMap = new ConcurrentHashMap<>();
     private List<String> dimensionKeys = new ArrayList<>();
 
@@ -99,15 +97,14 @@ public class PrometheusMetricListener extends Collector implements MetricListene
         metricValueMap.put(M_READ_SUCCESS_SIZE, metricItem.readSuccessSize);
         metricValueMap.put(M_READ_FAIL_COUNT, metricItem.readFailCount);
         metricValueMap.put(M_READ_FAIL_SIZE, metricItem.readFailSize);
-        //
+        // send
         metricValueMap.put(M_SEND_COUNT, metricItem.sendCount);
         metricValueMap.put(M_SEND_SIZE, metricItem.sendSize);
-        //
         metricValueMap.put(M_SEND_SUCCESS_COUNT, metricItem.sendSuccessCount);
         metricValueMap.put(M_SEND_SUCCESS_SIZE, metricItem.sendSuccessSize);
         metricValueMap.put(M_SEND_FAIL_COUNT, metricItem.sendFailCount);
         metricValueMap.put(M_SEND_FAIL_SIZE, metricItem.sendFailSize);
-        //
+        // duration
         metricValueMap.put(M_SINK_DURATION, metricItem.sinkDuration);
         metricValueMap.put(M_NODE_DURATION, metricItem.nodeDuration);
         metricValueMap.put(M_WHOLE_DURATION, metricItem.wholeDuration);
@@ -119,7 +116,6 @@ public class PrometheusMetricListener extends Collector implements MetricListene
         } catch (IOException e) {
             LOG.error("exception while register prometheus http server:{},error:{}", metricName, e.getMessage());
         }
-        this.dimensionKeys.add(DEFAULT_DIMENSION_LABEL);
     }
 
     /**
@@ -179,22 +175,21 @@ public class PrometheusMetricListener extends Collector implements MetricListene
     public List<MetricFamilySamples> collect() {
 
         // total
-        CounterMetricFamily totalCounter = new CounterMetricFamily(metricName + "&group=total",
+        CounterMetricFamily totalCounter = new CounterMetricFamily(metricName,
                 "The metrics of dataproxy node.",
                 Arrays.asList("dimension"));
         totalCounter.addMetric(Arrays.asList(M_READ_SUCCESS_COUNT), metricItem.readSuccessCount.get());
         totalCounter.addMetric(Arrays.asList(M_READ_SUCCESS_SIZE), metricItem.readSuccessSize.get());
         totalCounter.addMetric(Arrays.asList(M_READ_FAIL_COUNT), metricItem.readFailCount.get());
         totalCounter.addMetric(Arrays.asList(M_READ_FAIL_SIZE), metricItem.readFailSize.get());
-        //
+        // send
         totalCounter.addMetric(Arrays.asList(M_SEND_COUNT), metricItem.sendCount.get());
         totalCounter.addMetric(Arrays.asList(M_SEND_SIZE), metricItem.sendSize.get());
-        //
         totalCounter.addMetric(Arrays.asList(M_SEND_SUCCESS_COUNT), metricItem.sendSuccessCount.get());
         totalCounter.addMetric(Arrays.asList(M_SEND_SUCCESS_SIZE), metricItem.sendSuccessSize.get());
         totalCounter.addMetric(Arrays.asList(M_SEND_FAIL_COUNT), metricItem.sendFailCount.get());
         totalCounter.addMetric(Arrays.asList(M_SEND_FAIL_SIZE), metricItem.sendFailSize.get());
-        //
+        // duration
         totalCounter.addMetric(Arrays.asList(M_SINK_DURATION), metricItem.sinkDuration.get());
         totalCounter.addMetric(Arrays.asList(M_NODE_DURATION), metricItem.nodeDuration.get());
         totalCounter.addMetric(Arrays.asList(M_WHOLE_DURATION), metricItem.wholeDuration.get());
@@ -202,8 +197,11 @@ public class PrometheusMetricListener extends Collector implements MetricListene
         mfs.add(totalCounter);
 
         // id dimension
-        CounterMetricFamily idCounter = new CounterMetricFamily(metricName + "&group=id",
-                "The metrics of inlong datastream.", this.dimensionKeys);
+        List<String> dimensionIdKeys = new ArrayList<>();
+        dimensionIdKeys.add(DEFAULT_DIMENSION_LABEL);
+        dimensionIdKeys.addAll(this.dimensionKeys);
+        CounterMetricFamily idCounter = new CounterMetricFamily(metricName + "_id",
+                "The metrics of inlong datastream.", dimensionIdKeys);
         for (Entry<String, MetricItemValue> entry : this.dimensionMetricValueMap.entrySet()) {
             MetricItemValue itemValue = entry.getValue();
             // read
@@ -214,7 +212,6 @@ public class PrometheusMetricListener extends Collector implements MetricListene
             // send
             addCounterMetricFamily(M_SEND_COUNT, itemValue, idCounter);
             addCounterMetricFamily(M_SEND_SIZE, itemValue, idCounter);
-            // send success
             addCounterMetricFamily(M_SEND_SUCCESS_COUNT, itemValue, idCounter);
             addCounterMetricFamily(M_SEND_SUCCESS_SIZE, itemValue, idCounter);
             addCounterMetricFamily(M_SEND_FAIL_COUNT, itemValue, idCounter);

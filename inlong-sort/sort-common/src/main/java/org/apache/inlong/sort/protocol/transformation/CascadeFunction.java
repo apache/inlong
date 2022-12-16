@@ -25,10 +25,7 @@ import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFunc
 /**
  * CascadeFunction is the top-level interface abstraction for cascading function
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = RegexpReplaceFirstFunction.class, name = "regexpReplaceFirst"),
         @JsonSubTypes.Type(value = RegexpReplaceFunction.class, name = "regexpReplace")

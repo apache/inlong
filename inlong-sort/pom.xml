@@ -17,21 +17,19 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>1.4.0-SNAPSHOT</version>
+        <version>1.5.0-SNAPSHOT</version>
     </parent>
     <artifactId>inlong-sort</artifactId>
+    <packaging>pom</packaging>
 
     <name>Apache InLong - Sort</name>
-    <packaging>pom</packaging>
 
     <modules>
         <module>sort-api</module>
@@ -47,8 +45,8 @@
         <kafka.clients.version>2.7.0</kafka.clients.version>
         <rat.basedir>${basedir}</rat.basedir>
         <hbase.version>2.2.3</hbase.version>
-        <dlc.hive.version>2.3.7</dlc.hive.version>
         <iceberg.hive.version>2.3.7</iceberg.hive.version>
+        <hudi.hive.version>2.3.7</hudi.hive.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -115,17 +113,17 @@
                     <executions>
                         <execution>
                             <id>shade-flink</id>
-                            <phase>package</phase>
                             <goals>
                                 <goal>shade</goal>
                             </goals>
+                            <phase>package</phase>
                             <configuration>
                                 <shadeTestJar>false</shadeTestJar>
                                 <createDependencyReducedPom>true</createDependencyReducedPom>
                                 <dependencyReducedPomLocation>${project.basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                                 <createSourcesJar>true</createSourcesJar>
                                 <transformers>
-                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 </transformers>
                             </configuration>
                         </execution>
@@ -142,8 +140,7 @@
                     <!-- Enforce single fork execution due to heavy mini cluster use in the tests -->
                     <forkCount>1</forkCount>
                     <argLine>-Xms256m -Xmx1024m -Dlog4j.configurationFile=${log4j.configurationfile}
-                        -Dmvn.forkNumber=${surefire.forkNumber} -XX:-UseGCOverheadLimit
-                    </argLine>
+                        -Dmvn.forkNumber=${surefire.forkNumber} -XX:-UseGCOverheadLimit</argLine>
                 </configuration>
             </plugin>
 

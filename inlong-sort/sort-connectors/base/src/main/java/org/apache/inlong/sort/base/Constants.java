@@ -1,19 +1,18 @@
 /*
- *   Licensed to the Apache Software Foundation (ASF) under one
- *   or more contributor license agreements.  See the NOTICE file
- *   distributed with this work for additional information
- *   regarding copyright ownership.  The ASF licenses this file
- *   to you under the Apache License, Version 2.0 (the
- *   "License"); you may not use this file except in compliance
- *   with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.sort.base;
@@ -30,9 +29,9 @@ public final class Constants {
     /**
      * constants for metrics
      */
-    public static final String DIRTY_BYTES = "dirtyBytes";
+    public static final String DIRTY_BYTES_OUT = "dirtyBytesOut";
 
-    public static final String DIRTY_RECORDS = "dirtyRecords";
+    public static final String DIRTY_RECORDS_OUT = "dirtyRecordsOut";
 
     public static final String NUM_BYTES_OUT = "numBytesOut";
 
@@ -58,6 +57,10 @@ public final class Constants {
 
     public static final String NUM_RECORDS_IN_PER_SECOND = "numRecordsInPerSecond";
     /**
+     * Timestamp when the read phase changed
+     */
+    public static final String READ_PHASE_TIMESTAMP = "readPhaseTimestamp";
+    /**
      * Time span in seconds
      */
     public static final Integer TIME_SPAN_IN_SECONDS = 60;
@@ -74,9 +77,41 @@ public final class Constants {
      */
     public static final String NODE_ID = "nodeId";
     /**
-     * It is used for inlong.metric
+     * Database Name used in inlong metric
+     */
+    public static final String DATABASE_NAME = "database";
+    /**
+     * Table Name used in inlong metric
+     */
+    public static final String TABLE_NAME = "table";
+    /**
+     * Read Phase used in inlong metric
+     */
+    public static final String READ_PHASE = "readPhase";
+    /**
+     * Schema Name used in inlong metric
+     */
+    public static final String SCHEMA_NAME = "schema";
+    /**
+     * Topic Name used in inlong metric
+     */
+    public static final String TOPIC_NAME = "topic";
+    /**
+     * It is used for 'inlong.metric.labels' or 'sink.dirty.labels'
      */
     public static final String DELIMITER = "&";
+    /**
+     * It is used for metric data to build schema identify
+     */
+    public static final String SEMICOLON = ".";
+    /**
+     * It is used for metric data to spilt schema identify
+     */
+    public static final String SPILT_SEMICOLON = "\\.";
+    /**
+     * The delimiter of key and value, it is used for 'inlong.metric.labels' or 'sink.dirty.labels'
+     */
+    public static final String KEY_VALUE_DELIMITER = "=";
 
     // sort received successfully
     public static final Integer AUDIT_SORT_INPUT = 7;
@@ -163,4 +198,116 @@ public final class Constants {
                     .booleanType()
                     .defaultValue(true)
                     .withDescription("Whether ignore the single table erros when multiple sink writing scenario.");
+
+    public static final ConfigOption<Boolean> SINK_MULTIPLE_PK_AUTO_GENERATED =
+            ConfigOptions.key("sink.multiple.pk-auto-generated")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether generated pk fields as whole data when source table does not have a "
+                            + "primary key.");
+
+    public static final ConfigOption<Boolean> SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK =
+            ConfigOptions.key("sink.multiple.typemap-compatible-with-spark")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Because spark do not support iceberg data type: `timestamp without time zone` and"
+                            + "`time`, so type conversions must be mapped to types supported by spark.");
+
+    // ========================================= dirty configuration =========================================
+    public static final String DIRTY_PREFIX = "dirty.";
+
+    public static final ConfigOption<Boolean> DIRTY_IGNORE =
+            ConfigOptions.key("dirty.ignore")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether ignore the dirty data, default value is 'false'");
+    public static final ConfigOption<String> DIRTY_IDENTIFIER =
+            ConfigOptions.key("dirty.identifier")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "The identifier of dirty data, it will be used for filename generation of file dirty sink, "
+                                    + "topic generation of mq dirty sink, tablename generation of database, etc."
+                                    + "and it supports variable replace like '${variable}'."
+                                    + "There are several system variables[SYSTEM_TIME|DIRTY_TYPE|DIRTY_MESSAGE] "
+                                    + "are currently supported, "
+                                    + "and the support of other variables is determined by the connector.");
+    public static final ConfigOption<Boolean> DIRTY_SIDE_OUTPUT_ENABLE =
+            ConfigOptions.key("dirty.side-output.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether supports dirty data side-output, default value is 'false'");
+    public static final ConfigOption<String> DIRTY_SIDE_OUTPUT_CONNECTOR =
+            ConfigOptions.key("dirty.side-output.connector")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("The connector of dirty side-output");
+    public static final ConfigOption<String> DIRTY_SIDE_OUTPUT_FORMAT =
+            ConfigOptions.key("dirty.side-output.format")
+                    .stringType()
+                    .defaultValue("csv")
+                    .withDescription(
+                            "The format of dirty side-output, only support [csv|json] for now and default value is 'csv'");
+    public static final ConfigOption<Boolean> DIRTY_SIDE_OUTPUT_IGNORE_ERRORS =
+            ConfigOptions.key("dirty.side-output.ignore-errors")
+                    .booleanType()
+                    .defaultValue(true)
+                    .withDescription("Whether ignore the dirty side-output erros, default value is 'true'.");
+    public static final ConfigOption<Boolean> DIRTY_SIDE_OUTPUT_LOG_ENABLE =
+            ConfigOptions.key("dirty.side-output.log.enable")
+                    .booleanType()
+                    .defaultValue(true)
+                    .withDescription("Whether enable log print, default value is 'true'.");
+    public static final ConfigOption<String> DIRTY_SIDE_OUTPUT_LABELS =
+            ConfigOptions.key("dirty.side-output.labels")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "The labels of dirty side-output, format is 'key1=value1&key2=value2', "
+                                    + "it supports variable replace like '${variable}',"
+                                    + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE|DIRTY_MESSAGE] "
+                                    + "are currently supported,"
+                                    + " and the support of other variables is determined by the connector.");
+    public static final ConfigOption<String> DIRTY_SIDE_OUTPUT_LOG_TAG =
+            ConfigOptions.key("dirty.side-output.log-tag")
+                    .stringType()
+                    .defaultValue("DirtyData")
+                    .withDescription(
+                            "The log tag of dirty side-output, it supports variable replace like '${variable}'."
+                                    + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE|DIRTY_MESSAGE] are currently supported,"
+                                    + " and the support of other variables is determined by the connector.");
+    public static final ConfigOption<String> DIRTY_SIDE_OUTPUT_FIELD_DELIMITER =
+            ConfigOptions.key("dirty.side-output.field-delimiter")
+                    .stringType()
+                    .defaultValue(",")
+                    .withDescription("The field-delimiter of dirty side-output");
+    public static final ConfigOption<String> DIRTY_SIDE_OUTPUT_LINE_DELIMITER =
+            ConfigOptions.key("dirty.side-output.line-delimiter")
+                    .stringType()
+                    .defaultValue("\n")
+                    .withDescription("The line-delimiter of dirty sink");
+    public static final ConfigOption<Integer> DIRTY_SIDE_OUTPUT_BATCH_SIZE = ConfigOptions
+            .key("dirty.side-output.batch.size")
+            .intType()
+            .defaultValue(100)
+            .withDescription(
+                    "The flush max size, over this number of records, will flush data. The default value is 100.");
+    public static final ConfigOption<Integer> DIRTY_SIDE_OUTPUT_RETRIES = ConfigOptions
+            .key("dirty.side-output.retries")
+            .intType()
+            .defaultValue(3)
+            .withDescription("The retry times if writing records failed.");
+    public static final ConfigOption<Long> DIRTY_SIDE_OUTPUT_BATCH_INTERVAL = ConfigOptions
+            .key("dirty.side-output.batch.interval")
+            .longType()
+            .defaultValue(60000L)
+            .withDescription(
+                    "The flush interval mills, over this time, "
+                            + "asynchronous threads will flush data. The default value is 60s.");
+    public static final ConfigOption<Long> DIRTY_SIDE_OUTPUT_BATCH_BYTES = ConfigOptions
+            .key("dirty.side-output.batch.bytes")
+            .longType()
+            .defaultValue(10240L)
+            .withDescription(
+                    "The flush max bytes, over this number in batch, will flush data. The default value is 10KB.");
 }

@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +22,9 @@ import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 
 import com.ververica.cdc.debezium.Validator;
+import io.debezium.connector.AbstractSourceInfo;
+import io.debezium.connector.SnapshotRecord;
+import io.debezium.data.Envelope;
 import io.debezium.document.DocumentReader;
 import io.debezium.document.DocumentWriter;
 import io.debezium.embedded.Connect;
@@ -69,21 +71,24 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffsetSerializer;
+import org.apache.inlong.sort.cdc.base.debezium.internal.FlinkDatabaseHistory;
+import org.apache.inlong.sort.cdc.base.debezium.internal.FlinkOffsetBackingStore;
+import org.apache.inlong.sort.cdc.base.debezium.internal.Handover;
+import org.apache.inlong.sort.cdc.base.debezium.internal.SchemaRecord;
+import org.apache.inlong.sort.cdc.base.util.DatabaseHistoryUtil;
 import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeFetcher;
 import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeConsumer;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumOffset;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumOffsetSerializer;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkDatabaseHistory;
 import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkDatabaseSchemaHistory;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkOffsetBackingStore;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.Handover;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.SchemaRecord;
-import org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil;
+import org.apache.inlong.sort.cdc.oracle.debezium.utils.CallbackCollector;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * The {@link DebeziumSourceFunction} is a streaming data source that pulls captured change data
@@ -115,7 +120,10 @@ import org.slf4j.LoggerFactory;
  */
 @PublicEvolving
 public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
-        implements CheckpointedFunction, CheckpointListener, ResultTypeQueryable<T> {
+        implements
+            CheckpointedFunction,
+            CheckpointListener,
+            ResultTypeQueryable<T> {
 
     /**
      * State name of the consumer's partition offset states.
@@ -157,8 +165,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /**
      * The specific binlog offset to read from when the first startup.
      */
-    private final @Nullable
-    DebeziumOffset specificOffset;
+    private final @Nullable DebeziumOffset specificOffset;
 
     /**
      * Data for pending but uncommitted offsets.
@@ -230,7 +237,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private String inlongAudit;
 
-    private SourceMetricData sourceMetricData;
+    private boolean sourceMultipleEnable;
+
+    private SourceTableMetricData sourceMetricData;
 
     private transient ListState<MetricState> metricStateListState;
 
@@ -244,13 +253,15 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             @Nullable DebeziumOffset specificOffset,
             Validator validator,
             String inlongMetric,
-            String inlongAudit) {
+            String inlongAudit,
+            boolean sourceMultipleEnable) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
         this.validator = validator;
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
+        this.sourceMultipleEnable = sourceMultipleEnable;
     }
 
     @Override
@@ -265,7 +276,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     }
 
     // ------------------------------------------------------------------------
-    //  Checkpoint and restore
+    // Checkpoint and restore
     // ------------------------------------------------------------------------
 
     @Override
@@ -286,7 +297,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                     stateStore.getUnionListState(
                             new ListStateDescriptor<>(
                                     INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                            })));
+                                    })));
         }
 
         if (context.isRestored()) {
@@ -445,7 +456,11 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption, metricGroup);
+            sourceMetricData = new SourceTableMetricData(metricOption, metricGroup);
+            if (sourceMultipleEnable) {
+                // register sub source metric data from metric state
+                sourceMetricData.registerSubMetricsGroup(metricState);
+            }
         }
 
         properties.setProperty("name", "engine");
@@ -483,21 +498,37 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 new DebeziumChangeFetcher<>(
                         sourceContext,
                         new DebeziumDeserializationSchema<T>() {
+
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
-                                if (sourceMetricData != null) {
-                                    sourceMetricData.outputMetricsWithEstimate(record.value());
-                                }
-                                deserializer.deserialize(record, out);
+                                deserializer.deserialize(record, new CallbackCollector<>(inputRow -> {
+                                    if (sourceMetricData != null) {
+                                        sourceMetricData.outputMetricsWithEstimate(record.value());
+                                    }
+                                    out.collect(inputRow);
+                                }));
                             }
 
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out,
                                     TableChange tableSchema) throws Exception {
-                                if (sourceMetricData != null) {
-                                    sourceMetricData.outputMetricsWithEstimate(record.value());
-                                }
-                                deserializer.deserialize(record, out, tableSchema);
+                                deserializer.deserialize(record, new CallbackCollector<>(inputRow -> {
+                                    if (sourceMetricData != null && record != null && sourceMultipleEnable) {
+                                        Struct value = (Struct) record.value();
+                                        Struct source = value.getStruct(Envelope.FieldName.SOURCE);
+                                        String dbName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
+                                        String schemaName = source.getString(AbstractSourceInfo.SCHEMA_NAME_KEY);
+                                        String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
+                                        SnapshotRecord snapshotRecord = SnapshotRecord.fromSource(source);
+                                        boolean isSnapshotRecord = (SnapshotRecord.TRUE == snapshotRecord);
+                                        sourceMetricData
+                                                .outputMetricsWithEstimate(dbName, schemaName, tableName,
+                                                        isSnapshotRecord, value);
+                                    } else if (sourceMetricData != null && record != null) {
+                                        sourceMetricData.outputMetricsWithEstimate(record.value());
+                                    }
+                                    out.collect(inputRow);
+                                }), tableSchema);
                             }
 
                             @Override

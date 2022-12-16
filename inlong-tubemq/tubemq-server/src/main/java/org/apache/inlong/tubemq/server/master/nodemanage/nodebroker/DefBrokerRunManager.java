@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
  * Broker run manager
  */
 public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
+
     private static final Logger logger =
             LoggerFactory.getLogger(DefBrokerRunManager.class);
     // meta data manager
@@ -90,6 +91,7 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
                 new BrokerAbnHolder(masterConfig.getMaxAutoForbiddenCnt(), this.metaDataService);
         heartbeatManager.regBrokerCheckBusiness(masterConfig.getBrokerHeartbeatTimeoutMs(),
                 new TimeoutListener() {
+
                     @Override
                     public void onTimeout(final String nodeId, TimeoutInfo nodeInfo) throws Exception {
                         logger.info(new StringBuilder(512).append("[Broker Timeout] ")
@@ -184,11 +186,11 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
 
     @Override
     public boolean brokerRegister2M(String clientId, BrokerInfo brokerInfo,
-                                    long reportConfigId, int reportCheckSumId,
-                                    boolean isTackData, String repBrokerConfInfo,
-                                    List<String> repTopicConfInfo, boolean isOnline,
-                                    boolean isOverTLS, StringBuilder sBuffer,
-                                    ProcessResult result) {
+            long reportConfigId, int reportCheckSumId,
+            boolean isTackData, String repBrokerConfInfo,
+            List<String> repTopicConfInfo, boolean isOnline,
+            boolean isOverTLS, StringBuilder sBuffer,
+            ProcessResult result) {
         BrokerConfEntity brokerEntry =
                 metaDataService.getBrokerConfByBrokerId(brokerInfo.getBrokerId());
         if (brokerEntry == null) {
@@ -264,11 +266,11 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
 
     @Override
     public boolean brokerHeartBeat2M(int brokerId, long reportConfigId, int reportCheckSumId,
-                                     boolean isTackData, String repBrokerConfInfo,
-                                     List<String> repTopicConfInfo,
-                                     boolean isTackRmvInfo, List<String> removedTopics,
-                                     int rptReadStatus, int rptWriteStatus, boolean isOnline,
-                                     StringBuilder sBuffer, ProcessResult result) {
+            boolean isTackData, String repBrokerConfInfo,
+            List<String> repTopicConfInfo,
+            boolean isTackRmvInfo, List<String> removedTopics,
+            int rptReadStatus, int rptWriteStatus, boolean isOnline,
+            StringBuilder sBuffer, ProcessResult result) {
         BrokerRunStatusInfo runStatusInfo =
                 brokerRunSyncManageMap.get(brokerId);
         if (runStatusInfo == null) {
@@ -288,9 +290,9 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
         // process removed topic info
         if (isTackRmvInfo) {
             metaDataService.delCleanedTopicDeployInfo(brokerId, removedTopics, sBuffer, result);
-            logger.info(sBuffer.append("[Broker Report] receive broker removed topics = ")
-                    .append(removedTopics.toString()).append(", removed result is ")
-                    .append(result.getErrMsg()).toString());
+            logger.info(sBuffer.append("[Broker Report] brokerId=").append(brokerId)
+                    .append(" removed topics = ").append(removedTopics)
+                    .append(", removed result is ").append(result.getErrMsg()).toString());
             sBuffer.delete(0, sBuffer.length());
         }
         brokerAbnHolder.updateBrokerReportStatus(brokerId, rptReadStatus, rptWriteStatus);
@@ -317,7 +319,7 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
         }
         boolean isOverTls = runStatusInfo.isOverTLS();
         releaseBrokerRunInfo(brokerId, runStatusInfo.getCreateId(), false);
-        logger.info(sBuffer.append("[Broker Closed]").append(brokerId)
+        logger.info(sBuffer.append("[Broker Closed] brokerId=").append(brokerId)
                 .append(" unregister success, isOverTLS=").append(isOverTls).toString());
         result.setSuccResult(null);
         return result.isSuccess();
@@ -344,7 +346,7 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
 
     @Override
     public void setRegisterDownConfInfo(int brokerId, StringBuilder sBuffer,
-                                        RegisterResponseM2B.Builder builder) {
+            RegisterResponseM2B.Builder builder) {
         BrokerRunStatusInfo runStatusInfo =
                 brokerRunSyncManageMap.get(brokerId);
         if (runStatusInfo == null) {
@@ -381,7 +383,7 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
 
     @Override
     public void setHeatBeatDownConfInfo(int brokerId, StringBuilder sBuffer,
-                                        HeartResponseM2B.Builder builder) {
+            HeartResponseM2B.Builder builder) {
         BrokerRunStatusInfo runStatusInfo =
                 brokerRunSyncManageMap.get(brokerId);
         if (runStatusInfo == null) {
@@ -491,20 +493,20 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
 
     @Override
     public void iniBrokerConfInfo(int brokerId, ManageStatus mngStatus,
-                                  Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         brokerPubSubInfo.iniBrokerConfigInfo(brokerId, mngStatus, topicInfoMap);
     }
 
     @Override
     public boolean updBrokerCsmConfInfo(int brokerId, ManageStatus mngStatus,
-                                        Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         brokerPubSubInfo.updBrokerMangeStatus(brokerId, mngStatus);
         return brokerPubSubInfo.updBrokerSubTopicConfInfo(brokerId, topicInfoMap);
     }
 
     @Override
     public void updBrokerPrdConfInfo(int brokerId, ManageStatus mngStatus,
-                                     Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         brokerPubSubInfo.updBrokerPubTopicConfInfo(brokerId, topicInfoMap);
     }
 
@@ -530,19 +532,19 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
 
     @Override
     public void getSubBrokerTopicInfo(int brokerId, String topic,
-                                      Tuple2<Boolean, TopicInfo> result) {
+            Tuple2<Boolean, TopicInfo> result) {
         brokerPubSubInfo.getBrokerSubPushedTopicInfo(brokerId, topic, result);
     }
 
     @Override
     public void getPubBrokerTopicInfo(int brokerId, String topic,
-                                      Tuple3<Boolean, Boolean, TopicInfo> result) {
+            Tuple3<Boolean, Boolean, TopicInfo> result) {
         brokerPubSubInfo.getBrokerPubPushedTopicInfo(brokerId, topic, result);
     }
 
     @Override
     public void getPubBrokerPushedTopicInfo(int brokerId,
-                                            Tuple3<Boolean, Boolean, List<TopicInfo>> result) {
+            Tuple3<Boolean, Boolean, List<TopicInfo>> result) {
         brokerPubSubInfo.getPubBrokerPushedTopicInfo(brokerId, result);
     }
 }

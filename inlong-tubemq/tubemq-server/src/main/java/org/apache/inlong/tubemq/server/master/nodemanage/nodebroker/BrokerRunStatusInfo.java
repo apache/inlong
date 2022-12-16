@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -63,26 +63,26 @@ public class BrokerRunStatusInfo {
     // broker sync data info
     BrokerSyncData brokerSyncData = new BrokerSyncData();
     // broker status conditions
-    private boolean isOnline = false;       // broker online flag
+    private boolean isOnline = false; // broker online flag
     private boolean isDoneDataLoad = false;
     private boolean isDoneDataSub = false;
     private boolean isDoneDataPub = false;
-    private boolean isOverTLS = false;    // enable tls
+    private boolean isOverTLS = false; // enable tls
     private long lastBrokerSyncTime = 0;
     private long maxConfLoadedTimeInMs = 0;
     private long curConfLoadTimeInMs = 0;
 
     public BrokerRunStatusInfo(BrokerRunManager brokerRunManager, BrokerInfo brokerInfo,
-                               ManageStatus mngStatus, String brokerConfInfo,
-                               Map<String, String> topicConfInfoMap, boolean isOverTls) {
+            ManageStatus mngStatus, String brokerConfInfo,
+            Map<String, String> topicConfInfoMap, boolean isOverTls) {
         this.brokerRunManager = brokerRunManager;
         reInitRunStatusInfo(brokerInfo, mngStatus,
                 brokerConfInfo, topicConfInfoMap, isOverTls);
     }
 
     public void reInitRunStatusInfo(BrokerInfo brokerInfo, ManageStatus mngStatus,
-                                    String brokerConfInfo, Map<String, String> topicConfInfoMap,
-                                    boolean isOverTls) {
+            String brokerConfInfo, Map<String, String> topicConfInfoMap,
+            boolean isOverTls) {
         resetStatusInfo();
         this.createId = String.valueOf(System.nanoTime());
         this.brokerInfo = brokerInfo;
@@ -109,7 +109,7 @@ public class BrokerRunStatusInfo {
     private boolean isDataChanged() {
         return (this.isConfChanged.get()
                 || (this.curStepStatus == StepStatus.STEP_STATUS_UNDEFINED
-                && this.confChangeNo.get() != this.confLoadedNo.get()));
+                        && this.confChangeNo.get() != this.confLoadedNo.get()));
     }
 
     public String getCreateId() {
@@ -158,10 +158,10 @@ public class BrokerRunStatusInfo {
      * @param sBuffer            string process container
      */
     public void bookBrokerReportInfo(boolean isRegister, boolean isOnline,
-                                     long repConfigId, int repCheckSumId,
-                                     boolean isTackData, String repBrokerConfInfo,
-                                     List<String> repTopicConfs,
-                                     StringBuilder sBuffer) {
+            long repConfigId, int repCheckSumId,
+            boolean isTackData, String repBrokerConfInfo,
+            List<String> repTopicConfs,
+            StringBuilder sBuffer) {
         this.isOnline = isOnline;
         boolean isSynchronized =
                 brokerSyncData.bookBrokerReportInfo(brokerInfo, repConfigId,
@@ -207,8 +207,8 @@ public class BrokerRunStatusInfo {
     }
 
     private void goNextStatus(boolean isRegister,
-                              boolean isSynchronized,
-                              StringBuilder sBuffer) {
+            boolean isSynchronized,
+            StringBuilder sBuffer) {
         if (isRegister) {
             goRegNextStatus(isSynchronized);
         } else {
@@ -222,7 +222,7 @@ public class BrokerRunStatusInfo {
             case STEP_STATUS_LOAD_DATA: {
                 loadNewMetaData(sBuffer);
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_SUBSCRIBE: {
                 if (execSyncDataToSub()) {
@@ -232,12 +232,12 @@ public class BrokerRunStatusInfo {
                             System.currentTimeMillis() + curStepStatus.getShortDelayDurIdnMs();
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_PUBLISH: {
                 execSyncDataToPub();
             }
-            break;
+                break;
 
             case STEP_STATUS_UNDEFINED:
             case STEP_STATUS_WAIT_ONLINE:
@@ -270,7 +270,7 @@ public class BrokerRunStatusInfo {
                             System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_LOAD_DATA: {
                 if (isDoneDataLoad) {
@@ -285,7 +285,7 @@ public class BrokerRunStatusInfo {
                     }
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_ONLINE: {
                 if (isOnline) {
@@ -298,7 +298,7 @@ public class BrokerRunStatusInfo {
                             System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_SYNC: {
                 if (isSynchronized) {
@@ -307,7 +307,7 @@ public class BrokerRunStatusInfo {
                             System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_SUBSCRIBE: {
                 if (isDoneDataSub && System.currentTimeMillis() > nextStepOpTimeInMills) {
@@ -316,7 +316,7 @@ public class BrokerRunStatusInfo {
                             System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_PUBLISH:
             default: {
@@ -406,7 +406,6 @@ public class BrokerRunStatusInfo {
      * @return true if need report data otherwise false
      */
     private boolean needForceSyncData() {
-        return System.currentTimeMillis() - this.lastBrokerSyncTime
-                > TServerConstants.CFG_REPORT_DEFAULT_SYNC_DURATION;
+        return System.currentTimeMillis() - this.lastBrokerSyncTime > TServerConstants.CFG_REPORT_DEFAULT_SYNC_DURATION;
     }
 }

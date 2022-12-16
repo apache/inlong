@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sort.protocol.node.extract;
@@ -70,7 +69,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
      */
     @JsonProperty("tid")
     private TreeSet<String> tid;
-    
+
     @JsonCreator
     public TubeMQExtractNode(
             @JsonProperty("id") String id,
@@ -83,8 +82,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
             @Nonnull @JsonProperty("format") String format,
             @Nonnull @JsonProperty("groupId") String groupId,
             @JsonProperty("sessionKey") String sessionKey,
-            @JsonProperty("tid") TreeSet<String> tid
-    ) {
+            @JsonProperty("tid") TreeSet<String> tid) {
         super(id, name, fields, waterMarkField, properties);
         this.masterRpc = Preconditions.checkNotNull(masterRpc, "TubeMQ masterRpc is null");
         this.topic = Preconditions.checkNotNull(topic, "TubeMQ topic is null");

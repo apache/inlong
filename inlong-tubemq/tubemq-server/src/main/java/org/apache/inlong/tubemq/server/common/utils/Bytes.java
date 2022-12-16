@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -32,6 +32,7 @@ import sun.misc.Unsafe;
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class Bytes {
+
     /**
      * Size of long in bytes
      */
@@ -62,7 +63,7 @@ public class Bytes {
      * @return 0 if equal, < 0 if left is less than right, etc.
      */
     public static int compareTo(byte[] buffer1, int offset1, int length1, byte[] buffer2,
-                                int offset2, int length2) {
+            int offset2, int length2) {
         return LexicographicalComparerHolder.BEST_COMPARER.compareTo(buffer1, offset1, length1,
                 buffer2, offset2, length2);
     }
@@ -94,8 +95,9 @@ public class Bytes {
     }
 
     interface Comparer<T> {
+
         int compareTo(T buffer1, int offset1, int length1, T buffer2, int offset2,
-                                      int length2);
+                int length2);
     }
 
     /**
@@ -107,6 +109,7 @@ public class Bytes {
      * available.
      */
     static class LexicographicalComparerHolder {
+
         static final String UNSAFE_COMPARER_NAME = LexicographicalComparerHolder.class.getName()
                 + "$UnsafeComparer";
 
@@ -130,11 +133,12 @@ public class Bytes {
         }
 
         enum PureJavaComparer implements Comparer<byte[]> {
+
             INSTANCE;
 
             @Override
             public int compareTo(byte[] buffer1, int offset1, int length1, byte[] buffer2, int offset2,
-                                 int length2) {
+                    int length2) {
                 // Short circuit equal case
                 if (buffer1 == buffer2 && offset1 == offset2 && length1 == length2) {
                     return 0;
@@ -154,6 +158,7 @@ public class Bytes {
         }
 
         enum UnsafeComparer implements Comparer<byte[]> {
+
             INSTANCE;
 
             private static final Unsafe theUnsafe;
@@ -167,6 +172,7 @@ public class Bytes {
 
             static {
                 theUnsafe = (Unsafe) AccessController.doPrivileged(new PrivilegedAction<Object>() {
+
                     @Override
                     public Object run() {
                         try {
@@ -211,7 +217,7 @@ public class Bytes {
              */
             @Override
             public int compareTo(byte[] buffer1, int offset1, int length1, byte[] buffer2, int offset2,
-                                 int length2) {
+                    int length2) {
                 // Short circuit equal case
                 if (buffer1 == buffer2 && offset1 == offset2 && length1 == length2) {
                     return 0;
@@ -222,9 +228,8 @@ public class Bytes {
                 int offset2Adj = offset2 + BYTE_ARRAY_BASE_OFFSET;
 
                 /*
-                 * Compare 8 bytes at a time. Benchmarking shows comparing 8 bytes at a time is no slower
-                 * than comparing 4 bytes at a time even on 32-bit. On the other hand, it is substantially
-                 * faster on 64-bit.
+                 * Compare 8 bytes at a time. Benchmarking shows comparing 8 bytes at a time is no slower than comparing
+                 * 4 bytes at a time even on 32-bit. On the other hand, it is substantially faster on 64-bit.
                  */
                 for (int i = 0; i < minWords * SIZEOF_LONG; i += SIZEOF_LONG) {
                     long lw = theUnsafe.getLong(buffer1, offset1Adj + (long) i);

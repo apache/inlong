@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,8 +55,7 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
                 new MetaFieldInfo("proctime", MetaField.PROCESS_TIME),
                 new MetaFieldInfo("database_name", MetaField.DATABASE_NAME),
                 new MetaFieldInfo("collection_name", MetaField.COLLECTION_NAME),
-                new MetaFieldInfo("op_ts", MetaField.OP_TS)
-        );
+                new MetaFieldInfo("op_ts", MetaField.OP_TS));
         return new MongoExtractNode("1", "mysql_input", fields,
                 null, null, "test", "localhost:27017",
                 "root", "inlong", "test");
@@ -70,8 +68,7 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
                 new FieldInfo("proctime", new TimestampFormatInfo()),
                 new FieldInfo("database_name", new StringFormatInfo()),
                 new FieldInfo("collection_name", new StringFormatInfo()),
-                new FieldInfo("op_ts", new TimestampFormatInfo())
-        );
+                new FieldInfo("op_ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays.asList(
                 new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("name", new StringFormatInfo())),
@@ -84,8 +81,7 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
                 new FieldRelation(new FieldInfo("collection_name", new StringFormatInfo()),
                         new FieldInfo("collection_name", new StringFormatInfo())),
                 new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
-                        new FieldInfo("op_ts", new TimestampFormatInfo()))
-        );
+                        new FieldInfo("op_ts", new TimestampFormatInfo())));
         CsvFormat csvFormat = new CsvFormat();
         csvFormat.setDisableQuoteCharacter(true);
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,

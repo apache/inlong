@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -142,15 +142,20 @@ public class DataConverterUtil {
      * convert string info to @link BrokerInfo
      *
      * @param strBrokerInfos return a BrokerInfo Map
+     * @param enableTLS   Whether to enable TLS
      */
-    public static Map<Integer, BrokerInfo> convertBrokerInfo(List<String> strBrokerInfos) {
+    public static Map<Integer, BrokerInfo> convertBrokerInfo(List<String> strBrokerInfos,
+            boolean enableTLS) {
         Map<Integer, BrokerInfo> brokerInfoMap =
                 new ConcurrentHashMap<>();
         if (strBrokerInfos != null) {
+            int brokerPort = enableTLS
+                    ? TBaseConstants.META_DEFAULT_BROKER_TLS_PORT
+                    : TBaseConstants.META_DEFAULT_BROKER_PORT;
             for (String info : strBrokerInfos) {
                 if (info != null) {
                     BrokerInfo brokerInfo =
-                            new BrokerInfo(info, TBaseConstants.META_DEFAULT_BROKER_PORT);
+                            new BrokerInfo(info, brokerPort);
                     brokerInfoMap.put(brokerInfo.getBrokerId(), brokerInfo);
                 }
             }
@@ -200,7 +205,7 @@ public class DataConverterUtil {
      * @param transferedMessageList return a list of @link Message
      */
     public static List<Message> convertMessage(final String topicName,
-                                               List<ClientBroker.TransferedMessage> transferedMessageList) {
+            List<ClientBroker.TransferedMessage> transferedMessageList) {
         if (transferedMessageList == null || transferedMessageList.isEmpty()) {
             return new ArrayList<>();
         }

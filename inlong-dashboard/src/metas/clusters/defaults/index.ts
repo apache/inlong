@@ -18,8 +18,9 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { ClusterMetaType } from '../types';
 
-export const allDefaultClusters: MetaExportWithBackendList = [
+export const allDefaultClusters: MetaExportWithBackendList<ClusterMetaType> = [
   {
     label: 'ALL',
     value: '',
@@ -34,6 +35,11 @@ export const allDefaultClusters: MetaExportWithBackendList = [
     label: 'DataProxy',
     value: 'DATAPROXY',
     LoadEntity: () => import('./DataProxy'),
+  },
+  {
+    label: 'Kafka',
+    value: 'KAFKA',
+    LoadEntity: () => import('./Kafka'),
   },
   {
     label: 'Pulsar',

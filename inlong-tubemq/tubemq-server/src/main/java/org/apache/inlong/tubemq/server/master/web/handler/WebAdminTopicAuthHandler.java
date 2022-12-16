@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -64,8 +64,8 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryTopicAuthControl(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         TopicCtrlEntity qryEntity = new TopicCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -151,8 +151,8 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminEnableDisableTopicAuthControl(HttpServletRequest req,
-                                                            StringBuilder sBuffer,
-                                                            ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -167,12 +167,12 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // get authCtrlStatus info
-        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.ISENABLE,
-                false, false, sBuffer, result)) {
+        if (!WebParameterUtils.getEnableStatusValue(req, WebFieldDef.ISENABLE,
+                false, EnableStatus.STATUS_DISABLE, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean enableTopicAuth = (Boolean) result.getRetData();
+        EnableStatus enableTopicAuth = (EnableStatus) result.getRetData();
         // add or update records
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (String topicName : topicNameSet) {
@@ -191,8 +191,8 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchAddTopicAuthControl(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -222,8 +222,8 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminDeleteTopicAuthControl(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -245,7 +245,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
             if (ctrlEntity != null
                     && ctrlEntity.getAuthCtrlStatus() != EnableStatus.STATUS_DISABLE) {
                 retInfo.add(defMetaDataService.insertTopicCtrlConf(opEntity,
-                        topicName, Boolean.FALSE, sBuffer, result));
+                        topicName, EnableStatus.STATUS_DISABLE, sBuffer, result));
             } else {
                 result.setFullInfo(true, DataOpErrCode.DERR_SUCCESS.getCode(), "Ok");
                 retInfo.add(new TopicProcessResult(0, topicName, result));
@@ -255,7 +255,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     }
 
     private boolean getTopicCtrlJsonSetInfo(HttpServletRequest req, BaseEntity defOpEntity,
-                                            StringBuilder sBuffer, ProcessResult result) {
+            StringBuilder sBuffer, ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.TOPICJSONSET, true, null, result)) {
             return result.isSuccess();
@@ -279,11 +279,11 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
             }
             String topicName = (String) result.getRetData();
             // get authCtrlStatus info
-            if (!WebParameterUtils.getBooleanParamValue(confMap, WebFieldDef.ISENABLE,
-                    false, false, sBuffer, result)) {
+            if (!WebParameterUtils.getEnableStatusValue(confMap, WebFieldDef.ISENABLE,
+                    false, EnableStatus.STATUS_DISABLE, sBuffer, result)) {
                 return result.isSuccess();
             }
-            Boolean enableTopicAuth = (Boolean) result.getRetData();
+            EnableStatus enableTopicAuth = (EnableStatus) result.getRetData();
             itemConf = new TopicCtrlEntity(itemOpEntity, topicName);
             itemConf.updModifyInfo(itemOpEntity.getDataVerId(),
                     TBaseConstants.META_VALUE_UNDEFINED,
@@ -304,7 +304,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<TopicProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (TopicProcessResult entry : retInfo) {

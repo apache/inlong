@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -21,6 +21,7 @@ package org.apache.inlong.tubemq.server.common.statusdef;
  * The topic status change step
  */
 public enum TopicStsChgType {
+
     STATUS_CHANGE_SOFT_DELETE(0, "Soft deleted"),
     STATUS_CHANGE_REMOVE(1, "Soft removed"),
     STATUS_CHANGE_REDO_SFDEL(2, "Redo soft delete");

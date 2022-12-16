@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -26,8 +26,8 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
 public enum WebFieldDef {
 
     // Note: Due to compatibility considerations,
-    //      the defined fields in the scheme are forbidden to be modified,
-    //      only new fields can be added
+    // the defined fields in the scheme are forbidden to be modified,
+    // only new fields can be added
 
     TOPICNAME(0, "topicName", "topic", WebFieldType.STRING,
             "Topic name", TBaseConstants.META_MAX_TOPICNAME_LENGTH,
@@ -58,7 +58,7 @@ public enum WebFieldDef {
 
     COMPSGROUPNAME(10, "groupName", "group", WebFieldType.COMPSTRING,
             "Group name", TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                   RegexDef.TMP_GROUP),
+            RegexDef.TMP_GROUP),
     COMPSTOPICNAME(11, "topicName", "topic", WebFieldType.COMPSTRING,
             "Topic name", TBaseConstants.META_MAX_TOPICNAME_LENGTH,
             RegexDef.TMP_STRING),
@@ -110,7 +110,7 @@ public enum WebFieldDef {
     @Deprecated
     COMPSCONSUMEGROUP(30, "consumeGroup", "group", WebFieldType.COMPSTRING,
             "Group name", TBaseConstants.META_MAX_GROUPNAME_LENGTH,
-                   RegexDef.TMP_GROUP),
+            RegexDef.TMP_GROUP),
     REGIONID(31, "regionId", "regionId", WebFieldType.INT,
             "Region id", RegexDef.TMP_NUMBER),
     COMPREGIONID(32, "regionId", "regionId", WebFieldType.COMPINT,
@@ -180,13 +180,13 @@ public enum WebFieldDef {
     ATTRIBUTES(60, "attributes", "attrs",
             WebFieldType.STRING, "Attributes"),
     RECORDKEY(61, "recordKey", "recKey",
-               WebFieldType.STRING, "Record key"),
+            WebFieldType.STRING, "Record key"),
     FLOWCTRLENABLE(62, "flowCtrlEnable", "fCtrlEn",
             WebFieldType.BOOLEAN, "Flow control enable status"),
     FLOWCTRLRULECOUNT(63, "flowCtrlRuleCount", "fCtrlCnt", WebFieldType.INT,
             "The count of flow control info set", RegexDef.TMP_NUMBER),
     RESCHECKENABLE(64, "resCheckEnable", "resChkEn",
-                   WebFieldType.BOOLEAN, "Resource check enable status"),
+            WebFieldType.BOOLEAN, "Resource check enable status"),
 
     ALWDBCRATE(65, "alwdBrokerClientRate", "abcr", WebFieldType.INT,
             "Allowed broker client rate", RegexDef.TMP_NUMBER),
@@ -194,34 +194,34 @@ public enum WebFieldDef {
             "Reasons for disable consumption",
             TBaseConstants.META_MAX_OPREASON_LENGTH, RegexDef.TMP_STRING),
     FILTERENABLE(67, "filterEnable", "fltEn",
-                   WebFieldType.BOOLEAN, "Filter consume enable status"),
+            WebFieldType.BOOLEAN, "Filter consume enable status"),
     MANAGESTATUS(68, "manageStatus", "mSts",
-              WebFieldType.STRING, "Broker manage status"),
+            WebFieldType.STRING, "Broker manage status"),
     GROUPID(69, "groupId", "gId",
             WebFieldType.INT, "Group id", RegexDef.TMP_NUMBER),
 
     TOPICSTATUSID(70, "topicStatusId", "tStsId", WebFieldType.INT,
             "Status id", RegexDef.TMP_NUMBER),
     AUTHCTRLENABLE(71, "enableAuthControl", "acEn",
-                 WebFieldType.BOOLEAN, "Group authenticate control enable status"),
+            WebFieldType.BOOLEAN, "Group authenticate control enable status"),
     CONSUMEENABLE(72, "consumeEnable", "csmEn",
-                 WebFieldType.BOOLEAN, "Consume enable status"),
+            WebFieldType.BOOLEAN, "Consume enable status"),
     GROUPCSMJSONSET(73, "groupCsmJsonSet", "csmJsonSet",
-                  WebFieldType.JSONSET, "The batch group consume configure json array"),
+            WebFieldType.JSONSET, "The batch group consume configure json array"),
     WITHTOPIC(74, "withTopic", "wTopic",
-                  WebFieldType.BOOLEAN, "With topic info."),
+            WebFieldType.BOOLEAN, "With topic info."),
 
     ISINCLUDE(75, "isInclude", "isInclude",
-              WebFieldType.BOOLEAN, "If include or un-include topic required"),
+            WebFieldType.BOOLEAN, "If include or un-include topic required"),
     COMPBROKERIP(76, "brokerIp", "bIp", WebFieldType.COMPSTRING,
             "Broker ip", TBaseConstants.META_MAX_BROKER_IP_LENGTH,
-             RegexDef.TMP_IPV4ADDRESS),
+            RegexDef.TMP_IPV4ADDRESS),
     ISRESERVEDDATA(77, "isReservedData", "isRsvDt",
             WebFieldType.BOOLEAN, "Whether to keep topic data in the broker"),
     WITHGROUPAUTHINFO(78, "withGroupAuthInfo", "wGAI",
-              WebFieldType.BOOLEAN, "With topic group authorize info."),
+            WebFieldType.BOOLEAN, "With topic group authorize info."),
     WITHDEPLOYINFO(79, "withDeployInfo", "wDI",
-                 WebFieldType.BOOLEAN, "With topic deploy info."),
+            WebFieldType.BOOLEAN, "With topic deploy info."),
 
     TOPICCTRLSET(80, "topicCtrlJsonSet", "tCtrlSet", WebFieldType.JSONSET,
             "The topic control info set that needs to be added or modified"),
@@ -239,7 +239,7 @@ public enum WebFieldDef {
 
     COMPSCONSUMERID(85, "consumerId", "csmId", WebFieldType.COMPSTRING,
             "consumer id", TServerConstants.CFG_CONSUMER_CLIENTID_MAX_LENGTH,
-                   RegexDef.TMP_CONSUMERID),
+            RegexDef.TMP_CONSUMERID),
     ISENABLE(86, "isEnable", "isEnable",
             WebFieldType.BOOLEAN, "With status if enable."),
     RELREASON(87, "relReason", "rRsn", WebFieldType.STRING,
@@ -247,20 +247,19 @@ public enum WebFieldDef {
     WITHDETAIL(88, "withDetail", "wDtl",
             WebFieldType.BOOLEAN, "With broker configure detail info."),
     ONLYABNORMAL(89, "onlyAbnormal", "oAbn",
-               WebFieldType.BOOLEAN, "only query abnormal broker info."),
+            WebFieldType.BOOLEAN, "only query abnormal broker info."),
 
     ONLYAUTOFBD(90, "onlyAutoForbidden", "oAfb",
-                 WebFieldType.BOOLEAN, "only auto forbidden abnormal broker info."),
+            WebFieldType.BOOLEAN, "only auto forbidden abnormal broker info."),
     ONLYENABLETLS(91, "onlyEnableTLS", "oEtls",
-                WebFieldType.BOOLEAN, "only enable tls broker info."),
+            WebFieldType.BOOLEAN, "only enable tls broker info."),
     RECORDTIME(92, "recordTime", "rt", WebFieldType.STRING,
             "The record time of the historical offset of the consume group",
-               DateTimeConvertUtils.LENGTH_YYYYMMDDHHMMSS),
+            DateTimeConvertUtils.LENGTH_YYYYMMDDHHMMSS),
     MAXRETRYCOUNT(93, "maxRetryCnt", "mrc", WebFieldType.INT,
             "Max retry query turns", RegexDef.TMP_NUMBER),
     STATSTYPE(94, "statsType", "st", WebFieldType.STRING,
             "Statistics type", TServerConstants.META_MAX_STATSTYPE_LENGTH);
-
 
     public final int id;
     public final String name;
@@ -280,33 +279,33 @@ public enum WebFieldDef {
     }
 
     WebFieldDef(int id, String name, String shortName, WebFieldType type,
-                String desc, int valMaxLen) {
+            String desc, int valMaxLen) {
         this(id, name, shortName, type, desc, valMaxLen,
                 TBaseConstants.META_VALUE_UNDEFINED, false, null);
     }
 
     WebFieldDef(int id, String name, String shortName, WebFieldType type,
-                String desc, RegexDef regexDef) {
+            String desc, RegexDef regexDef) {
         this(id, name, shortName, type, desc,
                 TBaseConstants.META_VALUE_UNDEFINED, regexDef);
     }
 
     WebFieldDef(int id, String name, String shortName, WebFieldType type,
-                String desc, int valMaxLen, RegexDef regexDef) {
+            String desc, int valMaxLen, RegexDef regexDef) {
         this(id, name, shortName, type, desc, valMaxLen,
                 TServerConstants.CFG_BATCH_RECORD_OPERATE_MAX_COUNT,
                 true, regexDef);
     }
 
     WebFieldDef(int id, String name, String shortName, WebFieldType type,
-                String desc, int valMaxLen, int itemMaxCnt, RegexDef regexDef) {
+            String desc, int valMaxLen, int itemMaxCnt, RegexDef regexDef) {
         this(id, name, shortName, type, desc, valMaxLen,
                 itemMaxCnt, true, regexDef);
     }
 
     WebFieldDef(int id, String name, String shortName, WebFieldType type,
-                String desc, int valMaxLen, int itemMaxCnt,
-                boolean regexChk, RegexDef regexDef) {
+            String desc, int valMaxLen, int itemMaxCnt,
+            boolean regexChk, RegexDef regexDef) {
         this.id = id;
         this.name = name;
         this.shortName = shortName;

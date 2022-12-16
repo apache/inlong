@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.interceptor;
@@ -34,6 +33,7 @@ import java.util.stream.Collectors;
  * The sdk interceptor that use to filter messages do not in the time interval.
  */
 public class MsgTimeInterceptor implements Interceptor {
+
     private static final Logger logger = LoggerFactory.getLogger(MsgTimeInterceptor.class);
     private long startTime;
     private long stopTime;

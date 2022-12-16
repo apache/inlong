@@ -51,6 +51,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -67,7 +68,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()),
                 new FieldInfo("event_type", new StringFormatInfo()));
-        //if you hope hive load mode of append,please add this config.
+        // if you hope hive load mode of append,please add this config.
         Map<String, String> map = new HashMap<>();
         map.put("append-mode", "true");
         return new MySqlExtractNode(id, "mysql_input", fields,
@@ -98,14 +99,13 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
         return new KafkaLoadNode(id, "kafka_output", fields, relations, null, null,
                 "workerJson", "localhost:9092",
                 new JsonFormat(), null,
@@ -126,17 +126,23 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("dirty.side-output.connector", "log");
+        properties.put("dirty.ignore", "true");
+        properties.put("dirty.side-output.enable", "true");
+        properties.put("dirty.side-output.format", "csv");
+        properties.put("dirty.side-output.labels",
+                "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=default&table=work2");
         return new HiveLoadNode(id, "hive_output",
                 fields, relations, null, null, 1,
-                null, "myCatalog", "default", "work2",
+                properties, "myCatalog", "default", "work2",
                 "/opt/hive/conf", "3.1.3",
                 null, null);
     }
@@ -149,17 +155,23 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("dirty.side-output.connector", "log");
+        properties.put("dirty.ignore", "true");
+        properties.put("dirty.side-output.enable", "true");
+        properties.put("dirty.side-output.format", "csv");
+        properties.put("dirty.side-output.labels",
+                "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=inlong&table=student");
         return new FileSystemLoadNode(id, "hdfs_output", fields, relations,
-                null, "hdfs://localhost:9000/file", "json",
-                1, null, null, null);
+                null, "hdfs://localhost:9000/inlong/student", "json",
+                1, properties, null, null);
     }
 
     /**
@@ -182,12 +194,12 @@ public class FlinkSqlParserTest extends AbstractTestBase {
         Node kafkaExtractNode = buildKafkaExtractNode("1_2");
         Node kafkaNode = buildKafkaNode("2_1");
         Node hiveNode = buildHiveNode("2_2");
-        //mysql-->hive
+        // mysql-->hive
         StreamInfo streamInfoMySqlToHive = new StreamInfo("1L", Arrays.asList(mysqlExtractNode, hiveNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(mysqlExtractNode),
                         Collections.singletonList(hiveNode))));
         GroupInfo groupInfoMySqlToHive = new GroupInfo("1", Collections.singletonList(streamInfoMySqlToHive));
-        //mysql-->kafka--kafka-->hive
+        // mysql-->kafka--kafka-->hive
         StreamInfo streamInfoMySqlToKafkaToHive1 = new StreamInfo("1L", Arrays.asList(mysqlExtractNode, kafkaNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(mysqlExtractNode),
                         Collections.singletonList(kafkaNode))));
@@ -218,7 +230,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node mysqlExtractNode = buildMySQLExtractNode("1");
         Node fileSystemNode = buildFileSystemNode("2");
-        //mysql-->HDFS OR LOCAL FILE
+        // mysql-->HDFS OR LOCAL FILE
         StreamInfo streamInfoToHDFS = new StreamInfo("1L", Arrays.asList(mysqlExtractNode, fileSystemNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(mysqlExtractNode),
                         Collections.singletonList(fileSystemNode))));

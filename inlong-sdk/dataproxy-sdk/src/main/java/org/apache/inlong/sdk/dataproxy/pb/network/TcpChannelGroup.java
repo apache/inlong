@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -318,31 +318,31 @@ public class TcpChannelGroup {
             tcpChannel.release();
         }
     }
-//    public static void main(String[] args) {
-//        String[] data = new String[]{"10.56.81.205:46801",
-//            "10.56.81.211:46801",
-//            "10.56.20.85:46801",
-//            "10.56.20.21:46801",
-//            "10.56.83.143:46801",
-//            "10.56.82.37:46801",
-//            "10.56.83.80:46801",
-//            "10.56.82.11:46801",
-//            "10.56.15.221:46801",
-//            "10.56.21.85:46801",
-//            "10.56.16.20:46801",
-//            "10.56.21.17:46801",
-//            "10.56.21.79:46801",
-//            "10.56.15.195:46801",
-//            "10.56.16.38:46801",
-//            "10.56.20.80:46801",
-//            "10.56.82.38:46801",
-//            "10.56.209.205:46801",
-//            "10.56.84.17:46801",
-//            "10.56.15.230:46801",
-//            "10.56.82.12:46801",
-//            "10.56.15.220:46801",
-//            "10.56.21.20:46801",
-//            "10.56.82.40:46801",
-//            "10.56.15.212:46801"};
-//    }
+    // public static void main(String[] args) {
+    // String[] data = new String[]{"10.56.81.205:46801",
+    // "10.56.81.211:46801",
+    // "10.56.20.85:46801",
+    // "10.56.20.21:46801",
+    // "10.56.83.143:46801",
+    // "10.56.82.37:46801",
+    // "10.56.83.80:46801",
+    // "10.56.82.11:46801",
+    // "10.56.15.221:46801",
+    // "10.56.21.85:46801",
+    // "10.56.16.20:46801",
+    // "10.56.21.17:46801",
+    // "10.56.21.79:46801",
+    // "10.56.15.195:46801",
+    // "10.56.16.38:46801",
+    // "10.56.20.80:46801",
+    // "10.56.82.38:46801",
+    // "10.56.209.205:46801",
+    // "10.56.84.17:46801",
+    // "10.56.15.230:46801",
+    // "10.56.82.12:46801",
+    // "10.56.15.220:46801",
+    // "10.56.21.20:46801",
+    // "10.56.82.40:46801",
+    // "10.56.15.212:46801"};
+    // }
 }

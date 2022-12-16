@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -45,12 +45,13 @@ import org.slf4j.LoggerFactory;
  * to improve throughput from client to broker.
  */
 public class MAMessageProducerExample {
+
     private static final Logger logger =
             LoggerFactory.getLogger(MAMessageProducerExample.class);
     private static final MsgSendReceiveStats msgSendStats =
             new MsgSendReceiveStats(true);
-    private static final Map<Integer, Tuple2<MessageSessionFactory, Set<MessageProducer>>>
-            sessionFactoryProducerMap = new HashMap<>();
+    private static final Map<Integer, Tuple2<MessageSessionFactory, Set<MessageProducer>>> sessionFactoryProducerMap =
+            new HashMap<>();
     private static final AtomicLong totalSentCnt = new AtomicLong(0);
     private static ExecutorService sendExecutorService;
 
@@ -97,6 +98,7 @@ public class MAMessageProducerExample {
         // 3. build multi-thread message sender
         sendExecutorService =
                 Executors.newFixedThreadPool(clientCnt, new ThreadFactory() {
+
                     @Override
                     public Thread newThread(Runnable runnable) {
                         return new Thread(runnable);
@@ -109,19 +111,19 @@ public class MAMessageProducerExample {
         statisticThread.start();
 
         // 5. build the content of the message to be sent
-        //    include message body, attributes, and time information template
+        // include message body, attributes, and time information template
         final byte[] bodyData =
                 MixedUtils.buildTestData(pkgSize);
         List<Tuple2<String, String>> buildTopicFilterTuples =
                 MixedUtils.buildTopicFilterTupleList(topicAndFiltersMap);
 
         // 6. Rotating build and start producers in the session factory list
-        //    In the same process, different TubeMultiSessionFactory objects can create
-        //    independent connections for the same Broker.
-        //   We increase the concurrent throughput of the system by increasing the
-        //   number of links. Here we distribute the clients evenly on
-        //   different TubeMultiSessionFactory objects to
-        //   improve data production performance in the single process
+        // In the same process, different TubeMultiSessionFactory objects can create
+        // independent connections for the same Broker.
+        // We increase the concurrent throughput of the system by increasing the
+        // number of links. Here we distribute the clients evenly on
+        // different TubeMultiSessionFactory objects to
+        // improve data production performance in the single process
         for (int indexId = 0; indexId < clientCnt; indexId++) {
             Tuple2<MessageSessionFactory, Set<MessageProducer>> sessionProducerMap =
                     sessionFactoryProducerMap.get(indexId % sessionFactoryCnt);
@@ -162,7 +164,7 @@ public class MAMessageProducerExample {
         private final List<Tuple2<String, String>> topicFilterTuples;
 
         public Sender(int indexId, MessageProducer producer, byte[] bodyData,
-                      List<Tuple2<String, String>> topicFilterTuples, long msgCount) {
+                List<Tuple2<String, String>> topicFilterTuples, long msgCount) {
             this.indexId = indexId;
             this.producer = producer;
             this.bodyData = bodyData;
@@ -191,14 +193,14 @@ public class MAMessageProducerExample {
                     // MessageSentResult result = producer.sendMessage(message);
                     // totalSentCnt.incrementAndGet();
                     // if (!result.isSuccess()) {
-                    //    logger.error("Sync-send message failed!" + result.getErrMsg());
+                    // logger.error("Sync-send message failed!" + result.getErrMsg());
                     // }
                 } catch (TubeClientException | InterruptedException e) {
                     logger.error("Send message failed!", e);
                 }
                 // 3 Cool sending
-                //     Attention: only used in the test link, to solve the problem of
-                //                frequent sending failures caused by insufficient test resources.
+                // Attention: only used in the test link, to solve the problem of
+                // frequent sending failures caused by insufficient test resources.
                 MixedUtils.coolSending(sentCount);
             }
             try {

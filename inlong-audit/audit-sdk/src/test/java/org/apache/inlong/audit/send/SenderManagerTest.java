@@ -23,6 +23,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 public class SenderManagerTest {
+
     private AuditConfig testConfig = new AuditConfig();
 
     @Test

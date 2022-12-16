@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -35,12 +35,13 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsClust
 import org.apache.zookeeper.KeeperException;
 
 public class ZKClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
+
     private final ZooKeeperWatcher zkWatcher;
     private final String clrConfigRootDir;
 
     public ZKClusterConfigMapperImpl(String metaNodePrefix,
-                                     ZooKeeperWatcher zkWatcher,
-                                     StringBuilder strBuff) {
+            ZooKeeperWatcher zkWatcher,
+            StringBuilder strBuff) {
         super();
         this.zkWatcher = zkWatcher;
         this.clrConfigRootDir = strBuff.append(metaNodePrefix)
@@ -69,7 +70,8 @@ public class ZKClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
         }
         String clrConfigureStr;
         Gson gson = new Gson();
-        Type type = new TypeToken<ClusterSettingEntity>() {}.getType();
+        Type type = new TypeToken<ClusterSettingEntity>() {
+        }.getType();
         // read data item, parse and store data to cache
         for (String itemKey : childNodes) {
             if (TStringUtils.isEmpty(itemKey)
@@ -98,12 +100,13 @@ public class ZKClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
     }
 
     protected boolean putConfig2Persistent(ClusterSettingEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         String entityStr = entity.toString();
         try {
             ZKUtil.updatePersistentPath(zkWatcher,
                     strBuff.append(clrConfigRootDir).append(TokenConstants.SLASH)
-                            .append(entity.getRecordKey()).toString(), entityStr);
+                            .append(entity.getRecordKey()).toString(),
+                    entityStr);
             strBuff.delete(0, strBuff.length());
         } catch (Throwable t) {
             BrokerSrvStatsHolder.incZKExcCnt();

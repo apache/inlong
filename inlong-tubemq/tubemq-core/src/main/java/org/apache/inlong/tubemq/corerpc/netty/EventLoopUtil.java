@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -39,6 +39,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadFactory;
 
 public class EventLoopUtil {
+
     public EventLoopUtil() {
     }
 
@@ -51,27 +52,30 @@ public class EventLoopUtil {
         } else {
             EpollEventLoopGroup eventLoopGroup = new EpollEventLoopGroup(nThreads,
                     threadFactory, () -> {
-                return (selectSupplier, hasTasks) -> {
-                    return -3;
-                };
-            });
+                        return (selectSupplier, hasTasks) -> {
+                            return -3;
+                        };
+                    });
             return eventLoopGroup;
         }
     }
 
     public static Class<? extends SocketChannel> getClientSocketChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollSocketChannel.class : NioSocketChannel.class;
+                ? EpollSocketChannel.class
+                : NioSocketChannel.class;
     }
 
     public static Class<? extends ServerSocketChannel> getServerSocketChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
+                ? EpollServerSocketChannel.class
+                : NioServerSocketChannel.class;
     }
 
     public static Class<? extends DatagramChannel> getDatagramChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollDatagramChannel.class : NioDatagramChannel.class;
+                ? EpollDatagramChannel.class
+                : NioDatagramChannel.class;
     }
 
     public static void enableTriggeredMode(ServerBootstrap bootstrap) {

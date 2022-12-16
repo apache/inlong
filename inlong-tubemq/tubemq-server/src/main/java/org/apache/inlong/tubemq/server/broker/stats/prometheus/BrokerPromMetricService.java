@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BrokerPromMetricService extends Collector {
+
     private static final Logger logger =
             LoggerFactory.getLogger(BrokerPromMetricService.class);
     private TubeBroker tubeBroker;
@@ -44,7 +45,7 @@ public class BrokerPromMetricService extends Collector {
     private volatile boolean started = false;
 
     public BrokerPromMetricService(TubeBroker tubeBroker,
-                                   PrometheusConfig prometheusConfig) {
+            PrometheusConfig prometheusConfig) {
         if (prometheusConfig == null || !prometheusConfig.isPromEnable()) {
             return;
         }
@@ -107,8 +108,7 @@ public class BrokerPromMetricService extends Collector {
         List<String> labelValues = new ArrayList<>();
         Map<String, ConcurrentHashMap<Integer, MessageStore>> msgTopicStores =
                 tubeBroker.getStoreManager().getMessageStores();
-        for (ConcurrentHashMap<Integer, MessageStore> storeMap
-                : msgTopicStores.values()) {
+        for (ConcurrentHashMap<Integer, MessageStore> storeMap : msgTopicStores.values()) {
             if (storeMap == null) {
                 continue;
             }

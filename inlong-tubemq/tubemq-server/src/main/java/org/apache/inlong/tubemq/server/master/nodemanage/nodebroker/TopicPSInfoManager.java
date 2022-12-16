@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -31,11 +31,9 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerIn
 public class TopicPSInfoManager {
 
     private final TMaster master;
-    private final ConcurrentHashMap<String/* topic */,
-            ConcurrentHashSet<String/* producerId */>> topicPubInfoMap =
+    private final ConcurrentHashMap<String/* topic */, ConcurrentHashSet<String/* producerId */>> topicPubInfoMap =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* topic */,
-            ConcurrentHashSet<String/* group */>> topicSubInfoMap =
+    private final ConcurrentHashMap<String/* topic */, ConcurrentHashSet<String/* group */>> topicSubInfoMap =
             new ConcurrentHashMap<>();
 
     public TopicPSInfoManager(TMaster master) {
@@ -165,7 +163,7 @@ public class TopicPSInfoManager {
      * @return online groups
      */
     public Set<String> getGroupSetWithSubTopic(Set<String> qryGroupSet,
-                                               Set<String> subTopicSet) {
+            Set<String> subTopicSet) {
         Set<String> resultSet = new HashSet<>();
         if (subTopicSet.isEmpty()) {
             // get all online group

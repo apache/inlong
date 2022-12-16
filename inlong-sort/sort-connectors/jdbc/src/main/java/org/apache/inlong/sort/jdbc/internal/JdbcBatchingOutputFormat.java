@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -68,9 +67,9 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
  * A JDBC outputFormat that supports batching records before writing records to database.
  * Add an option `inlong.metric` to support metrics.
  */
-public class JdbcBatchingOutputFormat<
-        In, JdbcIn, JdbcExec extends JdbcBatchStatementExecutor<JdbcIn>>
-        extends AbstractJdbcOutputFormat<In> {
+public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStatementExecutor<JdbcIn>>
+        extends
+            AbstractJdbcOutputFormat<In> {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(JdbcBatchingOutputFormat.class);
@@ -245,7 +244,7 @@ public class JdbcBatchingOutputFormat<
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
 
         }
         if (context.isRestored()) {
@@ -354,7 +353,9 @@ public class JdbcBatchingOutputFormat<
      * @param <T> The type of instance.
      */
     public interface StatementExecutorFactory<T extends JdbcBatchStatementExecutor<?>>
-            extends Function<RuntimeContext, T>, Serializable {
+            extends
+                Function<RuntimeContext, T>,
+                Serializable {
 
     }
 
@@ -450,8 +451,7 @@ public class JdbcBatchingOutputFormat<
          *
          * @return Configured JdbcUpsertOutputFormat
          */
-        public JdbcBatchingOutputFormat<Tuple2<Boolean, Row>, Row, JdbcBatchStatementExecutor<Row>>
-        build() {
+        public JdbcBatchingOutputFormat<Tuple2<Boolean, Row>, Row, JdbcBatchStatementExecutor<Row>> build() {
             checkNotNull(options, "No options supplied.");
             checkNotNull(fieldNames, "No fieldNames supplied.");
             JdbcDmlOptions dml =
@@ -480,11 +480,10 @@ public class JdbcBatchingOutputFormat<
                 return new JdbcBatchingOutputFormat<>(
                         new SimpleJdbcConnectionProvider(options),
                         executionOptionsBuilder.build(),
-                        ctx ->
-                                createSimpleRowExecutor(
-                                        sql,
-                                        dml.getFieldTypes(),
-                                        ctx.getExecutionConfig().isObjectReuseEnabled()),
+                        ctx -> createSimpleRowExecutor(
+                                sql,
+                                dml.getFieldTypes(),
+                                ctx.getExecutionConfig().isObjectReuseEnabled()),
                         tuple2 -> {
                             Preconditions.checkArgument(tuple2.f0);
                             return tuple2.f1;

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
  * An implementation of MessageProducer
  */
 public class SimpleMessageProducer implements MessageProducer {
+
     private static final Logger logger =
             LoggerFactory.getLogger(SimpleMessageProducer.class);
     private final TubeClientConfig producerConfig;
@@ -73,12 +74,12 @@ public class SimpleMessageProducer implements MessageProducer {
      * @throws TubeClientException  the exception while creating object
      */
     public SimpleMessageProducer(final InnerSessionFactory sessionFactory,
-                                 TubeClientConfig tubeClientConfig) throws TubeClientException {
+            TubeClientConfig tubeClientConfig) throws TubeClientException {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
         if (sessionFactory == null || tubeClientConfig == null) {
             throw new TubeClientException(
-                "Illegal parameter: messageSessionFactory or tubeClientConfig is null!");
+                    "Illegal parameter: messageSessionFactory or tubeClientConfig is null!");
         }
         this.producerConfig = tubeClientConfig;
         this.sessionFactory = sessionFactory;
@@ -88,19 +89,19 @@ public class SimpleMessageProducer implements MessageProducer {
         this.partitionRouter = new RoundRobinPartitionRouter();
         this.rpcConfig.put(RpcConstants.CONNECT_TIMEOUT, 3000);
         this.rpcConfig.put(RpcConstants.REQUEST_TIMEOUT,
-            tubeClientConfig.getRpcTimeoutMs());
+                tubeClientConfig.getRpcTimeoutMs());
         this.rpcConfig.put(RpcConstants.NETTY_WRITE_HIGH_MARK,
-            tubeClientConfig.getNettyWriteBufferHighWaterMark());
+                tubeClientConfig.getNettyWriteBufferHighWaterMark());
         this.rpcConfig.put(RpcConstants.NETTY_WRITE_LOW_MARK,
-            tubeClientConfig.getNettyWriteBufferLowWaterMark());
+                tubeClientConfig.getNettyWriteBufferLowWaterMark());
         this.rpcConfig.put(RpcConstants.WORKER_COUNT,
-            tubeClientConfig.getRpcConnProcessorCnt());
+                tubeClientConfig.getRpcConnProcessorCnt());
         this.rpcConfig.put(RpcConstants.WORKER_THREAD_NAME,
-            "tube_producer_netty_worker-");
+                "tube_producer_netty_worker-");
         this.rpcConfig.put(RpcConstants.WORKER_MEM_SIZE,
-            tubeClientConfig.getRpcNettyWorkMemorySize());
+                tubeClientConfig.getRpcNettyWorkMemorySize());
         this.rpcConfig.put(RpcConstants.CALLBACK_WORKER_COUNT,
-            tubeClientConfig.getRpcRspCallBackThreadCnt());
+                tubeClientConfig.getRpcRspCallBackThreadCnt());
     }
 
     /**
@@ -220,7 +221,7 @@ public class SimpleMessageProducer implements MessageProducer {
             rpcServiceFactory.resetRmtAddrErrCount(partition.getBroker().getBrokerAddr());
             this.brokerRcvQltyStats.addReceiveStatistic(brokerId, response.getSuccess());
             if (!response.getSuccess()
-                && response.getErrCode() == TErrCodeConstants.SERVICE_UNAVAILABLE) {
+                    && response.getErrCode() == TErrCodeConstants.SERVICE_UNAVAILABLE) {
                 rpcServiceFactory.addUnavailableBroker(brokerId);
             }
             return this.buildMsgSentResult(
@@ -251,6 +252,7 @@ public class SimpleMessageProducer implements MessageProducer {
                     createSendMessageRequest(partition, message),
                     AddressUtils.getLocalAddress(), producerConfig.isTlsEnable(),
                     new Callback() {
+
                         @Override
                         public void handleResult(Object result) {
                             if (!(result instanceof ClientBroker.SendMessageResponseB2P)) {
@@ -266,7 +268,7 @@ public class SimpleMessageProducer implements MessageProducer {
                             brokerRcvQltyStats.addReceiveStatistic(brokerId,
                                     responseB2P.getSuccess());
                             if (!responseB2P.getSuccess()
-                                && responseB2P.getErrCode() == TErrCodeConstants.SERVICE_UNAVAILABLE) {
+                                    && responseB2P.getErrCode() == TErrCodeConstants.SERVICE_UNAVAILABLE) {
                                 rpcServiceFactory.addUnavailableBroker(brokerId);
                             }
                             cb.onMessageSent(rt);
@@ -315,7 +317,8 @@ public class SimpleMessageProducer implements MessageProducer {
                     .append(" not publish, make sure the topic exist or acceptPublish and try later!").toString());
         }
         int msgSize = TStringUtils.isBlank(message.getAttribute())
-                ? message.getData().length : (message.getData().length + message.getAttribute().length());
+                ? message.getData().length
+                : (message.getData().length + message.getAttribute().length());
         if (msgSize > producerManager.getMaxMsgSize(message.getTopic())) {
             throw new TubeClientException(new StringBuilder(512)
                     .append("Illegal parameter: over max message length for the total size of")
@@ -329,7 +332,7 @@ public class SimpleMessageProducer implements MessageProducer {
     }
 
     private ClientBroker.SendMessageRequestP2B createSendMessageRequest(Partition partition,
-                                                                        Message message) {
+            Message message) {
         ClientBroker.SendMessageRequestP2B.Builder builder =
                 ClientBroker.SendMessageRequestP2B.newBuilder();
         builder.setClientId(this.producerManager.getProducerId());
@@ -365,9 +368,9 @@ public class SimpleMessageProducer implements MessageProducer {
     }
 
     private MessageSentResult buildMsgSentResult(final long dltTime,
-                                                 final Message message,
-                                                 final Partition partition,
-                                                 final ClientBroker.SendMessageResponseB2P response) {
+            final Message message,
+            final Partition partition,
+            final ClientBroker.SendMessageResponseB2P response) {
         final String resultStr = response.getErrMsg();
         if (response.getErrCode() == TErrCodeConstants.SUCCESS) {
             producerManager.getClientMetrics().bookSuccSendMsg(dltTime,
@@ -389,7 +392,7 @@ public class SimpleMessageProducer implements MessageProducer {
     }
 
     private Partition selectPartition(final Message message,
-                                      Class clazz) throws TubeClientException {
+            Class clazz) throws TubeClientException {
         String topic = message.getTopic();
         StringBuilder sBuilder = new StringBuilder(512);
         Map<Integer, List<Partition>> brokerPartList =

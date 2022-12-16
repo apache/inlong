@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -86,7 +86,7 @@ public class ClusterSettingEntityTest {
         Assert.assertEquals(setting2.getMaxMsgSizeInB(), bdbEntity.getMaxMsgSizeInB());
         Assert.assertEquals(setting2.getQryPriorityId(), bdbEntity.getQryPriorityId());
         Assert.assertFalse(setting2.getGloFlowCtrlStatus().isEnable());
-        Assert.assertNull(bdbEntity.getEnableGloFlowCtrl());
+        Assert.assertEquals(bdbEntity.getEnableGloFlowCtrl(), EnableStatus.STATUS_UNDEFINE);
         Assert.assertEquals(setting2.getGloFlowCtrlRuleCnt(), 0);
         Assert.assertEquals(bdbEntity.getGloFlowCtrlCnt(), TBaseConstants.META_VALUE_UNDEFINED);
         Assert.assertEquals(setting2.getGloFlowCtrlRuleInfo(), TServerConstants.BLANK_FLOWCTRL_RULES);
@@ -113,7 +113,7 @@ public class ClusterSettingEntityTest {
         Assert.assertEquals(setting2.getBrokerWebPort(), bdbSetting.getBrokerWebPort());
         Assert.assertEquals(setting2.getMaxMsgSizeInB(), bdbSetting.getMaxMsgSizeInB());
         Assert.assertEquals(setting2.getQryPriorityId(), bdbSetting.getQryPriorityId());
-        Assert.assertEquals(setting2.getGloFlowCtrlStatus().isEnable(), bdbSetting.getEnableGloFlowCtrl());
+        Assert.assertEquals(setting2.getGloFlowCtrlStatus(), bdbSetting.getEnableGloFlowCtrl());
         Assert.assertEquals(setting2.getGloFlowCtrlRuleCnt(), bdbSetting.getGloFlowCtrlCnt());
         Assert.assertEquals(setting2.getGloFlowCtrlRuleInfo(), bdbSetting.getGloFlowCtrlInfo());
         TopicPropGroup defProps3 = setting2.getClsDefTopicProps();
@@ -138,7 +138,7 @@ public class ClusterSettingEntityTest {
         Assert.assertEquals(setting4.getBrokerWebPort(), bdbSetting.getBrokerWebPort());
         Assert.assertEquals(setting4.getMaxMsgSizeInB(), bdbSetting.getMaxMsgSizeInB());
         Assert.assertEquals(setting4.getQryPriorityId(), bdbSetting.getQryPriorityId());
-        Assert.assertEquals(setting4.getGloFlowCtrlStatus().isEnable(), bdbSetting.getEnableGloFlowCtrl());
+        Assert.assertEquals(setting4.getGloFlowCtrlStatus(), bdbSetting.getEnableGloFlowCtrl());
         Assert.assertEquals(setting4.getGloFlowCtrlRuleCnt(), bdbSetting.getGloFlowCtrlCnt());
         Assert.assertEquals(setting4.getGloFlowCtrlRuleInfo(), bdbSetting.getGloFlowCtrlInfo());
         TopicPropGroup defProps4 = setting4.getClsDefTopicProps();
@@ -163,7 +163,7 @@ public class ClusterSettingEntityTest {
         int newBrokerWebPort = 32;
         int newMaxMsgSizeMB = 2;
         int newQryPriorityId = 101;
-        Boolean newFlowCtrlEnable = true;
+        EnableStatus newFlowCtrlEnable = EnableStatus.STATUS_ENABLE;
         int newFlowRuleCnt = 5;
         String newFlowCtrlRuleInfo = "[{},{},{},{},{}]";
         TopicPropGroup newProps = new TopicPropGroup();
@@ -214,7 +214,7 @@ public class ClusterSettingEntityTest {
         paramMap.clear();
         // case 3
         entity2.updModifyInfo(5, 6, 7,
-                8, 9, 101, false,
+                8, 9, 101, EnableStatus.STATUS_DISABLE,
                 0, null, null);
         entity2.getConfigureInfo(paramMap, true);
         Assert.assertEquals(paramMap.size(), 12);
@@ -235,7 +235,7 @@ public class ClusterSettingEntityTest {
         paramMap.clear();
         // case 4
         entity2.updModifyInfo(9, 10, 11,
-                12, 13, 301, true,
+                12, 13, 301, EnableStatus.STATUS_ENABLE,
                 2, "[{\"type\":1},{\"type\":2}]", null);
         entity2.getConfigureInfo(paramMap, false);
         Assert.assertEquals(paramMap.size(), 14);

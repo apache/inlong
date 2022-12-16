@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -22,6 +22,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 
 public class MessageSentResult {
+
     private final boolean success;
     private final int errCode;
     private final String errMsg;
@@ -32,7 +33,7 @@ public class MessageSentResult {
     private long appendOffset = TBaseConstants.META_VALUE_UNDEFINED;
 
     public MessageSentResult(boolean success, int errCode, String errMsg,
-                             Message message, long messageId, Partition partition) {
+            Message message, long messageId, Partition partition) {
         this.success = success;
         this.errCode = errCode;
         this.errMsg = errMsg;
@@ -42,8 +43,8 @@ public class MessageSentResult {
     }
 
     public MessageSentResult(boolean success, int errCode, String errMsg,
-                             Message message, long messageId, Partition partition,
-                             long appendTime, long appendOffset) {
+            Message message, long messageId, Partition partition,
+            long appendTime, long appendOffset) {
         this.success = success;
         this.errCode = errCode;
         this.errMsg = errMsg;

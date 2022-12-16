@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -25,6 +25,7 @@ import org.slf4j.Logger;
  * Compressed print broker's statistics.
  */
 public class BrokerSamplePrint extends AbstractSamplePrint {
+
     private final Logger logger;
 
     public BrokerSamplePrint(final Logger logger) {
@@ -33,8 +34,8 @@ public class BrokerSamplePrint extends AbstractSamplePrint {
     }
 
     public BrokerSamplePrint(final Logger logger,
-                             long sampleDetailDur, long sampleResetDur,
-                             long maxDetailCount, long maxTotalCount) {
+            long sampleDetailDur, long sampleResetDur,
+            long maxDetailCount, long maxTotalCount) {
         super(sampleDetailDur, sampleResetDur, maxDetailCount, maxTotalCount);
         this.logger = logger;
     }

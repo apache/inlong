@@ -13,7 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.sdk.sort.api;
@@ -32,6 +31,7 @@ import java.util.Optional;
  * components such as {@link Deserializer} and {@link Interceptor} for this very topic.
  */
 public abstract class SingleTopicFetcher implements TopicFetcher {
+
     protected InLongTopic topic;
     protected ClientContext context;
     protected Deserializer deserializer;

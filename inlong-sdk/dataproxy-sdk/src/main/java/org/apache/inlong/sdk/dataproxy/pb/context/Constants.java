@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -31,6 +31,6 @@ public interface Constants {
     String HEADER_KEY_SOURCE_TIME = "sourceTime";
     String HEADER_KEY_MESSAGE_KEY = "messageKey";
     String HEADER_KEY_MSG_OFFSET = "msgOffset";
-    
+
     String RELOAD_INTERVAL = "reloadInterval";
 }

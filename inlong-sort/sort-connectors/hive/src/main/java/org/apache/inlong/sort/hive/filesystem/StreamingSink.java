@@ -41,7 +41,10 @@ import org.apache.flink.table.filesystem.stream.compact.CompactOperator;
 import org.apache.flink.table.filesystem.stream.compact.CompactReader;
 import org.apache.flink.table.filesystem.stream.compact.CompactWriter;
 import org.apache.flink.util.function.SupplierWithException;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
@@ -50,6 +53,7 @@ import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_PARTITION
 
 /** Helper for creating streaming file sink. */
 public class StreamingSink {
+
     private StreamingSink() {
 
     }
@@ -61,14 +65,15 @@ public class StreamingSink {
     public static <T> DataStream<PartitionCommitInfo> writer(
             DataStream<T> inputStream,
             long bucketCheckInterval,
-            StreamingFileSink.BucketsBuilder<
-                    T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
-                    bucketsBuilder,
+            StreamingFileSink.BucketsBuilder<T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>> bucketsBuilder,
             int parallelism,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         StreamingFileWriter<T> fileWriter =
-                new StreamingFileWriter<>(bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
+                new StreamingFileWriter<>(bucketCheckInterval, bucketsBuilder,
+                        inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
         return inputStream
                 .transform(
                         StreamingFileWriter.class.getSimpleName(),
@@ -84,22 +89,21 @@ public class StreamingSink {
     public static <T> DataStream<PartitionCommitInfo> compactionWriter(
             DataStream<T> inputStream,
             long bucketCheckInterval,
-            StreamingFileSink.BucketsBuilder<
-                    T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
-                    bucketsBuilder,
+            StreamingFileSink.BucketsBuilder<T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>> bucketsBuilder,
             FileSystemFactory fsFactory,
             Path path,
             CompactReader.Factory<T> readFactory,
             long targetFileSize,
             int parallelism,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         CompactFileWriter<T> writer = new CompactFileWriter<>(
-                bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
+                bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
 
         SupplierWithException<FileSystem, IOException> fsSupplier =
-                (SupplierWithException<FileSystem, IOException> & Serializable)
-                        () -> fsFactory.create(path.toUri());
+                (SupplierWithException<FileSystem, IOException> & Serializable) () -> fsFactory.create(path.toUri());
 
         CompactCoordinator coordinator = new CompactCoordinator(fsSupplier, targetFileSize);
 
@@ -119,8 +123,7 @@ public class StreamingSink {
 
         CompactWriter.Factory<T> writerFactory =
                 CompactBucketWriter.factory(
-                        (SupplierWithException<BucketWriter<T, String>, IOException> & Serializable)
-                                bucketsBuilder::createBucketWriter);
+                        (SupplierWithException<BucketWriter<T, String>, IOException> & Serializable) bucketsBuilder::createBucketWriter);
 
         CompactOperator<T> compacter =
                 new CompactOperator<>(fsSupplier, readFactory, writerFactory);
@@ -153,7 +156,7 @@ public class StreamingSink {
                             locationPath, identifier, partitionKeys, msFactory, fsFactory, options);
             stream =
                     writer.transform(
-                                    PartitionCommitter.class.getSimpleName(), Types.VOID, committer)
+                            PartitionCommitter.class.getSimpleName(), Types.VOID, committer)
                             .setParallelism(1)
                             .setMaxParallelism(1);
         }
@@ -161,4 +164,3 @@ public class StreamingSink {
         return stream.addSink(new DiscardingSink<>()).name("end").setParallelism(1);
     }
 }
-

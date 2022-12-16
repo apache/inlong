@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class OffsetRecordService extends AbstractDaemonService {
+
     private static final Logger logger =
             LoggerFactory.getLogger(OffsetRecordService.class);
     private final TubeBroker broker;
@@ -79,11 +80,11 @@ public class OffsetRecordService extends AbstractDaemonService {
         // check topic writable status
         TopicMetadata topicMetadata = storeManager.getMetadataManager()
                 .getTopicMetadata(TServerConstants.OFFSET_HISTORY_NAME);
-        if (!topicMetadata.isAcceptPublish()) {
+        if (topicMetadata == null || !topicMetadata.isAcceptPublish()) {
             return;
         }
         // get group offset information
-        Map<String, OffsetRecordInfo> groupOffsetMap =
+        Map<String, OffsetHistoryInfo> groupOffsetMap =
                 offsetManager.getOnlineGroupOffsetInfo();
         if (groupOffsetMap == null || groupOffsetMap.isEmpty()) {
             return;

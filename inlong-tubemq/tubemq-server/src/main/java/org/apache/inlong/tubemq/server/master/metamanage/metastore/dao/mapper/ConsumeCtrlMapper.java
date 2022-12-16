@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -26,15 +26,15 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Gr
 public interface ConsumeCtrlMapper extends AbstractMapper {
 
     boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     boolean delGroupConsumeCtrlConf(String recordKey, StringBuilder strBuff, ProcessResult result);
 
     boolean delGroupConsumeCtrlConf(String groupName, String topicName,
-                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     boolean isTopicNameInUse(String topicName);
 

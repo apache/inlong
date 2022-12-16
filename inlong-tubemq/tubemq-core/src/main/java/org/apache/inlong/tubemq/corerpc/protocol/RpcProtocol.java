@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -54,7 +54,7 @@ public class RpcProtocol implements Protocol {
 
     @Override
     public void registerService(boolean isOverTLS, String serviceName,
-                                Object instance, ExecutorService threadPool) throws Exception {
+            Object instance, ExecutorService threadPool) throws Exception {
         this.isOverTLS = isOverTLS;
         int serviceId = PbEnDecoder.getServiceIdByServiceName(serviceName);
         processors.put(serviceId, instance);
@@ -115,7 +115,7 @@ public class RpcProtocol implements Protocol {
         if (System.currentTimeMillis() - context.getReceiveTime() > requestWrapper.getTimeout()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Timeout when request arrived, so give up processing this request from : {}",
-                       rmtAddress);
+                        rmtAddress);
             }
             return;
         }

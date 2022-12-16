@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,7 +37,8 @@ public class ProxyUtils {
     static {
         Collections.addAll(invalidAttr, "groupId", "streamId", "dt", "msgUUID", "cp",
                 "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "_file_status_check", "_secretId",
-                "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP", "_encyVersion", "_encyAesKey");
+                "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP", "_encyVersion", "_encyAesKey",
+                "proxySend", "errMsg", "errCode");
     }
 
     public static boolean isAttrKeysValid(Map<String, String> attrsMap) {
@@ -97,18 +97,6 @@ public class ProxyUtils {
         return dt;
     }
 
-    public static StringBuilder convertAttrToStr(Map<String, String> extraAttrMap) {
-        StringBuilder attrs = new StringBuilder();
-        for (Map.Entry<String, String> entry : extraAttrMap.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            attrs.append(key).append("=");
-            attrs.append(value).append("&");
-        }
-        attrs.deleteCharAt(attrs.length() - 1);
-        return attrs;
-    }
-
     /**
      * valid client config
      *
@@ -124,9 +112,9 @@ public class ProxyUtils {
             }
         }
         if (!clientConfig.isLocalVisit()) {
-            //if(!clientConfig.isNeedDataEncry()) {
-            //    throw new IllegalArgumentException("OutNetwork visit isNeedDataEncry must be true!");
-            //}
+            // if(!clientConfig.isNeedDataEncry()) {
+            // throw new IllegalArgumentException("OutNetwork visit isNeedDataEncry must be true!");
+            // }
             if (!clientConfig.isNeedAuthentication()) {
                 throw new IllegalArgumentException("OutNetwork visit isNeedAuthentication must be true!");
             }

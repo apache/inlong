@@ -92,8 +92,8 @@ public class CascadeFunctionWrapperTest extends AbstractTestBase {
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         // step 4. Get function execution result and parse it
         List<String> r = new ArrayList<>();
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-             it.hasNext(); ) {
+        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect(); it
+                .hasNext();) {
             String next = it.next();
             r.add(next);
         }

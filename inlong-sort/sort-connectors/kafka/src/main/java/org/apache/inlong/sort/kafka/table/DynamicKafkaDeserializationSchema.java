@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +19,7 @@ package org.apache.inlong.sort.kafka.table;
 
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.connectors.kafka.table.KafkaDynamicSource;
 import org.apache.flink.table.data.GenericRowData;
@@ -28,10 +28,17 @@ import org.apache.flink.types.DeserializationException;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.dirty.DirtyData;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +50,9 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
 
     private static final long serialVersionUID = 1L;
 
-    private final @Nullable
-    DeserializationSchema<RowData> keyDeserialization;
+    private static final Logger LOG = LoggerFactory.getLogger(DynamicKafkaDeserializationSchema.class);
+
+    private final @Nullable DeserializationSchema<RowData> keyDeserialization;
 
     private final DeserializationSchema<RowData> valueDeserialization;
 
@@ -58,6 +66,8 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
 
     private final boolean upsertMode;
 
+    private final DirtyOptions dirtyOptions;
+    private final @Nullable DirtySink<String> dirtySink;
     private SourceMetricData metricData;
 
     DynamicKafkaDeserializationSchema(
@@ -69,7 +79,9 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
             boolean hasMetadata,
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> producedTypeInfo,
-            boolean upsertMode) {
+            boolean upsertMode,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<String> dirtySink) {
         if (upsertMode) {
             Preconditions.checkArgument(
                     keyDeserialization != null && keyProjection.length > 0,
@@ -88,6 +100,8 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
                         upsertMode);
         this.producedTypeInfo = producedTypeInfo;
         this.upsertMode = upsertMode;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     public void setMetricData(SourceMetricData metricData) {
@@ -100,6 +114,9 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
             keyDeserialization.open(context);
         }
         valueDeserialization.open(context);
+        if (dirtySink != null) {
+            dirtySink.open(new Configuration());
+        }
     }
 
     @Override
@@ -118,17 +135,19 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
         // shortcut in case no output projection is required,
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
-            valueDeserialization.deserialize(record.value(), collector);
+            deserializeWithDirtyHandle(record.value(), DirtyType.VALUE_DESERIALIZE_ERROR,
+                    valueDeserialization, collector);
             // output metrics
             if (metricData != null) {
-                metricData.outputMetrics(1, record.value().length);
+                outputMetrics(record);
             }
             return;
         }
 
         // buffer key(s)
         if (keyDeserialization != null) {
-            keyDeserialization.deserialize(record.key(), keyCollector);
+            deserializeWithDirtyHandle(record.key(), DirtyType.KEY_DESERIALIZE_ERROR,
+                    keyDeserialization, keyCollector);
         }
 
         // project output while emitting values
@@ -140,19 +159,50 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
             // collect tombstone messages in upsert mode by hand
             outputCollector.collect(null);
         } else {
-            valueDeserialization.deserialize(record.value(), outputCollector);
+            deserializeWithDirtyHandle(record.value(), DirtyType.VALUE_DESERIALIZE_ERROR,
+                    valueDeserialization, outputCollector);
             // output metrics
             if (metricData != null) {
-                metricData.outputMetrics(1, record.value().length);
+                outputMetrics(record);
             }
         }
-
         keyCollector.buffer.clear();
     }
 
+    private void deserializeWithDirtyHandle(byte[] value, DirtyType dirtyType,
+            DeserializationSchema<RowData> deserialization, Collector<RowData> collector) throws IOException {
+        if (!dirtyOptions.ignoreDirty()) {
+            deserialization.deserialize(value, collector);
+        } else {
+            try {
+                deserialization.deserialize(value, collector);
+            } catch (IOException e) {
+                LOG.error(String.format("deserialize error, raw data: %s", new String(value)), e);
+                if (dirtySink != null) {
+                    DirtyData.Builder<String> builder = DirtyData.builder();
+                    try {
+                        builder.setData(new String(value))
+                                .setDirtyType(dirtyType)
+                                .setLabels(dirtyOptions.getLabels())
+                                .setLogTag(dirtyOptions.getLogTag())
+                                .setDirtyMessage(e.getMessage())
+                                .setIdentifier(dirtyOptions.getIdentifier());
+                        dirtySink.invoke(builder.build());
+                    } catch (Exception ex) {
+                        if (!dirtyOptions.ignoreSideOutputErrors()) {
+                            throw new IOException(ex);
+                        }
+                        LOG.warn("Dirty sink failed", ex);
+                    }
+                }
+            }
+        }
+    }
+
     private void outputMetrics(ConsumerRecord<byte[], byte[]> record) {
+        long dataSize = record.value() == null ? 0L : record.value().length;
         if (metricData != null) {
-            metricData.outputMetrics(1, record.value().length);
+            metricData.outputMetrics(1L, dataSize);
         }
     }
 
@@ -203,7 +253,9 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
      * </ul>
      */
     private static final class OutputProjectionCollector
-            implements Collector<RowData>, Serializable {
+            implements
+                Collector<RowData>,
+                Serializable {
 
         private static final long serialVersionUID = 1L;
 

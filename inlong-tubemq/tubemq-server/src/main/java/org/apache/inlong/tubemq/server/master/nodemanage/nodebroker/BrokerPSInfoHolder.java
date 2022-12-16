@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -31,6 +31,7 @@ import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
  *  Broker publish and subscribe information holder
  */
 public class BrokerPSInfoHolder {
+
     // broker manage status
     private final ConcurrentHashSet<Integer/* brokerId */> enablePubBrokerIdSet =
             new ConcurrentHashSet<>();
@@ -69,7 +70,7 @@ public class BrokerPSInfoHolder {
      *                     if topicInfoMap is empty, clear current configure.
      */
     public void iniBrokerConfigInfo(int brokerId, ManageStatus mngStatus,
-                                    Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         // initial broker manage status
         updBrokerMangeStatus(brokerId, mngStatus);
         if (topicInfoMap == null) {
@@ -115,7 +116,7 @@ public class BrokerPSInfoHolder {
      * @return if fast sync data
      */
     public boolean updBrokerSubTopicConfInfo(int brokerId,
-                                          Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         if (topicInfoMap == null) {
             return true;
         }
@@ -132,7 +133,7 @@ public class BrokerPSInfoHolder {
      *                    if topicInfoMap is empty, clear current configure.
      */
     public void updBrokerPubTopicConfInfo(int brokerId,
-                                          Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         if (topicInfoMap == null) {
             return;
         }
@@ -174,7 +175,7 @@ public class BrokerPSInfoHolder {
      * @param result   query result(broker accept subscribe, null or topicInfo configure)
      */
     public void getBrokerSubPushedTopicInfo(int brokerId, String topic,
-                                            Tuple2<Boolean, TopicInfo> result) {
+            Tuple2<Boolean, TopicInfo> result) {
         result.setF0AndF1(enableSubBrokerIdSet.contains(brokerId),
                 subTopicInfoView.getBrokerPushedTopicInfo(brokerId, topic));
     }
@@ -197,7 +198,7 @@ public class BrokerPSInfoHolder {
      *                       broker accept subscribe, null or topicInfo configure)
      */
     public void getBrokerPubPushedTopicInfo(int brokerId, String topic,
-                                            Tuple3<Boolean, Boolean, TopicInfo> result) {
+            Tuple3<Boolean, Boolean, TopicInfo> result) {
         result.setFieldsValue(enablePubBrokerIdSet.contains(brokerId),
                 enableSubBrokerIdSet.contains(brokerId),
                 pubTopicInfoView.getBrokerPushedTopicInfo(brokerId, topic));
@@ -211,7 +212,7 @@ public class BrokerPSInfoHolder {
      *                       broker accept subscribe, null or topicInfo configure)
      */
     public void getPubBrokerPushedTopicInfo(int brokerId,
-                                            Tuple3<Boolean, Boolean, List<TopicInfo>> result) {
+            Tuple3<Boolean, Boolean, List<TopicInfo>> result) {
         result.setFieldsValue(enablePubBrokerIdSet.contains(brokerId),
                 enableSubBrokerIdSet.contains(brokerId),
                 pubTopicInfoView.getBrokerPushedTopicInfo(brokerId));

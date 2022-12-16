@@ -17,12 +17,26 @@
 
 package org.apache.inlong.agent.conf;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.inlong.agent.constant.JobConstants;
+import org.apache.inlong.agent.pojo.JobProfileDto;
+import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.pojo.agent.DataConfig;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
+import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.apache.inlong.agent.constant.JobConstants.JOB_PROXY_SEND;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_SINK;
+import static org.apache.inlong.agent.pojo.JobProfileDto.DEFAULT_DATAPROXY_SINK;
+import static org.apache.inlong.agent.pojo.JobProfileDto.PULSAR_SINK;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class TestConfiguration {
 
@@ -68,6 +82,44 @@ public class TestConfiguration {
         Assert.assertTrue(jobJsonConf.allRequiredKeyExist());
         assertEquals("1", jobJsonConf.get(JobConstants.JOB_ID));
         assertEquals("test", jobJsonConf.get(JobConstants.JOB_NAME));
+    }
+
+    @Test
+    public void testJobSinkConf() {
+        DataConfig dataConfig = new DataConfig();
+        dataConfig.setTaskType(201);
+        dataConfig.setDataReportType(1);
+        JobProfile profile = JobProfileDto.convertToTriggerProfile(dataConfig);
+        assertEquals(profile.get(JOB_SINK), DEFAULT_DATAPROXY_SINK);
+        assertTrue(profile.getBoolean(JOB_PROXY_SEND, false));
+
+        dataConfig.setDataReportType(0);
+        profile = JobProfileDto.convertToTriggerProfile(dataConfig);
+        assertEquals(profile.get(JOB_SINK), DEFAULT_DATAPROXY_SINK);
+        assertFalse(profile.getBoolean(JOB_PROXY_SEND, true));
+
+        List<MQClusterInfo> mqClusterInfos = new ArrayList<>();
+        MQClusterInfo mqCluster = new MQClusterInfo();
+        mqCluster.setMqType(MQType.PULSAR);
+        mqCluster.setToken("token");
+        mqCluster.setUrl("mqurl");
+        assertTrue(mqCluster.isValid());
+
+        mqClusterInfos.add(mqCluster);
+        dataConfig.setDataReportType(2);
+        dataConfig.setMqClusters(mqClusterInfos);
+        dataConfig.setTopicInfo(new DataProxyTopicInfo("topic", "groupId"));
+        profile = JobProfileDto.convertToTriggerProfile(dataConfig);
+        List<MQClusterInfo> mqClusterResult = profile.getMqClusters();
+
+        assertEquals(profile.get(JOB_SINK), PULSAR_SINK);
+        assertEquals(mqClusterResult.size(), 1);
+        assertEquals(mqClusterResult.get(0).getToken(), "token");
+        assertEquals(mqClusterResult.get(0).getUrl(), "mqurl");
+
+        DataProxyTopicInfo topicResult = profile.getMqTopic();
+        assertEquals(topicResult.getTopic(), "topic");
+        assertEquals(topicResult.getInlongGroupId(), "groupId");
     }
 
 }
