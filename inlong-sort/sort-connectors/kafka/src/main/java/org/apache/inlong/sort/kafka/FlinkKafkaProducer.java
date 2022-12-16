@@ -860,7 +860,7 @@ public class FlinkKafkaProducer<IN>
 
                         @Override
                         public void onCompletion(RecordMetadata metadata, Exception e) {
-                            if (metadata.topic() != null) {
+                            if (metadata != null) {
                                 if (e != null) {
                                     LOG.error("Error while sending record to Kafka: " + e.getMessage(), e);
                                 } else {
@@ -877,7 +877,7 @@ public class FlinkKafkaProducer<IN>
 
                         @Override
                         public void onCompletion(RecordMetadata metadata, Exception exception) {
-                            if (metadata.topic() != null) {
+                            if (metadata != null) {
                                 if (exception != null && asyncException == null) {
                                     asyncException = exception;
                                 } else {
