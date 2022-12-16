@@ -152,8 +152,8 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
     public DynamicTableSink copy() {
         return new JdbcDynamicTableSink(jdbcOptions, executionOptions, dmlOptions,
                 tableSchema, appendMode, multipleSink, sinkMultipleFormat,
-                databasePattern, tablePattern, tableSchema, 
-                appendMode, inlongMetric, auditHostAndPorts, 
+                databasePattern, tablePattern, schemaPattern,
+                inlongMetric, auditHostAndPorts,
                 schemaUpdateExceptionPolicy, dirtyOptions, dirtySink);
     }
 
