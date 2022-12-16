@@ -275,7 +275,7 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
         this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
         return this;
     }
-        
+
     public JdbcDynamicOutputFormatBuilder setDirtyOptions(DirtyOptions dirtyOptions) {
         this.dirtyOptions = dirtyOptions;
         return this;
