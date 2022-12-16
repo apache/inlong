@@ -36,6 +36,7 @@ public class SortClientConfig implements Serializable {
     private ReadCallback callback;
     private int callbackQueueSize = 100;
     private int pulsarReceiveQueueSize = 2000;
+    private long statsIntervalSeconds = -1;
     private int kafkaFetchWaitMs = 5000;
     private int kafkaFetchSizeBytes = 3 * 1024 * 1024;
     private int kafkaSocketRecvBufferSize = 5 * 1024 * 1024;
@@ -180,6 +181,14 @@ public class SortClientConfig implements Serializable {
 
     public void setPulsarReceiveQueueSize(int pulsarReceiveQueueSize) {
         this.pulsarReceiveQueueSize = pulsarReceiveQueueSize;
+    }
+
+    public long getStatsIntervalSeconds() {
+        return statsIntervalSeconds;
+    }
+
+    public void setStatsIntervalSeconds(long statsIntervalSeconds) {
+        this.statsIntervalSeconds = statsIntervalSeconds;
     }
 
     public int getKafkaFetchWaitMs() {
@@ -366,6 +375,8 @@ public class SortClientConfig implements Serializable {
                 NumberUtils.toInt(sortSdkParams.get(ConfigConstants.CALLBACK_QUEUE_SIZE), callbackQueueSize);
         this.pulsarReceiveQueueSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.PULSAR_RECEIVE_QUEUE_SIZE),
                 pulsarReceiveQueueSize);
+        this.statsIntervalSeconds = NumberUtils.toLong(sortSdkParams.get(ConfigConstants.STATS_INTERVAL_SECONDS),
+                statsIntervalSeconds);
         this.kafkaFetchWaitMs =
                 NumberUtils.toInt(sortSdkParams.get(ConfigConstants.KAFKA_FETCH_WAIT_MS), kafkaFetchWaitMs);
         this.kafkaFetchSizeBytes =

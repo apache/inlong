@@ -18,14 +18,7 @@
 package org.apache.inlong.dataproxy.sink.pulsar;
 
 import com.google.common.base.Preconditions;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
@@ -48,9 +41,19 @@ import org.apache.pulsar.client.api.PulsarClientException.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
 public class PulsarClientService {
 
     private static final Logger logger = LoggerFactory.getLogger(PulsarClientService.class);
+    private MQClusterConfig pulsarConfig;
     public Map<String, List<TopicProducerInfo>> producerInfoMap;
     public Map<String, AtomicLong> topicSendIndexMap;
     public Map<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
@@ -86,7 +89,7 @@ public class PulsarClientService {
      * @param pulsarConfig
      */
     public PulsarClientService(MQClusterConfig pulsarConfig, int sinkThreadPoolSize) {
-
+        this.pulsarConfig = pulsarConfig;
         this.sinkThreadPoolSize = sinkThreadPoolSize;
 
         authType = pulsarConfig.getAuthType();
@@ -266,7 +269,9 @@ public class PulsarClientService {
         builder.serviceUrl(pulsarUrl)
                 .ioThreads(pulsarClientIoThreads)
                 .connectionsPerBroker(pulsarConnectionsPreBroker)
-                .connectionTimeout(clientTimeout, TimeUnit.SECONDS);
+                .connectionTimeout(clientTimeout, TimeUnit.SECONDS)
+                .statsInterval(pulsarConfig.getStatIntervalSec(),
+                        TimeUnit.SECONDS);
         return builder.build();
     }
 

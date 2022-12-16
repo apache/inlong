@@ -212,6 +212,7 @@ public class InlongMultiTopicManager extends TopicManager {
                 PulsarClient pulsarClient = PulsarClient.builder()
                         .serviceUrl(topic.getInLongCluster().getBootstraps())
                         .authentication(AuthenticationFactory.token(topic.getInLongCluster().getToken()))
+                        .statsInterval(context.getConfig().getStatsIntervalSeconds(), TimeUnit.SECONDS)
                         .build();
                 TopicFetcher fetcher = TopicFetcherBuilder.newPulsarBuilder()
                         .pulsarClient(pulsarClient)
