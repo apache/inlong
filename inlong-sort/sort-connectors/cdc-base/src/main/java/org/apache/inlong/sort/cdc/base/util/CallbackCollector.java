@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.oracle.debezium.utils;
+package org.apache.inlong.sort.cdc.base.util;
 
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.function.ThrowingConsumer;
