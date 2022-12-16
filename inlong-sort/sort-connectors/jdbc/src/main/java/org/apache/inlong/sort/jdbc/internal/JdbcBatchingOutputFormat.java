@@ -57,6 +57,8 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -91,13 +93,12 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     private transient ScheduledFuture<?> scheduledFuture;
     private transient volatile Exception flushException;
     private transient RuntimeContext runtimeContext;
-
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
     private SinkMetricData sinkMetricData;
     private Long dataSize = 0L;
     private Long rowSize = 0L;
-
+    private final Set<In> batchMap = new HashSet<>();
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
 
@@ -255,6 +256,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         dataSize = dataSize + record.toString().getBytes(StandardCharsets.UTF_8).length;
         try {
             addToBatch(record, jdbcRecordExtractor.apply(record));
+            batchMap.add(record);
             batchCount++;
             if (executionOptions.getBatchSize() > 0
                     && batchCount >= executionOptions.getBatchSize()) {
@@ -330,6 +332,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                     LOG.error(
                             "JDBC connection is not valid, and reestablish connection failed.",
                             exception);
+                    clearBatchMap(exception);
                     throw new IOException("Reestablish JDBC connection failed", exception);
                 }
                 try {
@@ -341,6 +344,13 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                 }
             }
         }
+    }
+
+    private void clearBatchMap(Exception e) {
+        for (In data : batchMap) {
+            handleDirtyData(data, DirtyType.BATCH_LOAD_ERROR, e);
+        }
+        batchMap.clear();
     }
 
     protected void attemptFlush() throws SQLException {
