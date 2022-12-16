@@ -98,6 +98,7 @@ public class MockUtils {
         PowerMockito.when(PulsarClient.builder()).thenReturn(clientBuilder);
         PowerMockito.when(clientBuilder.serviceUrl(anyString())).thenReturn(clientBuilder);
         PowerMockito.when(clientBuilder.authentication(any())).thenReturn(clientBuilder);
+        PowerMockito.when(clientBuilder.statsInterval(anyLong(), any())).thenReturn(clientBuilder);
         PowerMockito.when(clientBuilder.ioThreads(anyInt())).thenReturn(clientBuilder);
         PowerMockito.when(clientBuilder.memoryLimit(anyLong(), any())).thenReturn(clientBuilder);
         PowerMockito.when(clientBuilder.connectionsPerBroker(anyInt())).thenReturn(clientBuilder);
