@@ -98,7 +98,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     private SinkMetricData sinkMetricData;
     private Long dataSize = 0L;
     private Long rowSize = 0L;
-    private final Set<In> batchMap = new HashSet<>();
+    private final Set<In> batchSet = new HashSet<>();
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
 
@@ -256,7 +256,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         dataSize = dataSize + record.toString().getBytes(StandardCharsets.UTF_8).length;
         try {
             addToBatch(record, jdbcRecordExtractor.apply(record));
-            batchMap.add(record);
+            batchSet.add(record);
             batchCount++;
             if (executionOptions.getBatchSize() > 0
                     && batchCount >= executionOptions.getBatchSize()) {
@@ -348,10 +348,10 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     }
 
     private void clearBatchMap(Exception e) {
-        for (In data : batchMap) {
+        for (In data : batchSet) {
             handleDirtyData(data, DirtyType.BATCH_LOAD_ERROR, e);
         }
-        batchMap.clear();
+        batchSet.clear();
     }
 
     protected void attemptFlush() throws SQLException {
