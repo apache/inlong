@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -34,6 +33,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -66,7 +67,7 @@ public class OpenInLongStreamController {
 
     @RequestMapping(value = "/stream/list", method = RequestMethod.POST)
     @ApiOperation(value = "List inlong stream briefs by paginating")
-    public Response<PageResult<InlongStreamBriefInfo>> listByCondition(@RequestBody InlongStreamPageRequest request) {
+    public Response<List<InlongStreamBriefInfo>> listByCondition(@RequestBody InlongStreamPageRequest request) {
         return Response.success(streamService.listBrief(request, LoginUserUtils.getLoginUser()));
     }
 

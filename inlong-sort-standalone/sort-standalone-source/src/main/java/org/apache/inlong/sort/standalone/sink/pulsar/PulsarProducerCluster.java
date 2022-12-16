@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleAware;
@@ -53,6 +54,7 @@ public class PulsarProducerCluster implements LifecycleAware {
 
     public static final String KEY_SERVICE_URL = "serviceUrl";
     public static final String KEY_AUTHENTICATION = "authentication";
+    public static final String KEY_STATS_INTERVAL_SECONDS = "statsIntervalSeconds";
 
     public static final String KEY_ENABLEBATCHING = "enableBatching";
     public static final String KEY_BATCHINGMAXBYTES = "batchingMaxBytes";
@@ -112,6 +114,8 @@ public class PulsarProducerCluster implements LifecycleAware {
             this.client = PulsarClient.builder()
                     .serviceUrl(serviceUrl)
                     .authentication(AuthenticationFactory.token(authentication))
+                    .statsInterval(NumberUtils.toLong(config.getParams().get(KEY_STATS_INTERVAL_SECONDS), -1),
+                            TimeUnit.SECONDS)
                     .build();
             this.baseBuilder = client.newProducer();
             this.baseBuilder

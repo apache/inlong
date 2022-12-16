@@ -22,6 +22,9 @@ import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+
+import java.util.List;
 
 /**
  * Data node service layer interface
@@ -31,11 +34,20 @@ public interface DataNodeService {
     /**
      * Save data node.
      *
-     * @param request data node info
+     * @param request  data node info
      * @param operator name of operator
      * @return cluster id after saving
      */
     Integer save(DataNodeRequest request, String operator);
+
+    /**
+     * Save data node.
+     *
+     * @param request data node info
+     * @param opInfo  userinfo of operator
+     * @return cluster id after saving
+     */
+    Integer save(DataNodeRequest request, UserInfo opInfo);
 
     /**
      * Get data node by id.
@@ -44,6 +56,15 @@ public interface DataNodeService {
      * @return node info
      */
     DataNodeInfo get(Integer id);
+
+    /**
+     * Get data node by id.
+     *
+     * @param id     node id
+     * @param opInfo userinfo of operator
+     * @return node info
+     */
+    DataNodeInfo get(Integer id, UserInfo opInfo);
 
     /**
      * Get data node by name and type.
@@ -63,18 +84,36 @@ public interface DataNodeService {
     PageResult<DataNodeInfo> list(DataNodePageRequest request);
 
     /**
+     * Paging query nodes according to conditions.
+     *
+     * @param request page request conditions
+     * @param opInfo  userinfo of operator
+     * @return node list
+     */
+    List<DataNodeInfo> list(DataNodePageRequest request, UserInfo opInfo);
+
+    /**
      * Update data node.
      *
-     * @param request node info to be modified
+     * @param request  node info to be modified
      * @param operator current operator
      * @return whether succeed
      */
     Boolean update(DataNodeRequest request, String operator);
 
     /**
-     * Update data node by key.
+     * Update data node.
      *
      * @param request node info to be modified
+     * @param opInfo  userinfo of operator
+     * @return whether succeed
+     */
+    Boolean update(DataNodeRequest request, UserInfo opInfo);
+
+    /**
+     * Update data node by key.
+     *
+     * @param request  node info to be modified
      * @param operator current operator
      * @return update result
      */
@@ -83,17 +122,26 @@ public interface DataNodeService {
     /**
      * Delete data node.
      *
-     * @param id node id to be deleted
+     * @param id       node id to be deleted
      * @param operator current operator
      * @return whether succeed
      */
     Boolean delete(Integer id, String operator);
 
     /**
+     * Delete data node.
+     *
+     * @param id     node id to be deleted
+     * @param opInfo userinfo of operator
+     * @return whether succeed
+     */
+    Boolean delete(Integer id, UserInfo opInfo);
+
+    /**
      * Delete data node by key.
      *
-     * @param name node name to be deleted
-     * @param type node type to be deleted
+     * @param name     node name to be deleted
+     * @param type     node type to be deleted
      * @param operator current operator
      * @return whether succeed
      */
