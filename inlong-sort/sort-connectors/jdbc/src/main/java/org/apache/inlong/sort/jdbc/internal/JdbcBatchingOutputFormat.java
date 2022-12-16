@@ -322,6 +322,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             } catch (SQLException e) {
                 LOG.error("JDBC executeBatch error, retry times = {}", i, e);
                 if (i >= executionOptions.getMaxRetries()) {
+                    clearBatchMap(e);
                     throw new IOException(e);
                 }
                 try {
