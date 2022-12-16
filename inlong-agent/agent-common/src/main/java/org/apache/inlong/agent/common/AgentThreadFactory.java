@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.common;
 
-import org.apache.inlong.agent.state.AbstractStateWrapper;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;

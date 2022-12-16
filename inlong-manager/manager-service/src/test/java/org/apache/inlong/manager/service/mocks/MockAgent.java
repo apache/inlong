@@ -102,7 +102,6 @@ public class MockAgent {
         taskResult.getDataConfigs().forEach(dataConfig -> {
             CommandEntity command = new CommandEntity();
 
-            // todo:isAck、id is useless, so it can be removed
             command.setCommandResult(Constants.RESULT_SUCCESS);
             command.setTaskId(dataConfig.getTaskId());
             command.setVersion(dataConfig.getVersion());

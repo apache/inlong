@@ -18,7 +18,6 @@
 package org.apache.inlong.agent.plugin.filter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.plugin.Filter;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.PathUtils;
 import org.slf4j.Logger;

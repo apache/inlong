@@ -97,6 +97,21 @@ public class PathPattern {
         return suitableFiles;
     }
 
+    private void walkSuitableFiles(Collection<File> suitableFiles, File file, int maxNum) {
+        if (suitableFiles.size() > maxNum) {
+            LOGGER.warn("Suitable files exceed max num {}, just return.", maxNum);
+            return;
+        }
+
+        if (suitable(file.getAbsolutePath())) {
+            if (file.isFile()) {
+                suitableFiles.add(file);
+            } else if (file.isDirectory()) {
+                Stream.of(file.listFiles()).forEach(subFile -> walkSuitableFiles(suitableFiles, subFile, maxNum));
+            }
+        }
+    }
+
     /**
      * Check whether path is suitable for match whiteList and filtered by blackList
      *
@@ -123,21 +138,6 @@ public class PathPattern {
                 .filter(whiteRegex -> whiteRegex.match(file))
                 .findAny()
                 .isPresent();
-    }
-
-    private void walkSuitableFiles(Collection<File> suitableFiles, File file, int maxNum) {
-        if (suitableFiles.size() > maxNum) {
-            LOGGER.warn("Suitable files exceed max num {}, just return.", maxNum);
-            return;
-        }
-
-        if (suitable(file.getAbsolutePath())) {
-            if (file.isFile()) {
-                suitableFiles.add(file);
-            } else if (file.isDirectory()) {
-                Stream.of(file.listFiles()).forEach(subFile -> walkSuitableFiles(suitableFiles, subFile, maxNum));
-            }
-        }
     }
 
     /**
@@ -179,6 +179,7 @@ public class PathPattern {
     }
 
     public String getSuitTime() {
-        return whiteList.stream().findAny().get().getFormattedTime(); // todo:适配多regex情况下的datetime
+        // todo: Adapt to datetime in the case of multiple regex
+        return whiteList.stream().findAny().get().getFormattedTime();
     }
 }

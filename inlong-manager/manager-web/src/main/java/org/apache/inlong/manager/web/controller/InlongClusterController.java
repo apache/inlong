@@ -231,7 +231,7 @@ public class InlongClusterController {
     @RequestMapping(value = "/cluster/node/bindTag")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Bind or unbind cluster node tag")
-    public Response<Boolean> bindTag(@Validated @RequestBody ClusterNodeBindTagRequest request) {
+    public Response<Boolean> bindNodeTag(@Validated @RequestBody ClusterNodeBindTagRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.bindNodeTag(request, username));
     }

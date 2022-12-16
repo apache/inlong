@@ -39,14 +39,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
@@ -138,7 +135,8 @@ public class TestFileAgent {
     public void testOneJobOnly() throws Exception {
         String jsonString = TestUtils.getTestTriggerProfile();
         TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
-        triggerProfile.set(JOB_DIR_FILTER_PATTERNS, helper.getParentPath() + triggerProfile.get(JOB_DIR_FILTER_PATTERNS));
+        triggerProfile.set(JOB_DIR_FILTER_PATTERNS,
+                helper.getParentPath() + triggerProfile.get(JOB_DIR_FILTER_PATTERNS));
         triggerProfile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testRootDir.toString(),
                 "test*.dat").toString());
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");

@@ -44,7 +44,7 @@ public interface Trigger {
      */
     void destroy();
 
-    // todo:修改成拉取TaskProfile
+    // todo:fetch TaskProfile
     /**
      * fetch job profile from trigger
      *

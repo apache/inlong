@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
-
 import org.apache.inlong.agent.core.trigger.TriggerManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.MiniAgent;
@@ -49,21 +48,27 @@ public class TestTriggerManager {
         }
     }
 
-    // todo:测试重启后trigger的任务是否能正常恢复
+    // todo:Test whether the trigger task can be restored normally after restarting
     @Test
     public void testRestart() {
 
     }
 
-    // todo:测试多个不同的trigger监控同一个目录
+    // todo:Test multiple different triggers to monitor the same directory
     @Test
-    public void testMultiTriggerWatchSameDir() {}
+    public void testMultiTriggerWatchSameDir() {
 
-    // todo:测试trigger超限
-    @Test
-    public void testExceedMaxNumTrigger() {}
+    }
 
-    // todo:测试trigger的提交和停止
+    // todo:Test trigger overrun
     @Test
-    public void testSubmitAndShutdown() {}
+    public void testExceedMaxNumTrigger() {
+
+    }
+
+    // todo:Test trigger submit and shutdown
+    @Test
+    public void testSubmitAndShutdown() {
+
+    }
 }

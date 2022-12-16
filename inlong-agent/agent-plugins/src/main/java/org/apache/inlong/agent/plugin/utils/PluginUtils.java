@@ -29,7 +29,6 @@ import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.trigger.PathPattern;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.PathUtils;
 import org.apache.pulsar.client.api.CompressionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

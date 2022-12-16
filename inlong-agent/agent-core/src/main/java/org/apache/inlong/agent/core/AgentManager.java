@@ -17,9 +17,6 @@
 
 package org.apache.inlong.agent.core;
 
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.monitor.FileAlterationMonitor;
-import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -36,7 +33,6 @@ import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.JobProfileDb;
 import org.apache.inlong.agent.db.LocalProfile;
 import org.apache.inlong.agent.db.TriggerProfileDb;
-import org.apache.logging.log4j.core.tools.picocli.CommandLine.RunAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +41,6 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CONF_PARENT;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_CONF_PARENT;
@@ -135,7 +128,7 @@ public class AgentManager extends AbstractDaemon {
 
             @Override
             public void run() {
-                while(true) {
+                while (true) {
                     try {
                         Thread.sleep(10 * 1000);  // 10s check
                         File file = new File(
@@ -147,7 +140,7 @@ public class AgentManager extends AbstractDaemon {
                             conf.reloadFromLocalPropertiesFile();
                             lastModifiedTime = file.lastModified();
                         }
-                    } catch (InterruptedException e){
+                    } catch (InterruptedException e) {
                         LOGGER.error("Interrupted when flush agent conf.", e);
                     }
                 }

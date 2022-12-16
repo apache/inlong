@@ -64,17 +64,6 @@ import java.util.stream.Collectors;
  * Agent service test
  */
 class AgentServiceTest extends ServiceBaseTest {
-
-    /**
-     * 测试
-     * 1. agent 请求任务，对于manager这边的任务，能保证最终manager这边保存的任务状态能和agent那边保持一致能够接收到指定的返回任务
-     * 2. agent 因为agent向manager ack和时机和 client向manager更改的的时机顺序是不固定的，那么无论这个顺序如何，都需要保证以client
-     * 向manager更改的最终状态为准。并且需要保证agent中的任务状态也和manager中的保持一致
-     *    2.1例：source现在为TO_BE_ISSUED_ADD，已经向agent下发任务了，但是上层下发指令冻结该任务，那么source最终的状态应该是SOURCE_FRONZEN
-     *    2.2例: source现在为SOURCE_FRONZEN, 然后agent的tag被修改了导致不匹配了，同时上层下发指令启动该任务，那么source的最终状态应该是SOURCE_FRONZEN
-     *
-     */
-
     private static MockAgent agent;
     @Autowired
     private StreamSourceService sourceService;
@@ -97,19 +86,6 @@ class AgentServiceTest extends ServiceBaseTest {
     private List<String> tagCache;
 
     /**
-     * Save source info.
-     */
-    public Integer saveSource() {
-        streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
-        MySQLBinlogSourceRequest sourceInfo = new MySQLBinlogSourceRequest();
-        sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
-        sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
-        sourceInfo.setSourceType(SourceType.MYSQL_BINLOG);
-        sourceInfo.setSourceName("binlog_source_in_agent_service_test");
-        return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
-    }
-
-    /**
      * Save template source
      */
     public Integer saveTemplateSource() {
@@ -120,6 +96,19 @@ class AgentServiceTest extends ServiceBaseTest {
         sourceInfo.setSourceType(SourceType.FILE);
         sourceInfo.setSourceName("template_source_in_agent_service_test");
         sourceInfo.setInlongClusterName(GLOBAL_CLUSTER_NAME);
+        return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
+    }
+
+    /**
+     * Save source info.
+     */
+    public Integer saveSource() {
+        streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
+        MySQLBinlogSourceRequest sourceInfo = new MySQLBinlogSourceRequest();
+        sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
+        sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
+        sourceInfo.setSourceType(SourceType.MYSQL_BINLOG);
+        sourceInfo.setSourceName("binlog_source_in_agent_service_test");
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 
@@ -188,8 +177,10 @@ class AgentServiceTest extends ServiceBaseTest {
     @AfterEach
     public void teardownEach() {
         if (!groupStreamCache.isEmpty()) {
-            groupMapper.deleteByInlongGroupIds(groupStreamCache.stream().map(Pair::getKey).collect(Collectors.toList()));
-            streamMapper.deleteByInlongGroupIds(groupStreamCache.stream().map(Pair::getValue).collect(Collectors.toList()));
+            groupMapper.deleteByInlongGroupIds(
+                    groupStreamCache.stream().map(Pair::getKey).collect(Collectors.toList()));
+            streamMapper.deleteByInlongGroupIds(
+                    groupStreamCache.stream().map(Pair::getValue).collect(Collectors.toList()));
             groupStreamCache.forEach(groupStream ->
                     sourceService.forceDelete(groupStream.getLeft(), groupStream.getRight(), GLOBAL_OPERATOR));
         }
@@ -220,21 +211,21 @@ class AgentServiceTest extends ServiceBaseTest {
                 .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ADD.getType())
                 .collect(Collectors.toSet())
                 .size());
-        Assertions.assertEquals(1, taskResult.getDataConfigs().stream().
-                filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.FROZEN.getType())
+        Assertions.assertEquals(1, taskResult.getDataConfigs().stream()
+                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.FROZEN.getType())
                 .collect(Collectors.toSet())
                 .size());
     }
 
     @Test
     public void testTagMismatchAndRematch() {
-        Pair<String, String> groupStream = saveSource("tag1,tag3");
+        final Pair<String, String> groupStream = saveSource("tag1,tag3");
         bindTag(true, "tag1");
 
         agent.pullTask();
         agent.pullTask(); // report last success status
 
-        int sourceId = sourceService.listSource(groupStream.getLeft(), groupStream.getRight()).stream()
+        final int sourceId = sourceService.listSource(groupStream.getLeft(), groupStream.getRight()).stream()
                 .filter(source -> source.getTemplateId() != null)
                 .findAny()
                 .get()
@@ -254,7 +245,7 @@ class AgentServiceTest extends ServiceBaseTest {
         bindTag(true, "tag1");
         TaskResult t2 = agent.pullTask();
         Assertions.assertEquals(1, t2.getDataConfigs().size());
-        Assertions.assertEquals( 1, t2.getDataConfigs().stream()
+        Assertions.assertEquals(1, t2.getDataConfigs().stream()
                 .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ACTIVE.getType())
                 .collect(Collectors.toSet())
                 .size());
@@ -284,7 +275,7 @@ class AgentServiceTest extends ServiceBaseTest {
 
     @Test
     public void testRematchedWhenSuspend() {
-        Pair<String, String> groupStream = saveSource("tag1,tag3");
+        final Pair<String, String> groupStream = saveSource("tag1,tag3");
         bindTag(true, "tag1");
 
         agent.pullTask();
@@ -304,7 +295,7 @@ class AgentServiceTest extends ServiceBaseTest {
 
     @Test
     public void testMismatchedWhenRestart() {
-        Pair<String, String> groupStream = saveSource("tag1,tag3");
+        final Pair<String, String> groupStream = saveSource("tag1,tag3");
         bindTag(true, "tag1");
 
         agent.pullTask();

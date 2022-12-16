@@ -71,7 +71,6 @@ public class Task {
         return reader.getReadSource() + "->" + sink.toString();
     }
 
-
     public void init() {
         this.channel.init(jobConf);
         this.sink.init(jobConf);

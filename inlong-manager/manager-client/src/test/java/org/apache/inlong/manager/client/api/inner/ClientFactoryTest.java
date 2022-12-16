@@ -47,10 +47,8 @@ import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
-import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
@@ -79,11 +77,9 @@ import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.pojo.source.file.FileSource;
-import org.apache.inlong.manager.pojo.source.file.FileSourceRequest;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -115,7 +111,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 @Slf4j
 class ClientFactoryTest {
 
-    private static final int SERVICE_PORT = 8083;
+    private static final int SERVICE_PORT = 8085;
     static ClientFactory clientFactory;
     private static WireMockServer wireMockServer;
     private static InlongGroupClient groupClient;
@@ -130,12 +126,11 @@ class ClientFactoryTest {
 
     @BeforeAll
     static void setup() {
-        /**
         wireMockServer = new WireMockServer(options().port(SERVICE_PORT));
         wireMockServer.start();
         WireMock.configureFor(wireMockServer.port());
-        **/
-        String serviceUrl = "172.17.116.108:" + SERVICE_PORT;
+
+        String serviceUrl = "127.0.0.1:" + SERVICE_PORT;
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
         InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);
@@ -155,21 +150,7 @@ class ClientFactoryTest {
 
     @AfterAll
     static void teardown() {
-        //wireMockServer.stop();
-    }
-
-    // todo:仅仅为了测试用
-    @Test
-    void testNewAPI() {
-        /** bindTag */
-        ClusterPageRequest request = new ClusterPageRequest();
-        request.setParentId(1);
-        request.setType("AGENT");
-        request.setCurrentUser("admin");
-        PageResult<ClusterNodeResponse> p = clusterClient.listNode(request);
-        System.out.println(1);
-        /** create stream source*/
-
+        wireMockServer.stop();
     }
 
     @Test

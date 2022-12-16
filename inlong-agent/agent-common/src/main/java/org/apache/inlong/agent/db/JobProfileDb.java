@@ -49,7 +49,7 @@ public class JobProfileDb {
     /**
      * get all restart jobs from db
      *
-     * @Deprecated Use {@link JobProfileDb#getJobsByState(Set<StateSearchKey>)}
+     * @Deprecated Use {@link JobProfileDb#getJobsByState(Set)}
      */
     @Deprecated
     public List<JobProfile> getRestartJobs() {
@@ -194,7 +194,7 @@ public class JobProfileDb {
      *
      * @param stateSearchKey state search key.
      * @return list of job profile.
-     * @Deprecated Use {@link JobProfileDb#getJobsByState(Set<StateSearchKey>)}
+     * @Deprecated Use {@link JobProfileDb#getJobsByState(Set)}
      */
     @Deprecated
     public List<JobProfile> getJobsByState(StateSearchKey stateSearchKey) {

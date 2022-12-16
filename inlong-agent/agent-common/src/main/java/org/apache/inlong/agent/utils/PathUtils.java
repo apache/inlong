@@ -32,11 +32,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Tools to handle various path issue.(e.g. path match、path research)
+ * Tools to handle various path issue.(e.g. path match,path research)
  */
 public class PathUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(PathUtils.class);
     private static final AntPathMatcher MATCHER = new AntPathMatcher();
+
     static {
         MATCHER.setPathSeparator(File.separator);
     }
@@ -55,7 +56,7 @@ public class PathUtils {
     }
 
     /**
-     * Check whether directory name are included in patternStr prefix</br>
+     * Check whether directory name are included in patternStr prefix<br>
      * e.g. "/a/b/1/3/4/5"  are included in "/a/*\/1/3/**\/1.log" prefix
      *
      * @param dirStr directory string

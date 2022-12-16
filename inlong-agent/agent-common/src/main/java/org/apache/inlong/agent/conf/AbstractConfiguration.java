@@ -151,6 +151,7 @@ public abstract class AbstractConfiguration {
             }
         }
     }
+
     /**
      * get int from config
      *

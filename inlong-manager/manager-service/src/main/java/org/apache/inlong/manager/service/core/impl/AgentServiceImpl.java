@@ -158,7 +158,7 @@ public class AgentServiceImpl implements AgentService {
 
         if (Constants.RESULT_FAIL == result) {
             LOGGER.warn("task failed for id =[{}]", taskId);
-            nextStatus = SourceStatus.SOURCE_FAILED.getCode();  // todo:这个地方让它无论如何都回复就需要保证agent下发过程中不要出现异常，出现异常认为是FAIL
+            nextStatus = SourceStatus.SOURCE_FAILED.getCode();
         } else if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
             // Change the status from 30x to normal / disable / frozen
             if (SourceStatus.TEMP_TO_NORMAL.contains(previousStatus)) {
@@ -205,7 +205,7 @@ public class AgentServiceImpl implements AgentService {
             needAddStatusSet.remove(SourceStatus.TO_BE_ISSUED_ADD);
         }
 
-        // todo:弄清楚这里为什么一定需要uuid,如果是废的就不管它了
+        // todo:Find out why uuid is necessary here, if it is invalid, ignore it
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndCluster(
                 needAddStatusSet.stream().map(SourceStatus::getCode).collect(Collectors.toList()),
                 request.getClusterName(), request.getAgentIp(), request.getUuid());
@@ -226,7 +226,8 @@ public class AgentServiceImpl implements AgentService {
         return issuedTasks;
     }
 
-    // 这个地方如果很多agent都拉去相同的non file任务 岂不是有问题?这里之前是怎么解决的，需要问下poco
+    // todo:If many agents pull the same non-file task in this place, wouldn’t it be a problem?
+    //  it will issue multiple tasks
     private void preProcessNonFileTasks(TaskRequest taskRequest) {
         List<Integer> needAddStatusList;
         if (PullJobTypeEnum.NEVER == PullJobTypeEnum.getPullJobType(taskRequest.getPullJobType())) {
@@ -254,7 +255,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     /**
-     * Add subtasks to template tasks。
+     * Add subtasks to template tasks.
      * (Template task are agent_ip is null and template_id is null)
      *
      * @param taskRequest
@@ -288,7 +289,7 @@ public class AgentServiceImpl implements AgentService {
                     fileEntity.setSourceName(fileEntity.getSourceName() + "-"
                             + RandomStringUtils.randomAlphanumeric(10).toLowerCase(Locale.ROOT));
                     fileEntity.setTemplateId(sourceEntity.getId());
-                    fileEntity.setAgentIp(agentIp);  // todo:这里不设置uuid是不是也没问题,因为前面查询的时候就没有吧uuid带上过滤
+                    fileEntity.setAgentIp(agentIp);
                     fileEntity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
                     // create new sub source task
                     sourceMapper.insert(fileEntity);
@@ -334,7 +335,8 @@ public class AgentServiceImpl implements AgentService {
                                         + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                                 sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(),
                                 agentIp, agentClusterName);
-                        sourceMapper.updateStatus(sourceEntity.getId(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), false);
+                        sourceMapper.updateStatus(
+                                sourceEntity.getId(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), false);
                     }
 
                     // case: agent tag rebind and match source task again and stream is not in 'SUSPENDED' status
@@ -353,7 +355,8 @@ public class AgentServiceImpl implements AgentService {
                                         + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                                 sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(),
                                 agentIp, agentClusterName);
-                        sourceMapper.updateStatus(sourceEntity.getId(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(), false);
+                        sourceMapper.updateStatus(
+                                sourceEntity.getId(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(), false);
                     }
                 });
     }
@@ -493,7 +496,7 @@ public class AgentServiceImpl implements AgentService {
         return taskType.getType();
     }
 
-    // todo:删除
+    // todo:delete it, source cmd is useless
     /**
      * Get the agent command config by the agent ip.
      *

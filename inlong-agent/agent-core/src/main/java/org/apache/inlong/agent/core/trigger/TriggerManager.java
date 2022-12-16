@@ -100,7 +100,6 @@ public class TriggerManager extends AbstractDaemon {
      * 2.start trigger thread.
      *
      * @param triggerProfile trigger profile
-     * @return true if success
      */
     public void submitTrigger(TriggerProfile triggerProfile) {
         // make sure all required key exists.
@@ -117,7 +116,8 @@ public class TriggerManager extends AbstractDaemon {
         }
 
         LOGGER.info("submit trigger {}", triggerProfile);
-        manager.getJobManager().submitJobProfile(triggerProfile, true);  // todo:这个一定要在保存数据库之前，因为下次恢复还需要用到这个job_instance_id
+        // This action must be done before saving in db, because the job.instance.id is needed for the next recovery
+        manager.getJobManager().submitJobProfile(triggerProfile, true);
         triggerProfileDB.storeTrigger(triggerProfile);
         restoreTrigger(triggerProfile);
     }
@@ -150,7 +150,8 @@ public class TriggerManager extends AbstractDaemon {
             Thread.currentThread().setName("TriggerManager-jobFetch");
             // wait until jobManager initialize finish, because subtask add relay on memory 'jobs' rebuild
             try {
-                Thread.sleep(10 * 1000);  // todo:后续增加订阅jobmanager生命周期的通知机制
+                // todo:Subsequent addition of the notification mechanism for subscribing to the jobmanager life cycle
+                Thread.sleep(10 * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
