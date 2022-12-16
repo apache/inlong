@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.stream;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -133,14 +134,23 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Override
     public Integer save(InlongStreamRequest request, UserInfo opInfo) {
-        Preconditions.checkNotNull(request, "inlong stream info is empty");
-        String groupId = request.getInlongGroupId();
-        String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
-        // check opInfo
+        if (request == null) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "inlong stream info is empty");
+        }
+        // check operator info
         if (opInfo == null) {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        // check group id
+        String groupId = request.getInlongGroupId();
+        if (StringUtils.isBlank(groupId)) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        }
+        // check stream id
+        String streamId = request.getInlongStreamId();
+        if (StringUtils.isBlank(streamId)) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
@@ -153,8 +163,13 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
             }
         }
-        // Check if it can be added
-        checkGroupStatusIsTemp(groupId);
+        // Add/modify/delete is not allowed under temporary inlong group status
+        GroupStatus curState = GroupStatus.forCode(entity.getStatus());
+        if (GroupStatus.isTempStatus(curState)) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_OPT_NOT_ALLOWED,
+                    String.format("inlong groupId=%s status=%s was not allowed to add/update/delete stream", groupId,
+                            curState));
+        }
         // The streamId under the same groupId cannot be repeated
         Integer count = streamMapper.selectExistByIdentifier(groupId, streamId);
         if (count >= 1) {
@@ -168,7 +183,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamEntity.setStatus(StreamStatus.NEW.getCode());
         streamEntity.setCreator(opInfo.getName());
         streamEntity.setModifier(opInfo.getName());
-
+        // add record
         streamMapper.insertSelective(streamEntity);
         saveField(groupId, streamId, request.getFieldList());
         if (CollectionUtils.isNotEmpty(request.getExtList())) {
@@ -213,12 +228,17 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Override
     public InlongStreamInfo get(String groupId, String streamId, UserInfo opInfo) {
-        // check groupId and streamId
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
-        // check opInfo
+        // check operator info
         if (opInfo == null) {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        // check group id
+        if (StringUtils.isBlank(groupId)) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        }
+        // check stream id
+        if (StringUtils.isBlank(streamId)) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
@@ -310,21 +330,19 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public PageResult<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request, UserInfo opInfo) {
-        // check opInfo
+    public List<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request, UserInfo opInfo) {
+        if (request == null) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "group query request cannot be empty");
+        }
+        // check operator info
         if (opInfo == null) {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
-        PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        OrderFieldEnum.checkOrderField(request);
-        OrderTypeEnum.checkOrderType(request);
         Page<InlongStreamEntity> entityPage = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
-        List<InlongStreamBriefInfo> streamList = CommonBeanUtils.copyListProperties(entityPage,
-                InlongStreamBriefInfo::new);
-        return new PageResult<>(streamList,
-                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+        return CommonBeanUtils.copyListProperties(entityPage, InlongStreamBriefInfo::new);
     }
 
     @Override
@@ -407,13 +425,24 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(InlongStreamRequest request, UserInfo opInfo) {
-        Preconditions.checkNotNull(request, "inlong stream request is empty");
-        // check opInfo
+        if (request == null) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "inlong stream request is empty");
+        }
+        // check operator info
         if (opInfo == null) {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
+        // check group id
         String groupId = request.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        if (StringUtils.isBlank(groupId)) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        }
+        // check stream id
+        String streamId = request.getInlongStreamId();
+        if (StringUtils.isBlank(streamId)) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_ID_IS_EMPTY);
+        }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
@@ -425,11 +454,35 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
             }
         }
-        String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
-        // Check if it can be modified
-        this.checkGroupStatusIsTemp(groupId);
-        return this.updateWithoutCheck(request, opInfo.getName());
+        // Add/modify/delete is not allowed under temporary inlong group status
+        GroupStatus curState = GroupStatus.forCode(entity.getStatus());
+        if (GroupStatus.isTempStatus(curState)) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_OPT_NOT_ALLOWED,
+                    String.format("inlong groupId=%s status=%s was not allowed to add/update/delete stream", groupId,
+                            curState));
+        }
+        // check stream status
+        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        if (streamEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND,
+                    String.format("inlong stream not found by groupId=%s, streamId=%s", groupId, streamId));
+        }
+        if (!Objects.equals(streamEntity.getVersion(), request.getVersion())) {
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format("stream has already updated with groupId=%s, streamId=%s, curVersion=%s",
+                            streamEntity.getInlongGroupId(), streamEntity.getInlongStreamId(), request.getVersion()));
+        }
+        // update record
+        CommonBeanUtils.copyProperties(request, streamEntity, true);
+        streamEntity.setModifier(opInfo.getName());
+        if (InlongConstants.AFFECTED_ONE_ROW != streamMapper.updateByIdentifierSelective(streamEntity)) {
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
+        // update stream fields
+        updateField(groupId, streamId, request.getFieldList());
+        // update stream extension infos
+        saveOrUpdateExt(groupId, streamId, request.getExtList());
+        return true;
     }
 
     @Override
@@ -518,11 +571,17 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean delete(String groupId, String streamId, UserInfo opInfo) {
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
-        // check opInfo
+        // check operator info
         if (opInfo == null) {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        // check group id
+        if (StringUtils.isBlank(groupId)) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        }
+        // check stream id
+        if (StringUtils.isBlank(streamId)) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         }
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         if (groupEntity == null) {
@@ -535,28 +594,30 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
             }
         }
-        // Check if it can be deleted
-        this.checkGroupStatusIsTemp(groupId);
+        // Add/modify/delete is not allowed under temporary inlong group status
+        GroupStatus curState = GroupStatus.forCode(groupEntity.getStatus());
+        if (GroupStatus.isTempStatus(curState)) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_OPT_NOT_ALLOWED,
+                    String.format("inlong groupId=%s status=%s was not allowed to add/update/delete stream", groupId,
+                            curState));
+        }
         // Check if steam record exists
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         if (streamEntity == null) {
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
         // If there is undeleted stream source, the deletion fails
-        Integer sourceCount = sourceService.getCount(groupId, streamId);
-        if (sourceCount > 0) {
+        if (sourceService.getCount(groupId, streamId) > 0) {
             throw new BusinessException(ErrorCodeEnum.STREAM_DELETE_HAS_SOURCE);
         }
         // If there is undeleted stream sink, the deletion fails
-        int sinkCount = sinkService.getCount(groupId, streamId);
-        if (sinkCount > 0) {
+        if (sinkService.getCount(groupId, streamId) > 0) {
             throw new BusinessException(ErrorCodeEnum.STREAM_DELETE_HAS_SINK);
         }
-
+        // delete record
         streamEntity.setIsDeleted(streamEntity.getId());
         streamEntity.setModifier(opInfo.getName());
-        int rowCount = streamMapper.updateByPrimaryKey(streamEntity);
-        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+        if (streamMapper.updateByPrimaryKey(streamEntity) != InlongConstants.AFFECTED_ONE_ROW) {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         // Logically delete the associated field table

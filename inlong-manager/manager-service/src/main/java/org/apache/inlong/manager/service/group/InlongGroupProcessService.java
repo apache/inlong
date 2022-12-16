@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.group;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
@@ -232,31 +233,36 @@ public class InlongGroupProcessService {
      * Delete InlongGroup logically and delete related resource in a synchronous way.
      */
     public Boolean deleteProcess(String groupId, UserInfo opInfo) {
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        // check groupId parameter
+        if (StringUtils.isBlank(groupId)) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "inlong group id in request cannot be blank");
         }
         // check operator info
         if (opInfo == null) {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
-        // only the person in charges can query
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            return true;
+        }
+        // only the person in charges can delete
         if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
             }
         }
-        try {
-            invokeDeleteProcess(groupId, opInfo.getName());
-        } catch (Exception e) {
-            LOGGER.error(String.format("failed to delete group for groupId=%s by user=%s",
-                    groupId, opInfo.getName()), e);
-            throw e;
+        // check can be deleted
+        InlongGroupInfo groupInfo = groupService.doDeleteCheck(groupId, opInfo.getName());
+        // start to delete group process
+        GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.DELETE);
+        WorkflowResult result = workflowService.start(ProcessName.DELETE_GROUP_PROCESS, opInfo.getName(), form);
+        List<TaskResponse> tasks = result.getNewTasks();
+        if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
+            throw new BusinessException(ErrorCodeEnum.WORKFLOW_DELETE_RECORD_FAILED,
+                    String.format("failed to delete inlong group for groupId=%s", groupId));
         }
-
-        LOGGER.info("success to delete group for groupId={} by user={}",
-                groupId, opInfo.getName());
         return true;
     }
 
