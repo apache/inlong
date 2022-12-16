@@ -186,7 +186,7 @@ public class SortClientConfig implements Serializable {
     public long getStatsIntervalSeconds() {
         return statsIntervalSeconds;
     }
-    
+
     public void setStatsIntervalSeconds(long statsIntervalSeconds) {
         this.statsIntervalSeconds = statsIntervalSeconds;
     }
