@@ -51,6 +51,13 @@ import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTE
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
+
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
+
+import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 
@@ -198,7 +205,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                 FactoryUtil.createTableFactoryHelper(this, context);
         final ReadableConfig config = helper.getOptions();
 
-        helper.validate();
+        helper.validateExcept(DIRTY_PREFIX);
         validateConfigOptions(config);
         boolean multipleSink = config.getOptional(SINK_MULTIPLE_ENABLE).orElse(false);
         String sinkMultipleFormat = helper.getOptions().getOptional(SINK_MULTIPLE_FORMAT).orElse(null);
@@ -214,6 +221,9 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         String auditHostAndPorts = config.getOptional(INLONG_AUDIT).orElse(null);
         SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy =
                 helper.getOptions().getOptional(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY).orElse(null);
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         return new JdbcDynamicTableSink(
                 jdbcOptions,
                 getJdbcExecutionOptions(config),
@@ -227,7 +237,9 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                 schemaPattern,
                 inlongMetric,
                 auditHostAndPorts,
-                schemaUpdateExceptionPolicy);
+                schemaUpdateExceptionPolicy,
+                dirtyOptions,
+                dirtySink);
     }
 
     @Override

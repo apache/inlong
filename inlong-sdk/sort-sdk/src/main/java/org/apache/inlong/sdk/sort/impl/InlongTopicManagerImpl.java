@@ -374,6 +374,7 @@ public class InlongTopicManagerImpl extends InlongTopicManager {
                     PulsarClient pulsarClient = PulsarClient.builder()
                             .serviceUrl(inLongTopic.getInLongCluster().getBootstraps())
                             .authentication(AuthenticationFactory.token(inLongTopic.getInLongCluster().getToken()))
+                            .statsInterval(context.getConfig().getStatsIntervalSeconds(), TimeUnit.SECONDS)
                             .build();
                     pulsarClients.put(inLongTopic.getInLongCluster().getClusterId(), pulsarClient);
                     logger.debug("create pulsar client succ {}",

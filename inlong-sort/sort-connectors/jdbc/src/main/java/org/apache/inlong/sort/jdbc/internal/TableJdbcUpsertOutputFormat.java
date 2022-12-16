@@ -27,9 +27,13 @@ import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecu
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatementImpl;
 import org.apache.flink.types.Row;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -58,14 +62,18 @@ class TableJdbcUpsertOutputFormat
             JdbcDmlOptions dmlOptions,
             JdbcExecutionOptions batchOptions,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         this(
                 connectionProvider,
                 batchOptions,
                 ctx -> createUpsertRowExecutor(dmlOptions, ctx),
                 ctx -> createDeleteExecutor(dmlOptions, ctx),
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                dirtyOptions,
+                dirtySink);
     }
 
     @VisibleForTesting
@@ -75,9 +83,11 @@ class TableJdbcUpsertOutputFormat
             StatementExecutorFactory<JdbcBatchStatementExecutor<Row>> statementExecutorFactory,
             StatementExecutorFactory<JdbcBatchStatementExecutor<Row>> deleteStatementExecutorFactory,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         super(connectionProvider, batchOptions, statementExecutorFactory, tuple2 -> tuple2.f1,
-                inlongMetric, auditHostAndPorts);
+                inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
         this.deleteStatementExecutorFactory = deleteStatementExecutorFactory;
     }
 
@@ -178,11 +188,16 @@ class TableJdbcUpsertOutputFormat
     }
 
     @Override
-    protected void addToBatch(Tuple2<Boolean, Row> original, Row extracted) throws SQLException {
+    protected void addToBatch(Tuple2<Boolean, Row> original, Row extracted) {
         if (original.f0) {
             super.addToBatch(original, extracted);
         } else {
-            deleteExecutor.addToBatch(extracted);
+            try {
+                deleteExecutor.addToBatch(extracted);
+            } catch (Exception e) {
+                LOG.error(String.format("DataTypeMappingError, data: %s", extracted), e);
+                handleDirtyData(extracted, DirtyType.DATA_TYPE_MAPPING_ERROR, e);
+            }
         }
     }
 

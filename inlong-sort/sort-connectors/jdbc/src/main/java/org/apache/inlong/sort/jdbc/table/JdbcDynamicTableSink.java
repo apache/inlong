@@ -29,8 +29,11 @@ import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.jdbc.internal.GenericJdbcSinkFunction;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 import static org.apache.flink.util.Preconditions.checkState;
@@ -60,6 +63,9 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
     private final String schemaPattern;
     private final SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy;
 
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
+
     public JdbcDynamicTableSink(
             JdbcOptions jdbcOptions,
             JdbcExecutionOptions executionOptions,
@@ -73,7 +79,9 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
             String schemaPattern,
             String inlongMetric,
             String auditHostAndPorts,
-            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy) {
+            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         this.jdbcOptions = jdbcOptions;
         this.executionOptions = executionOptions;
         this.dmlOptions = dmlOptions;
@@ -88,6 +96,8 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
@@ -120,6 +130,8 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
         builder.setJdbcExecutionOptions(executionOptions);
         builder.setInLongMetric(inlongMetric);
         builder.setAuditHostAndPorts(auditHostAndPorts);
+        builder.setDirtyOptions(dirtyOptions);
+        builder.setDirtySink(dirtySink);
         if (multipleSink) {
             builder.setSinkMultipleFormat(sinkMultipleFormat);
             builder.setDatabasePattern(databasePattern);
@@ -140,8 +152,9 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
     public DynamicTableSink copy() {
         return new JdbcDynamicTableSink(jdbcOptions, executionOptions, dmlOptions,
                 tableSchema, appendMode, multipleSink, sinkMultipleFormat,
-                databasePattern, tablePattern, schemaPattern,
-                inlongMetric, auditHostAndPorts, schemaUpdateExceptionPolicy);
+                databasePattern, tablePattern, tableSchema, 
+                appendMode, inlongMetric, auditHostAndPorts, 
+                schemaUpdateExceptionPolicy, dirtyOptions, dirtySink);
     }
 
     @Override
@@ -164,7 +177,9 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
                 && Objects.equals(tableSchema, that.tableSchema)
                 && Objects.equals(dialectName, that.dialectName)
                 && Objects.equals(inlongMetric, that.inlongMetric)
-                && Objects.equals(auditHostAndPorts, that.auditHostAndPorts);
+                && Objects.equals(auditHostAndPorts, that.auditHostAndPorts)
+                && Objects.equals(dirtyOptions, that.dirtyOptions)
+                && Objects.equals(dirtySink, that.dirtySink);
     }
 
     @Override

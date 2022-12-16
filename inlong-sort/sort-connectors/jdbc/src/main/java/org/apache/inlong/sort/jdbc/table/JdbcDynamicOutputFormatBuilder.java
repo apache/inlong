@@ -38,6 +38,8 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.jdbc.internal.JdbcBatchingOutputFormat;
 import org.apache.inlong.sort.jdbc.internal.JdbcMultiBatchingOutputFormat;
 
@@ -72,6 +74,8 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
     private String tablePattern;
     private String schemaPattern;
     private SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy;
+    private DirtyOptions dirtyOptions;
+    private DirtySink<Object> dirtySink;
 
     public JdbcDynamicOutputFormatBuilder() {
 
@@ -98,7 +102,6 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                 ctx.getExecutionConfig().isObjectReuseEnabled()
                         ? typeSerializer::copy
                         : Function.identity();
-
         return new TableBufferReducedStatementExecutor(
                 createUpsertRowExecutor(
                         dialect,
@@ -272,6 +275,16 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
         this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
         return this;
     }
+        
+    public JdbcDynamicOutputFormatBuilder setDirtyOptions(DirtyOptions dirtyOptions) {
+        this.dirtyOptions = dirtyOptions;
+        return this;
+    }
+
+    public JdbcDynamicOutputFormatBuilder setDirtySink(DirtySink<Object> dirtySink) {
+        this.dirtySink = dirtySink;
+        return this;
+    }
 
     public JdbcBatchingOutputFormat<RowData, ?, ?> build() {
         checkNotNull(jdbcOptions, "jdbc options can not be null");
@@ -291,7 +304,9 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                             dmlOptions, ctx, rowDataTypeInformation, logicalTypes),
                     JdbcBatchingOutputFormat.RecordExtractor.identity(),
                     inlongMetric,
-                    auditHostAndPorts);
+                    auditHostAndPorts,
+                    dirtyOptions,
+                    dirtySink);
         } else {
             // append only query
             final String sql =
@@ -311,7 +326,9 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                             rowDataTypeInformation),
                     JdbcBatchingOutputFormat.RecordExtractor.identity(),
                     inlongMetric,
-                    auditHostAndPorts);
+                    auditHostAndPorts,
+                    dirtyOptions,
+                    dirtySink);
         }
     }
 

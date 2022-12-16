@@ -57,6 +57,7 @@ public class PulsarProducerCluster implements LifecycleAware {
 
     public static final String KEY_SERVICE_URL = "serviceUrl";
     public static final String KEY_AUTHENTICATION = "authentication";
+    public static final String KEY_STATS_INTERVAL_SECONDS = "statsIntervalSeconds";
 
     public static final String KEY_ENABLEBATCHING = "enableBatching";
     public static final String KEY_BATCHINGMAXBYTES = "batchingMaxBytes";
@@ -121,6 +122,8 @@ public class PulsarProducerCluster implements LifecycleAware {
                     .ioThreads(context.getInteger(KEY_IOTHREADS, 1))
                     .memoryLimit(context.getLong(KEY_MEMORYLIMIT, 1073741824L), SizeUnit.BYTES)
                     .connectionsPerBroker(context.getInteger(KEY_CONNECTIONSPERBROKER, 10))
+                    .statsInterval(NumberUtils.toLong(config.getParams().get(KEY_STATS_INTERVAL_SECONDS), -1),
+                            TimeUnit.SECONDS)
                     .build();
             this.baseBuilder = client.newProducer();
             // Map<String, Object> builderConf = new HashMap<>();

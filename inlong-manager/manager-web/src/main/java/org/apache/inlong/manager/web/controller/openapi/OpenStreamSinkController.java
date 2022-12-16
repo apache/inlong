@@ -19,7 +19,6 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
-import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -35,6 +34,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -61,7 +62,7 @@ public class OpenStreamSinkController {
 
     @RequestMapping(value = "/sink/list", method = RequestMethod.GET)
     @ApiOperation(value = "List stream sinks by paginating")
-    public Response<PageResult<? extends StreamSink>> listByCondition(SinkPageRequest request) {
+    public Response<List<? extends StreamSink>> listByCondition(SinkPageRequest request) {
         return Response.success(sinkService.listByCondition(request, LoginUserUtils.getLoginUser()));
     }
 
