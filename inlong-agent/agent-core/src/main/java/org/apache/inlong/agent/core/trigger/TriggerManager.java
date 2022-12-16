@@ -149,6 +149,13 @@ public class TriggerManager extends AbstractDaemon {
     private Runnable jobFetchThread() {
         return () -> {
             Thread.currentThread().setName("TriggerManager-jobFetch");
+            // wait until jobManager initialize finish, because subtask add relay on memory 'jobs' rebuild
+            try {
+                Thread.sleep(10 * 1000);  // todo:后续增加订阅jobmanager生命周期的通知机制
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             while (isRunnable()) {
                 try {
                     triggerMap.forEach((s, trigger) -> {
@@ -158,20 +165,21 @@ public class TriggerManager extends AbstractDaemon {
                             JobWrapper job = jobWrapperMap.get(trigger.getTriggerProfile().getInstanceId());
                             String subTaskFile = profile.get(JobConstants.JOB_DIR_FILTER_PATTERNS, "");
                             Preconditions.checkArgument(StringUtils.isNotBlank(subTaskFile),
-                                    String.format("Trigger %s fetched task file should not be null."), s);
+                                    String.format("Trigger %s fetched task file should not be null.", s));
                             // Add new watched file as subtask of trigger job.
                             // In order to solve the situation that the job will automatically recover after restarting,
                             // but the trigger will also automatically rematch all files to rebuild watchKey, it is
                             // necessary to filter the stated monitored file task.
 
-                            Optional alreadyExistTask = job.getAllTasks().stream()
-                                    .filter(task -> subTaskFile.equals(
-                                            task.getJobConf().get(JobConstants.JOB_DIR_FILTER_PATTERNS, ""))
-                                    ).findAny();
-                            if (!alreadyExistTask.isPresent()) {
-                                jobWrapperMap.get(trigger.getTriggerProfile().getInstanceId()).addTask(profile);
+                            boolean alreadyExistTask = job.exist(tasks ->
+                                tasks.stream()
+                                        .filter(task -> subTaskFile.equals(
+                                                task.getJobConf().get(JobConstants.JOB_DIR_FILTER_PATTERNS, ""))
+                                        ).findAny().isPresent());
+                            if (!alreadyExistTask) {
                                 LOGGER.info("Trigger job {} add new task file {}, total task {}",
                                         job.getJob().getName(), subTaskFile, job.getAllTasks().size());
+                                jobWrapperMap.get(trigger.getTriggerProfile().getInstanceId()).submit(profile);
                             }
                         }
                     });

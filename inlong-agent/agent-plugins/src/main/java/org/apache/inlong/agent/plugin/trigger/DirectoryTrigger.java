@@ -138,7 +138,7 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
             } else {
                 JobProfile copiedJobProfile = PluginUtils.copyJobProfile(profile,
                         entity.getSuitTime(), path.toFile());
-                LOGGER.info("trigger {} generate job profile to read file {}",
+                LOGGER.info("trigger_{} generate job profile to read file {}",
                         getTriggerProfile().getTriggerId(), path);
                 queue.offer(copiedJobProfile);
             }

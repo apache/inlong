@@ -37,20 +37,12 @@ import java.util.List;
  */
 public class Job {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Job.class);
-    protected static int COUNTER = 1;
     protected final JobProfile jobConf;
     // job name
     private String name;
     // job description
     private String description;
     protected String jobInstanceId;
-    protected ThreadLocal<Integer> threadNum = new ThreadLocal<Integer>() {
-
-        protected Integer initialValue() {
-            return 0;
-        }
-    };
 
     public Job(JobProfile jobConf) {
         this.jobConf = jobConf;
@@ -82,41 +74,6 @@ public class Job {
 
     public void setJobInstanceId(String jobInstanceId) {
         this.jobInstanceId = jobInstanceId;
-    }
-
-    /**
-     * split a job into multi tasks, each task has its own reader, writer and channel
-     *
-     * @return taskList
-     */
-    public List<Task> createTasks() {
-        return getTasks(this.jobConf);
-    }
-
-    private List<Task> getTasks(JobProfile jobConf) {
-        List<Task> taskList = new ArrayList<>();
-        try {
-            LOGGER.info("job id: {}, source: {}, channel: {}, sink: {}",
-                    getJobInstanceId(), jobConf.get(JobConstants.JOB_SOURCE_CLASS),
-                    jobConf.get(JobConstants.JOB_CHANNEL),
-                    jobConf.get(JobConstants.JOB_SINK));
-            Source source = (Source) Class.forName(jobConf.get(JobConstants.JOB_SOURCE_CLASS)).newInstance();
-            for (Reader reader : source.split(jobConf)) {
-                Sink writer = (Sink) Class.forName(jobConf.get(JobConstants.JOB_SINK)).newInstance();
-                writer.setSourceName(reader.getReadSource());
-                Channel channel = (Channel) Class.forName(jobConf.get(JobConstants.JOB_CHANNEL)).newInstance();
-                String taskId = String.format("%s_%d", jobInstanceId, threadNum.get());
-                threadNum.set(threadNum.get() + COUNTER);
-                JobProfile jobProfile = getJobConf();
-                jobProfile.set(reader.getReadSource(), DigestUtils.md5Hex(reader.getReadSource()));
-                taskList.add(new Task(taskId, reader, writer, channel, jobProfile));
-            }
-        } catch (Throwable ex) {
-            LOGGER.error("create task failed", ex);
-            ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
-            throw new RuntimeException(ex);
-        }
-        return taskList;
     }
 
     public JobProfile getJobConf() {
