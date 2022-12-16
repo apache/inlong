@@ -35,7 +35,6 @@ while True:
     if msgs:
         print("GetMessage success, msssage count =", len(msgs))
     consumer.acknowledge()
-
     # used for test, consume 10 minutes only
     stop_time = time.time()
     if stop_time - start_time > 10 * 60:

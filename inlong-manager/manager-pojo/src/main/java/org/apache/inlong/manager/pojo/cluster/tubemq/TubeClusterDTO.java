@@ -13,11 +13,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.inlong.manager.pojo.cluster.tubemq;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -47,6 +47,9 @@ public class TubeClusterDTO {
 
     @Builder.Default
     private String messageQueueHandler = "org.apache.inlong.dataproxy.sink.mq.tube.TubeHandler";
+
+    @JsonProperty("master-host-port-list")
+    private String masterIpPortList;
 
     /**
      * Get the dto instance from the JSON string.

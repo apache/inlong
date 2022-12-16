@@ -92,6 +92,11 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     LoadEntity: () => import('./SQLServer'),
   },
   {
+    label: 'StarRocks',
+    value: 'STARROCKS',
+    LoadEntity: () => import('./StarRocks'),
+  },
+  {
     label: 'TDSQLPostgreSQL',
     value: 'TDSQLPOSTGRESQL',
     LoadEntity: () => import('./TDSQLPostgreSQL'),

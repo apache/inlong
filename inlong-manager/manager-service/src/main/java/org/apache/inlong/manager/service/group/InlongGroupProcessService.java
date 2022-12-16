@@ -18,18 +18,25 @@
 package org.apache.inlong.manager.service.group;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TaskStatus;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
@@ -43,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -73,6 +81,8 @@ public class InlongGroupProcessService {
             new ThreadFactoryBuilder().setNameFormat("inlong-group-process-%s").build(),
             new CallerRunsPolicy());
 
+    @Autowired
+    private InlongGroupEntityMapper groupMapper;
     @Autowired
     private InlongGroupService groupService;
     @Autowired
@@ -215,6 +225,38 @@ public class InlongGroupProcessService {
         }
 
         LOGGER.info("success to delete group for groupId={} by user={}", groupId, operator);
+        return true;
+    }
+
+    /**
+     * Delete InlongGroup logically and delete related resource in a synchronous way.
+     */
+    public Boolean deleteProcess(String groupId, UserInfo opInfo) {
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // check operator info
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        // only the person in charges can query
+        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(opInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
+        try {
+            invokeDeleteProcess(groupId, opInfo.getName());
+        } catch (Exception e) {
+            LOGGER.error(String.format("failed to delete group for groupId=%s by user=%s",
+                    groupId, opInfo.getName()), e);
+            throw e;
+        }
+
+        LOGGER.info("success to delete group for groupId={} by user={}",
+                groupId, opInfo.getName());
         return true;
     }
 

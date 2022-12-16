@@ -58,6 +58,7 @@ export default class ElasticsearchSink
       showSearch: true,
       disabled: [110, 130].includes(values?.status),
       options: {
+        requestTrigger: ['onOpen', 'onSearch'],
         requestService: {
           url: '/node/list',
           method: 'POST',
@@ -90,6 +91,29 @@ export default class ElasticsearchSink
   @ColumnDecorator()
   @I18n('meta.Sinks.ES.IndexName')
   indexName: string;
+
+  @FieldDecorator({
+    type: 'input',
+    rules: [{ required: true }],
+    tooltip: i18n.t('meta.Sinks.ES.PrimaryKeyHelp'),
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.ES.PrimaryKey')
+  primaryKey: string;
+
+  @FieldDecorator({
+    type: 'input',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.ES.DocumentType')
+  documentType: string;
 
   @FieldDecorator({
     type: 'radio',
@@ -140,6 +164,18 @@ export default class ElasticsearchSink
   @ColumnDecorator()
   @I18n('meta.Sinks.ES.RetryTimes')
   retryTime: number;
+
+  @FieldDecorator({
+    type: 'inputnumber',
+    rules: [{ required: true }],
+    props: values => ({
+      min: 1,
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.ES.EsVersion')
+  esVersion: number;
 
   @FieldDecorator({
     type: EditableTable,

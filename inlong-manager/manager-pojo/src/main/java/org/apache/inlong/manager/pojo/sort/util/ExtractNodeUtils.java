@@ -131,19 +131,14 @@ public class ExtractNodeUtils {
         final List<String> tableNames = Splitter.on(",").splitToList(tables);
         List<FieldInfo> fieldInfos = parseFieldInfos(binlogSource.getFieldList(), binlogSource.getSourceName());
         final String serverTimeZone = binlogSource.getServerTimezone();
-        boolean incrementalSnapshotEnabled = true;
 
         // TODO Needs to be configurable for those parameters
         Map<String, String> properties = parseProperties(binlogSource.getProperties());
         if (binlogSource.isAllMigration()) {
             // Unique properties when migrate all tables in database
-            incrementalSnapshotEnabled = false;
             properties.put("migrate-all", "true");
         }
-        if (StringUtils.isEmpty(primaryKey)) {
-            incrementalSnapshotEnabled = false;
-            properties.put("scan.incremental.snapshot.enabled", "false");
-        }
+
         return new MySqlExtractNode(binlogSource.getSourceName(),
                 binlogSource.getSourceName(),
                 fieldInfos,
@@ -157,7 +152,7 @@ public class ExtractNodeUtils {
                 database,
                 port,
                 serverId,
-                incrementalSnapshotEnabled,
+                true,
                 serverTimeZone);
     }
 
@@ -252,12 +247,22 @@ public class ExtractNodeUtils {
     public static PostgresExtractNode createExtractNode(PostgreSQLSource postgreSQLSource) {
         List<FieldInfo> fieldInfos = parseFieldInfos(postgreSQLSource.getFieldList(), postgreSQLSource.getSourceName());
         Map<String, String> properties = parseProperties(postgreSQLSource.getProperties());
-        return new PostgresExtractNode(postgreSQLSource.getSourceName(), postgreSQLSource.getSourceName(),
-                fieldInfos, null, properties, postgreSQLSource.getPrimaryKey(),
-                postgreSQLSource.getTableNameList(), postgreSQLSource.getHostname(),
-                postgreSQLSource.getUsername(), postgreSQLSource.getPassword(),
-                postgreSQLSource.getDatabase(), postgreSQLSource.getSchema(),
-                postgreSQLSource.getPort(), postgreSQLSource.getDecodingPluginName());
+        return new PostgresExtractNode(postgreSQLSource.getSourceName(),
+                postgreSQLSource.getSourceName(),
+                fieldInfos,
+                null,
+                properties,
+                postgreSQLSource.getPrimaryKey(),
+                postgreSQLSource.getTableNameList(),
+                postgreSQLSource.getHostname(),
+                postgreSQLSource.getUsername(),
+                postgreSQLSource.getPassword(),
+                postgreSQLSource.getDatabase(),
+                postgreSQLSource.getSchema(),
+                postgreSQLSource.getPort(),
+                postgreSQLSource.getDecodingPluginName(),
+                postgreSQLSource.getServerTimeZone(),
+                postgreSQLSource.getScanStartupMode());
     }
 
     /**

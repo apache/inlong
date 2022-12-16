@@ -444,7 +444,7 @@ The following components are provided under BSD license. See project link for de
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
   com.google.code.findbugs:jsr305:3.0.2 - FindBugs-jsr305 (http://findbugs.sourceforge.net/), (New BSD License)
-  com.google.protobuf:protobuf-java:3.19.4 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf/tree/v3.19.4), (3-Clause BSD License)
+  com.google.protobuf:protobuf-java:3.19.6 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf/tree/v3.19.6), (3-Clause BSD License)
   com.github.luben:zstd-jni:1.4.3-1 - zstd-jni (https://github.com/luben/zstd-jni), (BSD 2-Clause License)
 
 
