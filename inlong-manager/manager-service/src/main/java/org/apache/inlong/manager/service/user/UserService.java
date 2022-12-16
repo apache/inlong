@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.user;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.user.UserLoginRequest;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
 /**
@@ -75,5 +76,10 @@ public interface UserService {
      * @return whether succeed
      */
     Boolean delete(Integer userId, String currentUser);
+
+    /**
+     * Account password login
+     */
+    void login(UserLoginRequest req);
 
 }

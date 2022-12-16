@@ -47,6 +47,7 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
         </dependency>
+
     </dependencies>
 
 </project>

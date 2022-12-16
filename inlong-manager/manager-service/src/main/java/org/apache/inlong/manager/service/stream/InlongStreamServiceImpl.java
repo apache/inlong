@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -49,8 +50,11 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +63,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -88,6 +93,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     private StreamSinkService sinkService;
 
     @Transactional(rollbackFor = Throwable.class)
+
     @Override
     public Integer save(InlongStreamRequest request, String operator) {
         LOGGER.debug("begin to save inlong stream info={}", request);
@@ -126,6 +132,52 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
+    public Integer save(InlongStreamRequest request, UserInfo opInfo) {
+        Preconditions.checkNotNull(request, "inlong stream info is empty");
+        String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        // check opInfo
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // only the person in charges can query
+        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(opInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
+        // Check if it can be added
+        checkGroupStatusIsTemp(groupId);
+        // The streamId under the same groupId cannot be repeated
+        Integer count = streamMapper.selectExistByIdentifier(groupId, streamId);
+        if (count >= 1) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_ID_DUPLICATE);
+        }
+        if (StringUtils.isEmpty(request.getMqResource())) {
+            request.setMqResource(streamId);
+        }
+        // Processing inlong stream
+        InlongStreamEntity streamEntity = CommonBeanUtils.copyProperties(request, InlongStreamEntity::new);
+        streamEntity.setStatus(StreamStatus.NEW.getCode());
+        streamEntity.setCreator(opInfo.getName());
+        streamEntity.setModifier(opInfo.getName());
+
+        streamMapper.insertSelective(streamEntity);
+        saveField(groupId, streamId, request.getFieldList());
+        if (CollectionUtils.isNotEmpty(request.getExtList())) {
+            saveOrUpdateExt(groupId, streamId, request.getExtList());
+        }
+        return streamEntity.getId();
+    }
+
+    @Override
     public Boolean exist(String groupId, String streamId) {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
@@ -156,6 +208,44 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         List<StreamSource> sourceList = sourceService.listSource(groupId, streamId);
         streamInfo.setSourceList(sourceList);
         LOGGER.info("success to get inlong stream for groupId={}", groupId);
+        return streamInfo;
+    }
+
+    @Override
+    public InlongStreamInfo get(String groupId, String streamId, UserInfo opInfo) {
+        // check groupId and streamId
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        // check opInfo
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // only the person in charges can query
+        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(opInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
+        // get stream information
+        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        if (streamEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
+        }
+        InlongStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamInfo::new);
+        List<StreamField> streamFields = getStreamFields(groupId, streamId);
+        streamInfo.setFieldList(streamFields);
+        List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
+        List<InlongStreamExtInfo> exts = CommonBeanUtils.copyListProperties(extEntities, InlongStreamExtInfo::new);
+        streamInfo.setExtList(exts);
+        List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
+        streamInfo.setSinkList(sinkList);
+        List<StreamSource> sourceList = sourceService.listSource(groupId, streamId);
+        streamInfo.setSourceList(sourceList);
         return streamInfo;
     }
 
@@ -217,6 +307,24 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         LOGGER.debug("success to list inlong stream info for groupId={}", request.getInlongGroupId());
         return pageResult;
+    }
+
+    @Override
+    public PageResult<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request, UserInfo opInfo) {
+        // check opInfo
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
+        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        OrderFieldEnum.checkOrderField(request);
+        OrderTypeEnum.checkOrderType(request);
+        Page<InlongStreamEntity> entityPage = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
+        List<InlongStreamBriefInfo> streamList = CommonBeanUtils.copyListProperties(entityPage,
+                InlongStreamBriefInfo::new);
+        return new PageResult<>(streamList,
+                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
     }
 
     @Override
@@ -294,6 +402,34 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         this.checkGroupStatusIsTemp(groupId);
 
         return this.updateWithoutCheck(request, operator);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Boolean update(InlongStreamRequest request, UserInfo opInfo) {
+        Preconditions.checkNotNull(request, "inlong stream request is empty");
+        // check opInfo
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        String groupId = request.getInlongGroupId();
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // only the person in charges can query
+        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(opInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
+        String streamId = request.getInlongStreamId();
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        // Check if it can be modified
+        this.checkGroupStatusIsTemp(groupId);
+        return this.updateWithoutCheck(request, opInfo.getName());
     }
 
     @Override
@@ -376,6 +512,56 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamExtMapper.logicDeleteAllByRelatedId(groupId, streamId);
 
         LOGGER.info("success to delete inlong stream, ext property and fields for groupId={}", groupId);
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Boolean delete(String groupId, String streamId, UserInfo opInfo) {
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        // check opInfo
+        if (opInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
+        }
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // only the person in charges can query
+        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(opInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
+        // Check if it can be deleted
+        this.checkGroupStatusIsTemp(groupId);
+        // Check if steam record exists
+        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        if (streamEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
+        }
+        // If there is undeleted stream source, the deletion fails
+        Integer sourceCount = sourceService.getCount(groupId, streamId);
+        if (sourceCount > 0) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_DELETE_HAS_SOURCE);
+        }
+        // If there is undeleted stream sink, the deletion fails
+        int sinkCount = sinkService.getCount(groupId, streamId);
+        if (sinkCount > 0) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_DELETE_HAS_SINK);
+        }
+
+        streamEntity.setIsDeleted(streamEntity.getId());
+        streamEntity.setModifier(opInfo.getName());
+        int rowCount = streamMapper.updateByPrimaryKey(streamEntity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
+        // Logically delete the associated field table
+        streamFieldMapper.logicDeleteAllByIdentifier(groupId, streamId);
+        streamExtMapper.logicDeleteAllByRelatedId(groupId, streamId);
         return true;
     }
 

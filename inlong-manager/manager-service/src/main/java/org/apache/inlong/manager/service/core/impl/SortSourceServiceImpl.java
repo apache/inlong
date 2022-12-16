@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -368,24 +369,29 @@ public class SortSourceServiceImpl implements SortSourceService {
                     String streamId = sink.getStreamId();
                     SortSourceGroupInfo groupInfo = groupInfos.get(groupId);
                     SortSourceStreamInfo streamInfo = allStreams.get(groupId).get(streamId);
-
-                    String namespace = groupInfo.getMqResource();
-                    String topic = streamInfo.getMqResource();
-                    if (isBackupTag) {
-                        if (backupGroupMqResource.containsKey(groupId)) {
-                            namespace = backupGroupMqResource.get(groupId);
+                    try {
+                        String namespace = groupInfo.getMqResource();
+                        String topic = streamInfo.getMqResource();
+                        if (isBackupTag) {
+                            if (backupGroupMqResource.containsKey(groupId)) {
+                                namespace = backupGroupMqResource.get(groupId);
+                            }
+                            if (backupStreamMqResource.containsKey(groupId)
+                                    && backupStreamMqResource.get(groupId).containsKey(streamId)) {
+                                topic = backupStreamMqResource.get(groupId).get(streamId);
+                            }
                         }
-                        if (backupStreamMqResource.containsKey(groupId)
-                                && backupStreamMqResource.get(groupId).containsKey(streamId)) {
-                            topic = backupStreamMqResource.get(groupId).get(streamId);
-                        }
+                        String fullTopic = tenant.concat("/").concat(namespace).concat("/").concat(topic);
+                        return Topic.builder()
+                                .topic(fullTopic)
+                                .topicProperties(sink.getExtParamsMap())
+                                .build();
+                    } catch (Exception e) {
+                        LOGGER.error("fail to parse topic of groupId={}, streamId={}", groupId, streamId, e);
+                        return null;
                     }
-                    String fullTopic = tenant.concat("/").concat(namespace).concat("/").concat(topic);
-                    return Topic.builder()
-                            .topic(fullTopic)
-                            .topicProperties(sink.getExtParamsMap())
-                            .build();
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         return CacheZone.builder()
                 .zoneName(cluster.getName())

@@ -31,6 +31,7 @@ public enum FieldType {
     FLOAT,
     DECIMAL,
     STRING,
+    TEXT,
     FIXED,
     BYTE,
     BINARY,
@@ -52,7 +53,6 @@ public enum FieldType {
     MAP,
     STRUCT,
     FUNCTION,
-    TEXT,
     KEYWORD;
 
     public static FieldType forName(String name) {

@@ -73,6 +73,65 @@ class AnnoControllerTest extends WebBaseTest {
     }
 
     @Test
+    void testLoginFailByWrongPwdAndLockAccount() throws Exception {
+        UserLoginRequest loginUser = new UserLoginRequest();
+        loginUser.setUsername("test_lock_account");
+        // Wrong pwd
+        loginUser.setPassword("test_wrong_pwd");
+
+        for (int i = 0; i < 10; i++) {
+            mockMvc.perform(
+                    post("/api/anno/login")
+                            .content(JsonUtils.toJsonString(loginUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+        }
+
+        // account is locked
+        MvcResult mvcResult = mockMvc.perform(
+                post("/api/anno/login")
+                        .content(JsonUtils.toJsonString(loginUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        Response<String> response = getResBody(mvcResult, String.class);
+        Assertions.assertFalse(response.isSuccess());
+        Assertions.assertTrue(response.getErrMsg().contains("account has been locked"));
+    }
+
+    @Test
+    void testLoginSuccessfulAndClearErrorCount() throws Exception {
+        UserLoginRequest loginUser = new UserLoginRequest();
+        loginUser.setUsername("admin");
+        // Wrong pwd
+        loginUser.setPassword("test_wrong_pwd");
+
+        MvcResult mvcResult = null;
+        for (int i = 0; i < 19; i++) {
+            // Before locking account, input correct pwd to clear error count
+            if (i == 9) {
+                loginUser.setPassword("inlong");
+            } else {
+                loginUser.setPassword("test_wrong_pwd");
+            }
+            mvcResult = mockMvc.perform(
+                    post("/api/anno/login")
+                            .content(JsonUtils.toJsonString(loginUser))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+        }
+
+        Response<String> response = getResBody(mvcResult, String.class);
+        Assertions.assertFalse(response.isSuccess());
+        Assertions.assertFalse(response.getErrMsg().contains("account has been locked"));
+    }
+
+    @Test
     void testRegister() throws Exception {
         UserRequest userInfo = UserRequest.builder()
                 .name("test_name")

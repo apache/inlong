@@ -123,6 +123,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       showSearch: true,
       disabled: [110, 130].includes(values?.status),
       options: {
+        requestTrigger: ['onOpen', 'onSearch'],
         requestService: keyword => ({
           url: '/node/list',
           method: 'POST',
