@@ -75,6 +75,15 @@ public class StarRocksSink extends StreamSink {
     @ApiModelProperty("The multiple table-pattern of sink")
     private String tablePattern;
 
+    @ApiModelProperty("The table engine,  like: OLAP, MYSQL, ELASTICSEARCH, etc, default is OLAP")
+    private String tableEngine;
+
+    @ApiModelProperty("The table replication num")
+    private Integer replicationNum;
+
+    @ApiModelProperty("The table barrel size")
+    private Integer barrelSize;
+
     public StarRocksSink() {
         this.setSinkType(SinkType.STARROCKS);
     }
