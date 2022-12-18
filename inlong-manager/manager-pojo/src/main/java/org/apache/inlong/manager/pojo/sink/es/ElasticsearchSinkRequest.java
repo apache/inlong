@@ -37,10 +37,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 public class ElasticsearchSinkRequest extends SinkRequest {
 
     @ApiModelProperty("Host of the Elasticsearch server")
-    private String host;
-
-    @ApiModelProperty("Port of the Elasticsearch server")
-    private Integer port;
+    private String hosts;
 
     @ApiModelProperty("Username of the Elasticsearch server")
     private String username;

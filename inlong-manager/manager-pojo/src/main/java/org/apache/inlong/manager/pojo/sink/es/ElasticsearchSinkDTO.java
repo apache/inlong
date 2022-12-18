@@ -42,10 +42,7 @@ import java.util.Map;
 public class ElasticsearchSinkDTO {
 
     @ApiModelProperty("Host of the Elasticsearch server")
-    private String host;
-
-    @ApiModelProperty("Port of the Elasticsearch server")
-    private Integer port;
+    private String hosts;
 
     @ApiModelProperty("Username of the Elasticsearch server")
     private String username;
@@ -87,17 +84,7 @@ public class ElasticsearchSinkDTO {
      * Get the dto instance from the request
      */
     public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request) throws Exception {
-        Integer encryptVersion = AESUtils.getCurrentVersion(null);
-        String passwd = null;
-        if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
-                    encryptVersion);
-        }
         return ElasticsearchSinkDTO.builder()
-                .host(request.getHost())
-                .port(request.getPort())
-                .username(request.getUsername())
-                .password(passwd)
                 .indexName(request.getIndexName())
                 .flushInterval(request.getFlushInterval())
                 .flushRecord(request.getFlushRecord())
@@ -105,7 +92,6 @@ public class ElasticsearchSinkDTO {
                 .documentType(request.getDocumentType())
                 .primaryKey(request.getPrimaryKey())
                 .esVersion(request.getEsVersion())
-                .encryptVersion(encryptVersion)
                 .properties(request.getProperties())
                 .build();
     }

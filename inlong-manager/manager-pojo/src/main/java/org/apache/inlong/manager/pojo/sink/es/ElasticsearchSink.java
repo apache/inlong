@@ -43,10 +43,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 public class ElasticsearchSink extends StreamSink {
 
     @ApiModelProperty("Host of the Elasticsearch server")
-    private String host;
-
-    @ApiModelProperty("Port of the Elasticsearch server")
-    private Integer port;
+    private String hosts;
 
     @ApiModelProperty("Username of the Elasticsearch server")
     private String username;

@@ -20,14 +20,17 @@ package org.apache.inlong.manager.service.sink.es;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -41,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +78,21 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
         ElasticsearchSinkRequest sinkRequest = (ElasticsearchSinkRequest) request;
         try {
             ElasticsearchSinkDTO dto = ElasticsearchSinkDTO.getFromRequest(sinkRequest);
+
+            DataNodeInfo dataNodeInfo =
+                    dataNodeHelper.getDataNodeInfo(request.getDataNodeName(), DataNodeType.ELASTICSEARCH);
+            String esUrl = dataNodeInfo.getUrl();
+            dto.setHosts(esUrl);
+
+            dto.setUsername(dataNodeInfo.getUsername());
+            Integer encryptVersion = AESUtils.getCurrentVersion(null);
+            String passwd = null;
+            if (StringUtils.isNotEmpty(dataNodeInfo.getToken())) {
+                passwd = AESUtils.encryptToString(dataNodeInfo.getToken().getBytes(StandardCharsets.UTF_8),
+                        encryptVersion);
+            }
+            dto.setPassword(passwd);
+            dto.setEncryptVersion(encryptVersion);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             LOGGER.error("parsing json string to sink info failed", e);

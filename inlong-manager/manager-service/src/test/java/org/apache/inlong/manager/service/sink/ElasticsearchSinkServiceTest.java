@@ -53,7 +53,7 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkType(SinkType.ELASTICSEARCH);
 
-        sinkInfo.setHost("127.0.0.1");
+        sinkInfo.setHosts("http://127.0.0.1:9200");
         sinkInfo.setUsername("elasticsearch");
         sinkInfo.setPassword("inlong");
         sinkInfo.setDocumentType("public");

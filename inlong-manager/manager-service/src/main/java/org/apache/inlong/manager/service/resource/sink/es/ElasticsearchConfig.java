@@ -24,7 +24,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.inlong.common.constant.ProtocolType;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -46,9 +46,7 @@ public class ElasticsearchConfig {
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConfig.class);
     private static RestHighLevelClient highLevelClient;
     @Value("${es.index.search.hostname}")
-    private String host;
-    @Value("${es.index.search.port}")
-    private Integer port = 9200;
+    private String hosts;
     @Value("${es.auth.enable}")
     private Boolean authEnable = false;
     @Value("${es.auth.user}")
@@ -69,11 +67,11 @@ public class ElasticsearchConfig {
             synchronized (RestHighLevelClient.class) {
                 if (highLevelClient == null) {
                     List<HttpHost> hosts = new ArrayList<>();
-                    String[] hostArrays = host.split(",");
+                    String[] hostArrays = this.hosts.split(InlongConstants.SEMICOLON);
                     for (String host : hostArrays) {
                         if (StringUtils.isNotBlank(host)) {
                             host = host.trim();
-                            hosts.add(new HttpHost(host, port, ProtocolType.HTTP));
+                            hosts.add(HttpHost.create(host));
                         }
                     }
                     RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[0]));
