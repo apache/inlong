@@ -24,6 +24,7 @@ import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
+import org.apache.inlong.manager.client.api.inner.client.StreamTransformClient;
 import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.cli.pojo.ClusterNodeInfo;
 import org.apache.inlong.manager.client.cli.pojo.ClusterTagInfo;
@@ -31,6 +32,7 @@ import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.pojo.SinkInfo;
 import org.apache.inlong.manager.client.cli.pojo.SourceInfo;
 import org.apache.inlong.manager.client.cli.pojo.StreamInfo;
+import org.apache.inlong.manager.client.cli.pojo.TransformInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.client.cli.validator.ClusterTypeValidator;
@@ -48,6 +50,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
@@ -69,6 +72,7 @@ public class ListCommand extends AbstractCommand {
         jcommander.addCommand("group", new ListGroup());
         jcommander.addCommand("sink", new ListSink());
         jcommander.addCommand("source", new ListSource());
+        jcommander.addCommand("transform", new ListTransform());
         jcommander.addCommand("cluster", new ListCluster());
         jcommander.addCommand("cluster-tag", new ListClusterTag());
         jcommander.addCommand("cluster-node", new ListClusterNode());
@@ -186,6 +190,31 @@ public class ListCommand extends AbstractCommand {
                 StreamSourceClient sourceClient = ClientUtils.clientFactory.getSourceClient();
                 List<StreamSource> streamSources = sourceClient.listSources(group, stream, type);
                 PrintUtils.print(streamSources, SourceInfo.class);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get transform summary information")
+    private static class ListTransform extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-s", "--stream"}, required = true, description = "inlong stream id")
+        private String streamId;
+
+        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
+        private String groupId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                StreamTransformClient transformClient = ClientUtils.clientFactory.getTransformClient();
+                List<TransformResponse> transformResponses = transformClient.listTransform(groupId, streamId);
+                PrintUtils.print(transformResponses, TransformInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

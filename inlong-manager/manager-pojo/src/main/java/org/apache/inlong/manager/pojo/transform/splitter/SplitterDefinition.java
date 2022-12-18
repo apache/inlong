@@ -21,7 +21,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.consts.TransformConstants;
 import org.apache.inlong.manager.common.enums.TransformType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 
@@ -33,6 +36,8 @@ import java.util.List;
 @Data
 @Builder
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@JsonTypeDefine(value = TransformConstants.SPLITTER)
 public class SplitterDefinition extends TransformDefinition {
 
     /**
@@ -50,6 +55,7 @@ public class SplitterDefinition extends TransformDefinition {
      * SourceField will be split to targetFields by separator
      */
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class SplitRule {
 

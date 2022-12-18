@@ -88,6 +88,7 @@ public class CreateCommand extends AbstractCommand {
                 streamBuilder.fields(groupConf.getStreamFieldList());
                 streamBuilder.source(groupConf.getStreamSource());
                 streamBuilder.sink(groupConf.getStreamSink());
+                streamBuilder.transform(groupConf.getStreamTransform());
                 streamBuilder.initOrUpdate();
                 // initialize the new stream group
                 group.init();

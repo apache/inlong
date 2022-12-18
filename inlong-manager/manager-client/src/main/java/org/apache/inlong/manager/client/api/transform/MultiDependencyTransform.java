@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api.transform;
 
 import io.swagger.annotations.ApiModel;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -27,6 +28,7 @@ import java.util.List;
 /**
  * StreamTransform with multiple pre stream nodes, such as join.
  */
+@NoArgsConstructor
 @ApiModel("StreamTransform with multiple pre stream nodes, such as join")
 public class MultiDependencyTransform extends StreamTransform {
 

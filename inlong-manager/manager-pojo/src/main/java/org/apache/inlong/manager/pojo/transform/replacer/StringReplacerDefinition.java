@@ -21,7 +21,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.consts.TransformConstants;
 import org.apache.inlong.manager.common.enums.TransformType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 
@@ -33,6 +36,8 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder
+@NoArgsConstructor
+@JsonTypeDefine(value = TransformConstants.STRING_REPLACER)
 public class StringReplacerDefinition extends TransformDefinition {
 
     public StringReplacerDefinition(List<ReplaceRule> replaceRules) {
@@ -49,6 +54,7 @@ public class StringReplacerDefinition extends TransformDefinition {
      * If field value match regex, will be replaced by targetValue in REPLACE_ALL/REPLACE_FIRST mode;
      */
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class ReplaceRule {
 

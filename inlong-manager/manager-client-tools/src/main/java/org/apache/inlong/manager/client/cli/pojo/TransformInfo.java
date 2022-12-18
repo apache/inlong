@@ -18,26 +18,18 @@
 package org.apache.inlong.manager.client.cli.pojo;
 
 import lombok.Data;
-import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.pojo.stream.StreamField;
-
-import java.util.List;
 
 /**
- * The config of group, including inlong stream, stream source, stream sink, etc.
+ * Transform info, including transform name, transform type, etc.
  */
 @Data
-public class CreateGroupConf {
+public class TransformInfo {
 
-    private InlongGroupInfo groupInfo;
-    private InlongStreamInfo streamInfo;
-    private MultiDependencyTransform streamTransform;
-    private List<StreamField> streamFieldList;
-    private StreamSource streamSource;
-    private StreamSink streamSink;
-
+    private Integer id;
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String transformName;
+    private String transformType;
+    private String preNodeNames;
+    private String postNodeNames;
 }

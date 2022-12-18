@@ -15,36 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.transform;
+package org.apache.inlong.manager.common.consts;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.TransformType;
+public class TransformConstants {
 
-/**
- * A class to define operation to transform.
- */
-@Data
-@NoArgsConstructor
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "transformType")
-public abstract class TransformDefinition {
-
-    protected TransformType transformType;
-
-    @JsonFormat
-    public enum OperationType {
-        lt, le, eq, ne, ge, gt, is_null, not_null
-    }
-
-    @JsonFormat
-    public enum ScriptType {
-        PYTHON, JAVA
-    }
-
-    @JsonFormat
-    public enum RuleRelation {
-        AND, OR
-    }
+    public static final String STRING_REPLACER = "STRING_REPLACER";
+    public static final String SPLITTER = "SPLITTER";
+    public static final String FILTER = "FILTER";
+    public static final String DE_DUPLICATION = "DE_DUPLICATION";
+    public static final String JOINER = "JOINER";
+    public static final String ENCRYPT = "ENCRYPT";
 }
