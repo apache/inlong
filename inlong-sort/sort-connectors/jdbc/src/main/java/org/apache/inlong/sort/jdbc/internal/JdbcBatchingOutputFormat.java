@@ -36,7 +36,9 @@ import org.apache.flink.connector.jdbc.utils.JdbcUtils;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
+import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.Row;
+import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.base.dirty.DirtyData;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
@@ -65,6 +67,8 @@ import java.util.function.Function;
 
 import static org.apache.flink.connector.jdbc.utils.JdbcUtils.setRecordToStatement;
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -154,6 +158,8 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                 .withInlongAudit(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
@@ -183,9 +189,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                                             }
                                             resetStateAfterFlush();
                                         } catch (Exception e) {
-                                            if (sinkMetricData != null) {
-                                                sinkMetricData.invokeDirty(rowSize, dataSize);
-                                            }
                                             resetStateAfterFlush();
                                             flushException = e;
                                         }
@@ -213,6 +216,16 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         if (flushException != null) {
             throw new RuntimeException("Writing records to JDBC failed.", flushException);
         }
+    }
+
+    /**
+     * update before is used for metric computing only
+     * @param record
+     * @return
+     */
+    private boolean isValidRowKind(In record) {
+        RowData rowData = (RowData) record;
+        return RowKind.UPDATE_BEFORE != rowData.getRowKind();
     }
 
     void handleDirtyData(Object dirtyData, DirtyType dirtyType, Exception e) {
@@ -248,11 +261,16 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     }
 
     @Override
-    public final synchronized void writeRecord(In record) throws IOException {
+    public final synchronized void writeRecord(In record) {
+
+        updateMetric(record);
+
+        if (!isValidRowKind(record)) {
+            return;
+        }
+
         checkFlushException();
 
-        rowSize++;
-        dataSize = dataSize + record.toString().getBytes(StandardCharsets.UTF_8).length;
         try {
             addToBatch(record, jdbcRecordExtractor.apply(record));
             batchCount++;
@@ -269,6 +287,11 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             handleDirtyData(record, DirtyType.EXTRACT_ROWDATA_ERROR, e);
             resetStateAfterFlush();
         }
+    }
+
+    private void updateMetric(In record) {
+        rowSize++;
+        dataSize += record.toString().getBytes(StandardCharsets.UTF_8).length;
     }
 
     private void resetStateAfterFlush() {
@@ -300,7 +323,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
                             })));
-
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,

@@ -105,11 +105,7 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
         if (!multipleSink) {
             validatePrimaryKey(requestedMode);
         }
-        return ChangelogMode.newBuilder()
-                .addContainedKind(RowKind.INSERT)
-                .addContainedKind(RowKind.DELETE)
-                .addContainedKind(RowKind.UPDATE_AFTER)
-                .build();
+        return ChangelogMode.all();
     }
 
     private void validatePrimaryKey(ChangelogMode requestedMode) {
