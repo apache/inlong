@@ -443,7 +443,7 @@ public class SortClientConfig implements Serializable {
         this.emptyPollTimes = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.EMPTY_POLL_TIMES), emptyPollTimes);
         this.maxConsumerSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_CONSUMER_SIZE),
                 maxConsumerSize);
-        this.consumerSubsetType = ConsumerSubsetType.valueOf(
+        this.consumerSubsetType = ConsumerSubsetType.convert(
                 sortSdkParams.getOrDefault(ConfigConstants.CONSUMER_SUBSET_TYPE, ConsumerSubsetType.CLUSTER.value()));
         this.consumerSubsetSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.CONSUMER_SUBSET_SIZE),
                 consumerSubsetSize);
