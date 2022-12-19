@@ -113,7 +113,7 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
         ElasticsearchDataNodeRequest request = new ElasticsearchDataNodeRequest();
         request.setName(dataNodeName);
         request.setType(DataNodeType.ELASTICSEARCH);
-        request.setUrl("http://127.0.0.1:9200;http://127.0.0.1:9200");
+        request.setUrl("http://127.0.0.1:9200;http://127.0.0.1:9300");
         request.setExtParams(
                 "{\"bulkAction\":4000,\"bulkSizeMb\":10,\"flushInterval\":60,\"concurrentRequests\":5,\"maxConnect\":10,\"keywordMaxLength\":32767,\"isUseIndexId\":false,\"maxThreads\":2,\"auditSetName\":null}");
         request.setInCharges(TEST_CREATOR);
