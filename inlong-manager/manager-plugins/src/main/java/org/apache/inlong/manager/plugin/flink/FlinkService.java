@@ -257,6 +257,8 @@ public class FlinkService {
         List<String> list = new ArrayList<>();
         list.add("-cluster-id");
         list.add(flinkInfo.getJobName());
+        list.add("-job.name");
+        list.add(flinkInfo.getJobName());
         list.add("-group.info.file");
         list.add(flinkInfo.getLocalConfPath());
         list.add("-checkpoint.interval");
