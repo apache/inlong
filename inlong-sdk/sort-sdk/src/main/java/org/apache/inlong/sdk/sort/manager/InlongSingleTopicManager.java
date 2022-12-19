@@ -462,7 +462,8 @@ public class InlongSingleTopicManager extends TopicManager {
                 context.getDefaultStateCounter().addRequestManagerTimeCost(System.currentTimeMillis() - start);
 
                 if (consumeConfig != null) {
-                    handleUpdatedConsumeConfig(consumeConfig.getTopics());
+                    List<InLongTopic> topicSubset = context.getConfig().getConsumerSubset(consumeConfig.getTopics());
+                    handleUpdatedConsumeConfig(topicSubset);
                 } else {
                     logger.warn("subscribedInfo is null");
                     context.getDefaultStateCounter().addRequestManagerFailTimes(1);

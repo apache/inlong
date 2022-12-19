@@ -47,4 +47,6 @@ public class ConfigConstants {
     public static final String MAX_EMPTY_POLL_SLEEP_MS = "maxEmptyPollSleepMs";
     public static final String EMPTY_POLL_TIMES = "emptyPollTimes";
     public static final String MAX_CONSUMER_SIZE = "maxConsumerSize";
+    public static final String CONSUMER_SUBSET_TYPE = "consumerSubsetType";
+    public static final String CONSUMER_SUBSET_SIZE = "consumerSubsetSize";
 }
