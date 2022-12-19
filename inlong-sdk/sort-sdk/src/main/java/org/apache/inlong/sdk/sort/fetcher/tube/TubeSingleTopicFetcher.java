@@ -102,7 +102,7 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
     public void ack(String msgOffset) throws Exception {
         if (!StringUtils.isEmpty(msgOffset)) {
             if (messageConsumer == null) {
-                context.getStateCounterByTopic(topic).addAckFailTimes(1L);
+                context.addAckFail(topic, -1);
                 LOG.warn("consumer == null");
                 return;
             }
@@ -111,12 +111,12 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
                 ConsumerResult consumerResult = messageConsumer.confirmConsume(msgOffset, true);
                 int errCode = consumerResult.getErrCode();
                 if (TErrCodeConstants.SUCCESS != errCode) {
-                    context.getStateCounterByTopic(topic).addAckFailTimes(1L);
+                    context.addAckFail(topic, -1);
                 } else {
-                    context.getStateCounterByTopic(topic).addAckSuccTimes(1L);
+                    context.addAckSuccess(topic, -1);
                 }
             } catch (Exception e) {
-                context.getStateCounterByTopic(topic).addAckFailTimes(1L);
+                context.addAckFail(topic, -1);
                 LOG.error("failed to ack topic {}, msg is {}", topic.getTopic(), e.getMessage(), e);
                 throw e;
             }
@@ -181,12 +181,13 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
         private void handleAndCallbackMsg(MessageRecord messageRecord) {
             long start = System.currentTimeMillis();
             try {
-                context.getStateCounterByTopic(topic).addCallbackTimes(1L);
+                context.addCallBack(topic, -1);
                 context.getConfig().getCallback().onFinishedBatch(Collections.singletonList(messageRecord));
-                context.getStateCounterByTopic(topic)
-                        .addCallbackTimeCost(System.currentTimeMillis() - start).addCallbackDoneTimes(1L);
+                context.addCallBackSuccess(topic, -1, 1,
+                        System.currentTimeMillis() - start);
             } catch (Exception e) {
-                context.getStateCounterByTopic(topic).addCallbackErrorTimes(1L);
+                context.addCallBackFail(topic, -1, 1,
+                        System.currentTimeMillis() - start);
                 LOG.error("failed to callback {}", e.getMessage(), e);
             }
         }
@@ -224,6 +225,7 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
             boolean hasPermit;
             while (true) {
                 hasPermit = false;
+                long fetchTimeCost = -1;
                 try {
                     if (context.getConfig().isStopConsume() || stopConsume) {
                         TimeUnit.MILLISECONDS.sleep(50L);
@@ -236,31 +238,34 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
 
                     context.acquireRequestPermit();
                     hasPermit = true;
-                    context.getStateCounterByTopic(topic).addMsgCount(1L).addFetchTimes(1L);
+                    context.addConsumeTime(topic, -1);
 
                     long startFetchTime = System.currentTimeMillis();
                     ConsumerResult message = messageConsumer.getMessage();
-                    context.getStateCounterByTopic(topic).addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
+                    fetchTimeCost = System.currentTimeMillis() - startFetchTime;
                     if (null != message && TErrCodeConstants.SUCCESS == message.getErrCode()) {
                         for (Message msg : message.getMessageList()) {
                             List<InLongMessage> msgs = new ArrayList<>();
                             List<InLongMessage> deserialize = deserializer
                                     .deserialize(context, topic, getAttributeMap(msg.getAttribute()),
                                             msg.getData());
+                            context.addConsumeSuccess(topic, -1, deserialize.size(), msg.getData().length,
+                                    fetchTimeCost);
+                            int originSize = deserialize.size();
                             deserialize = interceptor.intercept(deserialize);
                             if (deserialize.isEmpty()) {
                                 continue;
                             }
+                            int filterSize = originSize - deserialize.size();
+                            context.addConsumeFilter(topic, -1, filterSize);
+
                             msgs.addAll(deserialize);
-                            context.getStateCounterByTopic(topic)
-                                    .addMsgCount(deserialize.size())
-                                    .addConsumeSize(msg.getData().length);
                             handleAndCallbackMsg(new MessageRecord(topic.getTopicKey(), msgs,
                                     message.getConfirmContext(), System.currentTimeMillis()));
                         }
                         sleepTime = 0L;
                     } else {
-                        context.getStateCounterByTopic(topic).addEmptyFetchTimes(1L);
+                        context.addConsumeEmpty(topic, -1, fetchTimeCost);
                         emptyFetchTimes++;
                         if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
                             sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
@@ -269,7 +274,7 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
                         }
                     }
                 } catch (Exception e) {
-                    context.getStateCounterByTopic(topic).addFetchErrorTimes(1L);
+                    context.addConsumeError(topic, -1, fetchTimeCost);
                     LOG.error(e.getMessage(), e);
                 } finally {
                     if (hasPermit) {

@@ -206,7 +206,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
             LOGGER.info("ack an old consumer message");
             return;
         }
-        context.getDefaultStateCounter().addAckFailTimes(1L);
+        context.addAckFail(null, -1);
         LOGGER.error("in pulsar multi topic fetcher, messageId == null");
     }
 
@@ -219,14 +219,14 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                 .thenAccept(ctx -> ackSucc(msgOffset, topic, this.currentConsumer))
                 .exceptionally(exception -> {
                     LOGGER.error("topic " + topic + " ack failed for offset " + msgOffset + ", error: ", exception);
-                    context.getStateCounterByTopic(topic).addAckFailTimes(1L);
+                    context.addAckFail(topic, -1);
                     return null;
                 });
     }
 
     private void ackSucc(String offset, InLongTopic topic, PulsarConsumer consumer) {
         consumer.remove(offset);
-        context.getStateCounterByTopic(topic).addAckSuccTimes(1L);
+        context.addAckSuccess(topic, -1);
     }
 
     @Override
@@ -315,15 +315,16 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
          *
          * @param messageRecords {@link List}
          */
-        private void handleAndCallbackMsg(List<MessageRecord> messageRecords) {
+        private void handleAndCallbackMsg(List<MessageRecord> messageRecords, InLongTopic topic) {
             long start = System.currentTimeMillis();
             try {
-                context.getDefaultStateCounter().addCallbackTimes(1L);
+                context.addCallBack(topic, -1);
                 context.getConfig().getCallback().onFinishedBatch(messageRecords);
-                context.getDefaultStateCounter()
-                        .addCallbackTimeCost(System.currentTimeMillis() - start).addCallbackDoneTimes(1L);
+                context.addCallBackSuccess(topic, -1, messageRecords.size(),
+                        System.currentTimeMillis() - start);
             } catch (Exception e) {
-                context.getDefaultStateCounter().addCallbackErrorTimes(1L);
+                context.addCallBackFail(topic, -1, messageRecords.size(),
+                        System.currentTimeMillis() - start);
                 LOGGER.error("failed to handle callback: ", e);
             }
         }
@@ -332,7 +333,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
             return Base64.getEncoder().encodeToString(msgId.toByteArray());
         }
 
-        private void processPulsarMsg(Messages<byte[]> messages) throws Exception {
+        private void processPulsarMsg(Messages<byte[]> messages, long fetchTimeCost) throws Exception {
             for (Message<byte[]> msg : messages) {
                 String topicName = msg.getTopicName();
                 InLongTopic topic = onlineTopics.get(topicName);
@@ -351,19 +352,23 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                 // deserialize
                 List<InLongMessage> inLongMessages = deserializer
                         .deserialize(context, topic, msg.getProperties(), msg.getData());
+                context.addConsumeSuccess(topic, -1, inLongMessages.size(), msg.getData().length,
+                        fetchTimeCost);
+                int originSize = inLongMessages.size();
                 // intercept
                 inLongMessages = interceptor.intercept(inLongMessages);
                 if (inLongMessages.isEmpty()) {
                     ack(offsetKey);
                     continue;
                 }
+                int filterSize = originSize - inLongMessages.size();
+                context.addConsumeFilter(topic, -1, filterSize);
+
                 List<MessageRecord> msgs = new ArrayList<>();
                 msgs.add(new MessageRecord(fetchKey,
                         inLongMessages,
                         offsetKey, System.currentTimeMillis()));
-                context.getStateCounterByTopic(topic).addConsumeSize(msg.getData().length);
-                context.getStateCounterByTopic(topic).addMsgCount(msgs.size());
-                handleAndCallbackMsg(msgs);
+                handleAndCallbackMsg(msgs, topic);
             }
         }
 
@@ -372,6 +377,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
             boolean hasPermit;
             while (true) {
                 hasPermit = false;
+                long fetchTimeCost = -1;
                 try {
                     if (context.getConfig().isStopConsume() || stopConsume) {
                         TimeUnit.MILLISECONDS.sleep(50);
@@ -384,17 +390,17 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
 
                     context.acquireRequestPermit();
                     hasPermit = true;
-                    context.getDefaultStateCounter().addMsgCount(1L).addFetchTimes(1L);
+                    context.addConsumeTime(null, -1);
 
                     long startFetchTime = System.currentTimeMillis();
                     Messages<byte[]> pulsarMessages = currentConsumer.batchReceive();
+                    fetchTimeCost = System.currentTimeMillis() - startFetchTime;
 
-                    context.getDefaultStateCounter().addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
                     if (null != pulsarMessages && pulsarMessages.size() != 0) {
-                        processPulsarMsg(pulsarMessages);
+                        processPulsarMsg(pulsarMessages, fetchTimeCost);
                         sleepTime = 0L;
                     } else {
-                        context.getDefaultStateCounter().addEmptyFetchTimes(1L);
+                        context.addConsumeEmpty(null, -1, fetchTimeCost);
                         emptyFetchTimes++;
                         if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
                             sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
@@ -403,7 +409,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                         }
                     }
                 } catch (Exception e) {
-                    context.getDefaultStateCounter().addFetchErrorTimes(1L);
+                    context.addConsumeError(null, -1, fetchTimeCost);
                     LOGGER.error("failed to fetch msg ", e);
                 } finally {
                     if (hasPermit) {

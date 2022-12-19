@@ -289,16 +289,16 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
          *
          * @param messageRecords {@link List < MessageRecord >}
          */
-        private void handleAndCallbackMsg(List<MessageRecord> messageRecords) {
+        private void handleAndCallbackMsg(List<MessageRecord> messageRecords, InLongTopic topic, int partition) {
             long start = System.currentTimeMillis();
             try {
-                context.getDefaultStateCounter().addCallbackTimes(1);
+                context.addCallBack(topic, partition);
                 context.getConfig().getCallback().onFinishedBatch(messageRecords);
-                context.getDefaultStateCounter()
-                        .addCallbackTimeCost(System.currentTimeMillis() - start)
-                        .addCallbackDoneTimes(1);
+                context.addCallBackSuccess(topic, partition, messageRecords.size(),
+                        System.currentTimeMillis() - start);
             } catch (Exception e) {
-                context.getDefaultStateCounter().addCallbackErrorTimes(1);
+                context.addCallBackFail(topic, partition, messageRecords.size(),
+                        System.currentTimeMillis() - start);
                 LOGGER.error("failed to callback: ", e);
             }
         }
@@ -341,7 +341,7 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
                     // fetch from kafka
                     fetchFromKafka();
                 } catch (Exception e) {
-                    context.getDefaultStateCounter().addFetchErrorTimes(1);
+                    context.addConsumeError(null, -1, -1);
                     LOGGER.error("failed in kafka multi topic fetcher: ", e);
                 } finally {
                     if (hasPermit) {
@@ -352,15 +352,14 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
         }
 
         private void fetchFromKafka() throws Exception {
-            context.getDefaultStateCounter().addMsgCount(1).addFetchTimes(1);
+            context.addConsumeTime(null, -1);
 
             long startFetchTime = System.currentTimeMillis();
             ConsumerRecords<byte[], byte[]> records = consumer
                     .poll(Duration.ofMillis(context.getConfig().getKafkaFetchWaitMs()));
-            context.getDefaultStateCounter().addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
-            LOGGER.info("fetch time is {}", System.currentTimeMillis() - startFetchTime);
-            if (null != records && !records.isEmpty()) {
+            long fetchTimeCost = System.currentTimeMillis() - startFetchTime;
 
+            if (null != records && !records.isEmpty()) {
                 for (ConsumerRecord<byte[], byte[]> msg : records) {
                     List<MessageRecord> msgs = new ArrayList<>();
                     String topicName = msg.topic();
@@ -368,22 +367,24 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
                     String offsetKey = getOffset(topicName, msg.partition(), msg.offset());
                     List<InLongMessage> inLongMessages = deserializer
                             .deserialize(context, topic, getMsgHeaders(msg.headers()), msg.value());
+                    context.addConsumeSuccess(topic, msg.partition(), inLongMessages.size(), msg.value().length,
+                            fetchTimeCost);
+                    int originSize = inLongMessages.size();
                     inLongMessages = interceptor.intercept(inLongMessages);
                     if (inLongMessages.isEmpty()) {
                         ack(offsetKey);
                         continue;
                     }
-
+                    int filterSize = originSize - inLongMessages.size();
+                    context.addConsumeFilter(topic, msg.partition(), filterSize);
                     msgs.add(new MessageRecord(fetchKey,
                             inLongMessages,
                             offsetKey, System.currentTimeMillis()));
-                    context.getStateCounterByTopic(topic).addConsumeSize(msg.value().length);
-                    context.getStateCounterByTopic(topic).addMsgCount(msgs.size());
-                    handleAndCallbackMsg(msgs);
+                    handleAndCallbackMsg(msgs, topic, msg.partition());
                 }
                 sleepTime = 0L;
             } else {
-                context.getDefaultStateCounter().addEmptyFetchTimes(1);
+                context.addConsumeEmpty(null, -1, fetchTimeCost);
                 emptyFetchTimes++;
                 if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
                     sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),

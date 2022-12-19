@@ -26,7 +26,7 @@ import java.util.concurrent.Semaphore;
 
 public class SortClientConfig implements Serializable {
 
-    public static final String MONITOR_NAME = "read_stat";
+    public static final String MONITOR_NAME = "SortSdk";
 
     private static final long serialVersionUID = -7531960714809683830L;
 

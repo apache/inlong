@@ -308,8 +308,8 @@ public class InlongSingleTopicManager extends TopicManager {
                 topicFetcher.close();
             }
             fetchers.remove(fetchKey);
-            if (context != null && context.getStatManager() != null && topic != null) {
-                context.getStateCounterByTopic(topic).addTopicOfflineTimes(1);
+            if (context != null && topic != null) {
+                context.addTopicOfflineCount(1);
             } else {
                 LOGGER.error("context == null or context.getStatManager() == null or inLongTopic == null :{}",
                         topic);
@@ -363,7 +363,6 @@ public class InlongSingleTopicManager extends TopicManager {
                     PulsarClient pulsarClient = PulsarClient.builder()
                             .serviceUrl(topic.getInLongCluster().getBootstraps())
                             .authentication(AuthenticationFactory.token(topic.getInLongCluster().getToken()))
-                            .statsInterval(context.getConfig().getStatsIntervalSeconds(), TimeUnit.SECONDS)
                             .build();
                     pulsarClients.put(topic.getInLongCluster().getClusterId(), pulsarClient);
                     LOGGER.debug("create pulsar client succ {}",
@@ -427,8 +426,8 @@ public class InlongSingleTopicManager extends TopicManager {
     private void createNewFetcher(InLongTopic topic) {
         if (!fetchers.containsKey(topic.getTopicKey())) {
             LOGGER.info("begin add Fetcher:{}", topic.getTopicKey());
-            if (context != null && context.getStatManager() != null) {
-                context.getStateCounterByTopic(topic).addTopicOnlineTimes(1);
+            if (context != null) {
+                context.addTopicOnlineCount(1);
                 TopicFetcher fetcher = addTopic(topic);
                 if (fetcher == null) {
                     fetchers.remove(topic.getTopicKey());
@@ -448,24 +447,22 @@ public class InlongSingleTopicManager extends TopicManager {
 
         @Override
         protected void doWork() {
-            logger.debug("InLongTopicManagerImpl doWork");
+            logger.debug("InLongSingleTopicManagerImpl doWork");
             if (stopAssign) {
-                logger.warn("assign is stoped");
+                logger.warn("assign is stopped");
                 return;
             }
             // get sortTask conf from manager
             if (queryConsumeConfig != null) {
                 long start = System.currentTimeMillis();
-                context.getDefaultStateCounter().addRequestManagerTimes(1);
+                context.addRequestManager();
                 ConsumeConfig consumeConfig = queryConsumeConfig
                         .queryCurrentConsumeConfig(context.getConfig().getSortTaskId());
-                context.getDefaultStateCounter().addRequestManagerTimeCost(System.currentTimeMillis() - start);
-
                 if (consumeConfig != null) {
                     handleUpdatedConsumeConfig(consumeConfig.getTopics());
                 } else {
                     logger.warn("subscribedInfo is null");
-                    context.getDefaultStateCounter().addRequestManagerFailTimes(1);
+                    context.addRequestManagerFail(System.currentTimeMillis() - start);
                 }
             } else {
                 logger.error("subscribedMetaDataInfo is null");

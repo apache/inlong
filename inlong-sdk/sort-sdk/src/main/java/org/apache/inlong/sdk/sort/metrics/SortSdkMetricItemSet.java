@@ -15,29 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.sort.api;
+package org.apache.inlong.sdk.sort.metrics;
 
-import org.apache.inlong.sdk.sort.entity.ConsumeStatusParams;
-import org.apache.inlong.sdk.sort.entity.ConsumeStatusResult;
-import org.apache.inlong.sdk.sort.entity.HeartBeatParams;
-import org.apache.inlong.sdk.sort.entity.HeartBeatResult;
+import org.apache.inlong.common.metric.MetricDomain;
+import org.apache.inlong.common.metric.MetricItem;
+import org.apache.inlong.common.metric.MetricItemSet;
 
-public interface ManagerReportHandler {
+import java.util.List;
+
+@MetricDomain(name = "SortSdk")
+public class SortSdkMetricItemSet extends MetricItemSet<SortSdkMetricItem> {
+
+    public SortSdkMetricItemSet(String name) {
+        super(name);
+    }
+
+    @Override
+    protected SortSdkMetricItem createItem() {
+        return new SortSdkMetricItem();
+    }
 
     /**
-     * report heartbeat to manager
+     * snapshot
      *
-     * @param heartBeatParams HeartBeatParams
-     * @return HeartBeatResult
+     * @return
      */
-    HeartBeatResult heartbeat(HeartBeatParams heartBeatParams);
-
-    /**
-     * report consume status to manager
-     *
-     * @param consumeStatusParams ConsumeStatusParams
-     * @return ConsumeStatusResult
-     */
-    ConsumeStatusResult updateConsumeStatus(ConsumeStatusParams consumeStatusParams);
-
+    @Override
+    public List<MetricItem> snapshot() {
+        return super.snapshot();
+    }
 }
