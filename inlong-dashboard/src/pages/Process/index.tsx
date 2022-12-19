@@ -29,14 +29,14 @@ import Approvals, { activedName as ApprovalsActivedName } from './Approvals';
 
 const tabList = [
   {
-    tab: i18n.t('pages.Approvals.MyApplication'),
-    key: AppliesActivedName,
-    content: <Applies />,
-  },
-  {
     tab: i18n.t('pages.Approvals.MyApproval'),
     key: ApprovalsActivedName,
     content: <Approvals />,
+  },
+  {
+    tab: i18n.t('pages.Approvals.MyApplication'),
+    key: AppliesActivedName,
+    content: <Applies />,
   },
 ];
 
