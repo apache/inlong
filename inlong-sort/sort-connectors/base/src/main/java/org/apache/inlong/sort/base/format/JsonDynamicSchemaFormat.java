@@ -265,7 +265,9 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
                 replacement = extract(rootNode, keyText);
             }
             if (replacement == null) {
-                replacement = "";
+                // The variable replacement here is mainly used for
+                // multi-sink scenario synchronization destination positioning, so the value of null cannot be ignored.
+                throw new IOException(String.format("Can't find value for key: %s", keyText));
             }
             matcher.appendReplacement(sb, replacement);
         }
