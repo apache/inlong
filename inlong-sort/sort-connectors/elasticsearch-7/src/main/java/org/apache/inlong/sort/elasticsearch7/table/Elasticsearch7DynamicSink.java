@@ -139,8 +139,6 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
                             KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
                             RoutingExtractor.createRoutingExtractor(
                                     schema, config.getRoutingField().orElse(null)),
-                            inlongMetric,
-                            auditHostAndPorts,
                             dirtySinkHelper);
 
             final ElasticsearchSink.Builder<RowData> builder =
@@ -153,6 +151,7 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
             builder.setBulkFlushBackoff(config.isBulkFlushBackoffEnabled());
             builder.setInLongMetric(inlongMetric);
             builder.setDirtySinkHelper(dirtySinkHelper);
+            builder.setAuditHostAndPorts(auditHostAndPorts);
             config.getBulkFlushBackoffType().ifPresent(builder::setBulkFlushBackoffType);
             config.getBulkFlushBackoffRetries().ifPresent(builder::setBulkFlushBackoffRetries);
             config.getBulkFlushBackoffDelay().ifPresent(builder::setBulkFlushBackoffDelay);

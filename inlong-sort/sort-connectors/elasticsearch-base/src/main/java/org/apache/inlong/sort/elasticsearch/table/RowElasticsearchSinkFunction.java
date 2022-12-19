@@ -19,18 +19,10 @@ package org.apache.inlong.sort.elasticsearch.table;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.api.common.state.ListState;
-import org.apache.flink.api.common.state.ListStateDescriptor;
-import org.apache.flink.api.common.typeinfo.TypeHint;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.table.data.RowData;
@@ -51,10 +43,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
-
 /** Sink function for converting upserts into Elasticsearch {@link ActionRequest}s. */
 public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<RowData> {
 
@@ -68,15 +56,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private final XContentType contentType;
     private final RequestFactory requestFactory;
     private final Function<RowData, String> createKey;
-    private transient ListState<MetricState> metricStateListState;
-    private transient MetricState metricState;
-    private final String inlongMetric;
-    private final String auditHostAndPorts;
-
     private final Function<RowData, String> createRouting;
-
-    private transient RuntimeContext runtimeContext;
-
     private SinkMetricData sinkMetricData;
     private final DirtySinkHelper<Object> dirtySinkHelper;
 
@@ -88,8 +68,6 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             RequestFactory requestFactory,
             Function<RowData, String> createKey,
             @Nullable Function<RowData, String> createRouting,
-            String inlongMetric,
-            String auditHostAndPorts,
             DirtySinkHelper<Object> dirtySinkHelper) {
         this.indexGenerator = Preconditions.checkNotNull(indexGenerator);
         this.docType = docType;
@@ -98,25 +76,13 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         this.requestFactory = Preconditions.checkNotNull(requestFactory);
         this.createKey = Preconditions.checkNotNull(createKey);
         this.createRouting = createRouting;
-        this.inlongMetric = inlongMetric;
-        this.auditHostAndPorts = auditHostAndPorts;
         this.dirtySinkHelper = dirtySinkHelper;
     }
 
     @Override
-    public void open(RuntimeContext ctx) {
+    public void open(RuntimeContext ctx, SinkMetricData sinkMetricData) {
         indexGenerator.open();
-        this.runtimeContext = ctx;
-        MetricOption metricOption = MetricOption.builder()
-                .withInlongLabels(inlongMetric)
-                .withInlongAudit(auditHostAndPorts)
-                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
-                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
-                .withRegisterMetric(RegisteredMetric.NORMAL)
-                .build();
-        if (metricOption != null) {
-            sinkMetricData = new SinkMetricData(metricOption, runtimeContext.getMetricGroup());
-        }
+        this.sinkMetricData = sinkMetricData;
     }
 
     private void sendMetrics(byte[] document) {
@@ -126,30 +92,11 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     }
 
     @Override
-    public void setRuntimeContext(RuntimeContext ctx) {
-        this.runtimeContext = ctx;
+    public void initializeState(FunctionInitializationContext context) {
     }
 
     @Override
-    public void initializeState(FunctionInitializationContext context) throws Exception {
-        if (this.inlongMetric != null) {
-            this.metricStateListState = context.getOperatorStateStore().getUnionListState(
-                    new ListStateDescriptor<>(
-                            INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                            })));
-        }
-        if (context.isRestored()) {
-            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
-                    runtimeContext.getIndexOfThisSubtask(), runtimeContext.getNumberOfParallelSubtasks());
-        }
-    }
-
-    @Override
-    public void snapshotState(FunctionSnapshotContext context) throws Exception {
-        if (sinkMetricData != null && metricStateListState != null) {
-            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, sinkMetricData,
-                    runtimeContext.getIndexOfThisSubtask());
-        }
+    public void snapshotState(FunctionSnapshotContext context) {
     }
 
     @Override
@@ -209,13 +156,14 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                     }
                 }
                 break;
-            case UPDATE_BEFORE:
             case DELETE:
                 request = requestFactory.createDeleteRequest(index, docType, key);
                 if (addRouting(request, element, document)) {
                     indexer.add((DeleteRequest) request);
                     sendMetrics(document);
                 }
+                break;
+            case UPDATE_BEFORE:
                 break;
             default:
                 LOGGER.error(String.format("The type of element should be 'RowData' only, raw data: %s", element));
@@ -258,8 +206,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                 && Objects.equals(serializationSchema, that.serializationSchema)
                 && contentType == that.contentType
                 && Objects.equals(requestFactory, that.requestFactory)
-                && Objects.equals(createKey, that.createKey)
-                && Objects.equals(inlongMetric, that.inlongMetric);
+                && Objects.equals(createKey, that.createKey);
     }
 
     @Override
@@ -270,7 +217,6 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                 serializationSchema,
                 contentType,
                 requestFactory,
-                createKey,
-                inlongMetric);
+                createKey);
     }
 }
