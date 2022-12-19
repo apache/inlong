@@ -341,8 +341,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         }
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
-        Page<InlongStreamEntity> entityPage = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
-        return CommonBeanUtils.copyListProperties(entityPage, InlongStreamBriefInfo::new);
+        return CommonBeanUtils.copyListProperties(streamMapper.selectByCondition(request), InlongStreamBriefInfo::new);
     }
 
     @Override

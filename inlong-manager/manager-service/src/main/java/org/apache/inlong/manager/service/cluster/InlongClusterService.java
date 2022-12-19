@@ -84,7 +84,7 @@ public interface InlongClusterService {
     PageResult<ClusterTagResponse> listTag(ClusterTagPageRequest request);
 
     /**
-     * Paging query cluster tags according to conditions.
+     * Query cluster tags according to conditions.
      *
      * @param request page request conditions
      * @param opInfo userinfo of operator
@@ -320,7 +320,7 @@ public interface InlongClusterService {
     PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request, String currentUser);
 
     /**
-     * Paging query cluster nodes according to conditions.
+     * Query cluster nodes according to conditions.
      *
      * @param request page request conditions
      * @param opInfo userinfo of operator

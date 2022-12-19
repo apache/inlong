@@ -384,23 +384,23 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         if (opInfo == null) {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
-        Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
-        List<InlongGroupBriefInfo> briefInfos =
-                CommonBeanUtils.copyListProperties(entityPage, InlongGroupBriefInfo::new);
-        List<InlongGroupBriefInfo> filterResult = Lists.newArrayList();
-        for (InlongGroupBriefInfo briefInfo : briefInfos) {
+        // filter records;
+        List<InlongGroupEntity> filterGroupEntities = new ArrayList<>();
+        for (InlongGroupEntity groupEntity : groupMapper.selectByCondition(request)) {
             // only the person in charges can query
             if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
-                List<String> inCharges = Arrays.asList(briefInfo.getInCharges().split(InlongConstants.COMMA));
+                List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
                 if (!inCharges.contains(opInfo.getName())) {
                     continue;
                 }
             }
-            filterResult.add(briefInfo);
+            filterGroupEntities.add(groupEntity);
         }
+        List<InlongGroupBriefInfo> briefInfos =
+                CommonBeanUtils.copyListProperties(filterGroupEntities, InlongGroupBriefInfo::new);
         // list all related sources
-        if (request.isListSources() && CollectionUtils.isNotEmpty(filterResult)) {
-            Set<String> groupIds = filterResult.stream().map(InlongGroupBriefInfo::getInlongGroupId)
+        if (request.isListSources() && CollectionUtils.isNotEmpty(briefInfos)) {
+            Set<String> groupIds = briefInfos.stream().map(InlongGroupBriefInfo::getInlongGroupId)
                     .collect(Collectors.toSet());
             List<StreamSourceEntity> sourceEntities = streamSourceMapper.selectByGroupIds(new ArrayList<>(groupIds));
             Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
@@ -409,12 +409,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                 StreamSource source = operation.getFromEntity(sourceEntity);
                 sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList()).add(source);
             });
-            filterResult.forEach(group -> {
+            briefInfos.forEach(group -> {
                 List<StreamSource> sources = sourceMap.getOrDefault(group.getInlongGroupId(), Lists.newArrayList());
                 group.setStreamSources(sources);
             });
         }
-        return filterResult;
+        return briefInfos;
     }
 
     @Override
