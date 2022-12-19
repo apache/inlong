@@ -63,7 +63,7 @@ export default class PulsarCluster
   @FieldDecorator({
     type: 'input',
     props: {
-      placeholder: 'Required if the cluster is configured with Token',
+      placeholder: i18n.t('pages.Clusters.Pulsar.TokenPlaceholder'),
     },
   })
   @I18n('Token')

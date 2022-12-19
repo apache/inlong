@@ -586,6 +586,7 @@
   "pages.Clusters.Node.PortRule": "Please enter the port address correctly",
   "pages.Clusters.Node.ProtocolTypeRule": "Please enter the protocol type correctly",
   "pages.Clusters.Pulsar.Tenant": "Default Tenant",
+  "pages.Clusters.Pulsar.TokenPlaceholder": "Required if the cluster is configured with Token",
   "pages.Clusters.Kafka.ClusterUrl": "Cluster URL",
   "pages.Clusters.Pulsar.ServiceUrlHelper": "For producing and consuming data",
   "pages.Clusters.Pulsar.AdminUrlHelper": "Used to manage (e.g. create, modify) tenants, namespaces, topics and subscription groups",
