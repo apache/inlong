@@ -21,6 +21,7 @@ import { DataWithBackend } from '@/metas/DataWithBackend';
 import { RenderRow } from '@/metas/RenderRow';
 import { RenderList } from '@/metas/RenderList';
 import { GroupInfo } from '../common/GroupInfo';
+import i18n from '@/i18n';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
@@ -32,8 +33,10 @@ export default class KafkaGroup
   @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
+    extra: i18n.t('meta.Group.Kafka.PartitionExtra'),
     props: {
       min: 1,
+      max: 100,
       precision: 0,
     },
   })

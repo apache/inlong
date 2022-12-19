@@ -33,6 +33,7 @@ export default class TubeMqGroup
   @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
+    initialValue: 1,
     suffix: i18n.t('meta.Group.TubeMq.TenThousand/Day'),
     props: {
       min: 1,
@@ -45,6 +46,7 @@ export default class TubeMqGroup
   @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
+    initialValue: 10,
     suffix: i18n.t('meta.Group.TubeMq.GB/Day'),
     props: {
       min: 1,
@@ -57,6 +59,7 @@ export default class TubeMqGroup
   @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
+    initialValue: 100,
     suffix: i18n.t('meta.Group.TubeMq.Stripe/Second'),
     props: {
       min: 1,
@@ -69,6 +72,7 @@ export default class TubeMqGroup
   @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
+    initialValue: 1024,
     suffix: 'Byte',
     props: {
       min: 1,
