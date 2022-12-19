@@ -33,12 +33,12 @@ public class MySqlMetricSplit extends MySqlSplit {
     private Long numBytesIn = 0L;
 
     /**
-     * The mysql table level metric in a split of mysql metric.
+     * The table level metric in a split of mysql metric.
      */
     private Map<String, MySqlTableMetric> tableMetricMap;
 
     /**
-     * The mysql read phase timestamp metric in a split of mysql metric.
+     * The read phase timestamp metric in a split of mysql metric.
      */
     private Map<String, Long> readPhaseMetricMap;
 

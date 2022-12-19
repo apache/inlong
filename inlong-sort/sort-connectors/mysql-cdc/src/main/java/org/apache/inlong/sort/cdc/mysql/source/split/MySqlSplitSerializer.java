@@ -312,6 +312,7 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
             long numRecordsIn = in.readLong();
             Map<String, Long> readPhaseMetricMap = readReadPhaseMetric(in);
             Map<String, MySqlTableMetric> tableMetricMap = readTableMetrics(in);
+
             return new MySqlMetricSplit(numBytesIn, numRecordsIn, readPhaseMetricMap, tableMetricMap);
         } else {
             throw new IOException("Unknown split kind: " + splitKind);
