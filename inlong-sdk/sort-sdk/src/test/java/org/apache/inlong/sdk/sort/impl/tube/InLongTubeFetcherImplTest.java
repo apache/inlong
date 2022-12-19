@@ -17,17 +17,15 @@
 
 package org.apache.inlong.sdk.sort.impl.tube;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
+import org.apache.inlong.sdk.sort.api.TopicFetcher;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.fetcher.tube.TubeSingleTopicFetcher;
 import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
-import org.apache.inlong.sdk.sort.stat.SortClientStateCounter;
-import org.apache.inlong.sdk.sort.stat.StatManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +38,6 @@ public class InLongTubeFetcherImplTest {
     private ClientContext clientContext;
     private InLongTopic inLongTopic;
     private SortClientConfig sortClientConfig;
-    private StatManager statManager;
 
     /**
      * setUp
@@ -60,33 +57,27 @@ public class InLongTubeFetcherImplTest {
         clientContext = PowerMockito.mock(ClientContextImpl.class);
 
         sortClientConfig = PowerMockito.mock(SortClientConfig.class);
-        statManager = PowerMockito.mock(StatManager.class);
 
         when(clientContext.getConfig()).thenReturn(sortClientConfig);
-        when(clientContext.getStatManager()).thenReturn(statManager);
-        SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
-                cacheZoneCluster.getClusterId(),
-                inLongTopic.getTopic(), 0);
-        when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
 
     }
 
     @Test
     public void pause() {
-        InLongTubeFetcherImpl inLongTopicFetcher = new InLongTubeFetcherImpl(inLongTopic, clientContext);
+        TopicFetcher inLongTopicFetcher = new TubeSingleTopicFetcher(inLongTopic, clientContext, null, null, null);
         inLongTopicFetcher.pause();
     }
 
     @Test
     public void resume() {
-        InLongTubeFetcherImpl inLongTopicFetcher = new InLongTubeFetcherImpl(inLongTopic, clientContext);
+        TopicFetcher inLongTopicFetcher = new TubeSingleTopicFetcher(inLongTopic, clientContext, null, null, null);
         inLongTopicFetcher.resume();
     }
 
     @Test
     public void close() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongTubeFetcherImpl(inLongTopic, clientContext);
+        TopicFetcher inLongTopicFetcher = new TubeSingleTopicFetcher(inLongTopic, clientContext, null, null, null);
         boolean close = inLongTopicFetcher.close();
         Assert.assertTrue(close);
 

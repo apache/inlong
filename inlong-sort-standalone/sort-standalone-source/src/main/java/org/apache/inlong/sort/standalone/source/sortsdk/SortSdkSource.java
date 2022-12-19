@@ -196,14 +196,14 @@ public final class SortSdkSource extends AbstractSource
             if (SortClusterConfigType.FILE.name().equalsIgnoreCase(configType)) {
                 LOG.info("Create sort sdk client in file way:{}", configType);
                 ClassResourceQueryConsumeConfig queryConfig = new ClassResourceQueryConsumeConfig();
-                client = SortClientFactory.createSortClientV2(clientConfig,
+                client = SortClientFactory.createSortClient(clientConfig,
                         queryConfig,
                         new MetricReporterImpl(clientConfig),
                         new ManagerReportHandlerImpl());
             } else if (SortClusterConfigType.MANAGER.name().equalsIgnoreCase(configType)) {
                 LOG.info("Create sort sdk client in manager way:{}", configType);
                 clientConfig.setManagerApiUrl(ManagerUrlHandler.getSortSourceConfigUrl());
-                client = SortClientFactory.createSortClientV2(clientConfig);
+                client = SortClientFactory.createSortClient(clientConfig);
             } else {
                 LOG.info("Create sort sdk client in custom way:{}", configType);
                 // user-defined
@@ -218,7 +218,7 @@ public final class SortSdkSource extends AbstractSource
                     return null;
                 }
                 // if it specifies the type of QueryConsumeConfig.
-                client = SortClientFactory.createSortClientV2(clientConfig,
+                client = SortClientFactory.createSortClient(clientConfig,
                         (QueryConsumeConfig) loaderObject,
                         new MetricReporterImpl(clientConfig),
                         new ManagerReportHandlerImpl());

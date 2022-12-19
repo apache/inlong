@@ -27,13 +27,14 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
+import org.apache.inlong.sdk.sort.api.TopicFetcher;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.fetcher.pulsar.PulsarSingleTopicFetcher;
 import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
-import org.apache.inlong.sdk.sort.stat.SortClientStateCounter;
-import org.apache.inlong.sdk.sort.stat.StatManager;
+import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
+import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.ConsumerBuilder;
 import org.apache.pulsar.client.api.MessageId;
@@ -56,7 +57,6 @@ public class InLongPulsarFetcherImplTest {
     private ClientContext clientContext;
     private InLongTopic inLongTopic;
     private SortClientConfig sortClientConfig;
-    private StatManager statManager;
 
     /**
      * setUp
@@ -76,52 +76,35 @@ public class InLongPulsarFetcherImplTest {
         clientContext = PowerMockito.mock(ClientContextImpl.class);
 
         sortClientConfig = PowerMockito.mock(SortClientConfig.class);
-        statManager = PowerMockito.mock(StatManager.class);
 
         when(clientContext.getConfig()).thenReturn(sortClientConfig);
-        when(clientContext.getStatManager()).thenReturn(statManager);
-        SortClientStateCounter sortClientStateCounter = new SortClientStateCounter("sortTaskId",
-                cacheZoneCluster.getClusterId(),
-                inLongTopic.getTopic(), 0);
-        when(statManager.getStatistics(anyString(), anyString(), anyString())).thenReturn(sortClientStateCounter);
         when(sortClientConfig.getSortTaskId()).thenReturn("sortTaskId");
 
     }
 
     @Test
     public void stopConsume() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        boolean consumeStop = inLongTopicFetcher.isConsumeStop();
+        TopicFetcher inLongTopicFetcher = new PulsarSingleTopicFetcher(inLongTopic, clientContext,
+                new MsgTimeInterceptor(), new MessageDeserializer(), null);
+        boolean consumeStop = inLongTopicFetcher.isStopConsume();
         Assert.assertFalse(consumeStop);
-        inLongTopicFetcher.stopConsume(true);
-        consumeStop = inLongTopicFetcher.isConsumeStop();
+        inLongTopicFetcher.setStopConsume(true);
+        consumeStop = inLongTopicFetcher.isStopConsume();
         Assert.assertTrue(consumeStop);
     }
 
     @Test
     public void getInLongTopic() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        InLongTopic inLongTopic = inLongTopicFetcher.getInLongTopic();
+        TopicFetcher inLongTopicFetcher = new PulsarSingleTopicFetcher(inLongTopic, clientContext,
+                new MsgTimeInterceptor(), new MessageDeserializer(), null);
+        InLongTopic inLongTopic = inLongTopicFetcher.getTopics().get(0);
         Assert.assertEquals(inLongTopic.getInLongCluster(), inLongTopic.getInLongCluster());
     }
 
     @Test
-    public void getConsumedDataSize() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        long consumedDataSize = inLongTopicFetcher.getConsumedDataSize();
-        Assert.assertEquals(0L, consumedDataSize);
-    }
-
-    @Test
-    public void getAckedOffset() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        long ackedOffset = inLongTopicFetcher.getAckedOffset();
-        Assert.assertEquals(0L, ackedOffset);
-    }
-
-    @Test
     public void ack() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        TopicFetcher inLongTopicFetcher = new PulsarSingleTopicFetcher(inLongTopic, clientContext,
+                new MsgTimeInterceptor(), new MessageDeserializer(), null);
         MessageId messageId = PowerMockito.mock(MessageId.class);
         ConcurrentHashMap<String, MessageId> offsetCache = new ConcurrentHashMap<>();
         offsetCache.put("test", messageId);
@@ -137,10 +120,11 @@ public class InLongPulsarFetcherImplTest {
 
     @Test
     public void init() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         PulsarClient pulsarClient = PowerMockito.mock(PulsarClient.class);
         ConsumerBuilder consumerBuilder = PowerMockito.mock(ConsumerBuilder.class);
 
+        TopicFetcher inLongTopicFetcher = new PulsarSingleTopicFetcher(inLongTopic, clientContext,
+                new MsgTimeInterceptor(), new MessageDeserializer(), pulsarClient);
         try {
             when(pulsarClient.newConsumer(any())).thenReturn(consumerBuilder);
             when(consumerBuilder.topic(anyString())).thenReturn(consumerBuilder);
@@ -156,7 +140,7 @@ public class InLongPulsarFetcherImplTest {
             Consumer consumer = PowerMockito.mock(Consumer.class);
             when(consumerBuilder.subscribe()).thenReturn(consumer);
             doNothing().when(consumer).close();
-            boolean init = inLongTopicFetcher.init(pulsarClient);
+            boolean init = inLongTopicFetcher.init();
             inLongTopicFetcher.close();
             Assert.assertTrue(init);
         } catch (Exception e) {
@@ -166,19 +150,22 @@ public class InLongPulsarFetcherImplTest {
 
     @Test
     public void pause() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        TopicFetcher inLongTopicFetcher = new PulsarSingleTopicFetcher(inLongTopic, clientContext,
+                new MsgTimeInterceptor(), new MessageDeserializer(), null);
         inLongTopicFetcher.pause();
     }
 
     @Test
     public void resume() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        TopicFetcher inLongTopicFetcher = new PulsarSingleTopicFetcher(inLongTopic, clientContext,
+                new MsgTimeInterceptor(), new MessageDeserializer(), null);
         inLongTopicFetcher.resume();
     }
 
     @Test
     public void close() {
-        InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
+        TopicFetcher inLongTopicFetcher = new PulsarSingleTopicFetcher(inLongTopic, clientContext,
+                new MsgTimeInterceptor(), new MessageDeserializer(), null);
         boolean close = inLongTopicFetcher.close();
         Assert.assertTrue(close);
 
