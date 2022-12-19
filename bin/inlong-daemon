@@ -119,7 +119,10 @@ start_inlong_dataproxy() {
     bash +x ./bin/dataproxy-start.sh pulsar
   fi
   if [ "${mq_type}" = "tubemq" ]; then
-    bash +x ./bin/dataproxy-start.sh tube
+    bash +x ./bin/dataproxy-start.sh tubemq
+  fi
+  if [ "${mq_type}" = "kafka" ]; then
+    bash +x ./bin/dataproxy-start.sh kafka
   fi
   # wait to start
   wait_port_to_listen dataproxy ${dataproxy_port}
