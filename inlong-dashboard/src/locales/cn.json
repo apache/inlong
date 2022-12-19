@@ -399,6 +399,7 @@
   "meta.Nodes.MySQL.Url": "地址",
   "meta.Nodes.MySQL.BackupUrl": "备份地址",
   "meta.Nodes.ES.Host": "主机",
+  "meta.Nodes.ES.HostHelp": "要连接到的一台或多台 Elasticsearch 主机，例如 'http://host_name:9092;http://host_name:9093'",
   "meta.Nodes.ES.Username": "用户名",
   "meta.Nodes.ES.Password": "密码",
   "meta.Nodes.ES.BulkActionUnit": "个",

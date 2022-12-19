@@ -399,6 +399,7 @@
   "meta.Nodes.MySQL.Url": "URL",
   "meta.Nodes.MySQL.BackupUrl": "Backup URL",
   "meta.Nodes.ES.Host": "Host",
+  "meta.Nodes.ES.HostHelp": "One or more Elasticsearch hosts to connect to, e.g. 'http://host_name:9092;http://host_name:9093'",
   "meta.Nodes.ES.Username": "Username",
   "meta.Nodes.ES.Password": "Password",
   "meta.Nodes.ES.BulkActionUnit": "Items",

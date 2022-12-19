@@ -17,14 +17,17 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
+import org.apache.inlong.manager.service.node.DataNodeService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,29 +40,34 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
     private static final String globalGroupId = "b_group1";
     private static final String globalStreamId = "stream1";
     private static final String globalOperator = "admin";
+    private static final String TEST_CREATOR = "testUser";
+    private static final String TEST_TOKEN = "12345";
 
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
+    @Autowired
+    DataNodeService dataNodeService;
 
     /**
      * Save sink info.
      */
-    public Integer saveSink(String sinkName) {
+    public Integer saveSink(String sinkName, String dataNodeName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         ElasticsearchSinkRequest sinkInfo = new ElasticsearchSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkType(SinkType.ELASTICSEARCH);
 
-        sinkInfo.setHost("127.0.0.1");
+        sinkInfo.setHosts("http://127.0.0.1:9200");
         sinkInfo.setUsername("elasticsearch");
         sinkInfo.setPassword("inlong");
         sinkInfo.setDocumentType("public");
         sinkInfo.setIndexName("index");
         sinkInfo.setPrimaryKey("name,age");
         sinkInfo.setEsVersion(7);
+        sinkInfo.setDataNodeName(dataNodeName);
 
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
@@ -76,7 +84,9 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
 
     @Test
     public void testListByIdentifier() {
-        Integer sinkId = this.saveSink("Elasticsearch_default1");
+        String dataNodeName = "test_data_node_01";
+        prepareEsDataNode(dataNodeName);
+        Integer sinkId = this.saveSink("Elasticsearch_default1", dataNodeName);
         StreamSink sink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteSink(sinkId);
@@ -84,7 +94,9 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
 
     @Test
     public void testGetAndUpdate() {
-        Integer sinkId = this.saveSink("Elasticsearch_default2");
+        String dataNodeName = "test_data_node_02";
+        prepareEsDataNode(dataNodeName);
+        Integer sinkId = this.saveSink("Elasticsearch_default2", dataNodeName);
         StreamSink streamSink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
 
@@ -97,4 +109,16 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
         deleteSink(sinkId);
     }
 
+    private void prepareEsDataNode(String dataNodeName) {
+        ElasticsearchDataNodeRequest request = new ElasticsearchDataNodeRequest();
+        request.setName(dataNodeName);
+        request.setType(DataNodeType.ELASTICSEARCH);
+        request.setUrl("http://127.0.0.1:9200;http://127.0.0.1:9300");
+        request.setExtParams(
+                "{\"bulkAction\":4000,\"bulkSizeMb\":10,\"flushInterval\":60,\"concurrentRequests\":5,\"maxConnect\":10,\"keywordMaxLength\":32767,\"isUseIndexId\":false,\"maxThreads\":2,\"auditSetName\":null}");
+        request.setInCharges(TEST_CREATOR);
+        request.setUsername(TEST_CREATOR);
+        request.setToken(TEST_TOKEN);
+        dataNodeService.save(request, TEST_CREATOR);
+    }
 }

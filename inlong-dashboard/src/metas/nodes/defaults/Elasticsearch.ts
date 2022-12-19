@@ -33,6 +33,7 @@ export default class ElasticsearchNode
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
+    tooltip: i18n.t('meta.Nodes.ES.HostHelp'),
   })
   @I18n('meta.Nodes.ES.Host')
   url: string;
