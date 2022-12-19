@@ -71,7 +71,7 @@ public class NativeFlinkSqlParserTest {
                 + "    SELECT \n"
                 + "    `name` AS `name`,\n"
                 + "    `age` AS `age`\n"
-                + "    FROM `table_1`;";
+                + "    FROM `table_1`;\n";
         NativeFlinkSqlParser parser = NativeFlinkSqlParser.getInstance(tableEnv, data);
         ParseResult result = parser.parse();
         Assert.assertTrue(result.tryExecute());
