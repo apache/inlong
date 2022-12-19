@@ -18,43 +18,18 @@
 package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.impl.SortClientImpl;
-import org.apache.inlong.sdk.sort.impl.SortClientImplV2;
 
 /**
  * Factory of {@link SortClient}
  */
 public class SortClientFactory {
 
-    /**
-     * create default SortClient
-     *
-     * @param config SortClientConfig
-     * @return SortClient
-     */
     public static SortClient createSortClient(SortClientConfig config) {
         return new SortClientImpl(config);
     }
 
-    /**
-     * create SortClient with user defined QueryConsumeConfig ,MetricReporter and ManagerReportHandler
-     *
-     * @param config SortClientConfig
-     * @param queryConsumeConfig QueryConsumeConfig
-     * @param reporter MetricReporter
-     * @param reportHandler ManagerReportHandler
-     * @return SortClient
-     */
     public static SortClient createSortClient(SortClientConfig config, QueryConsumeConfig queryConsumeConfig,
             MetricReporter reporter, ManagerReportHandler reportHandler) {
         return new SortClientImpl(config, queryConsumeConfig, reporter, reportHandler);
-    }
-
-    public static SortClient createSortClientV2(SortClientConfig config) {
-        return new SortClientImplV2(config);
-    }
-
-    public static SortClient createSortClientV2(SortClientConfig config, QueryConsumeConfig queryConsumeConfig,
-            MetricReporter reporter, ManagerReportHandler reportHandler) {
-        return new SortClientImplV2(config, queryConsumeConfig, reporter, reportHandler);
     }
 }

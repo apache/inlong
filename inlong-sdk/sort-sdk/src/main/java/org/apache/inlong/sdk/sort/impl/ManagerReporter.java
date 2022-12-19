@@ -25,22 +25,23 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.InlongTopicManager;
 import org.apache.inlong.sdk.sort.api.ManagerReportHandler;
 import org.apache.inlong.sdk.sort.api.ReportApi;
+import org.apache.inlong.sdk.sort.api.TopicFetcher;
+import org.apache.inlong.sdk.sort.api.TopicManager;
 import org.apache.inlong.sdk.sort.entity.ConsumeState;
 import org.apache.inlong.sdk.sort.entity.ConsumeStatusParams;
 import org.apache.inlong.sdk.sort.entity.ConsumeStatusResult;
 import org.apache.inlong.sdk.sort.entity.HeartBeatParams;
 import org.apache.inlong.sdk.sort.entity.HeartBeatResult;
+import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.util.PeriodicTask;
 
 public class ManagerReporter extends PeriodicTask {
 
     private final ConcurrentHashMap<Integer, Long> reportApiRunTimeMs = new ConcurrentHashMap<>();
     private final ClientContext context;
-    private final InlongTopicManager inLongTopicManager;
+    private final TopicManager inLongTopicManager;
     private final ManagerReportHandler reportHandler;
     private Map<Integer, Long> reportApiInterval = new HashMap<>();
 
@@ -53,8 +54,7 @@ public class ManagerReporter extends PeriodicTask {
      * @param runInterval long
      * @param timeUnit TimeUnit
      */
-    public ManagerReporter(ClientContext context, ManagerReportHandler reportHandler,
-            InlongTopicManager inLongTopicManager,
+    public ManagerReporter(ClientContext context, ManagerReportHandler reportHandler, TopicManager inLongTopicManager,
             long runInterval, TimeUnit timeUnit) {
         super(runInterval, timeUnit, context.getConfig());
         this.context = context;
@@ -158,17 +158,17 @@ public class ManagerReporter extends PeriodicTask {
             consumeStatusParams.setSubscribedId(context.getConfig().getSortTaskId());
             consumeStatusParams.setIp(context.getConfig().getLocalIp());
             List<ConsumeState> consumeStates = new ArrayList<>();
-            Collection<InLongTopicFetcher> allFetchers =
+            Collection<TopicFetcher> allFetchers =
                     inLongTopicManager.getAllFetchers();
-            for (InLongTopicFetcher fetcher : allFetchers) {
-                ConsumeState consumeState = new ConsumeState();
-                consumeState.setTopic(fetcher.getInLongTopic().getTopic());
-                consumeState.setTopicType(fetcher.getInLongTopic().getTopicType());
-                consumeState.setClusterId(fetcher.getInLongTopic().getInLongCluster().getClusterId());
-                consumeState.setConsumedDataSize(fetcher.getConsumedDataSize());
-                consumeState.setAckOffset(fetcher.getAckedOffset());
-                consumeState.setPartition(fetcher.getInLongTopic().getPartitionId());
-                consumeStates.add(consumeState);
+            for (TopicFetcher fetcher : allFetchers) {
+                for (InLongTopic topic : fetcher.getTopics()) {
+                    ConsumeState consumeState = new ConsumeState();
+                    consumeState.setTopic(topic.getTopic());
+                    consumeState.setTopicType(topic.getTopicType());
+                    consumeState.setClusterId(topic.getInLongCluster().getClusterId());
+                    consumeState.setPartition(topic.getPartitionId());
+                    consumeStates.add(consumeState);
+                }
             }
             consumeStatusParams.setConsumeStates(consumeStates);
 
