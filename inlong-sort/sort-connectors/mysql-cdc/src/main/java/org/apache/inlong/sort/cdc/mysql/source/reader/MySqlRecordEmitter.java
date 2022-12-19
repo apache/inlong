@@ -19,7 +19,6 @@ package org.apache.inlong.sort.cdc.mysql.source.reader;
 
 import com.ververica.cdc.connectors.mysql.source.utils.RecordUtils;
 import io.debezium.connector.AbstractSourceInfo;
-import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
 import io.debezium.document.Array;
 import io.debezium.relational.TableId;
@@ -151,9 +150,8 @@ public final class MySqlRecordEmitter<T>
                             Struct source = value.getStruct(Envelope.FieldName.SOURCE);
                             String databaseName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
                             String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
-                            SnapshotRecord snapshotRecord = SnapshotRecord.fromSource(source);
-                            boolean isSnapshotRecord = (SnapshotRecord.TRUE == snapshotRecord);
-                            sourceReaderMetrics.outputMetrics(databaseName, tableName, isSnapshotRecord, t);
+
+                            sourceReaderMetrics.outputMetrics(databaseName, tableName, iSnapShot, t);
                             output.collect(t);
                         }
 
