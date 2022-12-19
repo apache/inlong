@@ -66,7 +66,7 @@ const menus: MenuItemType[] = [
       },
       {
         path: '/approval',
-        name: i18n.t('configs.menus.ApprovalManagement'),
+        name: i18n.t('configs.menus.ProcessManagement'),
       },
     ],
   },
