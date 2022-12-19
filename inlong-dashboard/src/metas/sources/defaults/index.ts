@@ -37,7 +37,7 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     LoadEntity: () => import('./File'),
   },
   {
-    label: 'MySQL-BinLog',
+    label: 'MySQL',
     value: 'MYSQL_BINLOG',
     LoadEntity: () => import('./MySQLBinlog'),
   },
@@ -47,7 +47,7 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     LoadEntity: () => import('./Mongodb'),
   },
   {
-    label: 'Mqtt',
+    label: 'MQTT',
     value: 'MQTT',
     LoadEntity: () => import('./MQTT'),
   },
