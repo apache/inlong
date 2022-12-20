@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 
 public class PulsarSinkTest {
 
-    private static PulsarSink pulsarSink;
+    private static MockSink pulsarSink;
     private static JobProfile jobProfile;
     private static AgentBaseTestsHelper helper;
     private static MiniAgent agent;
@@ -48,7 +48,7 @@ public class PulsarSinkTest {
                 "[{\"url\":\"mqurl\",\"token\":\"token\",\"mqType\":\"PULSAR\",\"params\":{}}]");
         jobProfile.set("job.topicInfo", "{\"topic\":\"topic\",\"inlongGroupId\":\"groupId\"}");
         System.out.println(jobProfile.toJsonStr());
-        pulsarSink = new PulsarSink();
+        pulsarSink = new MockSink();
         pulsarSink.init(jobProfile);
     }
 

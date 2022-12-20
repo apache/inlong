@@ -53,7 +53,6 @@ public class MockSink extends AbstractSink {
             number.incrementAndGet();
             BatchProxyMessage msg = new BatchProxyMessage();
             msg.setJobId(jobInstanceId);
-            taskPositionManager.updateSinkPosition(msg, sourceFileName, 1);
             // increment the count of successful sinks
             sinkMetric.sinkSuccessCount.incrementAndGet();
         } else {
@@ -74,10 +73,12 @@ public class MockSink extends AbstractSink {
 
     @Override
     public void init(JobProfile jobConf) {
+        super.init(jobConf);
         taskPositionManager = TaskPositionManager.getInstance();
         jobInstanceId = jobConf.get(JOB_INSTANCE_ID);
         dataTime = AgentUtils.timeStrConvertToMillSec(jobConf.get(JOB_DATA_TIME, ""),
                 jobConf.get(JOB_CYCLE_UNIT, ""));
+        sourceFileName = "test";
         LOGGER.info("get dataTime is : {}", dataTime);
     }
 
