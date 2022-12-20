@@ -24,12 +24,15 @@ import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.node.starrocks.StarRocksDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksColumnInfo;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksSinkDTO;
 import org.apache.inlong.manager.pojo.sink.starrocks.StarRocksTableInfo;
+import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.resource.sink.mysql.MySQLResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -54,6 +57,9 @@ public class StarRocksResourceOperator implements SinkResourceOperator {
 
     @Autowired
     private StreamSinkFieldEntityMapper fieldEntityMapper;
+
+    @Autowired
+    private DataNodeOperateHelper dataNodeHelper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -87,7 +93,7 @@ public class StarRocksResourceOperator implements SinkResourceOperator {
         // get columns
         List<StarRocksColumnInfo> columnList = getStarRocksColumnInfoFromSink(fieldList);
 
-        StarRocksSinkDTO sinkDTO = StarRocksSinkDTO.getFromJson(sinkInfo.getExtParams());
+        StarRocksSinkDTO sinkDTO = getStarRocksInfo(sinkInfo);
         StarRocksTableInfo tableInfo = StarRocksSinkDTO.getTableInfo(sinkDTO, columnList);
         String url = sinkDTO.getJdbcUrl();
         String username = sinkDTO.getUsername();
@@ -130,5 +136,21 @@ public class StarRocksResourceOperator implements SinkResourceOperator {
             }
         }
         return columnInfoList;
+    }
+
+    private StarRocksSinkDTO getStarRocksInfo(SinkInfo sinkInfo) {
+        StarRocksSinkDTO starRocksInfo = StarRocksSinkDTO.getFromJson(sinkInfo.getExtParams());
+
+        // read from data node if not supplied by user
+        if (StringUtils.isBlank(starRocksInfo.getJdbcUrl())) {
+            String dataNodeName = sinkInfo.getDataNodeName();
+            Preconditions.checkNotEmpty(dataNodeName, "starRocks jdbc url not specified and data node is empty");
+            StarRocksDataNodeInfo dataNodeInfo = (StarRocksDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    dataNodeName, sinkInfo.getSinkType());
+            CommonBeanUtils.copyProperties(dataNodeInfo, starRocksInfo);
+            starRocksInfo.setJdbcUrl(dataNodeInfo.getUrl());
+            starRocksInfo.setPassword(dataNodeInfo.getToken());
+        }
+        return starRocksInfo;
     }
 }

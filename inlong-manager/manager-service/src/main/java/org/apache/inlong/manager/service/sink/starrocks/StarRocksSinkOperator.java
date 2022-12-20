@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.pojo.node.starrocks.StarRocksDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -88,6 +89,15 @@ public class StarRocksSinkOperator extends AbstractSinkOperator {
         }
 
         StarRocksSinkDTO dto = StarRocksSinkDTO.getFromJson(entity.getExtParams());
+        if (StringUtils.isBlank(dto.getJdbcUrl())) {
+            Preconditions.checkNotEmpty(entity.getDataNodeName(),
+                    "starRocks jdbc url unspecified and data node is empty");
+            StarRocksDataNodeInfo dataNodeInfo = (StarRocksDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    entity.getDataNodeName(), entity.getSinkType());
+            CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
+            dto.setJdbcUrl(dataNodeInfo.getUrl());
+            dto.setPassword(dataNodeInfo.getToken());
+        }
         Preconditions.checkNotEmpty(dto.getLoadUrl(), "StarRocks load url is empty");
         Preconditions.checkNotEmpty(dto.getJdbcUrl(), "StarRocks jdbc url is empty");
         CommonBeanUtils.copyProperties(entity, sink, true);
