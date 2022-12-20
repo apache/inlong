@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -32,12 +31,12 @@ import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -57,32 +56,32 @@ public class TestWatchDirTrigger {
     @ClassRule
     public static final TemporaryFolder WATCH_FOLDER = new TemporaryFolder();
 
-    public Set<String> pathPatternCache = new HashSet<>();
-
     @BeforeClass
     public static void setup() throws Exception {
         helper = new AgentBaseTestsHelper(TestWatchDirTrigger.class.getName()).setupAgentHome();
         testRootDir = helper.getTestRootDir();
         LOGGER.info("test root dir is {}", testRootDir);
-        trigger = new DirectoryTrigger();
-        TriggerProfile jobConf = TriggerProfile.parseJsonStr("");
-        jobConf.setInt(AgentConstants.TRIGGER_CHECK_INTERVAL, 1);
-        jobConf.set(JobConstants.JOB_ID, "1");
-        trigger.init(jobConf);
-        trigger.start();
     }
 
     @AfterClass
     public static void teardown() throws Exception {
         LOGGER.info("start to teardown test case");
-        trigger.stop();
-        trigger.join();
+        trigger.destroy();
         helper.teardownAgentHome();
+    }
+
+    @Before
+    public void setupEach() throws Exception {
+        trigger = new DirectoryTrigger();
+        TriggerProfile jobConf = TriggerProfile.parseJsonStr("");
+        jobConf.set(JobConstants.JOB_ID, "1");
+        trigger.init(jobConf);
+        trigger.run();
     }
 
     @After
     public void teardownEach() {
-        pathPatternCache.forEach(trigger::unregister);
+        trigger.destroy();
         for (File file : WATCH_FOLDER.getRoot().listFiles()) {
             FileUtils.deleteQuietly(file);
         }
@@ -90,7 +89,7 @@ public class TestWatchDirTrigger {
     }
 
     public void registerPathPattern(Set<String> whiteList, Set<String> blackList, String offset) throws IOException {
-        pathPatternCache.addAll(trigger.register(whiteList, offset, blackList));
+        trigger.register(whiteList, offset, blackList);
     }
 
     @Test

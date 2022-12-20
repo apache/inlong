@@ -195,8 +195,8 @@ public class AgentManager extends AbstractDaemon {
     public void start() throws Exception {
         LOGGER.info("starting agent manager");
         agentConfMonitor.submit(startHotConfReplace());
-        triggerManager.start();
         jobManager.start();
+        triggerManager.start();
         taskManager.start();
         heartbeatManager.start();
         taskPositionManager.start();

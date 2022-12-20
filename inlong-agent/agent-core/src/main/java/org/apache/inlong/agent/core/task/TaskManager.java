@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.core.task;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -224,6 +225,11 @@ public class TaskManager extends AbstractDaemon {
             return true;
         }
         return false;
+    }
+
+    @VisibleForTesting
+    public int getTaskSize() {
+        return tasks.size();
     }
 
     /**

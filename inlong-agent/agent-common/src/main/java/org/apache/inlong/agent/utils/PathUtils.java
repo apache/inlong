@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Tools to handle various path issue.(e.g. path match,path research)
@@ -65,7 +66,15 @@ public class PathUtils {
      */
     public static boolean antPathIncluded(String dirStr, String patternStr) {
         // todo:Determines whether a path is a possible prefix of the path expression
-        return true;
+        List<String> dirArr = Stream.of(dirStr.split(File.separator)).collect(Collectors.toList());
+        List<String> patternDirArr = Stream.of(patternStr.split(File.separator)).collect(Collectors.toList());
+        int everything = patternDirArr.indexOf("**");
+        if (everything != -1) {
+            return antPathMatch(
+                    String.join(File.separator, dirArr.subList(0, everything)),
+                    String.join(File.separator, patternDirArr.subList(0, everything)));
+        }
+        return antPathMatch(dirStr, String.join(File.separator, patternDirArr.subList(0, dirArr.size())));
     }
 
     /**
@@ -120,5 +129,9 @@ public class PathUtils {
             mergedRootDirs.add(minCommonWatchDir);
         }
         return mergedRootDirs;
+    }
+
+    public static void main(String[] args) {
+
     }
 }

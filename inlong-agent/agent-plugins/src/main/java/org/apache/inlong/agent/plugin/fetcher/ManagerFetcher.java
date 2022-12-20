@@ -388,8 +388,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                 suitFiles.stream().filter(file -> !agentManager.getJobManager().checkJobExist(file.getAbsolutePath()))
                         .collect(Collectors.toList());
         for (File pendingFile : pendingFiles) {
-            JobProfile copiedProfile = copyJobProfile(triggerProfile, dataTime,
-                    pendingFile);
+            JobProfile copiedProfile = copyJobProfile(triggerProfile, pendingFile);
             LOGGER.info("ready to make up file with job {}", copiedProfile.toJsonStr());
             agentManager.getJobManager().submitFileJobProfile(copiedProfile);
         }

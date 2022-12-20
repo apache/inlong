@@ -115,7 +115,7 @@ public class TriggerManager extends AbstractDaemon {
             return;
         }
 
-        LOGGER.info("submit trigger {}", triggerProfile);
+        LOGGER.info("submit trigger {}", triggerProfile.toJsonStr());
         // This action must be done before saving in db, because the job.instance.id is needed for the next recovery
         manager.getJobManager().submitJobProfile(triggerProfile, true);
         triggerProfileDB.storeTrigger(triggerProfile);
@@ -149,13 +149,7 @@ public class TriggerManager extends AbstractDaemon {
         return () -> {
             Thread.currentThread().setName("TriggerManager-jobFetch");
             // wait until jobManager initialize finish, because subtask add relay on memory 'jobs' rebuild
-            try {
-                // todo:Subsequent addition of the notification mechanism for subscribing to the jobmanager life cycle
-                Thread.sleep(10 * 1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
+            // todo:Subsequent addition of the notification mechanism for subscribing to the jobmanager life cycle
             while (isRunnable()) {
                 try {
                     triggerMap.forEach((s, trigger) -> {

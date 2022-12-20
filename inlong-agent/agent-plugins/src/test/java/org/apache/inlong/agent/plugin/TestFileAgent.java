@@ -144,7 +144,7 @@ public class TestFileAgent {
         triggerManager.submitTrigger(triggerProfile);
         TestUtils.createHugeFiles("test0.dat", testRootDir.toString(), RECORD);
         TestUtils.createHugeFiles("te1.dat", testRootDir.toString(), RECORD);
-        await().atMost(1000, TimeUnit.SECONDS).until(() -> {
+        await().atMost(10, TimeUnit.SECONDS).until(() -> {
             Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
             return jobs.size() == 1
                     && jobs.values().stream().collect(Collectors.toList()).get(0).getAllTasks().size() == 2;
