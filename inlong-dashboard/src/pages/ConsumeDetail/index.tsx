@@ -55,7 +55,7 @@ const Comp: React.FC = () => {
   const list = useMemo(
     () => [
       {
-        label: t('pages.ConsumeDetail.ConsumeDetails'),
+        label: t('pages.ConsumeDetail.SubscribeDetails'),
         value: 'consumeDetail',
         content: Info,
       },
@@ -132,8 +132,8 @@ const Comp: React.FC = () => {
       breadcrumb={[
         {
           name: isCreate
-            ? t('pages.ConsumeCreate.NewConsume')
-            : `${t('pages.ConsumeDetail.ConsumeDetails')}${data?.id}`,
+            ? t('pages.ConsumeCreate.NewSubscribe')
+            : `${t('pages.ConsumeDetail.SubscribeDetails')}${data?.id}`,
         },
       ]}
       useDefaultContainer={!isCreate}
