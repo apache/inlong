@@ -18,12 +18,14 @@
 package org.apache.inlong.sort.jdbc.dialect;
 
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
-import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.converter.oracle.OracleRowConverter;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -174,8 +176,8 @@ public class OracleDialect extends AbstractJdbcDialect {
     }
 
     @Override
-    public List<String> getPkNamesFromDb(String tableIdentifier,
-            JdbcOptions jdbcOptions) {
+    public PreparedStatement setQuerySql(Connection conn,
+            String tableIdentifier) throws SQLException {
         return null;
     }
 }

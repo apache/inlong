@@ -19,7 +19,6 @@ package org.apache.inlong.sort.jdbc.dialect;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
-import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.converter.clickhouse.ClickHouseRowConverter;
@@ -27,6 +26,9 @@ import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -249,8 +251,8 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
     }
 
     @Override
-    public List<String> getPkNamesFromDb(String tableIdentifier,
-            JdbcOptions jdbcOptions) {
+    public PreparedStatement setQuerySql(Connection conn,
+            String tableIdentifier) throws SQLException {
         return null;
     }
 

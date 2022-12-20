@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.jdbc.table;
 
 import org.apache.flink.connector.jdbc.dialect.JdbcDialect;
+import org.apache.flink.connector.jdbc.internal.connection.SimpleJdbcConnectionProvider;
 import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
@@ -26,13 +27,24 @@ import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.logical.VarBinaryType;
+import org.apache.inlong.sort.jdbc.internal.JdbcMultiBatchingComm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Default JDBC dialects implements for validate.
  */
 public abstract class AbstractJdbcDialect implements JdbcDialect {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractJdbcDialect.class);
+    public static final String PK_COLUMN_NAME = "pkColumn";
 
     @Override
     public void validate(TableSchema schema) throws ValidationException {
@@ -100,11 +112,47 @@ public abstract class AbstractJdbcDialect implements JdbcDialect {
      */
     public abstract List<LogicalTypeRoot> unsupportedTypes();
 
+    public abstract PreparedStatement setQuerySql(Connection conn,
+            String tableIdentifier) throws SQLException;
+
     /**
      * get getPkNames from query db.tb
      *
      * @return a list of PkNames.
      */
-    public abstract List<String> getPkNamesFromDb(String tableIdentifier,
-            JdbcOptions jdbcOptions);
+    public List<String> getPkNamesFromDb(String tableIdentifier,
+            JdbcOptions jdbcOptions) {
+        PreparedStatement st = null;
+        try {
+            JdbcOptions jdbcExecOptions = JdbcMultiBatchingComm.getExecJdbcOptions(jdbcOptions, tableIdentifier);
+            SimpleJdbcConnectionProvider tableConnectionProvider = new SimpleJdbcConnectionProvider(jdbcExecOptions);
+            Connection conn = tableConnectionProvider.getOrEstablishConnection();
+            st = setQuerySql(conn, tableIdentifier);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                String pkColumn = rs.getString(PK_COLUMN_NAME);
+                LOG.info("TableIdentifier:{} get pkColumn:{}", tableIdentifier, pkColumn);
+                checkAndClose(st);
+                return Arrays.asList(pkColumn.split(","));
+            } else {
+                LOG.info("TableIdentifier:{} get pkColumn: null", tableIdentifier);
+                checkAndClose(st);
+                return null;
+            }
+        } catch (Exception e) {
+            LOG.error("TableIdentifier:{} getAndSetPkNamesFromDb get err:", tableIdentifier, e);
+            checkAndClose(st);
+        }
+        return null;
+    }
+
+    private void checkAndClose(PreparedStatement st) {
+        if (null != st) {
+            try {
+                st.close();
+            } catch (Exception e) {
+                LOG.error("CheckAndClose PreparedStatement get err:", e);
+            }
+        }
+    }
 }
