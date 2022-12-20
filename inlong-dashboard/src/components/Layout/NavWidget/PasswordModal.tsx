@@ -119,6 +119,8 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   useUpdateEffect(() => {
     if (modalProps.visible) {
       getData();
+    } else {
+      form.resetFields();
     }
   }, [modalProps.visible]);
 
