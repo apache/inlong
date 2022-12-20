@@ -111,7 +111,7 @@ public class PathUtils {
                 .collect(Collectors.toList());
         Set<String> mergedRootDirs = new HashSet<>();
         for (int i = 0; i < rootDirs.size(); i++) {
-            String minCommonWatchDir = rootDirs.get(0);
+            String minCommonWatchDir = rootDirs.get(i);
             for (int j = i; j < rootDirs.size(); j++) {
                 if (minCommonWatchDir.startsWith(rootDirs.get(j))) {
                     minCommonWatchDir = rootDirs.get(j);
@@ -121,5 +121,4 @@ public class PathUtils {
         }
         return mergedRootDirs;
     }
-
 }
