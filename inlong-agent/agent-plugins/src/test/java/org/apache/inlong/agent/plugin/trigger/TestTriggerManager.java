@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 
 public class TestTriggerManager {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TestTriggerManager.class);
 
     private static Path testRootDir;

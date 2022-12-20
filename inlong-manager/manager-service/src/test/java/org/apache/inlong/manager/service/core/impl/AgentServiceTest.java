@@ -64,6 +64,7 @@ import java.util.stream.Collectors;
  * Agent service test
  */
 class AgentServiceTest extends ServiceBaseTest {
+
     private static MockAgent agent;
     @Autowired
     private StreamSourceService sourceService;
@@ -181,8 +182,8 @@ class AgentServiceTest extends ServiceBaseTest {
                     groupStreamCache.stream().map(Pair::getKey).collect(Collectors.toList()));
             streamMapper.deleteByInlongGroupIds(
                     groupStreamCache.stream().map(Pair::getValue).collect(Collectors.toList()));
-            groupStreamCache.forEach(groupStream ->
-                    sourceService.forceDelete(groupStream.getLeft(), groupStream.getRight(), GLOBAL_OPERATOR));
+            groupStreamCache.forEach(groupStream -> sourceService.forceDelete(groupStream.getLeft(),
+                    groupStream.getRight(), GLOBAL_OPERATOR));
         }
         groupStreamCache.clear();
         tagCache.stream().forEach(tag -> bindTag(false, tag));;
@@ -284,7 +285,7 @@ class AgentServiceTest extends ServiceBaseTest {
         // mismatch and rematch
         bindTag(false, "tag1");
         agent.pullTask();
-        agent.pullTask();  // report last to make it from 304 -> 104
+        agent.pullTask(); // report last to make it from 304 -> 104
         bindTag(true, "tag1");
 
         // suspend

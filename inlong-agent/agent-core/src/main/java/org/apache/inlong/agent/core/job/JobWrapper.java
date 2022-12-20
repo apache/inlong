@@ -67,7 +67,7 @@ public class JobWrapper extends AbstractStateWrapper {
     private final Job job;
     private final List<Task> allTasks;
     private final Queue<Task> taskQueue;
-    private boolean isEnd;  // Solve the concurrency problem submitted by jobProfile
+    private boolean isEnd; // Solve the concurrency problem submitted by jobProfile
     private final AtomicInteger index;
     private CommandDb db;
 

@@ -26,6 +26,7 @@ import org.apache.inlong.agent.plugin.Reader;
 import javax.validation.constraints.NotNull;
 
 public class TriggerFileReader implements Reader {
+
     @NotNull
     private String triggerId;
 

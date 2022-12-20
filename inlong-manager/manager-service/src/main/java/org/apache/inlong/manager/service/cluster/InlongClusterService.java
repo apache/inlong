@@ -386,7 +386,6 @@ public interface InlongClusterService {
      */
     Boolean deleteNode(Integer id, String operator);
 
-
     /**
      * Bind or unbind cluster tag node for cluster node.
      *

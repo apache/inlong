@@ -120,7 +120,7 @@ public class TestWatchDirTrigger {
         File tmp = WATCH_FOLDER.newFolder("tmp");
         File file2 = new File(tmp.getAbsolutePath() + File.separator + "2.log");
         file2.createNewFile();
-        await().atMost(10, TimeUnit.SECONDS).until(()  -> trigger.getFetchedJob().size() == 1);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> trigger.getFetchedJob().size() == 1);
         Collection<JobProfile> jobs = trigger.getFetchedJob();
         Set<String> jobPaths = jobs.stream()
                 .map(job -> job.get(JobConstants.JOB_DIR_FILTER_PATTERNS, null))
@@ -140,8 +140,8 @@ public class TestWatchDirTrigger {
         registerPathPattern(
                 Sets.newHashSet(
                         WATCH_FOLDER.getRoot().getAbsolutePath() + File.separator + "**" + File.separator + "*.log"),
-                Collections.emptySet(),null);
-        await().atMost(10, TimeUnit.SECONDS).until(()  -> trigger.getFetchedJob().size() == 1);
+                Collections.emptySet(), null);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> trigger.getFetchedJob().size() == 1);
     }
 
     @Test
@@ -153,11 +153,11 @@ public class TestWatchDirTrigger {
         registerPathPattern(
                 Sets.newHashSet(
                         WATCH_FOLDER.getRoot().getAbsolutePath() + File.separator + "**" + File.separator + "*.log"),
-                Collections.emptySet(),null);
+                Collections.emptySet(), null);
         File tmp = WATCH_FOLDER.newFolder("tmp", "deep");
         File file4 = new File(tmp.getAbsolutePath() + File.separator + "1.log");
         file4.createNewFile();
-        await().atMost(10, TimeUnit.SECONDS).until(()  -> trigger.getFetchedJob().size() == 1);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> trigger.getFetchedJob().size() == 1);
     }
 
     @Test
@@ -170,7 +170,7 @@ public class TestWatchDirTrigger {
                 Sets.newHashSet(
                         WATCH_FOLDER.getRoot().getAbsolutePath() + File.separator + "tmp" + File.separator + "*.log",
                         WATCH_FOLDER.getRoot().getAbsolutePath() + File.separator + "**" + File.separator + "*.txt"),
-                Collections.emptySet(),null);
+                Collections.emptySet(), null);
         final File file1 = WATCH_FOLDER.newFile("1.txt");
         File file2 = WATCH_FOLDER.newFile("2.log");
         File file3 = WATCH_FOLDER.newFile("3.tar.gz");
@@ -180,7 +180,7 @@ public class TestWatchDirTrigger {
         File file5 = new File(tmp.getAbsolutePath() + File.separator + "5.log");
         file5.createNewFile();
 
-        await().atMost(10, TimeUnit.SECONDS).until(()  -> trigger.getFetchedJob().size() == 3);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> trigger.getFetchedJob().size() == 3);
         Collection<JobProfile> jobs = trigger.getFetchedJob();
         Set<String> jobPaths = jobs.stream()
                 .map(job -> job.get(JobConstants.JOB_DIR_FILTER_PATTERNS, null))

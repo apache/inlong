@@ -214,9 +214,8 @@ public class JobProfileDb {
      */
     public List<JobProfile> getJobsByState(Set<StateSearchKey> stateSearchKeys) {
         return stateSearchKeys.stream()
-                .flatMap(stateSearchKey ->
-                     db.searchWithKeyPrefix(stateSearchKey, JobConstants.JOB_ID_PREFIX).stream()
-                ).map(KeyValueEntity::getAsJobProfile)
+                .flatMap(stateSearchKey -> db.searchWithKeyPrefix(stateSearchKey, JobConstants.JOB_ID_PREFIX).stream())
+                .map(KeyValueEntity::getAsJobProfile)
                 .collect(Collectors.toList());
     }
 

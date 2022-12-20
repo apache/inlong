@@ -123,7 +123,7 @@ public class DirectoryTrigger implements Trigger {
             Set<String> pathPatterns = Stream.of(
                     this.profile.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toSet());
             Set<String> blackList = Stream.of(
-                            this.profile.get(JOB_DIR_FILTER_BLACKLIST, "").split(","))
+                    this.profile.get(JOB_DIR_FILTER_BLACKLIST, "").split(","))
                     .filter(black -> !StringUtils.isBlank(black))
                     .collect(Collectors.toSet());
             String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");
@@ -155,7 +155,8 @@ public class DirectoryTrigger implements Trigger {
     }
 
     public static class WatchKeyProviderThread implements NamedRunnable {
-         private final Object lock = new Object();
+
+        private final Object lock = new Object();
 
         @Override
         public String getName() {
@@ -170,11 +171,11 @@ public class DirectoryTrigger implements Trigger {
                     synchronized (lock) {
                         Map<WatchKey, Set<DirectoryTrigger>> addWatches = new HashMap<>();
                         Set<WatchKey> delWatches = new HashSet<>();
-                        allTriggerWatches.forEach((watchKey, triggers) ->
-                                checkNewDir(triggers, watchKey, addWatches, delWatches));
+                        allTriggerWatches.forEach(
+                                (watchKey, triggers) -> checkNewDir(triggers, watchKey, addWatches, delWatches));
 
-                        addWatches.forEach(((watchKey, triggers) ->
-                                allTriggerWatches.compute(watchKey, (existWatchKey, existsTriggers) -> {
+                        addWatches.forEach(((watchKey, triggers) -> allTriggerWatches.compute(watchKey,
+                                (existWatchKey, existsTriggers) -> {
                                     if (existsTriggers == null) {
                                         return triggers;
                                     }
@@ -224,14 +225,13 @@ public class DirectoryTrigger implements Trigger {
             trigger.pathPatterns.forEach(pathPattern -> {
                 Set<WatchKey> tmpWatchers = new HashSet<>();
                 registerAllSubDir(trigger, Paths.get(pathPattern.getRootDir()), tmpWatchers, registerSubFile);
-                tmpWatchers.forEach(tmpWatch ->
-                        allTriggerWatches.compute(tmpWatch, (k, v) -> {
-                            if (v == null) {
-                                return Sets.newHashSet(trigger);
-                            }
-                            v.add(trigger);
-                            return v;
-                        }));
+                tmpWatchers.forEach(tmpWatch -> allTriggerWatches.compute(tmpWatch, (k, v) -> {
+                    if (v == null) {
+                        return Sets.newHashSet(trigger);
+                    }
+                    v.add(trigger);
+                    return v;
+                }));
             });
         }
 
@@ -266,14 +266,13 @@ public class DirectoryTrigger implements Trigger {
                 triggers.forEach(trigger -> {
                     Set<WatchKey> tmpWatchers = new HashSet<>();
                     registerAllSubDir(trigger, finalAppliedPath, tmpWatchers, true);
-                    tmpWatchers.forEach(tmpWatch ->
-                            addWatches.compute(tmpWatch, (k, v) -> {
-                                if (v == null) {
-                                    return Sets.newHashSet(trigger);
-                                }
-                                v.add(trigger);
-                                return v;
-                            }));
+                    tmpWatchers.forEach(tmpWatch -> addWatches.compute(tmpWatch, (k, v) -> {
+                        if (v == null) {
+                            return Sets.newHashSet(trigger);
+                        }
+                        v.add(trigger);
+                        return v;
+                    }));
                 });
             }
         }
@@ -295,9 +294,8 @@ public class DirectoryTrigger implements Trigger {
                     if (path.toFile().isDirectory()) {
                         WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
                         tobeAddedWatchers.add(watchKey);
-                        Files.list(path).forEach(subPath ->
-                                registerAllSubDir(trigger, subPath.toAbsolutePath(),
-                                        tobeAddedWatchers, registerSubFile));
+                        Files.list(path).forEach(subPath -> registerAllSubDir(trigger, subPath.toAbsolutePath(),
+                                tobeAddedWatchers, registerSubFile));
                     } else if (registerSubFile) {
                         JobProfile copiedJobProfile =
                                 PluginUtils.copyJobProfile(trigger.getTriggerProfile(), path.toFile());

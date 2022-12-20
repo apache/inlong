@@ -227,7 +227,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     // todo:If many agents pull the same non-file task in this place, wouldn’t it be a problem?
-    //  it will issue multiple tasks
+    // it will issue multiple tasks
     private void preProcessNonFileTasks(TaskRequest taskRequest) {
         List<Integer> needAddStatusList;
         if (PullJobTypeEnum.NEVER == PullJobTypeEnum.getPullJobType(taskRequest.getPullJobType())) {
@@ -262,7 +262,7 @@ public class AgentServiceImpl implements AgentService {
      */
     private void preProcessTemplateFileTask(TaskRequest taskRequest) {
         List<Integer> needCopiedStatusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_ADD.getCode(),
-                    SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
+                SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         final String agentIp = taskRequest.getAgentIp();
         final String agentClusterName = taskRequest.getClusterName();
         Preconditions.checkTrue(StringUtils.isNotBlank(agentIp) || StringUtils.isNotBlank(agentClusterName),
@@ -272,7 +272,7 @@ public class AgentServiceImpl implements AgentService {
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectTemplateSourceByCluster(needCopiedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentClusterName);
         sourceEntities.stream()
-                .filter(sourceEntity -> sourceEntity.getTemplateId() == null)  // only apply template task
+                .filter(sourceEntity -> sourceEntity.getTemplateId() == null) // only apply template task
                 .map(sourceEntity -> {
                     List<StreamSourceEntity> subSources = sourceMapper.selectByTemplateId(sourceEntity.getId());
                     Optional<StreamSourceEntity> optionalSource = subSources.stream()
@@ -332,7 +332,7 @@ public class AgentServiceImpl implements AgentService {
                     if (!matchTag(sourceEntity, clusterNodeEntity)
                             && !exceptedUnmatchedStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))) {
                         LOGGER.info("Transform task({}) from {} to {} because tag mismatch "
-                                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                                 sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(),
                                 agentIp, agentClusterName);
                         sourceMapper.updateStatus(
@@ -352,7 +352,7 @@ public class AgentServiceImpl implements AgentService {
                             && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
                             && !exceptedMatchedStreamStatus.contains(StreamStatus.forCode(streamEntity.getStatus()))) {
                         LOGGER.info("Transform task({}) from {} to {} because tag rematch "
-                                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                                 sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(),
                                 agentIp, agentClusterName);
                         sourceMapper.updateStatus(

@@ -259,7 +259,7 @@ public abstract class AbstractConfiguration {
 
         // del
         if (configStorage.containsKey(key)) {
-           configStorage.remove(key);
+            configStorage.remove(key);
         }
     }
 

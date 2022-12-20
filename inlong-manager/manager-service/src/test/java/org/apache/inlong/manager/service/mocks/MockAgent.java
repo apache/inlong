@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import static org.apache.inlong.manager.service.ServiceBaseTest.GLOBAL_OPERATOR;
 
 public class MockAgent {
+
     // mock ability
     // 1. Regularly pull tasks from the manager and process the tasks
     // 2. Regularly report the previously executed tasks to the manager (may be successful or fail)
@@ -47,7 +48,6 @@ public class MockAgent {
     public static final String CLUSTER_TAG = "default_cluster_tag";
     public static final String CLUSTER_NAME = "1c59ef9e8e1e43cfb25ee8b744c9c81b_2790";
 
-    
     private AgentService agentService;
     private HeartbeatService heartbeatService;
 

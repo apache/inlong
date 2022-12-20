@@ -28,11 +28,11 @@ public class FileTriggerType {
      * <p>Here is an example. Collect task submit at '2022-01-01 23:00:00' with pattern '/bin/*.sh'.
      * <blockquote><pre>
      * .
-     * ©¸©¤©¤ [2022-01-01 20:49:42]  bin
-     *     ©À©¤©¤ [2022-01-01 20:10:00]  managerctl
-     *     ©À©¤©¤ [2022-01-01 21:10:00]  restart.sh
-     *     ©À©¤©¤ [2022-01-01 22:10:00]  shutdown.sh
-     *     ©¸©¤©¤ [2022-01-01 23:49:00]  startup.sh
+     * â””â”€â”€ [2022-01-01 20:49:42]  bin
+     *     â”œâ”€â”€ [2022-01-01 20:10:00]  managerctl
+     *     â”œâ”€â”€ [2022-01-01 21:10:00]  restart.sh
+     *     â”œâ”€â”€ [2022-01-01 22:10:00]  shutdown.sh
+     *     â””â”€â”€ [2022-01-01 23:49:00]  startup.sh
      * </pre></blockquote>
      *
      * <p>It Finally collect file is:
@@ -48,11 +48,11 @@ public class FileTriggerType {
      * <p>Here is an example. Collect task submit at '2022-01-01 23:00:00' with pattern '/bin/*.sh'.
      * <blockquote><pre>
      * .
-     * ©¸©¤©¤ [2022-01-01 20:49:42]  bin
-     *     ©À©¤©¤ [2022-01-01 20:10:00]  managerctl
-     *     ©À©¤©¤ [2022-01-01 21:10:00]  restart.sh
-     *     ©À©¤©¤ [2022-01-01 22:10:00]  shutdown.sh
-     *     ©¸©¤©¤ [2022-01-01 23:49:00]  startup.sh
+     * â””â”€â”€ [2022-01-01 20:49:42]  bin
+     *     â”œâ”€â”€ [2022-01-01 20:10:00]  managerctl
+     *     â”œâ”€â”€ [2022-01-01 21:10:00]  restart.sh
+     *     â”œâ”€â”€ [2022-01-01 22:10:00]  shutdown.sh
+     *     â””â”€â”€ [2022-01-01 23:49:00]  startup.sh
      * </pre></blockquote>
      *
      * <p>It Finally collect file is:

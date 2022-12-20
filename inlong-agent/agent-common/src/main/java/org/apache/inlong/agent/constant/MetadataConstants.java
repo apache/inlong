@@ -21,9 +21,9 @@ package org.apache.inlong.agent.constant;
  *  Metadata type
  */
 public class MetadataConstants {
+
     public static final String DATA_CONTENT = "__content__";
     public static final String DATA_CONTENT_TIME = "__LogTime__";
-
 
     // k8s metadata
     public static final String METADATA_CONTAINER_ID = "__container_id__";

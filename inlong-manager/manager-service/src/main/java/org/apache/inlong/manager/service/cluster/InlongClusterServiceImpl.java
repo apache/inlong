@@ -1408,12 +1408,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         if (CollectionUtils.isNotEmpty(bindSet)) {
             bindSet.stream().flatMap(clusterNode -> {
-                        ClusterPageRequest pageRequest = new ClusterPageRequest();
-                        pageRequest.setParentId(cluster.getId());
-                        pageRequest.setType(request.getType());
-                        pageRequest.setKeyword(clusterNode);
-                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
-                    }).filter(entity -> entity != null)
+                ClusterPageRequest pageRequest = new ClusterPageRequest();
+                pageRequest.setParentId(cluster.getId());
+                pageRequest.setType(request.getType());
+                pageRequest.setKeyword(clusterNode);
+                return clusterNodeMapper.selectByCondition(pageRequest).stream();
+            }).filter(entity -> entity != null)
                     .forEach(entity -> {
                         String nodeTags = entity.getNodeTags();
                         Set<String> tagSet = nodeTags == null ? Sets.newHashSet()
@@ -1426,12 +1426,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         if (CollectionUtils.isNotEmpty(unbindSet)) {
             unbindSet.stream().flatMap(clusterNode -> {
-                        ClusterPageRequest pageRequest = new ClusterPageRequest();
-                        pageRequest.setParentId(cluster.getId());
-                        pageRequest.setType(request.getType());
-                        pageRequest.setKeyword(clusterNode);
-                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
-                    }).filter(entity -> entity != null)
+                ClusterPageRequest pageRequest = new ClusterPageRequest();
+                pageRequest.setParentId(cluster.getId());
+                pageRequest.setType(request.getType());
+                pageRequest.setKeyword(clusterNode);
+                return clusterNodeMapper.selectByCondition(pageRequest).stream();
+            }).filter(entity -> entity != null)
                     .forEach(entity -> {
                         String nodeTags = entity.getNodeTags();
                         Set<String> tagSet = nodeTags == null ? Sets.newHashSet()

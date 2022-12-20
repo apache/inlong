@@ -165,11 +165,10 @@ public class TriggerManager extends AbstractDaemon {
                             // but the trigger will also automatically rematch all files to rebuild watchKey, it is
                             // necessary to filter the stated monitored file task.
 
-                            boolean alreadyExistTask = job.exist(tasks ->
-                                tasks.stream()
-                                        .filter(task -> subTaskFile.equals(
-                                                task.getJobConf().get(JobConstants.JOB_DIR_FILTER_PATTERNS, ""))
-                                        ).findAny().isPresent());
+                            boolean alreadyExistTask = job.exist(tasks -> tasks.stream()
+                                    .filter(task -> subTaskFile.equals(
+                                            task.getJobConf().get(JobConstants.JOB_DIR_FILTER_PATTERNS, "")))
+                                    .findAny().isPresent());
                             if (!alreadyExistTask) {
                                 LOGGER.info("Trigger job {} add new task file {}, total task {}",
                                         job.getJob().getName(), subTaskFile, job.getAllTasks().size());

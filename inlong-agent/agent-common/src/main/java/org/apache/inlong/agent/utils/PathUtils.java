@@ -36,6 +36,7 @@ import java.util.stream.Stream;
  * Tools to handle various path issue.(e.g. path match,path research)
  */
 public class PathUtils {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PathUtils.class);
     private static final AntPathMatcher MATCHER = new AntPathMatcher();
 

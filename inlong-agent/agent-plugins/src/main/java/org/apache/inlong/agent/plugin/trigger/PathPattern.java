@@ -37,6 +37,7 @@ import java.util.stream.Stream;
  * It’s identified by watchDir, which matches {@link PathPattern#whiteList} and filters {@link PathPattern#blackList}.
  */
 public class PathPattern {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PathPattern.class);
 
     private final String rootDir;

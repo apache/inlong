@@ -21,6 +21,7 @@ package org.apache.inlong.agent.constant;
  * k8s information
  */
 public class KubernetesConstants {
+
     public static final String KUBERNETES = "kubernetes";
     public static final String HTTPS = "https://";
     public static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";

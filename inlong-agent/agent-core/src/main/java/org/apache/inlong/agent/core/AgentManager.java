@@ -124,13 +124,14 @@ public class AgentManager extends AbstractDaemon {
 
     private Runnable startHotConfReplace() {
         return new Runnable() {
+
             private long lastModifiedTime = 0L;
 
             @Override
             public void run() {
                 while (true) {
                     try {
-                        Thread.sleep(10 * 1000);  // 10s check
+                        Thread.sleep(10 * 1000); // 10s check
                         File file = new File(
                                 conf.getConfigLocation(AgentConfiguration.DEFAULT_CONFIG_FILE).getFile());
                         if (!file.exists()) {
