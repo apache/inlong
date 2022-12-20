@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.hudi.HudiSource;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSource;
@@ -38,12 +39,14 @@ import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.LookupOptions;
+import org.apache.inlong.sort.protocol.constant.HudiConstant.CatalogType;
 import org.apache.inlong.sort.protocol.constant.OracleConstant.ScanStartUpMode;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.enums.RedisCommand;
 import org.apache.inlong.sort.protocol.enums.RedisMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.HudiExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
@@ -104,6 +107,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((TubeMQSource) sourceInfo);
             case SourceType.REDIS:
                 return createExtractNode((RedisSource) sourceInfo);
+            case SourceType.HUDI:
+                return createExtractNode((HudiSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -401,6 +406,33 @@ public class ExtractNodeUtils {
                 source.getMaxIdle(),
                 source.getMinIdle(),
                 lookupOptions);
+    }
+
+    /**
+     * Create Hudi extract node
+     *
+     * @param source hudi source info
+     * @return hudi extract source info
+     */
+    public static HudiExtractNode createExtractNode(HudiSource source) {
+        List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
+        Map<String, String> properties = parseProperties(source.getProperties());
+
+        return new HudiExtractNode(
+                source.getSourceName(),
+                source.getSourceName(),
+                fieldInfos,
+                null,
+                source.getCatalogUri(),
+                source.getWarehouse(),
+                source.getDbName(),
+                source.getTableName(),
+                CatalogType.HIVE,
+                source.getCheckIntervalInMinus(),
+                source.isReadStreamingSkipCompaction(),
+                source.getReadStartCommit(),
+                properties,
+                source.getExtList());
     }
 
     /**

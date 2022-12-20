@@ -41,6 +41,7 @@ public class SourceType {
     public static final String MONGODB = "MONGODB";
     public static final String REDIS = "REDIS";
     public static final String MQTT = "MQTT";
+    public static final String HUDI = "HUDI";
 
     public static final Map<String, TaskTypeEnum> SOURCE_TASK_MAP = new HashMap<String, TaskTypeEnum>() {
 
@@ -59,6 +60,7 @@ public class SourceType {
             put(MONGODB, TaskTypeEnum.MONGODB);
             put(REDIS, TaskTypeEnum.REDIS);
             put(MQTT, TaskTypeEnum.MQTT);
+            put(HUDI, TaskTypeEnum.HUDI);
 
         }
     };
