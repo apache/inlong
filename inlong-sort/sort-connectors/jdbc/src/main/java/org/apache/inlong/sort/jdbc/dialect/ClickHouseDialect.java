@@ -249,7 +249,7 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
     }
 
     @Override
-    public List<String> getAndSetPkNamesFromDb(String tableIdentifier,
+    public List<String> getPkNamesFromDb(String tableIdentifier,
             JdbcOptions jdbcOptions) {
         return null;
     }

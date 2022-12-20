@@ -148,7 +148,7 @@ public class TDSQLPostgresDialect extends AbstractJdbcDialect {
     }
 
     @Override
-    public List<String> getAndSetPkNamesFromDb(String tableIdentifierm,
+    public List<String> getPkNamesFromDb(String tableIdentifierm,
             JdbcOptions jdbcOptions) {
         return null;
     }

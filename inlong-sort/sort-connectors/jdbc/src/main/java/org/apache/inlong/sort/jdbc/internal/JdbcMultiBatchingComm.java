@@ -28,6 +28,7 @@ import org.apache.flink.connector.jdbc.internal.executor.TableBufferedStatementE
 import org.apache.flink.connector.jdbc.internal.executor.TableInsertOrUpdateStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.executor.TableSimpleStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
+import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatement;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
@@ -171,6 +172,21 @@ public class JdbcMultiBatchingComm {
             pkRow.setField(i, fieldGetters[i].getFieldOrNull(row));
         }
         return pkRow;
+    }
+
+    public static JdbcOptions getExecJdbcOptions(JdbcOptions jdbcOptions, String tableIdentifier) {
+        JdbcOptions jdbcExecOptions =
+                JdbcOptions.builder()
+                        .setDBUrl(jdbcOptions.getDbURL() + "/" + getTDbNameFromIdentifier(tableIdentifier))
+                        .setTableName(getTbNameFromIdentifier(tableIdentifier))
+                        .setDialect(jdbcOptions.getDialect())
+                        .setParallelism(jdbcOptions.getParallelism())
+                        .setConnectionCheckTimeoutSeconds(jdbcOptions.getConnectionCheckTimeoutSeconds())
+                        .setDriverName(jdbcOptions.getDriverName())
+                        .setUsername(jdbcOptions.getUsername().orElse(""))
+                        .setPassword(jdbcOptions.getPassword().orElse(""))
+                        .build();
+        return jdbcExecOptions;
     }
 
     /**

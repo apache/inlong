@@ -100,6 +100,11 @@ public abstract class AbstractJdbcDialect implements JdbcDialect {
      */
     public abstract List<LogicalTypeRoot> unsupportedTypes();
 
-    public abstract List<String> getAndSetPkNamesFromDb(String tableIdentifier,
+    /**
+     * get getPkNames from query db.tb
+     *
+     * @return a list of PkNames.
+     */
+    public abstract List<String> getPkNamesFromDb(String tableIdentifier,
             JdbcOptions jdbcOptions);
 }

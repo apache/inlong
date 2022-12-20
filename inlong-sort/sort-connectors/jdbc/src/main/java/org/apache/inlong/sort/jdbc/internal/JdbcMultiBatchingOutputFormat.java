@@ -213,6 +213,9 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         if (null != jdbcExec) {
             return jdbcExec;
         }
+        if (!pkNameMap.containsKey(tableIdentifier)) {
+            getAndSetPkNamesFromDb(tableIdentifier);
+        }
         RowType rowType = rowTypeMap.get(tableIdentifier);
         LogicalType[] logicalTypes = rowType.getFields().stream()
                 .map(RowType.RowField::getType)
@@ -253,18 +256,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
 
         jdbcExec = statementExecutorFactory.apply(getRuntimeContext());
         try {
-            JdbcOptions jdbcExecOptions =
-                    JdbcOptions.builder()
-                            .setDBUrl(jdbcOptions.getDbURL() + "/" +
-                                    JdbcMultiBatchingComm.getTDbNameFromIdentifier(tableIdentifier))
-                            .setTableName(JdbcMultiBatchingComm.getTbNameFromIdentifier(tableIdentifier))
-                            .setDialect(jdbcOptions.getDialect())
-                            .setParallelism(jdbcOptions.getParallelism())
-                            .setConnectionCheckTimeoutSeconds(jdbcOptions.getConnectionCheckTimeoutSeconds())
-                            .setDriverName(jdbcOptions.getDriverName())
-                            .setUsername(jdbcOptions.getUsername().orElse(""))
-                            .setPassword(jdbcOptions.getPassword().orElse(""))
-                            .build();
+            JdbcOptions jdbcExecOptions = JdbcMultiBatchingComm.getExecJdbcOptions(jdbcOptions, tableIdentifier);
             SimpleJdbcConnectionProvider tableConnectionProvider = new SimpleJdbcConnectionProvider(jdbcExecOptions);
             try {
                 tableConnectionProvider.getOrEstablishConnection();
@@ -284,7 +276,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     public void getAndSetPkNamesFromDb(String tableIdentifier) {
         try {
             AbstractJdbcDialect jdbcDialect = (AbstractJdbcDialect) jdbcOptions.getDialect();
-            List<String> pkNames = jdbcDialect.getAndSetPkNamesFromDb(tableIdentifier, jdbcOptions);
+            List<String> pkNames = jdbcDialect.getPkNamesFromDb(tableIdentifier, jdbcOptions);
             pkNameMap.put(tableIdentifier, pkNames);
         } catch (Exception e) {
             LOG.error("TableIdentifier:{} getAndSetPkNamesFromDb get err:", tableIdentifier, e);
@@ -337,9 +329,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
 
             GenericRowData record = null;
             try {
-                if (!pkNameMap.containsKey(tableIdentifier)) {
-                    getAndSetPkNamesFromDb(tableIdentifier);
-                }
                 RowType rowType = jsonDynamicSchemaFormat.extractSchema(rootNode);
                 if (rowType != null) {
                     if (null != rowTypeMap.get(tableIdentifier)) {
@@ -352,8 +341,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         rowTypeMap.put(tableIdentifier, rowType);
                     }
                 }
-                List<String> pkNameList = jsonDynamicSchemaFormat.extractPrimaryKeyNames(rootNode);
-                pkNameMap.put(tableIdentifier, pkNameList);
                 JsonNode physicalData = jsonDynamicSchemaFormat.getPhysicalData(rootNode);
                 List<Map<String, String>> physicalDataList = jsonDynamicSchemaFormat.jsonNode2Map(physicalData);
                 record = generateRecord(rowType, physicalDataList.get(0));

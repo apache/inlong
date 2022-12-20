@@ -42,6 +42,26 @@ public class PostgresDialect extends AbstractJdbcDialect {
     private static final Logger LOG = LoggerFactory.getLogger(PostgresDialect.class);
     private static final long serialVersionUID = 1L;
 
+    private static final String QUERY_PK_SQL = "SELECT\n" +
+            "\tstring_agg (DISTINCT t3.attname, ',') AS pkColumn,\n" +
+            "    \tt4.tablename AS tableName\n" +
+            "FROM\n" +
+            "\tpg_constraint t1\n" +
+            "INNER JOIN pg_class t2 ON t1.conrelid = t2.oid\n" +
+            "INNER JOIN pg_attribute t3 ON t3.attrelid = t2.oid\n" +
+            "AND array_position (t1.conkey, t3.attnum) is not null\n" +
+            "INNER JOIN pg_tables t4 on t4.tablename = t2.relname\n" +
+            "INNER JOIN pg_index t5 ON t5.indrelid = t2.oid\n" +
+            "AND t3.attnum = ANY (t5.indkey)\n" +
+            "LEFT JOIN pg_description t6 on t6.objoid = t3.attrelid\n" +
+            "and t6.objsubid = t3.attnum\n" +
+            "WHERE\n" +
+            "\tt1.contype = 'p'\n" +
+            "AND length (t3.attname) > 0\n" +
+            "AND t2.oid = ?::regclass\n" +
+            "group by\n" +
+            "\tt4.tablename";
+
     // Define MAX/MIN precision of TIMESTAMP type according to PostgreSQL docs:
     // https://www.postgresql.org/docs/12/datatype-datetime.html
     private static final int MAX_TIMESTAMP_PRECISION = 6;
@@ -148,43 +168,13 @@ public class PostgresDialect extends AbstractJdbcDialect {
     }
 
     @Override
-    public List<String> getAndSetPkNamesFromDb(String tableIdentifier, JdbcOptions jdbcOptions) {
+    public List<String> getPkNamesFromDb(String tableIdentifier, JdbcOptions jdbcOptions) {
         PreparedStatement st = null;
         try {
-            JdbcOptions jdbcExecOptions =
-                    JdbcOptions.builder()
-                            .setDBUrl(jdbcOptions.getDbURL() + "/"
-                                    + JdbcMultiBatchingComm.getTDbNameFromIdentifier(tableIdentifier))
-                            .setTableName(JdbcMultiBatchingComm.getTbNameFromIdentifier(tableIdentifier))
-                            .setDialect(jdbcOptions.getDialect())
-                            .setParallelism(jdbcOptions.getParallelism())
-                            .setConnectionCheckTimeoutSeconds(jdbcOptions.getConnectionCheckTimeoutSeconds())
-                            .setDriverName(jdbcOptions.getDriverName())
-                            .setUsername(jdbcOptions.getUsername().orElse(""))
-                            .setPassword(jdbcOptions.getPassword().orElse(""))
-                            .build();
+            JdbcOptions jdbcExecOptions = JdbcMultiBatchingComm.getExecJdbcOptions(jdbcOptions, tableIdentifier);
             SimpleJdbcConnectionProvider tableConnectionProvider = new SimpleJdbcConnectionProvider(jdbcExecOptions);
             Connection conn = tableConnectionProvider.getOrEstablishConnection();
-            String query = "SELECT\n" +
-                    "\tstring_agg (DISTINCT t3.attname, ',') AS pkColumn,\n" +
-                    "    \tt4.tablename AS tableName\n" +
-                    "FROM\n" +
-                    "\tpg_constraint t1\n" +
-                    "INNER JOIN pg_class t2 ON t1.conrelid = t2.oid\n" +
-                    "INNER JOIN pg_attribute t3 ON t3.attrelid = t2.oid\n" +
-                    "AND array_position (t1.conkey, t3.attnum) is not null\n" +
-                    "INNER JOIN pg_tables t4 on t4.tablename = t2.relname\n" +
-                    "INNER JOIN pg_index t5 ON t5.indrelid = t2.oid\n" +
-                    "AND t3.attnum = ANY (t5.indkey)\n" +
-                    "LEFT JOIN pg_description t6 on t6.objoid = t3.attrelid\n" +
-                    "and t6.objsubid = t3.attnum\n" +
-                    "WHERE\n" +
-                    "\tt1.contype = 'p'\n" +
-                    "AND length (t3.attname) > 0\n" +
-                    "AND t2.oid = ?::regclass\n" +
-                    "group by\n" +
-                    "\tt4.tablename";
-            st = conn.prepareStatement(query);
+            st = conn.prepareStatement(QUERY_PK_SQL);
             st.setString(1, JdbcMultiBatchingComm.getTbNameFromIdentifier(tableIdentifier));
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
@@ -204,7 +194,7 @@ public class PostgresDialect extends AbstractJdbcDialect {
         return null;
     }
 
-    public void checkAndClose(PreparedStatement st) {
+    private void checkAndClose(PreparedStatement st) {
         if (null != st) {
             try {
                 st.close();
