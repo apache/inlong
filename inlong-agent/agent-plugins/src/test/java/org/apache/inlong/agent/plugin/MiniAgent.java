@@ -29,6 +29,8 @@ import org.powermock.api.support.membermodification.MemberModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FETCH_CENTER_INTERVAL_SECONDS;
@@ -38,6 +40,8 @@ public class MiniAgent {
     private static final Logger LOGGER = LoggerFactory.getLogger(MiniAgent.class);
     private AgentManager manager;
     private final LinkedBlockingQueue<JobProfile> queueJobs = new LinkedBlockingQueue<>(100);
+    private List<TriggerProfile> triggerProfileCache = new ArrayList<>();
+    private List<JobProfile> jobProfileCache = new ArrayList<>();
 
     /**
      * Constructor of MiniAgent.
@@ -68,15 +72,6 @@ public class MiniAgent {
         manager.start();
     }
 
-    public void submitJob(JobProfile profile) {
-        manager.getJobManager().submitFileJobProfile(profile);
-    }
-
-    public void submitTriggerJob(JobProfile profile) {
-        TriggerProfile triggerProfile = TriggerProfile.parseJobProfile(profile);
-        manager.getTriggerManager().restoreTrigger(triggerProfile);
-    }
-
     public AgentManager getManager() {
         return manager;
     }
@@ -90,5 +85,27 @@ public class MiniAgent {
         manager = new AgentManager();
         init();
         manager.start();
+    }
+
+    public void submitJob(JobProfile profile) {
+        manager.getJobManager().submitFileJobProfile(profile);
+        jobProfileCache.add(profile);
+    }
+
+    public void submitTrigger(TriggerProfile triggerProfile) {
+        manager.getTriggerManager().submitTrigger(triggerProfile);
+        triggerProfileCache.add(triggerProfile);
+    }
+
+    public void cleanupJobs() {
+        jobProfileCache.forEach(jobProfile ->
+                manager.getJobManager().deleteJob(jobProfile.getInstanceId()));
+        jobProfileCache.clear();
+    }
+
+    public void cleanupTriggers() {
+        triggerProfileCache.forEach(triggerProfile ->
+                manager.getTriggerManager().deleteTrigger(triggerProfile.getTriggerId()));
+        triggerProfileCache.clear();
     }
 }

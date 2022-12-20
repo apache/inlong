@@ -108,7 +108,7 @@ public class TestTextFileReader {
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
         jobConfiguration.set(JOB_DIR_FILTER_PATTERNS, Paths.get(mainPath,
-                "[2].txt").toFile().getAbsolutePath());
+                "2.txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
@@ -139,7 +139,7 @@ public class TestTextFileReader {
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
         jobConfiguration.set(JOB_DIR_FILTER_PATTERNS, Paths.get(mainPath,
-                "[1].txt").toFile().getAbsolutePath());
+                "1.txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
@@ -173,7 +173,7 @@ public class TestTextFileReader {
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
         jobConfiguration.set(JOB_DIR_FILTER_PATTERNS, Paths.get(mainPath,
-                "[1].txt").toFile().getAbsolutePath());
+                "1.txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");

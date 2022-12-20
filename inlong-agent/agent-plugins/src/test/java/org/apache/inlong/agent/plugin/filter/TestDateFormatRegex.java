@@ -30,6 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
@@ -72,12 +73,13 @@ public class TestDateFormatRegex {
     }
 
     @Test
-    public void testRegexAndTimeoffset() {
+    public void testRegexAndTimeoffset() throws IOException {
         ZonedDateTime zoned = ZonedDateTime.now().plusDays(-1);
         String pathTime = DateTimeFormatter.ofPattern("yyyyMMdd").withLocale(Locale.getDefault()).format(zoned);
-        File file = Paths.get(helper.getParentPath().toString(), pathTime.concat(".log")).toFile();
-        PathPattern entity = new PathPattern(helper.getParentPath().toString(),
-                Collections.singleton(helper.getParentPath().toString() + "/yyyyMMdd.log"), Sets.newHashSet(), "-1d");
+        File file = Paths.get(helper.getTestRootDir().toString(), pathTime.concat(".log")).toFile();
+        file.createNewFile();
+        PathPattern entity = new PathPattern(helper.getTestRootDir().toString(),
+                Collections.singleton(helper.getTestRootDir().toString() + "/yyyyMMdd.log"), Sets.newHashSet(), "-1d");
         boolean flag = entity.suitable(file.getPath());
         Assert.assertTrue(flag);
     }

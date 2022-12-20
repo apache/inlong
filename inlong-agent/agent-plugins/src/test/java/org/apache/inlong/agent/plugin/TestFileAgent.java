@@ -26,6 +26,7 @@ import org.apache.inlong.agent.core.trigger.TriggerManager;
 import org.apache.inlong.agent.db.StateSearchKey;
 import org.apache.inlong.agent.plugin.utils.TestUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -87,6 +88,12 @@ public class TestFileAgent {
         helper.teardownAgentHome();
     }
 
+    @After
+    public void teardownEach() {
+        agent.cleanupTriggers();
+        agent.cleanupJobs();
+    }
+
     private void createFiles(String fileName) throws Exception {
         final Path hugeFile = Paths.get(testRootDir.toString(), fileName);
         FileWriter writer = new FileWriter(hugeFile.toFile());
@@ -139,8 +146,7 @@ public class TestFileAgent {
         triggerProfile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testRootDir.toString(),
                 "test*.dat").toString());
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
-        TriggerManager triggerManager = agent.getManager().getTriggerManager();
-        triggerManager.submitTrigger(triggerProfile);
+        agent.submitTrigger(triggerProfile);
         TestUtils.createHugeFiles("test0.dat", testRootDir.toString(), RECORD);
         TestUtils.createHugeFiles("te1.dat", testRootDir.toString(), RECORD);
         await().atMost(10, TimeUnit.SECONDS).until(() -> {
@@ -159,9 +165,8 @@ public class TestFileAgent {
         triggerProfile.set(JOB_DIR_FILTER_PATTERNS, path + File.separator + "*.txt");
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
         triggerProfile.set(JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
-        triggerProfile.set(JOB_ID, "2");
-        TriggerManager triggerManager = agent.getManager().getTriggerManager();
-        triggerManager.submitTrigger(triggerProfile);
+        triggerProfile.set(JOB_ID, "10");
+        agent.submitTrigger(triggerProfile);
         await().atMost(10, TimeUnit.SECONDS).until(() -> {
             Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
             return jobs.size() == 1
@@ -179,7 +184,7 @@ public class TestFileAgent {
                 profile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testRootDir.toString(),
                         "YYYYMMDD").toString());
                 profile.set(JOB_CYCLE_UNIT, "D");
-                agent.submitTriggerJob(profile);
+                agent.submitTrigger(TriggerProfile.parseJobProfile(profile));
             }
         }
         createFiles(nowDate);
@@ -198,7 +203,7 @@ public class TestFileAgent {
                 profile.set(JOB_CYCLE_UNIT, "D");
                 profile.set(AGENT_MESSAGE_FILTER_CLASSNAME,
                         "org.apache.inlong.agent.plugin.filter.DefaultMessageFilter");
-                agent.submitTriggerJob(profile);
+                agent.submitTrigger(TriggerProfile.parseJobProfile(profile));
             }
         }
         createFiles(nowDate);
@@ -216,7 +221,7 @@ public class TestFileAgent {
                         "YYYYMMDD").toString());
                 profile.set(JOB_FILE_TIME_OFFSET, "-1d");
                 profile.set(JOB_CYCLE_UNIT, "D");
-                agent.submitTriggerJob(profile);
+                agent.submitTrigger(TriggerProfile.parseJobProfile(profile));
             }
         }
         createFiles(theDateBefore);

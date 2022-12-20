@@ -17,13 +17,13 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
+import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.JobConstants;
-import org.apache.inlong.agent.core.trigger.TriggerManager;
-import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.MiniAgent;
-import org.apache.inlong.agent.plugin.TestFileAgent;
 import org.apache.inlong.agent.plugin.utils.TestUtils;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -31,7 +31,6 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
 import java.nio.file.WatchKey;
 import java.util.Map;
 import java.util.Set;
@@ -43,10 +42,7 @@ public class TestTriggerManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestTriggerManager.class);
 
-    private static Path testRootDir;
     private static MiniAgent agent;
-    private static AgentBaseTestsHelper helper;
-    private static TriggerManager triggerManager;
 
     @ClassRule
     public static final TemporaryFolder WATCH_FOLDER = new TemporaryFolder();
@@ -83,33 +79,39 @@ public class TestTriggerManager {
     @BeforeClass
     public static void setup() {
         try {
-            helper = new AgentBaseTestsHelper(TestFileAgent.class.getName()).setupAgentHome();
+            AgentConfiguration.getAgentConf().set(AgentConstants.AGENT_HOME, WATCH_FOLDER.getRoot().getAbsolutePath());
             agent = new MiniAgent();
             agent.start();
-            testRootDir = helper.getTestRootDir();
         } catch (Exception e) {
             LOGGER.error("setup failure");
         }
     }
 
-    // todo:Test whether the trigger task can be restored normally after restarting
+    @After
+    public void teardownEach() {
+        agent.cleanupTriggers();
+    }
+
     @Test
-    public void testRestart() throws Exception {
+    public void testRestartTriggerJobRestore() throws Exception {
         TriggerProfile triggerProfile1 = TriggerProfile.parseJsonStr(FILE_JOB_TEMPLATE);
         triggerProfile1.set(JobConstants.JOB_ID, "1");
         triggerProfile1.set(JobConstants.JOB_DIR_FILTER_PATTERNS,
-                WATCH_FOLDER.getRoot() + "/**/*.log");
-        TriggerManager triggerManager = agent.getManager().getTriggerManager();
-        triggerManager.submitTrigger(triggerProfile1);
+                WATCH_FOLDER.getRoot() + "/*.log");
+        agent.submitTrigger(triggerProfile1);
 
         WATCH_FOLDER.newFolder("tmp");
         TestUtils.createHugeFiles("1.log", WATCH_FOLDER.getRoot().getAbsolutePath(), "asdqwdqd");
         TestUtils.createHugeFiles("2.log", WATCH_FOLDER.getRoot().getAbsolutePath(), "asdasdasd");
-        TestUtils.createHugeFiles("3.log", WATCH_FOLDER.getRoot().getAbsolutePath() + "/tmp", "asdasdasd");
-        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 4);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 3);
 
         agent.restart();
-        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 4);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 3);
+
+        // cleanup
+        TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/1.log");
+        TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/2.log");
+        TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/tmp/3.log");
     }
 
     @Test
@@ -124,13 +126,16 @@ public class TestTriggerManager {
         triggerProfile2.set(JobConstants.JOB_DIR_FILTER_PATTERNS,
                 WATCH_FOLDER.getRoot() + "/*.txt");
 
-        TriggerManager triggerManager = agent.getManager().getTriggerManager();
-        triggerManager.submitTrigger(triggerProfile1);
-        triggerManager.submitTrigger(triggerProfile2);
+        agent.submitTrigger(triggerProfile1);
+        agent.submitTrigger(triggerProfile2);
 
         TestUtils.createHugeFiles("1.log", WATCH_FOLDER.getRoot().getAbsolutePath(), "asdqwdqd");
         TestUtils.createHugeFiles("1.txt", WATCH_FOLDER.getRoot().getAbsolutePath(), "asdasdasd");
         await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 4);
+
+        // cleanup
+        TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/1.log");
+        TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/1.txt");
     }
 
     @Test
@@ -140,10 +145,11 @@ public class TestTriggerManager {
         triggerProfile1.set(JobConstants.JOB_DIR_FILTER_PATTERNS,
                 WATCH_FOLDER.getRoot() + "/*.log");
 
-        TriggerManager triggerManager = agent.getManager().getTriggerManager();
-        triggerManager.submitTrigger(triggerProfile1);
+        // submit trigger
+        agent.submitTrigger(triggerProfile1);
         TestUtils.createHugeFiles("1.log", WATCH_FOLDER.getRoot().getAbsolutePath(), "asdqwdqd");
-        DirectoryTrigger trigger = (DirectoryTrigger) triggerManager.getTrigger(triggerProfile1.getTriggerId());
+        DirectoryTrigger trigger = (DirectoryTrigger) agent.getManager()
+                .getTriggerManager().getTrigger(triggerProfile1.getTriggerId());
         await().atMost(10, TimeUnit.SECONDS).until(() -> {
             if (trigger.getWatchers().size() == 0) {
                 return false;
@@ -160,7 +166,9 @@ public class TestTriggerManager {
             return true;
         });
 
-        triggerManager.deleteTrigger(triggerProfile1.getTriggerId());
-        await().atMost(100, TimeUnit.SECONDS).until(() -> trigger.getWatchers().size() == 0);
+        //shutdown trigger
+        agent.getManager().getTriggerManager().deleteTrigger(triggerProfile1.getTriggerId());
+        await().atMost(10, TimeUnit.SECONDS).until(() -> trigger.getWatchers().size() == 0);
+        TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/1.log");
     }
 }
