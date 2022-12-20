@@ -162,9 +162,7 @@ const Comp: React.FC = () => {
     <PageContainer
       breadcrumb={[
         {
-          name: isCreate
-            ? t('pages.GroupDetail.Info.Create')
-            : `${t('pages.GroupDetail.PageTitle')}${id}`,
+          name: isCreate ? t('pages.GroupDetail.Info.Create') : `${id}`,
         },
       ]}
       useDefaultContainer={!isCreate}
