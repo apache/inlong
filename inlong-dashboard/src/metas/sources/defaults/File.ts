@@ -37,7 +37,7 @@ export default class PulsarSource
     rules: [{ required: true }],
     props: values => ({
       showSearch: true,
-      disabled: [110, 130].includes(values?.status),
+      disabled: values?.status === 101,
       options: {
         requestTrigger: ['onOpen', 'onSearch'],
         requestService: {
