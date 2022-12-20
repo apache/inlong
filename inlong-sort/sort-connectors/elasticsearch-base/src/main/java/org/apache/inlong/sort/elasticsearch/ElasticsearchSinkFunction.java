@@ -23,6 +23,7 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.elasticsearch.action.ActionRequest;
 
 import java.io.Serializable;
@@ -42,13 +43,13 @@ public interface ElasticsearchSinkFunction<T> extends Serializable, Function {
      * Initialization method for the function. It is called once before the actual working process
      * methods.
      */
-    default void open(RuntimeContext ctx) throws Exception {
+    default void open(RuntimeContext ctx, SinkMetricData sinkMetricData) {
     }
 
     /**
      * Tear-down method for the function. It is called when the sink closes.
      */
-    default void close() throws Exception {
+    default void close() {
     }
 
     /**
@@ -61,15 +62,11 @@ public interface ElasticsearchSinkFunction<T> extends Serializable, Function {
      */
     void process(T element, RuntimeContext ctx, RequestIndexer indexer);
 
-    default void initializeState(FunctionInitializationContext context) throws Exception {
+    default void initializeState(FunctionInitializationContext context) {
         // no initialization needed
     }
 
-    default void snapshotState(FunctionSnapshotContext context) throws Exception {
-
-    }
-
-    default void setRuntimeContext(RuntimeContext ctx) {
+    default void snapshotState(FunctionSnapshotContext context) {
 
     }
 }
