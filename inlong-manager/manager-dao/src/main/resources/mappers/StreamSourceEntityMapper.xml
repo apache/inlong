@@ -229,7 +229,7 @@
         <include refid="Base_Column_List"/>
         from stream_source
         <where>
-            inlong_cluster_name = #{clusterName, jdbcType=VARCHAR}
+            (inlong_cluster_name = #{clusterName, jdbcType=VARCHAR} or inlong_cluster_name is NULL)
             and agent_ip = #{agentIp, jdbcType=VARCHAR}
             and `status` in
             <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
