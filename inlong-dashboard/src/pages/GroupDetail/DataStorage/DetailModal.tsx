@@ -155,7 +155,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...m
 
   return (
     <Modal
-      title="Sink"
+      title={id ? t('pages.GroupDetail.Sink.Edit') : t('pages.GroupDetail.Sink.New')}
       width={1200}
       {...modalProps}
       footer={[

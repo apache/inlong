@@ -97,7 +97,12 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, defaultType, ...modalProps }
 
   return (
     <>
-      <Modal {...modalProps} title="Source" width={666} onOk={onOk}>
+      <Modal
+        {...modalProps}
+        title={id ? t('pages.GroupDetail.Sources.Edit') : t('pages.GroupDetail.Sources.Create')}
+        width={666}
+        onOk={onOk}
+      >
         <FormGenerator
           content={formContent}
           onValuesChange={(c, values) => setType(values.sourceType)}
