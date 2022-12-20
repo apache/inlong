@@ -122,7 +122,8 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
         content={formContent}
         initialValues={data}
         onValuesChange={(c, values) => setMqType(values.mqType)}
-        useMaxWidth={600}
+        useMaxWidth={1400}
+        col={12}
       />
 
       {!isCreate && !readonly && (
