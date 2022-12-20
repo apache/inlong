@@ -177,8 +177,8 @@ public class JdbcMultiBatchingComm {
     public static JdbcOptions getExecJdbcOptions(JdbcOptions jdbcOptions, String tableIdentifier) {
         JdbcOptions jdbcExecOptions =
                 JdbcOptions.builder()
-                        .setDBUrl(jdbcOptions.getDbURL() + "/" + getTDbNameFromIdentifier(tableIdentifier))
-                        .setTableName(getTbNameFromIdentifier(tableIdentifier))
+                        .setDBUrl(jdbcOptions.getDbURL() + "/" + getDatabaseNameFromIdentifier(tableIdentifier))
+                        .setTableName(getTableNameFromIdentifier(tableIdentifier))
                         .setDialect(jdbcOptions.getDialect())
                         .setParallelism(jdbcOptions.getParallelism())
                         .setConnectionCheckTimeoutSeconds(jdbcOptions.getConnectionCheckTimeoutSeconds())
@@ -195,7 +195,7 @@ public class JdbcMultiBatchingComm {
      *
      * @param tableIdentifier The table identifier for which to get table name.
      */
-    public static String getTbNameFromIdentifier(String tableIdentifier) {
+    public static String getTableNameFromIdentifier(String tableIdentifier) {
         String[] fileArray = tableIdentifier.split("\\.");
         if (2 == fileArray.length) {
             return fileArray[1];
@@ -206,7 +206,13 @@ public class JdbcMultiBatchingComm {
         return null;
     }
 
-    public static String getTDbNameFromIdentifier(String tableIdentifier) {
+    /**
+     * Get database name From tableIdentifier
+     * tableIdentifier maybe: ${dbName}.${tbName} or ${dbName}.${schemaName}.${tbName}
+     *
+     * @param tableIdentifier The table identifier for which to get table name.
+     */
+    public static String getDatabaseNameFromIdentifier(String tableIdentifier) {
         String[] fileArray = tableIdentifier.split("\\.");
         return fileArray[0];
     }

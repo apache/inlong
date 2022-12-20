@@ -169,7 +169,7 @@ public class PostgresDialect extends AbstractJdbcDialect {
     public PreparedStatement setQuerySql(Connection conn,
             String tableIdentifier) throws SQLException {
         PreparedStatement st = conn.prepareStatement(QUERY_PK_SQL);
-        st.setString(1, JdbcMultiBatchingComm.getTbNameFromIdentifier(tableIdentifier));
+        st.setString(1, JdbcMultiBatchingComm.getTableNameFromIdentifier(tableIdentifier));
         return st;
     }
 }

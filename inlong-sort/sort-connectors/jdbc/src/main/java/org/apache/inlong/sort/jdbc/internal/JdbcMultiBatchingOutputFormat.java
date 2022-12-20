@@ -232,7 +232,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         if (CollectionUtils.isNotEmpty(pkNameList) && !appendMode) {
             // upsert query
             JdbcDmlOptions createDmlOptions = JdbcDmlOptions.builder()
-                    .withTableName(JdbcMultiBatchingComm.getTbNameFromIdentifier(tableIdentifier))
+                    .withTableName(JdbcMultiBatchingComm.getTableNameFromIdentifier(tableIdentifier))
                     .withDialect(jdbcOptions.getDialect())
                     .withFieldNames(filedNames)
                     .withKeyFields(pkNameList.toArray(new String[pkNameList.size()]))
@@ -244,7 +244,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             // append only query
             final String sql = dmlOptions
                     .getDialect()
-                    .getInsertIntoStatement(JdbcMultiBatchingComm.getTbNameFromIdentifier(tableIdentifier), filedNames);
+                    .getInsertIntoStatement(JdbcMultiBatchingComm.getTableNameFromIdentifier(tableIdentifier),
+                            filedNames);
             statementExecutorFactory = ctx -> (JdbcExec) JdbcMultiBatchingComm.createSimpleBufferedExecutor(
                     ctx,
                     dmlOptions.getDialect(),
