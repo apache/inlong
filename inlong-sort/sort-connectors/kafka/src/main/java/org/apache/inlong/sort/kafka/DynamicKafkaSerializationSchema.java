@@ -170,9 +170,6 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             final byte[] valueSerialized = serializeWithDirtyHandle(consumedRow,
                     DirtyType.VALUE_SERIALIZE_ERROR, valueSerialization);
             if (valueSerialized != null) {
-                if (metricData != null) {
-                    metricData.invokeDirtyWithEstimate(consumedRow);
-                }
                 return new ProducerRecord<>(
                         getTargetTopic(consumedRow),
                         extractPartition(consumedRow, null, valueSerialized),
@@ -188,9 +185,6 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         } else {
             final RowData keyRow = createProjectedRow(consumedRow, RowKind.INSERT, keyFieldGetters);
             keySerialized = serializeWithDirtyHandle(keyRow, DirtyType.KEY_SERIALIZE_ERROR, keySerialization);
-            if (metricData != null) {
-                metricData.invokeDirtyWithEstimate(keyRow);
-            }
             mayDirtyData = keySerialized == null;
         }
 
@@ -211,9 +205,6 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         } else {
             valueSerialized = serializeWithDirtyHandle(valueRow, DirtyType.VALUE_SERIALIZE_ERROR, valueSerialization);
             mayDirtyData = mayDirtyData || valueSerialized == null;
-            if (metricData != null) {
-                metricData.invokeDirtyWithEstimate(valueRow);
-            }
         }
         if (mayDirtyData) {
             return null;
@@ -254,6 +245,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                     LOG.warn("Dirty sink failed", ex);
                 }
             }
+            metricData.invokeDirtyWithEstimate(consumedRow);
         }
         return value;
     }
@@ -287,6 +279,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                     LOG.warn("Dirty sink failed", ex);
                 }
             }
+            metricData.invokeDirtyWithEstimate(dataNode);
         }
     }
 

@@ -271,7 +271,7 @@ public class UpsertKafkaDynamicTableFactory
         // Build the dirty data side-output
         final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
         final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
-        final boolean migrateAll = tableOptions.getOptional(SINK_MULTIPLE_FORMAT).isPresent();
+        final boolean multipleSink = tableOptions.getOptional(SINK_MULTIPLE_FORMAT).isPresent();
 
         // use {@link org.apache.kafka.clients.producer.internals.DefaultPartitioner}.
         // it will use hash partition if key is set else in round-robin behaviour.
@@ -297,7 +297,7 @@ public class UpsertKafkaDynamicTableFactory
                 null,
                 dirtyOptions,
                 dirtySink,
-                migrateAll);
+                multipleSink);
     }
 
     private Tuple2<int[], int[]> createKeyValueProjections(CatalogTable catalogTable) {

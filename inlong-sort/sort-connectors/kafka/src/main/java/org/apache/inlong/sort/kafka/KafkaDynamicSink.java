@@ -157,7 +157,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
      */
     protected DataType consumedDataType;
 
-    private boolean migrateAll;
+    private boolean multipleSink;
 
     /**
      * Constructor of KafkaDynamicSink.
@@ -184,7 +184,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             @Nullable String topicPattern,
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
-            boolean migrateAll) {
+            boolean multipleSink) {
         // Format attributes
         this.consumedDataType =
                 checkNotNull(consumedDataType, "Consumed data type must not be null.");
@@ -217,7 +217,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
         this.topicPattern = topicPattern;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
-        this.migrateAll = migrateAll;
+        this.multipleSink = multipleSink;
     }
 
     @Override
@@ -324,7 +324,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         topicPattern,
                         dirtyOptions,
                         dirtySink,
-                        migrateAll);
+                        multipleSink);
         copy.metadataKeys = metadataKeys;
         return copy;
     }
@@ -448,7 +448,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 FlinkKafkaProducer.DEFAULT_KAFKA_PRODUCERS_POOL_SIZE,
                 inlongMetric,
                 auditHostAndPorts,
-                migrateAll);
+                multipleSink);
     }
 
     private @Nullable SerializationSchema<RowData> createSerialization(
