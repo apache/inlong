@@ -24,6 +24,7 @@ import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/compon
 import { Button } from 'antd';
 import { useDefaultMeta, useLoadMeta, GroupMetaType } from '@/metas';
 import { statusList } from '@/metas/groups/common/status';
+import { allDefaultGroups } from '@/metas/groups/defaults';
 
 export const dashCardList = [
   {
@@ -65,6 +66,17 @@ export const getFilterFormContent = defaultValues => [
     props: {
       allowClear: true,
       options: statusList,
+      dropdownMatchSelectWidth: false,
+    },
+  },
+  {
+    type: 'select',
+    name: 'mqType',
+    label: i18n.t('meta.Group.MQType'),
+    initialValue: defaultValues.mqType,
+    props: {
+      allowClear: true,
+      options: allDefaultGroups,
       dropdownMatchSelectWidth: false,
     },
   },

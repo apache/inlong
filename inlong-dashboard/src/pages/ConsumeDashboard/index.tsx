@@ -34,6 +34,7 @@ const Comp: React.FC = () => {
   const [options, setOptions] = useState({
     // keyword: '',
     // status: '',
+    mqType: '',
     pageSize: defaultSize,
     pageNum: 1,
   });

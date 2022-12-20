@@ -24,6 +24,7 @@ import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/components/Icons';
 import { useDefaultMeta, useLoadMeta, ConsumeMetaType } from '@/metas';
 import { statusList, lastConsumerStatusList } from '@/metas/consumes/common/status';
+import { allDefaultConsumes } from '@/metas/consumes/defaults';
 
 export const dashCardList = [
   {
@@ -76,6 +77,17 @@ export const getFilterFormContent = defaultValues => [
     props: {
       allowClear: true,
       options: lastConsumerStatusList,
+      dropdownMatchSelectWidth: false,
+    },
+  },
+  {
+    type: 'select',
+    name: 'mqType',
+    label: i18n.t('meta.Consume.MQType'),
+    initialValue: defaultValues.mqType,
+    props: {
+      allowClear: true,
+      options: allDefaultConsumes,
       dropdownMatchSelectWidth: false,
     },
   },
