@@ -61,6 +61,7 @@ public class ConfigConstants {
     public static final String STAT_INTERVAL_SEC = "stat-interval-sec";
 
     public static final String MAX_MONITOR_CNT = "max-monitor-cnt";
+    public static final int DEF_MONITOR_STAT_CNT = 300000;
 
     public static final String HEART_INTERVAL_SEC = "heart-interval-sec";
 

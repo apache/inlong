@@ -17,7 +17,6 @@
 
 package org.apache.inlong.dataproxy.http;
 
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.MAX_MONITOR_CNT;
 import com.google.common.base.Preconditions;
 import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
@@ -54,7 +53,7 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
     protected MonitorIndex monitorIndex = null;
     protected MonitorIndexExt monitorIndexExt = null;
     private int statIntervalSec = 60;
-    private int maxMonitorCnt = 300000;
+    private int maxMonitorCnt = ConfigConstants.DEF_MONITOR_STAT_CNT;
     // audit
     protected DataProxyMetricItemSet metricItemSet;
 
@@ -137,8 +136,14 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
         // get statistic interval
         statIntervalSec = context.getInteger(ConfigConstants.STAT_INTERVAL_SEC, 60);
         Preconditions.checkArgument((statIntervalSec >= 0), "statIntervalSec must be >= 0");
-        // get max monitor record count
-        maxMonitorCnt = context.getInteger(MAX_MONITOR_CNT, 300000);
+        // get maxMonitorCnt's configure value
+        try {
+            maxMonitorCnt = context.getInteger(
+                    ConfigConstants.MAX_MONITOR_CNT, ConfigConstants.DEF_MONITOR_STAT_CNT);
+        } catch (NumberFormatException e) {
+            logger.warn("Property {} must specify an integer value: {}",
+                    ConfigConstants.MAX_MONITOR_CNT, context.getString(ConfigConstants.MAX_MONITOR_CNT));
+        }
         Preconditions.checkArgument(maxMonitorCnt >= 0, "maxMonitorCnt must be >= 0");
 
         customProcessor = context.getBoolean(ConfigConstants.CUSTOM_CHANNEL_PROCESSOR, false);
