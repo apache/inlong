@@ -173,4 +173,26 @@ public class JdbcMultiBatchingComm {
         return pkRow;
     }
 
+    /**
+     * Get table name From tableIdentifier
+     * tableIdentifier maybe: ${dbName}.${tbName} or ${dbName}.${schemaName}.${tbName}
+     *
+     * @param tableIdentifier The table identifier for which to get table name.
+     */
+    public static String getTbNameFromIdentifier(String tableIdentifier) {
+        String[] fileArray = tableIdentifier.split("\\.");
+        if (2 == fileArray.length) {
+            return fileArray[1];
+        }
+        if (3 == fileArray.length) {
+            return fileArray[1] + "." + fileArray[2];
+        }
+        return null;
+    }
+
+    public static String getTDbNameFromIdentifier(String tableIdentifier) {
+        String[] fileArray = tableIdentifier.split("\\.");
+        return fileArray[0];
+    }
+
 }

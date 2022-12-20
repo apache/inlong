@@ -19,6 +19,7 @@ package org.apache.inlong.sort.jdbc.dialect;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
+import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.converter.sqlserver.SqlServerRowConvert;
@@ -186,6 +187,12 @@ public class SqlServerDialect extends AbstractJdbcDialect {
                         + " =ISNULL(" + quoteIdentifier("T2") + "." + quoteIdentifier(col)
                         + "," + quoteIdentifier("T1") + "." + quoteIdentifier(col) + ")")
                 .collect(Collectors.joining(","));
+    }
+
+    @Override
+    public List<String> getAndSetPkNamesFromDb(String tableIdentifierm,
+            JdbcOptions jdbcOptions) {
+        return null;
     }
 
 }

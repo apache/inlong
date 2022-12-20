@@ -19,6 +19,7 @@ package org.apache.inlong.sort.jdbc.dialect;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
+import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.converter.clickhouse.ClickHouseRowConverter;
@@ -246,4 +247,11 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
                 + quoteIdentifier(pair.getRight())
                 + " WHERE " + fieldExpressions;
     }
+
+    @Override
+    public List<String> getAndSetPkNamesFromDb(String tableIdentifier,
+            JdbcOptions jdbcOptions) {
+        return null;
+    }
+
 }

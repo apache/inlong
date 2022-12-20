@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.jdbc.table;
 
 import org.apache.flink.connector.jdbc.dialect.JdbcDialect;
+import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.types.DataType;
@@ -98,4 +99,7 @@ public abstract class AbstractJdbcDialect implements JdbcDialect {
      * @return a list of logical type roots.
      */
     public abstract List<LogicalTypeRoot> unsupportedTypes();
+
+    public abstract List<String> getAndSetPkNamesFromDb(String tableIdentifier,
+            JdbcOptions jdbcOptions);
 }
