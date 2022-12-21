@@ -118,7 +118,7 @@ public abstract class BaseSource
 
     private static String HOST_DEFAULT_VALUE = "0.0.0.0";
 
-    private static int maxMonitorCnt = 300000;
+    private static int maxMonitorCnt = ConfigConstants.DEF_MONITOR_STAT_CNT;
 
     private static int DEFAULT_MAX_CONNECTIONS = 5000;
 
@@ -285,6 +285,15 @@ public abstract class BaseSource
             logger.warn("Simple TCP Source max-threads property must specify an integer value. {}",
                     context.getString(ConfigConstants.MAX_THREADS));
         }
+        // get maxMonitorCnt's configure value
+        try {
+            maxMonitorCnt = context.getInteger(
+                    ConfigConstants.MAX_MONITOR_CNT, ConfigConstants.DEF_MONITOR_STAT_CNT);
+        } catch (NumberFormatException e) {
+            logger.warn("Property {} must specify an integer value: {}",
+                    ConfigConstants.MAX_MONITOR_CNT, context.getString(ConfigConstants.MAX_MONITOR_CNT));
+        }
+        Preconditions.checkArgument(maxMonitorCnt >= 0, "maxMonitorCnt must be >= 0");
 
         receiveBufferSize = context.getInteger(ConfigConstants.RECEIVE_BUFFER_SIZE, RECEIVE_BUFFER_DEFAULT_SIZE);
         if (receiveBufferSize > RECEIVE_BUFFER_MAX_SIZE) {
