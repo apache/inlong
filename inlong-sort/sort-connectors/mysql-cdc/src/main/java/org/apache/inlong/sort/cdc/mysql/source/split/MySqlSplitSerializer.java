@@ -29,6 +29,7 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.utils.LogicalTypeParser;
 import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlMetricSplit.MySqlTableMetric;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +37,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlMetricSplit.MySqlTableMetric;
 
 import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.readBinlogPosition;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.rowToSerializedString;
@@ -147,9 +147,11 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
 
     private static Map<String, Long> readReadPhaseMetric(DataInputDeserializer in) throws IOException {
         Map<String, Long> readPhaseMetrics = new HashMap<>();
-        final int size = in.readInt();
-        for (int i = 0; i < size; i++) {
-            readPhaseMetrics.put(in.readUTF(), in.readLong());
+        if (in.available() > 0) {
+            final int size = in.readInt();
+            for (int i = 0; i < size; i++) {
+                readPhaseMetrics.put(in.readUTF(), in.readLong());
+            }
         }
         return readPhaseMetrics;
     }
@@ -167,10 +169,12 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
 
     private static Map<String, MySqlTableMetric> readTableMetrics(DataInputDeserializer in) throws IOException {
         Map<String, MySqlTableMetric> tableMetrics = new HashMap<>();
-        final int size = in.readInt();
-        for (int i = 0; i < size; i++) {
-            String tableIdentify = in.readUTF();
-            tableMetrics.put(tableIdentify, new MySqlTableMetric(in.readLong(), in.readLong()));
+        if (in.available() > 0) {
+            final int size = in.readInt();
+            for (int i = 0; i < size; i++) {
+                String tableIdentify = in.readUTF();
+                tableMetrics.put(tableIdentify, new MySqlTableMetric(in.readLong(), in.readLong()));
+            }
         }
         return tableMetrics;
     }
@@ -308,8 +312,12 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
                     totalFinishedSplitSize,
                     isSuspended);
         } else if (splitKind == METRIC_SPLIT_FLAG) {
-            long numBytesIn = in.readLong();
-            long numRecordsIn = in.readLong();
+            long numBytesIn = 0L;
+            long numRecordsIn = 0L;
+            if (in.available() > 0) {
+                numBytesIn = in.readLong();
+                numRecordsIn = in.readLong();
+            }
             Map<String, Long> readPhaseMetricMap = readReadPhaseMetric(in);
             Map<String, MySqlTableMetric> tableMetricMap = readTableMetrics(in);
 
