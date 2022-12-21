@@ -26,8 +26,8 @@ const resources = {
   en: {
     translation: {
       'configs.menus.Process': 'Approval',
-      'configs.menus.Groups': 'Inlong Groups',
-      'configs.menus.Consumes': 'Inlong Consumes',
+      'configs.menus.Groups': 'Integration',
+      'configs.menus.Subscribe': 'Subscription',
       'configs.menus.Clusters': 'Clusters',
       'configs.menus.ClusterTags': 'ClusterTags',
       'configs.menus.SystemManagement': 'System',
@@ -39,8 +39,8 @@ const resources = {
   cn: {
     translation: {
       'configs.menus.Process': '审批管理',
-      'configs.menus.Groups': '数据流组',
-      'configs.menus.Consumes': '数据消费',
+      'configs.menus.Groups': '数据集成',
+      'configs.menus.Subscribe': '数据订阅',
       'configs.menus.Clusters': '集群管理',
       'configs.menus.ClusterTags': '标签管理',
       'configs.menus.SystemManagement': '系统管理',
