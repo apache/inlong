@@ -35,6 +35,7 @@ import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
@@ -91,6 +92,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
     private int parallelInstanceId;
 
     private int numParallelInstances;
+    private SinkMetricData metricData;
 
     DynamicKafkaSerializationSchema(
             String topic,
@@ -124,6 +126,10 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         this.topicPattern = topicPattern;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
+    }
+
+    public void setMetricData(SinkMetricData metricData) {
+        this.metricData = metricData;
     }
 
     static RowData createProjectedRow(
@@ -239,6 +245,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                     LOG.warn("Dirty sink failed", ex);
                 }
             }
+            metricData.invokeDirtyWithEstimate(consumedRow);
         }
         return value;
     }
@@ -272,6 +279,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                     LOG.warn("Dirty sink failed", ex);
                 }
             }
+            metricData.invokeDirtyWithEstimate(dataNode);
         }
     }
 

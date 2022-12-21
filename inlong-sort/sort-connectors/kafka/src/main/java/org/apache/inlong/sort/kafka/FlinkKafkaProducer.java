@@ -61,7 +61,7 @@ import org.apache.flink.util.TemporaryClassLoaderContext;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.sub.SinkTopicMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
@@ -98,6 +98,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -239,10 +241,12 @@ public class FlinkKafkaProducer<IN>
      */
     @Nullable
     protected transient volatile Exception asyncException;
+
+    private boolean multipleSink;
     /**
      * sink metric data
      */
-    private SinkMetricData metricData;
+    private SinkTopicMetricData sinkMetricData;
     private Long dataSize = 0L;
     private Long rowSize = 0L;
 
@@ -276,8 +280,8 @@ public class FlinkKafkaProducer<IN>
      * @param serializationSchema User defined (keyless) serialization schema.
      */
     public FlinkKafkaProducer(
-            String brokerList, String topicId, SerializationSchema<IN> serializationSchema) {
-        this(topicId, serializationSchema, getPropertiesFromBrokerList(brokerList));
+            String brokerList, String topicId, SerializationSchema<IN> serializationSchema, boolean multipleSink) {
+        this(topicId, serializationSchema, getPropertiesFromBrokerList(brokerList), multipleSink);
     }
 
     /**
@@ -288,7 +292,7 @@ public class FlinkKafkaProducer<IN>
      * (i.e. all records received by a sink subtask will end up in the same Kafka partition).
      *
      * <p>To use a custom partitioner, please use {@link #FlinkKafkaProducer(String,
-     * SerializationSchema, Properties, Optional)} instead.
+     * SerializationSchema, Properties, Optional, boolean)} instead.
      *
      * @param topicId ID of the Kafka topic.
      * @param serializationSchema User defined key-less serialization schema.
@@ -297,12 +301,14 @@ public class FlinkKafkaProducer<IN>
     public FlinkKafkaProducer(
             String topicId,
             SerializationSchema<IN> serializationSchema,
-            Properties producerConfig) {
+            Properties producerConfig,
+            boolean multipleSink) {
         this(
                 topicId,
                 serializationSchema,
                 producerConfig,
-                Optional.of(new FlinkFixedPartitioner<>()));
+                Optional.of(new FlinkFixedPartitioner<>()),
+                multipleSink);
     }
 
     /**
@@ -327,14 +333,16 @@ public class FlinkKafkaProducer<IN>
             String topicId,
             SerializationSchema<IN> serializationSchema,
             Properties producerConfig,
-            Optional<FlinkKafkaPartitioner<IN>> customPartitioner) {
+            Optional<FlinkKafkaPartitioner<IN>> customPartitioner,
+            boolean multipleSink) {
         this(
                 topicId,
                 serializationSchema,
                 producerConfig,
                 customPartitioner.orElse(null),
                 Semantic.AT_LEAST_ONCE,
-                DEFAULT_KAFKA_PRODUCERS_POOL_SIZE);
+                DEFAULT_KAFKA_PRODUCERS_POOL_SIZE,
+                multipleSink);
     }
 
     /**
@@ -365,7 +373,7 @@ public class FlinkKafkaProducer<IN>
             Properties producerConfig,
             @Nullable FlinkKafkaPartitioner<IN> customPartitioner,
             FlinkKafkaProducer.Semantic semantic,
-            int kafkaProducersPoolSize) {
+            int kafkaProducersPoolSize, boolean multipleSink) {
         this(
                 topicId,
                 null,
@@ -376,7 +384,8 @@ public class FlinkKafkaProducer<IN>
                 semantic,
                 kafkaProducersPoolSize,
                 null,
-                null);
+                null,
+                multipleSink);
     }
 
     /**
@@ -387,22 +396,23 @@ public class FlinkKafkaProducer<IN>
      * (i.e. all records received by a sink subtask will end up in the same Kafka partition).
      *
      * <p>To use a custom partitioner, please use {@link #FlinkKafkaProducer(String,
-     * KeyedSerializationSchema, Properties, Optional)} instead.
+     * KeyedSerializationSchema, Properties, Optional, boolean)} instead.
      *
      * @param brokerList Comma separated addresses of the brokers
      * @param topicId ID of the Kafka topic.
      * @param serializationSchema User defined serialization schema supporting key/value messages
      * @deprecated use {@link #FlinkKafkaProducer(String, KafkaSerializationSchema, Properties,
-     *         FlinkKafkaProducer.Semantic)}
+     *         FlinkKafkaProducer.Semantic, boolean)}
      */
     @Deprecated
     public FlinkKafkaProducer(
-            String brokerList, String topicId, KeyedSerializationSchema<IN> serializationSchema) {
+            String brokerList, String topicId, KeyedSerializationSchema<IN> serializationSchema, boolean multipleSink) {
         this(
                 topicId,
                 serializationSchema,
                 getPropertiesFromBrokerList(brokerList),
-                Optional.of(new FlinkFixedPartitioner<IN>()));
+                Optional.of(new FlinkFixedPartitioner<IN>()),
+                multipleSink);
     }
 
     // ------------------- Key/Value serialization schema constructors ----------------------
@@ -415,24 +425,26 @@ public class FlinkKafkaProducer<IN>
      * (i.e. all records received by a sink subtask will end up in the same Kafka partition).
      *
      * <p>To use a custom partitioner, please use {@link #FlinkKafkaProducer(String,
-     * KeyedSerializationSchema, Properties, Optional)} instead.
+     * KeyedSerializationSchema, Properties, Optional, boolean)} instead.
      *
      * @param topicId ID of the Kafka topic.
      * @param serializationSchema User defined serialization schema supporting key/value messages
      * @param producerConfig Properties with the producer configuration.
      * @deprecated use {@link #FlinkKafkaProducer(String, KafkaSerializationSchema, Properties,
-     *         FlinkKafkaProducer.Semantic)}
+     *         FlinkKafkaProducer.Semantic, boolean)}
      */
     @Deprecated
     public FlinkKafkaProducer(
             String topicId,
             KeyedSerializationSchema<IN> serializationSchema,
-            Properties producerConfig) {
+            Properties producerConfig,
+            boolean multipleSink) {
         this(
                 topicId,
                 serializationSchema,
                 producerConfig,
-                Optional.of(new FlinkFixedPartitioner<IN>()));
+                Optional.of(new FlinkFixedPartitioner<IN>()),
+                multipleSink);
     }
 
     /**
@@ -448,21 +460,23 @@ public class FlinkKafkaProducer<IN>
      * @param semantic Defines semantic that will be used by this producer (see {@link
      *         FlinkKafkaProducer.Semantic}).
      * @deprecated use {@link #FlinkKafkaProducer(String, KafkaSerializationSchema, Properties,
-     *         FlinkKafkaProducer.Semantic)}
+     *         FlinkKafkaProducer.Semantic, boolean)}
      */
     @Deprecated
     public FlinkKafkaProducer(
             String topicId,
             KeyedSerializationSchema<IN> serializationSchema,
             Properties producerConfig,
-            FlinkKafkaProducer.Semantic semantic) {
+            FlinkKafkaProducer.Semantic semantic,
+            boolean multipleSink) {
         this(
                 topicId,
                 serializationSchema,
                 producerConfig,
                 Optional.of(new FlinkFixedPartitioner<IN>()),
                 semantic,
-                DEFAULT_KAFKA_PRODUCERS_POOL_SIZE);
+                DEFAULT_KAFKA_PRODUCERS_POOL_SIZE,
+                multipleSink);
     }
 
     /**
@@ -487,21 +501,23 @@ public class FlinkKafkaProducer<IN>
      *         keys are {@code null}, then records will be distributed to Kafka partitions in a
      *         round-robin fashion.
      * @deprecated use {@link #FlinkKafkaProducer(String, KafkaSerializationSchema, Properties,
-     *         FlinkKafkaProducer.Semantic)}
+     *         FlinkKafkaProducer.Semantic, boolean)}
      */
     @Deprecated
     public FlinkKafkaProducer(
             String defaultTopicId,
             KeyedSerializationSchema<IN> serializationSchema,
             Properties producerConfig,
-            Optional<FlinkKafkaPartitioner<IN>> customPartitioner) {
+            Optional<FlinkKafkaPartitioner<IN>> customPartitioner,
+            boolean multipleSink) {
         this(
                 defaultTopicId,
                 serializationSchema,
                 producerConfig,
                 customPartitioner,
                 FlinkKafkaProducer.Semantic.AT_LEAST_ONCE,
-                DEFAULT_KAFKA_PRODUCERS_POOL_SIZE);
+                DEFAULT_KAFKA_PRODUCERS_POOL_SIZE,
+                multipleSink);
     }
 
     /**
@@ -530,7 +546,7 @@ public class FlinkKafkaProducer<IN>
      * @param kafkaProducersPoolSize Overwrite default KafkaProducers pool size (see {@link
      *         FlinkKafkaProducer.Semantic#EXACTLY_ONCE}).
      * @deprecated use {@link #FlinkKafkaProducer(String, KafkaSerializationSchema, Properties,
-     *         FlinkKafkaProducer.Semantic)}
+     *         FlinkKafkaProducer.Semantic, boolean)}
      */
     @Deprecated
     public FlinkKafkaProducer(
@@ -539,7 +555,8 @@ public class FlinkKafkaProducer<IN>
             Properties producerConfig,
             Optional<FlinkKafkaPartitioner<IN>> customPartitioner,
             FlinkKafkaProducer.Semantic semantic,
-            int kafkaProducersPoolSize) {
+            int kafkaProducersPoolSize,
+            boolean multipleSink) {
         this(
                 defaultTopicId,
                 serializationSchema,
@@ -549,7 +566,8 @@ public class FlinkKafkaProducer<IN>
                 semantic,
                 kafkaProducersPoolSize,
                 null,
-                null);
+                null,
+                multipleSink);
     }
 
     /**
@@ -569,7 +587,8 @@ public class FlinkKafkaProducer<IN>
             String defaultTopic,
             KafkaSerializationSchema<IN> serializationSchema,
             Properties producerConfig,
-            FlinkKafkaProducer.Semantic semantic) {
+            FlinkKafkaProducer.Semantic semantic,
+            boolean multipleSink) {
         this(
                 defaultTopic,
                 serializationSchema,
@@ -577,7 +596,8 @@ public class FlinkKafkaProducer<IN>
                 semantic,
                 DEFAULT_KAFKA_PRODUCERS_POOL_SIZE,
                 null,
-                null);
+                null,
+                multipleSink);
     }
 
     /**
@@ -602,7 +622,8 @@ public class FlinkKafkaProducer<IN>
             FlinkKafkaProducer.Semantic semantic,
             int kafkaProducersPoolSize,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            boolean multipleSink) {
         this(
                 defaultTopic,
                 null,
@@ -612,7 +633,8 @@ public class FlinkKafkaProducer<IN>
                 semantic,
                 kafkaProducersPoolSize,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                multipleSink);
     }
 
     /**
@@ -652,13 +674,15 @@ public class FlinkKafkaProducer<IN>
             FlinkKafkaProducer.Semantic semantic,
             int kafkaProducersPoolSize,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            boolean multipleSink) {
         super(
                 new FlinkKafkaProducer.TransactionStateSerializer(),
                 new FlinkKafkaProducer.ContextStateSerializer());
 
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.multipleSink = multipleSink;
 
         this.defaultTopicId = checkNotNull(defaultTopic, "defaultTopic is null");
 
@@ -859,10 +883,13 @@ public class FlinkKafkaProducer<IN>
                         @Override
                         public void onCompletion(RecordMetadata metadata, Exception e) {
                             if (e != null) {
-                                sendDirtyMetrics(rowSize, dataSize);
-                                LOG.error(
-                                        "Error while sending record to Kafka: " + e.getMessage(),
-                                        e);
+                                LOG.error("Error while sending record to Kafka: " + e.getMessage(), e);
+                            } else {
+                                if (multipleSink) {
+                                    sinkMetricData.sendOutMetrics(metadata.topic(), 1L, dataSize);
+                                } else {
+                                    sendOutMetrics(1L, dataSize);
+                                }
                             }
                             acknowledgeMessage();
                         }
@@ -875,7 +902,12 @@ public class FlinkKafkaProducer<IN>
                         public void onCompletion(RecordMetadata metadata, Exception exception) {
                             if (exception != null && asyncException == null) {
                                 asyncException = exception;
-                                sendDirtyMetrics(rowSize, dataSize);
+                            } else {
+                                if (multipleSink) {
+                                    sinkMetricData.sendOutMetrics(metadata.topic(), 1L, dataSize);
+                                } else {
+                                    sendOutMetrics(1L, dataSize);
+                                }
                             }
                             acknowledgeMessage();
                         }
@@ -905,23 +937,30 @@ public class FlinkKafkaProducer<IN>
                 .withInlongAudit(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
-            metricData = new SinkMetricData(metricOption, ctx.getMetricGroup());
+            sinkMetricData = new SinkTopicMetricData(metricOption, ctx.getMetricGroup());
+        }
+        if (kafkaSchema instanceof DynamicKafkaSerializationSchema) {
+            DynamicKafkaSerializationSchema dynamicKafkaSerializationSchema =
+                    (DynamicKafkaSerializationSchema) kafkaSchema;
+            dynamicKafkaSerializationSchema.setMetricData(sinkMetricData);
         }
         super.open(configuration);
     }
 
     private void sendOutMetrics(Long rowSize, Long dataSize) {
-        if (metricData != null) {
-            metricData.invoke(rowSize, dataSize);
+        if (sinkMetricData != null) {
+            sinkMetricData.invoke(rowSize, dataSize);
         }
     }
 
     private void sendDirtyMetrics(Long rowSize, Long dataSize) {
-        if (metricData != null) {
-            metricData.invokeDirty(rowSize, dataSize);
+        if (sinkMetricData != null) {
+            sinkMetricData.invokeDirty(rowSize, dataSize);
         }
     }
 
@@ -1005,8 +1044,7 @@ public class FlinkKafkaProducer<IN>
     }
 
     private void send(ProducerRecord<byte[], byte[]> record, FlinkKafkaProducer.KafkaTransactionState transaction) {
-        long dataSize = record.value() == null ? 0L : record.value().length;
-        sendOutMetrics(1L, dataSize);
+        dataSize = record.value() == null ? 0L : record.value().length;
         pendingRecords.incrementAndGet();
         transaction.producer.send(record, callback);
     }
@@ -1219,8 +1257,8 @@ public class FlinkKafkaProducer<IN>
                             getRuntimeContext().getNumberOfParallelSubtasks(),
                             nextFreeTransactionalId));
         }
-        if (metricData != null && metricStateListState != null) {
-            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, metricData,
+        if (sinkMetricData != null && metricStateListState != null) {
+            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, sinkMetricData,
                     getRuntimeContext().getIndexOfThisSubtask());
         }
     }
