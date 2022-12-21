@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import static org.apache.inlong.common.util.SnowFlake.MAX_MACHINE_NUM;
+
 /**
  * Generate uniq sequential id, reset base id if max number
  * of sequence uuid are satisfied.
@@ -52,6 +54,12 @@ public class SequentialID {
         }
         for (byte b : ipv.getAddress()) {
             result = result << 8 | (b & 0xFF);
+        }
+        if (result < 0) {
+            result = AgentUtils.getRandomBySeed(10);
+        }
+        if (result > MAX_MACHINE_NUM) {
+            result /= MAX_MACHINE_NUM;
         }
         return result;
     }
