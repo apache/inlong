@@ -192,7 +192,7 @@ public class SqlServerDialect extends AbstractJdbcDialect {
     }
 
     @Override
-    public PreparedStatement setQuerySql(Connection conn,
+    public PreparedStatement setQueryPrimaryKeySql(Connection conn,
             String tableIdentifier) throws SQLException {
         return null;
     }

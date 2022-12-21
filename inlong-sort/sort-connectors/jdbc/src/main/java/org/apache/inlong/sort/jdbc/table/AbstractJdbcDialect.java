@@ -44,7 +44,7 @@ import java.util.List;
 public abstract class AbstractJdbcDialect implements JdbcDialect {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractJdbcDialect.class);
-    public static final String PK_COLUMN_NAME = "pkColumn";
+    public static final String PRIMARY_KEY_COLUMN = "pkColumn";
 
     @Override
     public void validate(TableSchema schema) throws ValidationException {
@@ -112,7 +112,7 @@ public abstract class AbstractJdbcDialect implements JdbcDialect {
      */
     public abstract List<LogicalTypeRoot> unsupportedTypes();
 
-    public abstract PreparedStatement setQuerySql(Connection conn,
+    public abstract PreparedStatement setQueryPrimaryKeySql(Connection conn,
             String tableIdentifier) throws SQLException;
 
     /**
@@ -127,10 +127,10 @@ public abstract class AbstractJdbcDialect implements JdbcDialect {
             JdbcOptions jdbcExecOptions = JdbcMultiBatchingComm.getExecJdbcOptions(jdbcOptions, tableIdentifier);
             SimpleJdbcConnectionProvider tableConnectionProvider = new SimpleJdbcConnectionProvider(jdbcExecOptions);
             Connection conn = tableConnectionProvider.getOrEstablishConnection();
-            st = setQuerySql(conn, tableIdentifier);
+            st = setQueryPrimaryKeySql(conn, tableIdentifier);
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
-                String pkColumn = rs.getString(PK_COLUMN_NAME);
+                String pkColumn = rs.getString(PRIMARY_KEY_COLUMN);
                 LOG.info("TableIdentifier:{} get pkColumn:{}", tableIdentifier, pkColumn);
                 checkAndClose(st);
                 return Arrays.asList(pkColumn.split(","));

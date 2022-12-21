@@ -23,8 +23,6 @@ import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.internal.JdbcMultiBatchingComm;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -37,11 +35,10 @@ import java.util.stream.Collectors;
 /** JDBC dialect for PostgreSQL. */
 public class PostgresDialect extends AbstractJdbcDialect {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PostgresDialect.class);
     private static final long serialVersionUID = 1L;
 
-    private static final String QUERY_PK_SQL = "SELECT\n" +
-            "\tstring_agg (DISTINCT t3.attname, ',') AS " + PK_COLUMN_NAME + ",\n" +
+    private static final String QUERY_PRIMARY_KEY_SQL = "SELECT\n" +
+            "\tstring_agg (DISTINCT t3.attname, ',') AS " + PRIMARY_KEY_COLUMN + ",\n" +
             "    \tt4.tablename AS tableName\n" +
             "FROM\n" +
             "\tpg_constraint t1\n" +
@@ -166,9 +163,9 @@ public class PostgresDialect extends AbstractJdbcDialect {
     }
 
     @Override
-    public PreparedStatement setQuerySql(Connection conn,
+    public PreparedStatement setQueryPrimaryKeySql(Connection conn,
             String tableIdentifier) throws SQLException {
-        PreparedStatement st = conn.prepareStatement(QUERY_PK_SQL);
+        PreparedStatement st = conn.prepareStatement(QUERY_PRIMARY_KEY_SQL);
         st.setString(1, JdbcMultiBatchingComm.getTableNameFromIdentifier(tableIdentifier));
         return st;
     }

@@ -196,12 +196,12 @@ public class JdbcMultiBatchingComm {
      * @param tableIdentifier The table identifier for which to get table name.
      */
     public static String getTableNameFromIdentifier(String tableIdentifier) {
-        String[] fileArray = tableIdentifier.split("\\.");
-        if (2 == fileArray.length) {
-            return fileArray[1];
+        String[] fieldArray = tableIdentifier.split("\\.");
+        if (2 == fieldArray.length) {
+            return fieldArray[1];
         }
-        if (3 == fileArray.length) {
-            return fileArray[1] + "." + fileArray[2];
+        if (3 == fieldArray.length) {
+            return fieldArray[1] + "." + fieldArray[2];
         }
         return null;
     }
