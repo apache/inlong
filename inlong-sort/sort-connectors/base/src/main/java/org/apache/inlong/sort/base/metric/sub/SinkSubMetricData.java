@@ -28,7 +28,7 @@ public interface SinkSubMetricData {
     /**
      * Get sub sink metric map
      *
-     * @return The sub source metric map
+     * @return The sub sink metric map
      */
     Map<String, SinkMetricData> getSubSinkMetricMap();
 }
