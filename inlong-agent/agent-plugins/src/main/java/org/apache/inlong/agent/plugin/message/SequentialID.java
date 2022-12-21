@@ -59,7 +59,7 @@ public class SequentialID {
             result = AgentUtils.getRandomBySeed(10);
         }
         if (result > MAX_MACHINE_NUM) {
-            result /= MAX_MACHINE_NUM;
+            result %= MAX_MACHINE_NUM;
         }
         return result;
     }
