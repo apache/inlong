@@ -292,6 +292,12 @@ public class PulsarOperator {
             }
             for (String t : topicList) {
                 t = t.substring(t.lastIndexOf("/") + 1); // not contains /
+                if (!isPartitioned) {
+                    int suffixIndex = t.lastIndexOf("-partition-");
+                    if (suffixIndex > 0) {
+                        t = t.substring(0, suffixIndex);
+                    }
+                }
                 if (topicName.equals(t)) {
                     topicExists = true;
                     break;
