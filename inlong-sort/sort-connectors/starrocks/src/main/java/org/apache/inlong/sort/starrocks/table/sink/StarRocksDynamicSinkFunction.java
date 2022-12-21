@@ -63,7 +63,7 @@ import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.starrocks.manager.StarRocksSinkManager;
@@ -95,7 +95,7 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
     private final String tablePattern;
 
     private final String inlongMetric;
-    private transient SinkMetricData metricData;
+    private transient SinkTableMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
     private final String auditHostAndPorts;
@@ -152,7 +152,11 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
                 .withRegisterMetric(MetricOption.RegisteredMetric.ALL).build();
         if (metricOption != null) {
-            metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
+            metricData = new SinkTableMetricData(metricOption, getRuntimeContext().getMetricGroup());
+            if (multipleSink) {
+                // register sub sink metric data from metric state
+                metricData.registerSubMetricsGroup(metricState);
+            }
             sinkManager.setSinkMetricData(metricData);
         }
     }

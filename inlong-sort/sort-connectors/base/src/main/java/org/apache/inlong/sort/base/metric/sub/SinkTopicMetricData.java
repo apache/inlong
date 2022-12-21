@@ -96,7 +96,7 @@ public class SinkTopicMetricData extends SinkMetricData implements SinkSubMetric
     }
 
     @Override
-    public Map<String, SinkMetricData> getSubSourceMetricMap() {
+    public Map<String, SinkMetricData> getSubSinkMetricMap() {
         return this.sinkMetricMap;
     }
 }

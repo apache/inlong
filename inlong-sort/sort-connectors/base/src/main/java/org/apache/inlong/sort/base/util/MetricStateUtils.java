@@ -249,7 +249,7 @@ public class MetricStateUtils {
         }
         SinkSubMetricData sinkSubMetricData = (SinkSubMetricData) sinkMetricData;
 
-        Map<String, SinkMetricData> subSinkMetricMap = sinkSubMetricData.getSubSourceMetricMap();
+        Map<String, SinkMetricData> subSinkMetricMap = sinkSubMetricData.getSubSinkMetricMap();
         if (subSinkMetricMap != null && !subSinkMetricMap.isEmpty()) {
             Map<String, MetricState> subMetricStateMap = new HashMap<>();
             Set<Entry<String, SinkMetricData>> entries = subSinkMetricMap.entrySet();
