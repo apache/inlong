@@ -17,10 +17,12 @@
 
 package org.apache.inlong.sort.base.metric.sub;
 
+import java.util.Map;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 
-import java.util.Map;
-
+/**
+ * A collection class for handling sub metrics
+ */
 public interface SinkSubMetricData {
 
     /**
@@ -28,6 +30,5 @@ public interface SinkSubMetricData {
      *
      * @return The sub sink metric map
      */
-    Map<String, SinkMetricData> getSubSourceMetricMap();
-
+    Map<String, SinkMetricData> getSubSinkMetricMap();
 }

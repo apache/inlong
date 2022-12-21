@@ -51,7 +51,7 @@ import org.apache.flink.table.api.TableColumn;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,14 +115,14 @@ public class StarRocksSinkManager implements Serializable {
 
     private final boolean multipleSink;
     private final SchemaUpdateExceptionPolicy schemaUpdatePolicy;
-    private transient SinkMetricData metricData;
+    private transient SinkTableMetricData metricData;
 
     /**
      * If a table writing throws exception, ignore it when receiving data later again
      */
     private Set<String> ignoreWriteTables = new HashSet<>();
 
-    public void setSinkMetricData(SinkMetricData metricData) {
+    public void setSinkMetricData(SinkTableMetricData metricData) {
         this.metricData = metricData;
     }
 
@@ -391,7 +391,12 @@ public class StarRocksSinkManager implements Serializable {
                     updateMetricsFromStreamLoadResult(result);
 
                     if (null != metricData) {
-                        metricData.invoke(flushData.getBatchCount(), flushData.getBatchSize());
+                        if (multipleSink) {
+                            metricData.outputMetricsWithEstimate(flushData.getDatabase(), null, flushData.getTable(),
+                                    false, flushData.getBatchCount(), flushData.getBatchSize());
+                        } else {
+                            metricData.invoke(flushData.getBatchCount(), flushData.getBatchSize());
+                        }
                     }
                 }
                 startScheduler();
