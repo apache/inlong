@@ -61,50 +61,35 @@ export default class StarRocksSink
   implements DataWithBackend, RenderRow, RenderList
 {
   @FieldDecorator({
-    type: 'input',
+    type: 'select',
     rules: [{ required: true }],
     props: values => ({
+      showSearch: true,
       disabled: [110, 130].includes(values?.status),
-      placeholder: 'jdbc:mysql://127.0.0.1:3306/write',
+      options: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
+          url: '/node/list',
+          method: 'POST',
+          data: {
+            keyword,
+            type: 'STARROCKS',
+            pageNum: 1,
+            pageSize: 20,
+          },
+        }),
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              label: item.name,
+              value: item.name,
+            })),
+        },
+      },
     }),
   })
-  @ColumnDecorator()
-  @I18n('JDBC URL')
-  jdbcUrl: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      placeholder: '127.0.0.1:8030;127.0.0.1:8031;127.0.0.1:8032;',
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('LOAD URL')
-  loadUrl: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Username')
-  username: string;
-
-  @FieldDecorator({
-    type: 'password',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Password')
-  password: string;
+  @I18n('meta.Sinks.StarRocks.DataNodeName')
+  dataNodeName: string;
 
   @FieldDecorator({
     type: 'input',
