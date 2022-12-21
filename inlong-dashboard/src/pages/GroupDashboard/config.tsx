@@ -23,8 +23,6 @@ import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/components/Icons';
 import { Button } from 'antd';
 import { useDefaultMeta, useLoadMeta, GroupMetaType } from '@/metas';
-import { statusList } from '@/metas/groups/common/status';
-import { allDefaultGroups } from '@/metas/groups/defaults';
 
 export const dashCardList = [
   {
@@ -46,39 +44,6 @@ export const dashCardList = [
     desc: i18n.t('pages.GroupDashboard.config.Reject'),
     dataIndex: 'rejectCount',
     icon: <DashRejected />,
-  },
-];
-
-export const getFilterFormContent = defaultValues => [
-  {
-    type: 'inputsearch',
-    name: 'keyword',
-    initialValue: defaultValues.keyword,
-    props: {
-      allowClear: true,
-    },
-  },
-  {
-    type: 'select',
-    name: 'status',
-    label: i18n.t('basic.Status'),
-    initialValue: defaultValues.status,
-    props: {
-      allowClear: true,
-      options: statusList,
-      dropdownMatchSelectWidth: false,
-    },
-  },
-  {
-    type: 'select',
-    name: 'mqType',
-    label: i18n.t('meta.Group.MQType'),
-    initialValue: defaultValues.mqType,
-    props: {
-      allowClear: true,
-      options: allDefaultGroups,
-      dropdownMatchSelectWidth: false,
-    },
   },
 ];
 

@@ -23,8 +23,6 @@ import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/components/Icons';
 import { useDefaultMeta, useLoadMeta, ConsumeMetaType } from '@/metas';
-import { statusList, lastConsumerStatusList } from '@/metas/consumes/common/status';
-import { allDefaultConsumes } from '@/metas/consumes/defaults';
 
 export const dashCardList = [
   {
@@ -46,50 +44,6 @@ export const dashCardList = [
     desc: i18n.t('pages.ConsumeDashboard.config.Reject'),
     dataIndex: 'rejectedCount',
     icon: <DashRejected />,
-  },
-];
-
-export const getFilterFormContent = defaultValues => [
-  {
-    type: 'inputsearch',
-    name: 'keyword',
-    initialValue: defaultValues.keyword,
-    props: {
-      allowClear: true,
-    },
-  },
-  {
-    type: 'select',
-    name: 'status',
-    label: i18n.t('basic.Status'),
-    initialValue: defaultValues.status,
-    props: {
-      allowClear: true,
-      options: statusList,
-      dropdownMatchSelectWidth: false,
-    },
-  },
-  {
-    type: 'select',
-    name: 'lastConsumeStatus',
-    label: i18n.t('pages.ConsumeDashboard.config.OperatingStatus'),
-    initialValue: defaultValues.lastConsumeStatus,
-    props: {
-      allowClear: true,
-      options: lastConsumerStatusList,
-      dropdownMatchSelectWidth: false,
-    },
-  },
-  {
-    type: 'select',
-    name: 'mqType',
-    label: i18n.t('meta.Consume.MQType'),
-    initialValue: defaultValues.mqType,
-    props: {
-      allowClear: true,
-      options: allDefaultConsumes,
-      dropdownMatchSelectWidth: false,
-    },
   },
 ];
 
