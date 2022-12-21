@@ -93,7 +93,8 @@ public class HistogramTest {
         estHistogram.getValue(strBuff, false);
         String result1 = "\"disk_dlt\":{\"count\":7,\"min\":-5,\"max\":131100,"
                 + "\"cells\":{\"cell_0t2\":1,\"cell_16t32\":1,\"cell_512t1024\":1"
-                + ",\"cell_65536t131072\":2,\"cell_131072tMax\":2}}";
+                + ",\"cell_65536t131072\":2,\"cell_131072tMax\":2},\"P99\":131100"
+                + ",\"P999\":131100,\"P9999\":131100}";
         Assert.assertEquals(result1, strBuff.toString());
         strBuff.delete(0, strBuff.length());
         // test for map
@@ -122,8 +123,9 @@ public class HistogramTest {
         tmpMap.clear();
         // test get value by strBuff
         estHistogram.getValue(strBuff, false);
-        String result2 =
-                "\"disk_dlt\":{\"count\":2,\"min\":1,\"max\":100,\"cells\":{\"cell_0t2\":1,\"cell_64t128\":1}}";
+        String result2 = "\"disk_dlt\":{\"count\":2,\"min\":1,\"max\":100,"
+                + "\"cells\":{\"cell_0t2\":1,\"cell_64t128\":1},"
+                + "\"P99\":2,\"P999\":2,\"P9999\":2}";
         Assert.assertEquals(result2, strBuff.toString());
         strBuff.delete(0, strBuff.length());
         // test clear()
