@@ -44,8 +44,8 @@ public class BrokerSrvStatsHolder {
     private static final AtomicInteger writableIndex = new AtomicInteger(0);
     // Last snapshot time
     private static final AtomicLong lstSnapshotTime = new AtomicLong(0);
-    // whether the DiskSync statistic is closed
-    private static volatile boolean diskSyncClosed = false;
+    // whether the detail statistic is closed
+    private static volatile boolean detailStatsClosed = false;
 
     // Initial service statistic set
     static {
@@ -79,21 +79,21 @@ public class BrokerSrvStatsHolder {
     }
 
     /**
-     * Set manually the DiskSync statistic status.
+     * Set manually the detail statistic status.
      *
      * @param enableStats  enable or disable the statistic.
      */
-    public static synchronized void setDiskSyncStatsStatus(boolean enableStats) {
-        BrokerSrvStatsHolder.diskSyncClosed = !enableStats;
+    public static synchronized void setDetailStatsStatus(boolean enableStats) {
+        BrokerSrvStatsHolder.detailStatsClosed = !enableStats;
     }
 
     /**
-     * Query whether the statistic is closed.
+     * Query whether the detail statistic is closed.
      *
      * @return the statistic status
      */
-    public static boolean isDiskSyncStatsClosed() {
-        return BrokerSrvStatsHolder.diskSyncClosed;
+    public static boolean isDetailStatsClosed() {
+        return BrokerSrvStatsHolder.detailStatsClosed;
     }
 
     // metric set operate APIs end
@@ -127,7 +127,7 @@ public class BrokerSrvStatsHolder {
     }
 
     public static void updDiskSyncDataDlt(long dltTime) {
-        if (diskSyncClosed) {
+        if (detailStatsClosed) {
             return;
         }
         switchableSets[getIndex()].fileSyncDltStats.update(dltTime);
@@ -136,6 +136,35 @@ public class BrokerSrvStatsHolder {
     public static void updZKSyncDataDlt(long dltTime) {
         switchableSets[getIndex()].zkSyncDltStats.update(dltTime);
     }
+
+    public static void updSendMsgLatency(long dltTime) {
+        if (detailStatsClosed) {
+            return;
+        }
+        switchableSets[getIndex()].msgPubLatencyStats.update(dltTime);
+    }
+
+    public static void incSendMsgOverFlowCnt() {
+        if (detailStatsClosed) {
+            return;
+        }
+        switchableSets[getIndex()].errPubOverFlowStats.incValue();
+    }
+
+    public static void updGetMsgLatency(long dltTime) {
+        if (detailStatsClosed) {
+            return;
+        }
+        switchableSets[getIndex()].msgSubLatencyStats.update(dltTime);
+    }
+
+    public static void updConfirmLatency(long dltTime) {
+        if (detailStatsClosed) {
+            return;
+        }
+        switchableSets[getIndex()].msgConfirmLatencyStats.update(dltTime);
+    }
+
     // metric set operate APIs end
 
     // private functions
@@ -156,12 +185,10 @@ public class BrokerSrvStatsHolder {
             Map<String, Long> statsMap) {
         statsMap.put(statsSet.lstResetTime.getFullName(),
                 statsSet.lstResetTime.getSinceTime());
-        statsMap.put("isDiskSyncClosed", (diskSyncClosed ? 1L : 0L));
+        statsMap.put("detailStatsClosed", (detailStatsClosed ? 1L : 0L));
         if (resetValue) {
-            statsSet.fileSyncDltStats.snapShort(statsMap, false);
             statsMap.put(statsSet.fileIOExcStats.getFullName(),
                     statsSet.fileIOExcStats.getAndResetValue());
-            statsSet.zkSyncDltStats.snapShort(statsMap, false);
             statsMap.put(statsSet.zkExcStats.getFullName(),
                     statsSet.zkExcStats.getAndResetValue());
             statsMap.put(statsSet.brokerTimeoutStats.getFullName(),
@@ -172,11 +199,16 @@ public class BrokerSrvStatsHolder {
                     csmOnlineCnt.getAndResetValue());
             statsMap.put(statsSet.csmTimeoutStats.getFullName(),
                     statsSet.csmTimeoutStats.getAndResetValue());
+            statsMap.put(statsSet.errPubOverFlowStats.getFullName(),
+                    statsSet.errPubOverFlowStats.getAndResetValue());
+            statsSet.fileSyncDltStats.snapShort(statsMap, false);
+            statsSet.zkSyncDltStats.snapShort(statsMap, false);
+            statsSet.msgPubLatencyStats.snapShort(statsMap, false);
+            statsSet.msgSubLatencyStats.snapShort(statsMap, false);
+            statsSet.msgConfirmLatencyStats.snapShort(statsMap, false);
         } else {
-            statsSet.fileSyncDltStats.getValue(statsMap, false);
             statsMap.put(statsSet.fileIOExcStats.getFullName(),
                     statsSet.fileIOExcStats.getValue());
-            statsSet.zkSyncDltStats.getValue(statsMap, false);
             statsMap.put(statsSet.zkExcStats.getFullName(),
                     statsSet.zkExcStats.getValue());
             statsMap.put(statsSet.brokerTimeoutStats.getFullName(),
@@ -187,6 +219,13 @@ public class BrokerSrvStatsHolder {
                     csmOnlineCnt.getValue());
             statsMap.put(statsSet.csmTimeoutStats.getFullName(),
                     statsSet.csmTimeoutStats.getValue());
+            statsMap.put(statsSet.errPubOverFlowStats.getFullName(),
+                    statsSet.errPubOverFlowStats.getValue());
+            statsSet.fileSyncDltStats.getValue(statsMap, false);
+            statsSet.zkSyncDltStats.getValue(statsMap, false);
+            statsSet.msgPubLatencyStats.getValue(statsMap, false);
+            statsSet.msgSubLatencyStats.getValue(statsMap, false);
+            statsSet.msgConfirmLatencyStats.getValue(statsMap, false);
         }
     }
 
@@ -195,15 +234,11 @@ public class BrokerSrvStatsHolder {
             StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
                 .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
-                .append("\",\"isDiskSyncClosed\":").append(diskSyncClosed)
-                .append(",");
+                .append("\",\"detailStatsClosed\":").append(detailStatsClosed);
         if (resetValue) {
-            statsSet.fileSyncDltStats.snapShort(strBuff, false);
             strBuff.append(",\"").append(statsSet.fileIOExcStats.getFullName())
                     .append("\":").append(statsSet.fileIOExcStats.getAndResetValue())
-                    .append(",");
-            statsSet.zkSyncDltStats.snapShort(strBuff, false);
-            strBuff.append(",\"").append(statsSet.zkExcStats.getFullName())
+                    .append(",\"").append(statsSet.zkExcStats.getFullName())
                     .append("\":").append(statsSet.zkExcStats.getAndResetValue())
                     .append(",\"").append(statsSet.brokerTimeoutStats.getFullName())
                     .append("\":").append(statsSet.brokerTimeoutStats.getAndResetValue())
@@ -213,14 +248,23 @@ public class BrokerSrvStatsHolder {
                     .append("\":").append(csmOnlineCnt.getAndResetValue())
                     .append(",\"").append(statsSet.csmTimeoutStats.getFullName())
                     .append("\":").append(statsSet.csmTimeoutStats.getAndResetValue())
-                    .append("}");
-        } else {
+                    .append(",\"").append(statsSet.errPubOverFlowStats.getFullName())
+                    .append("\":").append(statsSet.errPubOverFlowStats.getAndResetValue())
+                    .append(",");
             statsSet.fileSyncDltStats.snapShort(strBuff, false);
+            strBuff.append(",");
+            statsSet.zkSyncDltStats.snapShort(strBuff, false);
+            strBuff.append(",");
+            statsSet.msgPubLatencyStats.snapShort(strBuff, false);
+            strBuff.append(",");
+            statsSet.msgSubLatencyStats.snapShort(strBuff, false);
+            strBuff.append(",");
+            statsSet.msgConfirmLatencyStats.snapShort(strBuff, false);
+            strBuff.append("}");
+        } else {
             strBuff.append(",\"").append(statsSet.fileIOExcStats.getFullName())
                     .append("\":").append(statsSet.fileIOExcStats.getValue())
-                    .append(",");
-            statsSet.zkSyncDltStats.snapShort(strBuff, false);
-            strBuff.append(",\"").append(statsSet.zkExcStats.getFullName())
+                    .append(",\"").append(statsSet.zkExcStats.getFullName())
                     .append("\":").append(statsSet.zkExcStats.getValue())
                     .append(",\"").append(statsSet.brokerTimeoutStats.getFullName())
                     .append("\":").append(statsSet.brokerTimeoutStats.getValue())
@@ -230,7 +274,19 @@ public class BrokerSrvStatsHolder {
                     .append("\":").append(csmOnlineCnt.getValue())
                     .append(",\"").append(statsSet.csmTimeoutStats.getFullName())
                     .append("\":").append(statsSet.csmTimeoutStats.getValue())
-                    .append("}");
+                    .append(",\"").append(statsSet.errPubOverFlowStats.getFullName())
+                    .append("\":").append(statsSet.errPubOverFlowStats.getValue())
+                    .append(",");
+            statsSet.fileSyncDltStats.getValue(strBuff, false);
+            strBuff.append(",");
+            statsSet.zkSyncDltStats.getValue(strBuff, false);
+            strBuff.append(",");
+            statsSet.msgPubLatencyStats.getValue(strBuff, false);
+            strBuff.append(",");
+            statsSet.msgSubLatencyStats.getValue(strBuff, false);
+            strBuff.append(",");
+            statsSet.msgConfirmLatencyStats.getValue(strBuff, false);
+            strBuff.append("}");
         }
     }
 
@@ -282,6 +338,18 @@ public class BrokerSrvStatsHolder {
         // Consumer 2 Broker status statistics
         protected final LongStatsCounter csmTimeoutStats =
                 new LongStatsCounter("consume_timeout_cnt", null);
+        // sendMessage process latency statistics
+        protected final ESTHistogram msgPubLatencyStats =
+                new ESTHistogram("msg_put_dlt", null);
+        // error sendMessage response distribution statistics
+        protected final LongStatsCounter errPubOverFlowStats =
+                new LongStatsCounter("msg_put_overflow", null);
+        // getMessage process latency statistics
+        protected final ESTHistogram msgSubLatencyStats =
+                new ESTHistogram("msg_get_dlt", null);
+        // confirm process latency statistics
+        protected final ESTHistogram msgConfirmLatencyStats =
+                new ESTHistogram("msg_confirm_dlt", null);
 
         public ServiceStatsSet() {
             resetSinceTime();

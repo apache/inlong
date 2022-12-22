@@ -1328,7 +1328,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         }
         if (inMetricType == BrokerStatsType.SERVICESTATUS
                 || inMetricType == BrokerStatsType.ALL) {
-            BrokerSrvStatsHolder.setDiskSyncStatsStatus(enable);
+            BrokerSrvStatsHolder.setDetailStatsStatus(enable);
         }
         if (inMetricType == BrokerStatsType.MSGSTORE
                 || inMetricType == BrokerStatsType.ALL) {

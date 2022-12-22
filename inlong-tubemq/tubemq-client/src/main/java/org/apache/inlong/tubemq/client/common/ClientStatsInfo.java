@@ -241,7 +241,7 @@ public class ClientStatsInfo {
                     strBuff.append(",");
                     statsSet.csmLatencyStats.snapShort(strBuff, false);
                     strBuff.append(",");
-                    statsSet.confirmDltStats.getValue(strBuff, false);
+                    statsSet.confirmDltStats.snapShort(strBuff, false);
                 }
             } else {
                 statsSet.msgCallDltStats.getValue(strBuff, false);
