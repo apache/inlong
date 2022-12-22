@@ -63,16 +63,16 @@ public class SortSdkPrometheusMetricListener extends Collector implements Metric
         }
 
         // consume
-        metricValueMap.put(M_CONSUME_TIMES, metricItem.consumeTimes);
-        metricValueMap.put(M_CONSUME_SIZE, metricItem.consumeSize);
-        metricValueMap.put(M_CONSUME_MSG_COUNT, metricItem.consumeMsgCount);
-        metricValueMap.put(M_CONSUME_EMPTY_COUNT, metricItem.consumeEmptyCount);
-        metricValueMap.put(M_CONSUME_ERROR_COUNT, metricItem.consumeErrorCount);
-        metricValueMap.put(M_CONSUME_TIME_COST, metricItem.consumeTimeCost);
+        metricValueMap.put(SortSdkMetricItem.M_CONSUME_TIMES, metricItem.consumeTimes);
+        metricValueMap.put(SortSdkMetricItem.M_CONSUME_SIZE, metricItem.consumeSize);
+        metricValueMap.put(SortSdkMetricItem.M_CONSUME_MSG_COUNT, metricItem.consumeMsgCount);
+        metricValueMap.put(SortSdkMetricItem.M_CONSUME_EMPTY_COUNT, metricItem.consumeEmptyCount);
+        metricValueMap.put(SortSdkMetricItem.M_CONSUME_ERROR_COUNT, metricItem.consumeErrorCount);
+        metricValueMap.put(SortSdkMetricItem.M_CONSUME_TIME_COST, metricItem.consumeTimeCost);
         // filter
-        metricValueMap.put(M_FILTER_COUNT, metricItem.filterCount);
+        metricValueMap.put(SortSdkMetricItem.M_FILTER_COUNT, metricItem.filterCount);
         // callback
-        metricValueMap.put(M_CALL_BACK_COUNT, metricItem.callbackCount);
+        metricValueMap.put(SortSdkMetricItem.M_CALL_BACK_COUNT, metricItem.callbackCount);
         metricValueMap.put(SortSdkMetricItem.M_CALL_BACK_DONE_COUNT, metricItem.callbackDoneCount);
         metricValueMap.put(SortSdkMetricItem.M_CALL_BACK_TIME_COST, metricItem.callbackTimeCost);
         metricValueMap.put(SortSdkMetricItem.M_CALL_BACK_FAIL_COUNT, metricItem.callbackFailCount);
@@ -128,7 +128,9 @@ public class SortSdkPrometheusMetricListener extends Collector implements Metric
                 metricItem.requestManagerParamErrorCount.get());
         totalCounter.addMetric(Collections.singletonList(M_RQUEST_MANAGER_COMMON_ERROR_COUNT),
                 metricItem.requestManagerCommonErrorCount.get());
-        return null;
+        List<MetricFamilySamples> mfs = new ArrayList<>();
+        mfs.add(totalCounter);
+        return mfs;
     }
 
     /**
