@@ -49,6 +49,11 @@ public class KafkaOperator {
         NewTopic topic = new NewTopic(topicName,
                 inlongKafkaInfo.getNumPartitions(),
                 inlongKafkaInfo.getReplicationFactor());
+        // Topic will be returned if it exists, and created if it does not exist
+        if (topicIsExists(kafkaClusterInfo, topicName)) {
+            LOGGER.warn("kafka topic={} already exists", topicName);
+            return;
+        }
         CreateTopicsResult result = adminClient.createTopics(Collections.singletonList(topic));
         // To prevent the client from disconnecting too quickly and causing the Topic to not be created successfully
         Thread.sleep(500);
