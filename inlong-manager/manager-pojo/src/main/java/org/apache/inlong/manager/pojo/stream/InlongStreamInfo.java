@@ -129,15 +129,11 @@ public class InlongStreamInfo extends BaseInlongStream {
     @ApiModelProperty(value = "Version number")
     private Integer version;
 
-    @ApiModelProperty(value = "Whether the message body wrapped with InlongMsg, 0: no, 1: yes (as default)")
+    @ApiModelProperty(value = "Whether the message body wrapped with InlongMsg")
     private Boolean wrapWithInlongMsg = true;
 
-    @ApiModelProperty(value = "Whether to ignore the parse errors of field value, 0: no, 1: yes (as default)")
+    @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private Boolean ignoreParseError = true;
-
-    public boolean ifIgnoreParseError() {
-        return ignoreParseError == null || ignoreParseError.booleanValue();
-    }
 
     public InlongStreamRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, InlongStreamRequest::new);

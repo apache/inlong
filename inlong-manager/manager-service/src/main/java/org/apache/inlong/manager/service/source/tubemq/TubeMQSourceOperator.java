@@ -110,7 +110,7 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
             tubeMQSource.setMasterRpc(masterRpc);
             String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
             tubeMQSource.setSerializationType(serializationType);
-            tubeMQSource.setIgnoreParseError(streamInfo.ifIgnoreParseError());
+            tubeMQSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
 
             for (StreamSource sourceInfo : streamSources) {
                 if (!Objects.equals(streamId, sourceInfo.getInlongStreamId())) {
