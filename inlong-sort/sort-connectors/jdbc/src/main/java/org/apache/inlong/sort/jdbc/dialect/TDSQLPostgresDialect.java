@@ -24,6 +24,9 @@ import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -144,6 +147,12 @@ public class TDSQLPostgresDialect extends AbstractJdbcDialect {
                 LogicalTypeRoot.RAW,
                 LogicalTypeRoot.SYMBOL,
                 LogicalTypeRoot.UNRESOLVED);
+    }
+
+    @Override
+    public PreparedStatement setQueryPrimaryKeySql(Connection conn,
+            String tableIdentifier) throws SQLException {
+        return null;
     }
 
 }

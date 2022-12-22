@@ -28,6 +28,7 @@ import org.apache.flink.connector.jdbc.internal.executor.TableBufferedStatementE
 import org.apache.flink.connector.jdbc.internal.executor.TableInsertOrUpdateStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.executor.TableSimpleStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
+import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatement;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
@@ -171,6 +172,49 @@ public class JdbcMultiBatchingComm {
             pkRow.setField(i, fieldGetters[i].getFieldOrNull(row));
         }
         return pkRow;
+    }
+
+    public static JdbcOptions getExecJdbcOptions(JdbcOptions jdbcOptions, String tableIdentifier) {
+        JdbcOptions jdbcExecOptions =
+                JdbcOptions.builder()
+                        .setDBUrl(jdbcOptions.getDbURL() + "/" + getDatabaseNameFromIdentifier(tableIdentifier))
+                        .setTableName(getTableNameFromIdentifier(tableIdentifier))
+                        .setDialect(jdbcOptions.getDialect())
+                        .setParallelism(jdbcOptions.getParallelism())
+                        .setConnectionCheckTimeoutSeconds(jdbcOptions.getConnectionCheckTimeoutSeconds())
+                        .setDriverName(jdbcOptions.getDriverName())
+                        .setUsername(jdbcOptions.getUsername().orElse(""))
+                        .setPassword(jdbcOptions.getPassword().orElse(""))
+                        .build();
+        return jdbcExecOptions;
+    }
+
+    /**
+     * Get table name From tableIdentifier
+     * tableIdentifier maybe: ${dbName}.${tbName} or ${dbName}.${schemaName}.${tbName}
+     *
+     * @param tableIdentifier The table identifier for which to get table name.
+     */
+    public static String getTableNameFromIdentifier(String tableIdentifier) {
+        String[] fieldArray = tableIdentifier.split("\\.");
+        if (2 == fieldArray.length) {
+            return fieldArray[1];
+        }
+        if (3 == fieldArray.length) {
+            return fieldArray[1] + "." + fieldArray[2];
+        }
+        return null;
+    }
+
+    /**
+     * Get database name From tableIdentifier
+     * tableIdentifier maybe: ${dbName}.${tbName} or ${dbName}.${schemaName}.${tbName}
+     *
+     * @param tableIdentifier The table identifier for which to get table name.
+     */
+    public static String getDatabaseNameFromIdentifier(String tableIdentifier) {
+        String[] fileArray = tableIdentifier.split("\\.");
+        return fileArray[0];
     }
 
 }

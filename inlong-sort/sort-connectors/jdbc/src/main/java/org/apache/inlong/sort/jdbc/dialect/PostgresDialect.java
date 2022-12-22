@@ -21,8 +21,12 @@ import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.internal.converter.PostgresRowConverter;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.jdbc.internal.JdbcMultiBatchingComm;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +36,26 @@ import java.util.stream.Collectors;
 public class PostgresDialect extends AbstractJdbcDialect {
 
     private static final long serialVersionUID = 1L;
+
+    private static final String QUERY_PRIMARY_KEY_SQL = "SELECT\n" +
+            "\tstring_agg (DISTINCT t3.attname, ',') AS " + PRIMARY_KEY_COLUMN + ",\n" +
+            "    \tt4.tablename AS tableName\n" +
+            "FROM\n" +
+            "\tpg_constraint t1\n" +
+            "INNER JOIN pg_class t2 ON t1.conrelid = t2.oid\n" +
+            "INNER JOIN pg_attribute t3 ON t3.attrelid = t2.oid\n" +
+            "AND array_position (t1.conkey, t3.attnum) is not null\n" +
+            "INNER JOIN pg_tables t4 on t4.tablename = t2.relname\n" +
+            "INNER JOIN pg_index t5 ON t5.indrelid = t2.oid\n" +
+            "AND t3.attnum = ANY (t5.indkey)\n" +
+            "LEFT JOIN pg_description t6 on t6.objoid = t3.attrelid\n" +
+            "and t6.objsubid = t3.attnum\n" +
+            "WHERE\n" +
+            "\tt1.contype = 'p'\n" +
+            "AND length (t3.attname) > 0\n" +
+            "AND t2.oid = ?::regclass\n" +
+            "group by\n" +
+            "\tt4.tablename";
 
     // Define MAX/MIN precision of TIMESTAMP type according to PostgreSQL docs:
     // https://www.postgresql.org/docs/12/datatype-datetime.html
@@ -136,5 +160,13 @@ public class PostgresDialect extends AbstractJdbcDialect {
                 LogicalTypeRoot.RAW,
                 LogicalTypeRoot.SYMBOL,
                 LogicalTypeRoot.UNRESOLVED);
+    }
+
+    @Override
+    public PreparedStatement setQueryPrimaryKeySql(Connection conn,
+            String tableIdentifier) throws SQLException {
+        PreparedStatement st = conn.prepareStatement(QUERY_PRIMARY_KEY_SQL);
+        st.setString(1, JdbcMultiBatchingComm.getTableNameFromIdentifier(tableIdentifier));
+        return st;
     }
 }
