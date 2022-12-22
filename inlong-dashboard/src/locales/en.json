@@ -498,7 +498,7 @@
   "pages.GroupDetail.Info": "Group Info",
   "pages.GroupDetail.Streams": "Streams",
   "pages.GroupDetail.Sources": "Sources",
-  "pages.GroupDetail.Sinks": "Data Sink",
+  "pages.GroupDetail.Sinks": "Sinks",
   "pages.GroupDetail.Audit": "Audit",
   "pages.GroupDetail.Audit.DataStream": "DataStream",
   "pages.GroupDetail.Audit.Date": "Date",
