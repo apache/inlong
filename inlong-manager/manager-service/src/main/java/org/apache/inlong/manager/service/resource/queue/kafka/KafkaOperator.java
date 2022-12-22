@@ -51,7 +51,7 @@ public class KafkaOperator {
                 inlongKafkaInfo.getReplicationFactor());
         // Topic will be returned if it exists, and created if it does not exist
         if (topicIsExists(kafkaClusterInfo, topicName)) {
-            LOGGER.warn("kafka topic={} already exists", kafkaClusterInfo.getUrl());
+            LOGGER.warn("kafka topic={} already exists", topicName);
             return;
         }
         CreateTopicsResult result = adminClient.createTopics(Collections.singletonList(topic));
