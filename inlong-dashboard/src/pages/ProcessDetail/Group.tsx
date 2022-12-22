@@ -72,8 +72,6 @@ const Comp = ({ defaultData, isViwer, suffixContent, noExtraForm, isFinished }: 
     dataLoaded && (
       <FormGenerator
         form={form}
-        labelCol={{ span: 4 }}
-        wrapperCol={{ span: 20 }}
         content={getFormContent({
           isViwer,
           formData: defaultData?.processInfo?.formData,

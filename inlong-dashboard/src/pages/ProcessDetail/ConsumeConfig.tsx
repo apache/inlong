@@ -55,11 +55,7 @@ export const getFormContent = (
 ) => {
   const array = [
     {
-      type: (
-        <Divider orientation="left">
-          {i18n.t('pages.ApprovalDetail.ConsumeConfig.BasicInfo')}
-        </Divider>
-      ),
+      type: <Divider orientation="left">{i18n.t('pages.Approvals.Type.Consume')}</Divider>,
     },
     ...consumeFormContent,
   ];
