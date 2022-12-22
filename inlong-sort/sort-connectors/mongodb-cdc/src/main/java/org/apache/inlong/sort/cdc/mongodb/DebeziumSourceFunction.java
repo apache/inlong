@@ -505,7 +505,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                                         source = value.getStruct(RecordUtils.DOCUMENT_TO_FIELD);
                                     }
                                     String dbName = source.getString(MongoDBEnvelope.NAMESPACE_DATABASE_FIELD);
-                                    String collectionName = source.getString(MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD);
+                                    String collectionName =
+                                            source.getString(MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD);
                                     SnapshotRecord snapshotRecord = SnapshotRecord.fromSource(source);
                                     boolean isSnapshotRecord = (SnapshotRecord.TRUE == snapshotRecord);
                                     sourceMetricData
