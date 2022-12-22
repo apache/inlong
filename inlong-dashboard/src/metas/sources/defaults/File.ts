@@ -33,36 +33,6 @@ export default class PulsarSource
   implements DataWithBackend, RenderRow, RenderList
 {
   @FieldDecorator({
-    type: 'select',
-    rules: [{ required: true }],
-    props: values => ({
-      showSearch: true,
-      disabled: values?.status === 101,
-      options: {
-        requestTrigger: ['onOpen', 'onSearch'],
-        requestService: {
-          url: '/cluster/list',
-          method: 'POST',
-          data: {
-            type: 'AGENT',
-            pageNum: 1,
-            pageSize: 20,
-          },
-        },
-        requestParams: {
-          formatResult: result =>
-            result?.list?.map(item => ({
-              label: item.name,
-              value: item.name,
-            })),
-        },
-      },
-    }),
-  })
-  @I18n('meta.Sources.File.Cluster')
-  inlongClusterName: string;
-
-  @FieldDecorator({
     type: 'input',
     rules: [
       {

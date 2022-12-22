@@ -30,7 +30,7 @@ export const useGroupFormContent = ({ mqType = '', isFinished, isViwer }) => {
   }, [Entity]);
 
   return entityFields?.map(item => {
-    const obj = { ...item };
+    const obj = { ...item, col: 12 };
 
     const canEditSet = new Set([
       'dataReportType',
@@ -66,11 +66,7 @@ export const getFormContent = ({
 }) => {
   const array = [
     {
-      type: (
-        <Divider orientation="left">
-          {i18n.t('pages.ApprovalDetail.GroupConfig.BasicInformation')}
-        </Divider>
-      ),
+      type: <Divider orientation="left">{i18n.t('pages.Approvals.Type.Group')}</Divider>,
     },
     ...groupFormContent,
     {
@@ -86,6 +82,7 @@ export const getFormContent = ({
           size="small"
           columns={[
             { title: 'ID', dataIndex: 'inlongStreamId' },
+            { title: 'mqResource', dataIndex: 'mqResource' },
             {
               title: i18n.t('pages.ApprovalDetail.GroupConfig.DataStorages'),
               dataIndex: 'sinkList',
@@ -144,7 +141,7 @@ export const getFormContent = ({
             </Divider>
           ),
         },
-        ...extraForm,
-        ...suffixContent,
+        ...extraForm.map(item => ({ ...item, col: 12 })),
+        ...suffixContent.map(item => ({ ...item, col: 12 })),
       ]);
 };
