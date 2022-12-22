@@ -106,7 +106,9 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
         })),
     }),
   })
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: type => sinks.find(c => c.value === type)?.label || type,
+  })
   @I18n('meta.Sinks.SinkType')
   sinkType: string;
 

@@ -117,7 +117,9 @@ export class GroupDefaultInfo implements DataWithBackend, RenderRow, RenderList 
       options: groups.filter(item => Boolean(item.value)),
     },
   })
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: type => groups.find(c => c.value === type)?.label || type,
+  })
   @I18n('meta.Group.MQType')
   mqType: string;
 

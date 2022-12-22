@@ -98,7 +98,9 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
         })),
     }),
   })
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: type => sources.find(c => c.value === type)?.label || type,
+  })
   @I18n('meta.Sources.Type')
   sourceType: string;
 
