@@ -616,10 +616,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             // Clean the data that has been loaded.
             values.clear();
         } catch (Exception e) {
-            flushExceptionMap.put(tableIdentifier, e);
-            errorNum.getAndAdd(values.size());
+            LOG.error(String.format("Flush table: %s error", tableIdentifier), e);
+            // Makesure it is a dirty data
             if (respContent != null && StringUtils.isNotBlank(respContent.getErrorURL())) {
-                // Makesure it is a dirty data
+                flushExceptionMap.put(tableIdentifier, e);
+                errorNum.getAndAdd(values.size());
                 for (Object value : values) {
                     try {
                         handleDirtyData(OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsString(value)),
@@ -631,16 +632,18 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                         LOG.warn("Dirty sink failed", ex);
                     }
                 }
+                if (!ignoreSingleTableErrors) {
+                    throw new RuntimeException(
+                            String.format("Writing records to streamload of tableIdentifier:%s failed, the value: %s.",
+                                    tableIdentifier, loadValue),
+                            e);
+                }
+                errorTables.add(tableIdentifier);
+                LOG.warn("The tableIdentifier: {} load failed and the data will be throw away in the future"
+                        + " because the option 'sink.multiple.ignore-single-table-errors' is 'true'", tableIdentifier);
+            } else {
+                throw new RuntimeException(e);
             }
-            if (!ignoreSingleTableErrors) {
-                throw new RuntimeException(
-                        String.format("Writing records to streamload of tableIdentifier:%s failed, the value: %s.",
-                                tableIdentifier, loadValue),
-                        e);
-            }
-            errorTables.add(tableIdentifier);
-            LOG.warn("The tableIdentifier: {} load failed and the data will be throw away in the future"
-                    + " because the option 'sink.multiple.ignore-single-table-errors' is 'true'", tableIdentifier);
         }
     }
 
