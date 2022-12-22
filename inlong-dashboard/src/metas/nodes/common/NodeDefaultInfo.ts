@@ -58,7 +58,9 @@ export class NodeDefaultInfo implements DataWithBackend, RenderRow, RenderList {
         })),
     },
   })
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: type => nodes.find(c => c.value === type)?.label || type,
+  })
   @I18n('meta.Nodes.Type')
   type: string;
 

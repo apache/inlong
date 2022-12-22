@@ -110,7 +110,7 @@ const Comp: React.FC = () => {
           <HighTable
             suffix={
               <Button type="primary" onClick={() => history.push('/consume/create')}>
-                {t('pages.ConsumeDashboard.NewConsume')}
+                {t('pages.ConsumeCreate.NewSubscribe')}
               </Button>
             }
             filterForm={{
