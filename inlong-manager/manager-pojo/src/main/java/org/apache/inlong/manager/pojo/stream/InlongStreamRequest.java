@@ -101,9 +101,9 @@ public class InlongStreamRequest extends BaseInlongStream {
     @ApiModelProperty(value = "Version number")
     private Integer version;
 
-    @ApiModelProperty(value = "Whether to ignore the parse errors of field value, 0: no, 1: yes (as default)")
+    @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
     private boolean ignoreParseError = true;
 
-    @ApiModelProperty(value = "Whether the message body wrapped with InlongMsg, 0: no, 1: yes (as default)")
+    @ApiModelProperty(value = "Whether the message body wrapped with InlongMsg")
     private boolean wrapWithInlongMsg = true;
 }
