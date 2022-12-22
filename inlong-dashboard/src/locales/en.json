@@ -497,7 +497,7 @@
   "pages.GroupDetail.Stream.CreateDataStream": "Create",
   "pages.GroupDetail.Info": "Group Info",
   "pages.GroupDetail.Streams": "Streams",
-  "pages.GroupDetail.Sources": "Data Source",
+  "pages.GroupDetail.Sources": "Sources",
   "pages.GroupDetail.Sinks": "Data Sink",
   "pages.GroupDetail.Audit": "Audit",
   "pages.GroupDetail.Audit.DataStream": "DataStream",
