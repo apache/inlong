@@ -375,6 +375,8 @@
   "meta.Stream.ExecuteWorkflow": "ExecuteWorkflow",
   "meta.Stream.ExecuteConfirm": "Are you sure to execute the workflow?",
   "meta.Stream.ExecuteSuccess": "Execution Success",
+  "meta.Stream.WrapWithInlongMsg": "Wrap with InlongMsg",
+  "meta.Stream.WrapWithInlongMsgHelp": "The message body packaged with InlongMsg",
   "meta.Consume.ConsumerGroupName": "Consumer Group Name",
   "meta.Consume.TopicName": "Topic Name",
   "meta.Consume.MQType": "MQ Type",

@@ -42,6 +42,8 @@ import java.util.List;
 @ApiModel("Inlong stream info")
 public class InlongStreamInfo extends BaseInlongStream {
 
+    public static final int ENABLE_WRAP_WITH_INLONG_MSG = 1;
+
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
@@ -62,6 +64,9 @@ public class InlongStreamInfo extends BaseInlongStream {
 
     @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")
     private String dataType;
+
+    @ApiModelProperty(value = "Whether the message body wrapped with InlongMsg, 0: no, 1: yes (as default)")
+    private Integer wrapWithInlongMsg;
 
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
     private String dataEncoding;

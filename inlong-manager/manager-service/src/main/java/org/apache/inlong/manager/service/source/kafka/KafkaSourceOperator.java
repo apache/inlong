@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.source.kafka;
 
+import static org.apache.inlong.manager.pojo.stream.InlongStreamInfo.ENABLE_WRAP_WITH_INLONG_MSG;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -45,8 +47,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import static org.apache.inlong.manager.common.consts.InlongConstants.DATA_TYPE_RAW_PREFIX;
 
 /**
  * kafka stream source operator
@@ -118,9 +118,9 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
                 kafkaSource.setSerializationType(sourceInfo.getSerializationType());
             }
 
-            // CSV: InLong message type whose message body is raw CSV
-            // Raw-CSV: messages are separated by a specific separator
-            kafkaSource.setWrapWithInlongMsg(streamInfo.getDataType().startsWith(DATA_TYPE_RAW_PREFIX));
+            Integer wrapWithInlongMsg = streamInfo.getWrapWithInlongMsg();
+            kafkaSource.setWrapWithInlongMsg(
+                    null == wrapWithInlongMsg || ENABLE_WRAP_WITH_INLONG_MSG == wrapWithInlongMsg);
 
             kafkaSource.setAutoOffsetReset(KafkaOffset.EARLIEST.getName());
             kafkaSource.setFieldList(streamInfo.getFieldList());

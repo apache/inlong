@@ -189,6 +189,28 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   dataSeparator: string;
 
   @FieldDecorator({
+    type: 'radio',
+    isPro: true,
+    rules: [{ required: true }],
+    initialValue: 1,
+    tooltip: i18n.t('meta.Stream.WrapWithInlongMsgHelp'),
+    props: values => ({
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: 1,
+        },
+        {
+          label: i18n.t('basic.No'),
+          value: 0,
+        },
+      ],
+    }),
+  })
+  @I18n('meta.Stream.WrapWithInlongMsg')
+  wrapWithInlongMsg: number;
+
+  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',
