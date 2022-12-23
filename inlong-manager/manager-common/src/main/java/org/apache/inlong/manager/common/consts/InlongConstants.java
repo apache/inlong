@@ -140,6 +140,4 @@ public class InlongConstants {
 
     public static final int DEFAULT_ENABLE_VALUE = 1;
 
-    public static final String EXT_PARAM_IGNORE_PARSE_ERROR = "ignoreParseError";
-    public static final String EXT_PARAM_WRAP_WITH_INLONG_MSG = "wrapWithInlongMsg";
 }
