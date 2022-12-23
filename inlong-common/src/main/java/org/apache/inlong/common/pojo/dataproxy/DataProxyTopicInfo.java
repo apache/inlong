@@ -86,7 +86,7 @@ public class DataProxyTopicInfo {
     }
 
     public boolean isValid() {
-        return StringUtils.isNoneBlank(inlongGroupId) && StringUtils.isNotBlank(topic);
+        return StringUtils.isNotBlank(inlongGroupId) && StringUtils.isNotBlank(topic);
     }
 
 }
