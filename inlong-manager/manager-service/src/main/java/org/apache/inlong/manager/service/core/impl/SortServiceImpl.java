@@ -85,7 +85,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
                         try {
                             return groupService.get(groupId);
                         } catch (Exception e) {
-                            log.debug("{} may have already been deleted, skip it", groupId);
+                            log.error("can not get groupId: {}, skip it", groupId, e);
                             return null;
                         }
                     })
