@@ -127,7 +127,7 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
       />
 
       {!isCreate && !readonly && (
-        <div style={{ position: 'absolute', top: 0, right: 0 }}>
+        <div>
           {editing ? (
             <Space>
               <Button type="primary" onClick={onSave}>
