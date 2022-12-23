@@ -253,7 +253,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         if (StringUtils.isNoneBlank(extParams)) {
             InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(extParams, InlongStreamExtParam.class);
             if (inlongStreamExtParam != null) {
-                CommonBeanUtils.copyProperties(inlongStreamExtParam, targetObject);
+                CommonBeanUtils.copyProperties(inlongStreamExtParam, targetObject, true);
             }
         }
     }
@@ -425,13 +425,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     private void unpackExtParams(InlongStreamInfo streamInfo) {
-        String extParams = streamInfo.getExtParams();
-        if (StringUtils.isNoneBlank(extParams)) {
-            InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(extParams, InlongStreamExtParam.class);
-            if (inlongStreamExtParam != null) {
-                CommonBeanUtils.copyProperties(inlongStreamExtParam, streamInfo);
-            }
-        }
+        unpackExtParams(streamInfo.getExtParams(), streamInfo);
     }
 
     @Override
