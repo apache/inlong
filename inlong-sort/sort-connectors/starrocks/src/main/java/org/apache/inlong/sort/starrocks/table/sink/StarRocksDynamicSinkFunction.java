@@ -34,9 +34,11 @@ import com.starrocks.connector.flink.table.sink.StarRocksSinkOptions;
 import com.starrocks.connector.flink.table.sink.StarRocksSinkRowDataWithMeta;
 import com.starrocks.connector.flink.table.sink.StarRocksSinkSemantic;
 import com.starrocks.shade.com.alibaba.fastjson.JSON;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.alter.Alter;
@@ -59,6 +61,8 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.binary.NestedRowData;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.InstantiationUtil;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.MetricOption;
@@ -102,6 +106,9 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
 
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
 
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
+
     public StarRocksDynamicSinkFunction(StarRocksSinkOptions sinkOptions,
             TableSchema schema,
             StarRocksIRowTransformer<T> rowTransformer,
@@ -111,14 +118,16 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
             String tablePattern,
             String inlongMetric,
             String auditHostAndPorts,
-            SchemaUpdateExceptionPolicy schemaUpdatePolicy) {
+            SchemaUpdateExceptionPolicy schemaUpdatePolicy,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         StarRocksJdbcConnectionOptions jdbcOptions = new StarRocksJdbcConnectionOptions(sinkOptions.getJdbcUrl(),
                 sinkOptions.getUsername(), sinkOptions.getPassword());
         StarRocksJdbcConnectionProvider jdbcConnProvider = new StarRocksJdbcConnectionProvider(jdbcOptions);
         StarRocksQueryVisitor starrocksQueryVisitor = new StarRocksQueryVisitor(jdbcConnProvider,
                 sinkOptions.getDatabaseName(), sinkOptions.getTableName());
         this.sinkManager = new StarRocksSinkManager(sinkOptions, schema, jdbcConnProvider, starrocksQueryVisitor,
-                multipleSink, schemaUpdatePolicy);
+                multipleSink, schemaUpdatePolicy, dirtyOptions, dirtySink);
 
         rowTransformer.setStarRocksColumns(starrocksQueryVisitor.getFieldMapping());
         rowTransformer.setTableSchema(schema);
@@ -132,6 +141,9 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
         this.tablePattern = tablePattern;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
@@ -158,6 +170,14 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
                 metricData.registerSubMetricsGroup(metricState);
             }
             sinkManager.setSinkMetricData(metricData);
+        }
+
+        if (dirtySink != null) {
+            try {
+                dirtySink.open(new Configuration());
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
         }
     }
 

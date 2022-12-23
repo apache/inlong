@@ -39,6 +39,9 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.utils.TableSchemaUtils;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 
@@ -61,6 +64,10 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         String inlongMetric = helper.getOptions().getOptional(INLONG_METRIC).orElse(INLONG_METRIC.defaultValue());
         String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(INLONG_AUDIT.defaultValue());
 
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
+
         validateSinkMultiple(physicalSchema.toPhysicalRowDataType(),
                 multipleSink,
                 sinkMultipleFormat,
@@ -75,7 +82,9 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
                 tablePattern,
                 inlongMetric,
                 auditHostAndPorts,
-                schemaUpdatePolicy);
+                schemaUpdatePolicy,
+                dirtyOptions,
+                dirtySink);
     }
 
     @Override
