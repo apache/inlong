@@ -168,6 +168,7 @@ export default class ElasticsearchSink
   @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
+    tooltip: i18n.t('meta.Sinks.ES.EsVersionHelp'),
     props: values => ({
       min: 1,
       disabled: [110, 130].includes(values?.status),
