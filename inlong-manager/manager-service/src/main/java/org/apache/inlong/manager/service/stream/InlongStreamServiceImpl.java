@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
@@ -47,6 +48,8 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.InlongStreamExtParamBuilder;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
@@ -67,14 +70,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static org.apache.inlong.manager.common.consts.InlongConstants.EXT_PARAM_IGNORE_PARSE_ERROR;
-import static org.apache.inlong.manager.common.consts.InlongConstants.EXT_PARAM_WRAP_WITH_INLONG_MSG;
 
 /**
  * Inlong stream service layer implementation
@@ -125,11 +124,13 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamEntity.setStatus(StreamStatus.NEW.getCode());
         streamEntity.setCreator(operator);
         streamEntity.setModifier(operator);
+        // Processing extended attributes
+        String extParam = packExtParams(request);
+        streamEntity.setExtParams(extParam);
 
         streamMapper.insertSelective(streamEntity);
         saveField(groupId, streamId, request.getFieldList());
         List<InlongStreamExtInfo> extList = request.getExtList();
-        packExtParams(request, extList);
         if (CollectionUtils.isNotEmpty(extList)) {
             saveOrUpdateExt(groupId, streamId, extList);
         }
@@ -184,6 +185,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         if (StringUtils.isEmpty(request.getMqResource())) {
             request.setMqResource(streamId);
         }
+        // Processing extended attributes
+        String extParams = packExtParams(request);
+        request.setExtParams(extParams);
         // Processing inlong stream
         InlongStreamEntity streamEntity = CommonBeanUtils.copyProperties(request, InlongStreamEntity::new);
         streamEntity.setStatus(StreamStatus.NEW.getCode());
@@ -193,7 +197,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamMapper.insertSelective(streamEntity);
         saveField(groupId, streamId, request.getFieldList());
         List<InlongStreamExtInfo> extList = request.getExtList();
-        packExtParams(request, extList);
         if (CollectionUtils.isNotEmpty(extList)) {
             saveOrUpdateExt(groupId, streamId, extList);
         }
@@ -225,9 +228,10 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamInfo.setFieldList(streamFields);
         // load ext infos
         List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
-        unpackExtParams(streamInfo, extEntities, InlongStreamExtEntity.class);
         List<InlongStreamExtInfo> exts = CommonBeanUtils.copyListProperties(extEntities, InlongStreamExtInfo::new);
         streamInfo.setExtList(exts);
+        // load extParams
+        unpackExtParams(streamEntity.getExtParams(), streamInfo);
 
         List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
         streamInfo.setSinkList(sinkList);
@@ -240,39 +244,16 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     /**
      * Unpack extended attributes from {@link InlongStreamExtInfo}, will remove target attributes from it.
      *
-     * @param streamInfo the streamInfo with to fill up
-     * @param extEntities the {@link InlongStreamExtInfo} list
+     * @param extParams the {@link InlongStreamEntity} load from db 
+     * @param targetObject the targetObject with to fill up
      */
-    private <T> void unpackExtParams(
-            InlongStreamInfo streamInfo,
-            List<T> extEntities,
-            Class<T> ignored) {
-        if (CollectionUtils.isNotEmpty(extEntities)) {
-            Iterator<T> iterator = extEntities.iterator();
-            while (iterator.hasNext()) {
-                T entity = iterator.next();
-                String keyName = null;
-                String keyValue = null;
-                if (entity instanceof InlongStreamExtInfo) {
-                    keyName = ((InlongStreamExtInfo) entity).getKeyName();
-                    keyValue = ((InlongStreamExtInfo) entity).getKeyValue();
-                } else if (entity instanceof InlongStreamExtEntity) {
-                    keyName = ((InlongStreamExtEntity) entity).getKeyName();
-                    keyValue = ((InlongStreamExtEntity) entity).getKeyValue();
-                } else {
-                    throw new UnsupportedOperationException(
-                            "only support unpackExtParams of InlongStreamExtInfo or InlongStreamExtEntity");
-                }
-                switch (keyName) {
-                    case EXT_PARAM_IGNORE_PARSE_ERROR:
-                        streamInfo.setIgnoreParseError(Boolean.valueOf(keyValue));
-                        iterator.remove();
-                        break;
-                    case EXT_PARAM_WRAP_WITH_INLONG_MSG:
-                        streamInfo.setWrapWithInlongMsg(Boolean.valueOf(keyValue));
-                        iterator.remove();
-                        break;
-                }
+    private void unpackExtParams(
+            String extParams,
+            Object targetObject) {
+        if (StringUtils.isNoneBlank(extParams)) {
+            InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(extParams, InlongStreamExtParam.class);
+            if (inlongStreamExtParam != null) {
+                CommonBeanUtils.copyProperties(inlongStreamExtParam, targetObject);
             }
         }
     }
@@ -308,10 +289,12 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
         InlongStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamInfo::new);
+        // Processing extParams
+        unpackExtParams(streamEntity.getExtParams(), streamInfo);
+        // Load fields
         List<StreamField> streamFields = getStreamFields(groupId, streamId);
         streamInfo.setFieldList(streamFields);
         List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
-        unpackExtParams(streamInfo, extEntities, InlongStreamExtEntity.class);
         List<InlongStreamExtInfo> exts = CommonBeanUtils.copyListProperties(extEntities, InlongStreamExtInfo::new);
         streamInfo.setExtList(exts);
         List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
@@ -340,10 +323,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                         Collectors.toCollection(ArrayList::new)));
         streamList.forEach(streamInfo -> {
             String streamId = streamInfo.getInlongStreamId();
+            // Processing extParams
+            unpackExtParams(streamInfo.getExtParams(), streamInfo);
             List<StreamField> fieldInfos = streamFieldMap.get(streamId);
             streamInfo.setFieldList(fieldInfos);
             List<InlongStreamExtInfo> extInfos = extInfoMap.get(streamId);
-            unpackExtParams(streamInfo, extInfos, InlongStreamExtInfo.class);
             streamInfo.setExtList(extInfos);
             List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
             streamInfo.setSinkList(sinkList);
@@ -416,10 +400,10 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         for (InlongStreamInfo streamInfo : streamInfoList) {
             // Set the field information of the inlong stream
             String streamId = streamInfo.getInlongStreamId();
+            unpackExtParams(streamInfo);
             List<StreamField> streamFields = getStreamFields(groupId, streamId);
             streamInfo.setFieldList(streamFields);
             List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
-            unpackExtParams(streamInfo, extEntities, InlongStreamExtEntity.class);
             List<InlongStreamExtInfo> streamExtInfos = CommonBeanUtils.copyListProperties(
                     extEntities, InlongStreamExtInfo::new);
             streamInfo.setExtList(streamExtInfos);
@@ -438,6 +422,16 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         LOGGER.debug("success to list full inlong stream info by {}", request);
         return pageResult;
+    }
+
+    private void unpackExtParams(InlongStreamInfo streamInfo) {
+        String extParams = streamInfo.getExtParams();
+        if (StringUtils.isNoneBlank(extParams)) {
+            InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(extParams, InlongStreamExtParam.class);
+            if (inlongStreamExtParam != null) {
+                CommonBeanUtils.copyProperties(inlongStreamExtParam, streamInfo);
+            }
+        }
     }
 
     @Override
@@ -526,6 +520,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                     String.format("stream has already updated with groupId=%s, streamId=%s, curVersion=%s",
                             streamEntity.getInlongGroupId(), streamEntity.getInlongStreamId(), request.getVersion()));
         }
+        // Processing extended attributes
+        String extParams = packExtParams(request);
+        request.setExtParams(extParams);
         // update record
         CommonBeanUtils.copyProperties(request, streamEntity, true);
         streamEntity.setModifier(opInfo.getName());
@@ -536,7 +533,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         updateField(groupId, streamId, request.getFieldList());
         // update stream extension infos
         List<InlongStreamExtInfo> extList = request.getExtList();
-        packExtParams(request, extList);
         saveOrUpdateExt(groupId, streamId, extList);
         return true;
     }
@@ -560,7 +556,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
-
+        // Processing extended attributes
+        String extParams = packExtParams(request);
+        request.setExtParams(extParams);
         CommonBeanUtils.copyProperties(request, streamEntity, true);
         streamEntity.setModifier(operator);
         int rowCount = streamMapper.updateByIdentifierSelective(streamEntity);
@@ -572,7 +570,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         updateField(groupId, streamId, request.getFieldList());
         // update stream extension infos
         List<InlongStreamExtInfo> extList = request.getExtList();
-        extList = packExtParams(request, extList);
         saveOrUpdateExt(groupId, streamId, extList);
 
         LOGGER.info("success to update inlong stream without check for groupId={} streamId={}", groupId, streamId);
@@ -580,24 +577,21 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     /**
-     * Pack extended attributes into {@link InlongStreamExtInfo} 
+     * Pack extended attributes into ExtParams 
+     *
      * @param request the request
-     * @param extList the extList from frontend
      * @return the packed extParams
      */
-    private List<InlongStreamExtInfo> packExtParams(InlongStreamRequest request,
-            List<InlongStreamExtInfo> extList) {
-        extList = extList == null ? new ArrayList<>() : extList;
-        InlongStreamExtInfo ignoreParseErrorExtInfo = new InlongStreamExtInfo();
-        ignoreParseErrorExtInfo.setKeyName(EXT_PARAM_IGNORE_PARSE_ERROR);
-        ignoreParseErrorExtInfo.setKeyValue(String.valueOf(request.isIgnoreParseError()));
-        extList.add(ignoreParseErrorExtInfo);
-        // add wrapWithInlongMsg param
-        InlongStreamExtInfo wrapWithInlongMsgExtInfo = new InlongStreamExtInfo();
-        wrapWithInlongMsgExtInfo.setKeyName(InlongConstants.EXT_PARAM_WRAP_WITH_INLONG_MSG);
-        wrapWithInlongMsgExtInfo.setKeyValue(String.valueOf(request.isIgnoreParseError()));
-        extList.add(wrapWithInlongMsgExtInfo);
-        return extList;
+    private String packExtParams(InlongStreamRequest request) {
+        InlongStreamExtParamBuilder builder = InlongStreamExtParam.builder();
+        // whether wrap with InlongMsg
+        boolean wrapWithInlongMsg = request.isWrapWithInlongMsg();
+        builder.wrapWithInlongMsg(wrapWithInlongMsg);
+        // whether ignore parse error
+        boolean ignoreParseError = request.isIgnoreParseError();
+        builder.ignoreParseError(ignoreParseError);
+        InlongStreamExtParam extParam = builder.build();
+        return JsonUtils.toJsonString(extParam);
     }
 
     @Override
