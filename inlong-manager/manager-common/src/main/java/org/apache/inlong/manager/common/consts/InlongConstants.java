@@ -138,4 +138,6 @@ public class InlongConstants {
 
     public static final String DATA_TYPE_RAW_PREFIX = "RAW_";
 
+    public static final int DEFAULT_ENABLE_VALUE = 1;
+
 }

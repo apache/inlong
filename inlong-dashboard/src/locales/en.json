@@ -367,6 +367,7 @@
   "meta.Stream.DataEncoding": "Data encoding",
   "meta.Stream.Description": "Description",
   "meta.Stream.SourceDataField": "Source fields",
+  "meta.Stream.IgnoreParseError": "Ignore parse error",
   "meta.Stream.Status.New": "New",
   "meta.Stream.Status.Pending": "Pending",
   "meta.Stream.Status.Error": "Error",

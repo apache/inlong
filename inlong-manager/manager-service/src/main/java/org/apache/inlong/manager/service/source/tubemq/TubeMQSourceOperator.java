@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.source.tubemq;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -107,6 +108,10 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
             tubeMQSource.setTopic(streamInfo.getMqResource());
             tubeMQSource.setGroupId(streamId);
             tubeMQSource.setMasterRpc(masterRpc);
+            String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
+            tubeMQSource.setSerializationType(serializationType);
+            tubeMQSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
+
             for (StreamSource sourceInfo : streamSources) {
                 if (!Objects.equals(streamId, sourceInfo.getInlongStreamId())) {
                     continue;

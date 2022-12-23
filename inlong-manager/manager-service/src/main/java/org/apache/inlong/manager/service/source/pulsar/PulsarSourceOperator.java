@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.source.pulsar;
 
-import static org.apache.inlong.manager.pojo.stream.InlongStreamInfo.ENABLE_WRAP_WITH_INLONG_MSG;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -129,10 +127,10 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             pulsarSource.setAdminUrl(adminUrl);
             pulsarSource.setServiceUrl(serviceUrl);
             pulsarSource.setInlongComponent(true);
-
-            Integer wrapWithInlongMsg = streamInfo.getWrapWithInlongMsg();
-            pulsarSource.setWrapWithInlongMsg(
-                    null == wrapWithInlongMsg || ENABLE_WRAP_WITH_INLONG_MSG == wrapWithInlongMsg);
+            String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
+            pulsarSource.setSerializationType(serializationType);
+            pulsarSource.setWrapWithInlongMsg(streamInfo.getWrapWithInlongMsg());
+            pulsarSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
 
             // set the token info
             if (StringUtils.isNotBlank(pulsarCluster.getToken())) {

@@ -65,9 +65,6 @@ public class InlongStreamInfo extends BaseInlongStream {
     @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")
     private String dataType;
 
-    @ApiModelProperty(value = "Whether the message body wrapped with InlongMsg, 0: no, 1: yes (as default)")
-    private Integer wrapWithInlongMsg;
-
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
     private String dataEncoding;
 
@@ -131,6 +128,12 @@ public class InlongStreamInfo extends BaseInlongStream {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
+
+    @ApiModelProperty(value = "Whether the message body wrapped with InlongMsg")
+    private Boolean wrapWithInlongMsg = true;
+
+    @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
+    private Boolean ignoreParseError = true;
 
     public InlongStreamRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, InlongStreamRequest::new);

@@ -367,6 +367,7 @@
   "meta.Stream.DataEncoding": "数据编码",
   "meta.Stream.Description": "介绍",
   "meta.Stream.SourceDataField": "源数据字段",
+  "meta.Stream.IgnoreParseError": "忽略数据解析错误",
   "meta.Stream.Status.New": "新建",
   "meta.Stream.Status.Pending": "配置中",
   "meta.Stream.Status.Error": "配置失败",

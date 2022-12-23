@@ -118,6 +118,27 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
 
   @FieldDecorator({
     type: 'radio',
+    rules: [{ required: true }],
+    initialValue: true,
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: true,
+        },
+        {
+          label: i18n.t('basic.No'),
+          value: false,
+        },
+      ],
+    }),
+  })
+  @I18n('meta.Stream.IgnoreParseError')
+  ignoreParseError: boolean;
+
+  @FieldDecorator({
+    type: 'radio',
     initialValue: 'UTF-8',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
@@ -189,28 +210,6 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   dataSeparator: string;
 
   @FieldDecorator({
-    type: 'radio',
-    isPro: true,
-    rules: [{ required: true }],
-    initialValue: 1,
-    tooltip: i18n.t('meta.Stream.WrapWithInlongMsgHelp'),
-    props: values => ({
-      options: [
-        {
-          label: i18n.t('basic.Yes'),
-          value: 1,
-        },
-        {
-          label: i18n.t('basic.No'),
-          value: 0,
-        },
-      ],
-    }),
-  })
-  @I18n('meta.Stream.WrapWithInlongMsg')
-  wrapWithInlongMsg: number;
-
-  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',
@@ -250,6 +249,29 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   })
   @I18n('meta.Stream.SourceDataField')
   rowTypeFields: Record<string, string>[];
+
+  @FieldDecorator({
+    type: 'radio',
+    isPro: true,
+    rules: [{ required: true }],
+    initialValue: true,
+    tooltip: i18n.t('meta.Stream.WrapWithInlongMsgHelp'),
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: true,
+        },
+        {
+          label: i18n.t('basic.No'),
+          value: false,
+        },
+      ],
+    }),
+  })
+  @I18n('meta.Stream.WrapWithInlongMsg')
+  wrapWithInlongMsg: boolean;
 
   parse(data) {
     return data;
