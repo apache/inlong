@@ -456,6 +456,8 @@
   "pages.GroupDashboard.ConfirmDelete": "确认删除吗",
   "pages.GroupDashboard.Create": "新建数据流组",
   "pages.GroupDashboard.SuccessfullyDeleted": "删除成功",
+  "pages.GroupDetail.Info.Basic": "基础信息",
+  "pages.GroupDetail.Info.Mq": "MQ 信息",
   "pages.GroupDetail.Info.Back": "返回",
   "pages.GroupDetail.Info.NextStep": "下一步",
   "pages.GroupDetail.Info.DataStreams": "数据流",

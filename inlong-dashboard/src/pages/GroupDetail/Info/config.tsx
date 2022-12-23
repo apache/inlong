@@ -17,7 +17,9 @@
  * under the License.
  */
 
-import { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
+import { Divider } from 'antd';
+import i18n from '@/i18n';
 import { useLoadMeta, GroupMetaType } from '@/metas';
 import { excludeObjectArray } from '@/utils';
 
@@ -31,7 +33,7 @@ export const useFormContent = ({ mqType, editing, isCreate, isUpdate }) => {
   const excludeKeys = ['ensemble'].concat(isCreate ? 'mqResource' : '');
   const fields = excludeObjectArray(excludeKeys, entityFields || []);
 
-  return isCreate
+  const formContent = isCreate
     ? fields.map(item => {
         if (item.name === 'inlongGroupId' && isUpdate) {
           return {
@@ -60,6 +62,32 @@ export const useFormContent = ({ mqType, editing, isCreate, isUpdate }) => {
           rules: t === 'text' ? undefined : item.rules,
         };
       });
+
+  const { Entity: DefaultEntity } = useLoadMeta<GroupMetaType>('group', '');
+
+  const isMqKey = useCallback(
+    formName => {
+      const defaultGroupKeysI18nMap = DefaultEntity?.I18nMap || {};
+      return !defaultGroupKeysI18nMap[formName] || formName === 'mqType';
+    },
+    [DefaultEntity?.I18nMap],
+  );
+
+  const basicFormContent = formContent.filter(item => !isMqKey(item.name));
+  const mqFormContent = formContent.filter(item => isMqKey(item.name));
+
+  return [
+    {
+      type: <Divider orientation="left">{i18n.t('pages.GroupDetail.Info.Basic')}</Divider>,
+      col: 24,
+    },
+    ...basicFormContent,
+    {
+      type: <Divider orientation="left">{i18n.t('pages.GroupDetail.Info.Mq')}</Divider>,
+      col: 24,
+    },
+    ...mqFormContent,
+  ];
 };
 
 function transType(editing: boolean, conf) {
