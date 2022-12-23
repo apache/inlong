@@ -34,7 +34,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel("Inlong stream info")
+@ApiModel("Inlong stream ext param info")
 public class InlongStreamExtParam implements Serializable {
 
     @ApiModelProperty(value = "Whether to ignore the parse errors of field value")
