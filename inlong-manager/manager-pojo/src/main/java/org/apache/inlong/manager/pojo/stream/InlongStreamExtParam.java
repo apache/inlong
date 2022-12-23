@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.pojo.stream;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
+
 import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -43,4 +47,41 @@ public class InlongStreamExtParam implements Serializable {
     @ApiModelProperty(value = "Whether the message body wrapped with InlongMsg")
     private boolean wrapWithInlongMsg;
 
+    /**
+     * Pack extended attributes into ExtParams
+     *
+     * @param request the request
+     * @return the packed extParams
+     */
+    public static String packExtParams(InlongStreamRequest request) {
+        InlongStreamExtParam extParam = CommonBeanUtils.copyProperties(request, InlongStreamExtParam::new,
+                true);
+        return JsonUtils.toJsonString(extParam);
+    }
+
+    /**
+     * Unpack extended attributes from {@link InlongStreamExtInfo}, will remove target attributes from it.
+     *
+     * @param extParams the extParams value load from db
+     * @param targetObject the targetObject with to fill up
+     */
+    public static void unpackExtParams(
+            String extParams,
+            Object targetObject) {
+        if (StringUtils.isNoneBlank(extParams)) {
+            InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(extParams, InlongStreamExtParam.class);
+            if (inlongStreamExtParam != null) {
+                CommonBeanUtils.copyProperties(inlongStreamExtParam, targetObject, true);
+            }
+        }
+    }
+
+    /**
+     * Expand extParam filed, and fill in {@link InlongStreamInfo}
+     *
+     * @param streamInfo the InlongStreamInfo need to filled
+     */
+    public static void unpackExtParams(InlongStreamInfo streamInfo) {
+        unpackExtParams(streamInfo.getExtParams(), streamInfo);
+    }
 }

@@ -29,7 +29,6 @@ import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
@@ -48,7 +47,6 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
-import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
@@ -73,6 +71,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.packExtParams;
+import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.unpackExtParams;
 
 /**
  * Inlong stream service layer implementation
@@ -238,27 +239,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamInfo.setSourceList(sourceList);
         LOGGER.info("success to get inlong stream for groupId={}", groupId);
         return streamInfo;
-    }
-
-    /**
-     * Unpack extended attributes from {@link InlongStreamExtInfo}, will remove target attributes from it.
-     *
-     * @param extParams the {@link InlongStreamEntity} load from db 
-     * @param targetObject the targetObject with to fill up
-     */
-    private void unpackExtParams(
-            String extParams,
-            Object targetObject) {
-        if (StringUtils.isNoneBlank(extParams)) {
-            InlongStreamExtParam inlongStreamExtParam = JsonUtils.parseObject(extParams, InlongStreamExtParam.class);
-            if (inlongStreamExtParam != null) {
-                CommonBeanUtils.copyProperties(inlongStreamExtParam, targetObject, true);
-            }
-        }
-    }
-
-    private void unpackExtParams(InlongStreamInfo streamInfo) {
-        unpackExtParams(streamInfo.getExtParams(), streamInfo);
     }
 
     @Override
@@ -567,18 +547,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         LOGGER.info("success to update inlong stream without check for groupId={} streamId={}", groupId, streamId);
         return true;
-    }
-
-    /**
-     * Pack extended attributes into ExtParams 
-     *
-     * @param request the request
-     * @return the packed extParams
-     */
-    private String packExtParams(InlongStreamRequest request) {
-        InlongStreamExtParam extParam = CommonBeanUtils.copyProperties(request, InlongStreamExtParam::new,
-                true);
-        return JsonUtils.toJsonString(extParam);
     }
 
     @Override

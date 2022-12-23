@@ -110,7 +110,6 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
             kafkaSource.setSourceName(streamId);
             kafkaSource.setBootstrapServers(bootstrapServers);
             kafkaSource.setTopic(streamInfo.getMqResource());
-            kafkaSource.setSerializationType(streamInfo.getDataType());
             String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
             kafkaSource.setSerializationType(serializationType);
             kafkaSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
