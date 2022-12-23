@@ -49,7 +49,6 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam;
-import org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.InlongStreamExtParamBuilder;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
@@ -258,6 +257,10 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         }
     }
 
+    private void unpackExtParams(InlongStreamInfo streamInfo) {
+        unpackExtParams(streamInfo.getExtParams(), streamInfo);
+    }
+
     @Override
     public InlongStreamInfo get(String groupId, String streamId, UserInfo opInfo) {
         // check operator info
@@ -424,10 +427,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         return pageResult;
     }
 
-    private void unpackExtParams(InlongStreamInfo streamInfo) {
-        unpackExtParams(streamInfo.getExtParams(), streamInfo);
-    }
-
     @Override
     public List<InlongStreamBriefInfo> listBriefWithSink(String groupId) {
         LOGGER.debug("begin to get inlong stream brief list by groupId={}", groupId);
@@ -577,14 +576,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
      * @return the packed extParams
      */
     private String packExtParams(InlongStreamRequest request) {
-        InlongStreamExtParamBuilder builder = InlongStreamExtParam.builder();
-        // whether wrap with InlongMsg
-        boolean wrapWithInlongMsg = request.isWrapWithInlongMsg();
-        builder.wrapWithInlongMsg(wrapWithInlongMsg);
-        // whether ignore parse error
-        boolean ignoreParseError = request.isIgnoreParseError();
-        builder.ignoreParseError(ignoreParseError);
-        InlongStreamExtParam extParam = builder.build();
+        InlongStreamExtParam extParam = CommonBeanUtils.copyProperties(request, InlongStreamExtParam::new,
+                true);
         return JsonUtils.toJsonString(extParam);
     }
 
