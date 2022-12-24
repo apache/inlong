@@ -18,7 +18,6 @@
 package org.apache.inlong.agent.plugin.sinks;
 
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.message.BatchProxyMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
@@ -26,6 +25,8 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
@@ -37,11 +38,10 @@ public class MockSink extends AbstractSink {
     public static final String MOCK_SINK_TAG_NAME = "AgentMockSinkMetric";
     private static final Logger LOGGER = LoggerFactory.getLogger(MockSink.class);
     private final AtomicLong number = new AtomicLong(0);
-    public String tagName = MOCK_SINK_TAG_NAME + "_" + "groupIdTest" + "_" + "streamId";
-    private TaskPositionManager taskPositionManager;
     private String sourceFileName;
     private String jobInstanceId;
     private long dataTime;
+    private List<Message> messages = new ArrayList<>();
 
     public MockSink() {
 
@@ -50,6 +50,7 @@ public class MockSink extends AbstractSink {
     @Override
     public void write(Message message) {
         if (message != null) {
+            messages.add(message);
             number.incrementAndGet();
             BatchProxyMessage msg = new BatchProxyMessage();
             msg.setJobId(jobInstanceId);
@@ -74,7 +75,6 @@ public class MockSink extends AbstractSink {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        taskPositionManager = TaskPositionManager.getInstance();
         jobInstanceId = jobConf.get(JOB_INSTANCE_ID);
         dataTime = AgentUtils.timeStrConvertToMillSec(jobConf.get(JOB_DATA_TIME, ""),
                 jobConf.get(JOB_CYCLE_UNIT, ""));
@@ -87,4 +87,7 @@ public class MockSink extends AbstractSink {
         LOGGER.info("destroy mockSink, sink line number is : {}", number.get());
     }
 
+    public List<Message> getResult() {
+        return messages;
+    }
 }

@@ -117,9 +117,8 @@ public class TaskManager extends AbstractDaemon {
      * @param task task
      */
     public void submitTask(Task task) {
-        TaskWrapper taskWrapper = new TaskWrapper(agentManager, task);
+        TaskWrapper taskWrapper = new TaskWrapper(this, task);
         submitTask(taskWrapper);
-
     }
 
     public void submitTask(TaskWrapper wrapper) {

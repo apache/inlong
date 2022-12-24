@@ -194,11 +194,11 @@ public class AgentUtils {
     }
 
     /**
-     * Sleep minutes
+     * Sleep seconds
      */
-    public static void silenceSleepInMinute(long minutes) {
+    public static void silenceSleepInSeconds(long seconds) {
         try {
-            TimeUnit.MINUTES.sleep(minutes);
+            TimeUnit.SECONDS.sleep(seconds);
         } catch (Exception e) {
             LOGGER.warn("error in silence sleep: ", e);
         }

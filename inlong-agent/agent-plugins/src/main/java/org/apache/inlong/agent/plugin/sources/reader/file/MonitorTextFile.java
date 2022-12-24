@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.common.NamedRunnable;
 import org.slf4j.Logger;
@@ -74,6 +75,11 @@ public final class MonitorTextFile {
         EXECUTOR_SERVICE.execute(new MonitorEventRunnable(fileReaderOperator, textFileReader));
     }
 
+    @VisibleForTesting
+    public int monitorNum() {
+        return EXECUTOR_SERVICE.getActiveCount();
+    }
+
     /**
      * Runnable for monitor the file event
      */
@@ -106,7 +112,6 @@ public final class MonitorTextFile {
         @Override
         public void run() {
             try {
-                TimeUnit.SECONDS.sleep(WAIT_TIME);
                 LOGGER.info("Job {} start monitor {}",
                         fileReaderOperator.instanceId, fileReaderOperator.file.getAbsolutePath());
                 while (!fileReaderOperator.finished) {

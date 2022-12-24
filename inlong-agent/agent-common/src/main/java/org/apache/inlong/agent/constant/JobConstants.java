@@ -161,6 +161,9 @@ public class JobConstants extends CommonConstants {
     // job time reading file
     public static final String JOB_DATA_TIME = "job.dataTime";
 
+    // job of the number of seconds to wait before starting the task
+    public static final String JOB_TASK_BEGIN_WAIT_SECONDS = "job.taskWaitSeconds";
+
     /**
      * when job is retried, the retry time should be provided
      */

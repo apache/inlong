@@ -22,7 +22,6 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.core.job.JobWrapper;
-import org.apache.inlong.agent.core.trigger.TriggerManager;
 import org.apache.inlong.agent.db.StateSearchKey;
 import org.apache.inlong.agent.plugin.utils.TestUtils;
 import org.apache.inlong.agent.utils.AgentUtils;

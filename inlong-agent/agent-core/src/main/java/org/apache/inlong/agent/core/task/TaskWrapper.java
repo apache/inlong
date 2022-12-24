@@ -20,7 +20,7 @@ package org.apache.inlong.agent.core.task;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.core.AgentManager;
+import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.state.AbstractStateWrapper;
@@ -46,7 +46,7 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOU
 public class TaskWrapper extends AbstractStateWrapper {
 
     public static final int WAIT_FINISH_TIME_OUT = 1;
-    public static final int WAIT_BEGIN_TIME_MINUTE = 1;
+    public static final int WAIT_BEGIN_TIME_SECONDS = 60;
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskWrapper.class);
     private final TaskManager taskManager;
     private final Task task;
@@ -58,9 +58,9 @@ public class TaskWrapper extends AbstractStateWrapper {
     private final int readWaitTime;
     private ExecutorService executorService;
 
-    public TaskWrapper(AgentManager manager, Task task) {
+    public TaskWrapper(TaskManager manager, Task task) {
         super();
-        this.taskManager = manager.getTaskManager();
+        this.taskManager = manager;
         this.task = task;
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         maxRetryTime = conf.getInt(
@@ -202,7 +202,8 @@ public class TaskWrapper extends AbstractStateWrapper {
     public void run() {
         try {
             LOGGER.info("start to run {}, retry time is {}", task.getTaskId(), retryTime.get());
-            AgentUtils.silenceSleepInMinute(WAIT_BEGIN_TIME_MINUTE);
+            AgentUtils.silenceSleepInSeconds(task.getJobConf()
+                    .getLong(JobConstants.JOB_TASK_BEGIN_WAIT_SECONDS, WAIT_BEGIN_TIME_SECONDS));
             doChangeState(State.RUNNING);
             task.init();
             submitThreadsAndWait();
