@@ -166,7 +166,7 @@ public class TestTriggerManager {
             return true;
         });
 
-        //shutdown trigger
+        // shutdown trigger
         agent.getManager().getTriggerManager().deleteTrigger(triggerProfile1.getTriggerId());
         await().atMost(10, TimeUnit.SECONDS).until(() -> trigger.getWatchers().size() == 0);
         TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/1.log");

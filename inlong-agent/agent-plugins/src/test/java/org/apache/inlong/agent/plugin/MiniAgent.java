@@ -98,14 +98,13 @@ public class MiniAgent {
     }
 
     public void cleanupJobs() {
-        jobProfileCache.forEach(jobProfile ->
-                manager.getJobManager().deleteJob(jobProfile.getInstanceId()));
+        jobProfileCache.forEach(jobProfile -> manager.getJobManager().deleteJob(jobProfile.getInstanceId()));
         jobProfileCache.clear();
     }
 
     public void cleanupTriggers() {
-        triggerProfileCache.forEach(triggerProfile ->
-                manager.getTriggerManager().deleteTrigger(triggerProfile.getTriggerId()));
+        triggerProfileCache
+                .forEach(triggerProfile -> manager.getTriggerManager().deleteTrigger(triggerProfile.getTriggerId()));
         triggerProfileCache.clear();
     }
 }

@@ -198,7 +198,7 @@ public class TestTextFileTask {
             Map<String, String> logJson = GSON.fromJson(content, Map.class);
             return logJson.get(MetadataConstants.DATA_CONTENT);
         }).collect(Collectors.joining(System.lineSeparator()));
-        Assert.assertEquals(testData1 + System.lineSeparator() +  testData, collectData);
+        Assert.assertEquals(testData1 + System.lineSeparator() + testData, collectData);
     }
 
     /**

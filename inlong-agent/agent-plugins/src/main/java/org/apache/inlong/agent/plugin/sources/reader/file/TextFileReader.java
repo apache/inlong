@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,14 +61,14 @@ public final class TextFileReader extends AbstractFileReader {
 
     public void getData() throws IOException {
         // todo: TaskPositionManager stored position should be changed to byte position.Now it store msg sent, so here
-        //  every line (include empty line) should be sent, otherwise the read position will be offset when
-        //  restarting and recovering. In the same time, Regex end line spiltted line also has this problem, because
-        //  recovering is based on line position.
+        // every line (include empty line) should be sent, otherwise the read position will be offset when
+        // restarting and recovering. In the same time, Regex end line spiltted line also has this problem, because
+        // recovering is based on line position.
         List<String> lines = bytePosition == 0 ? readFromLine(fileReaderOperator.position) : readFromPos(bytePosition);
         LOGGER.info("path is {}, line is {}, position is {}, data reads size {}",
                 fileReaderOperator.file.getName(), fileReaderOperator.position, bytePosition, lines.size());
         List<String> resultLines = lines;
-        //TODO line regular expression matching
+        // TODO line regular expression matching
         if (fileReaderOperator.jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
             Pattern pattern = Pattern.compile(fileReaderOperator.jobConf.get(JOB_FILE_LINE_END_PATTERN));
             resultLines = lines.stream().flatMap(line -> {
