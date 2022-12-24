@@ -85,7 +85,6 @@ public final class MonitorTextFile {
      */
     private static class MonitorEventRunnable implements NamedRunnable {
 
-        private static final int WAIT_TIME = 30;
         private final FileReaderOperator fileReaderOperator;
         private final TextFileReader textFileReader;
         private final Long interval;
@@ -122,7 +121,9 @@ public final class MonitorTextFile {
                             && currentTime - this.startTime > expireTime) {
                         break;
                     }
-                    listen();
+                    if (fileReaderOperator.inited) {
+                        listen();
+                    }
                     TimeUnit.MILLISECONDS.sleep(interval);
                 }
             } catch (Exception e) {

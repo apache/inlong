@@ -69,6 +69,7 @@ public class FileReaderOperator extends AbstractReader {
     public Map<String, String> metadata;
     public JobProfile jobConf;
     public Iterator<String> iterator;
+    public boolean inited = false;
     public volatile boolean finished = false;
     public String instanceId;
     private long timeout;
@@ -204,6 +205,7 @@ public class FileReaderOperator extends AbstractReader {
             if (Objects.nonNull(stream)) {
                 iterator = stream.iterator();
             }
+            inited = true;
         } catch (Exception ex) {
             throw new FileException("error init stream for " + file.getPath(), ex);
         }
