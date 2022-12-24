@@ -43,9 +43,6 @@ public abstract class AbstractFileReader {
     public abstract void getData() throws Exception;
 
     public void mergeData(FileReaderOperator fileReaderOperator) {
-        if (null == fileReaderOperator.metadata) {
-            return;
-        }
         List<String> lines = fileReaderOperator.stream.collect(Collectors.toList());
         if (fileReaderOperator.jobConf.hasKey(JOB_FILE_CONTENT_COLLECT_TYPE)) {
             long timestamp = System.currentTimeMillis();

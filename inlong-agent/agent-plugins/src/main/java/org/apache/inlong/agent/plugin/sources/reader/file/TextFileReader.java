@@ -21,8 +21,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.DataInput;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -40,7 +44,13 @@ public final class TextFileReader extends AbstractFileReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextFileReader.class);
 
+    private static final int LINE_SEPARATOR_SIZE = System.lineSeparator().getBytes(StandardCharsets.UTF_8).length;
+
+    private static final int BATCH_READ_SIZE = 10000;
+
     private final StringBuffer sb = new StringBuffer();
+
+    private int bytePosition = 0;
 
     public TextFileReader(FileReaderOperator fileReaderOperator) {
         super.fileReaderOperator = fileReaderOperator;
@@ -51,11 +61,13 @@ public final class TextFileReader extends AbstractFileReader {
     }
 
     public void getData() throws IOException {
-        List<String> lines = Files.newBufferedReader(fileReaderOperator.file.toPath()).lines().skip(
-                        fileReaderOperator.position)
-                .collect(Collectors.toList());
-        LOGGER.info("path is {}, position is {}, data reads size {}", fileReaderOperator.file.getName(),
-                fileReaderOperator.position, lines.size());
+        // todo: TaskPositionManager stored position should be changed to byte position.Now it store msg sent, so here
+        //  every line (include empty line) should be sent, otherwise the read position will be offset when
+        //  restarting and recovering. In the same time, Regex end line spiltted line also has this problem, because
+        //  recovering is based on line position.
+        List<String> lines = bytePosition == 0 ? readFromLine(fileReaderOperator.position) : readFromPos(bytePosition);
+        LOGGER.info("path is {}, line is {}, position is {}, data reads size {}",
+                fileReaderOperator.file.getName(), fileReaderOperator.position, bytePosition, lines.size());
         List<String> resultLines = lines;
         //TODO line regular expression matching
         if (fileReaderOperator.jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
@@ -76,10 +88,43 @@ public final class TextFileReader extends AbstractFileReader {
                 sb.setLength(0);
                 sb.append(lastWord);
                 return tmpResultLines.stream();
-            }).filter(data -> StringUtils.isNotBlank(data)).collect(Collectors.toList());
+            }).collect(Collectors.toList());
         }
 
+        bytePosition += lines.stream()
+                .mapToInt(line -> line.getBytes(StandardCharsets.UTF_8).length + LINE_SEPARATOR_SIZE)
+                .sum();
         fileReaderOperator.stream = resultLines.stream();
         fileReaderOperator.position = fileReaderOperator.position + lines.size();
+    }
+
+    private List<String> readFromLine(int lineNum) throws IOException {
+        String line = null;
+        List<String> lines = new ArrayList<>();
+        BufferedReader reader = new BufferedReader(new FileReader(fileReaderOperator.file));
+        int count = 0;
+        while ((line = reader.readLine()) != null) {
+            if (++count > fileReaderOperator.position) {
+                lines.add(line);
+            }
+            if (lines.size() >= BATCH_READ_SIZE) {
+                break;
+            }
+        }
+        return lines;
+    }
+
+    private List<String> readFromPos(int pos) throws IOException {
+        String line = null;
+        List<String> lines = new ArrayList<>();
+        DataInput input = new RandomAccessFile(fileReaderOperator.file, "r");
+        input.skipBytes(pos);
+        while ((line = input.readLine()) != null) {
+            lines.add(line);
+            if (lines.size() >= BATCH_READ_SIZE) {
+                break;
+            }
+        }
+        return lines;
     }
 }

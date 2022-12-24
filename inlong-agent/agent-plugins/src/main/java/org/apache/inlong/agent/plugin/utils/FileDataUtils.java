@@ -55,7 +55,7 @@ public class FileDataUtils {
      */
     public static String getK8sJsonLog(String log, Boolean isJson) {
         if (!StringUtils.isNoneBlank(log)) {
-            return null;
+            return "";
         }
         if (!isJson) {
             return log;

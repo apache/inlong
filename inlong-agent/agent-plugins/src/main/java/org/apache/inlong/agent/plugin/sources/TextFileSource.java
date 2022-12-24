@@ -88,7 +88,7 @@ public class TextFileSource extends AbstractSource {
                 .equalsIgnoreCase(jobConf.get(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE))) {
             try (LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file.getPath()))) {
                 lineNumberReader.skip(Long.MAX_VALUE);
-                seekPosition = lineNumberReader.getLineNumber() + 1;
+                seekPosition = lineNumberReader.getLineNumber();
                 return seekPosition;
             } catch (IOException ex) {
                 LOGGER.error("get position error, file absolute path: {}", file.getAbsolutePath());

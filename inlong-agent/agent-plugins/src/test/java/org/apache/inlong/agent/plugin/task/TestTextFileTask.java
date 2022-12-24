@@ -161,6 +161,47 @@ public class TestTextFileTask {
     }
 
     /**
+     * Test read full data.
+     */
+    @Test
+    public void testReadFull() throws IOException {
+        File file = TMP_FOLDER.newFile();
+        StringBuffer sb = new StringBuffer();
+        String testData1 = IntStream.range(0, 100)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(System.lineSeparator()));
+        sb.append(testData1);
+        sb.append(System.lineSeparator());
+        TestUtils.write(file.getAbsolutePath(), sb);
+        sb.setLength(0);
+
+        JobProfile jobProfile = new JobProfile();
+        jobProfile.set(JobConstants.JOB_INSTANCE_ID, "1");
+        jobProfile.set(JobConstants.JOB_DIR_FILTER_PATTERNS, file.getAbsolutePath());
+        jobProfile.set(JobConstants.JOB_TASK_BEGIN_WAIT_SECONDS, String.valueOf(0));
+        jobProfile.set(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.FULL);
+
+        // mock data
+        final MockSink sink = mockTextTask(jobProfile);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 100);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> MonitorTextFile.getInstance().monitorNum() == 1);
+        String testData = IntStream.range(100, 300)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(System.lineSeparator()));
+        sb.append(testData);
+        sb.append(System.lineSeparator());
+        TestUtils.write(file.getAbsolutePath(), sb);
+
+        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 300);
+        String collectData = sink.getResult().stream().map(message -> {
+            String content = new String(message.getBody(), Charset.forName("UTF-8"));
+            Map<String, String> logJson = GSON.fromJson(content, Map.class);
+            return logJson.get(MetadataConstants.DATA_CONTENT);
+        }).collect(Collectors.joining(System.lineSeparator()));
+        Assert.assertEquals(testData1 + System.lineSeparator() +  testData, collectData);
+    }
+
+    /**
      * Test read increment data.
      */
     @Test
@@ -170,6 +211,7 @@ public class TestTextFileTask {
         sb.append(IntStream.range(0, 100)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(System.lineSeparator())));
+        sb.append(System.lineSeparator());
         TestUtils.write(file.getAbsolutePath(), sb);
         sb.setLength(0);
 
@@ -182,7 +224,6 @@ public class TestTextFileTask {
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
         await().atMost(10, TimeUnit.SECONDS).until(() -> MonitorTextFile.getInstance().monitorNum() == 1);
-        sb.append(System.lineSeparator());
         String testData = IntStream.range(100, 300)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(System.lineSeparator()));
@@ -190,7 +231,7 @@ public class TestTextFileTask {
         sb.append(System.lineSeparator());
         TestUtils.write(file.getAbsolutePath(), sb);
 
-        await().atMost(1000, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 200);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 200);
         String collectData = sink.getResult().stream().map(message -> {
             String content = new String(message.getBody(), Charset.forName("UTF-8"));
             Map<String, String> logJson = GSON.fromJson(content, Map.class);
@@ -223,14 +264,14 @@ public class TestTextFileTask {
         sb.append("j6789klmn");
 
         TestUtils.write(file.getAbsolutePath(), sb);
-        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 5);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 8);
         List<String> results = sink.getResult().stream().map(message -> {
             String content = new String(message.getBody(), Charset.forName("UTF-8"));
             Map<String, String> logJson = GSON.fromJson(content, Map.class);
             return logJson.get(MetadataConstants.DATA_CONTENT);
         }).collect(Collectors.toList());
         List<String> excepted = Lists.newArrayList("a", "b", "c", "d",
-                "e" + System.lineSeparator() + "fghi" + System.lineSeparator() + "j");
+                "e" + System.lineSeparator() + "fghi" + System.lineSeparator() + "j", "", "", "");
         Assert.assertEquals(excepted, results);
     }
 
