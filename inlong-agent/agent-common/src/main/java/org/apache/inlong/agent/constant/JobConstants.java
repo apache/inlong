@@ -52,6 +52,7 @@ public class JobConstants extends CommonConstants {
 
     // File job
     public static final String JOB_TRIGGER = "job.fileJob.trigger";
+    public static final String JOB_DIR_FILTER_PATTERN = "job.fileJob.dir.pattern";  // deprecated
     public static final String JOB_DIR_FILTER_PATTERNS = "job.fileJob.dir.patterns";
     public static final String JOB_DIR_FILTER_BLACKLIST = "job.fileJob.dir.blackList";
     public static final String JOB_FILE_TIME_OFFSET = "job.fileJob.timeOffset";

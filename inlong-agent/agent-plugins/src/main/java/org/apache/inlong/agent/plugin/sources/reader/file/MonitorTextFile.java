@@ -106,9 +106,9 @@ public final class MonitorTextFile {
         @Override
         public void run() {
             try {
-                Thread.currentThread().setName(String.format("Monitor(%s)", path));
                 TimeUnit.SECONDS.sleep(WAIT_TIME);
-                LOGGER.info("start {} monitor", fileReaderOperator.file.getAbsolutePath());
+                LOGGER.info("Job {} start monitor {}",
+                        fileReaderOperator.instanceId, fileReaderOperator.file.getAbsolutePath());
                 while (!fileReaderOperator.finished) {
                     long expireTime = Long.parseLong(
                             fileReaderOperator.jobConf.get(JOB_FILE_MONITOR_EXPIRE, JOB_FILE_MONITOR_DEFAULT_EXPIRE));
@@ -127,7 +127,7 @@ public final class MonitorTextFile {
 
         @Override
         public String getName() {
-            return path;
+            return String.format("Monitor(%s)", path);
         }
 
         private void listen() throws IOException {

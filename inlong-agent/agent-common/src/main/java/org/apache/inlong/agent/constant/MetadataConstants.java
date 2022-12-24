@@ -36,6 +36,6 @@ public class MetadataConstants {
     // cvm metadata
     public static final String ENV_CVM = "cvm";
     public static final String METADATA_HOST_NAME = "__HostName__";
-    public static final String METADATA_SOURCE_IP = "__SourceIp__";
+    public static final String METADATA_SOURCE_IP = "__SourceIP__";
     public static final String METADATA_FILE_NAME = "__FileName__";
 }

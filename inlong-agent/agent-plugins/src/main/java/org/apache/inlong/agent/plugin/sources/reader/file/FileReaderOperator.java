@@ -19,7 +19,9 @@ package org.apache.inlong.agent.plugin.sources.reader.file;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
@@ -70,6 +72,7 @@ public class FileReaderOperator extends AbstractReader {
     public JobProfile jobConf;
     public Iterator<String> iterator;
     public volatile boolean finished = false;
+    public String instanceId;
     private long timeout;
     private long waitTimeout;
     private long lastTime = 0;
@@ -184,6 +187,7 @@ public class FileReaderOperator extends AbstractReader {
         try {
             this.jobConf = jobConf;
             super.init(jobConf);
+            this.instanceId = jobConf.getInstanceId();
             initReadTimeout(jobConf);
             String md5 = AgentUtils.getFileMd5(file);
             if (StringUtils.isNotBlank(this.md5) && !this.md5.equals(md5)) {
@@ -241,7 +245,7 @@ public class FileReaderOperator extends AbstractReader {
                 fileReaders.add(new KubernetesFileReader(reader));
             } else if (data.equalsIgnoreCase(ENV_CVM)) {
                 reader.metadata.put(METADATA_HOST_NAME, AgentUtils.getLocalHost());
-                reader.metadata.put(METADATA_SOURCE_IP, AgentUtils.getLocalIp());
+                reader.metadata.put(METADATA_SOURCE_IP, AgentUtils.fetchLocalIp());
                 reader.metadata.put(METADATA_FILE_NAME, reader.file.getName());
             }
         });
