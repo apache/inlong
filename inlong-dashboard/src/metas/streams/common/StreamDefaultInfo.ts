@@ -113,6 +113,10 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           label: 'AVRO',
           value: 'AVRO',
         },
+        {
+          label: 'JSON',
+          value: 'JSON',
+        },
       ],
     }),
     rules: [{ required: true }],
