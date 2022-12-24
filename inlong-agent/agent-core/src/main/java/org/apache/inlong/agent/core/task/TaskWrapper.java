@@ -74,7 +74,7 @@ public class TaskWrapper extends AbstractStateWrapper {
             executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                     60L, TimeUnit.SECONDS,
                     new SynchronousQueue<Runnable>(),
-                    new AgentThreadFactory("task-reader-writer"));
+                    new AgentThreadFactory("task-reader-writer-task_" + task.getTaskId()));
         }
         doChangeState(State.ACCEPTED);
     }
@@ -201,6 +201,7 @@ public class TaskWrapper extends AbstractStateWrapper {
     @Override
     public void run() {
         try {
+            AgentThreadFactory.nameThread(task.getTaskId());
             LOGGER.info("start to run {}, retry time is {}", task.getTaskId(), retryTime.get());
             AgentUtils.silenceSleepInSeconds(task.getJobConf()
                     .getLong(JobConstants.JOB_TASK_BEGIN_WAIT_SECONDS, WAIT_BEGIN_TIME_SECONDS));
@@ -216,10 +217,5 @@ public class TaskWrapper extends AbstractStateWrapper {
             LOGGER.error("error while running wrapper", ex);
             doChangeState(State.FAILED);
         }
-    }
-
-    @Override
-    public String getName() {
-        return task.getTaskId();
     }
 }

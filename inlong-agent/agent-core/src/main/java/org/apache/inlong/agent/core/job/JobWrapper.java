@@ -20,6 +20,7 @@ package org.apache.inlong.agent.core.job;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
@@ -207,6 +208,7 @@ public class JobWrapper extends AbstractStateWrapper {
     @Override
     public void run() {
         try {
+            AgentThreadFactory.nameThread(job.getJobInstanceId());
             LOGGER.info("job id: {}, source: {}, channel: {}, sink: {}",
                     job.getJobInstanceId(), job.getJobConf().get(JobConstants.JOB_SOURCE_CLASS),
                     job.getJobConf().get(JobConstants.JOB_CHANNEL), job.getJobConf().get(JobConstants.JOB_SINK));
@@ -232,11 +234,6 @@ public class JobWrapper extends AbstractStateWrapper {
         }).addCallback(State.RUNNING, State.SUCCEEDED, ((before, after) -> {
             jobManager.markJobAsSuccess(job.getJobInstanceId());
         }));
-    }
-
-    @Override
-    public String getName() {
-        return job.getJobInstanceId();
     }
 
     /**

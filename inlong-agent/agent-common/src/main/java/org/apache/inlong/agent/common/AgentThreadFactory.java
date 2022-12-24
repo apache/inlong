@@ -32,6 +32,8 @@ public class AgentThreadFactory implements ThreadFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentThreadFactory.class);
 
+    public static final String NAMED_THREAD_PLACEHOLDER = "running-thread";
+
     private final AtomicInteger mThreadNum = new AtomicInteger(1);
 
     private final String threadType;
@@ -42,12 +44,22 @@ public class AgentThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        String name = r instanceof NamedRunnable ? ((NamedRunnable) r).getName() : "-running-thread-";
-        Thread t = new Thread(r, threadType + name + mThreadNum.getAndIncrement());
+        Thread t = new Thread(r,
+                threadType + "-" + NAMED_THREAD_PLACEHOLDER + "-" + mThreadNum.getAndIncrement());
         if (AgentUtils.enableOOMExit()) {
             t.setUncaughtExceptionHandler(ThreadUtils::threadThrowableHandler);
         }
         LOGGER.debug("{} created", t.getName());
         return t;
+    }
+
+    /**
+     * Replace a unique name for thread factory created thread, replace this name for placeholder
+     *
+     * @param uniqueName
+     */
+    public static void nameThread(String uniqueName) {
+        Thread.currentThread().setName(
+                Thread.currentThread().getName().replace(NAMED_THREAD_PLACEHOLDER, uniqueName));
     }
 }

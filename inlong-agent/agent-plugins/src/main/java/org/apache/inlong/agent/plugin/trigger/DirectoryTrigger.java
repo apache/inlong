@@ -20,7 +20,6 @@ package org.apache.inlong.agent.plugin.trigger;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.common.NamedRunnable;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
@@ -154,17 +153,13 @@ public class DirectoryTrigger implements Trigger {
         return allTriggerWatches;
     }
 
-    public static class WatchKeyProviderThread implements NamedRunnable {
+    public static class WatchKeyProviderThread implements Runnable {
 
         private final Object lock = new Object();
 
         @Override
-        public String getName() {
-            return "Directory watch checker";
-        }
-
-        @Override
         public void run() {
+            Thread.currentThread().setName("Directory watch checker");
             while (true) {
                 try {
                     TimeUnit.SECONDS.sleep(AgentConstants.DEFAULT_TRIGGER_CHECK_INTERVAL);
