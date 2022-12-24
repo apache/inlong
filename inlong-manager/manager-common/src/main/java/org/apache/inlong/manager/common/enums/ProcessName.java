@@ -25,52 +25,52 @@ public enum ProcessName {
     /**
      * Apply inlong group process
      */
-    APPLY_GROUP_PROCESS("Apply-Group"),
+    APPLY_GROUP_PROCESS("Apply Group"),
 
     /**
      * Create inlong group resources process
      */
-    CREATE_GROUP_RESOURCE("Create-Group"),
+    CREATE_GROUP_RESOURCE("Create Group"),
 
     /**
      * Suspend inlong group process
      */
-    SUSPEND_GROUP_PROCESS("Suspend-Group"),
+    SUSPEND_GROUP_PROCESS("Suspend Group"),
 
     /**
      * Restart inlong group process
      */
-    RESTART_GROUP_PROCESS("Restart-Group"),
+    RESTART_GROUP_PROCESS("Restart Group"),
 
     /**
      * Delete inlong group process
      */
-    DELETE_GROUP_PROCESS("Delete-Group"),
+    DELETE_GROUP_PROCESS("Delete Group"),
 
     /**
      * Apply inlong consume process
      */
-    APPLY_CONSUME_PROCESS("Apply-Consume"),
+    APPLY_CONSUME_PROCESS("Apply Subscription"),
 
     /**
      * Create inlong stream process
      */
-    CREATE_STREAM_RESOURCE("Create-Stream"),
+    CREATE_STREAM_RESOURCE("Create Stream"),
 
     /**
      * Suspend inlong stream process
      */
-    SUSPEND_STREAM_RESOURCE("Suspend-Stream"),
+    SUSPEND_STREAM_RESOURCE("Suspend Stream"),
 
     /**
      * Restart inlong stream process
      */
-    RESTART_STREAM_RESOURCE("Restart-Stream"),
+    RESTART_STREAM_RESOURCE("Restart Stream"),
 
     /**
      * Delete inlong stream process
      */
-    DELETE_STREAM_RESOURCE("Delete-Stream");
+    DELETE_STREAM_RESOURCE("Delete Stream");
 
     private final String displayName;
 
