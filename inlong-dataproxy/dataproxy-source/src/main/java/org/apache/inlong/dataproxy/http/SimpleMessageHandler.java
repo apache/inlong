@@ -139,7 +139,9 @@ public class SimpleMessageHandler implements MessageHandler {
                 .append("&dt=").append(strDataTime)
                 .append("&NodeIP=").append(strRemoteIP)
                 .append("&cnt=").append(strMsgCount)
-                .append("&rt=").append(msgRcvTime);
+                .append("&rt=").append(msgRcvTime)
+                .append(AttributeConstants.SEPARATOR).append(AttributeConstants.MSG_RPT_TIME)
+                .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(msgRcvTime);
         try {
             inLongMsg.addMsg(strBuff.toString(), body.getBytes(charset));
             strBuff.delete(0, strBuff.length());
