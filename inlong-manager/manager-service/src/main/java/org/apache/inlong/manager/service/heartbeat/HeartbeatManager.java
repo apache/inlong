@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
@@ -96,6 +97,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     componentHeartbeat.getComponentType());
             return;
         }
+
         // if the heartbeat was not in the cache, insert or update the node by the heartbeat info
         HeartbeatMsg lastHeartbeat = heartbeatCache.getIfPresent(componentHeartbeat);
 
@@ -123,6 +125,13 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             } else {
                 heartbeatMsg.setProtocolType(protocolType);
             }
+            // uninstall node event
+            if (NodeSrvStatus.SERVICE_UNINSTALL.equals(heartbeat.getNodeSrvStatus())) {
+                InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
+                deleteClusterNode(clusterNode);
+                continue;
+            }
+
             if (heartbeatConfigModified(lastHeartbeat, heartbeat)) {
                 InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
                 if (clusterNode == null) {
@@ -215,6 +224,10 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setNodeLoad(heartbeat.getLoad());
         clusterNode.setNodeTags(heartbeat.getNodeTag());
         return clusterNodeMapper.updateById(clusterNode);
+    }
+
+    private int deleteClusterNode(InlongClusterNodeEntity clusterNode) {
+        return clusterNodeMapper.deleteById(clusterNode.getId());
     }
 
     private ClusterInfo fetchCluster(ComponentHeartbeat componentHeartbeat) {
