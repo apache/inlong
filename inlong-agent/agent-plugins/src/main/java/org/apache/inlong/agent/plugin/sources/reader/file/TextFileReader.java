@@ -21,13 +21,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -43,7 +40,7 @@ public final class TextFileReader extends AbstractFileReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextFileReader.class);
 
-    private final Map<File, String> lineStringBuffer = new ConcurrentHashMap<>();
+    private final StringBuffer sb = new StringBuffer();
 
     public TextFileReader(FileReaderOperator fileReaderOperator) {
         super.fileReaderOperator = fileReaderOperator;
@@ -55,48 +52,34 @@ public final class TextFileReader extends AbstractFileReader {
 
     public void getData() throws IOException {
         List<String> lines = Files.newBufferedReader(fileReaderOperator.file.toPath()).lines().skip(
-                fileReaderOperator.position)
+                        fileReaderOperator.position)
                 .collect(Collectors.toList());
         LOGGER.info("path is {}, position is {}, data reads size {}", fileReaderOperator.file.getName(),
                 fileReaderOperator.position, lines.size());
-        List<String> resultLines = new ArrayList<>();
-        // TODO line regular expression matching
+        List<String> resultLines = lines;
+        //TODO line regular expression matching
         if (fileReaderOperator.jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
             Pattern pattern = Pattern.compile(fileReaderOperator.jobConf.get(JOB_FILE_LINE_END_PATTERN));
-            lines.forEach(line -> {
-                lineStringBuffer.put(fileReaderOperator.file,
-                        lineStringBuffer.isEmpty() ? line
-                                : lineStringBuffer.get(fileReaderOperator.file).concat(" ").concat(line));
-                String data = lineStringBuffer.get(fileReaderOperator.file);
+            resultLines = lines.stream().flatMap(line -> {
+                sb.append(line + System.lineSeparator());
+                String data = sb.toString();
                 Matcher matcher = pattern.matcher(data);
-                if (matcher.find() && StringUtils.isNoneBlank(matcher.group())) {
-                    String splitStr = matcher.group();
-                    String[] splitLines = data.split(splitStr);
-                    int length = splitLines.length;
-                    for (int i = 0; i < length; i++) {
-                        if (i > 0 && i == length - 1 && null != splitLines[i]) {
-                            lineStringBuffer.put(fileReaderOperator.file, splitLines[i]);
-                            break;
-                        }
-                        resultLines.add(splitLines[i].trim());
-                    }
-                    // handles cases where the ending is a delimiter.
-                    // for example--> line ends pattern: ab{2} and line string: cabbdabbfabb
-                    if (data.startsWith(splitStr, data.length() - splitStr.length() - 1)) {
-                        length = 1;
-                        resultLines.add(lineStringBuffer.get(fileReaderOperator.file));
-                    }
-                    if (1 == length) {
-                        lineStringBuffer.remove(fileReaderOperator.file);
-                    }
+                List<String> tmpResultLines = new ArrayList<>();
+                int beginPos = 0;
+                while (matcher.find()) {
+                    String endLineStr = matcher.group();
+                    int endPos = data.indexOf(endLineStr, beginPos);
+                    tmpResultLines.add(data.substring(beginPos, endPos));
+                    beginPos = endPos + endLineStr.length();
                 }
-            });
-            if (resultLines.isEmpty()) {
-                return;
-            }
+                String lastWord = data.substring(beginPos);
+                sb.setLength(0);
+                sb.append(lastWord);
+                return tmpResultLines.stream();
+            }).filter(data -> StringUtils.isNotBlank(data)).collect(Collectors.toList());
         }
-        lines = resultLines.isEmpty() ? lines : resultLines;
-        fileReaderOperator.stream = lines.stream();
+
+        fileReaderOperator.stream = resultLines.stream();
         fileReaderOperator.position = fileReaderOperator.position + lines.size();
     }
 }

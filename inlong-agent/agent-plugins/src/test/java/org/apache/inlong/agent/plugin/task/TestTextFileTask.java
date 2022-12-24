@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.task;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
@@ -197,4 +198,40 @@ public class TestTextFileTask {
         }).collect(Collectors.joining(System.lineSeparator()));
         Assert.assertEquals(testData, collectData);
     }
+
+    /**
+     * Test line end pattern
+     */
+    @Test
+    public void testLineEndPattern() throws IOException {
+        File file = TMP_FOLDER.newFile();
+        JobProfile jobProfile = new JobProfile();
+        jobProfile.set(JobConstants.JOB_INSTANCE_ID, "1");
+        jobProfile.set(JobConstants.JOB_DIR_FILTER_PATTERNS, file.getAbsolutePath());
+        jobProfile.set(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.FULL);
+        jobProfile.set(JobConstants.JOB_TASK_BEGIN_WAIT_SECONDS, String.valueOf(0));
+        jobProfile.set(JobConstants.JOB_FILE_LINE_END_PATTERN, "[0-9]");
+
+        // mock data
+        final MockSink sink = mockTextTask(jobProfile);
+        StringBuffer sb = new StringBuffer();
+        // one line multiple match
+        sb.append("a1b2c3d5e" + System.lineSeparator());
+        // one line no match
+        sb.append("fghi" + System.lineSeparator());
+        // empty gap
+        sb.append("j6789klmn");
+
+        TestUtils.write(file.getAbsolutePath(), sb);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 5);
+        List<String> results = sink.getResult().stream().map(message -> {
+            String content = new String(message.getBody(), Charset.forName("UTF-8"));
+            Map<String, String> logJson = GSON.fromJson(content, Map.class);
+            return logJson.get(MetadataConstants.DATA_CONTENT);
+        }).collect(Collectors.toList());
+        List<String> excepted = Lists.newArrayList("a", "b", "c", "d",
+                "e" + System.lineSeparator() + "fghi" + System.lineSeparator() + "j");
+        Assert.assertEquals(excepted, results);
+    }
+
 }
