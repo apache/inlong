@@ -39,11 +39,9 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.file.FileSourceRequest;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.core.HeartbeatService;
 import org.apache.inlong.manager.service.group.InlongGroupProcessService;
-import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
 import org.apache.inlong.manager.service.mocks.MockAgent;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.junit.jupiter.api.AfterEach;
@@ -72,10 +70,6 @@ class AgentServiceTest extends ServiceBaseTest {
     private AgentService agentService;
     @Autowired
     private HeartbeatService heartbeatService;
-    @Autowired
-    private InlongClusterService clusterService;
-    @Autowired
-    private InlongGroupServiceTest groupServiceTest;
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
@@ -161,6 +155,11 @@ class AgentServiceTest extends ServiceBaseTest {
         streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.RESTARTED.getCode(), GLOBAL_OPERATOR);
     }
 
+    public void deleteSource(String groupId, String streamId) {
+        sourceService.logicDeleteAll(groupId, streamId, GLOBAL_OPERATOR);
+        streamService.logicDeleteAll(groupId, GLOBAL_OPERATOR);
+    }
+
     @BeforeAll
     public static void setUp(
             @Autowired AgentService agentService,
@@ -196,6 +195,9 @@ class AgentServiceTest extends ServiceBaseTest {
         agent.bindTag(bind, tag);
     }
 
+    /**
+     * Test bind tag for node.
+     */
     @Test
     public void testTagMatch() {
         saveSource("tag1,tag3");
@@ -218,6 +220,9 @@ class AgentServiceTest extends ServiceBaseTest {
                 .size());
     }
 
+    /**
+     * Test node tag mismatch source task and next time rematch source task.
+     */
     @Test
     public void testTagMismatchAndRematch() {
         final Pair<String, String> groupStream = saveSource("tag1,tag3");
@@ -254,6 +259,9 @@ class AgentServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(sourceId, d2.getTaskId());
     }
 
+    /**
+     * Test suspend group when frozen task without ack.
+     */
     @Test
     public void testSuspendFailWhenNotAck() {
         Pair<String, String> groupStream = saveSource("tag1,tag3");
@@ -274,6 +282,9 @@ class AgentServiceTest extends ServiceBaseTest {
         }
     }
 
+    /**
+     * Test node tag rematch source task but group suspend
+     */
     @Test
     public void testRematchedWhenSuspend() {
         final Pair<String, String> groupStream = saveSource("tag1,tag3");
@@ -294,6 +305,9 @@ class AgentServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(0, taskResult.getDataConfigs().size());
     }
 
+    /**
+     * Test node tag mismatch source task but group restart
+     */
     @Test
     public void testMismatchedWhenRestart() {
         final Pair<String, String> groupStream = saveSource("tag1,tag3");
@@ -310,6 +324,25 @@ class AgentServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(1, taskResult.getDataConfigs().size());
         Assertions.assertEquals(1, taskResult.getDataConfigs().stream()
                 .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.FROZEN.getType())
+                .collect(Collectors.toSet())
+                .size());
+    }
+
+    /**
+     * Test suspend group for source task.
+     */
+    @Test
+    public void testDelete() {
+        final Pair<String, String> groupStream = saveSource(null);
+        agent.pullTask();
+        agent.pullTask(); // report last success status
+
+        // suspend
+        deleteSource(groupStream.getLeft(), groupStream.getRight());
+        TaskResult taskResult = agent.pullTask();
+        Assertions.assertEquals(1, taskResult.getDataConfigs().size());
+        Assertions.assertEquals(1, taskResult.getDataConfigs().stream()
+                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.DEL.getType())
                 .collect(Collectors.toSet())
                 .size());
     }

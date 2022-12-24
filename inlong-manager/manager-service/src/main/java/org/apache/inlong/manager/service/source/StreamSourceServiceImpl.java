@@ -558,13 +558,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
-        InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(groupId, operator);
-        Integer nextStatus;
-        if (GroupStatus.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
-            nextStatus = SourceStatus.TO_BE_ISSUED_DELETE.getCode();
-        } else {
-            nextStatus = SourceStatus.SOURCE_DISABLE.getCode();
-        }
+        Integer nextStatus = SourceStatus.TO_BE_ISSUED_DELETE.getCode();
         List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isNotEmpty(entityList)) {
             for (StreamSourceEntity entity : entityList) {
