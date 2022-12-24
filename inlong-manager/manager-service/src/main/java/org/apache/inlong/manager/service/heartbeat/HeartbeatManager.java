@@ -134,7 +134,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         }
 
         // if the heartbeat already exists, or does not exist but insert/update success, then put it into the cache
-        if (lastHeartbeat == null && handlerNum == ports.length) {
+        if (lastHeartbeat == null || handlerNum == ports.length) {
             heartbeatCache.put(componentHeartbeat, heartbeat);
         }
     }
