@@ -431,7 +431,7 @@ public class SortClientConfig implements Serializable {
                 NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_EMPTY_POLL_SLEEP_MS), maxEmptyPollSleepMs);
         this.emptyPollTimes = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.EMPTY_POLL_TIMES), emptyPollTimes);
         this.maxConsumerSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_CONSUMER_SIZE), maxConsumerSize);
-        
+
         String strTopicStaticsEnabled = sortSdkParams.getOrDefault(ConfigConstants.IS_TOPIC_STATICS_ENABLED,
                 Boolean.TRUE.toString());
         this.topicStaticsEnabled = StringUtils.equalsIgnoreCase(strTopicStaticsEnabled, Boolean.TRUE.toString());
