@@ -39,18 +39,18 @@ public class HudiTypeConverter {
      */
     public static String convert(HudiColumnInfo column) {
         return Optional.ofNullable(column)
-          .map(HudiColumnInfo::getType)
-          .map(HudiType::forType)
-          .map(hudiType -> {
-              if (HudiType.DECIMAL == hudiType) {
-                  return String.format("decimal(%d, %d)", column.getPrecision(), column.getScale());
-              } else if (HudiType.FIXED == hudiType) {
-                  return String.format("fixed(%d)", column.getLength());
-              } else {
-                  return hudiType.getHiveType();
-              }
-          })
-          .orElseThrow(() -> new RuntimeException("Can not properly convert type of column: " + column));
+                .map(HudiColumnInfo::getType)
+                .map(HudiType::forType)
+                .map(hudiType -> {
+                    if (HudiType.DECIMAL == hudiType) {
+                        return String.format("decimal(%d, %d)", column.getPrecision(), column.getScale());
+                    } else if (HudiType.FIXED == hudiType) {
+                        return String.format("fixed(%d)", column.getLength());
+                    } else {
+                        return hudiType.getHiveType();
+                    }
+                })
+                .orElseThrow(() -> new RuntimeException("Can not properly convert type of column: " + column));
     }
 
 }
