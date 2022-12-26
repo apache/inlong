@@ -167,6 +167,7 @@
   "meta.Sinks.ES.RetryTimes": "重试次数",
   "meta.Sinks.ES.RetryTimesUnit": "次",
   "meta.Sinks.ES.EsVersion": "Elasticsearch 版本",
+  "meta.Sinks.ES.EsVersionHelp": "Elasticsearch 大版本号，比如 5/6/7",
   "meta.Sinks.ES.DocumentType": "文档类型",
   "meta.Sinks.ES.PrimaryKey": "主键",
   "meta.Sinks.ES.PrimaryKeyHelp": "是否将某字段作为 `_id` 字段，如果不指定，则 ES 将自动为每个文档生成唯一的 `_id`",

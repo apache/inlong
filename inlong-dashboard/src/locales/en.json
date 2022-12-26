@@ -167,6 +167,7 @@
   "meta.Sinks.ES.RetryTimes": "RetryTimes",
   "meta.Sinks.ES.RetryTimesUnit": "items",
   "meta.Sinks.ES.EsVersion": "Elasticsearch Version",
+  "meta.Sinks.ES.EsVersionHelp": "Elasticsearch major version number, such as 5/6/7",
   "meta.Sinks.ES.DocumentType": "Document Type",
   "meta.Sinks.ES.PrimaryKey": "PrimaryKey",
   "meta.Sinks.ES.PrimaryKeyHelp": "Whether to use a certain field as the `_id` field, if not specified, ES will automatically generate a unique `_id` for each document",
