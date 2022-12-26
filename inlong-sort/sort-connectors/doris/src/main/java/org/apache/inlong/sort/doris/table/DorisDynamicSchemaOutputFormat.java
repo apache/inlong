@@ -501,7 +501,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         if (multipleSink) {
             String[] tableWithDb = tableIdentifier.split("\\.");
             metricData.outputDirtyMetricsWithEstimate(tableWithDb[0], null, tableWithDb[1],
-                    false,rowSize, dataSize);
+                    false, rowSize, dataSize);
         } else {
             metricData.invokeDirty(rowSize, dataSize);
             rowSize = 0;
