@@ -17,25 +17,19 @@
 
 package org.apache.inlong.manager.service.resource.sink.hudi;
 
-import java.util.Optional;
 import org.apache.inlong.manager.pojo.sink.hudi.HudiColumnInfo;
 import org.apache.inlong.manager.pojo.sink.hudi.HudiType;
 
+import java.util.Optional;
+
 /**
- * Converter between Java type and Hive type that reflects the behavior before
- *
- * <p>This converter reflects the old behavior that includes:
- *
+ * Converter between Java type and Hive type that reflects the behavior before This converter reflects the old behavior
+ * that includes:
  * <ul>
- *   <li>Use old {@code java.sql.*} time classes for time data types.
- *   <li>Only support millisecond precision for timestamps or day-time intervals.
- *   <li>Let variable precision and scale for decimal types pass through the planner.
- *   <li>Inconsistent nullability. Most types are nullable even though type information does not
- *       support it.
- *   <li>Let POJOs, case classes, and tuples pass through the planner.
+ * <li>Use old java.sql.* time classes for time data types.
+ * <li>Only support millisecond precision for timestamps or day-time intervals.
+ * <li>Let variable precision and scale for decimal types pass through the planner.
  * </ul>
- *
- * <p>Any changes here need to be applied to the legacy planner as well.
  * {@see org.apache.flink.table.types.utils.TypeInfoDataTypeConverter}
  */
 public class HudiTypeConverter {
@@ -45,19 +39,18 @@ public class HudiTypeConverter {
      */
     public static String convert(HudiColumnInfo column) {
         return Optional.ofNullable(column)
-                .map(HudiColumnInfo::getType)
-                .map(String::toLowerCase)
-                .map(HudiType::forType)
-                .map(hudiType -> {
-                    if (HudiType.DECIMAL == hudiType) {
-                        return String.format("decimal(%d, %d)", column.getPrecision(), column.getScale());
-                    } else if (HudiType.FIXED == hudiType) {
-                        return String.format("fixed(%d)", column.getLength());
-                    } else {
-                        return hudiType.getHiveType();
-                    }
-                })
-                .orElseThrow(() -> new RuntimeException("Can not properly convert type of column: " + column));
+          .map(HudiColumnInfo::getType)
+          .map(HudiType::forType)
+          .map(hudiType -> {
+              if (HudiType.DECIMAL == hudiType) {
+                  return String.format("decimal(%d, %d)", column.getPrecision(), column.getScale());
+              } else if (HudiType.FIXED == hudiType) {
+                  return String.format("fixed(%d)", column.getLength());
+              } else {
+                  return hudiType.getHiveType();
+              }
+          })
+          .orElseThrow(() -> new RuntimeException("Can not properly convert type of column: " + column));
     }
 
 }
