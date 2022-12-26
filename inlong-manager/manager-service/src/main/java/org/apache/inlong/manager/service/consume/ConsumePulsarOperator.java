@@ -113,18 +113,10 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         String clusterTag = groupInfo.getInlongClusterTag();
         List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
-        StringBuilder adminUrls = new StringBuilder();
-        StringBuilder serverUrls = new StringBuilder();
-        String topic = entity.getTopic();
         Preconditions.checkNotEmpty(clusterInfos, "pulsar cluster not exist for groupId=" + groupId);
-        for (ClusterInfo clusterInfo : clusterInfos) {
-            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
-            adminUrls.append(pulsarCluster.getAdminUrl()).append(InlongConstants.SEMICOLON);
-            serverUrls.append(pulsarCluster.getUrl()).append(InlongConstants.SEMICOLON);
-            consumeInfo.setTopic(getFullPulsarTopic(groupInfo, pulsarCluster.getTenant(), topic));
-        }
-        consumeInfo.setAdminUrl(adminUrls.toString());
-        consumeInfo.setClusterUrl(serverUrls.toString());
+        consumeInfo.setClusterInfos(clusterInfos);
+        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfos.get(0);
+        consumeInfo.setTopic(getFullPulsarTopic(groupInfo, pulsarCluster.getTenant(), entity.getTopic()));
         return consumeInfo;
     }
 

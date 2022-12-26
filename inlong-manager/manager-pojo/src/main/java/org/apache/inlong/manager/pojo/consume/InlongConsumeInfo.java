@@ -25,8 +25,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Base inlong consume info
@@ -86,6 +88,9 @@ public abstract class InlongConsumeInfo extends BaseInlongConsume {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
+
+    @ApiModelProperty(value = "MQ cluster info list")
+    private List<? extends ClusterInfo> clusterInfos;
 
     public abstract InlongConsumeRequest genRequest();
 
