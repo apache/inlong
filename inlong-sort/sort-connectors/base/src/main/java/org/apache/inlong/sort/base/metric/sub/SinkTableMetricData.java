@@ -216,7 +216,7 @@ public class SinkTableMetricData extends SinkMetricData implements SinkSubMetric
     public void outputDirtyMetricsWithEstimate(String database, String schema, String table, long rowCount,
             long rowSize) {
         if (StringUtils.isBlank(database) || StringUtils.isBlank(table)) {
-            invoke(rowCount, rowSize);
+            invokeDirty(rowCount, rowSize);
             return;
         }
         String identify = buildSchemaIdentify(database, schema, table);
