@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
@@ -43,7 +44,7 @@ import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
+import java.util.List;
 
 /**
  * Inlong consume operator for Pulsar.
@@ -110,13 +111,19 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         String groupId = entity.getInlongGroupId();
         InlongGroupInfo groupInfo = groupService.get(groupId);
         String clusterTag = groupInfo.getInlongClusterTag();
-        PulsarClusterInfo clusterInfo = (PulsarClusterInfo) clusterService.getOne(clusterTag, null,
-                ClusterType.PULSAR);
-        if (!Objects.isNull(clusterInfo)) {
-            consumeInfo.setAdminUrl(clusterInfo.getAdminUrl());
-            consumeInfo.setClusterUrl(clusterInfo.getUrl());
-            consumeInfo.setTopic(getFullPulsarTopic(groupInfo, clusterInfo, entity.getTopic()));
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
+        StringBuilder adminUrls = new StringBuilder();
+        StringBuilder serverUrls = new StringBuilder();
+        String topic = entity.getTopic();
+        Preconditions.checkNotEmpty(clusterInfos, "pulsar cluster not exist for groupId=" + groupId);
+        for (ClusterInfo clusterInfo : clusterInfos) {
+            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+            adminUrls.append(pulsarCluster.getAdminUrl()).append(InlongConstants.SEMICOLON);
+            serverUrls.append(pulsarCluster.getUrl()).append(InlongConstants.SEMICOLON);
+            consumeInfo.setTopic(getFullPulsarTopic(groupInfo, pulsarCluster.getTenant(), topic));
         }
+        consumeInfo.setAdminUrl(adminUrls.toString());
+        consumeInfo.setClusterUrl(serverUrls.toString());
         return consumeInfo;
     }
 
@@ -160,8 +167,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         }
     }
 
-    private String getFullPulsarTopic(InlongGroupInfo groupInfo, PulsarClusterInfo pulsarCluster, String topic) {
-        String tenant = pulsarCluster.getTenant();
+    private String getFullPulsarTopic(InlongGroupInfo groupInfo, String tenant, String topic) {
         if (StringUtils.isEmpty(tenant)) {
             tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
         }
