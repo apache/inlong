@@ -17,6 +17,21 @@
 
 package org.apache.inlong.sort.starrocks.table.sink;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_IDENTIFIER;
+import static org.apache.inlong.sort.base.Constants.DIRTY_IGNORE;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_BATCH_BYTES;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_BATCH_INTERVAL;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_BATCH_SIZE;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_CONNECTOR;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_ENABLE;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_FIELD_DELIMITER;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_FORMAT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_IGNORE_ERRORS;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_LABELS;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_LINE_DELIMITER;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_LOG_ENABLE;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_LOG_TAG;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_RETRIES;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
@@ -123,6 +138,23 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         optionalOptions.add(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
         optionalOptions.add(INLONG_METRIC);
         optionalOptions.add(INLONG_AUDIT);
+
+        optionalOptions.add(DIRTY_IGNORE);
+        optionalOptions.add(DIRTY_IDENTIFIER);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_ENABLE);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_CONNECTOR);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_FORMAT);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_IGNORE_ERRORS);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_LOG_ENABLE);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_LABELS);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_LOG_TAG);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_FIELD_DELIMITER);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_LINE_DELIMITER);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_BATCH_SIZE);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_RETRIES);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_BATCH_INTERVAL);
+        optionalOptions.add(DIRTY_SIDE_OUTPUT_BATCH_BYTES);
+
         return optionalOptions;
     }
 

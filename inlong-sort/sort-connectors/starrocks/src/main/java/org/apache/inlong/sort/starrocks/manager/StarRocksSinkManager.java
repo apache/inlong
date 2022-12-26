@@ -451,6 +451,15 @@ public class StarRocksSinkManager implements Serializable {
     }
 
     private void handleDirtyData(StarRocksSinkBufferEntity bufferEntity, DirtyType dirtyType, Exception e) {
+        if (!dirtyOptions.ignoreDirty()) {
+            RuntimeException ex;
+            if (e instanceof RuntimeException) {
+                ex = (RuntimeException) e;
+            } else {
+                ex = new RuntimeException(e);
+            }
+            throw ex;
+        }
         if (dirtySink != null) {
             DirtyData.Builder<Object> builder = DirtyData.builder();
             try {
