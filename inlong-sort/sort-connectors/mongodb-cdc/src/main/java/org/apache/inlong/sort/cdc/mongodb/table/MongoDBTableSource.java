@@ -198,6 +198,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
         Optional.ofNullable(heartbeatIntervalMillis).ifPresent(builder::heartbeatIntervalMillis);
         Optional.ofNullable(inlongMetric).ifPresent(builder::inlongMetric);
         Optional.ofNullable(inlongAudit).ifPresent(builder::inlongAudit);
+        Optional.ofNullable(sourceMultipleEnable).ifPresent(builder::migrateAll);
         DebeziumSourceFunction<RowData> sourceFunction = builder.build();
 
         return SourceFunctionProvider.of(sourceFunction, false);
