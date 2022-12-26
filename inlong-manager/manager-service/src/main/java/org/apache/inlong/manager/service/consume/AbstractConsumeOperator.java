@@ -71,7 +71,7 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void updateOpt(InlongConsumeRequest request, String operator) {
         // firstly check the topic info
-        if (StringUtils.isNotBlank(request.getTopic())){
+        if (StringUtils.isNotBlank(request.getTopic())) {
             this.checkTopicInfo(request);
         }
         // get the entity from request

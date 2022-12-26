@@ -93,6 +93,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         String originTopic = request.getTopic();
         if (originTopic.startsWith("persistent")) {
             originTopic = originTopic.substring(originTopic.lastIndexOf(InlongConstants.SLASH) + 1);
+            request.setTopic(originTopic);
         }
         Preconditions.checkTrue(pulsarTopic.getTopics().contains(originTopic),
                 "Pulsar topic not exist for " + originTopic);
