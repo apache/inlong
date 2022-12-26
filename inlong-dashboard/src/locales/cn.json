@@ -19,7 +19,7 @@
   "meta.Sources.File.SerializationType": "文件类型",
   "meta.Sources.File.DataSourceIP": "数据源 IP",
   "meta.Sources.File.FilePath": "⽂件路径",
-  "meta.Sources.File.FilePathHelp": "必须是绝对路径，支持正则表达式，多个时以逗号分隔，如：/data/.*.log",
+  "meta.Sources.File.FilePathHelp": "必须是绝对路径，支持正则表达式，多个时以逗号分隔，如：/data/.*log",
   "meta.Sources.File.IpRule": "请输入正确的IP地址",
   "meta.Sources.File.TimeOffset": "时间偏移量",
   "meta.Sources.File.TimeOffsetHelp": "从文件的某个时间开始采集，'1m'表示1分钟之后，'-1m'表示1分钟之前，支持m(分钟)，h(小时)，d(天)，空则从当前时间开始采集",
