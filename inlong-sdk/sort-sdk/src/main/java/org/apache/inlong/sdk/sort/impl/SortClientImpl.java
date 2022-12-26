@@ -19,8 +19,6 @@ package org.apache.inlong.sdk.sort.impl;
 
 import org.apache.inlong.sdk.sort.api.Cleanable;
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.ManagerReportHandler;
-import org.apache.inlong.sdk.sort.api.MetricReporter;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
@@ -53,7 +51,7 @@ public class SortClientImpl extends SortClient {
     public SortClientImpl(SortClientConfig sortClientConfig) {
         try {
             this.sortClientConfig = sortClientConfig;
-            this.context = new ClientContextImpl(this.sortClientConfig, new MetricReporterImpl(sortClientConfig));
+            this.context = new ClientContextImpl(this.sortClientConfig);
 
             this.inLongTopicManager = InlongTopicManagerFactory
                     .createInLongTopicManager(sortClientConfig.getTopicType(),
@@ -69,14 +67,11 @@ public class SortClientImpl extends SortClient {
      *
      * @param sortClientConfig SortClientConfig
      * @param queryConsumeConfig QueryConsumeConfig
-     * @param metricReporter MetricReporter
-     * @param managerReportHandler ManagerReportHandler
      */
-    public SortClientImpl(SortClientConfig sortClientConfig, QueryConsumeConfig queryConsumeConfig,
-            MetricReporter metricReporter, ManagerReportHandler managerReportHandler) {
+    public SortClientImpl(SortClientConfig sortClientConfig, QueryConsumeConfig queryConsumeConfig) {
         try {
             this.sortClientConfig = sortClientConfig;
-            this.context = new ClientContextImpl(this.sortClientConfig, metricReporter);
+            this.context = new ClientContextImpl(this.sortClientConfig);
             queryConsumeConfig.configure(context);
             this.inLongTopicManager = InlongTopicManagerFactory
                     .createInLongTopicManager(sortClientConfig.getTopicType(),

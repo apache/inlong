@@ -24,12 +24,16 @@ import org.apache.inlong.sdk.sort.impl.SortClientImpl;
  */
 public class SortClientFactory {
 
+    /**
+     * Create SortClient with default QueryConsumeConfig
+     * @param config SortClientConfig
+     * @return SortClient
+     */
     public static SortClient createSortClient(SortClientConfig config) {
         return new SortClientImpl(config);
     }
 
-    public static SortClient createSortClient(SortClientConfig config, QueryConsumeConfig queryConsumeConfig,
-            MetricReporter reporter, ManagerReportHandler reportHandler) {
-        return new SortClientImpl(config, queryConsumeConfig, reporter, reportHandler);
+    public static SortClient createSortClient(SortClientConfig config, QueryConsumeConfig queryConsumeConfig) {
+        return new SortClientImpl(config, queryConsumeConfig);
     }
 }

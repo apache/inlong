@@ -28,8 +28,6 @@ import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.api.SortClientFactory;
-import org.apache.inlong.sdk.sort.impl.ManagerReportHandlerImpl;
-import org.apache.inlong.sdk.sort.impl.MetricReporterImpl;
 import org.apache.inlong.sort.standalone.admin.ConsumerServiceMBean;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
@@ -196,10 +194,7 @@ public final class SortSdkSource extends AbstractSource
             if (SortClusterConfigType.FILE.name().equalsIgnoreCase(configType)) {
                 LOG.info("Create sort sdk client in file way:{}", configType);
                 ClassResourceQueryConsumeConfig queryConfig = new ClassResourceQueryConsumeConfig();
-                client = SortClientFactory.createSortClient(clientConfig,
-                        queryConfig,
-                        new MetricReporterImpl(clientConfig),
-                        new ManagerReportHandlerImpl());
+                client = SortClientFactory.createSortClient(clientConfig, queryConfig);
             } else if (SortClusterConfigType.MANAGER.name().equalsIgnoreCase(configType)) {
                 LOG.info("Create sort sdk client in manager way:{}", configType);
                 clientConfig.setManagerApiUrl(ManagerUrlHandler.getSortSourceConfigUrl());
@@ -218,10 +213,7 @@ public final class SortSdkSource extends AbstractSource
                     return null;
                 }
                 // if it specifies the type of QueryConsumeConfig.
-                client = SortClientFactory.createSortClient(clientConfig,
-                        (QueryConsumeConfig) loaderObject,
-                        new MetricReporterImpl(clientConfig),
-                        new ManagerReportHandlerImpl());
+                client = SortClientFactory.createSortClient(clientConfig, (QueryConsumeConfig) loaderObject);
             }
 
             // init
