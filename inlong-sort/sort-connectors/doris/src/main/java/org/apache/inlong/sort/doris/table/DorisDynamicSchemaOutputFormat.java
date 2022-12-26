@@ -132,6 +132,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final boolean ignoreSingleTableErrors;
     private long batchBytes = 0L;
     private int size;
+    private int rowSize = 0;
+    private long dataSize = 0L;
     private DorisStreamLoad dorisStreamLoad;
     private transient volatile boolean closed = false;
     private transient volatile boolean flushing = false;
@@ -310,11 +312,17 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     @Override
     public synchronized void writeRecord(T row) {
         addBatch(row);
+        updateMetric(row);
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
                 || batchBytes >= executionOptions.getMaxBatchBytes();
         if (valid && !flushing) {
             flush();
         }
+    }
+
+    private void updateMetric(T row) {
+        rowSize++;
+        dataSize += row.toString().getBytes(StandardCharsets.UTF_8).length;
     }
 
     public void addSingle(T row) {
@@ -490,8 +498,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             throw ex;
         }
 
-        long size = dirtyData.toString().getBytes(StandardCharsets.UTF_8).length;
-        metricData.invokeDirty(1, size);
+        metricData.invokeDirty(rowSize, dataSize);
 
         if (dirtySink != null) {
             DirtyData.Builder<Object> builder = DirtyData.builder();
