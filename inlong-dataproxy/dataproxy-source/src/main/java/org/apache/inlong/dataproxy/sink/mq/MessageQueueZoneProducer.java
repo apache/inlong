@@ -107,6 +107,7 @@ public class MessageQueueZoneProducer {
      */
     public void reload() {
         try {
+            LOG.info("start reload mq clusters");
             // stop deleted cluster
             deletingClusterList.forEach(MessageQueueClusterProducer::stop);
             deletingClusterList.clear();
@@ -140,6 +141,7 @@ public class MessageQueueZoneProducer {
             }
             this.clusterList = newClusterList;
             if (!ConfigManager.getInstance().isMqClusterReady()) {
+                LOG.info("set mq cluster status ready");
                 ConfigManager.getInstance().updMqClusterStatus(true);
             }
         } catch (Throwable e) {
