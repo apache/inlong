@@ -112,6 +112,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private static final String UNIQUE_KEYS_TYPE = "UNIQUE_KEYS";
     @SuppressWarnings({"rawtypes"})
     private final Map<String, List> batchMap = new HashMap<>();
+    @SuppressWarnings({"rawtypes"})
+    private final Map<String, List> errorMap = new HashMap<>();
     private final Map<String, String> columnsMap = new HashMap<>();
     private final List<String> errorTables = new ArrayList<>();
     private final DorisOptions options;
@@ -132,7 +134,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final boolean ignoreSingleTableErrors;
     private long batchBytes = 0L;
     private int size;
-    private int rowSize = 0;
+    private long rowSize = 0L;
     private long dataSize = 0L;
     private DorisStreamLoad dorisStreamLoad;
     private transient volatile boolean closed = false;
@@ -312,17 +314,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     @Override
     public synchronized void writeRecord(T row) {
         addBatch(row);
-        updateMetric(row);
+        rowSize++;
+        dataSize += row.toString().getBytes(StandardCharsets.UTF_8).length;
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
                 || batchBytes >= executionOptions.getMaxBatchBytes();
         if (valid && !flushing) {
             flush();
         }
-    }
-
-    private void updateMetric(T row) {
-        rowSize++;
-        dataSize += row.toString().getBytes(StandardCharsets.UTF_8).length;
     }
 
     public void addSingle(T row) {
@@ -498,16 +496,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             throw ex;
         }
 
-        if (multipleSink) {
-            String[] tableWithDb = tableIdentifier.split("\\.");
-            metricData.outputDirtyMetricsWithEstimate(tableWithDb[0], null, tableWithDb[1],
-                    false, rowSize, dataSize);
-        } else {
-            metricData.invokeDirty(rowSize, dataSize);
-        }
-        rowSize = 0;
-        dataSize = 0L;
-
         if (dirtySink != null) {
             DirtyData.Builder<Object> builder = DirtyData.builder();
             try {
@@ -525,6 +513,20 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 LOG.warn("Dirty sink failed", ex);
             }
         }
+
+        if (multipleSink) {
+            if (DirtyType.DESERIALIZE_ERROR.equals(dirtyType) || !(dirtyData instanceof RowData)) {
+                metricData.outputDirtyMetricsWithEstimate(null, null, null, rowSize, dataSize);
+            }
+            multipleDirtyHandler(dirtyData, rowSize, dataSize);
+        } else {
+            metricData.invokeDirty(rowSize, dataSize);
+        }
+    }
+
+    private void multipleDirtyHandler(Object dirtyData, long rowSize, long dataSize) {
+        String[] tableWithDb = tableIdentifier.split("\\.");
+        metricData.outputDirtyMetricsWithEstimate(tableWithDb[0], null, tableWithDb[1], rowSize, dataSize);
     }
 
     private void handleColumnsChange(String tableIdentifier, JsonNode rootNode, JsonNode physicalData) {

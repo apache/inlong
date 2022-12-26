@@ -50,6 +50,11 @@ public class SinkTableMetricData extends SinkMetricData implements SinkSubMetric
      */
     private final Map<String, SinkMetricData> subSinkMetricMap = Maps.newHashMap();
 
+    /**
+     * The sub sink metric data container of dirty sink metric data
+     */
+    private final Map<String, SinkTableMetricData> subSinkDirtyMap = Maps.newHashMap();
+
     public SinkTableMetricData(MetricOption option, MetricGroup metricGroup) {
         super(option, metricGroup);
     }
@@ -199,19 +204,29 @@ public class SinkTableMetricData extends SinkMetricData implements SinkSubMetric
         subSinkMetricData.invoke(rowCount, rowSize);
     }
 
-    public void outputDirtyMetricsWithEstimate(String database, String schema, String table, boolean isSnapshotRecord,
-            long rowCount, long rowSize) {
+    /**
+     * output dirty metrics with estimate
+     *
+     * @param database the database name of record
+     * @param schema the schema name of record
+     * @param table the table name of record
+     * @param rowCount the row count of records
+     * @param rowSize the row size of records
+     */
+    public void outputDirtyMetricsWithEstimate(String database, String schema, String table, long rowCount,
+            long rowSize) {
         if (StringUtils.isBlank(database) || StringUtils.isBlank(table)) {
-            invokeDirty(rowCount, rowSize);
+            invoke(rowCount, rowSize);
             return;
         }
         String identify = buildSchemaIdentify(database, schema, table);
-        SinkMetricData subSinkMetricData;
-        if (subSinkMetricMap.containsKey(identify)) {
-            subSinkMetricData = subSinkMetricMap.get(identify);
+        SinkTableMetricData subSinkMetricData;
+        if (subSinkDirtyMap.containsKey(identify)) {
+            subSinkMetricData = subSinkDirtyMap.get(identify);
         } else {
-            subSinkMetricData = buildSubSinkMetricData(new String[]{database, schema, table}, this);
-            subSinkMetricMap.put(identify, subSinkMetricData);
+            subSinkMetricData =
+                    (SinkTableMetricData) buildSubSinkMetricData(new String[]{database, schema, table}, this);
+            subSinkDirtyMap.put(identify, subSinkMetricData);
         }
         // sink metric and sub sink metric output metrics
         this.invokeDirty(rowCount, rowSize);
