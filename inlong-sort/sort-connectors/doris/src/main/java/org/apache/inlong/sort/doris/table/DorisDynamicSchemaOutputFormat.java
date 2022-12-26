@@ -512,19 +512,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
         }
 
-        if (multipleSink) {
-            if (DirtyType.DESERIALIZE_ERROR.equals(dirtyType) || !(dirtyData instanceof RowData)) {
-                metricData.outputDirtyMetricsWithEstimate(null, null, null, rowSize, dataSize);
-            }
-            multipleDirtyHandler(dirtyData, rowSize, dataSize);
+        if (multipleSink && !DirtyType.DESERIALIZE_ERROR.equals(dirtyType)) {
+            executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
+            String[] tableWithDb = tableIdentifier.split("\\.");
+            metricData.outputDirtyMetricsWithEstimate(tableWithDb[0], null, tableWithDb[1], rowSize, dataSize);
         } else {
             metricData.invokeDirty(rowSize, dataSize);
         }
-    }
-
-    private void multipleDirtyHandler(Object dirtyData, long rowSize, long dataSize) {
-        String[] tableWithDb = tableIdentifier.split("\\.");
-        metricData.outputDirtyMetricsWithEstimate(tableWithDb[0], null, tableWithDb[1], rowSize, dataSize);
     }
 
     private void handleColumnsChange(String tableIdentifier, JsonNode rootNode, JsonNode physicalData) {

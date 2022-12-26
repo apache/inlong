@@ -50,11 +50,6 @@ public class SinkTableMetricData extends SinkMetricData implements SinkSubMetric
      */
     private final Map<String, SinkMetricData> subSinkMetricMap = Maps.newHashMap();
 
-    /**
-     * The sub sink metric data container of dirty sink metric data
-     */
-    private final Map<String, SinkTableMetricData> subSinkDirtyMap = Maps.newHashMap();
-
     public SinkTableMetricData(MetricOption option, MetricGroup metricGroup) {
         super(option, metricGroup);
     }
@@ -220,13 +215,12 @@ public class SinkTableMetricData extends SinkMetricData implements SinkSubMetric
             return;
         }
         String identify = buildSchemaIdentify(database, schema, table);
-        SinkTableMetricData subSinkMetricData;
-        if (subSinkDirtyMap.containsKey(identify)) {
-            subSinkMetricData = subSinkDirtyMap.get(identify);
+        SinkMetricData subSinkMetricData;
+        if (subSinkMetricMap.containsKey(identify)) {
+            subSinkMetricData = subSinkMetricMap.get(identify);
         } else {
-            subSinkMetricData =
-                    (SinkTableMetricData) buildSubSinkMetricData(new String[]{database, schema, table}, this);
-            subSinkDirtyMap.put(identify, subSinkMetricData);
+            subSinkMetricData = buildSubSinkMetricData(new String[]{database, schema, table}, this);
+            subSinkMetricMap.put(identify, subSinkMetricData);
         }
         // sink metric and sub sink metric output metrics
         this.invokeDirty(rowCount, rowSize);
