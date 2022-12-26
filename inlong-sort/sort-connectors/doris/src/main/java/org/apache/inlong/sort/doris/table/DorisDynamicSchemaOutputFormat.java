@@ -504,9 +504,9 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                     false, rowSize, dataSize);
         } else {
             metricData.invokeDirty(rowSize, dataSize);
-            rowSize = 0;
-            dataSize = 0L;
         }
+        rowSize = 0;
+        dataSize = 0L;
 
         if (dirtySink != null) {
             DirtyData.Builder<Object> builder = DirtyData.builder();
