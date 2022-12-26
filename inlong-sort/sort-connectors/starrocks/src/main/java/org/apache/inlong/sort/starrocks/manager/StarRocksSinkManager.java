@@ -42,7 +42,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Histogram;
@@ -52,10 +51,8 @@ import org.apache.flink.table.api.TableColumn;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
-import org.apache.inlong.sort.base.dirty.DirtyData;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.slf4j.Logger;
@@ -122,8 +119,7 @@ public class StarRocksSinkManager implements Serializable {
     private final SchemaUpdateExceptionPolicy schemaUpdatePolicy;
     private transient SinkTableMetricData metricData;
 
-    private final DirtyOptions dirtyOptions;
-    private @Nullable final DirtySink<Object> dirtySink;
+    private final DirtySinkHelper<Object> dirtySinkHelper;;
 
     /**
      * If a table writing throws exception, ignore it when receiving data later again
@@ -138,8 +134,7 @@ public class StarRocksSinkManager implements Serializable {
             TableSchema flinkSchema,
             boolean multipleSink,
             SchemaUpdateExceptionPolicy schemaUpdatePolicy,
-            DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            DirtySinkHelper<Object> dirtySinkHelper) {
         this.sinkOptions = sinkOptions;
         StarRocksJdbcConnectionOptions jdbcOptions = new StarRocksJdbcConnectionOptions(sinkOptions.getJdbcUrl(),
                 sinkOptions.getUsername(), sinkOptions.getPassword());
@@ -150,8 +145,7 @@ public class StarRocksSinkManager implements Serializable {
         this.multipleSink = multipleSink;
         this.schemaUpdatePolicy = schemaUpdatePolicy;
 
-        this.dirtyOptions = dirtyOptions;
-        this.dirtySink = dirtySink;
+        this.dirtySinkHelper = dirtySinkHelper;
 
         init(flinkSchema);
     }
@@ -162,8 +156,7 @@ public class StarRocksSinkManager implements Serializable {
             StarRocksQueryVisitor starrocksQueryVisitor,
             boolean multipleSink,
             SchemaUpdateExceptionPolicy schemaUpdatePolicy,
-            DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            DirtySinkHelper<Object> dirtySinkHelper) {
         this.sinkOptions = sinkOptions;
         this.jdbcConnProvider = jdbcConnProvider;
         this.starrocksQueryVisitor = starrocksQueryVisitor;
@@ -171,8 +164,7 @@ public class StarRocksSinkManager implements Serializable {
         this.multipleSink = multipleSink;
         this.schemaUpdatePolicy = schemaUpdatePolicy;
 
-        this.dirtyOptions = dirtyOptions;
-        this.dirtySink = dirtySink;
+        this.dirtySinkHelper = dirtySinkHelper;
 
         init(flinkSchema);
     }
@@ -425,7 +417,16 @@ public class StarRocksSinkManager implements Serializable {
                 }
                 LOGGER.warn("Failed to flush batch data to StarRocks, retry times = {}", i, e);
                 if (i >= sinkOptions.getSinkMaxRetries()) {
-                    handleDirtyData(flushData, DirtyType.BATCH_LOAD_ERROR, e);
+                    dirtySinkHelper.invoke(flushData, DirtyType.BATCH_LOAD_ERROR, e);
+                    if (null != metricData) {
+                        if (multipleSink) {
+                            metricData.outputDirtyMetrics(flushData.getDatabase(), null, flushData.getTable(), false,
+                                    flushData.getBatchCount(), flushData.getBatchSize());
+                        } else {
+                            metricData.invokeDirty(flushData.getBatchCount(), flushData.getBatchSize());
+                        }
+                    }
+
                     if (schemaUpdatePolicy == null
                             || schemaUpdatePolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
                         throw e;
@@ -448,46 +449,6 @@ public class StarRocksSinkManager implements Serializable {
             }
         }
         return true;
-    }
-
-    private void handleDirtyData(StarRocksSinkBufferEntity bufferEntity, DirtyType dirtyType, Exception e) {
-        if (!dirtyOptions.ignoreDirty()) {
-            RuntimeException ex;
-            if (e instanceof RuntimeException) {
-                ex = (RuntimeException) e;
-            } else {
-                ex = new RuntimeException(e);
-            }
-            throw ex;
-        }
-        if (dirtySink != null) {
-            DirtyData.Builder<Object> builder = DirtyData.builder();
-            try {
-                byte[] dirtyData = starrocksStreamLoadVisitor.joinRows(bufferEntity.getBuffer(),
-                        (int) bufferEntity.getBatchSize());
-                builder.setData(new String(dirtyData, StandardCharsets.UTF_8))
-                        .setDirtyType(dirtyType)
-                        .setLabels(dirtyOptions.getLabels())
-                        .setLogTag(dirtyOptions.getLogTag())
-                        .setDirtyMessage(e.getMessage())
-                        .setIdentifier(dirtyOptions.getIdentifier());
-                dirtySink.invoke(builder.build());
-
-                if (null != metricData) {
-                    if (multipleSink) {
-                        metricData.outputDirtyMetrics(bufferEntity.getDatabase(), null, bufferEntity.getTable(), false,
-                                bufferEntity.getBatchCount(), bufferEntity.getBatchSize());
-                    } else {
-                        metricData.invokeDirty(bufferEntity.getBatchCount(), bufferEntity.getBatchSize());
-                    }
-                }
-            } catch (Exception ex) {
-                if (!dirtyOptions.ignoreSideOutputErrors()) {
-                    throw new RuntimeException(ex);
-                }
-                LOGGER.warn("Dirty sink failed", ex);
-            }
-        }
     }
 
     private void waitAsyncFlushingDone() throws InterruptedException {
