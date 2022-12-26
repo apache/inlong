@@ -18,10 +18,10 @@
 package org.apache.inlong.sort.kudu.table;
 
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.connector.source.LookupTableSource;
 import org.apache.flink.table.connector.source.TableFunctionProvider;
+import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.apache.inlong.sort.kudu.source.KuduLookupFunction;
 
 import java.util.Objects;
@@ -32,37 +32,19 @@ import java.util.Objects;
 public class KuduDynamicTableSource implements LookupTableSource {
 
     /**
-     * The schema of the table.
-     */
-    private final TableSchema schema;
-
-    /**
-     * The master addresses of kudu server.
-     */
-    private final String masters;
-
-    /**
-     * The name of kudu table.
-     */
-    private final String tableName;
-
-    /**
      * The parameter collection for tde scanner.
      */
     private final Configuration configuration;
     private final String inlongMetric;
     private final String auditHostAndPorts;
+    private final KuduTableInfo kuduTableInfo;
 
     public KuduDynamicTableSource(
-            TableSchema schema,
-            String masters,
-            String tableName,
+            KuduTableInfo kuduTableInfo,
             Configuration configuration,
             String inlongMetric,
             String auditHostAndPorts) {
-        this.schema = schema;
-        this.masters = masters;
-        this.tableName = tableName;
+        this.kuduTableInfo = kuduTableInfo;
         this.configuration = configuration;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
@@ -77,20 +59,21 @@ public class KuduDynamicTableSource implements LookupTableSource {
             return false;
         }
         KuduDynamicTableSource that = (KuduDynamicTableSource) o;
-        return schema.equals(that.schema) &&
-                masters.equals(that.masters) &&
-                tableName.equals(that.tableName) &&
-                configuration.equals(that.configuration);
+        return kuduTableInfo.equals(that.kuduTableInfo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(schema, masters, tableName, configuration);
+        return Objects.hash(configuration, kuduTableInfo);
     }
 
     @Override
     public DynamicTableSource copy() {
-        return new KuduDynamicTableSource(schema, masters, tableName, configuration, inlongMetric, auditHostAndPorts);
+        return new KuduDynamicTableSource(
+                kuduTableInfo,
+                configuration,
+                inlongMetric,
+                auditHostAndPorts);
     }
 
     @Override
@@ -100,10 +83,9 @@ public class KuduDynamicTableSource implements LookupTableSource {
 
     @Override
     public LookupRuntimeProvider getLookupRuntimeProvider(LookupContext lookupContext) {
-        return TableFunctionProvider.of(new KuduLookupFunction(
-                masters,
-                tableName,
-                null,
-                configuration));
+        return TableFunctionProvider.of(
+                new KuduLookupFunction(
+                        kuduTableInfo,
+                        configuration));
     }
 }

@@ -20,11 +20,10 @@ package org.apache.inlong.sort.kudu.sink;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.apache.inlong.sort.kudu.source.KuduConsumerTask;
-import org.apache.kudu.client.SessionConfiguration.FlushMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,15 +61,11 @@ public class KuduAsyncSinkFunction
     private ExecutorService threadPool = null;
 
     public KuduAsyncSinkFunction(
-            TableSchema flinkTableSchema,
-            String masters,
-            String tableName,
-            FlushMode flushMode,
-            String[] keyFieldNames,
+            KuduTableInfo kuduTableInfo,
             Configuration configuration,
             String inlongMetric,
             String auditHostAndPorts) {
-        super(flinkTableSchema, masters, tableName, flushMode, configuration, inlongMetric, auditHostAndPorts);
+        super(kuduTableInfo, configuration, inlongMetric, auditHostAndPorts);
         this.maxBufferTime = parseDuration(configuration.getString(MAX_BUFFER_TIME));
     }
 
@@ -100,7 +95,7 @@ public class KuduAsyncSinkFunction
 
         boolean forceInUpsertMode = configuration.getBoolean(SINK_FORCE_WITH_UPSERT_MODE);
         for (int threadIndex = 0; threadIndex < threadCnt; threadIndex++) {
-            KuduWriter kuduWriter = new KuduWriter(masters, tableName, flinkTableSchema, flushMode, forceInUpsertMode);
+            KuduWriter kuduWriter = new KuduWriter(kuduTableInfo);
             kuduWriter.open();
             KuduConsumerTask task = new KuduConsumerTask(
                     queue, kuduWriter, maxBufferSize, maxBufferTime, maxRetries);

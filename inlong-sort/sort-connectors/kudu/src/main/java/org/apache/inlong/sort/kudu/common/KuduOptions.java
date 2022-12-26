@@ -25,6 +25,16 @@ import org.apache.flink.configuration.ConfigOptions;
  */
 public class KuduOptions {
 
+    public static final ConfigOption<String> CONNECTOR_TABLE =
+            ConfigOptions.key("connector.table")
+                    .stringType()
+                    .noDefaultValue().withDescription("The name of kudu table.");
+
+    public static final ConfigOption<String> CONNECTOR_MASTERS =
+            ConfigOptions.key("connector.masters")
+                    .stringType()
+                    .noDefaultValue().withDescription(" The masters of kudu server.");
+
     public static final ConfigOption<String> FLUSH_MODE =
             ConfigOptions.key("flush-mode")
                     .stringType()
@@ -104,20 +114,8 @@ public class KuduOptions {
                     .intType()
                     .defaultValue(-1)
                     .withDescription("The maximum queue lengths.");
-    public static final ConfigOption<String> CONNECTOR_TABLE =
-            ConfigOptions.key("connector.table")
-                    .stringType()
-                    .noDefaultValue().withDescription("The name of kudu table.");
-    public static final ConfigOption<String> CONNECTOR_MASTER =
-            ConfigOptions.key("connector.master")
-                    .stringType()
-                    .noDefaultValue().withDescription(" The masters of kudu server.");
-    public static final ConfigOption<Boolean> LAZY_LOAD_SCHEMA =
-            ConfigOptions.key("lazy.load.schema")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("Whether get metadata from kudu after generating flink job graphic.");
-    public static final ConfigOption<Boolean> KUDU_IGNORE_ALL_CHANGELOG =
+
+    public static final ConfigOption<Boolean> IGNORE_ALL_CHANGELOG =
             ConfigOptions.key("ignore.all.changelog")
                     .booleanType()
                     .defaultValue(false)

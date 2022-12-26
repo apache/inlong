@@ -22,8 +22,8 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.apache.kudu.Schema;
-
 import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.KuduException;
 import org.apache.kudu.client.KuduSession;
@@ -32,12 +32,10 @@ import org.apache.kudu.client.Operation;
 import org.apache.kudu.client.PartialRow;
 import org.apache.kudu.client.RowError;
 import org.apache.kudu.client.SessionConfiguration;
-import org.apache.kudu.client.SessionConfiguration.FlushMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,13 +73,8 @@ public class KuduWriter {
      * The name of kudu table.
      */
     private final String tableName;
-
-    /**
-     * The name of kudu field.
-     */
-    private final TableSchema flinkSchema;
-
-    private String[] actualFieldNames;
+    private final String[] fieldNames;
+    private final DataType[] dataTypes;
 
     /**
      * The client of kudu.
@@ -108,19 +101,15 @@ public class KuduWriter {
     private final List<Tuple2<Long, Integer>> consumeTimes;
     private final int timePrintingThreshold = 10;
     private int applyNum = 0;
-    private DataType[] actualFieldTypes;
 
     public KuduWriter(
-            String masters,
-            String tableName,
-            TableSchema flinkSchema,
-            FlushMode flushMode,
-            boolean forceInUpsertMode) {
-        this.masters = masters;
-        this.tableName = tableName;
-        this.flushMode = flushMode;
-        this.forceInUpsertMode = forceInUpsertMode;
-        this.flinkSchema = flinkSchema;
+            KuduTableInfo kuduTableInfo) {
+        this.masters = kuduTableInfo.getMasters();
+        this.tableName = kuduTableInfo.getTableName();
+        this.fieldNames = kuduTableInfo.getFieldNames();
+        this.dataTypes = kuduTableInfo.getDataTypes();
+        this.flushMode = kuduTableInfo.getFlushMode();
+        this.forceInUpsertMode = kuduTableInfo.isForceInUpsertMode();
 
         this.consumeTimes = Collections.synchronizedList(new ArrayList<>(100));
     }
@@ -144,14 +133,12 @@ public class KuduWriter {
         // check table schema
         Schema schema = kuduTable.getSchema();
         try {
-            checkSchema(flinkSchema, schema);
+            checkSchema(fieldNames, dataTypes, schema);
         } catch (Exception e) {
             LOG.error("The provided schema is invalid!", e);
             throw new RuntimeException(e);
         }
-        this.actualFieldNames = getExpectedFieldNames(flinkSchema);
-        LOG.info("Kudu actual fieldNames: {}.", Arrays.toString(actualFieldNames));
-        this.actualFieldTypes = getExpectedDataTypes(flinkSchema);
+        LOG.info("Kudu actual fieldNames: {}.", Arrays.toString(fieldNames));
     }
 
     private DataType[] getExpectedDataTypes(TableSchema flinkSchema) {
@@ -239,9 +226,9 @@ public class KuduWriter {
         }
         final PartialRow kuduRow = operation.getRow();
 
-        for (int j = 0; j < actualFieldNames.length; j++) {
-            String columnName = actualFieldNames[j];
-            DataType columnType = actualFieldTypes[j];
+        for (int j = 0; j < fieldNames.length; j++) {
+            String columnName = fieldNames[j];
+            DataType columnType = dataTypes[j];
 
             Object column = RowData.createFieldGetter(columnType.getLogicalType(), j).getFieldOrNull(row);
             if (column == null) {

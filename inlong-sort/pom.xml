@@ -47,7 +47,6 @@
         <hbase.version>2.2.3</hbase.version>
         <iceberg.hive.version>2.3.7</iceberg.hive.version>
         <hudi.hive.version>2.3.7</hudi.hive.version>
-        <kudu.version>1.16.0</kudu.version>
     </properties>
     <dependencyManagement>
         <dependencies>

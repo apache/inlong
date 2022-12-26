@@ -18,9 +18,8 @@
 package org.apache.inlong.sort.kudu.common;
 
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.types.DataType;
 import org.apache.flink.util.StringUtils;
-
 import org.apache.inlong.sort.formats.common.BooleanTypeInfo;
 import org.apache.inlong.sort.formats.common.ByteTypeInfo;
 import org.apache.inlong.sort.formats.common.DateTypeInfo;
@@ -46,7 +45,19 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.kudu.Type.*;
+import static org.apache.kudu.Type.BINARY;
+import static org.apache.kudu.Type.BOOL;
+import static org.apache.kudu.Type.DATE;
+import static org.apache.kudu.Type.DECIMAL;
+import static org.apache.kudu.Type.DOUBLE;
+import static org.apache.kudu.Type.FLOAT;
+import static org.apache.kudu.Type.INT16;
+import static org.apache.kudu.Type.INT32;
+import static org.apache.kudu.Type.INT64;
+import static org.apache.kudu.Type.INT8;
+import static org.apache.kudu.Type.STRING;
+import static org.apache.kudu.Type.UNIXTIME_MICROS;
+import static org.apache.kudu.Type.VARCHAR;
 
 /**
  * The utility class for Kudu.
@@ -77,8 +88,8 @@ public class KuduUtils {
      * Check if types match.
      *
      * @param kuduTableSchema the table schema of kudu.
-     * @param fieldNames      the name of field.
-     * @param typeInfo        the type of user settings.
+     * @param fieldNames the name of field.
+     * @param typeInfo the type of user settings.
      */
     public static void checkSchema(Schema kuduTableSchema, String[] fieldNames, RowTypeInfo typeInfo) {
         List<ColumnSchema> kuduColumns = kuduTableSchema.getColumns();
@@ -122,7 +133,8 @@ public class KuduUtils {
      * Check schema according to field name
      */
     public static void checkSchema(
-            TableSchema flinkSchema,
+            String[] fieldNames,
+            DataType[] dataTypes,
             Schema kuduTableSchema) {
         List<ColumnSchema> kuduColumns = kuduTableSchema.getColumns();
         Map<String, ColumnSchema> columnMap = kuduColumns
@@ -130,7 +142,7 @@ public class KuduUtils {
                 .map(col -> Tuple2.of(col.getName(), col))
                 .collect(Collectors.toMap(t2 -> t2.f0, t2 -> t2.f1));
         String missFields = Arrays
-                .stream(flinkSchema.getFieldNames())
+                .stream(fieldNames)
                 .filter(s -> !columnMap.containsKey(s))
                 .collect(Collectors.joining(","));
         checkState(StringUtils.isNullOrWhitespaceOnly(missFields), "Can not find fields {} in kudu table!", missFields);

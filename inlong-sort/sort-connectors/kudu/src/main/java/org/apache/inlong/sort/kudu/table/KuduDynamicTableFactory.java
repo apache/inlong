@@ -29,15 +29,30 @@ import org.apache.flink.table.factories.DynamicTableSinkFactory;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.inlong.sort.kudu.common.KuduOptions;
+import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.apache.inlong.sort.kudu.common.KuduValidator;
+import org.apache.kudu.client.SessionConfiguration;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.kudu.common.KuduOptions.*;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.CONNECTOR_MASTERS;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.CONNECTOR_TABLE;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.ENABLE_KEY_FIELD_CHECK;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.FLUSH_MODE;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_BUFFER_SIZE;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_BUFFER_TIME;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_CACHE_SIZE;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_CACHE_TIME;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_RETRIES;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.SINK_KEY_FIELD_NAMES;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.SINK_START_NEW_CHAIN;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.WRITE_THREAD_COUNT;
 import static org.apache.inlong.sort.kudu.common.KuduValidator.CONNECTOR_TYPE_VALUE_KUDU;
 
 /**
@@ -76,17 +91,12 @@ public class KuduDynamicTableFactory
         context.getCatalogTable().getOptions().forEach(configuration::setString);
 
         ReadableConfig options = helper.getOptions();
-        String master = options.getOptional(CONNECTOR_MASTER).orElse(null);
-        String tableName = options.getOptional(CONNECTOR_TABLE).orElse(null);
         String inlongMetric = options.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = options.getOptional(INLONG_AUDIT).orElse(null);
 
         // Query the fields through the kudu client and select the fields in the tableSchema
         return new KuduDynamicTableSink(
-                context.getCatalogTable(),
-                schema,
-                master,
-                tableName,
+                getKuduTableInfo(context),
                 configuration,
                 inlongMetric,
                 auditHostAndPorts);
@@ -94,26 +104,48 @@ public class KuduDynamicTableFactory
 
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
+        Configuration configuration = new Configuration();
+        context.getCatalogTable().getOptions().forEach(configuration::setString);
+
+        String inlongMetric = configuration.getOptional(INLONG_METRIC).orElse(null);
+        String auditHostAndPorts = configuration.getOptional(INLONG_AUDIT).orElse(null);
+
+        KuduTableInfo kuduTableInfo = getKuduTableInfo(context);
+
+        return new KuduDynamicTableSource(
+                kuduTableInfo,
+                configuration,
+                inlongMetric,
+                auditHostAndPorts);
+    }
+
+    private KuduTableInfo getKuduTableInfo(Context context) {
         TableSchema schema = context.getCatalogTable().getSchema();
         FactoryUtil.TableFactoryHelper helper =
                 FactoryUtil.createTableFactoryHelper(this, context);
 
-        Configuration configuration = new Configuration();
-        context.getCatalogTable().getOptions().forEach(configuration::setString);
-
         ReadableConfig options = helper.getOptions();
-        String master = options.getOptional(CONNECTOR_MASTER).orElse(null);
+        String master = options.getOptional(CONNECTOR_MASTERS).orElse(null);
         String tableName = options.getOptional(CONNECTOR_TABLE).orElse(null);
-        String inlongMetric = options.getOptional(INLONG_METRIC).orElse(null);
-        String auditHostAndPorts = options.getOptional(INLONG_AUDIT).orElse(null);
 
-        return new KuduDynamicTableSource(
-                schema,
-                master,
-                tableName,
-                configuration,
-                inlongMetric,
-                auditHostAndPorts);
+        SessionConfiguration.FlushMode flushMode = SessionConfiguration.FlushMode.AUTO_FLUSH_BACKGROUND;
+        Optional<String> optional = options.getOptional(FLUSH_MODE);
+        if (optional.isPresent()) {
+            String flushModeConfig = optional.get();
+            flushMode = SessionConfiguration.FlushMode.valueOf(flushModeConfig);
+            checkNotNull(flushMode, "The flush mode must be one of " +
+                    "AUTO_FLUSH_SYNC AUTO_FLUSH_BACKGROUND or MANUAL_FLUSH.");
+        }
+
+        return KuduTableInfo
+                .builder()
+                .masters(master)
+                .tableName(tableName)
+                .fieldNames(schema.getFieldNames())
+                .dataTypes(
+                        schema.getFieldDataTypes())
+                .flushMode(flushMode)
+                .build();
     }
 
     @Override
@@ -125,7 +157,7 @@ public class KuduDynamicTableFactory
     public Set<ConfigOption<?>> requiredOptions() {
         HashSet<ConfigOption<?>> configOptions = new HashSet<>();
         configOptions.add(KuduOptions.CONNECTOR_TABLE);
-        configOptions.add(KuduOptions.CONNECTOR_MASTER);
+        configOptions.add(KuduOptions.CONNECTOR_MASTERS);
         return configOptions;
     }
 

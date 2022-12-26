@@ -27,20 +27,24 @@ import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
-import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.kudu.client.SessionConfiguration;
+import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import static org.apache.inlong.sort.base.Constants.*;
-import static org.apache.inlong.sort.kudu.common.KuduOptions.*;
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_BUFFER_SIZE;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_RETRIES;
 
 /**
  * The base for all kudu sinks.
@@ -56,20 +60,7 @@ public abstract class AbstractKuduSinkFunction
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractKuduSinkFunction.class);
 
-    /**
-     * The masters of kudu server.
-     */
-    protected final String masters;
-    /**
-     * The name of kudu table.
-     */
-    protected final String tableName;
-    /**
-     * The flink TableSchema.
-     */
-    protected final TableSchema flinkTableSchema;
-
-    protected String connectorMetricIdentify;
+    protected final KuduTableInfo kuduTableInfo;
 
     /**
      * The configuration of kudu sinkFunction.
@@ -96,12 +87,6 @@ public abstract class AbstractKuduSinkFunction
      */
     private transient Throwable flushThrowable;
 
-    protected final SessionConfiguration.FlushMode flushMode;
-    /**
-     * whether load metadata in `open` function
-     */
-    protected boolean lazyLoadSchema;
-
     private SinkMetricData sinkMetricData;
 
     private transient ListState<MetricState> metricStateListState;
@@ -112,21 +97,14 @@ public abstract class AbstractKuduSinkFunction
     private final String inlongMetric;
 
     public AbstractKuduSinkFunction(
-            TableSchema flinkTableSchema,
-            String masters,
-            String tableName,
-            SessionConfiguration.FlushMode flushMode,
+            KuduTableInfo kuduTableInfo,
             Configuration configuration,
             String inlongMetric,
             String auditHostAndPorts) {
-        this.masters = masters;
-        this.flushMode = flushMode;
-        this.tableName = tableName;
-        this.flinkTableSchema = flinkTableSchema;
+        this.kuduTableInfo = kuduTableInfo;
         this.configuration = configuration;
         this.maxRetries = configuration.getInteger(MAX_RETRIES);
         this.maxBufferSize = configuration.getInteger(MAX_BUFFER_SIZE);
-        this.lazyLoadSchema = configuration.getBoolean(LAZY_LOAD_SCHEMA);
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         MetricOption metricOption = MetricOption.builder()

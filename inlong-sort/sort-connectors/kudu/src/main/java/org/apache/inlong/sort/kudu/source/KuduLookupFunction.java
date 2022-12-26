@@ -25,9 +25,9 @@ import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.TableFunction;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.kudu.common.KuduOptions;
+import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.apache.kudu.ColumnSchema;
 import org.apache.kudu.Schema;
-
 import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.KuduPredicate;
 import org.apache.kudu.client.KuduScanToken;
@@ -102,16 +102,14 @@ public class KuduLookupFunction extends TableFunction<Row> {
     private transient KuduTable table;
 
     public KuduLookupFunction(
-            String masters,
-            String tableName,
-            String[] keyNames,
+            KuduTableInfo kuduTableInfo,
             Configuration configuration) {
         checkNotNull(configuration,
                 "The configuration must not be null.");
 
-        this.masters = masters;
-        this.tableName = tableName;
-        this.keyNames = keyNames;
+        this.masters = kuduTableInfo.getMasters();
+        this.tableName = kuduTableInfo.getTableName();
+        this.keyNames = kuduTableInfo.getFieldNames();
         this.configuration = configuration;
     }
 
