@@ -50,7 +50,7 @@ import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.doris.model.RespContent;
 import org.apache.inlong.sort.doris.util.DorisParseUtils;
@@ -136,7 +136,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private transient ScheduledExecutorService scheduler;
     private transient ScheduledFuture<?> scheduledFuture;
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
-    private transient SinkMetricData metricData;
+    private transient SinkTableMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
     private final String[] fieldNames;
@@ -270,7 +270,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 .withRegisterMetric(MetricOption.RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
-            metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
+            metricData = new SinkTableMetricData(metricOption, getRuntimeContext().getMetricGroup());
+            if (multipleSink) {
+                metricData.registerSubMetricsGroup(metricState);
+            }
         }
         if (dirtySink != null) {
             try {
@@ -607,7 +610,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             respContent = load(tableIdentifier, loadValue);
             try {
                 if (null != metricData && null != respContent) {
-                    metricData.invoke(respContent.getNumberLoadedRows(), respContent.getLoadBytes());
+                    if (multipleSink) {
+                        String[] tableWithDb = tableIdentifier.split("\\.");
+                        metricData.outputMetricsWithEstimate(tableWithDb[0], null, tableWithDb[1],
+                                false, respContent.getNumberLoadedRows(), respContent.getLoadBytes());
+                    } else {
+                        metricData.invoke(respContent.getNumberLoadedRows(), respContent.getLoadBytes());
+                    }
                 }
             } catch (Exception e) {
                 LOG.warn("metricData invoke get err:", e);
