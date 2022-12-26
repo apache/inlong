@@ -157,7 +157,6 @@ class AgentServiceTest extends ServiceBaseTest {
 
     public void deleteSource(String groupId, String streamId) {
         sourceService.logicDeleteAll(groupId, streamId, GLOBAL_OPERATOR);
-        streamService.logicDeleteAll(groupId, GLOBAL_OPERATOR);
     }
 
     @BeforeAll
@@ -177,12 +176,12 @@ class AgentServiceTest extends ServiceBaseTest {
     @AfterEach
     public void teardownEach() {
         if (!groupStreamCache.isEmpty()) {
+            groupStreamCache.forEach(groupStream -> sourceService.deleteAll(groupStream.getLeft(),
+                    groupStream.getRight(), GLOBAL_OPERATOR));
             groupMapper.deleteByInlongGroupIds(
                     groupStreamCache.stream().map(Pair::getKey).collect(Collectors.toList()));
             streamMapper.deleteByInlongGroupIds(
                     groupStreamCache.stream().map(Pair::getValue).collect(Collectors.toList()));
-            groupStreamCache.forEach(groupStream -> sourceService.forceDelete(groupStream.getLeft(),
-                    groupStream.getRight(), GLOBAL_OPERATOR));
         }
         groupStreamCache.clear();
         tagCache.stream().forEach(tag -> bindTag(false, tag));;

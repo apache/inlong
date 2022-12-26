@@ -158,8 +158,9 @@ public class TestTextFileReader {
                 break;
             }
             Assert.assertTrue(
-                    message.toString().equalsIgnoreCase("hello") || message.toString().equalsIgnoreCase("aa world")
-                            || message.toString().equalsIgnoreCase("agent"));
+                    message.toString().equalsIgnoreCase("hello ")
+                            || message.toString().equalsIgnoreCase(" aa" + System.lineSeparator() + "world ")
+                            || message.toString().equalsIgnoreCase(System.lineSeparator() + "agent "));
             LOGGER.info("message is {}", message.toString());
         }
     }
@@ -191,6 +192,7 @@ public class TestTextFileReader {
             Message message = reader.read();
             if (null != message) {
                 LOGGER.info("message is {}", message.toString());
+                continue;
             }
             Assert.assertNull(message);
             break;
@@ -211,10 +213,11 @@ public class TestTextFileReader {
             afterList.add("world");
         }
         Files.write(localPath, afterList, StandardOpenOption.APPEND);
-        FileReaderOperator fileReaderOperator = new FileReaderOperator(localPath.toFile(), 1000);
+        final FileReaderOperator fileReaderOperator = new FileReaderOperator(localPath.toFile(), 1000);
         JobProfile jobProfile = new JobProfile();
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
+        jobProfile.set(JOB_INSTANCE_ID, "1");
         fileReaderOperator.init(jobProfile);
 
         Assert.assertEquals("world", new String(fileReaderOperator.read().getBody()));
@@ -227,6 +230,7 @@ public class TestTextFileReader {
         jobProfile.setInt(JOB_FILE_MAX_WAIT, 1);
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
+        jobProfile.set(JOB_INSTANCE_ID, "1");
         Path localPath = Paths.get(testDir.toString(), "test1.txt");
         FileReaderOperator reader = new FileReaderOperator(localPath.toFile(), 0);
         if (localPath.toFile().exists()) {
