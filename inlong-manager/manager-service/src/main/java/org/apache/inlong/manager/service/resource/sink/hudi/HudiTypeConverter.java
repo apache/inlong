@@ -39,8 +39,7 @@ public class HudiTypeConverter {
      */
     public static String convert(HudiColumnInfo column) {
         return Optional.ofNullable(column)
-                .map(HudiColumnInfo::getType)
-                .map(HudiType::forType)
+                .map(col -> HudiType.forType(col.getType()))
                 .map(hudiType -> {
                     if (HudiType.DECIMAL == hudiType) {
                         return String.format("decimal(%d, %d)", column.getPrecision(), column.getScale());
