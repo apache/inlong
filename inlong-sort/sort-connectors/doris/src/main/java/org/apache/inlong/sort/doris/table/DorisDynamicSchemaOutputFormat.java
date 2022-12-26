@@ -76,6 +76,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -141,7 +143,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private transient MetricState metricState;
     private final String[] fieldNames;
     private volatile boolean jsonFormat;
-    private String keysType;
     private volatile RowData.FieldGetter[] fieldGetters;
     private String fieldDelimiter;
     private String lineDelimiter;
@@ -267,6 +268,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 .withInlongAudit(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(MetricOption.RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
@@ -486,6 +489,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
             throw ex;
         }
+
+        long size = dirtyData.toString().getBytes(StandardCharsets.UTF_8).length;
+        metricData.invokeDirty(1, size);
+
         if (dirtySink != null) {
             DirtyData.Builder<Object> builder = DirtyData.builder();
             try {
