@@ -47,6 +47,8 @@ import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Histogram;
 import org.apache.flink.runtime.metrics.DescriptiveStatisticsHistogram;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.TableColumn;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
@@ -66,6 +68,7 @@ public class StarRocksSinkManager implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StarRocksSinkManager.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final StarRocksJdbcConnectionProvider jdbcConnProvider;
     private final StarRocksQueryVisitor starrocksQueryVisitor;
@@ -417,15 +420,7 @@ public class StarRocksSinkManager implements Serializable {
                 }
                 LOGGER.warn("Failed to flush batch data to StarRocks, retry times = {}", i, e);
                 if (i >= sinkOptions.getSinkMaxRetries()) {
-                    dirtySinkHelper.invoke(flushData, DirtyType.BATCH_LOAD_ERROR, e);
-                    if (null != metricData) {
-                        if (multipleSink) {
-                            metricData.outputDirtyMetrics(flushData.getDatabase(), null, flushData.getTable(), false,
-                                    flushData.getBatchCount(), flushData.getBatchSize());
-                        } else {
-                            metricData.invokeDirty(flushData.getBatchCount(), flushData.getBatchSize());
-                        }
-                    }
+                    handleDirtyData(flushData, e);
 
                     if (schemaUpdatePolicy == null
                             || schemaUpdatePolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
@@ -449,6 +444,30 @@ public class StarRocksSinkManager implements Serializable {
             }
         }
         return true;
+    }
+
+    private void handleDirtyData(StarRocksSinkBufferEntity flushData, Exception e) throws JsonProcessingException {
+        // archive dirty data
+        if (StarRocksSinkOptions.StreamLoadFormat.CSV.equals(sinkOptions.getStreamLoadFormat())) {
+            for (byte[] row : flushData.getBuffer()) {
+                dirtySinkHelper.invoke(new String(row, StandardCharsets.UTF_8), DirtyType.BATCH_LOAD_ERROR, e);
+            }
+        } else if (StarRocksSinkOptions.StreamLoadFormat.JSON.equals(sinkOptions.getStreamLoadFormat())) {
+            for (byte[] row : flushData.getBuffer()) {
+                dirtySinkHelper.invoke(OBJECT_MAPPER.readTree(new String(row, StandardCharsets.UTF_8)),
+                        DirtyType.BATCH_LOAD_ERROR, e);
+            }
+        }
+
+        // upload metrics for dirty data
+        if (null != metricData) {
+            if (multipleSink) {
+                metricData.outputDirtyMetrics(flushData.getDatabase(), null, flushData.getTable(), false,
+                        flushData.getBatchCount(), flushData.getBatchSize());
+            } else {
+                metricData.invokeDirty(flushData.getBatchCount(), flushData.getBatchSize());
+            }
+        }
     }
 
     private void waitAsyncFlushingDone() throws InterruptedException {

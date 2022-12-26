@@ -222,7 +222,7 @@ public class StarRocksStreamLoadVisitor implements Serializable {
         }
     }
 
-    public byte[] joinRows(List<byte[]> rows, int totalBytes) throws IOException {
+    private byte[] joinRows(List<byte[]> rows, int totalBytes) throws IOException {
         if (StarRocksSinkOptions.StreamLoadFormat.CSV.equals(sinkOptions.getStreamLoadFormat())) {
             byte[] lineDelimiter = StarRocksDelimiterParser.parse(
                     sinkOptions.getSinkStreamLoadProperties().get("row_delimiter"), "\n")
