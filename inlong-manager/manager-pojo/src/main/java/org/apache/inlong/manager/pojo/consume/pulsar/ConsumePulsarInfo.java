@@ -37,6 +37,9 @@ import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 @ApiModel("Inlong consume info of Pulsar")
 public class ConsumePulsarInfo extends InlongConsumeInfo {
 
+    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080", notes = "Pulsar service URL is the 'clusterUrl' field of the InlongConsumeInfo")
+    private String adminUrl;
+
     @ApiModelProperty("Whether to configure the dead letter queue, 0: not configure, 1: configure")
     private Integer isDlq;
 

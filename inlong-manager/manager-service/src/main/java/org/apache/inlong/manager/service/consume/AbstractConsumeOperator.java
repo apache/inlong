@@ -69,6 +69,8 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void updateOpt(InlongConsumeRequest request, String operator) {
+        // firstly check the topic info
+        this.checkTopicInfo(request);
         // get the entity from request
         InlongConsumeEntity entity = CommonBeanUtils.copyProperties(request, InlongConsumeEntity::new);
         // set the ext params

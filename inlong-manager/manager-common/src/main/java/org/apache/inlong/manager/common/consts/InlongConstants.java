@@ -35,6 +35,8 @@ public class InlongConstants {
      */
     public static final String COMMA = ",";
 
+    public static final String SLASH = "/";
+
     public static final String COLON = ":";
 
     public static final String SEMICOLON = ";";
