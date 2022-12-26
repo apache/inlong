@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.resource.sink.hudi;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -191,14 +190,16 @@ public class HudiCatalogClient {
         String location = this.warehouse + "/" + dbName + ".db" + "/" + tableName;
         properties.put("path", location);
 
-        List<FieldSchema> cols = new ArrayList<>();
-        for (HudiColumnInfo column : tableInfo.getColumns()) {
-            FieldSchema fieldSchema = new FieldSchema();
-            fieldSchema.setName(column.getName());
-            fieldSchema.setType(column.getType());
-            fieldSchema.setComment(column.getDesc());
-            cols.add(fieldSchema);
-        }
+        List<FieldSchema> cols = tableInfo.getColumns()
+                .stream()
+                .map(column -> {
+                    FieldSchema fieldSchema = new FieldSchema();
+                    fieldSchema.setName(column.getName());
+                    fieldSchema.setType(HudiTypeConverter.convert(column));
+                    fieldSchema.setComment(column.getDesc());
+                    return fieldSchema;
+                })
+                .collect(Collectors.toList());
 
         // Build storage of hudi table
         StorageDescriptor sd = new StorageDescriptor();

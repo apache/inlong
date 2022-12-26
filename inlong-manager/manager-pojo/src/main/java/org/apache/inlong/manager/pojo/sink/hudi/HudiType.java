@@ -24,26 +24,30 @@ import lombok.Getter;
  */
 public enum HudiType {
 
-    BOOLEAN("boolean"),
-    INT("int"),
-    LONG("long"),
-    FLOAT("float"),
-    DOUBLE("double"),
-    DECIMAL("decimal"),
-    DATE("date"),
-    TIME("time"),
-    TIMESTAMP("timestamp"),
-    TIMESTAMPTZ("timestamptz"),
-    STRING("string"),
-    UUID("uuid"),
-    FIXED("fixed"),
-    BINARY("binary");
+    BOOLEAN("boolean", "boolean"),
+    INT("int", "int"),
+    LONG("long", "bigint"),
+    FLOAT("float", "float"),
+    DOUBLE("double", "double"),
+    DATE("date", "date"),
+    TIME("time", "time(0)"),
+    TIMESTAMP("timestamp", "timestamp(3)"),
+    TIMESTAMPT_Z("timestamptz", "timestamp(6)"),
+    STRING("string", "varchar(" + Integer.MAX_VALUE + ")"),
+    BINARY("binary", "tinyint"),
+    UUID("uuid", "uuid"),
+    FIXED("fixed", null),
+    DECIMAL("decimal", null);
 
     @Getter
     private final String type;
 
-    HudiType(String type) {
+    @Getter
+    private final String hiveType;
+
+    HudiType(String type, String hiveType) {
         this.type = type;
+        this.hiveType = hiveType;
     }
 
     /**
