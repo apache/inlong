@@ -112,8 +112,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private static final String UNIQUE_KEYS_TYPE = "UNIQUE_KEYS";
     @SuppressWarnings({"rawtypes"})
     private final Map<String, List> batchMap = new HashMap<>();
-    @SuppressWarnings({"rawtypes"})
-    private final Map<String, List> errorMap = new HashMap<>();
     private final Map<String, String> columnsMap = new HashMap<>();
     private final List<String> errorTables = new ArrayList<>();
     private final DorisOptions options;
