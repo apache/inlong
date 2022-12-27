@@ -107,7 +107,6 @@ public class MessageQueueZoneProducer {
      */
     public void reload() {
         try {
-            LOG.info("start reload mq clusters");
             // stop deleted cluster
             deletingClusterList.forEach(MessageQueueClusterProducer::stop);
             deletingClusterList.clear();
