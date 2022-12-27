@@ -313,7 +313,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     public synchronized void writeRecord(T row) {
         addBatch(row);
         rowSize++;
-        dataSize += row.toString().getBytes(StandardCharsets.UTF_8).length;
+        try{
+            dataSize += row.toString().getBytes(StandardCharsets.UTF_8).length;
+        } catch (Exception e) {
+            LOG.warn("row parse failed for writeRecord", e);
+        }
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
                 || batchBytes >= executionOptions.getMaxBatchBytes();
         if (valid && !flushing) {
@@ -511,7 +515,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 LOG.warn("Dirty sink failed", ex);
             }
         }
-
         try {
             JsonNode rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
             metricData.outputDirtyMetricsWithEstimate(
