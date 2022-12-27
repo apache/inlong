@@ -19,19 +19,23 @@ package org.apache.inlong.manager.service.consume;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarDTO;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarInfo;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarTopicInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
@@ -39,6 +43,8 @@ import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Inlong consume operator for Pulsar.
@@ -85,12 +91,12 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         // check the origin topic from request exists
         InlongPulsarTopicInfo pulsarTopic = (InlongPulsarTopicInfo) topicInfo;
         String originTopic = request.getTopic();
+        if (originTopic.startsWith("persistent")) {
+            originTopic = originTopic.substring(originTopic.lastIndexOf(InlongConstants.SLASH) + 1);
+            request.setTopic(originTopic);
+        }
         Preconditions.checkTrue(pulsarTopic.getTopics().contains(originTopic),
                 "Pulsar topic not exist for " + originTopic);
-
-        // format the topic to 'tenant/namespace/topic'
-        request.setTopic(String.format(InlongConstants.PULSAR_TOPIC_FORMAT,
-                pulsarTopic.getTenant(), pulsarTopic.getNamespace(), originTopic));
     }
 
     @Override
@@ -103,7 +109,14 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
             ConsumePulsarDTO dto = ConsumePulsarDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, consumeInfo);
         }
-
+        String groupId = entity.getInlongGroupId();
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        String clusterTag = groupInfo.getInlongClusterTag();
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
+        Preconditions.checkNotEmpty(clusterInfos, "pulsar cluster not exist for groupId=" + groupId);
+        consumeInfo.setClusterInfos(clusterInfos);
+        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfos.get(0);
+        consumeInfo.setTopic(getFullPulsarTopic(groupInfo, pulsarCluster.getTenant(), entity.getTopic()));
         return consumeInfo;
     }
 
@@ -145,6 +158,14 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CONSUME_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
+    }
+
+    private String getFullPulsarTopic(InlongGroupInfo groupInfo, String tenant, String topic) {
+        if (StringUtils.isEmpty(tenant)) {
+            tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+        }
+        String namespace = groupInfo.getMqResource();
+        return String.format(InlongConstants.PULSAR_TOPIC_FORMAT, tenant, namespace, topic);
     }
 
 }

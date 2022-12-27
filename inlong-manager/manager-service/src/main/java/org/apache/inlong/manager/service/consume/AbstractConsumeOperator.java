@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.consume;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -69,6 +70,10 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void updateOpt(InlongConsumeRequest request, String operator) {
+        // firstly check the topic info
+        if (StringUtils.isNotBlank(request.getTopic())) {
+            this.checkTopicInfo(request);
+        }
         // get the entity from request
         InlongConsumeEntity entity = CommonBeanUtils.copyProperties(request, InlongConsumeEntity::new);
         // set the ext params
