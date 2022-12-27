@@ -512,17 +512,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
         }
 
-        if (multipleSink && !DirtyType.DESERIALIZE_ERROR.equals(dirtyType) && dirtyData instanceof RowData) {
-            JsonNode rootNode;
-            try {
-                rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
-                metricData.outputDirtyMetricsWithEstimate(
-                        jsonDynamicSchemaFormat.parse(rootNode, databasePattern),
-                        null, jsonDynamicSchemaFormat.parse(rootNode, tablePattern), rowSize, dataSize);
-            } catch (Exception ex) {
-                metricData.invokeDirty(rowSize, dataSize);
-            }
-        } else {
+        try {
+            JsonNode rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
+            metricData.outputDirtyMetricsWithEstimate(
+                    jsonDynamicSchemaFormat.parse(rootNode, databasePattern),
+                    null, jsonDynamicSchemaFormat.parse(rootNode, tablePattern), rowSize, dataSize);
+        } catch (Exception ex) {
             metricData.invokeDirty(rowSize, dataSize);
         }
     }
