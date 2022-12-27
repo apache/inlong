@@ -132,8 +132,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final boolean ignoreSingleTableErrors;
     private long batchBytes = 0L;
     private int size;
-    private long rowSize = 0L;
-    private long dataSize = 0L;
     private DorisStreamLoad dorisStreamLoad;
     private transient volatile boolean closed = false;
     private transient volatile boolean flushing = false;
@@ -312,12 +310,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     @Override
     public synchronized void writeRecord(T row) {
         addBatch(row);
-        rowSize++;
-        try {
-            dataSize += row.toString().getBytes(StandardCharsets.UTF_8).length;
-        } catch (Exception e) {
-            LOG.warn("row parse failed for writeRecord", e);
-        }
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
                 || batchBytes >= executionOptions.getMaxBatchBytes();
         if (valid && !flushing) {
@@ -519,9 +511,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             JsonNode rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
             metricData.outputDirtyMetricsWithEstimate(
                     jsonDynamicSchemaFormat.parse(rootNode, databasePattern),
-                    null, jsonDynamicSchemaFormat.parse(rootNode, tablePattern), rowSize, dataSize);
+                    null, jsonDynamicSchemaFormat.parse(rootNode, tablePattern), 1,
+                    ((RowData) dirtyData).getBinary(0).length);
         } catch (Exception ex) {
-            metricData.invokeDirty(rowSize, dataSize);
+            metricData.invokeDirty(1, dirtyData.toString().getBytes(StandardCharsets.UTF_8).length);
         }
     }
 
