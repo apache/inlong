@@ -46,7 +46,7 @@ import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
@@ -111,9 +111,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     private final String tablePattern;
     private final String schemaPattern;
     private transient MetricState metricState;
-    private SinkMetricData sinkMetricData;
-    private Long dataSize = 0L;
-    private Long rowSize = 0L;
+    private SinkTableMetricData sinkMetricData;
     private final SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy;
 
     public JdbcMultiBatchingOutputFormat(
@@ -159,7 +157,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 .withRegisterMetric(MetricOption.RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
-            sinkMetricData = new SinkMetricData(metricOption, runtimeContext.getMetricGroup());
+            sinkMetricData = new SinkTableMetricData(metricOption, runtimeContext.getMetricGroup());
+            sinkMetricData.registerSubMetricsGroup(metricState);
         }
         jdbcExecMap = new HashMap<>();
         connectionExecProviderMap = new HashMap<>();
@@ -180,15 +179,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                                     if (!closed) {
                                         try {
                                             flush();
-                                            if (sinkMetricData != null) {
-                                                sinkMetricData.invoke(rowSize, dataSize);
-                                            }
-                                            resetStateAfterFlush();
                                         } catch (Exception e) {
-                                            if (sinkMetricData != null) {
-                                                sinkMetricData.invokeDirty(rowSize, dataSize);
-                                            }
-                                            resetStateAfterFlush();
+                                            LOG.info("Synchronized flush get Exception:", e);
                                         }
                                     }
                                 }
@@ -325,8 +317,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 LOG.info("Cal tableIdentifier get Exception:", e);
                 return;
             }
-            rowSize++;
-            dataSize = dataSize + rootNode.toString().getBytes(StandardCharsets.UTF_8).length;
 
             GenericRowData record = null;
             try {
@@ -359,16 +349,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 if (executionOptions.getBatchSize() > 0
                         && batchCount >= executionOptions.getBatchSize()) {
                     flush();
-                    if (sinkMetricData != null) {
-                        sinkMetricData.invoke(rowSize, dataSize);
-                    }
-                    resetStateAfterFlush();
                 }
             } catch (Exception e) {
-                if (sinkMetricData != null) {
-                    sinkMetricData.invokeDirty(rowSize, dataSize);
-                }
-                resetStateAfterFlush();
                 throw new IOException("Writing records to JDBC failed.", e);
             }
         }
@@ -413,11 +395,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             }
         }
         return record;
-    }
-
-    private void resetStateAfterFlush() {
-        dataSize = 0L;
-        rowSize = 0L;
     }
 
     @Override
@@ -473,11 +450,14 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             Exception tableException = null;
             try {
                 jdbcStatementExecutor = getOrCreateStatementExecutor(tableIdentifier);
+                Long totalDataSize = 0L;
                 for (GenericRowData record : tableIdRecordList) {
+                    totalDataSize = totalDataSize + record.toString().getBytes(StandardCharsets.UTF_8).length;
                     jdbcStatementExecutor.addToBatch((JdbcIn) record);
                 }
                 jdbcStatementExecutor.executeBatch();
                 flushFlag = true;
+                outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()), totalDataSize);
             } catch (Exception e) {
                 tableException = e;
                 LOG.warn("Flush all data for tableIdentifier:{} get err:", tableIdentifier, e);
@@ -499,6 +479,9 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                             jdbcStatementExecutor = getOrCreateStatementExecutor(tableIdentifier);
                             jdbcStatementExecutor.addToBatch((JdbcIn) record);
                             jdbcStatementExecutor.executeBatch();
+                            Long totalDataSize =
+                                    Long.valueOf(record.toString().getBytes(StandardCharsets.UTF_8).length);
+                            outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()), totalDataSize);
                             flushFlag = true;
                             break;
                         } catch (Exception e) {
@@ -529,6 +512,20 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 }
             }
             tableIdRecordList.clear();
+        }
+    }
+
+    /**
+     * Output metrics with estimate for pg or other type jdbc connectors.
+     */
+    private void outputMetrics(String tableIdentifier, Long rowSize, Long dataSize) {
+        String[] fieldArray = tableIdentifier.split("\\.");
+        if (fieldArray.length == 3) {
+            sinkMetricData.outputMetricsWithEstimate(fieldArray[0], fieldArray[1], fieldArray[2],
+                    false, rowSize, dataSize);
+        } else if (fieldArray.length == 2) {
+            sinkMetricData.outputMetricsWithEstimate(fieldArray[0], null, fieldArray[1],
+                    false, rowSize, dataSize);
         }
     }
 
