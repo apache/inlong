@@ -457,7 +457,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 .build();
         if (metricOption != null) {
             sourceMetricData = new SourceTableMetricData(metricOption, metricGroup,
-                    Arrays.asList(Constants.DATABASE_NAME, Constants.TABLE_NAME));
+                    Arrays.asList(Constants.DATABASE_NAME, Constants.COLLECTION_NAME));
             if (migrateAll) {
                 // register sub source metric data from metric state
                 sourceMetricData.registerSubMetricsGroup(metricState);
@@ -513,7 +513,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                                     SnapshotRecord snapshotRecord = SnapshotRecord.fromSource(source);
                                     boolean isSnapshotRecord = (SnapshotRecord.TRUE == snapshotRecord);
                                     sourceMetricData
-                                            .outputMetricsWithEstimate(dbName, collectionName, isSnapshotRecord, value);
+                                            .outputMetricsWithEstimate(new String[]{dbName, collectionName},
+                                                    isSnapshotRecord, value);
                                 } else if (sourceMetricData != null && record != null) {
                                     sourceMetricData.outputMetricsWithEstimate(record.value());
                                 }

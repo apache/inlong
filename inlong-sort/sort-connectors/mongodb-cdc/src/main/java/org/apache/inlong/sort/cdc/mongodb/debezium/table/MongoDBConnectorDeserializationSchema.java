@@ -124,7 +124,6 @@ public class MongoDBConnectorDeserializationSchema
             RowKindValidator rowValidator,
             boolean sourceMultipleEnable) {
         this.hasMetadata = checkNotNull(metadataConverters).length > 0;
-        // this.hasMetadata = true;
         this.sourceMultipleEnable = sourceMultipleEnable;
         this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters, sourceMultipleEnable);
         this.physicalConverter = createConverter(physicalDataType);
