@@ -91,8 +91,6 @@ public class MongoDBConnectorDeserializationSchema
     /** TypeInformation of the produced {@link RowData}. */
     private final TypeInformation<RowData> resultTypeInfo;
 
-    public static final String DOCUMENT_TO_FIELD = "to";
-
     /** Local Time zone. */
     private final ZoneId localTimeZone;
 
@@ -125,8 +123,7 @@ public class MongoDBConnectorDeserializationSchema
             ZoneId localTimeZone,
             RowKindValidator rowValidator,
             boolean sourceMultipleEnable) {
-        // this.hasMetadata = checkNotNull(metadataConverters).length > 0;
-        this.hasMetadata = true;
+        this.hasMetadata = checkNotNull(metadataConverters).length > 0;
         this.sourceMultipleEnable = sourceMultipleEnable;
         this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters, sourceMultipleEnable);
         this.physicalConverter = createConverter(physicalDataType);
@@ -214,7 +211,8 @@ public class MongoDBConnectorDeserializationSchema
                 if (!rowKindValidator.validate(MongoRowKind.RENAME)) {
                     return;
                 }
-                GenericRowData rename = extractMongoDMLData(value, DOCUMENT_TO_FIELD, OperationType.RENAME.getValue());
+                GenericRowData rename =
+                        extractMongoDMLData(value, RecordUtils.DOCUMENT_TO_FIELD, OperationType.RENAME.getValue());
                 rename.setRowKind(RowKind.INSERT);
                 emit(record, rename, out);
                 break;

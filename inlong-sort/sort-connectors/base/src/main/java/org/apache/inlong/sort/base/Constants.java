@@ -85,6 +85,10 @@ public final class Constants {
      */
     public static final String TABLE_NAME = "table";
     /**
+     * Collection Name used in inlong metric
+     */
+    public static final String COLLECTION_NAME = "collection";
+    /**
      * Read Phase used in inlong metric
      */
     public static final String READ_PHASE = "readPhase";
