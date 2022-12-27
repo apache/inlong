@@ -417,7 +417,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 }
             } catch (Exception e) {
                 LOG.error(String.format("json parse error, raw data: %s", new String(rowData.getBinary(0))), e);
-                handleDirtyData(new String(rowData.getBinary(0)), DirtyType.JSON_PROCESS_ERROR, e, rootNode);
+                handleDirtyData(new String(rowData.getBinary(0)), DirtyType.JSON_PROCESS_ERROR, e);
                 return;
             }
             for (int i = 0; i < physicalDataList.size(); i++) {
