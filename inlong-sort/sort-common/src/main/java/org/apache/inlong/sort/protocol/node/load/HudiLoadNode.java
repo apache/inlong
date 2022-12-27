@@ -165,6 +165,7 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
         options.put(HUDI_OPTION_RECORD_KEY_FIELD_NAME, primaryKey);
         options.put("connector", "hudi-inlong");
 
+        // TODO adoptive of hudi operator partitions
         return options;
     }
 

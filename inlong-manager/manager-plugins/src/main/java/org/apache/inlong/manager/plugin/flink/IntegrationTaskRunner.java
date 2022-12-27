@@ -39,6 +39,7 @@ public class IntegrationTaskRunner implements Runnable {
     private final FlinkInfo flinkInfo;
     private final Integer commitType;
 
+    // TODO: add job resource required
     public IntegrationTaskRunner(FlinkService flinkService, FlinkInfo flinkInfo, Integer commitType) {
         this.flinkService = flinkService;
         this.flinkInfo = flinkInfo;
