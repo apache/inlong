@@ -490,6 +490,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             throw ex;
         }
 
+        if (multipleSink) {
+            handleMultipleDirtyData(dirtyData, dirtyType, e);
+            return;
+        }
+
         if (dirtySink != null) {
             DirtyData.Builder<Object> builder = DirtyData.builder();
             try {
@@ -507,8 +512,35 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 LOG.warn("Dirty sink failed", ex);
             }
         }
+        metricData.invokeDirty(1, dirtyData.toString().getBytes(StandardCharsets.UTF_8).length);
+    }
+
+    private void handleMultipleDirtyData(Object dirtyData, DirtyType dirtyType, Exception e) {
+        JsonNode rootNode = null;
         try {
-            JsonNode rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
+            rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
+        } catch (Exception ex) {
+            LOG.warn("handle dirty data: rootnode is null", ex);
+        }
+
+        if (dirtySink != null) {
+            DirtyData.Builder<Object> builder = DirtyData.builder();
+            try {
+                builder.setData(dirtyData)
+                        .setDirtyType(dirtyType)
+                        .setLabels(jsonDynamicSchemaFormat.parse(rootNode, dirtyOptions.getLabels()))
+                        .setLogTag(jsonDynamicSchemaFormat.parse(rootNode, dirtyOptions.getLogTag()))
+                        .setDirtyMessage(e.getMessage())
+                        .setIdentifier(jsonDynamicSchemaFormat.parse(rootNode, dirtyOptions.getIdentifier()));
+                dirtySink.invoke(builder.build());
+            } catch (Exception ex) {
+                if (!dirtyOptions.ignoreSideOutputErrors()) {
+                    throw new RuntimeException(ex);
+                }
+                LOG.warn("Dirty sink failed", ex);
+            }
+        }
+        try {
             metricData.outputDirtyMetricsWithEstimate(
                     jsonDynamicSchemaFormat.parse(rootNode, databasePattern),
                     null, jsonDynamicSchemaFormat.parse(rootNode, tablePattern), 1,
