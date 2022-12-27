@@ -313,7 +313,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     public synchronized void writeRecord(T row) {
         addBatch(row);
         rowSize++;
-        try{
+        try {
             dataSize += row.toString().getBytes(StandardCharsets.UTF_8).length;
         } catch (Exception e) {
             LOG.warn("row parse failed for writeRecord", e);
