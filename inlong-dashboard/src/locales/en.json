@@ -209,6 +209,8 @@
   "meta.Sinks.Hudi.PartitionFieldListHelp": "If the field type is timestamp, you must set the format of the field value, support MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601, and custom, such as: yyyy-MM-dd HH:mm:ss, etc.",
   "meta.Sinks.Hudi.FieldFormat": "FieldFormat",
   "meta.Sinks.Hudi.ExtListHelper": "The DDL attribute of the hudi table needs to be prefixed with 'ddl.'",
+  "meta.Sinks.Hudi.SourceRecordUnit": "row",
+  "meta.Sinks.Hudi.SourceRecordPreDay": "RecordPreDay",
   "meta.Sinks.Greenplum.TableName": "TableName",
   "meta.Sinks.Greenplum.PrimaryKey": "PrimaryKey",
   "meta.Sinks.Greenplum.FieldName": "FieldName",
