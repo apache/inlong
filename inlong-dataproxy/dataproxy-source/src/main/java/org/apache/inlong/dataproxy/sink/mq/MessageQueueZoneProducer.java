@@ -140,6 +140,7 @@ public class MessageQueueZoneProducer {
             }
             this.clusterList = newClusterList;
             if (!ConfigManager.getInstance().isMqClusterReady()) {
+                LOG.info("set mq cluster status ready");
                 ConfigManager.getInstance().updMqClusterStatus(true);
             }
         } catch (Throwable e) {
