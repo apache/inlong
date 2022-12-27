@@ -229,7 +229,6 @@ public class MetricStateUtils {
             metricDataMap.put(DIRTY_BYTES_OUT, sinkMetricData.getDirtyBytesOut().getCount());
         }
         MetricState metricState = new MetricState(subtaskIndex, metricDataMap);
-        metricStateListState.add(metricState);
 
         // snapshot sub metric data state
         snapshotMetricStateForSinkSubMetricData(sinkMetricData, subtaskIndex, metricState);
