@@ -417,7 +417,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 }
             } catch (Exception e) {
                 LOG.error(String.format("json parse error, raw data: %s", new String(rowData.getBinary(0))), e);
-                handleDirtyData(new String(rowData.getBinary(0)), DirtyType.JSON_PROCESS_ERROR, e);
+                handleDirtyData(new String(rowData.getBinary(0)), DirtyType.JSON_PROCESS_ERROR, e, rootNode);
                 return;
             }
             for (int i = 0; i < physicalDataList.size(); i++) {
@@ -512,10 +512,16 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
         }
 
-        if (multipleSink && !DirtyType.DESERIALIZE_ERROR.equals(dirtyType)) {
-            executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
-            String[] tableWithDb = tableIdentifier.split("\\.");
-            metricData.outputDirtyMetricsWithEstimate(tableWithDb[0], null, tableWithDb[1], rowSize, dataSize);
+        if (multipleSink && !DirtyType.DESERIALIZE_ERROR.equals(dirtyType) && dirtyData instanceof RowData) {
+            JsonNode rootNode;
+            try {
+                rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
+                metricData.outputDirtyMetricsWithEstimate(
+                        jsonDynamicSchemaFormat.parse(rootNode, databasePattern),
+                        null, jsonDynamicSchemaFormat.parse(rootNode, tablePattern), rowSize, dataSize);
+            } catch (Exception ex) {
+                metricData.invokeDirty(rowSize, dataSize);
+            }
         } else {
             metricData.invokeDirty(rowSize, dataSize);
         }
