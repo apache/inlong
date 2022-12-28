@@ -517,6 +517,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
 
     /**
      * Output metrics with estimate for pg or other type jdbc connectors.
+     * tableIdentifier maybe: ${dbName}.${tbName} or ${dbName}.${schemaName}.${tbName}
      */
     private void outputMetrics(String tableIdentifier, Long rowSize, Long dataSize) {
         String[] fieldArray = tableIdentifier.split("\\.");
