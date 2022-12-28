@@ -145,9 +145,8 @@ public class AgentUtils {
      */
     public static String getLocalHost() {
         String host = DEFAULT_LOCAL_HOST;
-        try (DatagramSocket socket = new DatagramSocket()) {
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            host = socket.getLocalAddress().getHostName();
+        try {
+            host = InetAddress.getLocalHost().getHostName();
         } catch (Exception ex) {
             LOGGER.error("error while get local host", ex);
         }

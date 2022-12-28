@@ -17,9 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import com.google.gson.Gson;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.FileTriggerType;
+import org.apache.inlong.agent.constant.MetadataConstants;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
@@ -37,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +47,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +72,7 @@ public class TestTextFileReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestTextFileReader.class);
     private static Path testDir;
     private static AgentBaseTestsHelper helper;
+    private static final Gson GSON = new Gson();
 
     @BeforeClass
     public static void setup() {
@@ -157,10 +162,11 @@ public class TestTextFileReader {
             if (message == null) {
                 break;
             }
+            String content = getContent(message.toString());
             Assert.assertTrue(
-                    message.toString().equalsIgnoreCase("hello ")
-                            || message.toString().equalsIgnoreCase(" aa" + System.lineSeparator() + "world ")
-                            || message.toString().equalsIgnoreCase(System.lineSeparator() + "agent "));
+                    content.equalsIgnoreCase("hello ")
+                            || content.equalsIgnoreCase(" aa" + System.lineSeparator() + "world ")
+                            || content.equalsIgnoreCase(System.lineSeparator() + "agent "));
             LOGGER.info("message is {}", message.toString());
         }
     }
@@ -220,8 +226,8 @@ public class TestTextFileReader {
         jobProfile.set(JOB_INSTANCE_ID, "1");
         fileReaderOperator.init(jobProfile);
 
-        Assert.assertEquals("world", new String(fileReaderOperator.read().getBody()));
-
+        Assert.assertEquals("world", getContent(
+                new String(fileReaderOperator.read().getBody(), Charset.forName("UTF-8"))));
     }
 
     @Test
@@ -255,5 +261,10 @@ public class TestTextFileReader {
             count += 1;
         }
         Assert.assertEquals(1000, count);
+    }
+
+    private String getContent(String message) {
+        Map<String, String> logJson = GSON.fromJson(message, Map.class);
+        return logJson.get(MetadataConstants.DATA_CONTENT);
     }
 }

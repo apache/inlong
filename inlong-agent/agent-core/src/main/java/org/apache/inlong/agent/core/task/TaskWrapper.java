@@ -36,9 +36,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
-
 /**
  * TaskWrapper is used in taskManager, it maintains the life cycle of
  * running task.
@@ -55,7 +52,6 @@ public class TaskWrapper extends AbstractStateWrapper {
     private final int maxRetryTime;
     private final int pushMaxWaitTime;
     private final int pullMaxWaitTime;
-    private final int readWaitTime;
     private ExecutorService executorService;
 
     public TaskWrapper(TaskManager manager, Task task) {
@@ -69,7 +65,6 @@ public class TaskWrapper extends AbstractStateWrapper {
                 AgentConstants.TASK_PUSH_MAX_SECOND, AgentConstants.DEFAULT_TASK_PUSH_MAX_SECOND);
         pullMaxWaitTime = conf.getInt(
                 AgentConstants.TASK_PULL_MAX_SECOND, AgentConstants.DEFAULT_TASK_PULL_MAX_SECOND);
-        readWaitTime = conf.getInt(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);
         if (executorService == null) {
             executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                     60L, TimeUnit.SECONDS,
@@ -97,7 +92,6 @@ public class TaskWrapper extends AbstractStateWrapper {
                         message = task.getReader().read();
                     }
                 }
-                AgentUtils.silenceSleepInMs(readWaitTime);
             }
             LOGGER.info("read end, task exception status is {}, read finish status is {}", isException(),
                     task.isReadFinished());

@@ -275,4 +275,24 @@ public class TestTextFileTask {
         Assert.assertEquals(excepted, results);
     }
 
+    @Test
+    public void testScaleData() throws IOException {
+        File file = TMP_FOLDER.newFile();
+        StringBuffer sb = new StringBuffer();
+        String testData1 = IntStream.range(0, 15000)
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(System.lineSeparator()));
+        sb.append(testData1);
+        sb.append(System.lineSeparator());
+        TestUtils.write(file.getAbsolutePath(), sb);
+        sb.setLength(0);
+        JobProfile jobProfile = new JobProfile();
+        jobProfile.set(JobConstants.JOB_INSTANCE_ID, "1");
+        jobProfile.set(JobConstants.JOB_DIR_FILTER_PATTERNS, file.getAbsolutePath());
+        jobProfile.set(JobConstants.JOB_TASK_BEGIN_WAIT_SECONDS, String.valueOf(0));
+        jobProfile.set(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.FULL);
+        // mock data
+        final MockSink sink = mockTextTask(jobProfile);
+        await().atMost(100, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 15000);
+    }
 }

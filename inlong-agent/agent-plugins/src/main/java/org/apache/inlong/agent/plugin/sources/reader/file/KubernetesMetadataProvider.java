@@ -47,15 +47,16 @@ import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_POD_UI
 /**
  * k8s file reader
  */
-public final class KubernetesFileReader extends AbstractFileReader {
+public final class KubernetesMetadataProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(KubernetesFileReader.class);
+    private static final Logger log = LoggerFactory.getLogger(KubernetesMetadataProvider.class);
     private static final Gson GSON = new Gson();
 
     private KubernetesClient client;
+    private FileReaderOperator fileReaderOperator;
 
-    KubernetesFileReader(FileReaderOperator fileReaderOperator) {
-        super.fileReaderOperator = fileReaderOperator;
+    KubernetesMetadataProvider(FileReaderOperator fileReaderOperator) {
+        this.fileReaderOperator = fileReaderOperator;
     }
 
     public void getData() {

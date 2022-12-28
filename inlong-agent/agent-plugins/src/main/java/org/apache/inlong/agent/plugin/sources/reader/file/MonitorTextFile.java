@@ -70,8 +70,8 @@ public final class MonitorTextFile {
         return monitorTextFile;
     }
 
-    public void monitor(FileReaderOperator fileReaderOperator, TextFileReader textFileReader) {
-        EXECUTOR_SERVICE.execute(new MonitorEventRunnable(fileReaderOperator, textFileReader));
+    public void monitor(FileReaderOperator fileReaderOperator) {
+        EXECUTOR_SERVICE.execute(new MonitorEventRunnable(fileReaderOperator));
     }
 
     @VisibleForTesting
@@ -85,22 +85,15 @@ public final class MonitorTextFile {
     private static class MonitorEventRunnable implements Runnable {
 
         private final FileReaderOperator fileReaderOperator;
-        private final TextFileReader textFileReader;
         private final Long interval;
         private final long startTime = System.currentTimeMillis();
-        private long lastFlushTime = System.currentTimeMillis();
         private String path;
 
-        // the last modify time of the file
-        private BasicFileAttributes attributesBefore;
-
-        public MonitorEventRunnable(FileReaderOperator readerOperator, TextFileReader textFileReader) {
+        public MonitorEventRunnable(FileReaderOperator readerOperator) {
             this.fileReaderOperator = readerOperator;
-            this.textFileReader = textFileReader;
             this.interval = Long.parseLong(
                     readerOperator.jobConf.get(JOB_FILE_MONITOR_INTERVAL, INTERVAL_MILLISECONDS));
             try {
-                this.attributesBefore = Files.readAttributes(readerOperator.file.toPath(), BasicFileAttributes.class);
                 this.path = readerOperator.file.getCanonicalPath();
             } catch (IOException e) {
                 LOGGER.error("get {} last modify time error:", readerOperator.file.getName(), e);
@@ -150,31 +143,10 @@ public final class MonitorTextFile {
                 fileReaderOperator.position = 0;
                 path = currentPath;
             }
-            if (attributesBefore.lastModifiedTime().compareTo(attributesAfter.lastModifiedTime()) < 0) {
-                // not triggered during data sending
-                getFileData();
-                attributesBefore = attributesAfter;
-                return;
-            }
-            lastFlushData();
-        }
 
-        private void lastFlushData() throws IOException {
-            long currentTime = System.currentTimeMillis();
-            if (interval * 100 > currentTime - lastFlushTime) {
-                return;
+            if (!fileReaderOperator.hasDataRemaining()) {
+                fileReaderOperator.fetchData();
             }
-            getFileData();
-        }
-
-        private void getFileData() throws IOException {
-            if (fileReaderOperator.iterator != null && fileReaderOperator.iterator.hasNext()) {
-                return;
-            }
-            this.textFileReader.getData();
-            this.textFileReader.mergeData(this.fileReaderOperator);
-            this.fileReaderOperator.iterator = fileReaderOperator.stream.iterator();
-            this.lastFlushTime = System.currentTimeMillis();
         }
     }
 }
