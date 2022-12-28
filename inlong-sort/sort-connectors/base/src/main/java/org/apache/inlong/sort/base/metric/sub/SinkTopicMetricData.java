@@ -25,8 +25,11 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
@@ -37,13 +40,40 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
 public class SinkTopicMetricData extends SinkMetricData implements SinkSubMetricData {
 
+    public static final Logger LOGGER = LoggerFactory.getLogger(SinkTopicMetricData.class);
+
     /**
      * The sink metric data map
      */
-    private final Map<String, SinkMetricData> sinkMetricMap = Maps.newHashMap();
+    private final Map<String, SinkMetricData> topicSinkMetricMap = Maps.newHashMap();
 
     public SinkTopicMetricData(MetricOption option, MetricGroup metricGroup) {
         super(option, metricGroup);
+    }
+
+    /**
+     * register sub sink metrics group from metric state
+     *
+     * @param metricState MetricState
+     */
+    public void registerSubMetricsGroup(MetricState metricState) {
+        if (metricState == null) {
+            return;
+        }
+
+        // register sub sink metric data
+        if (metricState.getSubMetricStateMap() == null) {
+            return;
+        }
+        Map<String, MetricState> subMetricStateMap = metricState.getSubMetricStateMap();
+        for (Entry<String, MetricState> subMetricStateEntry : subMetricStateMap.entrySet()) {
+            String topic = subMetricStateEntry.getKey();
+            final MetricState subMetricState = subMetricStateEntry.getValue();
+            SinkMetricData subSinkMetricData = buildSinkMetricData(topic, subMetricState, this);
+            topicSinkMetricMap.put(topic, subSinkMetricData);
+        }
+        LOGGER.info("register topicMetricsGroup from metricState,topic level metric map size:{}",
+                topicSinkMetricMap.size());
     }
 
     public void sendOutMetrics(String topic, long rowCount, long rowSize) {
@@ -70,11 +100,11 @@ public class SinkTopicMetricData extends SinkMetricData implements SinkSubMetric
 
     private SinkMetricData getSinkMetricData(String topic) {
         SinkMetricData sinkMetricData;
-        if (sinkMetricMap.containsKey(topic)) {
-            sinkMetricData = sinkMetricMap.get(topic);
+        if (topicSinkMetricMap.containsKey(topic)) {
+            sinkMetricData = topicSinkMetricMap.get(topic);
         } else {
             sinkMetricData = buildSinkMetricData(topic, null, this);
-            sinkMetricMap.put(topic, sinkMetricData);
+            topicSinkMetricMap.put(topic, sinkMetricData);
         }
         return sinkMetricData;
     }
@@ -97,6 +127,14 @@ public class SinkTopicMetricData extends SinkMetricData implements SinkSubMetric
 
     @Override
     public Map<String, SinkMetricData> getSubSinkMetricMap() {
-        return this.sinkMetricMap;
+        return this.topicSinkMetricMap;
+    }
+
+    @Override
+    public String toString() {
+        return "SinkTopicMetricData{"
+                + super.toString() + ","
+                + "subSinkMetricMap=" + topicSinkMetricMap
+                + '}';
     }
 }
