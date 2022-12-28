@@ -255,7 +255,7 @@ public class GreenplumSqlBuilder {
      */
     public static String buildDescTableSql(final String schemaName, final String tableName) {
         StringBuilder sql = new StringBuilder().append(
-                        "SELECT A.COLUMN_NAME,A.UDT_NAME,C.DESCRIPTION FROM INFORMATION_SCHEMA.COLUMNS A")
+                "SELECT A.COLUMN_NAME,A.UDT_NAME,C.DESCRIPTION FROM INFORMATION_SCHEMA.COLUMNS A")
                 .append(" LEFT JOIN   (SELECT PC.OID AS OOID,PN.NSPNAME,PC.RELNAME")
                 .append(" FROM PG_CLASS PC LEFT OUTER JOIN PG_NAMESPACE PN ON PC.RELNAMESPACE = PN.OID ")
                 .append(" WHERE PN.NSPNAME ='")
