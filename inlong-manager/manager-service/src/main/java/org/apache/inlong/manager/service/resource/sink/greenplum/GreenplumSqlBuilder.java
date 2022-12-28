@@ -211,7 +211,7 @@ public class GreenplumSqlBuilder {
             List<GreenplumColumnInfo> columns) {
         final List<String> commentList = new ArrayList<>();
         for (GreenplumColumnInfo columnInfo : columns) {
-            if (StringUtils.isNoneBlank(columnInfo.getComment())) {
+            if (StringUtils.isNotBlank(columnInfo.getComment())) {
                 StringBuilder commSql = new StringBuilder();
                 commSql.append("COMMENT ON COLUMN \"")
                         .append(schemaName)
