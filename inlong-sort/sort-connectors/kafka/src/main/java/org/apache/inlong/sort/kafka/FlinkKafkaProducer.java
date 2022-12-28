@@ -943,6 +943,9 @@ public class FlinkKafkaProducer<IN>
                 .build();
         if (metricOption != null) {
             sinkMetricData = new SinkTopicMetricData(metricOption, ctx.getMetricGroup());
+            if (multipleSink) {
+                sinkMetricData.registerSubMetricsGroup(metricState);
+            }
         }
         if (kafkaSchema instanceof DynamicKafkaSerializationSchema) {
             DynamicKafkaSerializationSchema dynamicKafkaSerializationSchema =
@@ -955,12 +958,6 @@ public class FlinkKafkaProducer<IN>
     private void sendOutMetrics(Long rowSize, Long dataSize) {
         if (sinkMetricData != null) {
             sinkMetricData.invoke(rowSize, dataSize);
-        }
-    }
-
-    private void sendDirtyMetrics(Long rowSize, Long dataSize) {
-        if (sinkMetricData != null) {
-            sinkMetricData.invokeDirty(rowSize, dataSize);
         }
     }
 
