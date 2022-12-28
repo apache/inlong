@@ -20,13 +20,12 @@ package org.apache.inlong.agent.plugin.trigger;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Trigger;
-import org.apache.inlong.agent.plugin.utils.PluginUtils;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +65,7 @@ public class DirectoryTrigger implements Trigger {
     private static ConcurrentHashMap<WatchKey, Set<DirectoryTrigger>> allTriggerWatches =
             new ConcurrentHashMap<>();
 
-    private final LinkedBlockingQueue<JobProfile> queue = new LinkedBlockingQueue<>();
+    private final LinkedBlockingQueue<Map<String, String>> queue = new LinkedBlockingQueue<>();
     private Set<PathPattern> pathPatterns = new HashSet<>();
     private TriggerProfile profile;
     private int interval;
@@ -92,7 +91,7 @@ public class DirectoryTrigger implements Trigger {
     }
 
     @Override
-    public JobProfile fetchJobProfile() {
+    public Map<String, String> fetchJobProfile() {
         return queue.poll();
     }
 
@@ -144,7 +143,7 @@ public class DirectoryTrigger implements Trigger {
     }
 
     @VisibleForTesting
-    public Collection<JobProfile> getFetchedJob() {
+    public Collection<Map<String, String>> getFetchedJob() {
         return queue;
     }
 
@@ -292,11 +291,14 @@ public class DirectoryTrigger implements Trigger {
                         Files.list(path).forEach(subPath -> registerAllSubDir(trigger, subPath.toAbsolutePath(),
                                 tobeAddedWatchers, registerSubFile));
                     } else if (registerSubFile) {
-                        JobProfile copiedJobProfile =
-                                PluginUtils.copyJobProfile(trigger.getTriggerProfile(), path.toFile());
+                        Map<String, String> taskProfile = new HashMap<>();
+                        String md5 = AgentUtils.getFileMd5(path.toFile());
+                        taskProfile.put(path.toFile().getAbsolutePath() + ".md5", md5);
+                        taskProfile.put(JobConstants.JOB_TRIGGER, null); // del trigger id
+                        taskProfile.put(JobConstants.JOB_DIR_FILTER_PATTERNS, path.toFile().getAbsolutePath());
                         LOGGER.info("trigger_{} generate job profile to read file {}",
                                 trigger.getTriggerProfile().getTriggerId(), path);
-                        trigger.queue.offer(copiedJobProfile);
+                        trigger.queue.offer(taskProfile);
                     }
                 }
             } catch (IOException e) {

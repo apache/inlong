@@ -17,10 +17,10 @@
 
 package org.apache.inlong.agent.plugin;
 
-import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Trigger interface, which generates job in condition.
@@ -46,11 +46,11 @@ public interface Trigger {
 
     // todo:fetch TaskProfile
     /**
-     * fetch job profile from trigger
+     * fetch task profile from trigger
      *
-     * @return job profile
+     * @return task profile
      */
-    JobProfile fetchJobProfile();
+    Map<String, String> fetchJobProfile();
 
     /**
      * get trigger profile

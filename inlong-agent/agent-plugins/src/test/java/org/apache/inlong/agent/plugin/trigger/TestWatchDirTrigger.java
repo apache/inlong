@@ -22,13 +22,13 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
-import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.junit.After;
@@ -101,9 +101,9 @@ public class TestWatchDirTrigger {
         File file2 = new File(tmp.getAbsolutePath() + File.separator + "2.log");
         file2.createNewFile();
         await().atMost(10, TimeUnit.SECONDS).until(() -> trigger.getFetchedJob().size() == 1);
-        Collection<JobProfile> jobs = trigger.getFetchedJob();
+        Collection<Map<String, String>> jobs = trigger.getFetchedJob();
         Set<String> jobPaths = jobs.stream()
-                .map(job -> job.get(JobConstants.JOB_DIR_FILTER_PATTERNS, null))
+                .map(job -> job.get(JobConstants.JOB_DIR_FILTER_PATTERNS))
                 .collect(Collectors.toSet());
         Assert.assertTrue(jobPaths.contains(file1.getAbsolutePath()));
     }
@@ -161,9 +161,9 @@ public class TestWatchDirTrigger {
         file5.createNewFile();
 
         await().atMost(10, TimeUnit.SECONDS).until(() -> trigger.getFetchedJob().size() == 3);
-        Collection<JobProfile> jobs = trigger.getFetchedJob();
+        Collection<Map<String, String>> jobs = trigger.getFetchedJob();
         Set<String> jobPaths = jobs.stream()
-                .map(job -> job.get(JobConstants.JOB_DIR_FILTER_PATTERNS, null))
+                .map(job -> job.get(JobConstants.JOB_DIR_FILTER_PATTERNS))
                 .collect(Collectors.toSet());
         Assert.assertTrue(jobPaths.contains(file1.getAbsolutePath()));
         Assert.assertTrue(jobPaths.contains(file4.getAbsolutePath()));

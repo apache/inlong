@@ -153,11 +153,11 @@ public class TriggerManager extends AbstractDaemon {
             while (isRunnable()) {
                 try {
                     triggerMap.forEach((s, trigger) -> {
-                        JobProfile profile = trigger.fetchJobProfile();
+                        Map<String, String> profile = trigger.fetchJobProfile();
                         if (profile != null) {
                             Map<String, JobWrapper> jobWrapperMap = manager.getJobManager().getJobs();
                             JobWrapper job = jobWrapperMap.get(trigger.getTriggerProfile().getInstanceId());
-                            String subTaskFile = profile.get(JobConstants.JOB_DIR_FILTER_PATTERNS, "");
+                            String subTaskFile = profile.getOrDefault(JobConstants.JOB_DIR_FILTER_PATTERNS, "");
                             Preconditions.checkArgument(StringUtils.isNotBlank(subTaskFile),
                                     String.format("Trigger %s fetched task file should not be null.", s));
                             // Add new watched file as subtask of trigger job.
@@ -172,7 +172,11 @@ public class TriggerManager extends AbstractDaemon {
                             if (!alreadyExistTask) {
                                 LOGGER.info("Trigger job {} add new task file {}, total task {}",
                                         job.getJob().getName(), subTaskFile, job.getAllTasks().size());
-                                jobWrapperMap.get(trigger.getTriggerProfile().getInstanceId()).submit(profile);
+                                JobWrapper jobWrapper = jobWrapperMap.get(trigger.getTriggerProfile().getInstanceId());
+                                JobProfile taskProfile = JobProfile.parseJsonStr(
+                                        jobWrapper.getJob().getJobConf().toJsonStr());
+                                profile.forEach((k, v) -> taskProfile.set(k, v));
+                                jobWrapper.submit(taskProfile);
                             }
                         }
                     });
