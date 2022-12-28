@@ -543,7 +543,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         try {
             metricData.outputDirtyMetricsWithEstimate(
                     jsonDynamicSchemaFormat.parse(rootNode, databasePattern),
-                    null, jsonDynamicSchemaFormat.parse(rootNode, tablePattern), 1,
+                    jsonDynamicSchemaFormat.parse(rootNode, tablePattern), 1,
                     ((RowData) dirtyData).getBinary(0).length);
         } catch (Exception ex) {
             metricData.invokeDirty(1, dirtyData.toString().getBytes(StandardCharsets.UTF_8).length);
