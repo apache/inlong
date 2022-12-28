@@ -166,6 +166,7 @@ public class TriggerManager extends AbstractDaemon {
                             // necessary to filter the stated monitored file task.
 
                             boolean alreadyExistTask = job.exist(tasks -> tasks.stream()
+                                    .filter(task -> !task.getJobConf().hasKey(JobConstants.JOB_TRIGGER))
                                     .filter(task -> subTaskFile.equals(
                                             task.getJobConf().get(JobConstants.JOB_DIR_FILTER_PATTERNS, "")))
                                     .findAny().isPresent());
