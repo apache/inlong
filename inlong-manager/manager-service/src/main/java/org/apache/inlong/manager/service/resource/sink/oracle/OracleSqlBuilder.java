@@ -162,7 +162,7 @@ public class OracleSqlBuilder {
         final List<String> commentList = new ArrayList<>();
         final StringBuilder sqlBuilder = new StringBuilder();
         columns.stream()
-                .filter(columnInfo -> StringUtils.isNoneBlank(columnInfo.getComment()))
+                .filter(columnInfo -> StringUtils.isNotBlank(columnInfo.getComment()))
                 .forEach(columnInfo -> {
                     sqlBuilder.append("COMMENT ON COLUMN \"")
                             .append(tableName)
