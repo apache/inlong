@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.starrocks.table.sink;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -59,6 +61,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.binary.NestedRowData;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.InstantiationUtil;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.MetricOption;
@@ -102,6 +105,8 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
 
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
 
+    private DirtySinkHelper<Object> dirtySinkHelper;
+
     public StarRocksDynamicSinkFunction(StarRocksSinkOptions sinkOptions,
             TableSchema schema,
             StarRocksIRowTransformer<T> rowTransformer,
@@ -111,14 +116,15 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
             String tablePattern,
             String inlongMetric,
             String auditHostAndPorts,
-            SchemaUpdateExceptionPolicy schemaUpdatePolicy) {
+            SchemaUpdateExceptionPolicy schemaUpdatePolicy,
+            DirtySinkHelper<Object> dirtySinkHelper) {
         StarRocksJdbcConnectionOptions jdbcOptions = new StarRocksJdbcConnectionOptions(sinkOptions.getJdbcUrl(),
                 sinkOptions.getUsername(), sinkOptions.getPassword());
         StarRocksJdbcConnectionProvider jdbcConnProvider = new StarRocksJdbcConnectionProvider(jdbcOptions);
         StarRocksQueryVisitor starrocksQueryVisitor = new StarRocksQueryVisitor(jdbcConnProvider,
                 sinkOptions.getDatabaseName(), sinkOptions.getTableName());
         this.sinkManager = new StarRocksSinkManager(sinkOptions, schema, jdbcConnProvider, starrocksQueryVisitor,
-                multipleSink, schemaUpdatePolicy);
+                multipleSink, schemaUpdatePolicy, dirtySinkHelper);
 
         rowTransformer.setStarRocksColumns(starrocksQueryVisitor.getFieldMapping());
         rowTransformer.setTableSchema(schema);
@@ -132,6 +138,8 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
         this.tablePattern = tablePattern;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+
+        this.dirtySinkHelper = dirtySinkHelper;
     }
 
     @Override
@@ -150,6 +158,8 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
                 .withInlongAudit(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(MetricOption.RegisteredMetric.ALL).build();
         if (metricOption != null) {
             metricData = new SinkTableMetricData(metricOption, getRuntimeContext().getMetricGroup());
@@ -159,6 +169,8 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
             }
             sinkManager.setSinkMetricData(metricData);
         }
+
+        dirtySinkHelper.open(parameters);
     }
 
     @Override
