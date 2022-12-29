@@ -420,7 +420,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         record.setField(i, Double.valueOf(fieldValue));
                         break;
                     case TIME_WITHOUT_TIME_ZONE:
-                        // case TIMESTAMP_WITHOUT_TIME_ZONE:
                     case INTERVAL_DAY_TIME:
                         TimestampData timestampData = TimestampData.fromEpochMillis(Long.valueOf(fieldValue));
                         record.setField(i, timestampData);
