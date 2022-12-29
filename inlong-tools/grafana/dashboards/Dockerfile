@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-FROM grafana/grafana
+FROM grafana/grafana:9.3.2
 
 COPY ./prometheus_ds.yml /etc/grafana/provisioning/dashboards/
 COPY ./prometheus.yml  /etc/grafana/provisioning/datasources/
