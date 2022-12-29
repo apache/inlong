@@ -43,8 +43,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -145,8 +144,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"readSuccessCount\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -160,8 +158,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -262,8 +259,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"readSuccessSize\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -277,8 +273,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -379,8 +374,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"readFailCount\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -394,8 +388,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -496,8 +489,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"readFailSize\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -511,8 +503,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -613,8 +604,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"sendCount\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -628,8 +618,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -730,8 +719,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"sendCount\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -745,8 +733,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -846,8 +833,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"sendSuccessCount\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -861,8 +847,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -962,8 +947,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"sendSuccessCount\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -977,8 +961,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -1078,8 +1061,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"sendFailCount\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -1093,8 +1075,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -1194,8 +1175,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"sendFailCount\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -1209,8 +1189,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -1311,8 +1290,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"sinkDuration\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -1326,8 +1304,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "description": "",
       "fieldConfig": {
@@ -1429,8 +1406,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"nodeDuration\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -1444,8 +1420,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "description": "",
       "fieldConfig": {
@@ -1547,8 +1522,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum({__name__=\"default_dataproxy_id_total\",dimension=\"wholeDuration\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\"})",
@@ -1575,8 +1549,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -1651,8 +1624,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "default_dataproxy_total{dimension=~\"read.*\"}",
@@ -1666,8 +1638,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -1742,8 +1713,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "default_dataproxy_total{dimension=~\"send.*\"}",
@@ -1757,8 +1727,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -1833,8 +1802,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "default_dataproxy_total{dimension=~\".*Duration\"}",
@@ -1859,8 +1827,7 @@
           "value": "-"
         },
         "datasource": {
-          "type": "prometheus",
-          "uid": "UqJTVb7Vz"
+          "type": "prometheus"
         },
         "definition": "{__name__=~\".*Source.*\",inlongGroupId=~\".+\"}",
         "hide": 0,
@@ -1886,8 +1853,7 @@
           "value": "-"
         },
         "datasource": {
-          "type": "prometheus",
-          "uid": "UqJTVb7Vz"
+          "type": "prometheus"
         },
         "definition": "{__name__=~\".*Source.*\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\".+\"}",
         "hide": 0,

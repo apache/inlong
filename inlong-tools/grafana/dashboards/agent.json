@@ -30,8 +30,7 @@
   "panels": [
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -132,8 +131,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "builder",
           "expr": "{__name__=~\".*\",dimension=~\"(sourceSuccessCount|sourceFailCount)\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\",pluginId=~\".*Source.*\"}",
@@ -147,8 +145,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -224,8 +221,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "{__name__=~\".*\",dimension=~\"(pluginReadCount|pluginReadFailCount|pluginReadSuccessCount)\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\",pluginId=~\".*Reader.*\"}",
@@ -239,8 +235,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -316,8 +311,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "{__name__=~\".*\",dimension=~\"(pluginReadCount|pluginReadFailCount|pluginReadSuccessCount|pluginSendCount|pluginSendFailCount|pluginSendSuccessCount)\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\",pluginId=~\".*Channel.*\"}",
@@ -331,8 +325,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -408,8 +401,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "{__name__=~\".*\",dimension=~\"(sinkFailCount|sinkSuccessCount)\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\"$inlongStreamId\",pluginId=~\".*Sink.*\"}",
@@ -436,8 +428,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -513,8 +504,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "builder",
           "expr": "agent_total{job=\"agent\"}",
@@ -541,8 +531,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -617,8 +606,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "{__name__=~\".*\",dimension=~\"(jobRunningCount|jobFatalCount)\",componentName=\"JobManager\"}",
@@ -632,8 +620,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -708,8 +695,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "{__name__=~\".*\",dimension=~\"(taskRunningCount|taskRetryingCount|taskFatalCount)\",componentName=\"TaskManager\"}",
@@ -829,8 +815,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "UqJTVb7Vz"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -878,8 +863,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "UqJTVb7Vz"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "{__name__=~\"process_.*\"}",
@@ -905,8 +889,7 @@
           "value": "-"
         },
         "datasource": {
-          "type": "prometheus",
-          "uid": "UqJTVb7Vz"
+          "type": "prometheus"
         },
         "definition": "{__name__=~\".*Source.*\",inlongGroupId=~\".+\"}",
         "hide": 0,
@@ -932,8 +915,7 @@
           "value": "-"
         },
         "datasource": {
-          "type": "prometheus",
-          "uid": "UqJTVb7Vz"
+          "type": "prometheus"
         },
         "definition": "{__name__=~\".*Source.*\",inlongGroupId=~\"$inlongGroupId\",inlongStreamId=~\".+\"}",
         "hide": 0,
