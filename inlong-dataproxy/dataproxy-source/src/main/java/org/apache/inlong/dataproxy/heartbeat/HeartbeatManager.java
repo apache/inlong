@@ -56,8 +56,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
     public static final String DEFAULT_CLUSTER_TAG = "default_cluster";
     public static final String DEFAULT_CLUSTER_NAME = "default_dataproxy";
-    public static final String DEFAULT_CLUSTER_EXT_TAG = "default=true";
     public static final String DEFAULT_CLUSTER_INCHARGES = "admin";
+    // the predefined format of ext tag: {key}={value}
+    public static final String DEFAULT_CLUSTER_EXT_TAG = "default=true";
 
     private final CloseableHttpClient httpClient;
     private final Gson gson;
