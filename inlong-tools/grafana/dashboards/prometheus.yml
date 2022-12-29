@@ -28,6 +28,6 @@ datasources:
   - name: Dataproxy
     type: prometheus
     access: proxy
-    url: ${DP_URL}
+    url: ${DATAPROXY_URL}
     isDefault: false
     editable: false

@@ -8,7 +8,7 @@ docker build -t inlong/grafana .
 
 Default AGENT_URL is 127.0.0.1:9080.
 
-Default DP_URL is 127.0.0.1:9081.
+Default DATAPROXY_URL is 127.0.0.1:9081.
 
 ```
 docker run -id -p 3000:3000 inlong/grafana
