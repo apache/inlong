@@ -42,6 +42,8 @@ import org.apache.flink.table.runtime.typeutils.InternalTypeInfo;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.MetricOption;
@@ -72,6 +74,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
@@ -113,6 +117,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     private transient MetricState metricState;
     private SinkTableMetricData sinkMetricData;
     private final SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy;
+    private final DirtySinkHelper<Object> dirtySinkHelper;
 
     public JdbcMultiBatchingOutputFormat(
             @Nonnull JdbcConnectionProvider connectionProvider,
@@ -126,7 +131,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             String schemaPattern,
             String inlongMetric,
             String auditHostAndPorts,
-            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy) {
+            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy,
+            DirtySinkHelper<Object> dirtySinkHelper) {
         super(connectionProvider);
         this.executionOptions = checkNotNull(executionOptions);
         this.dmlOptions = dmlOptions;
@@ -139,6 +145,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
+        this.dirtySinkHelper = dirtySinkHelper;
     }
 
     /**
@@ -154,6 +161,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 .withInlongAudit(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(MetricOption.RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
@@ -505,6 +514,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                                 tableIdentifier, tableException.getMessage());
                         outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                 1L, true);
+                        dirtySinkHelper.invoke(record, DirtyType.RETRY_LOAD_ERROR, tableException);
                         tableExceptionMap.put(tableIdentifier, tableException);
                         if (isIgnoreTableException) {
                             LOG.info("Stop write table:{} because occur exception",
