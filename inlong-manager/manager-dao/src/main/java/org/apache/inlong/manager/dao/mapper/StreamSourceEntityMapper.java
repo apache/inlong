@@ -76,9 +76,15 @@ public interface StreamSourceEntityMapper {
     /**
      * Query the tasks by the given status list and type List.
      */
-    List<StreamSourceEntity> selectByAgentIpOrCluster(@Param("statusList") List<Integer> statusList,
+    List<StreamSourceEntity> selectByAgentIpAndCluster(@Param("statusList") List<Integer> statusList,
             @Param("sourceTypeList") List<String> sourceTypeList, @Param("agentIp") String agentIp,
             @Param("clusterName") String clusterName);
+
+    /**
+     * Query the template tasks by the given status list and type List and clusterName.
+     */
+    List<StreamSourceEntity> selectTemplateSourceByCluster(@Param("statusList") List<Integer> statusList,
+            @Param("sourceTypeList") List<String> sourceTypeList, @Param("clusterName") String clusterName);
 
     /**
      * Query the sources by the given status and Agent cluster info.

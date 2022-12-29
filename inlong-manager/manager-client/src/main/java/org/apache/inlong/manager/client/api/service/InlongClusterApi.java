@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.service;
 
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -98,4 +99,7 @@ public interface InlongClusterApi {
 
     @DELETE("cluster/node/delete/{id}")
     Call<Response<Boolean>> deleteNode(@Path("id") Integer id);
+
+    @POST("cluster/node/bindTag")
+    Call<Response<Boolean>> bindNodeTag(@Body ClusterNodeBindTagRequest request);
 }

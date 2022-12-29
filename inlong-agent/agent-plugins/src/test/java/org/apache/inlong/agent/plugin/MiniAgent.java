@@ -29,6 +29,8 @@ import org.powermock.api.support.membermodification.MemberModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FETCH_CENTER_INTERVAL_SECONDS;
@@ -36,8 +38,10 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FETCH_CENTER
 public class MiniAgent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MiniAgent.class);
-    private final AgentManager manager;
-    private final LinkedBlockingQueue<JobProfile> queueJobs;
+    private AgentManager manager;
+    private final LinkedBlockingQueue<JobProfile> queueJobs = new LinkedBlockingQueue<>(100);
+    private List<TriggerProfile> triggerProfileCache = new ArrayList<>();
+    private List<JobProfile> jobProfileCache = new ArrayList<>();
 
     /**
      * Constructor of MiniAgent.
@@ -46,6 +50,10 @@ public class MiniAgent {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         conf.setInt(AGENT_FETCH_CENTER_INTERVAL_SECONDS, 1);
         manager = new AgentManager();
+        init();
+    }
+
+    private void init() throws Exception {
         TaskPositionManager taskPositionManager = PowerMockito.mock(TaskPositionManager.class);
         HeartbeatManager heartbeatManager = PowerMockito.mock(HeartbeatManager.class);
         ProfileFetcher profileFetcher = PowerMockito.mock(ProfileFetcher.class);
@@ -58,21 +66,10 @@ public class MiniAgent {
         MemberModifier.field(AgentManager.class, "taskPositionManager").set(manager, taskPositionManager);
         MemberModifier.field(AgentManager.class, "heartbeatManager").set(manager, heartbeatManager);
         MemberModifier.field(AgentManager.class, "fetcher").set(manager, profileFetcher);
-        queueJobs = new LinkedBlockingQueue<>(100);
-
     }
 
     public void start() throws Exception {
         manager.start();
-    }
-
-    public void submitJob(JobProfile profile) {
-        manager.getJobManager().submitFileJobProfile(profile);
-    }
-
-    public void submitTriggerJob(JobProfile profile) {
-        TriggerProfile triggerProfile = TriggerProfile.parseJobProfile(profile);
-        manager.getTriggerManager().addTrigger(triggerProfile);
     }
 
     public AgentManager getManager() {
@@ -81,5 +78,33 @@ public class MiniAgent {
 
     public void stop() throws Exception {
         manager.stop();
+    }
+
+    public void restart() throws Exception {
+        manager.stop();
+        manager = new AgentManager();
+        init();
+        manager.start();
+    }
+
+    public void submitJob(JobProfile profile) {
+        manager.getJobManager().submitFileJobProfile(profile);
+        jobProfileCache.add(profile);
+    }
+
+    public void submitTrigger(TriggerProfile triggerProfile) {
+        manager.getTriggerManager().submitTrigger(triggerProfile);
+        triggerProfileCache.add(triggerProfile);
+    }
+
+    public void cleanupJobs() {
+        jobProfileCache.forEach(jobProfile -> manager.getJobManager().deleteJob(jobProfile.getInstanceId()));
+        jobProfileCache.clear();
+    }
+
+    public void cleanupTriggers() {
+        triggerProfileCache
+                .forEach(triggerProfile -> manager.getTriggerManager().deleteTrigger(triggerProfile.getTriggerId()));
+        triggerProfileCache.clear();
     }
 }

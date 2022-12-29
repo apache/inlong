@@ -17,9 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import com.google.gson.Gson;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
-import org.apache.inlong.agent.constant.FileCollectType;
+import org.apache.inlong.agent.constant.FileTriggerType;
+import org.apache.inlong.agent.constant.MetadataConstants;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
@@ -37,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +47,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -51,8 +55,8 @@ import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TRIGGER_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
@@ -68,6 +72,7 @@ public class TestTextFileReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestTextFileReader.class);
     private static Path testDir;
     private static AgentBaseTestsHelper helper;
+    private static final Gson GSON = new Gson();
 
     @BeforeClass
     public static void setup() {
@@ -107,8 +112,8 @@ public class TestTextFileReader {
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
-        jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
-                "[2].txt").toFile().getAbsolutePath());
+        jobConfiguration.set(JOB_DIR_FILTER_PATTERNS, Paths.get(mainPath,
+                "2.txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
@@ -138,14 +143,14 @@ public class TestTextFileReader {
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
-        jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
-                "[1].txt").toFile().getAbsolutePath());
+        jobConfiguration.set(JOB_DIR_FILTER_PATTERNS, Paths.get(mainPath,
+                "1.txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
         jobConfiguration.set(JOB_GROUP_ID, "groupid");
         jobConfiguration.set(JOB_STREAM_ID, "streamid");
-        jobConfiguration.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
+        jobConfiguration.set(JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
         jobConfiguration.set(JOB_FILE_LINE_END_PATTERN, "line-end-symbol");
         TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);
@@ -157,9 +162,11 @@ public class TestTextFileReader {
             if (message == null) {
                 break;
             }
+            String content = getContent(message.toString());
             Assert.assertTrue(
-                    message.toString().equalsIgnoreCase("hello") || message.toString().equalsIgnoreCase("aa world")
-                            || message.toString().equalsIgnoreCase("agent"));
+                    content.equalsIgnoreCase("hello ")
+                            || content.equalsIgnoreCase(" aa" + System.lineSeparator() + "world ")
+                            || content.equalsIgnoreCase(System.lineSeparator() + "agent "));
             LOGGER.info("message is {}", message.toString());
         }
     }
@@ -172,14 +179,14 @@ public class TestTextFileReader {
         URI uri = getClass().getClassLoader().getResource("test").toURI();
         JobProfile jobConfiguration = JobProfile.parseJsonStr("{}");
         String mainPath = Paths.get(uri).toString();
-        jobConfiguration.set(JOB_DIR_FILTER_PATTERN, Paths.get(mainPath,
-                "[1].txt").toFile().getAbsolutePath());
+        jobConfiguration.set(JOB_DIR_FILTER_PATTERNS, Paths.get(mainPath,
+                "1.txt").toFile().getAbsolutePath());
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
         jobConfiguration.set(JOB_GROUP_ID, "groupid");
         jobConfiguration.set(JOB_STREAM_ID, "streamid");
-        jobConfiguration.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
+        jobConfiguration.set(JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
         jobConfiguration.set(JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.INCREMENT);
         TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);
@@ -191,6 +198,7 @@ public class TestTextFileReader {
             Message message = reader.read();
             if (null != message) {
                 LOGGER.info("message is {}", message.toString());
+                continue;
             }
             Assert.assertNull(message);
             break;
@@ -211,14 +219,15 @@ public class TestTextFileReader {
             afterList.add("world");
         }
         Files.write(localPath, afterList, StandardOpenOption.APPEND);
-        FileReaderOperator fileReaderOperator = new FileReaderOperator(localPath.toFile(), 1000);
+        final FileReaderOperator fileReaderOperator = new FileReaderOperator(localPath.toFile(), 1000);
         JobProfile jobProfile = new JobProfile();
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
+        jobProfile.set(JOB_INSTANCE_ID, "1");
         fileReaderOperator.init(jobProfile);
 
-        Assert.assertEquals("world", new String(fileReaderOperator.read().getBody()));
-
+        Assert.assertEquals("world", getContent(
+                new String(fileReaderOperator.read().getBody(), Charset.forName("UTF-8"))));
     }
 
     @Test
@@ -227,6 +236,7 @@ public class TestTextFileReader {
         jobProfile.setInt(JOB_FILE_MAX_WAIT, 1);
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
+        jobProfile.set(JOB_INSTANCE_ID, "1");
         Path localPath = Paths.get(testDir.toString(), "test1.txt");
         FileReaderOperator reader = new FileReaderOperator(localPath.toFile(), 0);
         if (localPath.toFile().exists()) {
@@ -251,5 +261,10 @@ public class TestTextFileReader {
             count += 1;
         }
         Assert.assertEquals(1000, count);
+    }
+
+    private String getContent(String message) {
+        Map<String, String> logJson = GSON.fromJson(message, Map.class);
+        return logJson.get(MetadataConstants.DATA_CONTENT);
     }
 }

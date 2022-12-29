@@ -442,7 +442,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.velocity:velocity-engine-core:2.3 - Apache Velocity - Engine (https://github.com/apache/velocity-engine/tree/2.3/velocity-engine-core), (Apache License, Version 2.0)
   org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
   org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
-
+  org.apache.shiro:shiro-core:1.10.1 - Apache Shiro Cache (https://shiro.apache.org/), (Apache License, Version 2.0)
 
 ========================================================================
 Apache 2.0 licenses

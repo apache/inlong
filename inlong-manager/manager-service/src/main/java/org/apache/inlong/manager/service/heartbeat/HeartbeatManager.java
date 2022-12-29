@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
@@ -124,7 +125,14 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             } else {
                 heartbeatMsg.setProtocolType(protocolType);
             }
-            if (lastHeartbeat == null) {
+            // uninstall node event
+            if (NodeSrvStatus.SERVICE_UNINSTALL.equals(heartbeat.getNodeSrvStatus())) {
+                InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
+                deleteClusterNode(clusterNode);
+                continue;
+            }
+
+            if (heartbeatConfigModified(lastHeartbeat, heartbeat)) {
                 InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
                 if (clusterNode == null) {
                     handlerNum += insertClusterNode(clusterInfo, heartbeatMsg, clusterInfo.getCreator());
@@ -135,7 +143,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         }
 
         // if the heartbeat already exists, or does not exist but insert/update success, then put it into the cache
-        if (lastHeartbeat == null && handlerNum == ports.length) {
+        if (lastHeartbeat == null || handlerNum == ports.length) {
             heartbeatCache.put(componentHeartbeat, heartbeat);
         }
     }
@@ -203,6 +211,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setPort(Integer.valueOf(heartbeat.getPort()));
         clusterNode.setProtocolType(heartbeat.getProtocolType());
         clusterNode.setNodeLoad(heartbeat.getLoad());
+        clusterNode.setNodeTags(heartbeat.getNodeTag());
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
         clusterNode.setCreator(creator);
         clusterNode.setModifier(creator);
@@ -213,7 +222,12 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     private int updateClusterNode(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
         clusterNode.setNodeLoad(heartbeat.getLoad());
+        clusterNode.setNodeTags(heartbeat.getNodeTag());
         return clusterNodeMapper.updateById(clusterNode);
+    }
+
+    private int deleteClusterNode(InlongClusterNodeEntity clusterNode) {
+        return clusterNodeMapper.deleteById(clusterNode.getId());
     }
 
     private ClusterInfo fetchCluster(ComponentHeartbeat componentHeartbeat) {
@@ -253,5 +267,20 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
         log.debug("success to fetch cluster for heartbeat: {}", componentHeartbeat);
         return clusterInfo;
+    }
+
+    /**
+     * Check whether the configuration information carried in the heartbeat has been updated
+     *
+     * @param oldHB last heartbeat msg
+     * @param newHB current heartbeat msg
+     * @return
+     */
+    private static boolean heartbeatConfigModified(HeartbeatMsg oldHB, HeartbeatMsg newHB) {
+        // todo: only support dynamic renew node tag. Support clusterName/port/ip... later
+        if (oldHB == null) {
+            return true;
+        }
+        return oldHB.getNodeTag() != newHB.getNodeTag() || oldHB.getLoad() != newHB.getLoad();
     }
 }

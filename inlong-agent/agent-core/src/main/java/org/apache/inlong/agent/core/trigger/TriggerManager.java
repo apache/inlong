@@ -17,18 +17,16 @@
 
 package org.apache.inlong.agent.core.trigger;
 
+import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.constant.FileCollectType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.job.JobWrapper;
-import org.apache.inlong.agent.core.task.Task;
-import org.apache.inlong.agent.db.JobProfileDb;
-import org.apache.inlong.agent.db.StateSearchKey;
 import org.apache.inlong.agent.db.TriggerProfileDb;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.utils.ThreadUtils;
@@ -37,28 +35,22 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
 import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.TRIGGER_ONLY_ONE_JOB;
 
 /**
  * manager for triggers.
  */
 public class TriggerManager extends AbstractDaemon {
 
-    public static final int JOB_CHECK_INTERVAL = 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(TriggerManager.class);
     private final AgentManager manager;
     private final TriggerProfileDb triggerProfileDB;
     private final ConcurrentHashMap<String, Trigger> triggerMap;
-    private final ConcurrentHashMap<String, ConcurrentHashMap<String, JobProfile>> triggerJobMap;
     private final AgentConfiguration conf;
     private final int triggerFetchInterval;
     private final int maxRunningNum;
@@ -68,18 +60,17 @@ public class TriggerManager extends AbstractDaemon {
         this.manager = manager;
         this.triggerProfileDB = triggerProfileDb;
         this.triggerMap = new ConcurrentHashMap<>();
-        this.triggerJobMap = new ConcurrentHashMap<>();
         this.triggerFetchInterval = conf.getInt(AgentConstants.TRIGGER_FETCH_INTERVAL,
                 AgentConstants.DEFAULT_TRIGGER_FETCH_INTERVAL);
         this.maxRunningNum = conf.getInt(TRIGGER_MAX_RUNNING_NUM, DEFAULT_TRIGGER_MAX_RUNNING_NUM);
     }
 
     /**
-     * submit trigger profile.
+     * Restore trigger task.
      *
      * @param triggerProfile trigger profile
      */
-    public boolean addTrigger(TriggerProfile triggerProfile) {
+    public boolean restoreTrigger(TriggerProfile triggerProfile) {
         try {
             Class<?> triggerClass = Class.forName(triggerProfile.get(JobConstants.JOB_TRIGGER));
             Trigger trigger = (Trigger) triggerClass.newInstance();
@@ -104,58 +95,89 @@ public class TriggerManager extends AbstractDaemon {
     }
 
     /**
-     * check trigger config, store it to db, and submit this trigger to be executed
+     * Submit trigger task.It guarantees eventual consistency.
+     * 1.store db kv.
+     * 2.start trigger thread.
      *
-     * @return true if success
+     * @param triggerProfile trigger profile
      */
-    public boolean submitTrigger(TriggerProfile triggerProfile) {
+    public void submitTrigger(TriggerProfile triggerProfile) {
         // make sure all required key exists.
         if (!triggerProfile.allRequiredKeyExist() || this.triggerMap.size() > maxRunningNum) {
-            LOGGER.error("trigger {} not all required key exists or size {} exceed {}",
-                    triggerProfile.toJsonStr(), this.triggerMap.size(), maxRunningNum);
-            return false;
+            throw new IllegalArgumentException(
+                    String.format(
+                            "trigger %s not all required key exists or size %d exceed %d",
+                            triggerProfile.toJsonStr(), this.triggerMap.size(), maxRunningNum));
         }
-        preprocessTrigger(triggerProfile);
+        // repeat check
+        if (triggerProfileDB.getTriggers().stream()
+                .anyMatch(profile -> profile.getTriggerId().equals(triggerProfile.getTriggerId()))) {
+            return;
+        }
+
+        LOGGER.info("submit trigger {}", triggerProfile.toJsonStr());
+        // This action must be done before saving in db, because the job.instance.id is needed for the next recovery
+        manager.getJobManager().submitJobProfile(triggerProfile, true);
         triggerProfileDB.storeTrigger(triggerProfile);
-        addTrigger(triggerProfile);
-        return true;
+        restoreTrigger(triggerProfile);
     }
 
     /**
-     * Preprocessing before adding trigger, default value FULL
+     * Submit trigger task.It guarantees eventual consistency.
+     * 1.stop trigger task and related collecting job.
+     * 2.delete db kv.
      *
-     * FULL: All directory by regex
-     * INCREMENT: Directory entry created
+     * @param triggerId trigger profile.
      */
-    public void preprocessTrigger(TriggerProfile profile) {
-        String syncType = profile.get(JobConstants.JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
-        if (FileCollectType.INCREMENT.equals(syncType)) {
+    public void deleteTrigger(String triggerId) {
+        // repeat check
+        if (!triggerProfileDB.getTriggers().stream()
+                .anyMatch(profile -> profile.getTriggerId().equals(triggerId))) {
             return;
         }
-        LOGGER.info("initialize submit full sync trigger {}", profile.getTriggerId());
-        manager.getJobManager().submitFileJobProfile(profile);
+
+        LOGGER.info("delete trigger {}", triggerId);
+        Trigger trigger = triggerMap.remove(triggerId);
+        if (trigger != null) {
+            manager.getJobManager().deleteJob(trigger.getTriggerProfile().getInstanceId());
+            trigger.destroy();
+        }
+        triggerProfileDB.deleteTrigger(triggerId);
     }
 
     private Runnable jobFetchThread() {
         return () -> {
+            Thread.currentThread().setName("TriggerManager-jobFetch");
+            // wait until jobManager initialize finish, because subtask add relay on memory 'jobs' rebuild
+            // todo:Subsequent addition of the notification mechanism for subscribing to the jobmanager life cycle
             while (isRunnable()) {
                 try {
                     triggerMap.forEach((s, trigger) -> {
-                        JobProfile profile = trigger.fetchJobProfile();
+                        Map<String, String> profile = trigger.fetchJobProfile();
                         if (profile != null) {
-                            TriggerProfile triggerProfile = trigger.getTriggerProfile();
-                            if (triggerProfile.getBoolean(TRIGGER_ONLY_ONE_JOB, false)) {
-                                deleteRelatedJobs(triggerProfile.getTriggerId());
-                            }
                             Map<String, JobWrapper> jobWrapperMap = manager.getJobManager().getJobs();
-                            // running job then add new task
-                            if (isRunningJob(profile, jobWrapperMap)) {
-                                jobWrapperMap.get(profile.getInstanceId()).addTask(profile);
-                            }
-                            // not running job then add job
-                            if (isExistJob(profile)) {
-                                manager.getJobManager().submitFileJobProfile(profile);
-                                addToTriggerMap(profile.get(JOB_ID), profile);
+                            JobWrapper job = jobWrapperMap.get(trigger.getTriggerProfile().getInstanceId());
+                            String subTaskFile = profile.getOrDefault(JobConstants.JOB_DIR_FILTER_PATTERNS, "");
+                            Preconditions.checkArgument(StringUtils.isNotBlank(subTaskFile),
+                                    String.format("Trigger %s fetched task file should not be null.", s));
+                            // Add new watched file as subtask of trigger job.
+                            // In order to solve the situation that the job will automatically recover after restarting,
+                            // but the trigger will also automatically rematch all files to rebuild watchKey, it is
+                            // necessary to filter the stated monitored file task.
+
+                            boolean alreadyExistTask = job.exist(tasks -> tasks.stream()
+                                    .filter(task -> !task.getJobConf().hasKey(JobConstants.JOB_TRIGGER))
+                                    .filter(task -> subTaskFile.equals(
+                                            task.getJobConf().get(JobConstants.JOB_DIR_FILTER_PATTERNS, "")))
+                                    .findAny().isPresent());
+                            if (!alreadyExistTask) {
+                                LOGGER.info("Trigger job {} add new task file {}, total task {}",
+                                        job.getJob().getName(), subTaskFile, job.getAllTasks().size());
+                                JobWrapper jobWrapper = jobWrapperMap.get(trigger.getTriggerProfile().getInstanceId());
+                                JobProfile taskProfile = JobProfile.parseJsonStr(
+                                        jobWrapper.getJob().getJobConf().toJsonStr());
+                                profile.forEach((k, v) -> taskProfile.set(k, v));
+                                jobWrapper.submit(taskProfile);
                             }
                         }
                     });
@@ -168,127 +190,14 @@ public class TriggerManager extends AbstractDaemon {
         };
     }
 
-    private boolean isRunningJob(JobProfile profile, Map<String, JobWrapper> jobWrapperMap) {
-        try {
-            if (jobWrapperMap == null || jobWrapperMap.get(profile.getInstanceId()) == null) {
-                return false;
-            }
-
-            JobWrapper jobWrapper = jobWrapperMap.get(profile.getInstanceId());
-            List<Task> tasks = jobWrapper.getAllTasks();
-            if (tasks == null) {
-                return true;
-            }
-            for (Task task : tasks) {
-                if (task.getJobConf().hasKey(profile.get(JOB_DIR_FILTER_PATTERN))) {
-                    return false;
-                }
-            }
-
-            return true;
-        } catch (Exception e) {
-            LOGGER.warn("not found job {} in the jobs, error: ", profile.toJsonStr(), e);
-            return false;
-        }
-    }
-
-    private boolean isExistJob(JobProfile profile) {
-        List<JobProfile> jobProfileList = getJobProfiles();
-        AtomicBoolean isExist = new AtomicBoolean(false);
-        jobProfileList.forEach(job -> {
-            if (profile.get(JOB_ID).equals(job.get(JOB_ID))) {
-                isExist.set(true);
-            }
-        });
-        return !isExist.get();
-    }
-
-    /**
-     * delete jobs generated by the trigger
-     */
-    private void deleteRelatedJobs(String triggerId) {
-        LOGGER.info("start to delete related jobs in triggerId {}", triggerId);
-        List<JobProfile> jobProfileList = getJobProfiles();
-        jobProfileList.forEach(jobProfile -> {
-            if (Objects.equals(jobProfile.get(JOB_ID), triggerId)) {
-                deleteJob(jobProfile.getInstanceId());
-            }
-        });
-        triggerJobMap.remove(triggerId);
-    }
-
-    private List<JobProfile> getJobProfiles() {
-        JobProfileDb jobProfileDb = manager.getJobProfileDb();
-        List<JobProfile> jobProfileList = jobProfileDb.getJobsByState(StateSearchKey.RUNNING);
-        jobProfileList.addAll(jobProfileDb.getJobsByState(StateSearchKey.ACCEPTED));
-        return jobProfileList;
-    }
-
-    private void deleteJob(String jobInstanceId) {
-        manager.getJobManager().deleteJob(jobInstanceId);
-    }
-
-    private Runnable jobCheckThread() {
-        return () -> {
-            while (isRunnable()) {
-                try {
-                    triggerJobMap.forEach((s, jobProfiles) -> {
-                        for (String jobId : jobProfiles.keySet()) {
-                            Map<String, JobWrapper> jobs = manager.getJobManager().getJobs();
-                            if (jobs.get(jobId) == null) {
-                                triggerJobMap.remove(jobId);
-                            }
-                        }
-                    });
-                    TimeUnit.MINUTES.sleep(JOB_CHECK_INTERVAL);
-                } catch (Throwable e) {
-                    LOGGER.info("ignored Exception ", e);
-                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
-                }
-            }
-
-        };
-    }
-
-    /**
-     * need to put profile in triggerJobMap
-     */
-    private void addToTriggerMap(String triggerId, JobProfile profile) {
-        ConcurrentHashMap<String, JobProfile> tmpList = new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, JobProfile> jobWrappers = triggerJobMap.putIfAbsent(triggerId, tmpList);
-        if (jobWrappers == null) {
-            jobWrappers = tmpList;
-        }
-        jobWrappers.putIfAbsent(profile.getInstanceId(), profile);
-    }
-
-    /**
-     * delete trigger by trigger profile.
-     *
-     * @param triggerId trigger profile.
-     */
-    public boolean deleteTrigger(String triggerId) {
-        LOGGER.info("delete trigger {}", triggerId);
-        Trigger trigger = triggerMap.remove(triggerId);
-        if (trigger != null) {
-            deleteRelatedJobs(triggerId);
-            trigger.destroy();
-            // delete trigger from db
-            triggerProfileDB.deleteTrigger(triggerId);
-            return true;
-        }
-        LOGGER.warn("cannot find trigger {}", triggerId);
-        return false;
-    }
-
     /**
      * init all triggers when daemon started.
      */
-    private void initTriggers() throws Exception {
+    private void initTriggers() {
         // fetch all triggers from db
         List<TriggerProfile> profileList = triggerProfileDB.getTriggers();
         for (TriggerProfile profile : profileList) {
-            addTrigger(profile);
+            restoreTrigger(profile);
         }
     }
 
@@ -299,10 +208,9 @@ public class TriggerManager extends AbstractDaemon {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start() {
         initTriggers();
         submitWorker(jobFetchThread());
-        submitWorker(jobCheckThread());
     }
 
     @Override

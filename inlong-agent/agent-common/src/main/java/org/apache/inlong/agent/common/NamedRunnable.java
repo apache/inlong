@@ -15,37 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
-
-import lombok.Data;
-
-import java.io.Serializable;
-import java.util.Date;
+package org.apache.inlong.agent.common;
 
 /**
- * Inlong cluster node entity, including parent id, type, ip, etc.
+ * A runnable function with name.
  */
-@Data
-public class InlongClusterNodeEntity implements Serializable {
+public interface NamedRunnable extends Runnable {
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private Integer parentId;
-    private String type;
-    private String ip;
-    private Integer port;
-    private String protocolType;
-    private Integer nodeLoad;
-    private String nodeTags;
-    private String extParams;
-    private String description;
-
-    private Integer status;
-    private Integer isDeleted;
-    private String creator;
-    private String modifier;
-    private Date createTime;
-    private Date modifyTime;
-    private Integer version;
-
+    String getName();
 }
