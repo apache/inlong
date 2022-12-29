@@ -525,7 +525,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     private void outputMetrics(String tableIdentifier, Long rowSize, Long dataSize, boolean dirtyFlag) {
         String[] fieldArray = tableIdentifier.split("\\.");
         if (fieldArray.length == 3) {
-            if(dirtyFlag) {
+            if (dirtyFlag) {
                 sinkMetricData.outputDirtyMetrics(fieldArray[0], fieldArray[1], fieldArray[2],
                         rowSize, dataSize);
             } else {
