@@ -38,8 +38,8 @@ public class AgentConfiguration extends AbstractConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentConfiguration.class);
 
-    private static final String DEFAULT_CONFIG_FILE = "agent.properties";
-    private static final String TMP_CONFIG_FILE = ".tmp.agent.properties";
+    public static final String DEFAULT_CONFIG_FILE = "agent.properties";
+    public static final String TMP_CONFIG_FILE = ".tmp.agent.properties";
 
     private static final ArrayList<String> LOCAL_RESOURCES = new ArrayList<>();
 
@@ -109,7 +109,16 @@ public class AgentConfiguration extends AbstractConfiguration {
         } finally {
             LOCK.writeLock().unlock();
         }
+    }
 
+    /**
+     * refresh config from local files.
+     * Note: there is a concurrency issue when hot-updating and fetching configuration
+     */
+    public void reloadFromLocalPropertiesFile() {
+        for (String fileName : LOCAL_RESOURCES) {
+            super.loadPropertiesResource(fileName);
+        }
     }
 
     @Override

@@ -17,9 +17,10 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
-import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.plugin.Trigger;
+
+import java.util.Map;
 
 /**
  * Generate job by crontab expression.
@@ -42,7 +43,7 @@ public class CronTrigger implements Trigger {
     }
 
     @Override
-    public JobProfile fetchJobProfile() {
+    public Map<String, String> fetchJobProfile() {
         return null;
     }
 

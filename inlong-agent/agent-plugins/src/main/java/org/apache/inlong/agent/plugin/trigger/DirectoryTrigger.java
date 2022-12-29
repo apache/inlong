@@ -17,13 +17,15 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
-import org.apache.inlong.agent.common.AbstractDaemon;
-import org.apache.inlong.agent.conf.JobProfile;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Trigger;
-import org.apache.inlong.agent.plugin.utils.PluginUtils;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,27 +39,34 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_BLACKLIST;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 
 /**
  * Watch directory, if new valid files are created, create jobs correspondingly.
  */
-public class DirectoryTrigger extends AbstractDaemon implements Trigger {
+public class DirectoryTrigger implements Trigger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DirectoryTrigger.class);
     private static volatile WatchService watchService;
-    private final ConcurrentHashMap<PathPattern, List<WatchKey>> allWatchers =
+    private static WatchKeyProviderThread resourceProviderThread = new WatchKeyProviderThread();
+    private static ConcurrentHashMap<WatchKey, Set<DirectoryTrigger>> allTriggerWatches =
             new ConcurrentHashMap<>();
-    private final LinkedBlockingQueue<JobProfile> queue = new LinkedBlockingQueue<>();
+
+    private final LinkedBlockingQueue<Map<String, String>> queue = new LinkedBlockingQueue<>();
+    private Set<PathPattern> pathPatterns = new HashSet<>();
     private TriggerProfile profile;
     private int interval;
 
@@ -68,6 +77,7 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
                     if (watchService == null) {
                         watchService = FileSystems.getDefault().newWatchService();
                         LOGGER.info("init watch service {}", watchService);
+                        new Thread(resourceProviderThread).start();
                     }
                 }
             }
@@ -81,16 +91,7 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
     }
 
     @Override
-    public void destroy() {
-        try {
-            stop();
-        } catch (Exception ex) {
-            LOGGER.error("exception while stopping threads", ex);
-        }
-    }
-
-    @Override
-    public JobProfile fetchJobProfile() {
+    public Map<String, String> fetchJobProfile() {
         return queue.poll();
     }
 
@@ -99,173 +100,15 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         return profile;
     }
 
-    @Override
-    public void stop() {
-        waitForTerminate();
-        releaseResource();
-    }
-
-    /**
-     * register all sub-directory
-     *
-     * @param entity entity
-     * @param path path
-     * @param tmpWatchers watchers
-     */
-    private void registerAllSubDir(PathPattern entity,
-            Path path,
-            List<WatchKey> tmpWatchers) throws Exception {
-        // check regex
-        LOGGER.info("check whether path {} is suitable", path);
-        if (entity.suitForWatch(path.toString())) {
-            if (path.toFile().isDirectory()) {
-                WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-                tmpWatchers.add(watchKey);
-                try (Stream<Path> stream = Files.list(path)) {
-                    Iterator<Path> iterator = stream.iterator();
-                    while (iterator.hasNext()) {
-                        registerAllSubDir(entity, iterator.next().toAbsolutePath(), tmpWatchers);
-                    }
-                }
-            } else {
-                JobProfile copiedJobProfile = PluginUtils.copyJobProfile(profile,
-                        entity.getSuitTime(), path.toFile());
-                LOGGER.info("trigger {} generate job profile to read file {}",
-                        getTriggerProfile().getTriggerId(), path.toString());
-                queue.offer(copiedJobProfile);
-            }
-        }
-    }
-
-    /**
-     * if directory has created, then check whether directory is valid
-     *
-     * @param entity entity
-     * @param watchKey watch key
-     * @param tmpWatchers watchers
-     */
-    private void registerNewDir(PathPattern entity,
-            WatchKey watchKey,
-            List<WatchKey> tmpWatchers,
-            List<WatchKey> tmpDeletedWatchers) throws Exception {
-        Path parentPath = (Path) watchKey.watchable();
-        for (WatchEvent<?> event : watchKey.pollEvents()) {
-            // if watch event is too much, then event would be overflow.
-            if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
-                // only watch create event, so else is create-event.
-                entity.updateDateFormatRegex();
-                Path createdPath = (Path) event.context();
-                if (createdPath != null) {
-                    registerAllSubDir(entity, parentPath.resolve(createdPath), tmpWatchers);
-                }
-            } else if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
-                LOGGER.info("overflow got {}", parentPath);
-                // check whether parent path is valid.
-                if (Files.isDirectory(parentPath)) {
-                    try (final Stream<Path> pathStream = Files.list(parentPath)) {
-                        for (Iterator<Path> it = pathStream.iterator(); it.hasNext();) {
-                            Path childPath = it.next();
-                            registerAllSubDir(entity, parentPath.resolve(childPath), tmpWatchers);
-                        }
-                    } catch (Exception e) {
-                        LOGGER.error("error caught", e);
-                    }
-                }
-            }
-        }
-        if (!Files.exists(parentPath)) {
-            LOGGER.warn("{} not exist, add watcher to pending delete list", parentPath);
-            tmpDeletedWatchers.add(watchKey);
-        }
-    }
-
-    /**
-     * handler watchers
-     *
-     * @return runnable
-     */
-    private Runnable watchEventHandler() {
-        return () -> {
-            while (isRunnable()) {
-                try {
-                    TimeUnit.SECONDS.sleep(interval);
-                    allWatchers.forEach((pathPattern, watchKeys) -> {
-                        List<WatchKey> tmpWatchers = new ArrayList<>();
-                        List<WatchKey> tmpDeletedWatchers = new ArrayList<>();
-                        pathPattern.cleanup();
-                        try {
-                            for (WatchKey watchKey : watchKeys) {
-                                registerNewDir(pathPattern, watchKey, tmpWatchers, tmpDeletedWatchers);
-                            }
-                        } catch (Exception ex) {
-                            LOGGER.error("error caught", ex);
-                        }
-                        watchKeys.addAll(tmpWatchers);
-                        watchKeys.removeAll(tmpDeletedWatchers);
-                    });
-                } catch (Throwable ex) {
-                    LOGGER.error("error caught", ex);
-                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
-                }
-            }
-        };
-    }
-
-    private void releaseResource() {
-        allWatchers.forEach((absoluteFilePath, watchKeys) -> {
-            watchKeys.forEach(WatchKey::cancel);
-        });
-        allWatchers.clear();
-    }
-
-    @Override
-    public void start() throws Exception {
-        submitWorker(watchEventHandler());
-    }
-
-    /**
-     * register pathPattern into watchers
-     */
-    public void register(String pathPattern) throws IOException {
-        PathPattern entity = new PathPattern(pathPattern);
-        innerRegister(pathPattern, entity);
-    }
-
     /**
      * register pathPattern into watchers, with offset
      */
-    public void register(String pathPattern, String offset) throws IOException {
-        PathPattern entity = new PathPattern(pathPattern, offset);
-        innerRegister(pathPattern, entity);
-    }
+    public Set<String> register(Set<String> whiteList, String offset, Set<String> blackList) throws IOException {
+        this.pathPatterns = PathPattern.buildPathPattern(whiteList, offset, blackList);
+        LOGGER.info("Watch root path is {}", pathPatterns);
 
-    private void innerRegister(String pathPattern, PathPattern entity) throws IOException {
-        List<WatchKey> tmpKeyList = new ArrayList<>();
-        List<WatchKey> keyList = allWatchers.putIfAbsent(entity, tmpKeyList);
-        if (keyList == null) {
-            Path rootPath = Paths.get(entity.getRootDir());
-            LOGGER.info("watch root path is {}", rootPath);
-            WatchKey key = rootPath.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-            tmpKeyList.add(key);
-        } else {
-            LOGGER.error("{} exists in watcher list, please check it", pathPattern);
-        }
-    }
-
-    public void unregister(String pathPattern) {
-        PathPattern entity = new PathPattern(pathPattern);
-        Collection<WatchKey> allKeys = allWatchers.remove(entity);
-        if (allKeys != null) {
-            LOGGER.info("unregister pattern {}, total size of path {}", pathPattern,
-                    allKeys.size());
-            for (WatchKey key : allKeys) {
-                key.cancel();
-            }
-        }
-    }
-
-    ConcurrentHashMap<PathPattern, List<WatchKey>> getAllWatchers() {
-        return allWatchers;
+        resourceProviderThread.initTrigger(this);
+        return pathPatterns.stream().map(PathPattern::getRootDir).collect(Collectors.toSet());
     }
 
     @Override
@@ -274,23 +117,193 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         interval = profile.getInt(
                 AgentConstants.TRIGGER_CHECK_INTERVAL, AgentConstants.DEFAULT_TRIGGER_CHECK_INTERVAL);
         this.profile = profile;
-        if (this.profile.hasKey(JOB_DIR_FILTER_PATTERN)) {
-            String pathPattern = this.profile.get(JOB_DIR_FILTER_PATTERN);
+        if (this.profile.hasKey(JOB_DIR_FILTER_PATTERNS)) {
+            Set<String> pathPatterns = Stream.of(
+                    this.profile.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toSet());
+            Set<String> blackList = Stream.of(
+                    this.profile.get(JOB_DIR_FILTER_BLACKLIST, "").split(","))
+                    .filter(black -> !StringUtils.isBlank(black))
+                    .collect(Collectors.toSet());
             String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");
-            if (timeOffset.isEmpty()) {
-                register(pathPattern);
-            } else {
-                register(pathPattern, timeOffset);
-            }
+            register(pathPatterns, timeOffset, blackList);
         }
     }
 
     @Override
     public void run() {
+    }
+
+    @Override
+    public void destroy() {
         try {
-            start();
-        } catch (Exception exception) {
-            throw new IllegalStateException(exception);
+            resourceProviderThread.destroyTrigger(this);
+        } catch (Exception ex) {
+            LOGGER.error("exception while stopping threads", ex);
+        }
+    }
+
+    @VisibleForTesting
+    public Collection<Map<String, String>> getFetchedJob() {
+        return queue;
+    }
+
+    @VisibleForTesting
+    public Map<WatchKey, Set<DirectoryTrigger>> getWatchers() {
+        return allTriggerWatches;
+    }
+
+    public static class WatchKeyProviderThread implements Runnable {
+
+        private final Object lock = new Object();
+
+        @Override
+        public void run() {
+            Thread.currentThread().setName("Directory watch checker");
+            while (true) {
+                try {
+                    TimeUnit.SECONDS.sleep(AgentConstants.DEFAULT_TRIGGER_CHECK_INTERVAL);
+                    synchronized (lock) {
+                        Map<WatchKey, Set<DirectoryTrigger>> addWatches = new HashMap<>();
+                        Set<WatchKey> delWatches = new HashSet<>();
+                        allTriggerWatches.forEach(
+                                (watchKey, triggers) -> checkNewDir(triggers, watchKey, addWatches, delWatches));
+
+                        addWatches.forEach(((watchKey, triggers) -> allTriggerWatches.compute(watchKey,
+                                (existWatchKey, existsTriggers) -> {
+                                    if (existsTriggers == null) {
+                                        return triggers;
+                                    }
+                                    existsTriggers.addAll(triggers);
+                                    return existsTriggers;
+                                })));
+                        delWatches.forEach(watchKey -> {
+                            allTriggerWatches.remove(watchKey);
+                            watchKey.cancel();
+                        });
+                    }
+                } catch (Throwable ex) {
+                    LOGGER.error("error caught", ex);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
+                }
+            }
+        }
+
+        public void initTrigger(DirectoryTrigger trigger) {
+            synchronized (lock) {
+                LOGGER.info("Init trigger_{} add watchKey.", trigger.getTriggerProfile().getTriggerId());
+                checkInitDir(trigger);
+                LOGGER.info("Init trigger_{} add watchKey end.", trigger.getTriggerProfile().getTriggerId());
+            }
+        }
+
+        public void destroyTrigger(DirectoryTrigger trigger) {
+            synchronized (lock) {
+                LOGGER.info("Destroy trigger_{}.", trigger.getTriggerProfile().getTriggerId());
+                for (Entry<WatchKey, Set<DirectoryTrigger>> entry : allTriggerWatches.entrySet()) {
+                    entry.getValue().remove(trigger);
+                }
+                Set<WatchKey> watchKeys = new HashSet<>(allTriggerWatches.keySet());
+                watchKeys.forEach(watchKey -> {
+                    if (allTriggerWatches.containsKey(watchKey) && allTriggerWatches.get(watchKey).size() == 0) {
+                        watchKey.cancel();
+                        allTriggerWatches.remove(watchKey);
+                    }
+                });
+                LOGGER.info("Destroy trigger_{} end.", trigger.getTriggerProfile().getTriggerId());
+            }
+        }
+
+        private void checkInitDir(DirectoryTrigger trigger) {
+            boolean registerSubFile = FileTriggerType.FULL.equals(
+                    trigger.getTriggerProfile().get(JobConstants.JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL));
+            trigger.pathPatterns.forEach(pathPattern -> {
+                Set<WatchKey> tmpWatchers = new HashSet<>();
+                registerAllSubDir(trigger, Paths.get(pathPattern.getRootDir()), tmpWatchers, registerSubFile);
+                tmpWatchers.forEach(tmpWatch -> allTriggerWatches.compute(tmpWatch, (k, v) -> {
+                    if (v == null) {
+                        return Sets.newHashSet(trigger);
+                    }
+                    v.add(trigger);
+                    return v;
+                }));
+            });
+        }
+
+        private void checkNewDir(
+                Set<DirectoryTrigger> triggers,
+                WatchKey watchKey,
+                Map<WatchKey, Set<DirectoryTrigger>> addWatches,
+                Set<WatchKey> delWatches) {
+            Path parentPath = (Path) watchKey.watchable();
+            if (!Files.exists(parentPath)) {
+                LOGGER.warn("{} not exist, add watcher to pending delete list", parentPath);
+                delWatches.add(watchKey);
+                return;
+            }
+
+            Path appliedPath = parentPath;
+            for (WatchEvent<?> event : watchKey.pollEvents()) {
+                // if watch event is too much, then event would be overflow.
+                if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
+                    // only watch create event, so else is create-event.
+                    // entity.updateDateFormatRegex();
+                    Path createdPath = (Path) event.context();
+                    if (createdPath != null) {
+                        appliedPath = parentPath.resolve(createdPath);
+                    }
+                } else if (event.kind() == StandardWatchEventKinds.OVERFLOW) {
+                    // https://stackoverflow.com/questions/39076626/how-to-handle-the-java-watchservice-overflow-event
+                    LOGGER.info("overflow got {}", parentPath);
+                }
+
+                final Path finalAppliedPath = appliedPath;
+                triggers.forEach(trigger -> {
+                    Set<WatchKey> tmpWatchers = new HashSet<>();
+                    registerAllSubDir(trigger, finalAppliedPath, tmpWatchers, true);
+                    tmpWatchers.forEach(tmpWatch -> addWatches.compute(tmpWatch, (k, v) -> {
+                        if (v == null) {
+                            return Sets.newHashSet(trigger);
+                        }
+                        v.add(trigger);
+                        return v;
+                    }));
+                });
+            }
+        }
+
+        private void registerAllSubDir(
+                DirectoryTrigger trigger,
+                Path path,
+                Set<WatchKey> tobeAddedWatchers,
+                boolean registerSubFile) {
+            // check regex
+            LOGGER.info("Check whether path {} is suitable for trigger_{}",
+                    path, trigger.getTriggerProfile().getTriggerId());
+            try {
+                boolean isSuitable = trigger.pathPatterns.stream()
+                        .filter(pathPattern -> pathPattern.suitable(path.toString())).findAny().isPresent();
+                if (isSuitable) {
+                    LOGGER.info("path {} is suitable for trigger_{}.",
+                            path, trigger.getTriggerProfile().getTriggerId());
+                    if (path.toFile().isDirectory()) {
+                        WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+                        tobeAddedWatchers.add(watchKey);
+                        Files.list(path).forEach(subPath -> registerAllSubDir(trigger, subPath.toAbsolutePath(),
+                                tobeAddedWatchers, registerSubFile));
+                    } else if (registerSubFile) {
+                        Map<String, String> taskProfile = new HashMap<>();
+                        String md5 = AgentUtils.getFileMd5(path.toFile());
+                        taskProfile.put(path.toFile().getAbsolutePath() + ".md5", md5);
+                        taskProfile.put(JobConstants.JOB_TRIGGER, null); // del trigger id
+                        taskProfile.put(JobConstants.JOB_DIR_FILTER_PATTERNS, path.toFile().getAbsolutePath());
+                        LOGGER.info("trigger_{} generate job profile to read file {}",
+                                trigger.getTriggerProfile().getTriggerId(), path);
+                        trigger.queue.offer(taskProfile);
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.error("Error happend", e);
+            }
         }
     }
 }

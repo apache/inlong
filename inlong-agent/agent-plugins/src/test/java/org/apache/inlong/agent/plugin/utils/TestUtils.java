@@ -23,7 +23,9 @@ import org.powermock.api.mockito.PowerMockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,8 +48,8 @@ public class TestUtils {
                 + "      \"trigger\": \"org.apache.inlong.agent.plugin.trigger.DirectoryTrigger\",\n"
                 + "      \"dir\": {\n"
                 + "        \"path\": \"\",\n"
-                + "        \"pattern\": \"/AgentBaseTestsHelper/"
-                + "org.apache.tubemq.inlong.plugin.fetcher.TestTdmFetcher/test[0-9].dat\"\n"
+                + "        \"patterns\": \"/AgentBaseTestsHelper/"
+                + "org.apache.tubemq.inlong.plugin.fetcher.TestTdmFetcher/test*.dat\"\n"
                 + "      },\n"
                 + "      \"thread\" : {\n"
                 + "\"running\": {\n"
@@ -111,5 +113,17 @@ public class TestUtils {
         } catch (Exception ignored) {
             LOGGER.warn("deleteFile error ", ignored);
         }
+    }
+
+    public static void write(String fileName, StringBuffer records) throws IOException {
+        File file = new File(fileName);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+
+        FileWriter writer = new FileWriter(file, true);
+        writer.write(records.toString());
+        writer.flush();
+        writer.close();
     }
 }

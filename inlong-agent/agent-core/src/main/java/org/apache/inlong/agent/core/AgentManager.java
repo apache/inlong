@@ -36,8 +36,11 @@ import org.apache.inlong.agent.db.TriggerProfileDb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CONF_PARENT;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_CONF_PARENT;
@@ -57,6 +60,7 @@ public class AgentManager extends AbstractDaemon {
     private final HeartbeatManager heartbeatManager;
     private final ProfileFetcher fetcher;
     private final AgentConfiguration conf;
+    private final ExecutorService agentConfMonitor;
     private final Db db;
     private final LocalProfile localProfile;
     private final CommandDb commandDb;
@@ -66,6 +70,7 @@ public class AgentManager extends AbstractDaemon {
 
     public AgentManager() {
         conf = AgentConfiguration.getAgentConf();
+        agentConfMonitor = Executors.newSingleThreadExecutor();
         this.db = initDb();
         commandDb = new CommandDb(db);
         jobProfileDb = new JobProfileDb(db);
@@ -117,6 +122,33 @@ public class AgentManager extends AbstractDaemon {
         }
     }
 
+    private Runnable startHotConfReplace() {
+        return new Runnable() {
+
+            private long lastModifiedTime = 0L;
+
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(10 * 1000); // 10s check
+                        File file = new File(
+                                conf.getConfigLocation(AgentConfiguration.DEFAULT_CONFIG_FILE).getFile());
+                        if (!file.exists()) {
+                            continue;
+                        }
+                        if (file.lastModified() > lastModifiedTime) {
+                            conf.reloadFromLocalPropertiesFile();
+                            lastModifiedTime = file.lastModified();
+                        }
+                    } catch (InterruptedException e) {
+                        LOGGER.error("Interrupted when flush agent conf.", e);
+                    }
+                }
+            }
+        };
+    }
+
     public JobManager getJobManager() {
         return jobManager;
     }
@@ -163,8 +195,9 @@ public class AgentManager extends AbstractDaemon {
     @Override
     public void start() throws Exception {
         LOGGER.info("starting agent manager");
-        triggerManager.start();
+        agentConfMonitor.submit(startHotConfReplace());
         jobManager.start();
+        triggerManager.start();
         taskManager.start();
         heartbeatManager.start();
         taskPositionManager.start();
@@ -175,7 +208,7 @@ public class AgentManager extends AbstractDaemon {
                 TriggerProfile triggerProfile = TriggerProfile.parseJobProfile(profile);
                 // there is no need to store this profile in triggerDB, because
                 // this profile comes from local file.
-                triggerManager.addTrigger(triggerProfile);
+                triggerManager.restoreTrigger(triggerProfile);
             } else {
                 // job db store instance info, so it's suitable to use submitJobProfile
                 // to store instance into job db.
@@ -208,6 +241,7 @@ public class AgentManager extends AbstractDaemon {
         taskManager.stop();
         heartbeatManager.stop();
         taskPositionManager.stop();
+        agentConfMonitor.shutdown();
         this.db.close();
     }
 }

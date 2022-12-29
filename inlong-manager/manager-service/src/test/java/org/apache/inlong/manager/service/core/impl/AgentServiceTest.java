@@ -18,8 +18,11 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
+import org.apache.inlong.common.enums.ManagerOpEnum;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
@@ -28,30 +31,68 @@ import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.SourceStatus;
+import org.apache.inlong.manager.common.enums.StreamStatus;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.file.FileSourceRequest;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AgentService;
+import org.apache.inlong.manager.service.core.HeartbeatService;
+import org.apache.inlong.manager.service.group.InlongGroupProcessService;
+import org.apache.inlong.manager.service.mocks.MockAgent;
 import org.apache.inlong.manager.service.source.StreamSourceService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Agent service test
  */
 class AgentServiceTest extends ServiceBaseTest {
 
+    private static MockAgent agent;
     @Autowired
     private StreamSourceService sourceService;
     @Autowired
     private AgentService agentService;
     @Autowired
+    private HeartbeatService heartbeatService;
+    @Autowired
+    private InlongGroupEntityMapper groupMapper;
+    @Autowired
     private InlongStreamServiceTest streamServiceTest;
+    @Autowired
+    private InlongStreamEntityMapper streamMapper;
+
+    private List<Pair<String, String>> groupStreamCache;
+    private List<String> tagCache;
+
+    /**
+     * Save template source
+     */
+    public Integer saveTemplateSource() {
+        streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
+        FileSourceRequest sourceInfo = new FileSourceRequest();
+        sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
+        sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
+        sourceInfo.setSourceType(SourceType.FILE);
+        sourceInfo.setSourceName("template_source_in_agent_service_test");
+        sourceInfo.setInlongClusterName(GLOBAL_CLUSTER_NAME);
+        return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
+    }
 
     /**
      * Save source info.
@@ -67,17 +108,242 @@ class AgentServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Save template source
+     * mock {@link StreamSourceService#save}
      */
-    public Integer saveTemplateSource() {
-        streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
+    public Pair<String, String> saveSource(String tag) {
+        String groupId = UUID.randomUUID().toString();
+        String streamId = UUID.randomUUID().toString();
+        groupStreamCache.add(new ImmutablePair<>(groupId, streamId));
+        streamServiceTest.saveInlongStream(groupId, streamId, GLOBAL_OPERATOR);
+
         FileSourceRequest sourceInfo = new FileSourceRequest();
-        sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
-        sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
+        sourceInfo.setInlongGroupId(groupId);
+        sourceInfo.setInlongStreamId(streamId);
         sourceInfo.setSourceType(SourceType.FILE);
-        sourceInfo.setSourceName("template_source_in_agent_service_test");
-        sourceInfo.setInlongClusterName(GLOBAL_CLUSTER_NAME);
-        return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
+        sourceInfo.setInlongClusterName(MockAgent.CLUSTER_NAME);
+        sourceInfo.setInlongClusterNodeTag(tag);
+        sourceInfo.setSourceName(
+                String.format("Source task for cluster(%s) and tag(%s)", MockAgent.CLUSTER_NAME, tag));
+        sourceService.save(sourceInfo, GLOBAL_OPERATOR);
+        sourceService.updateStatus(
+                groupId,
+                streamId,
+                SourceStatus.TO_BE_ISSUED_ADD.getCode(),
+                GLOBAL_OPERATOR);
+        return Pair.of(groupId, streamId);
+    }
+
+    /**
+     * mock {@link InlongGroupProcessService#suspendProcessAsync}, it will suspend stream source
+     */
+    public void suspendSource(String groupId, String streamId) {
+        List<StreamSource> sources = sourceService.listSource(groupId, streamId);
+        sources.stream()
+                .filter(source -> source.getTemplateId() != null)
+                .forEach(source -> sourceService.stop(source.getId(), GLOBAL_OPERATOR));
+        streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.SUSPENDED.getCode(), GLOBAL_OPERATOR);
+    }
+
+    /**
+     * mock {@link InlongGroupProcessService#restartProcessAsync}, it will restart stream source
+     */
+    public void restartSource(String groupId, String streamId) {
+        List<StreamSource> sources = sourceService.listSource(groupId, streamId);
+        sources.stream()
+                .filter(source -> source.getTemplateId() != null)
+                .forEach(source -> sourceService.restart(source.getId(), GLOBAL_OPERATOR));
+        streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.RESTARTED.getCode(), GLOBAL_OPERATOR);
+    }
+
+    public void deleteSource(String groupId, String streamId) {
+        sourceService.logicDeleteAll(groupId, streamId, GLOBAL_OPERATOR);
+    }
+
+    @BeforeAll
+    public static void setUp(
+            @Autowired AgentService agentService,
+            @Autowired HeartbeatService heartbeatService) {
+        agent = new MockAgent(agentService, heartbeatService, 2);
+        agent.sendHeartbeat();
+    }
+
+    @BeforeEach
+    public void setupEach() {
+        groupStreamCache = new ArrayList<>();
+        tagCache = new ArrayList<>();
+    }
+
+    @AfterEach
+    public void teardownEach() {
+        if (!groupStreamCache.isEmpty()) {
+            groupStreamCache.forEach(groupStream -> sourceService.deleteAll(groupStream.getLeft(),
+                    groupStream.getRight(), GLOBAL_OPERATOR));
+            groupMapper.deleteByInlongGroupIds(
+                    groupStreamCache.stream().map(Pair::getKey).collect(Collectors.toList()));
+            streamMapper.deleteByInlongGroupIds(
+                    groupStreamCache.stream().map(Pair::getValue).collect(Collectors.toList()));
+        }
+        groupStreamCache.clear();
+        tagCache.stream().forEach(tag -> bindTag(false, tag));;
+    }
+
+    private void bindTag(boolean bind, String tag) {
+        if (bind) {
+            tagCache.add(tag);
+        }
+        agent.bindTag(bind, tag);
+    }
+
+    /**
+     * Test bind tag for node.
+     */
+    @Test
+    public void testTagMatch() {
+        saveSource("tag1,tag3");
+        saveSource("tag2,tag3");
+        saveSource("tag2,tag3");
+        saveSource("tag4");
+        bindTag(true, "tag1");
+        bindTag(true, "tag2");
+
+        TaskResult taskResult = agent.pullTask();
+        Assertions.assertTrue(taskResult.getCmdConfigs().isEmpty());
+        Assertions.assertEquals(4, taskResult.getDataConfigs().size());
+        Assertions.assertEquals(3, taskResult.getDataConfigs().stream()
+                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ADD.getType())
+                .collect(Collectors.toSet())
+                .size());
+        Assertions.assertEquals(1, taskResult.getDataConfigs().stream()
+                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.FROZEN.getType())
+                .collect(Collectors.toSet())
+                .size());
+    }
+
+    /**
+     * Test node tag mismatch source task and next time rematch source task.
+     */
+    @Test
+    public void testTagMismatchAndRematch() {
+        final Pair<String, String> groupStream = saveSource("tag1,tag3");
+        bindTag(true, "tag1");
+
+        agent.pullTask();
+        agent.pullTask(); // report last success status
+
+        final int sourceId = sourceService.listSource(groupStream.getLeft(), groupStream.getRight()).stream()
+                .filter(source -> source.getTemplateId() != null)
+                .findAny()
+                .get()
+                .getId();
+        // unbind tag and mismatch
+        bindTag(false, "tag1");
+        TaskResult t1 = agent.pullTask();
+        Assertions.assertEquals(1, t1.getDataConfigs().size());
+        Assertions.assertEquals(1, t1.getDataConfigs().stream()
+                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.FROZEN.getType())
+                .collect(Collectors.toSet())
+                .size());
+        DataConfig d1 = t1.getDataConfigs().get(0);
+        Assertions.assertEquals(sourceId, d1.getTaskId());
+
+        // bind tag and rematch
+        bindTag(true, "tag1");
+        TaskResult t2 = agent.pullTask();
+        Assertions.assertEquals(1, t2.getDataConfigs().size());
+        Assertions.assertEquals(1, t2.getDataConfigs().stream()
+                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.ACTIVE.getType())
+                .collect(Collectors.toSet())
+                .size());
+        DataConfig d2 = t2.getDataConfigs().get(0);
+        Assertions.assertEquals(sourceId, d2.getTaskId());
+    }
+
+    /**
+     * Test suspend group when frozen task without ack.
+     */
+    @Test
+    public void testSuspendFailWhenNotAck() {
+        Pair<String, String> groupStream = saveSource("tag1,tag3");
+        bindTag(true, "tag1");
+
+        agent.pullTask();
+        agent.pullTask(); // report last success status
+
+        // mismatch
+        bindTag(false, "tag1");
+        agent.pullTask();
+
+        // suspend
+        try {
+            suspendSource(groupStream.getLeft(), groupStream.getRight());
+        } catch (BusinessException e) {
+            Assertions.assertTrue(e.getMessage().contains("is not allowed to stop"));
+        }
+    }
+
+    /**
+     * Test node tag rematch source task but group suspend
+     */
+    @Test
+    public void testRematchedWhenSuspend() {
+        final Pair<String, String> groupStream = saveSource("tag1,tag3");
+        bindTag(true, "tag1");
+
+        agent.pullTask();
+        agent.pullTask(); // report last success status
+
+        // mismatch and rematch
+        bindTag(false, "tag1");
+        agent.pullTask();
+        agent.pullTask(); // report last to make it from 304 -> 104
+        bindTag(true, "tag1");
+
+        // suspend
+        suspendSource(groupStream.getLeft(), groupStream.getRight());
+        TaskResult taskResult = agent.pullTask();
+        Assertions.assertEquals(0, taskResult.getDataConfigs().size());
+    }
+
+    /**
+     * Test node tag mismatch source task but group restart
+     */
+    @Test
+    public void testMismatchedWhenRestart() {
+        final Pair<String, String> groupStream = saveSource("tag1,tag3");
+        bindTag(true, "tag1");
+
+        agent.pullTask();
+        agent.pullTask(); // report last success status
+
+        // suspend and restart
+        suspendSource(groupStream.getLeft(), groupStream.getRight());
+        restartSource(groupStream.getLeft(), groupStream.getRight());
+        bindTag(false, "tag1");
+        TaskResult taskResult = agent.pullTask();
+        Assertions.assertEquals(1, taskResult.getDataConfigs().size());
+        Assertions.assertEquals(1, taskResult.getDataConfigs().stream()
+                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.FROZEN.getType())
+                .collect(Collectors.toSet())
+                .size());
+    }
+
+    /**
+     * Test suspend group for source task.
+     */
+    @Test
+    public void testDelete() {
+        final Pair<String, String> groupStream = saveSource(null);
+        agent.pullTask();
+        agent.pullTask(); // report last success status
+
+        // suspend
+        deleteSource(groupStream.getLeft(), groupStream.getRight());
+        TaskResult taskResult = agent.pullTask();
+        Assertions.assertEquals(1, taskResult.getDataConfigs().size());
+        Assertions.assertEquals(1, taskResult.getDataConfigs().stream()
+                .filter(dataConfig -> Integer.valueOf(dataConfig.getOp()) == ManagerOpEnum.DEL.getType())
+                .collect(Collectors.toSet())
+                .size());
     }
 
     /**
@@ -121,7 +387,7 @@ class AgentServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(1, result.getDataConfigs().size());
         DataConfig subSourceTask = result.getDataConfigs().get(0);
         // new sub-source version must be 1
-        Assertions.assertEquals(1, subSourceTask.getVersion());
+        Assertions.assertEquals(2, subSourceTask.getVersion());
         // sub-source's id must be different from its template source
         Assertions.assertNotEquals(templateId, subSourceTask.getTaskId());
         // operation is to add new task

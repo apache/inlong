@@ -52,11 +52,13 @@ public class JobConstants extends CommonConstants {
 
     // File job
     public static final String JOB_TRIGGER = "job.fileJob.trigger";
-    public static final String JOB_DIR_FILTER_PATTERN = "job.fileJob.dir.pattern";
+    public static final String JOB_DIR_FILTER_PATTERN = "job.fileJob.dir.pattern"; // deprecated
+    public static final String JOB_DIR_FILTER_PATTERNS = "job.fileJob.dir.patterns";
+    public static final String JOB_DIR_FILTER_BLACKLIST = "job.fileJob.dir.blackList";
     public static final String JOB_FILE_TIME_OFFSET = "job.fileJob.timeOffset";
     public static final String JOB_FILE_MAX_WAIT = "job.fileJob.file.max.wait";
     public static final String JOB_CYCLE_UNIT = "job.fileJob.cycleUnit";
-    public static final String JOB_FILE_COLLECT_TYPE = "job.fileJob.collectType";
+    public static final String JOB_FILE_TRIGGER_TYPE = "job.fileJob.collectType";
     public static final String JOB_FILE_LINE_END_PATTERN = "job.fileJob.line.endPattern";
     public static final String JOB_FILE_CONTENT_COLLECT_TYPE = "job.fileJob.contentCollectType";
     public static final String JOB_FILE_META_ENV_LIST = "job.fileJob.envList";
@@ -148,7 +150,7 @@ public class JobConstants extends CommonConstants {
 
     public static final String JOB_OP = "job.op";
 
-    public static final String TRIGGER_ONLY_ONE_JOB = "job.standalone";
+    public static final String TRIGGER_ONLY_ONE_JOB = "job.standalone"; // TODO:delete it
 
     // field splitter
     public static final String JOB_FIELD_SPLITTER = "job.splitter";
@@ -158,6 +160,9 @@ public class JobConstants extends CommonConstants {
 
     // job time reading file
     public static final String JOB_DATA_TIME = "job.dataTime";
+
+    // job of the number of seconds to wait before starting the task
+    public static final String JOB_TASK_BEGIN_WAIT_SECONDS = "job.taskWaitSeconds";
 
     /**
      * when job is retried, the retry time should be provided
@@ -179,7 +184,7 @@ public class JobConstants extends CommonConstants {
      */
     public static final int SYNC_SEND_OPEN = 1;
 
-    public static final String INTERVAL_MILLISECONDS = "500";
+    public static final String INTERVAL_MILLISECONDS = "1000";
 
     /**
      * monitor switch, 1 true and 0 false

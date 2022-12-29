@@ -92,5 +92,4 @@ public abstract class AbstractStateWrapper implements Runnable {
     public State getCurrentState() {
         return currentState;
     }
-
 }

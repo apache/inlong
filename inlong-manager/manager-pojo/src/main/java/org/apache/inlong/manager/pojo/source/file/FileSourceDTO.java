@@ -42,6 +42,9 @@ public class FileSourceDTO {
     @ApiModelProperty("Path regex pattern for file, such as /a/b/*.txt")
     private String pattern;
 
+    @ApiModelProperty("Path blacklist for file, which will be filtered and not collect")
+    private String blackList;
+
     @ApiModelProperty("TimeOffset for collection, "
             + "'1m' means from one minute after, '-1m' means from one minute before, "
             + "'1h' means from one hour after, '-1h' means from one minute before, "
@@ -79,6 +82,7 @@ public class FileSourceDTO {
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest) {
         return FileSourceDTO.builder()
                 .pattern(fileSourceRequest.getPattern())
+                .blackList(fileSourceRequest.getBlackList())
                 .lineEndPattern(fileSourceRequest.getLineEndPattern())
                 .contentCollectType(fileSourceRequest.getContentCollectType())
                 .envList(fileSourceRequest.getEnvList())
