@@ -25,6 +25,7 @@ import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 
 public class StarRocksDynamicTableSink implements DynamicTableSink {
@@ -38,6 +39,7 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
     private final String inlongMetric;
     private final String auditHostAndPorts;
     private final SchemaUpdateExceptionPolicy schemaUpdatePolicy;
+    private final DirtySinkHelper<Object> dirtySinkHelper;
 
     public StarRocksDynamicTableSink(StarRocksSinkOptions sinkOptions,
             TableSchema schema,
@@ -47,7 +49,8 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
             String tablePattern,
             String inlongMetric,
             String auditHostAndPorts,
-            SchemaUpdateExceptionPolicy schemaUpdatePolicy) {
+            SchemaUpdateExceptionPolicy schemaUpdatePolicy,
+            DirtySinkHelper<Object> dirtySinkHelper) {
         this.flinkSchema = schema;
         this.sinkOptions = sinkOptions;
         this.multipleSink = multipleSink;
@@ -57,6 +60,7 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.schemaUpdatePolicy = schemaUpdatePolicy;
+        this.dirtySinkHelper = dirtySinkHelper;
     }
 
     @Override
@@ -77,7 +81,8 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
                 tablePattern,
                 inlongMetric,
                 auditHostAndPorts,
-                schemaUpdatePolicy);
+                schemaUpdatePolicy,
+                dirtySinkHelper);
         return SinkFunctionProvider.of(starrocksSinkFunction, sinkOptions.getSinkParallelism());
     }
 
@@ -91,7 +96,8 @@ public class StarRocksDynamicTableSink implements DynamicTableSink {
                 tablePattern,
                 inlongMetric,
                 auditHostAndPorts,
-                schemaUpdatePolicy);
+                schemaUpdatePolicy,
+                dirtySinkHelper);
     }
 
     @Override

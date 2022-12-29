@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.starrocks.table.sink;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
@@ -39,6 +40,10 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.utils.TableSchemaUtils;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 
@@ -47,7 +52,7 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
         final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
-        helper.validateExcept(StarRocksSinkOptions.SINK_PROPERTIES_PREFIX);
+        helper.validateExcept(StarRocksSinkOptions.SINK_PROPERTIES_PREFIX, DIRTY_PREFIX);
         ReadableConfig options = helper.getOptions();
         // validate some special properties
         StarRocksSinkOptions sinkOptions = new StarRocksSinkOptions(options, context.getCatalogTable().getOptions());
@@ -60,6 +65,11 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         SchemaUpdateExceptionPolicy schemaUpdatePolicy = helper.getOptions().get(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
         String inlongMetric = helper.getOptions().getOptional(INLONG_METRIC).orElse(INLONG_METRIC.defaultValue());
         String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(INLONG_AUDIT.defaultValue());
+
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
+        final DirtySinkHelper<Object> dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
 
         validateSinkMultiple(physicalSchema.toPhysicalRowDataType(),
                 multipleSink,
@@ -75,7 +85,8 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
                 tablePattern,
                 inlongMetric,
                 auditHostAndPorts,
-                schemaUpdatePolicy);
+                schemaUpdatePolicy,
+                dirtySinkHelper);
     }
 
     @Override
@@ -114,6 +125,7 @@ public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory
         optionalOptions.add(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
         optionalOptions.add(INLONG_METRIC);
         optionalOptions.add(INLONG_AUDIT);
+
         return optionalOptions;
     }
 

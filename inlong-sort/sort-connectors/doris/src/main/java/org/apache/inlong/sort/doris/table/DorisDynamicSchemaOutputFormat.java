@@ -612,8 +612,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 if (null != metricData && null != respContent) {
                     if (multipleSink) {
                         String[] tableWithDb = tableIdentifier.split("\\.");
-                        metricData.outputMetricsWithEstimate(tableWithDb[0], null, tableWithDb[1],
-                                false, respContent.getNumberLoadedRows(), respContent.getLoadBytes());
+                        metricData.outputMetrics(tableWithDb[0], null, tableWithDb[1],
+                                respContent.getNumberLoadedRows(), respContent.getLoadBytes());
                     } else {
                         metricData.invoke(respContent.getNumberLoadedRows(), respContent.getLoadBytes());
                     }
