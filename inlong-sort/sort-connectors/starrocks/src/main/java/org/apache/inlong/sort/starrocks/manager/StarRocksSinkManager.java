@@ -405,7 +405,7 @@ public class StarRocksSinkManager implements Serializable {
 
                     if (null != metricData) {
                         if (multipleSink) {
-                            metricData.outputMetrics(flushData.getDatabase(), null, flushData.getTable(), false,
+                            metricData.outputMetrics(flushData.getDatabase(), null, flushData.getTable(),
                                     flushData.getBatchCount(), flushData.getBatchSize());
                         } else {
                             metricData.invoke(flushData.getBatchCount(), flushData.getBatchSize());
@@ -462,7 +462,7 @@ public class StarRocksSinkManager implements Serializable {
         // upload metrics for dirty data
         if (null != metricData) {
             if (multipleSink) {
-                metricData.outputDirtyMetrics(flushData.getDatabase(), null, flushData.getTable(), false,
+                metricData.outputDirtyMetrics(flushData.getDatabase(), null, flushData.getTable(),
                         flushData.getBatchCount(), flushData.getBatchSize());
             } else {
                 metricData.invokeDirty(flushData.getBatchCount(), flushData.getBatchSize());
