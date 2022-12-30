@@ -22,12 +22,14 @@ import { Button, Skeleton, Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
+import EditableTable from '@/components/EditableTable';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useLoadMeta, SinkMetaType } from '@/metas';
 import request from '@/utils/request';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;
+  inlongStreamId: string;
   defaultType?: string;
   // (True operation, save and adjust interface) Need to upload when editing
   id?: string;
@@ -35,7 +37,13 @@ export interface DetailModalProps extends ModalProps {
   onOk?: (values) => void;
 }
 
-const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...modalProps }) => {
+const Comp: React.FC<DetailModalProps> = ({
+  inlongGroupId,
+  inlongStreamId,
+  defaultType,
+  id,
+  ...modalProps
+}) => {
   const [form] = useForm();
 
   const { t } = useTranslation();
@@ -43,8 +51,6 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...m
   // Q: Why sinkType default = '' ?
   // A: Avoid the table of the fields triggering the monitoring of the column change.
   const [sinkType, setSinkType] = useState('');
-
-  const [changedValues, setChangedValues] = useState<Record<string, any>>({});
 
   const { Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
 
@@ -86,13 +92,14 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...m
   );
 
   useEffect(() => {
-    if (changedValues.inlongStreamId) {
-      getStreamDetail(changedValues.inlongStreamId);
+    if (inlongStreamId) {
+      getStreamDetail(inlongStreamId);
     }
-  }, [getStreamDetail, changedValues.inlongStreamId]);
+  }, [getStreamDetail, inlongStreamId]);
 
   useEffect(() => {
     if (
+      !id &&
       Entity &&
       streamDetail &&
       streamDetail.fieldList?.length &&
@@ -112,9 +119,8 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...m
   useUpdateEffect(() => {
     if (modalProps.visible) {
       // open
-      getGroupData();
-      setChangedValues({});
       if (id) {
+        getGroupData();
         getData(id);
       } else {
         form.setFieldsValue({ inlongGroupId, sinkType: defaultType });
@@ -127,7 +133,15 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...m
   }, [modalProps.visible]);
 
   const formContent = useMemo(() => {
-    return Entity ? new Entity().renderRow() : [];
+    if (Entity) {
+      const row = new Entity().renderRow();
+      return row.map(item => ({
+        ...item,
+        col: item.type === EditableTable ? 24 : 12,
+      }));
+    }
+
+    return [];
   }, [Entity]);
 
   const onOk = async (startProcess = false) => {
@@ -147,6 +161,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...m
       data: {
         ...submitData,
         inlongGroupId,
+        inlongStreamId,
       },
     });
     modalProps?.onOk(submitData);
@@ -165,7 +180,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...m
         <Button key="save" type="primary" onClick={() => onOk(false)}>
           {t('pages.GroupDetail.Sink.Save')}
         </Button>,
-        groupData?.status === 130 && (
+        groupData?.status === 130 && id && (
           <Button key="run" type="primary" onClick={() => onOk(true)}>
             {t('pages.GroupDetail.Sink.SaveAndRefresh')}
           </Button>
@@ -176,13 +191,13 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...m
         <Skeleton active />
       ) : (
         <FormGenerator
-          labelCol={{ span: 4 }}
-          wrapperCol={{ span: 12 }}
+          labelCol={{ flex: '0 0 200px' }}
+          wrapperCol={{ flex: 1 }}
+          col={12}
           content={formContent}
           form={form}
           initialValues={id ? data : { inlongGroupId }}
           onValuesChange={(c, values) => {
-            setChangedValues(c);
             setSinkType(values.sinkType);
           }}
         />

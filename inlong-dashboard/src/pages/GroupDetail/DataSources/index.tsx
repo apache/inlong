@@ -18,7 +18,14 @@
  */
 
 import React, { useState, forwardRef, useMemo, useCallback } from 'react';
-import { Button, Modal, message } from 'antd';
+import { Badge, Button, Card, Modal, List, Tag, Radio, message } from 'antd';
+import { PaginationConfig } from 'antd/lib/pagination';
+import {
+  UnorderedListOutlined,
+  TableOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
@@ -29,17 +36,23 @@ import request from '@/utils/request';
 import { pickObjectArray } from '@/utils';
 import { CommonInterface } from '../common';
 
-type Props = CommonInterface;
+interface Props extends CommonInterface {
+  inlongStreamId?: string;
+}
 
-const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
+const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
+  const [mode, setMode] = useState('list');
+
   const { defaultValue } = useDefaultMeta('source');
 
-  const [options, setOptions] = useState({
+  const defaultOptions = {
     // keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
     sourceType: defaultValue,
-  });
+  };
+
+  const [options, setOptions] = useState(defaultOptions);
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
     visible: false,
@@ -55,6 +68,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
       params: {
         ...options,
         inlongGroupId,
+        inlongStreamId,
       },
     },
     {
@@ -102,10 +116,12 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     }));
   }, []);
 
-  const pagination = {
+  const pagination: PaginationConfig = {
     pageSize: options.pageSize,
     current: options.pageNum,
     total: data?.total,
+    simple: true,
+    size: 'small',
   };
 
   const { Entity } = useLoadMeta<SourceMetaType>('source', options.sourceType);
@@ -163,32 +179,87 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
   return (
     <>
-      <HighTable
-        filterForm={{
-          content: getFilterFormContent(options),
-          onFilter,
-        }}
-        suffix={
+      <Card
+        size="small"
+        title={
+          <Badge size="small" count={data?.total} offset={[15, 0]}>
+            {i18n.t('pages.GroupDetail.Sources')}
+          </Badge>
+        }
+        style={{ height: '100%' }}
+        extra={[
           !readonly && (
-            <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
+            <Button key="create" type="link" onClick={() => setCreateModal({ visible: true })}>
               {i18n.t('pages.GroupDetail.Sources.Create')}
             </Button>
-          )
-        }
-        table={{
-          columns,
-          rowKey: 'id',
-          dataSource: data?.list,
-          pagination,
-          loading,
-          onChange,
-        }}
-      />
+          ),
+          <Radio.Group
+            key="mode"
+            onChange={e => {
+              setMode(e.target.value);
+              setOptions(defaultOptions);
+            }}
+            defaultValue={mode}
+            size="small"
+          >
+            <Radio.Button value="list">
+              <UnorderedListOutlined />
+            </Radio.Button>
+            <Radio.Button value="table">
+              <TableOutlined />
+            </Radio.Button>
+          </Radio.Group>,
+        ]}
+      >
+        {mode === 'list' ? (
+          <List
+            size="small"
+            loading={loading}
+            dataSource={data?.list as Record<string, any>[]}
+            pagination={pagination}
+            renderItem={item => (
+              <List.Item
+                actions={[
+                  <Button key="edit" type="link" onClick={() => onEdit(item)}>
+                    <EditOutlined />
+                  </Button>,
+                  <Button key="del" type="link" onClick={() => onDelete(item)}>
+                    <DeleteOutlined />
+                  </Button>,
+                ]}
+                className="test"
+              >
+                <span>
+                  <span style={{ marginRight: 10 }}>{item.sourceName}</span>
+                  <Tag>{item.sourceType}</Tag>
+                </span>
+              </List.Item>
+            )}
+          />
+        ) : (
+          <HighTable
+            filterForm={{
+              content: getFilterFormContent(options),
+              onFilter,
+            }}
+            table={{
+              columns,
+              rowKey: 'id',
+              size: 'small',
+              dataSource: data?.list,
+              pagination,
+              loading,
+              onChange,
+            }}
+          />
+        )}
+      </Card>
 
       <DetailModal
         {...createModal}
         defaultType={options.sourceType}
         inlongGroupId={inlongGroupId}
+        inlongStreamId={inlongStreamId}
         visible={createModal.visible as boolean}
         onOk={async () => {
           await getList();
