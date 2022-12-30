@@ -516,7 +516,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
     private void handleMultipleDirtyData(Object dirtyData, DirtyType dirtyType, Exception e) {
-        JsonNode rootNode = null;
+        JsonNode rootNode;
         try {
             rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
         } catch (Exception ex) {
