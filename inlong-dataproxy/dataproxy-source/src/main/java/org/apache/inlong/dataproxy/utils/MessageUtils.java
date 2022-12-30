@@ -35,7 +35,7 @@ import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.source.MsgType;
+import org.apache.inlong.common.msg.MsgType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
