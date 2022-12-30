@@ -26,7 +26,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -75,7 +74,7 @@ public class HudiSinkDTO {
     private List<HashMap<String, String>> extList;
 
     @ApiModelProperty("Partition field list")
-    private List<HudiPartitionField> partitionFieldList;
+    private String partitionKey;
 
     /**
      * Get the dto instance from the request
@@ -87,7 +86,7 @@ public class HudiSinkDTO {
                 .dbName(request.getDbName())
                 .tableName(request.getTableName())
                 .dataPath(request.getDataPath())
-                .partitionFieldList(request.getPartitionFieldList())
+                .partitionKey(request.getPartitionKey())
                 .fileFormat(request.getFileFormat())
                 .catalogType(request.getCatalogType())
                 .properties(request.getProperties())
@@ -112,16 +111,7 @@ public class HudiSinkDTO {
         tableInfo.setDbName(hudiInfo.getDbName());
         tableInfo.setTableName(hudiInfo.getTableName());
 
-        // Set partition fields
-        if (CollectionUtils.isNotEmpty(hudiInfo.getPartitionFieldList())) {
-            for (HudiPartitionField field : hudiInfo.getPartitionFieldList()) {
-                HudiColumnInfo columnInfo = new HudiColumnInfo();
-                columnInfo.setName(field.getFieldName());
-                columnInfo.setPartition(true);
-                columnInfo.setType("string");
-                columnList.add(columnInfo);
-            }
-        }
+        tableInfo.setPartitionKey(hudiInfo.getPartitionKey());
         tableInfo.setColumns(columnList);
         tableInfo.setPrimaryKey(hudiInfo.getPrimaryKey());
         tableInfo.setFileFormat(hudiInfo.getFileFormat());
