@@ -489,7 +489,7 @@
   "pages.GroupDetail.Sources.status.BeenRetry": "已下发重试",
   "pages.GroupDetail.Sources.status.BeenFrozen": "已下发停止",
   "pages.GroupDetail.Sources.status.BeenActive": "已下发重启",
-  "pages.GroupDetail.Sink.New": "新建目标",
+  "pages.GroupDetail.Sink.New": "新建数据目标",
   "pages.GroupDetail.Sink.Edit": "编辑目标",
   "pages.GroupDetail.Sink.Type": "类型",
   "pages.GroupDetail.Sink.DataStreams": "数据流",
