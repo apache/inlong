@@ -58,6 +58,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalQueries;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -115,6 +125,17 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     private Long dataSize = 0L;
     private Long rowSize = 0L;
     private final SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy;
+
+    private static final DateTimeFormatter SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT;
+    private static final DateTimeFormatter SQL_TIME_FORMAT;
+
+    static {
+        SQL_TIME_FORMAT = (new DateTimeFormatterBuilder()).appendPattern("HH:mm:ss")
+                .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true).toFormatter();
+        SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT =
+                (new DateTimeFormatterBuilder()).append(DateTimeFormatter.ISO_LOCAL_DATE).appendLiteral('T')
+                        .append(SQL_TIME_FORMAT).appendPattern("'Z'").toFormatter();
+    }
 
     public JdbcMultiBatchingOutputFormat(
             @Nonnull JdbcConnectionProvider connectionProvider,
@@ -399,13 +420,42 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         record.setField(i, Double.valueOf(fieldValue));
                         break;
                     case TIME_WITHOUT_TIME_ZONE:
-                    case TIMESTAMP_WITHOUT_TIME_ZONE:
                     case INTERVAL_DAY_TIME:
                         TimestampData timestampData = TimestampData.fromEpochMillis(Long.valueOf(fieldValue));
                         record.setField(i, timestampData);
                         break;
                     case BINARY:
                         record.setField(i, Arrays.toString(fieldValue.getBytes(StandardCharsets.UTF_8)));
+                        break;
+
+                    // support mysql
+                    case INTEGER:
+                        record.setField(i, Integer.valueOf(fieldValue));
+                        break;
+                    case SMALLINT:
+                        record.setField(i, Short.valueOf(fieldValue));
+                        break;
+                    case TINYINT:
+                        record.setField(i, Byte.valueOf(fieldValue));
+                        break;
+                    case FLOAT:
+                        record.setField(i, Float.valueOf(fieldValue));
+                        break;
+                    case DATE:
+                        record.setField(i, (int) LocalDate.parse(fieldValue).toEpochDay());
+                        break;
+                    case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
+                        TemporalAccessor parsedTimestampWithLocalZone =
+                                SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT.parse(fieldValue);
+                        LocalTime localTime = parsedTimestampWithLocalZone.query(TemporalQueries.localTime());
+                        LocalDate localDate = parsedTimestampWithLocalZone.query(TemporalQueries.localDate());
+                        record.setField(i, TimestampData.fromInstant(LocalDateTime.of(localDate, localTime)
+                                .toInstant(ZoneOffset.UTC)));
+                        break;
+                    case TIMESTAMP_WITHOUT_TIME_ZONE:
+                        fieldValue = fieldValue.replace("T", " ");
+                        TimestampData timestamp = TimestampData.fromTimestamp(Timestamp.valueOf(fieldValue));
+                        record.setField(i, timestamp);
                         break;
                     default:
                         record.setField(i, StringData.fromString(fieldValue));
