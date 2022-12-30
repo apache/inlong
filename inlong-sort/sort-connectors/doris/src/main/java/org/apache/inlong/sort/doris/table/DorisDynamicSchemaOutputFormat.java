@@ -520,7 +520,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         try {
             rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
         } catch (Exception ex) {
-            LOG.warn("handle dirty data: rootnode is null", ex);
+            handleDirtyData(dirtyData, DirtyType.DESERIALIZE_ERROR, e);
         }
 
         if (dirtySink != null) {

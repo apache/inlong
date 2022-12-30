@@ -22,6 +22,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.formats.json.RowDataToJsonConverters.RowDataToJsonConverter;
@@ -244,7 +245,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
         }
         String content = null;
         try {
-            content = StringUtils.join(values, s3Options.getLineDelimiter());
+            content = StringUtils.join(values, StringEscapeUtils.unescapeJava(s3Options.getLineDelimiter()));
             s3Helper.upload(identifier, content);
             LOGGER.info("Write {} records to s3 of identifier: {}", values.size(), identifier);
             writeOutNum.addAndGet(values.size());
