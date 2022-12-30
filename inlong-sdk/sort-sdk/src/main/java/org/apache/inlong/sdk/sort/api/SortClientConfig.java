@@ -369,7 +369,7 @@ public class SortClientConfig implements Serializable {
     public void setConsumerSubsetSize(int consumerSubsetSize) {
         this.consumerSubsetSize = consumerSubsetSize;
     }
-    
+
     public boolean isTopicStaticsEnabled() {
         return topicStaticsEnabled;
     }
