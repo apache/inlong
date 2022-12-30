@@ -49,6 +49,7 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
     formatResult: result => ({
       ...result,
       inCharges: result.inCharges?.split(',') || [],
+      topic: result.topic?.split(','),
     }),
     onSuccess: data => {
       form.setFieldsValue(data);
@@ -62,6 +63,7 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
       ...values,
       inCharges: values.inCharges.join(','),
       consumerGroup: values.consumerGroup || data?.consumerGroup,
+      topic: values.topic?.join(','),
     };
 
     if (isUpdate) {

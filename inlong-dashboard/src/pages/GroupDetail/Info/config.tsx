@@ -68,7 +68,7 @@ export const useFormContent = ({ mqType, editing, isCreate, isUpdate }) => {
   const isMqKey = useCallback(
     formName => {
       const defaultGroupKeysI18nMap = DefaultEntity?.I18nMap || {};
-      return !defaultGroupKeysI18nMap[formName] || formName === 'mqType';
+      return !defaultGroupKeysI18nMap[formName] || ['mqType', 'mqResource'].includes(formName);
     },
     [DefaultEntity?.I18nMap],
   );

@@ -17,10 +17,33 @@
  * under the License.
  */
 
-export interface CommonInterface {
+import React from 'react';
+import { Col, Row } from 'antd';
+import { DoubleRightOutlined } from '@ant-design/icons';
+import DataSources from '../DataSources';
+import DataStorage from '../DataStorage';
+
+export interface Props {
   inlongGroupId: string;
-  mqType?: 'TUBEMQ' | 'PULSAR';
-  readonly?: boolean;
-  isCreate?: boolean;
-  ref?: React.RefObject<unknown>;
+  inlongStreamId: string;
 }
+
+const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId }) => {
+  return (
+    <>
+      <Row gutter={60}>
+        <Col span={12}>
+          <DataSources inlongGroupId={inlongGroupId} inlongStreamId={inlongStreamId} />
+        </Col>
+        <Col span={12}>
+          <DataStorage inlongGroupId={inlongGroupId} inlongStreamId={inlongStreamId} />
+        </Col>
+        <DoubleRightOutlined
+          style={{ position: 'absolute', top: '50%', left: 'calc(50% - 7px)' }}
+        />
+      </Row>
+    </>
+  );
+};
+
+export default Comp;

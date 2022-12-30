@@ -29,11 +29,18 @@ import request from '@/utils/request';
 export interface Props extends ModalProps {
   // When editing, use the ID to call the interface for obtaining details
   id?: string;
-  inlongGroupId?: string;
+  inlongGroupId: string;
+  inlongStreamId: string;
   defaultType?: string;
 }
 
-const Comp: React.FC<Props> = ({ id, inlongGroupId, defaultType, ...modalProps }) => {
+const Comp: React.FC<Props> = ({
+  id,
+  inlongGroupId,
+  inlongStreamId,
+  defaultType,
+  ...modalProps
+}) => {
   const [form] = useForm();
   const { t } = useTranslation();
 
@@ -71,6 +78,7 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, defaultType, ...modalProps }
       data: {
         ...submitData,
         inlongGroupId,
+        inlongStreamId,
       },
     });
     modalProps?.onOk(submitData);

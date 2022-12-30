@@ -94,7 +94,7 @@ const addIdToValues = (values: RowValueType[]): RecordType[] =>
     return obj as RecordType;
   });
 
-const Comp = ({
+const EditableTable = ({
   id,
   value,
   onChange,
@@ -294,4 +294,4 @@ const Comp = ({
   );
 };
 
-export default Comp;
+export default EditableTable;
