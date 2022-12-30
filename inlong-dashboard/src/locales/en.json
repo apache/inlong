@@ -321,6 +321,7 @@
   "meta.Group.Pulsar.Parallel": "Parallel",
   "meta.Group.Pulsar.Serial": "Serial",
   "meta.Group.Pulsar.PartitionNum": "Topic Part Nums",
+  "meta.Group.Pulsar.PartitionExtra": "The number of topic partitions, up to 100 can be configured",
   "meta.Group.Pulsar.EnsembleSuffix": "Number of nodes",
   "meta.Group.Pulsar.EnsembleExtra": "How many nodes are Topic saved to, up to 10 can be configured",
   "meta.Group.Pulsar.WriteQuorumSuffix": "Number of copies",
