@@ -37,6 +37,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
@@ -336,6 +337,7 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
         checkNotNull(jdbcOptions, "jdbc options can not be null");
         checkNotNull(dmlOptions, "jdbc dml options can not be null");
         checkNotNull(executionOptions, "jdbc execution options can not be null");
+        final DirtySinkHelper<Object> dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
         return new JdbcMultiBatchingOutputFormat<>(
                 new SimpleJdbcConnectionProvider(jdbcOptions),
                 executionOptions,
@@ -348,6 +350,7 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                 schemaPattern,
                 inlongMetric,
                 auditHostAndPorts,
-                schemaUpdateExceptionPolicy);
+                schemaUpdateExceptionPolicy,
+                dirtySinkHelper);
     }
 }
