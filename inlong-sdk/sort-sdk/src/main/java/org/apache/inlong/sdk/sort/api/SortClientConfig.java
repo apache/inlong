@@ -457,7 +457,7 @@ public class SortClientConfig implements Serializable {
         this.maxConsumerSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_CONSUMER_SIZE),
                 maxConsumerSize);
         this.consumerSubsetType = ConsumerSubsetType.convert(
-                sortSdkParams.getOrDefault(ConfigConstants.CONSUMER_SUBSET_TYPE, ConsumerSubsetType.CLUSTER.value()));
+                sortSdkParams.getOrDefault(ConfigConstants.CONSUMER_SUBSET_TYPE, ConsumerSubsetType.CLUSTER.name()));
         this.consumerSubsetSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.CONSUMER_SUBSET_SIZE),
                 consumerSubsetSize);
 

@@ -22,25 +22,16 @@ package org.apache.inlong.sdk.sort.api;
  */
 public enum ConsumerSubsetType {
 
-    CLUSTER("cluster"), TOPIC("topic"), ALL("all");
+    CLUSTER, TOPIC, ALL;
 
-    private final String value;
-
-    private ConsumerSubsetType(String value) {
-        this.value = value;
-    }
-
-    public String value() {
-        return this.value;
-    }
-
+    @Override
     public String toString() {
-        return this.name() + ":" + this.value;
+        return this.name();
     }
 
     public static ConsumerSubsetType convert(String value) {
         for (ConsumerSubsetType v : values()) {
-            if (v.value().equalsIgnoreCase(value)) {
+            if (v.name().equalsIgnoreCase(value)) {
                 return v;
             }
         }
