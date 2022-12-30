@@ -43,33 +43,11 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   readonly inlongGroupId: string;
 
   @FieldDecorator({
-    type: 'select',
-    props: values => ({
-      disabled: Boolean(values.id),
-      options: {
-        requestService: {
-          url: '/stream/list',
-          method: 'POST',
-          data: {
-            pageNum: 1,
-            pageSize: 1000,
-            inlongGroupId: values.inlongGroupId,
-          },
-        },
-        requestParams: {
-          formatResult: result =>
-            result?.list.map(item => ({
-              label: item.inlongStreamId,
-              value: item.inlongStreamId,
-            })) || [],
-        },
-      },
-    }),
-    rules: [{ required: true }],
+    type: 'text',
+    hidden: true,
   })
-  @ColumnDecorator()
-  @I18n('pages.GroupDetail.Sources.DataStreams')
-  inlongStreamId: string;
+  @I18n('inlongStreamId')
+  readonly inlongStreamId: string;
 
   @FieldDecorator({
     type: 'input',
@@ -98,7 +76,9 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
         })),
     }),
   })
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: type => sources.find(c => c.value === type)?.label || type,
+  })
   @I18n('meta.Sources.Type')
   sourceType: string;
 

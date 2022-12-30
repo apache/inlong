@@ -29,7 +29,7 @@ import java.util.concurrent.Semaphore;
 
 public class SortClientConfig implements Serializable {
 
-    public static final String MONITOR_NAME = "read_stat";
+    public static final String MONITOR_NAME = "SortSdk";
 
     private static final long serialVersionUID = -7531960714809683830L;
 
@@ -64,8 +64,12 @@ public class SortClientConfig implements Serializable {
     private int emptyPollTimes = 10;
     private int cleanOldConsumerIntervalSec = 60;
     private int maxConsumerSize = 5;
+
     private ConsumerSubsetType consumerSubsetType = ConsumerSubsetType.ALL;
     private int consumerSubsetSize = 1;
+
+    private boolean topicStaticsEnabled = true;
+    private boolean partitionStaticsEnabled = true;
 
     public SortClientConfig(
             String sortTaskId,
@@ -365,6 +369,14 @@ public class SortClientConfig implements Serializable {
     public void setConsumerSubsetSize(int consumerSubsetSize) {
         this.consumerSubsetSize = consumerSubsetSize;
     }
+    
+    public boolean isTopicStaticsEnabled() {
+        return topicStaticsEnabled;
+    }
+
+    public boolean isPartitionStaticsEnabled() {
+        return partitionStaticsEnabled;
+    }
 
     /**
      * ConsumeStrategy
@@ -441,12 +453,21 @@ public class SortClientConfig implements Serializable {
         this.maxEmptyPollSleepMs = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_EMPTY_POLL_SLEEP_MS),
                 maxEmptyPollSleepMs);
         this.emptyPollTimes = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.EMPTY_POLL_TIMES), emptyPollTimes);
+
         this.maxConsumerSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_CONSUMER_SIZE),
                 maxConsumerSize);
         this.consumerSubsetType = ConsumerSubsetType.convert(
                 sortSdkParams.getOrDefault(ConfigConstants.CONSUMER_SUBSET_TYPE, ConsumerSubsetType.CLUSTER.value()));
         this.consumerSubsetSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.CONSUMER_SUBSET_SIZE),
                 consumerSubsetSize);
+
+        String strTopicStaticsEnabled = sortSdkParams.getOrDefault(ConfigConstants.IS_TOPIC_STATICS_ENABLED,
+                Boolean.TRUE.toString());
+        this.topicStaticsEnabled = StringUtils.equalsIgnoreCase(strTopicStaticsEnabled, Boolean.TRUE.toString());
+        String strPartitionStaticsEnabled = sortSdkParams.getOrDefault(ConfigConstants.IS_PARTITION_STATICS_ENABLED,
+                Boolean.TRUE.toString());
+        this.partitionStaticsEnabled = StringUtils.equalsIgnoreCase(strPartitionStaticsEnabled,
+                Boolean.TRUE.toString());
     }
 
     public List<InLongTopic> getConsumerSubset(List<InLongTopic> totalTopics) {
@@ -472,4 +493,5 @@ public class SortClientConfig implements Serializable {
         }
         return subset;
     }
+
 }

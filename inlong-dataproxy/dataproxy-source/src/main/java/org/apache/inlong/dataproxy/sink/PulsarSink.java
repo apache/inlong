@@ -18,7 +18,6 @@
 package org.apache.inlong.dataproxy.sink;
 
 import static org.apache.inlong.dataproxy.consts.AttrConstants.SEP_HASHTAG;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.MAX_MONITOR_CNT;
 
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
@@ -149,7 +148,7 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
 
     private RateLimiter diskRateLimiter;
     private long t1 = System.currentTimeMillis();
-    private int maxMonitorCnt = 300000;
+    private int maxMonitorCnt = ConfigConstants.DEF_MONITOR_STAT_CNT;
     /*
      * Control whether the SinkRunner thread can read data from the Channel
      */
@@ -193,8 +192,15 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
     @Override
     public void configure(Context context) {
         logger.info("PulsarSink started and context = {}", context.toString());
-        maxMonitorCnt = context.getInteger(MAX_MONITOR_CNT, 300000);
-
+        // get maxMonitorCnt's configure value
+        try {
+            maxMonitorCnt = context.getInteger(
+                    ConfigConstants.MAX_MONITOR_CNT, ConfigConstants.DEF_MONITOR_STAT_CNT);
+        } catch (NumberFormatException e) {
+            logger.warn("Property {} must specify an integer value: {}",
+                    ConfigConstants.MAX_MONITOR_CNT, context.getString(ConfigConstants.MAX_MONITOR_CNT));
+        }
+        Preconditions.checkArgument(maxMonitorCnt >= 0, "maxMonitorCnt must be >= 0");
         configManager = ConfigManager.getInstance();
         topicProperties = configManager.getTopicProperties();
         pulsarCluster = configManager.getMqClusterUrl2Token();

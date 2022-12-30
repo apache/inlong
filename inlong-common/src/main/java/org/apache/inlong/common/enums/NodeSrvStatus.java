@@ -26,6 +26,8 @@ public enum NodeSrvStatus {
 
     SERVICE_UNREADY(1, "Service not ready"),
 
+    SERVICE_UNINSTALL(2, "Service unregister"),
+
     UNKNOWN_ERROR(Integer.MAX_VALUE - 1, "Unknown status");
 
     private final int statusId;

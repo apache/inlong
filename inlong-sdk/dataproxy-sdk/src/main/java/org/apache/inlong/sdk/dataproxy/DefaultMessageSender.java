@@ -48,8 +48,8 @@ public class DefaultMessageSender implements MessageSender {
             new ConcurrentHashMap<>();
     private static final AtomicBoolean MANAGER_FETCHER_THREAD_STARTED = new AtomicBoolean(false);
     private static ManagerFetcherThread managerFetcherThread;
+    private static final SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
     private final Sender sender;
-    private final SequentialID idGenerator;
     private final IndexCollectThread indexCol;
     /* Store index <groupId_streamId,cnt> */
     private final Map<String, Long> storeIndex = new ConcurrentHashMap<String, Long>();
@@ -68,7 +68,6 @@ public class DefaultMessageSender implements MessageSender {
     public DefaultMessageSender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         ProxyUtils.validClientConfig(configure);
         sender = new Sender(configure, selfDefineFactory);
-        idGenerator = new SequentialID(Utils.getLocalIp());
         groupId = configure.getGroupId();
         indexCol = new IndexCollectThread(storeIndex);
         indexCol.start();

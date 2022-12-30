@@ -44,6 +44,7 @@ import org.bson.BsonValue;
  */
 public class RecordUtils {
 
+    public static final String DOCUMENT_TO_FIELD = "to";
     private static final List<BsonType> INT_TYPE = Arrays.asList(BsonType.INT32, BsonType.INT64);
     private static final List<BsonType> BOOL_TYPE = Arrays.asList(BsonType.BOOLEAN);
     private static final List<BsonType> DOUBLE_TYPE = Arrays.asList(BsonType.DOUBLE, BsonType.DECIMAL128);

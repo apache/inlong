@@ -48,6 +48,9 @@ public class FileSource extends StreamSource {
     @ApiModelProperty("Path regex pattern for file, such as /a/b/*.txt")
     private String pattern;
 
+    @ApiModelProperty("Path blacklist for file, which will be filtered and not collect")
+    private String blackList;
+
     @ApiModelProperty("TimeOffset for collection, "
             + "'1m' means from one minute after, '-1m' means from one minute before, "
             + "'1h' means from one hour after, '-1h' means from one minute before, "

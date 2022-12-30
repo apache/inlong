@@ -69,6 +69,10 @@ public enum DirtyType {
      */
     BATCH_LOAD_ERROR("BatchLoadError"),
     /**
+     * Retry load error
+     */
+    RETRY_LOAD_ERROR("RetryLoadError"),
+    /**
      * Unsupported data type
      */
     UNSUPPORTED_DATA_TYPE("UnsupportedDataType"),

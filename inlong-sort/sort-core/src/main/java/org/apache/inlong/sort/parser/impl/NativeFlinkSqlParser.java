@@ -82,7 +82,7 @@ public class NativeFlinkSqlParser implements Parser {
         Preconditions.checkNotNull(tableEnv, "tableEnv is null");
         List<String> createTableSqls = new ArrayList<>();
         List<String> insertSqls = new ArrayList<>();
-        String[] statementSet = statements.split(";");
+        String[] statementSet = statements.split(";(\\r?\\n|\\r)");
         for (String statement : statementSet) {
             statement = statement.trim();
             if (statement.toUpperCase(Locale.ROOT).startsWith("CREATE TABLE") || statement.toUpperCase(Locale.ROOT)

@@ -29,6 +29,7 @@ import {
   genStatusTag,
   genLastConsumerStatusTag,
 } from './status';
+import { consumes } from '..';
 
 const { I18nMap, I18n } = DataWithBackend;
 const { FieldList, FieldDecorator } = RenderRow;
@@ -107,7 +108,9 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   @I18n('meta.Consume.TargetInlongGroupID')
   inlongGroupId: string;
 
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: text => consumes.find(c => c.value === text)?.label || text,
+  })
   @I18n('meta.Consume.MQType')
   mqType: string;
 
@@ -123,14 +126,14 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
             result.mqType === 'TUBEMQ'
               ? [
                   {
-                    label: result.mqResource,
-                    value: result.mqResource,
+                    label: result,
+                    value: result,
                   },
                 ]
-              : result.streamTopics?.map(item => ({
+              : result.topics?.map(item => ({
                   ...item,
-                  label: item.mqResource,
-                  value: item.mqResource,
+                  label: item,
+                  value: item,
                 })) || [],
         },
       },
@@ -158,7 +161,7 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
     visible: false,
   })
   @ColumnDecorator({
-    render: text => genStatusTag(text),
+    render: text => text && genStatusTag(text),
   })
   @I18n('basic.Status')
   readonly status: string;

@@ -19,18 +19,19 @@ package org.apache.inlong.sdk.sort.impl;
 
 import org.apache.inlong.sdk.sort.api.Cleanable;
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.InlongTopicManager;
-import org.apache.inlong.sdk.sort.api.ManagerReportHandler;
-import org.apache.inlong.sdk.sort.api.MetricReporter;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
+import org.apache.inlong.sdk.sort.api.TopicFetcher;
+import org.apache.inlong.sdk.sort.api.TopicManager;
 import org.apache.inlong.sdk.sort.exception.NotExistException;
+import org.apache.inlong.sdk.sort.api.InlongTopicManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Deprecated
+/**
+ * New version of sort client.
+ */
 public class SortClientImpl extends SortClient {
 
     private final String logPrefix = "[" + SortClientImpl.class.getSimpleName() + "] ";
@@ -40,7 +41,7 @@ public class SortClientImpl extends SortClient {
 
     private final ClientContext context;
 
-    private final InlongTopicManager inLongTopicManager;
+    private final TopicManager inLongTopicManager;
 
     /**
      * SortClient Constructor
@@ -50,8 +51,11 @@ public class SortClientImpl extends SortClient {
     public SortClientImpl(SortClientConfig sortClientConfig) {
         try {
             this.sortClientConfig = sortClientConfig;
-            this.context = new ClientContextImpl(this.sortClientConfig, new MetricReporterImpl(sortClientConfig));
-            this.inLongTopicManager = new InlongTopicManagerImpl(context, new QueryConsumeConfigImpl(context));
+            this.context = new ClientContextImpl(this.sortClientConfig);
+
+            this.inLongTopicManager = InlongTopicManagerFactory
+                    .createInLongTopicManager(sortClientConfig.getTopicType(),
+                            context, new QueryConsumeConfigImpl(context));
         } catch (Exception e) {
             this.close();
             throw e;
@@ -63,15 +67,15 @@ public class SortClientImpl extends SortClient {
      *
      * @param sortClientConfig SortClientConfig
      * @param queryConsumeConfig QueryConsumeConfig
-     * @param metricReporter MetricReporter
-     * @param managerReportHandler ManagerReportHandler
      */
-    public SortClientImpl(SortClientConfig sortClientConfig, QueryConsumeConfig queryConsumeConfig,
-            MetricReporter metricReporter, ManagerReportHandler managerReportHandler) {
+    public SortClientImpl(SortClientConfig sortClientConfig, QueryConsumeConfig queryConsumeConfig) {
         try {
             this.sortClientConfig = sortClientConfig;
-            this.context = new ClientContextImpl(this.sortClientConfig, metricReporter);
-            this.inLongTopicManager = new InlongTopicManagerImpl(context, new QueryConsumeConfigImpl(context));
+            this.context = new ClientContextImpl(this.sortClientConfig);
+            queryConsumeConfig.configure(context);
+            this.inLongTopicManager = InlongTopicManagerFactory
+                    .createInLongTopicManager(sortClientConfig.getTopicType(),
+                            context, queryConsumeConfig);
         } catch (Exception e) {
             e.printStackTrace();
             this.close();
@@ -102,8 +106,8 @@ public class SortClientImpl extends SortClient {
     public void ack(String msgKey, String msgOffset)
             throws Exception {
         logger.debug("ack:{} offset:{}", msgKey, msgOffset);
-        InLongTopicFetcher inLongTopicFetcher = getFetcher(msgKey);
-        inLongTopicFetcher.ack(msgOffset);
+        TopicFetcher topicFetcher = getFetcher(msgKey);
+        topicFetcher.ack(msgOffset);
     }
 
     /**
@@ -128,12 +132,12 @@ public class SortClientImpl extends SortClient {
         return this.sortClientConfig;
     }
 
-    private InLongTopicFetcher getFetcher(String msgKey) throws NotExistException {
-        InLongTopicFetcher inLongTopicFetcher = inLongTopicManager.getFetcher(msgKey);
-        if (inLongTopicFetcher == null) {
+    private TopicFetcher getFetcher(String msgKey) throws NotExistException {
+        TopicFetcher topicFetcher = inLongTopicManager.getFetcher(msgKey);
+        if (topicFetcher == null) {
             throw new NotExistException(msgKey + " not exist.");
         }
-        return inLongTopicFetcher;
+        return topicFetcher;
     }
 
     private boolean doClose(Cleanable c) {

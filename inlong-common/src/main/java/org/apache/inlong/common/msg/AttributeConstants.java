@@ -96,4 +96,17 @@ public interface AttributeConstants {
     String MESSAGE_DP_IP = "dpIP";
 
     String MESSAGE_TOPIC = "topic";
+
+    // dataproxy IP, used in trace info
+    String DATAPROXY_NODE_IP = "node2ip";
+
+    // dataproxy received time, used in trace info
+    String DATAPROXY_RCVTIME = "rtime2";
+
+    // Message reporting time, in milliseconds
+    // Provided by the initial sender of the data, and passed to
+    // the downstream by the Bus without modification for the downstream to
+    // calculate the end-to-end message delay; if this field does not exist in the request,
+    // it will be added by the Bus with the current time
+    public static final String MSG_RPT_TIME = "rtms";
 }

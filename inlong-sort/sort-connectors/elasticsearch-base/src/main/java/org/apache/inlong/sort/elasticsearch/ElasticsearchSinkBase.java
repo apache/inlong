@@ -20,6 +20,10 @@ package org.apache.inlong.sort.elasticsearch;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
+import org.apache.flink.api.common.state.ListState;
+import org.apache.flink.api.common.state.ListStateDescriptor;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
@@ -35,7 +39,9 @@ import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.elasticsearch.ElasticsearchParseException;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
@@ -61,6 +67,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
 /**
  * Base class for all Flink Elasticsearch Sinks.
@@ -176,6 +187,9 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      */
     private transient BulkProcessor bulkProcessor;
     private SinkMetricData sinkMetricData;
+    private transient ListState<MetricState> metricStateListState;
+    private transient MetricState metricState;
+    private String auditHostAndPorts;
 
     public ElasticsearchSinkBase(
             ElasticsearchApiCallBridge<C> callBridge,
@@ -183,12 +197,14 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
             ElasticsearchSinkFunction<T> elasticsearchSinkFunction,
             ActionRequestFailureHandler failureHandler,
             String inlongMetric,
-            DirtySinkHelper<Object> dirtySinkHelper) {
+            DirtySinkHelper<Object> dirtySinkHelper,
+            String auditHostAndPorts) {
         this.inlongMetric = inlongMetric;
         this.dirtySinkHelper = dirtySinkHelper;
         this.callBridge = checkNotNull(callBridge);
         this.elasticsearchSinkFunction = checkNotNull(elasticsearchSinkFunction);
         this.failureHandler = checkNotNull(failureHandler);
+        this.auditHostAndPorts = auditHostAndPorts;
         // we eagerly check if the user-provided sink function and failure handler is serializable;
         // otherwise, if they aren't serializable, users will merely get a non-informative error
         // message
@@ -282,33 +298,53 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     @Override
     public void open(Configuration parameters) throws Exception {
         client = callBridge.createClient(userConfig);
+
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
-                .withRegisterMetric(RegisteredMetric.DIRTY)
+                .withInlongAudit(auditHostAndPorts)
+                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
+                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
+                .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
+
         if (metricOption != null) {
             sinkMetricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }
-        dirtySinkHelper.open(parameters);
-        callBridge.verifyClientConnection(client);
+
         bulkProcessor = buildBulkProcessor(new BulkProcessorListener(sinkMetricData, dirtySinkHelper));
         requestIndexer =
                 callBridge.createBulkProcessorIndexer(
                         bulkProcessor, flushOnCheckpoint, numPendingRequests);
+        dirtySinkHelper.open(parameters);
+        callBridge.verifyClientConnection(client);
         failureRequestIndexer = new BufferingNoOpRequestIndexer();
-        elasticsearchSinkFunction.open(getRuntimeContext());
+        elasticsearchSinkFunction.open(getRuntimeContext(), sinkMetricData);
+
     }
 
     @Override
-    public void invoke(T value, Context context) throws Exception {
+    public void invoke(T value, Context context) {
         checkAsyncErrorsAndRequests();
         elasticsearchSinkFunction.process(value, getRuntimeContext(), requestIndexer);
     }
 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
-        // no initialization needed
-        elasticsearchSinkFunction.setRuntimeContext(getRuntimeContext());
+
+        if (this.inlongMetric != null) {
+            this.metricStateListState = context.getOperatorStateStore().getUnionListState(
+                    new ListStateDescriptor<>(
+                            INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+                            })));
+        }
+
+        if (context.isRestored()) {
+            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
+                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
+        }
+
         elasticsearchSinkFunction.initializeState(context);
     }
 
@@ -321,6 +357,11 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                 bulkProcessor.flush();
                 checkAsyncErrorsAndRequests();
             }
+        }
+
+        if (sinkMetricData != null && metricStateListState != null) {
+            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, sinkMetricData,
+                    getRuntimeContext().getIndexOfThisSubtask());
         }
 
         elasticsearchSinkFunction.snapshotState(context);

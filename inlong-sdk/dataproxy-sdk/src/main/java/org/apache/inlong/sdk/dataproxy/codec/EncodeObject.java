@@ -21,6 +21,7 @@ import com.google.common.base.Splitter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.common.msg.MsgType;
 import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 
@@ -84,6 +85,7 @@ public class EncodeObject {
         this.bodyBytes = bodyBytes;
         this.messageId = messageId;
         this.attributes = attributes + "&messageId=" + messageId;
+        addRTMS(MsgType.MSG_COMMON_SERVICE.getValue());
     }
 
     // used for bytes initializtion,msgtype=3/5
@@ -95,6 +97,7 @@ public class EncodeObject {
         this.msgtype = msgtype;
         this.groupId = groupId;
         this.isCompress = isCompress;
+        addRTMS(msgtype);
     }
 
     // used for bodylist initializtion,msgtype=3/5
@@ -106,6 +109,7 @@ public class EncodeObject {
         this.msgtype = msgtype;
         this.groupId = groupId;
         this.isCompress = isCompress;
+        addRTMS(msgtype);
     }
 
     // used for bytes initializtion,msgtype=7/8
@@ -122,6 +126,7 @@ public class EncodeObject {
         this.messageId = String.valueOf(seqId);
         this.groupId = groupId;
         this.streamId = streamId;
+        addRTMS(msgtype);
     }
 
     // used for bodylist initializtion,msgtype=7/8
@@ -138,6 +143,7 @@ public class EncodeObject {
         this.messageId = String.valueOf(seqId);
         this.groupId = groupId;
         this.streamId = streamId;
+        addRTMS(msgtype);
     }
 
     // file agent, used for bytes initializtion,msgtype=7/8
@@ -157,6 +163,7 @@ public class EncodeObject {
         this.streamId = streamId;
         this.messageKey = messageKey;
         this.proxyIp = proxyIp;
+        addRTMS(msgtype);
     }
 
     // file agent, used for bodylist initializtion,msgtype=7/8
@@ -176,6 +183,7 @@ public class EncodeObject {
         this.streamId = streamId;
         this.messageKey = messageKey;
         this.proxyIp = proxyIp;
+        addRTMS(msgtype);
     }
 
     private void handleAttr(String attributes) {
@@ -200,6 +208,22 @@ public class EncodeObject {
             }
             // sendResult
             this.sendResult = convertToSendResult(Integer.parseInt(errCode));
+        }
+    }
+
+    private void addRTMS(int msgtype) {
+        if (msgtype == MsgType.MSG_BIN_MULTI_BODY.getValue() || msgtype == MsgType.MSG_BIN_HEARTBEAT.getValue()) {
+            if (StringUtils.isBlank(commonattr)) {
+                this.commonattr = AttributeConstants.MSG_RPT_TIME + "=" + System.currentTimeMillis();
+            } else {
+                this.commonattr += "&" + AttributeConstants.MSG_RPT_TIME + "=" + System.currentTimeMillis();
+            }
+        } else {
+            if (StringUtils.isBlank(attributes)) {
+                this.attributes = AttributeConstants.MSG_RPT_TIME + "=" + System.currentTimeMillis();
+            } else {
+                this.attributes += "&" + AttributeConstants.MSG_RPT_TIME + "=" + System.currentTimeMillis();
+            }
         }
     }
 

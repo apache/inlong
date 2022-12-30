@@ -18,7 +18,6 @@
 package org.apache.inlong.dataproxy.sink;
 
 import static org.apache.inlong.dataproxy.consts.AttrConstants.SEP_HASHTAG;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.MAX_MONITOR_CNT;
 
 import com.google.common.base.Preconditions;
 import java.util.HashSet;
@@ -84,7 +83,7 @@ public class TubeSink extends AbstractSink implements Configurable {
     private String usedMasterAddr = null;
     private Set<String> masterHostAndPortLists;
     // statistic info log
-    private int maxMonitorCnt = 300000;
+    private int maxMonitorCnt = ConfigConstants.DEF_MONITOR_STAT_CNT;
     private int statIntervalSec = 60;
     private MonitorIndex monitorIndex;
     private MonitorIndexExt monitorIndexExt;
@@ -137,8 +136,15 @@ public class TubeSink extends AbstractSink implements Configurable {
         // start message deduplication handler
         MSG_DEDUP_HANDLER.start(tubeConfig.getClientIdCache(),
                 tubeConfig.getMaxSurvivedTime(), tubeConfig.getMaxSurvivedSize());
-        // get statistic configure items
-        maxMonitorCnt = context.getInteger(MAX_MONITOR_CNT, 300000);
+        // get maxMonitorCnt's configure value
+        try {
+            maxMonitorCnt = context.getInteger(
+                    ConfigConstants.MAX_MONITOR_CNT, ConfigConstants.DEF_MONITOR_STAT_CNT);
+        } catch (NumberFormatException e) {
+            logger.warn("Property {} must specify an integer value: {}",
+                    ConfigConstants.MAX_MONITOR_CNT, context.getString(ConfigConstants.MAX_MONITOR_CNT));
+        }
+        Preconditions.checkArgument(maxMonitorCnt >= 0, "maxMonitorCnt must be >= 0");
         statIntervalSec = tubeConfig.getStatIntervalSec();
         Preconditions.checkArgument(statIntervalSec >= 0, "statIntervalSec must be >= 0");
         // initial TubeMQ configure

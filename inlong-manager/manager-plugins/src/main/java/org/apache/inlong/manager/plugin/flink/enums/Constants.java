@@ -17,6 +17,11 @@
 
 package org.apache.inlong.manager.plugin.flink.enums;
 
+import java.util.Optional;
+import java.util.function.Function;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+
 /**
  * Constants info, including properties, dataflow info and rest api url info.
  */
@@ -46,7 +51,11 @@ public class Constants {
 
     public static final String ENTRYPOINT_CLASS = "org.apache.inlong.sort.Entrance";
 
-    public static final String INLONG = "INLONG_";
+    public static final String SORT_JOB_NAME_PREFIX = "InLong-Sort-";
+
+    public static final String SORT_JOB_NAME_TEMPLATE = SORT_JOB_NAME_PREFIX + "%s";
+
+    public static final String DEFAULT_SORT_JOB_NAME = SORT_JOB_NAME_PREFIX + "Job";
 
     public static final String RESOURCE_ID = "resource_id";
 
@@ -68,5 +77,16 @@ public class Constants {
     public static final String URL_SEPARATOR = "/";
 
     public static final String SEPARATOR = ":";
+
+    /**
+     * Generate the Job name through {@link ProcessForm}: <br/> 
+     * When the ProcessForm is {@link GroupResourceProcessForm}, the format of the job name is 'InLong-Sort-{Group ID}', 
+     * otherwise take the  {@link Constants#DEFAULT_SORT_JOB_NAME}: 'InLong-Sort-Job'. 
+     */
+    public static Function<ProcessForm, String> SORT_JOB_NAME_GENERATOR =
+            (ProcessForm processForm) -> Optional.of(processForm)
+                    .map(ProcessForm::getInlongGroupId)
+                    .map(groupId -> String.format(Constants.SORT_JOB_NAME_TEMPLATE, groupId))
+                    .orElse(DEFAULT_SORT_JOB_NAME);
 
 }

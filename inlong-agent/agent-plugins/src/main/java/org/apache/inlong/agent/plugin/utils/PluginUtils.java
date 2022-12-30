@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -42,6 +43,9 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_COLON;
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NIX_OS;
@@ -49,7 +53,8 @@ import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NUX_OS;
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_OS_NAME;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FILE_MAX_NUM;
 import static org.apache.inlong.agent.constant.CommonConstants.FILE_MAX_NUM;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_BLACKLIST;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
 import static org.apache.inlong.agent.constant.KubernetesConstants.HTTPS;
@@ -87,45 +92,44 @@ public class PluginUtils {
      * scan and return files based on job dir conf
      */
     public static Collection<File> findSuitFiles(JobProfile jobConf) {
-        String dirPattern = jobConf.get(JOB_DIR_FILTER_PATTERN);
-        LOGGER.info("start to find files with dir pattern {}", dirPattern);
-        PathPattern pattern =
-                jobConf.hasKey(JOB_FILE_TIME_OFFSET) ? new PathPattern(dirPattern, jobConf.get(JOB_FILE_TIME_OFFSET))
-                        : new PathPattern(dirPattern);
-        updateRetryTime(jobConf, pattern);
+        Set<String> dirPatterns = Stream.of(
+                jobConf.get(JOB_DIR_FILTER_PATTERNS).split(",")).collect(Collectors.toSet());
+        Set<String> blackList = Stream.of(
+                jobConf.get(JOB_DIR_FILTER_BLACKLIST, "").split(","))
+                .filter(black -> !StringUtils.isBlank(black))
+                .collect(Collectors.toSet());
+        LOGGER.info("start to find files with dir pattern {}", dirPatterns);
+
+        Set<PathPattern> pathPatterns =
+                PathPattern.buildPathPattern(dirPatterns, jobConf.get(JOB_FILE_TIME_OFFSET, null), blackList);
+        updateRetryTime(jobConf, pathPatterns);
         int maxFileNum = jobConf.getInt(FILE_MAX_NUM, DEFAULT_FILE_MAX_NUM);
-        LOGGER.info("dir pattern {}, max file num {}", dirPattern, maxFileNum);
+        LOGGER.info("dir pattern {}, max file num {}", dirPatterns, maxFileNum);
         Collection<File> allFiles = new ArrayList<>();
-        try {
-            pattern.walkAllSuitableFiles(allFiles, maxFileNum);
-        } catch (IOException ex) {
-            LOGGER.warn("cannot get all files from {}", dirPattern, ex);
-        }
+        pathPatterns.forEach(pathPattern -> allFiles.addAll(pathPattern.walkSuitableFiles(maxFileNum)));
         return allFiles;
     }
 
     /**
      * if the job is retry job, the date is determined
      */
-    public static void updateRetryTime(JobProfile jobConf, PathPattern pattern) {
+    public static void updateRetryTime(JobProfile jobConf, Collection<PathPattern> patterns) {
         if (jobConf.hasKey(JOB_RETRY_TIME)) {
             LOGGER.info("job {} is retry job with specific time, update file time to {}"
                     + "", jobConf.toJsonStr(), jobConf.get(JOB_RETRY_TIME));
-            pattern.updateDateFormatRegex(jobConf.get(JOB_RETRY_TIME));
+            patterns.forEach(pattern -> pattern.updateDateFormatRegex(jobConf.get(JOB_RETRY_TIME)));
         }
     }
 
     /**
-     * convert TriggerProfile to JobProfile
+     * convert a file of trigger dir to a subtask JobProfile of TriggerProfile
      */
-    public static JobProfile copyJobProfile(TriggerProfile triggerProfile, String dataTime,
-            File pendingFile) {
+    public static JobProfile copyJobProfile(TriggerProfile triggerProfile, File pendingFile) {
         JobProfile copiedProfile = TriggerProfile.parseJsonStr(triggerProfile.toJsonStr());
         String md5 = AgentUtils.getFileMd5(pendingFile);
         copiedProfile.set(pendingFile.getAbsolutePath() + ".md5", md5);
-        copiedProfile.set(JobConstants.JOB_DIR_FILTER_PATTERN, pendingFile.getAbsolutePath());
-        // the time suit for file name is just the data time
-        copiedProfile.set(JobConstants.JOB_DATA_TIME, dataTime);
+        copiedProfile.set(JobConstants.JOB_TRIGGER, null); // del trigger id
+        copiedProfile.set(JobConstants.JOB_DIR_FILTER_PATTERNS, pendingFile.getAbsolutePath());
         return copiedProfile;
     }
 

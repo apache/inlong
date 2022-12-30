@@ -35,6 +35,8 @@ public class InlongConstants {
      */
     public static final String COMMA = ",";
 
+    public static final String SLASH = "/";
+
     public static final String COLON = ":";
 
     public static final String SEMICOLON = ";";
@@ -137,5 +139,7 @@ public class InlongConstants {
     public static final String SORT_PROPERTIES = "sort.properties";
 
     public static final String DATA_TYPE_RAW_PREFIX = "RAW_";
+
+    public static final int DEFAULT_ENABLE_VALUE = 1;
 
 }

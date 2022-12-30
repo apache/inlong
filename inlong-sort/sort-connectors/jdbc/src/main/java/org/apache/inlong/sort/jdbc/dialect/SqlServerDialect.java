@@ -24,6 +24,9 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.converter.sqlserver.SqlServerRowConvert;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -186,6 +189,12 @@ public class SqlServerDialect extends AbstractJdbcDialect {
                         + " =ISNULL(" + quoteIdentifier("T2") + "." + quoteIdentifier(col)
                         + "," + quoteIdentifier("T1") + "." + quoteIdentifier(col) + ")")
                 .collect(Collectors.joining(","));
+    }
+
+    @Override
+    public PreparedStatement setQueryPrimaryKeySql(Connection conn,
+            String tableIdentifier) throws SQLException {
+        return null;
     }
 
 }

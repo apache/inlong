@@ -27,7 +27,7 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     LoadEntity: () => import('../common/NodeInfo').then(r => ({ default: r.NodeInfo })),
   },
   {
-    label: 'Clickhouse',
+    label: 'ClickHouse',
     value: 'CLICKHOUSE',
     LoadEntity: () => import('./ClickHouse'),
   },
@@ -50,5 +50,10 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     label: 'MySQL',
     value: 'MYSQL',
     LoadEntity: () => import('./MySQL'),
+  },
+  {
+    label: 'StarRocks',
+    value: 'STARROCKS',
+    LoadEntity: () => import('./StarRocks'),
   },
 ];

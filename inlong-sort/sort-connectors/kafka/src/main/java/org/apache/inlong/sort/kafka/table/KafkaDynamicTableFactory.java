@@ -422,6 +422,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         // Build the dirty data side-output
         final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
         final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
+        final boolean multipleSink = tableOptions.getOptional(SINK_MULTIPLE_FORMAT).isPresent();
         return createKafkaTableSink(
                 physicalDataType,
                 keyEncodingFormat.orElse(null),
@@ -440,7 +441,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 sinkMultipleFormat,
                 tableOptions.getOptional(TOPIC_PATTERN).orElse(null),
                 dirtyOptions,
-                dirtySink);
+                dirtySink,
+                multipleSink);
     }
 
     private void validateSinkMultipleFormatAndPhysicalDataType(DataType physicalDataType,
@@ -525,7 +527,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             @Nullable String sinkMultipleFormat,
             @Nullable String topicPattern,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            boolean multipleSink) {
         return new KafkaDynamicSink(
                 physicalDataType,
                 physicalDataType,
@@ -547,6 +550,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 sinkMultipleFormat,
                 topicPattern,
                 dirtyOptions,
-                dirtySink);
+                dirtySink,
+                multipleSink);
     }
 }

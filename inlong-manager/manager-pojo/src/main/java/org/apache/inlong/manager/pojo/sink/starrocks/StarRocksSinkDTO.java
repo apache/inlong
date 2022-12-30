@@ -18,9 +18,6 @@
 package org.apache.inlong.manager.pojo.sink.starrocks;
 
 import io.swagger.annotations.ApiModelProperty;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +27,11 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+
+import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Sink info of StarRocks
@@ -73,6 +75,15 @@ public class StarRocksSinkDTO {
     @ApiModelProperty("The multiple table-pattern of sink")
     private String tablePattern;
 
+    @ApiModelProperty("The table engine,  like: OLAP, MYSQL, ELASTICSEARCH, etc, default is OLAP")
+    private String tableEngine = "OLAP";
+
+    @ApiModelProperty("The table replication num")
+    private Integer replicationNum = 3;
+
+    @ApiModelProperty("The table barrel size")
+    private Integer barrelSize = 8;
+
     @ApiModelProperty("Password encrypt version")
     private Integer encryptVersion;
 
@@ -100,6 +111,9 @@ public class StarRocksSinkDTO {
                 .sinkMultipleFormat(request.getSinkMultipleFormat())
                 .databasePattern(request.getDatabasePattern())
                 .tablePattern(request.getTablePattern())
+                .tableEngine(request.getTableEngine())
+                .replicationNum(request.getReplicationNum())
+                .barrelSize(request.getBarrelSize())
                 .encryptVersion(encryptVersion)
                 .properties(request.getProperties())
                 .build();
@@ -111,6 +125,25 @@ public class StarRocksSinkDTO {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
+    }
+
+    /**
+     * Get StarRocks table info
+     *
+     * @param sinkDTO StarRocks sink dto,{@link StarRocksSinkDTO}
+     * @param columnList StarRocks column info list,{@link StarRocksColumnInfo}
+     * @return {@link StarRocksTableInfo}
+     */
+    public static StarRocksTableInfo getTableInfo(StarRocksSinkDTO sinkDTO, List<StarRocksColumnInfo> columnList) {
+        StarRocksTableInfo tableInfo = new StarRocksTableInfo();
+        tableInfo.setDbName(sinkDTO.getDatabaseName());
+        tableInfo.setTableName(sinkDTO.getTableName());
+        tableInfo.setColumns(columnList);
+        tableInfo.setPrimaryKey(sinkDTO.getPrimaryKey());
+        tableInfo.setTableEngine(sinkDTO.getTableEngine());
+        tableInfo.setReplicationNum(sinkDTO.getReplicationNum());
+        tableInfo.setBarrelSize(sinkDTO.getBarrelSize());
+        return tableInfo;
     }
 
     private StarRocksSinkDTO decryptPassword() throws Exception {

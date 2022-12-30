@@ -18,12 +18,11 @@
 package org.apache.inlong.sdk.sort.impl;
 
 import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.MetricReporter;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 
 public class ClientContextImpl extends ClientContext {
 
-    public ClientContextImpl(SortClientConfig config, MetricReporter reporter) {
-        super(config, reporter);
+    public ClientContextImpl(SortClientConfig config) {
+        super(config);
     }
 }

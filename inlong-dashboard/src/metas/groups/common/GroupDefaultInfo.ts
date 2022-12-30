@@ -39,12 +39,12 @@ export class GroupDefaultInfo implements DataWithBackend, RenderRow, RenderList 
   @FieldDecorator({
     type: 'input',
     props: {
-      maxLength: 32,
+      maxLength: 100,
     },
     rules: [
       { required: true },
       {
-        pattern: /^[a-z_\-\d]+$/,
+        pattern: /^[a-z_0-9]+$/,
         message: i18n.t('meta.Group.InlongGroupIdRules'),
       },
     ],
@@ -117,7 +117,9 @@ export class GroupDefaultInfo implements DataWithBackend, RenderRow, RenderList 
       options: groups.filter(item => Boolean(item.value)),
     },
   })
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: type => groups.find(c => c.value === type)?.label || type,
+  })
   @I18n('meta.Group.MQType')
   mqType: string;
 

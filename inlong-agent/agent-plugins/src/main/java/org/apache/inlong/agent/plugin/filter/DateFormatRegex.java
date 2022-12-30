@@ -18,8 +18,8 @@
 package org.apache.inlong.agent.plugin.filter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.plugin.Filter;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * date format with regex string for absolute file path.
  */
-public class DateFormatRegex implements Filter {
+public class DateFormatRegex {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateFormatRegex.class);
 
@@ -52,23 +52,31 @@ public class DateFormatRegex implements Filter {
     private int hourOffset = 0;
     private int minuteOffset = 0;
 
+    private String originRegex;
     private String formattedTime = "";
     private String formattedRegex;
-    private File file;
 
     /**
      * set regex with current time
      */
     public static DateFormatRegex ofRegex(String regex) {
-        DateFormatRegex dateFormatRegex = new DateFormatRegex();
-        dateFormatRegex.setRegexWithCurrentTime(regex);
+        DateFormatRegex dateFormatRegex = new DateFormatRegex(regex);
+        dateFormatRegex.setRegexWithCurrentTime();
         return dateFormatRegex;
     }
 
-    @Override
-    public boolean match() {
+    private DateFormatRegex(String originRegex) {
+        this.originRegex = originRegex;
+    }
+
+    public boolean match(File file) {
         // TODO: check with more regex
-        return AgentUtils.regexMatch(file.getAbsolutePath(), formattedRegex);
+        if (file.isFile()) {
+            return PathUtils.antPathMatch(file.getAbsolutePath(), formattedRegex);
+        } else if (file.isDirectory()) {
+            return PathUtils.antPathIncluded(file.getAbsolutePath(), formattedRegex);
+        }
+        return false;
     }
 
     /**
@@ -94,16 +102,11 @@ public class DateFormatRegex implements Filter {
         return this;
     }
 
-    public DateFormatRegex withFile(File file) {
-        this.file = file;
-        return this;
-    }
-
     /**
      * set regex with given time, replace the YYYYDDMM pattern with given time
      */
-    public void setRegexWithTime(String regex, String time) {
-        String[] regexList = StringUtils.splitByWholeSeparatorPreserveAllTokens(regex,
+    public void setRegexWithTime(String time) {
+        String[] regexList = StringUtils.splitByWholeSeparatorPreserveAllTokens(originRegex,
                 File.separator, 0);
         List<String> formattedList = new ArrayList<>();
         for (String regexStr : regexList) {
@@ -128,10 +131,10 @@ public class DateFormatRegex implements Filter {
     /**
      * set regex with current time, replace the YYYYDDMM pattern with current time
      */
-    public void setRegexWithCurrentTime(String regex) {
+    public void setRegexWithCurrentTime() {
         String currentTime = AgentUtils.formatCurrentTimeWithOffset(NORMAL_FORMATTER,
                 dayOffset, hourOffset, minuteOffset);
-        setRegexWithTime(regex, currentTime);
+        setRegexWithTime(currentTime);
     }
 
     public String getFormattedRegex() {

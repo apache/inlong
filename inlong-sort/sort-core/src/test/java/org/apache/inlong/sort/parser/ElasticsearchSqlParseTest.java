@@ -53,7 +53,7 @@ public abstract class ElasticsearchSqlParseTest extends AbstractTestBase {
         Map<String, String> map = new HashMap<>();
         return new MySqlExtractNode("1", "mysql_input", fields,
                 null, map, "age",
-                Collections.singletonList("user"), "localhost", "root", "888888",
+                Collections.singletonList("test.test"), "localhost", "root", "test",
                 "test", null, null,
                 true, null);
     }
@@ -109,10 +109,9 @@ public abstract class ElasticsearchSqlParseTest extends AbstractTestBase {
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildMysqlExtractNode();
-        Node outputNode = node;
-        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
+        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, node),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
-                        Collections.singletonList(outputNode))));
+                        Collections.singletonList(node))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

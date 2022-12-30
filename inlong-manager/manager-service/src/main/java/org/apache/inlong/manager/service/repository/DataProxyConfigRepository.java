@@ -385,7 +385,8 @@ public class DataProxyConfigRepository implements IRepository {
             InlongStreamId streamIdObj = entry.getValue();
             String groupId = streamIdObj.getInlongGroupId();
             InlongGroupId groupIdObj = groupIdMap.get(groupId);
-            if (groupId == null) {
+            if (groupId == null || groupIdObj == null) {
+                LOGGER.debug("groupId {} or groupIdObj {} is null, ignored", groupId, groupIdObj);
                 continue;
             }
             // master

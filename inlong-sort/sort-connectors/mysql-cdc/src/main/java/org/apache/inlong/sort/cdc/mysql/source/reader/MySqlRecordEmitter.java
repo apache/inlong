@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.cdc.mysql.source.reader;
 
 import com.ververica.cdc.connectors.mysql.source.utils.RecordUtils;
+import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.document.Array;
 import io.debezium.relational.TableId;
@@ -38,7 +39,6 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
@@ -146,8 +146,12 @@ public final class MySqlRecordEmitter<T>
 
                         @Override
                         public void collect(final T t) {
-                            long byteNum = t.toString().getBytes(StandardCharsets.UTF_8).length;
-                            sourceReaderMetrics.outputMetrics(1L, byteNum);
+                            Struct value = (Struct) element.value();
+                            Struct source = value.getStruct(Envelope.FieldName.SOURCE);
+                            String databaseName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
+                            String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
+
+                            sourceReaderMetrics.outputMetrics(databaseName, tableName, iSnapShot, t);
                             output.collect(t);
                         }
 

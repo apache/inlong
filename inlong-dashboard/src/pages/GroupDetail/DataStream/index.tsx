@@ -19,6 +19,7 @@
 
 import React, { useState, useImperativeHandle, forwardRef, useMemo } from 'react';
 import { Button, Modal, message } from 'antd';
+import { RightCircleTwoTone, DownCircleTwoTone } from '@ant-design/icons';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
@@ -28,6 +29,7 @@ import { useLoadMeta, useDefaultMeta, StreamMetaType } from '@/metas';
 import { GroupLogs } from '@/components/GroupLogs';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';
+import SourceSinkCard from './SourceSinkCard';
 import { getFilterFormContent } from './config';
 
 type Props = CommonInterface;
@@ -56,6 +58,8 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
 
   const [groupStatus, setGroupStatus] = useState();
 
+  const [expandedRowKeys, setExpandedRowKeys] = useState([]);
+
   const {
     data,
     loading,
@@ -71,6 +75,10 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     },
     {
       refreshDeps: [options],
+      onSuccess: result => {
+        const [item] = result?.list || [];
+        setExpandedRowKeys([item?.inlongStreamId]);
+      },
     },
   );
 
@@ -177,24 +185,24 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
         readonly ? (
           '-'
         ) : (
-          <>
+          <div onClick={e => e.stopPropagation()}>
             <Button type="link" onClick={() => onEdit(record)}>
               {t('basic.Edit')}
             </Button>
             <Button type="link" onClick={() => onDelete(record)}>
               {t('basic.Delete')}
             </Button>
-            {record?.status && (groupStatus === 120 || groupStatus === 130) && (
-              <Button type="link" onClick={() => onWorkflow(record)}>
-                {t('meta.Stream.ExecuteWorkflow')}
-              </Button>
-            )}
             {record?.status && (record?.status === 120 || record?.status === 130) && (
               <Button type="link" onClick={() => openModal(record)}>
                 {t('pages.GroupDashboard.config.ExecuteLog')}
               </Button>
             )}
-          </>
+            {record?.status && (groupStatus === 120 || groupStatus === 130) && (
+              <Button type="link" onClick={() => onWorkflow(record)}>
+                {t('meta.Stream.ExecuteWorkflow')}
+              </Button>
+            )}
+          </div>
         ),
     },
   ]);
@@ -215,11 +223,23 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
         }
         table={{
           columns,
-          rowKey: 'id',
+          rowKey: 'inlongStreamId',
           dataSource: data?.list,
           pagination,
           loading,
           onChange,
+          expandRowByClick: true,
+          expandedRowKeys,
+          onExpandedRowsChange: rows => setExpandedRowKeys(rows),
+          expandedRowRender: record => (
+            <SourceSinkCard inlongGroupId={inlongGroupId} inlongStreamId={record.inlongStreamId} />
+          ),
+          expandIcon: ({ expanded, onExpand, record }) =>
+            expanded ? (
+              <DownCircleTwoTone onClick={e => onExpand(record, e)} />
+            ) : (
+              <RightCircleTwoTone onClick={e => onExpand(record, e)} />
+            ),
         }}
       />
 

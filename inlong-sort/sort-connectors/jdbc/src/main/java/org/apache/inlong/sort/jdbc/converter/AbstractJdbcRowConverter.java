@@ -25,11 +25,12 @@ import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
-import org.apache.flink.table.types.logical.DecimalType;
-import org.apache.flink.table.types.logical.LogicalType;
-import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.DecimalType;
+import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.TimestampType;
+import org.apache.flink.table.types.logical.LocalZonedTimestampType;
 import org.apache.flink.table.types.utils.TypeConversions;
 
 import java.io.Serializable;
@@ -151,6 +152,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
                 return val -> (int) (((Time) val).toLocalTime().toNanoOfDay() / 1_000_000L);
             case TIMESTAMP_WITH_TIME_ZONE:
             case TIMESTAMP_WITHOUT_TIME_ZONE:
+            case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
                 return val -> val instanceof LocalDateTime
                         ? TimestampData.fromLocalDateTime((LocalDateTime) val)
                         : TimestampData.fromTimestamp((Timestamp) val);
@@ -179,14 +181,17 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
 
     protected JdbcSerializationConverter wrapIntoNullableExternalConverter(
             JdbcSerializationConverter jdbcSerializationConverter, LogicalType type) {
-        final int sqlType =
-                JdbcTypeUtil.typeInformationToSqlType(
-                        TypeConversions.fromDataTypeToLegacyInfo(
-                                TypeConversions.fromLogicalToDataType(type)));
         return (val, index, statement) -> {
             if (val == null
                     || val.isNullAt(index)
                     || LogicalTypeRoot.NULL.equals(type.getTypeRoot())) {
+                // typeInformationToSqlType don't support TIMESTAMP_WITH_LOCAL_TIME_ZONE 2014
+                int sqlType = 2014;
+                if (type.getTypeRoot() != LogicalTypeRoot.TIMESTAMP_WITH_LOCAL_TIME_ZONE) {
+                    sqlType = JdbcTypeUtil.typeInformationToSqlType(
+                            TypeConversions.fromDataTypeToLegacyInfo(
+                                    TypeConversions.fromLogicalToDataType(type)));
+                }
                 statement.setNull(index, sqlType);
             } else {
                 jdbcSerializationConverter.serialize(val, index, statement);
@@ -232,6 +237,10 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
                 final int timestampPrecision = ((TimestampType) type).getPrecision();
                 return (val, index, statement) -> statement.setTimestamp(
                         index, val.getTimestamp(index, timestampPrecision).toTimestamp());
+            case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
+                final int localTimestampPrecision = ((LocalZonedTimestampType) type).getPrecision();
+                return (val, index, statement) -> statement.setTimestamp(
+                        index, val.getTimestamp(index, localTimestampPrecision).toTimestamp());
             case DECIMAL:
                 final int decimalPrecision = ((DecimalType) type).getPrecision();
                 final int decimalScale = ((DecimalType) type).getScale();

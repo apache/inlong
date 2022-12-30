@@ -20,7 +20,7 @@ package org.apache.inlong.agent.core.task;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.core.AgentManager;
+import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.state.AbstractStateWrapper;
@@ -36,9 +36,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
-
 /**
  * TaskWrapper is used in taskManager, it maintains the life cycle of
  * running task.
@@ -46,7 +43,7 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOU
 public class TaskWrapper extends AbstractStateWrapper {
 
     public static final int WAIT_FINISH_TIME_OUT = 1;
-    public static final int WAIT_BEGIN_TIME_MINUTE = 1;
+    public static final int WAIT_BEGIN_TIME_SECONDS = 60;
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskWrapper.class);
     private final TaskManager taskManager;
     private final Task task;
@@ -55,12 +52,11 @@ public class TaskWrapper extends AbstractStateWrapper {
     private final int maxRetryTime;
     private final int pushMaxWaitTime;
     private final int pullMaxWaitTime;
-    private final int readWaitTime;
     private ExecutorService executorService;
 
-    public TaskWrapper(AgentManager manager, Task task) {
+    public TaskWrapper(TaskManager manager, Task task) {
         super();
-        this.taskManager = manager.getTaskManager();
+        this.taskManager = manager;
         this.task = task;
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         maxRetryTime = conf.getInt(
@@ -69,12 +65,11 @@ public class TaskWrapper extends AbstractStateWrapper {
                 AgentConstants.TASK_PUSH_MAX_SECOND, AgentConstants.DEFAULT_TASK_PUSH_MAX_SECOND);
         pullMaxWaitTime = conf.getInt(
                 AgentConstants.TASK_PULL_MAX_SECOND, AgentConstants.DEFAULT_TASK_PULL_MAX_SECOND);
-        readWaitTime = conf.getInt(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);
         if (executorService == null) {
             executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                     60L, TimeUnit.SECONDS,
                     new SynchronousQueue<Runnable>(),
-                    new AgentThreadFactory("task-reader-writer"));
+                    new AgentThreadFactory("task-reader-writer-task_" + task.getTaskId()));
         }
         doChangeState(State.ACCEPTED);
     }
@@ -97,7 +92,6 @@ public class TaskWrapper extends AbstractStateWrapper {
                         message = task.getReader().read();
                     }
                 }
-                AgentUtils.silenceSleepInMs(readWaitTime);
             }
             LOGGER.info("read end, task exception status is {}, read finish status is {}", isException(),
                     task.isReadFinished());
@@ -201,8 +195,10 @@ public class TaskWrapper extends AbstractStateWrapper {
     @Override
     public void run() {
         try {
+            AgentThreadFactory.nameThread(task.getTaskId());
             LOGGER.info("start to run {}, retry time is {}", task.getTaskId(), retryTime.get());
-            AgentUtils.silenceSleepInMinute(WAIT_BEGIN_TIME_MINUTE);
+            AgentUtils.silenceSleepInSeconds(task.getJobConf()
+                    .getLong(JobConstants.JOB_TASK_BEGIN_WAIT_SECONDS, WAIT_BEGIN_TIME_SECONDS));
             doChangeState(State.RUNNING);
             task.init();
             submitThreadsAndWait();

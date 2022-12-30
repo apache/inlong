@@ -35,6 +35,7 @@ import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
+import org.apache.inlong.sort.base.metric.sub.SinkTopicMetricData;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -91,6 +93,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
     private int parallelInstanceId;
 
     private int numParallelInstances;
+    private SinkTopicMetricData metricData;
 
     DynamicKafkaSerializationSchema(
             String topic,
@@ -124,6 +127,10 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         this.topicPattern = topicPattern;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
+    }
+
+    public void setMetricData(SinkTopicMetricData metricData) {
+        this.metricData = metricData;
     }
 
     static RowData createProjectedRow(
@@ -239,16 +246,18 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                     LOG.warn("Dirty sink failed", ex);
                 }
             }
+            metricData.invokeDirtyWithEstimate(consumedRow);
         }
         return value;
     }
 
     private void serializeWithDirtyHandle(Map<String, Object> baseMap, JsonNode rootNode,
             JsonNode dataNode, List<ProducerRecord<byte[], byte[]>> values) {
+        String topic = null;
         try {
             byte[] data = jsonDynamicSchemaFormat.objectMapper.writeValueAsBytes(baseMap);
-            values.add(new ProducerRecord<>(
-                    jsonDynamicSchemaFormat.parse(rootNode, topicPattern),
+            topic = jsonDynamicSchemaFormat.parse(rootNode, topicPattern);
+            values.add(new ProducerRecord<>(topic,
                     extractPartition(null, null, data), null, data));
         } catch (Exception e) {
             LOG.error(String.format("serialize error, raw data: %s", baseMap), e);
@@ -272,6 +281,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                     LOG.warn("Dirty sink failed", ex);
                 }
             }
+            metricData.sendOutMetrics(topic, 1, dataNode.toString().getBytes(StandardCharsets.UTF_8).length);
         }
     }
 
@@ -291,6 +301,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             }
             return values;
         }
+        String topic = null;
         try {
             JsonNode rootNode = jsonDynamicSchemaFormat.deserialize(consumedRow.getBinary(0));
             boolean isDDL = jsonDynamicSchemaFormat.extractDDLFlag(rootNode);
@@ -305,9 +316,9 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             JsonNode updateBeforeNode = jsonDynamicSchemaFormat.getUpdateBefore(rootNode);
             JsonNode updateAfterNode = jsonDynamicSchemaFormat.getUpdateAfter(rootNode);
             if (!splitRequired(updateBeforeNode, updateAfterNode)) {
+                topic = jsonDynamicSchemaFormat.parse(rootNode, topicPattern);
                 values.add(new ProducerRecord<>(
-                        jsonDynamicSchemaFormat.parse(rootNode, topicPattern),
-                        extractPartition(consumedRow, null, consumedRow.getBinary(0)),
+                        topic, extractPartition(consumedRow, null, consumedRow.getBinary(0)),
                         null, consumedRow.getBinary(0)));
             } else {
                 split2JsonArray(rootNode, updateBeforeNode, updateAfterNode, values);
@@ -333,6 +344,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                     LOG.warn("Dirty sink failed", ex);
                 }
             }
+            metricData.sendDirtyMetrics(topic, 1, consumedRow.getBinary(0).length);
         }
         return values;
     }

@@ -42,13 +42,16 @@ import org.apache.flink.table.runtime.typeutils.InternalTypeInfo;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +60,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalQueries;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -71,6 +84,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
@@ -102,7 +117,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     private transient Map<String, List<String>> pkNameMap = new HashMap<>();
     private transient Map<String, List<GenericRowData>> recordsMap = new HashMap<>();
     private transient Map<String, Exception> tableExceptionMap = new HashMap<>();
-    private transient Boolean isIgnoreTableException;
+    private transient Boolean stopWritingWhenTableException;
 
     private transient ListState<MetricState> metricStateListState;
     private final String sinkMultipleFormat;
@@ -110,10 +125,20 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     private final String tablePattern;
     private final String schemaPattern;
     private transient MetricState metricState;
-    private SinkMetricData sinkMetricData;
-    private Long dataSize = 0L;
-    private Long rowSize = 0L;
+    private SinkTableMetricData sinkMetricData;
     private final SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy;
+    private final DirtySinkHelper<Object> dirtySinkHelper;
+
+    private static final DateTimeFormatter SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT;
+    private static final DateTimeFormatter SQL_TIME_FORMAT;
+
+    static {
+        SQL_TIME_FORMAT = (new DateTimeFormatterBuilder()).appendPattern("HH:mm:ss")
+                .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true).toFormatter();
+        SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT =
+                (new DateTimeFormatterBuilder()).append(DateTimeFormatter.ISO_LOCAL_DATE).appendLiteral('T')
+                        .append(SQL_TIME_FORMAT).appendPattern("'Z'").toFormatter();
+    }
 
     public JdbcMultiBatchingOutputFormat(
             @Nonnull JdbcConnectionProvider connectionProvider,
@@ -127,7 +152,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             String schemaPattern,
             String inlongMetric,
             String auditHostAndPorts,
-            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy) {
+            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy,
+            DirtySinkHelper<Object> dirtySinkHelper) {
         super(connectionProvider);
         this.executionOptions = checkNotNull(executionOptions);
         this.dmlOptions = dmlOptions;
@@ -140,6 +166,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
+        this.dirtySinkHelper = dirtySinkHelper;
     }
 
     /**
@@ -155,10 +182,13 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 .withInlongAudit(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(MetricOption.RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
-            sinkMetricData = new SinkMetricData(metricOption, runtimeContext.getMetricGroup());
+            sinkMetricData = new SinkTableMetricData(metricOption, runtimeContext.getMetricGroup());
+            sinkMetricData.registerSubMetricsGroup(metricState);
         }
         jdbcExecMap = new HashMap<>();
         connectionExecProviderMap = new HashMap<>();
@@ -166,8 +196,9 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         rowTypeMap = new HashMap<>();
         recordsMap = new HashMap<>();
         tableExceptionMap = new HashMap<>();
-        isIgnoreTableException = schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE)
-                || schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.STOP_PARTIAL);
+        stopWritingWhenTableException =
+                schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE)
+                        || schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.STOP_PARTIAL);
         if (executionOptions.getBatchIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
             this.scheduler =
                     Executors.newScheduledThreadPool(
@@ -179,15 +210,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                                     if (!closed) {
                                         try {
                                             flush();
-                                            if (sinkMetricData != null) {
-                                                sinkMetricData.invoke(rowSize, dataSize);
-                                            }
-                                            resetStateAfterFlush();
                                         } catch (Exception e) {
-                                            if (sinkMetricData != null) {
-                                                sinkMetricData.invokeDirty(rowSize, dataSize);
-                                            }
-                                            resetStateAfterFlush();
+                                            LOG.info("Synchronized flush get Exception:", e);
                                         }
                                     }
                                 }
@@ -212,6 +236,9 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         if (null != jdbcExec) {
             return jdbcExec;
         }
+        if (!pkNameMap.containsKey(tableIdentifier)) {
+            getAndSetPkNamesFromDb(tableIdentifier);
+        }
         RowType rowType = rowTypeMap.get(tableIdentifier);
         LogicalType[] logicalTypes = rowType.getFields().stream()
                 .map(RowType.RowField::getType)
@@ -228,7 +255,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         if (CollectionUtils.isNotEmpty(pkNameList) && !appendMode) {
             // upsert query
             JdbcDmlOptions createDmlOptions = JdbcDmlOptions.builder()
-                    .withTableName(getTbNameFromIdentifier(tableIdentifier))
+                    .withTableName(JdbcMultiBatchingComm.getTableNameFromIdentifier(tableIdentifier))
                     .withDialect(jdbcOptions.getDialect())
                     .withFieldNames(filedNames)
                     .withKeyFields(pkNameList.toArray(new String[pkNameList.size()]))
@@ -240,7 +267,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             // append only query
             final String sql = dmlOptions
                     .getDialect()
-                    .getInsertIntoStatement(getTbNameFromIdentifier(tableIdentifier), filedNames);
+                    .getInsertIntoStatement(JdbcMultiBatchingComm.getTableNameFromIdentifier(tableIdentifier),
+                            filedNames);
             statementExecutorFactory = ctx -> (JdbcExec) JdbcMultiBatchingComm.createSimpleBufferedExecutor(
                     ctx,
                     dmlOptions.getDialect(),
@@ -252,17 +280,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
 
         jdbcExec = statementExecutorFactory.apply(getRuntimeContext());
         try {
-            JdbcOptions jdbcExecOptions =
-                    JdbcOptions.builder()
-                            .setDBUrl(jdbcOptions.getDbURL() + "/" + getTDbNameFromIdentifier(tableIdentifier))
-                            .setTableName(getTbNameFromIdentifier(tableIdentifier))
-                            .setDialect(jdbcOptions.getDialect())
-                            .setParallelism(jdbcOptions.getParallelism())
-                            .setConnectionCheckTimeoutSeconds(jdbcOptions.getConnectionCheckTimeoutSeconds())
-                            .setDriverName(jdbcOptions.getDriverName())
-                            .setUsername(jdbcOptions.getUsername().orElse(""))
-                            .setPassword(jdbcOptions.getPassword().orElse(""))
-                            .build();
+            JdbcOptions jdbcExecOptions = JdbcMultiBatchingComm.getExecJdbcOptions(jdbcOptions, tableIdentifier);
             SimpleJdbcConnectionProvider tableConnectionProvider = new SimpleJdbcConnectionProvider(jdbcExecOptions);
             try {
                 tableConnectionProvider.getOrEstablishConnection();
@@ -279,26 +297,14 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         return jdbcExec;
     }
 
-    /**
-     * Get table name From tableIdentifier
-     * tableIdentifier maybe: ${dbName}.${tbName} or ${dbName}.${schemaName}.${tbName}
-     *
-     * @param tableIdentifier The table identifier for which to get table name.
-     */
-    private String getTbNameFromIdentifier(String tableIdentifier) {
-        String[] fileArray = tableIdentifier.split("\\.");
-        if (2 == fileArray.length) {
-            return fileArray[1];
+    public void getAndSetPkNamesFromDb(String tableIdentifier) {
+        try {
+            AbstractJdbcDialect jdbcDialect = (AbstractJdbcDialect) jdbcOptions.getDialect();
+            List<String> pkNames = jdbcDialect.getPkNamesFromDb(tableIdentifier, jdbcOptions);
+            pkNameMap.put(tableIdentifier, pkNames);
+        } catch (Exception e) {
+            LOG.error("TableIdentifier:{} getAndSetPkNamesFromDb get err:", tableIdentifier, e);
         }
-        if (3 == fileArray.length) {
-            return fileArray[1] + "." + fileArray[2];
-        }
-        return null;
-    }
-
-    private String getTDbNameFromIdentifier(String tableIdentifier) {
-        String[] fileArray = tableIdentifier.split("\\.");
-        return fileArray[0];
     }
 
     private void checkFlushException() {
@@ -342,8 +348,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 LOG.info("Cal tableIdentifier get Exception:", e);
                 return;
             }
-            rowSize++;
-            dataSize = dataSize + rootNode.toString().getBytes(StandardCharsets.UTF_8).length;
 
             GenericRowData record = null;
             try {
@@ -359,8 +363,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         rowTypeMap.put(tableIdentifier, rowType);
                     }
                 }
-                List<String> pkNameList = jsonDynamicSchemaFormat.extractPrimaryKeyNames(rootNode);
-                pkNameMap.put(tableIdentifier, pkNameList);
                 JsonNode physicalData = jsonDynamicSchemaFormat.getPhysicalData(rootNode);
                 List<Map<String, String>> physicalDataList = jsonDynamicSchemaFormat.jsonNode2Map(physicalData);
                 record = generateRecord(rowType, physicalDataList.get(0));
@@ -378,16 +380,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 if (executionOptions.getBatchSize() > 0
                         && batchCount >= executionOptions.getBatchSize()) {
                     flush();
-                    if (sinkMetricData != null) {
-                        sinkMetricData.invoke(rowSize, dataSize);
-                    }
-                    resetStateAfterFlush();
                 }
             } catch (Exception e) {
-                if (sinkMetricData != null) {
-                    sinkMetricData.invokeDirty(rowSize, dataSize);
-                }
-                resetStateAfterFlush();
                 throw new IOException("Writing records to JDBC failed.", e);
             }
         }
@@ -418,7 +412,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         record.setField(i, Double.valueOf(fieldValue));
                         break;
                     case TIME_WITHOUT_TIME_ZONE:
-                    case TIMESTAMP_WITHOUT_TIME_ZONE:
                     case INTERVAL_DAY_TIME:
                         TimestampData timestampData = TimestampData.fromEpochMillis(Long.valueOf(fieldValue));
                         record.setField(i, timestampData);
@@ -426,17 +419,42 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                     case BINARY:
                         record.setField(i, Arrays.toString(fieldValue.getBytes(StandardCharsets.UTF_8)));
                         break;
+
+                    // support mysql
+                    case INTEGER:
+                        record.setField(i, Integer.valueOf(fieldValue));
+                        break;
+                    case SMALLINT:
+                        record.setField(i, Short.valueOf(fieldValue));
+                        break;
+                    case TINYINT:
+                        record.setField(i, Byte.valueOf(fieldValue));
+                        break;
+                    case FLOAT:
+                        record.setField(i, Float.valueOf(fieldValue));
+                        break;
+                    case DATE:
+                        record.setField(i, (int) LocalDate.parse(fieldValue).toEpochDay());
+                        break;
+                    case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
+                        TemporalAccessor parsedTimestampWithLocalZone =
+                                SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT.parse(fieldValue);
+                        LocalTime localTime = parsedTimestampWithLocalZone.query(TemporalQueries.localTime());
+                        LocalDate localDate = parsedTimestampWithLocalZone.query(TemporalQueries.localDate());
+                        record.setField(i, TimestampData.fromInstant(LocalDateTime.of(localDate, localTime)
+                                .toInstant(ZoneOffset.UTC)));
+                        break;
+                    case TIMESTAMP_WITHOUT_TIME_ZONE:
+                        fieldValue = fieldValue.replace("T", " ");
+                        TimestampData timestamp = TimestampData.fromTimestamp(Timestamp.valueOf(fieldValue));
+                        record.setField(i, timestamp);
+                        break;
                     default:
                         record.setField(i, StringData.fromString(fieldValue));
                 }
             }
         }
         return record;
-    }
-
-    private void resetStateAfterFlush() {
-        dataSize = 0L;
-        rowSize = 0L;
     }
 
     @Override
@@ -478,9 +496,9 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     protected void attemptFlush() throws IOException {
         for (Map.Entry<String, List<GenericRowData>> entry : recordsMap.entrySet()) {
             String tableIdentifier = entry.getKey();
-            boolean isIgnoreTableIdentifierException = isIgnoreTableException
+            boolean stopTableIdentifierWhenException = stopWritingWhenTableException
                     && (null != tableExceptionMap.get(tableIdentifier));
-            if (isIgnoreTableIdentifierException) {
+            if (stopTableIdentifierWhenException) {
                 continue;
             }
             List<GenericRowData> tableIdRecordList = entry.getValue();
@@ -492,11 +510,15 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             Exception tableException = null;
             try {
                 jdbcStatementExecutor = getOrCreateStatementExecutor(tableIdentifier);
+                Long totalDataSize = 0L;
                 for (GenericRowData record : tableIdRecordList) {
+                    totalDataSize = totalDataSize + record.toString().getBytes(StandardCharsets.UTF_8).length;
                     jdbcStatementExecutor.addToBatch((JdbcIn) record);
                 }
                 jdbcStatementExecutor.executeBatch();
                 flushFlag = true;
+                outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
+                        totalDataSize, false);
             } catch (Exception e) {
                 tableException = e;
                 LOG.warn("Flush all data for tableIdentifier:{} get err:", tableIdentifier, e);
@@ -518,10 +540,13 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                             jdbcStatementExecutor = getOrCreateStatementExecutor(tableIdentifier);
                             jdbcStatementExecutor.addToBatch((JdbcIn) record);
                             jdbcStatementExecutor.executeBatch();
+                            Long totalDataSize =
+                                    Long.valueOf(record.toString().getBytes(StandardCharsets.UTF_8).length);
+                            outputMetrics(tableIdentifier, 1L, totalDataSize, false);
                             flushFlag = true;
                             break;
                         } catch (Exception e) {
-                            LOG.error("Flush one record tableIdentifier:{} ,retryTimes:{} get err:",
+                            LOG.warn("Flush one record tableIdentifier:{} ,retryTimes:{} get err:",
                                     tableIdentifier, retryTimes, e);
                             getAndSetPkFromErrMsg(e.getMessage(), tableIdentifier);
                             tableException = e;
@@ -538,16 +563,46 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                     if (!flushFlag && null != tableException) {
                         LOG.info("Put tableIdentifier:{} exception:{}",
                                 tableIdentifier, tableException.getMessage());
+                        outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
+                                1L, true);
+                        if (!schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.THROW_WITH_STOP)) {
+                            dirtySinkHelper.invoke(record, DirtyType.RETRY_LOAD_ERROR, tableException);
+                        }
                         tableExceptionMap.put(tableIdentifier, tableException);
-                        if (isIgnoreTableException) {
+                        if (stopWritingWhenTableException) {
                             LOG.info("Stop write table:{} because occur exception",
                                     tableIdentifier);
-                            continue;
+                            break;
                         }
                     }
                 }
             }
             tableIdRecordList.clear();
+        }
+    }
+
+    /**
+     * Output metrics with estimate for pg or other type jdbc connectors.
+     * tableIdentifier maybe: ${dbName}.${tbName} or ${dbName}.${schemaName}.${tbName}
+     */
+    private void outputMetrics(String tableIdentifier, Long rowSize, Long dataSize, boolean dirtyFlag) {
+        String[] fieldArray = tableIdentifier.split("\\.");
+        if (fieldArray.length == 3) {
+            if (dirtyFlag) {
+                sinkMetricData.outputDirtyMetrics(fieldArray[0], fieldArray[1], fieldArray[2],
+                        rowSize, dataSize);
+            } else {
+                sinkMetricData.outputMetrics(fieldArray[0], fieldArray[1], fieldArray[2],
+                        rowSize, dataSize);
+            }
+        } else if (fieldArray.length == 2) {
+            if (dirtyFlag) {
+                sinkMetricData.outputDirtyMetrics(fieldArray[0], null, fieldArray[1],
+                        rowSize, dataSize);
+            } else {
+                sinkMetricData.outputMetrics(fieldArray[0], null, fieldArray[1],
+                        rowSize, dataSize);
+            }
         }
     }
 

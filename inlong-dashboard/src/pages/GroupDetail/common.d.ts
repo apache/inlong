@@ -19,7 +19,7 @@
 
 export interface CommonInterface {
   inlongGroupId: string;
-  mqType: 'TUBEMQ' | 'PULSAR';
+  mqType?: 'TUBEMQ' | 'PULSAR';
   readonly?: boolean;
   isCreate?: boolean;
   ref?: React.RefObject<unknown>;

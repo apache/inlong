@@ -27,7 +27,7 @@ export interface StepsProps {
     title: string;
     desc: string;
     status: string;
-    remark?: string;
+    tooltip?: string;
   }[];
 }
 
@@ -50,16 +50,15 @@ const Comp: React.FC<StepsProps> = ({ data }) => {
   return (
     <Steps
       size="small"
-      status={canceledIndex !== -1 || rejectIndex !== -1 ? 'error' : 'wait'}
+      status={canceledIndex !== -1 || rejectIndex !== -1 ? 'error' : 'process'}
       current={current}
-      direction="vertical"
     >
       {data.map((item, index) => (
         <Step
           key={index}
           title={
-            item.remark ? (
-              <Tooltip placement="bottom" title={item.remark}>
+            item.tooltip ? (
+              <Tooltip placement="bottom" title={item.tooltip}>
                 {item.title}
               </Tooltip>
             ) : (

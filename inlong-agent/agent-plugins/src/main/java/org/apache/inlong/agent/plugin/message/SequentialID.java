@@ -18,10 +18,14 @@
 package org.apache.inlong.agent.plugin.message;
 
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.common.util.SnowFlake;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
+import java.net.UnknownHostException;
+
+import static org.apache.inlong.common.util.SnowFlake.MAX_MACHINE_NUM;
 
 /**
  * Generate uniq sequential id, reset base id if max number
@@ -29,32 +33,35 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SequentialID {
 
-    private static final int MAX_ID = 2000000000;
-    private static final String IP_HEX = getHex();
+    private static final Logger LOGGER = LoggerFactory.getLogger(SequentialID.class);
+
     private static SequentialID uniqueSequentialID = null;
-    private final AtomicInteger id = new AtomicInteger(1);
-    private final ReentrantLock idLock = new ReentrantLock();
-    private final AtomicInteger uid = new AtomicInteger(1);
-    private final ReentrantLock uidLock = new ReentrantLock();
+    private SnowFlake snowFlake;
 
     private SequentialID() {
-
+        long machineId = ipStr2Int(AgentUtils.getLocalIp());
+        snowFlake = new SnowFlake(machineId);
     }
 
-    private static String getHex() {
-        String localIp = AgentUtils.getLocalIp();
+    private long ipStr2Int(String ip) {
+        long result = 0;
+        InetAddress ipv;
         try {
-            InetAddress ia = InetAddress.getByName(localIp);
-            byte[] hostBytes = ia.getAddress();
-            StringBuilder sb = new StringBuilder();
-            for (byte hostByte : hostBytes) {
-                sb.append(String.format("%02x", hostByte));
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            // ignore it
+            ipv = InetAddress.getByName(ip);
+        } catch (UnknownHostException e) {
+            LOGGER.error("convert ip to int error", e);
+            return AgentUtils.getRandomBySeed(10);
         }
-        return "00000000";
+        for (byte b : ipv.getAddress()) {
+            result = result << 8 | (b & 0xFF);
+        }
+        if (result < 0) {
+            result = AgentUtils.getRandomBySeed(10);
+        }
+        if (result > MAX_MACHINE_NUM) {
+            result %= MAX_MACHINE_NUM;
+        }
+        return result;
     }
 
     /**
@@ -63,36 +70,19 @@ public class SequentialID {
     public static synchronized SequentialID getInstance() {
 
         if (uniqueSequentialID == null) {
-            uniqueSequentialID = new SequentialID();
+            synchronized (SequentialID.class) {
+                if (uniqueSequentialID == null) {
+                    uniqueSequentialID = new SequentialID();
+                }
+            }
         }
         return uniqueSequentialID;
-    }
-
-    public int getNextId() {
-        idLock.lock();
-        try {
-            if (id.get() > MAX_ID) {
-                id.set(1);
-            }
-            return id.incrementAndGet();
-        } finally {
-            idLock.unlock();
-        }
     }
 
     /**
      * get next uuid
      */
     public String getNextUuid() {
-        uidLock.lock();
-        try {
-            if (uid.get() > MAX_ID) {
-                uid.set(1);
-            }
-            return IP_HEX + "-" + String.format("%014x-%08x",
-                    System.currentTimeMillis(), uid.incrementAndGet());
-        } finally {
-            uidLock.unlock();
-        }
+        return String.valueOf(snowFlake.nextId());
     }
 }

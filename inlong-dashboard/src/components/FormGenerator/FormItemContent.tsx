@@ -117,7 +117,7 @@ const FormItemContent: React.FC<FormItemContentProps> = ({
           return null;
         }
         if (isPro) {
-          proIndex = index;
+          if (proIndex === -1) proIndex = index;
           formItemProps.hidden = !proOpened || Boolean(formItemProps.hidden);
         }
         const key = formItemProps.name || index.toString();
@@ -172,7 +172,11 @@ const FormItemContent: React.FC<FormItemContentProps> = ({
         return useInline ? (
           inner
         ) : (
-          <Col key={key.toString()} span={col || 24}>
+          <Col
+            key={key.toString()}
+            span={col || 24}
+            style={formItemProps.hidden ? { display: 'none' } : {}}
+          >
             {inner}
           </Col>
         );
@@ -182,7 +186,9 @@ const FormItemContent: React.FC<FormItemContentProps> = ({
       conts.splice(
         proIndex,
         0,
-        <TextSwitch key="_pro" value={proOpened} onChange={v => setProOpened(v)} />,
+        <Col key="_pro" span={24}>
+          <TextSwitch value={proOpened} onChange={v => setProOpened(v)} />
+        </Col>,
       );
     }
 

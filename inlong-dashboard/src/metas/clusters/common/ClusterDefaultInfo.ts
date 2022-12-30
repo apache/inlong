@@ -58,7 +58,9 @@ export class ClusterDefaultInfo implements DataWithBackend, RenderRow, RenderLis
         })),
     },
   })
-  @ColumnDecorator()
+  @ColumnDecorator({
+    render: type => clusters.find(c => c.value === type)?.label || type,
+  })
   @I18n('pages.Clusters.Type')
   type: string;
 

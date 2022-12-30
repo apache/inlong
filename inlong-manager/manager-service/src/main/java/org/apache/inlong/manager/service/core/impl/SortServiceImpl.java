@@ -38,6 +38,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -80,7 +81,15 @@ public class SortServiceImpl implements SortService, PluginBinder {
 
         try {
             List<InlongGroupInfo> groupInfoList = request.getInlongGroupIds().stream()
-                    .map(groupId -> groupService.get(groupId))
+                    .map(groupId -> {
+                        try {
+                            return groupService.get(groupId);
+                        } catch (Exception e) {
+                            log.error("can not get groupId: {}, skip it", groupId, e);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
             List<SortStatusInfo> statusInfos = sortPoller.pollSortStatus(groupInfoList, request.getCredentials());

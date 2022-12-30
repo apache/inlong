@@ -44,6 +44,8 @@ export interface FormGeneratorProps extends FormProps {
   onFilter?: Function;
   // default: true
   viewOnly?: boolean;
+  // Define col uniformly for all FormItems
+  col?: number;
 }
 
 export interface ContentsItemProps {
@@ -123,6 +125,7 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
 
         return {
           ...v,
+          col: v.col || props.col,
           name,
           type: viewOnly ? 'text' : v.type,
           suffix:

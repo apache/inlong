@@ -26,6 +26,9 @@ import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -246,4 +249,11 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
                 + quoteIdentifier(pair.getRight())
                 + " WHERE " + fieldExpressions;
     }
+
+    @Override
+    public PreparedStatement setQueryPrimaryKeySql(Connection conn,
+            String tableIdentifier) throws SQLException {
+        return null;
+    }
+
 }

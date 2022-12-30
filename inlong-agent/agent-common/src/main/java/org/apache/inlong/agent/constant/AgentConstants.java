@@ -98,6 +98,7 @@ public class AgentConstants {
     public static final int DEFAULT_JOB_NUMBER_LIMIT = 15;
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
     public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
+    public static final String DEFAULT_LOCAL_HOST = "localhost";
     // default use local ip as uniq id for agent.
     public static final String DEFAULT_AGENT_UNIQ_ID = AgentUtils.getLocalIp();
     public static final String CUSTOM_FIXED_IP = "agent.custom.fixed.ip";
@@ -107,9 +108,9 @@ public class AgentConstants {
     public static final String AGENT_CLUSTER_IN_CHARGES = "agent.cluster.inCharges";
 
     public static final String AGENT_LOCAL_UUID = "agent.local.uuid";
-
     public static final String AGENT_LOCAL_UUID_OPEN = "agent.local.uuid.open";
     public static final Boolean DEFAULT_AGENT_LOCAL_UUID_OPEN = false;
+    public static final String AGENT_NODE_TAG = "agent.node.tag";
 
     public static final String PROMETHEUS_EXPORTER_PORT = "agent.prometheus.exporter.port";
     public static final int DEFAULT_PROMETHEUS_EXPORTER_PORT = 8080;

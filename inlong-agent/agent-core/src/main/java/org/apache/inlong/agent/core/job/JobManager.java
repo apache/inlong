@@ -201,7 +201,7 @@ public class JobManager extends AbstractDaemon {
             getJobConfDb().deleteJob(jobInstancId);
             return true;
         }
-        return false;
+        return true;
     }
 
     /**

@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Context of kafka sink. */
@@ -119,10 +120,7 @@ public class KafkaFederationSinkContext extends SinkContext {
      */
     public String getTopic(String uid) {
         KafkaIdConfig idConfig = this.idConfigMap.get(uid);
-        if (idConfig == null) {
-            throw new NullPointerException("uid " + uid + "got null topic");
-        }
-        return idConfig.getTopic();
+        return Objects.isNull(idConfig) ? null : idConfig.getTopic();
     }
 
     /**

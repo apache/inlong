@@ -105,12 +105,45 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           label: 'CSV',
           value: 'CSV',
         },
+        {
+          label: 'KV',
+          value: 'KV',
+        },
+        {
+          label: 'AVRO',
+          value: 'AVRO',
+        },
+        {
+          label: 'JSON',
+          value: 'JSON',
+        },
       ],
     }),
     rules: [{ required: true }],
   })
   @I18n('meta.Stream.DataType')
   dataType: string;
+
+  @FieldDecorator({
+    type: 'radio',
+    rules: [{ required: true }],
+    initialValue: true,
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: true,
+        },
+        {
+          label: i18n.t('basic.No'),
+          value: false,
+        },
+      ],
+    }),
+  })
+  @I18n('meta.Stream.IgnoreParseError')
+  ignoreParseError: boolean;
 
   @FieldDecorator({
     type: 'radio',
@@ -224,6 +257,29 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   })
   @I18n('meta.Stream.SourceDataField')
   rowTypeFields: Record<string, string>[];
+
+  @FieldDecorator({
+    type: 'radio',
+    isPro: true,
+    rules: [{ required: true }],
+    initialValue: true,
+    tooltip: i18n.t('meta.Stream.WrapWithInlongMsgHelp'),
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: true,
+        },
+        {
+          label: i18n.t('basic.No'),
+          value: false,
+        },
+      ],
+    }),
+  })
+  @I18n('meta.Stream.WrapWithInlongMsg')
+  wrapWithInlongMsg: boolean;
 
   parse(data) {
     return data;

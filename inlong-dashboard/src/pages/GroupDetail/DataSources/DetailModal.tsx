@@ -29,11 +29,18 @@ import request from '@/utils/request';
 export interface Props extends ModalProps {
   // When editing, use the ID to call the interface for obtaining details
   id?: string;
-  inlongGroupId?: string;
+  inlongGroupId: string;
+  inlongStreamId: string;
   defaultType?: string;
 }
 
-const Comp: React.FC<Props> = ({ id, inlongGroupId, defaultType, ...modalProps }) => {
+const Comp: React.FC<Props> = ({
+  id,
+  inlongGroupId,
+  inlongStreamId,
+  defaultType,
+  ...modalProps
+}) => {
   const [form] = useForm();
   const { t } = useTranslation();
 
@@ -71,6 +78,7 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, defaultType, ...modalProps }
       data: {
         ...submitData,
         inlongGroupId,
+        inlongStreamId,
       },
     });
     modalProps?.onOk(submitData);
@@ -97,7 +105,12 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, defaultType, ...modalProps }
 
   return (
     <>
-      <Modal {...modalProps} title="Source" width={666} onOk={onOk}>
+      <Modal
+        {...modalProps}
+        title={id ? t('pages.GroupDetail.Sources.Edit') : t('pages.GroupDetail.Sources.Create')}
+        width={666}
+        onOk={onOk}
+      >
         <FormGenerator
           content={formContent}
           onValuesChange={(c, values) => setType(values.sourceType)}

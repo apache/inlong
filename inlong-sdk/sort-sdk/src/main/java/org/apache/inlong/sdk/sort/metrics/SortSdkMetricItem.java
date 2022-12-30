@@ -34,8 +34,14 @@ public class SortSdkMetricItem extends MetricItem {
 
     // CountMetric
     // consume
+    public static final String M_CONSUME_TIMES = "consumeTimes";
     public static final String M_CONSUME_SIZE = "consumeSize";
     public static final String M_CONSUME_MSG_COUNT = "consumeMsgCount";
+    public static final String M_CONSUME_EMPTY_COUNT = "consumeEmptyCount";
+    public static final String M_CONSUME_ERROR_COUNT = "consumeErrorCount";
+    public static final String M_CONSUME_TIME_COST = "consumeTimeCost";
+    // filter
+    public static final String M_FILTER_COUNT = "filterCount";
     // callback
     public static final String M_CALL_BACK_COUNT = "callbackCount";
     public static final String M_CALL_BACK_DONE_COUNT = "callbackDoneCount";
@@ -65,9 +71,19 @@ public class SortSdkMetricItem extends MetricItem {
     public String partitionId;
 
     @CountMetric
+    public AtomicLong consumeTimes = new AtomicLong(0);
+    @CountMetric
     public AtomicLong consumeSize = new AtomicLong(0);
     @CountMetric
     public AtomicLong consumeMsgCount = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong consumeEmptyCount = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong consumeErrorCount = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong consumeTimeCost = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong filterCount = new AtomicLong(0);
     @CountMetric
     public AtomicLong callbackCount = new AtomicLong(0);
     @CountMetric
@@ -97,8 +113,8 @@ public class SortSdkMetricItem extends MetricItem {
     @CountMetric
     public AtomicLong requestManagerParamErrorCount = new AtomicLong(0);
 
-    public SortSdkMetricItem(String sortTaskId) {
-        this.sortTaskId = sortTaskId;
+    public SortSdkMetricItem() {
+
     }
 
 }

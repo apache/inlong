@@ -149,21 +149,18 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
                 return true;
             case UPDATE_VALUE:
                 logger.info("manager conf update");
-                clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
-                        .addManagerConfChangedTimes(1);
+                clientContext.addRequestManagerConfChange();
                 this.md5 = response.getMd5();
                 updateSortTaskConf(response);
                 break;
             case REQ_PARAMS_ERROR:
                 logger.error("return code error:{}", respCodeValue);
-                clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
-                        .addRequestManagerParamErrorTimes(1);
+                clientContext.addRequestManagerParamError();
                 break;
             default:
                 logger.error("return code error:{},request:{},response:{}",
                         respCodeValue, getUrl, new ObjectMapper().writeValueAsString(response));
-                clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
-                        .addRequestManagerCommonErrorTimes(1);
+                clientContext.addRequestManagerCommonError();
                 return true;
         }
         return false;

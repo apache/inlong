@@ -20,6 +20,7 @@ package org.apache.inlong.sort.cdc.mysql.source.reader;
 import io.debezium.connector.mysql.MySqlConnection;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
+import java.util.Map.Entry;
 import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
@@ -28,7 +29,7 @@ import org.apache.flink.connector.base.source.reader.SingleThreadMultiplexSource
 import org.apache.flink.connector.base.source.reader.fetcher.SingleThreadFetcherManager;
 import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
 import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.apache.inlong.sort.cdc.mysql.source.events.BinlogSplitMetaEvent;
@@ -47,6 +48,7 @@ import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplitState;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlMetricSplit;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlMetricSplit.MySqlTableMetric;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplitState;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
@@ -147,12 +149,19 @@ public class MySqlSourceReader<T>
         if (suspendedBinlogSplit != null) {
             unfinishedSplits.add(suspendedBinlogSplit);
         }
-        SourceMetricData sourceMetricData = sourceReaderMetrics.getSourceMetricData();
+        SourceTableMetricData sourceMetricData = sourceReaderMetrics.getSourceMetricData();
         LOG.info("inlong-metric-states snapshot sourceMetricData:{}", sourceMetricData);
         if (sourceMetricData != null) {
-            unfinishedSplits.add(
-                    new MySqlMetricSplit(sourceMetricData.getNumBytesIn().getCount(),
-                            sourceMetricData.getNumRecordsIn().getCount()));
+            long countNumBytesIn = sourceMetricData.getNumBytesIn().getCount();
+            long countNumRecordsIn = sourceMetricData.getNumRecordsIn().getCount();
+            Map<String, Long> readPhaseMetricMap = sourceMetricData.getReadPhaseMetricMap().entrySet().stream().collect(
+                    Collectors.toMap(v -> v.getKey().getPhase(), e -> e.getValue().getReadPhase().getCount()));
+            Map<String, MySqlTableMetric> tableMetricMap = sourceMetricData.getSubSourceMetricMap().entrySet().stream()
+                    .collect(Collectors.toMap(Entry::getKey,
+                            e -> new MySqlTableMetric(e.getValue().getNumRecordsIn().getCount(),
+                                    e.getValue().getNumBytesIn().getCount())));
+            unfinishedSplits
+                    .add(new MySqlMetricSplit(countNumBytesIn, countNumRecordsIn, readPhaseMetricMap, tableMetricMap));
         }
         return unfinishedSplits;
     }
@@ -187,7 +196,8 @@ public class MySqlSourceReader<T>
                 MySqlMetricSplit mysqlMetricSplit = (MySqlMetricSplit) split;
                 LOG.info("inlong-metric-states restore metricSplit:{}", mysqlMetricSplit);
                 sourceReaderMetrics.initMetrics(mysqlMetricSplit.getNumRecordsIn(),
-                        mysqlMetricSplit.getNumBytesIn());
+                        mysqlMetricSplit.getNumBytesIn(), mysqlMetricSplit.getReadPhaseMetricMap(),
+                        mysqlMetricSplit.getTableMetricMap());
                 LOG.info("inlong-metric-states restore sourceReaderMetrics:{}",
                         sourceReaderMetrics.getSourceMetricData());
                 continue;

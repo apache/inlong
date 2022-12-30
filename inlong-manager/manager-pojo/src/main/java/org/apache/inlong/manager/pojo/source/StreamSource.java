@@ -70,6 +70,9 @@ public abstract class StreamSource extends StreamNode {
     @ApiModelProperty("Inlong cluster name")
     private String inlongClusterName;
 
+    @ApiModelProperty("Inlong cluster node tag")
+    private String inlongClusterNodeTag;
+
     @ApiModelProperty("Data node name")
     private String dataNodeName;
 
@@ -109,6 +112,9 @@ public abstract class StreamSource extends StreamNode {
 
     @ApiModelProperty("Sub source information of existing agents")
     private List<SubSourceDTO> subSourceList;
+
+    @ApiModelProperty(value = "Whether to ignore the parse errors of field value, true as default")
+    private boolean ignoreParseError;
 
     public SourceRequest genSourceRequest() {
         return null;

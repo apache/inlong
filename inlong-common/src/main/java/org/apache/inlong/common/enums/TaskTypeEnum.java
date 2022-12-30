@@ -35,6 +35,7 @@ public enum TaskTypeEnum {
     TUBEMQ(10),
     REDIS(11),
     MQTT(12),
+    HUDI(13),
 
     // only used for unit test
     MOCK(201)
@@ -73,6 +74,8 @@ public enum TaskTypeEnum {
                 return TUBEMQ;
             case 12:
                 return MQTT;
+            case 13:
+                return HUDI;
             case 201:
                 return MOCK;
             default:

@@ -278,6 +278,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     public GetMessageResponseB2C getMessagesC2B(GetMessageRequestC2B request,
             final String rmtAddress,
             boolean overtls) throws Throwable {
+        final long startTime = System.currentTimeMillis();
         final GetMessageResponseB2C.Builder builder =
                 GetMessageResponseB2C.newBuilder();
         builder.setSuccess(false);
@@ -379,9 +380,9 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                             request.getLastPackConsumed(), request.getManualCommitOffset(),
                             clientId, this.tubeConfig.getHostName(), rmtAddrInfo, isEscFlowCtrl, strBuffer);
             if (msgResult.isSuccess) {
-                consumerNodeInfo.setLastProcInfo(System.currentTimeMillis(),
-                        msgResult.lastRdDataOffset,
-                        msgResult.totalMsgSize);
+                long endTime = System.currentTimeMillis();
+                consumerNodeInfo.setLastProcInfo(endTime,
+                        msgResult.lastRdDataOffset, msgResult.totalMsgSize);
                 getCounterGroup.add(msgResult.tmpCounters);
                 AuditUtils.addConsumeRecord(msgResult.tmpCounters);
                 builder.setEscFlowCtrl(false);
@@ -393,6 +394,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 builder.setErrMsg("OK!");
                 builder.addAllMessages(msgResult.transferedMessageList);
                 builder.setMaxOffset(msgResult.getMaxOffset());
+                BrokerSrvStatsHolder.updGetMsgLatency(endTime - startTime);
                 return builder.build();
             } else {
                 builder.setErrCode(msgResult.getRetCode());
@@ -506,6 +508,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             int msgCount, final Set<String> filterCondSet,
             final StringBuilder sb) throws Exception {
         MessageStore dataStore = null;
+        final long startTime = System.currentTimeMillis();
         if (!this.started.get()
                 || ServiceStatusHolder.isReadServiceStop()) {
             sb.append("{\"result\":false,\"errCode\":")
@@ -547,6 +550,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             }
             GetMessageResult getMessageResult =
                     storeManager.getMessages(dataStore, topicName, partitionId, msgCount, filterCondSet);
+            BrokerSrvStatsHolder.updGetMsgLatency(System.currentTimeMillis() - startTime);
             if ((getMessageResult.transferedMessageList == null)
                     || (getMessageResult.transferedMessageList.isEmpty())) {
                 sb.append("{\"result\":false,\"errCode\":401,\"errMsg\":\"")
@@ -596,6 +600,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             final String rmtAddress,
             boolean overtls) throws Throwable {
         ProcessResult result = new ProcessResult();
+        final long startTime = System.currentTimeMillis();
         final StringBuilder strBuffer = new StringBuilder(512);
         SendMessageResponseB2P.Builder builder = SendMessageResponseB2P.newBuilder();
         builder.setSuccess(false);
@@ -689,6 +694,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 builder.setMessageId(appendResult.getMsgId());
                 builder.setAppendTime(appendResult.getAppendTime());
                 builder.setAppendOffset(appendResult.getAppendIndexOffset());
+                BrokerSrvStatsHolder.updSendMsgLatency(System.currentTimeMillis() - startTime);
                 return builder.build();
             } else {
                 builder.setErrCode(TErrCodeConstants.SERVER_RECEIVE_OVERFLOW);
@@ -1211,6 +1217,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     public CommitOffsetResponseB2C consumerCommitC2B(CommitOffsetRequestC2B request,
             final String rmtAddress,
             boolean overtls) throws Throwable {
+        final long startTime = System.currentTimeMillis();
         final CommitOffsetResponseB2C.Builder builder = CommitOffsetResponseB2C.newBuilder();
         builder.setSuccess(false);
         builder.setCurrOffset(-1);
@@ -1301,6 +1308,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     .append(consumerNodeInfo.getConsumerId())
                     .append(", partition is : ").append(partStr).toString());
         }
+        BrokerSrvStatsHolder.updConfirmLatency(System.currentTimeMillis() - startTime);
         return builder.build();
     }
 

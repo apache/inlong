@@ -278,7 +278,8 @@ public class SenderManager {
 
         try {
             SendResult result = selectSender(groupId).sendMessage(batchMessage.getDataList(), groupId, streamId,
-                    dataTime, "", maxSenderTimeout, TimeUnit.SECONDS, batchMessage.getExtraMap(), proxySend);
+                    dataTime, SEQUENTIAL_ID.getNextUuid(), maxSenderTimeout, TimeUnit.SECONDS,
+                    batchMessage.getExtraMap(), proxySend);
             metricItem.pluginSendCount.addAndGet(msgCnt);
 
             if (result == SendResult.OK) {

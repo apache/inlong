@@ -29,5 +29,6 @@ public class DataNodeType {
     public static final String CLICKHOUSE = "CLICKHOUSE";
     public static final String ELASTICSEARCH = "ELASTICSEARCH";
     public static final String MYSQL = "MYSQL";
+    public static final String STARROCKS = "STARROCKS";
 
 }

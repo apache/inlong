@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.utils;
 
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class ProxyUtils {
         Collections.addAll(invalidAttr, "groupId", "streamId", "dt", "msgUUID", "cp",
                 "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "_file_status_check", "_secretId",
                 "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP", "_encyVersion", "_encyAesKey",
-                "proxySend", "errMsg", "errCode");
+                "proxySend", "errMsg", "errCode", AttributeConstants.MSG_RPT_TIME);
     }
 
     public static boolean isAttrKeysValid(Map<String, String> attrsMap) {

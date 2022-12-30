@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.filter;
 
+import com.google.common.collect.Sets;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Reader;
@@ -29,14 +30,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
@@ -61,8 +64,8 @@ public class TestDateFormatRegex {
     public void testRegex() {
         File file = Paths.get(helper.getParentPath().toString(), "aad20201201_11.log").toFile();
         DateFormatRegex dateFormatRegex = DateFormatRegex
-                .ofRegex(helper.getParentPath().toString() + "/\\w{3}YYYYMMDD_HH.log").withFile(file);
-        dateFormatRegex.match();
+                .ofRegex(helper.getParentPath().toString() + "/\\w{3}YYYYMMDD_HH.log");
+        dateFormatRegex.match(file);
         dateFormatRegex.getFormattedTime();
         Assert.assertEquals(helper.getParentPath().toString() + "/\\w{3}"
                 + AgentUtils.formatCurrentTime("yyyyMMdd_HH") + ".log",
@@ -70,12 +73,14 @@ public class TestDateFormatRegex {
     }
 
     @Test
-    public void testRegexAndTimeoffset() {
+    public void testRegexAndTimeoffset() throws IOException {
         ZonedDateTime zoned = ZonedDateTime.now().plusDays(-1);
         String pathTime = DateTimeFormatter.ofPattern("yyyyMMdd").withLocale(Locale.getDefault()).format(zoned);
-        File file = Paths.get(helper.getParentPath().toString(), pathTime.concat(".log")).toFile();
-        PathPattern entity = new PathPattern(helper.getParentPath().toString() + "/yyyyMMdd.log", "-1d");
-        boolean flag = entity.suitForWatch(file.getPath());
+        File file = Paths.get(helper.getTestRootDir().toString(), pathTime.concat(".log")).toFile();
+        file.createNewFile();
+        PathPattern entity = new PathPattern(helper.getTestRootDir().toString(),
+                Collections.singleton(helper.getTestRootDir().toString() + "/yyyyMMdd.log"), Sets.newHashSet(), "-1d");
+        boolean flag = entity.suitable(file.getPath());
         Assert.assertTrue(flag);
     }
 
@@ -85,7 +90,7 @@ public class TestDateFormatRegex {
         Paths.get(testPath.toString(), currentDate + "_0").toFile().createNewFile();
         TextFileSource source = new TextFileSource();
         JobProfile profile = new JobProfile();
-        profile.set(JOB_DIR_FILTER_PATTERN, Paths.get(testPath.toString(), "YYYYMMDD_0").toString());
+        profile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testPath.toString(), "YYYYMMDD_0").toString());
         profile.set(JOB_INSTANCE_ID, "test");
         profile.set(JOB_GROUP_ID, "groupId");
         profile.set(JOB_STREAM_ID, "streamId");

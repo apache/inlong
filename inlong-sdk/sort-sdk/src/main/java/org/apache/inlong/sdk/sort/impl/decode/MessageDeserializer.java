@@ -100,10 +100,6 @@ public class MessageDeserializer implements Deserializer {
         String sourceIp = headers.getOrDefault(SOURCE_IP_KEY, "");
         String inlongGroupId = headers.getOrDefault(INLONG_GROUPID_KEY, "");
         String inlongStreamId = headers.getOrDefault(INLONG_STREAMID_KEY, "");
-        context.getStatManager()
-                .getStatistics(context.getConfig().getSortTaskId(),
-                        inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                .addDecompressionConsumeSize(msgBytes.length);
         return Collections
                 .singletonList(new InLongMessage(inlongGroupId, inlongStreamId, msgTime, sourceIp, msgBytes, headers));
     }
@@ -166,10 +162,6 @@ public class MessageDeserializer implements Deserializer {
                     messageObj.getSourceIp(),
                     messageObj.getBody().toByteArray(), headers);
             inLongMessages.add(inLongMessage);
-            context.getStatManager()
-                    .getStatistics(context.getConfig().getSortTaskId(),
-                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                    .addDecompressionConsumeSize(inLongMessage.getBody().length);
         }
         return inLongMessages;
     }
@@ -219,10 +211,6 @@ public class MessageDeserializer implements Deserializer {
                 InLongMessage inLongMessage = new InLongMessage(groupId, streamId, msgTime,
                         srcIp, bodyBytes, attributes);
                 messageList.add(inLongMessage);
-                context.getStatManager()
-                        .getStatistics(context.getConfig().getSortTaskId(),
-                                inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
-                        .addDecompressionConsumeSize(inLongMessage.getBody().length);
             }
         }
         return messageList;

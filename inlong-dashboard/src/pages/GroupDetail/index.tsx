@@ -25,9 +25,7 @@ import { useParams, useRequest, useSet, useHistory, useLocation } from '@/hooks'
 import { useTranslation } from 'react-i18next';
 import request from '@/utils/request';
 import Info from './Info';
-import DataSources from './DataSources';
 import DataStream from './DataStream';
-import DataStorage from './DataStorage';
 import Audit from './Audit';
 
 const Comp: React.FC = () => {
@@ -71,16 +69,6 @@ const Comp: React.FC = () => {
           label: t('pages.GroupDetail.Streams'),
           value: 'dataStream',
           content: DataStream,
-        },
-        {
-          label: t('pages.GroupDetail.Sources'),
-          value: 'dataSources',
-          content: DataSources,
-        },
-        {
-          label: t('pages.GroupDetail.Sinks'),
-          value: 'streamSink',
-          content: DataStorage,
         },
         {
           label: t('pages.GroupDetail.Audit'),
@@ -162,9 +150,7 @@ const Comp: React.FC = () => {
     <PageContainer
       breadcrumb={[
         {
-          name: isCreate
-            ? t('pages.GroupDetail.Info.Create')
-            : `${t('pages.GroupDetail.PageTitle')}${id}`,
+          name: isCreate ? t('pages.GroupDetail.Info.Create') : `${id}`,
         },
       ]}
       useDefaultContainer={!isCreate}

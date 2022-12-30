@@ -23,6 +23,9 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.converter.oracle.OracleRowConverter;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -170,5 +173,11 @@ public class OracleDialect extends AbstractJdbcDialect {
                 LogicalTypeRoot.RAW,
                 LogicalTypeRoot.SYMBOL,
                 LogicalTypeRoot.UNRESOLVED);
+    }
+
+    @Override
+    public PreparedStatement setQueryPrimaryKeySql(Connection conn,
+            String tableIdentifier) throws SQLException {
+        return null;
     }
 }

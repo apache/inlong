@@ -43,6 +43,9 @@ public class FileSourceRequest extends SourceRequest {
     @ApiModelProperty(value = "Path regex pattern for file, such as /a/b/*.txt", required = true)
     private String pattern;
 
+    @ApiModelProperty(value = "Path blacklist for file, which will be filtered and not collect", required = true)
+    private String blackList;
+
     @ApiModelProperty("TimeOffset for collection, "
             + "'1m' means from one minute after, '-1m' means from one minute before, "
             + "'1h' means from one hour after, '-1h' means from one minute before, "

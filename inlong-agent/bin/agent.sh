@@ -22,11 +22,12 @@ source "${BASE_DIR}"/bin/agent-env.sh
 CONSOLE_OUTPUT_FILE="${LOG_DIR}/agent-out.log"
 
 function help() {
-  echo "Usage: agent.sh {status|start|stop|restart}" >&2
+  echo "Usage: agent.sh {status|start|stop|restart|clean}" >&2
   echo "       status:     the status of inlong agent"
   echo "       start:      start the inlong agent"
   echo "       stop:       stop the inlong agent"
   echo "       restart:    restart the inlong agent"
+  echo "       clean:      unregister this node in manager"
   echo "       help:       get help from inlong agent"
 }
 
@@ -82,6 +83,15 @@ function status_agent() {
   fi
 }
 
+# clean agent
+function clean_agent() {
+  if running; then
+    echo "agent is running. please stop it first."
+    exit 0
+  fi
+  ${JAVA} ${AGENT_ARGS} org.apache.inlong.agent.core.HeartbeatManager
+}
+
 function help_agent() {
   ${JAVA} ${AGENT_ARGS} org.apache.inlong.agent.core.AgentMain -h
 }
@@ -101,6 +111,9 @@ case $command in
   restart)
     $0 stop $@
     $0 start $@
+    ;;
+  clean)
+    clean_agent $@;
     ;;
   help)
     help_agent;

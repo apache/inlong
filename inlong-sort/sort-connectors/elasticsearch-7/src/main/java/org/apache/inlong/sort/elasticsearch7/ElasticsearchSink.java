@@ -73,7 +73,8 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
             ActionRequestFailureHandler failureHandler,
             RestClientFactory restClientFactory,
             String inlongMetric,
-            DirtySinkHelper<Object> dirtySinkHelper) {
+            DirtySinkHelper<Object> dirtySinkHelper,
+            String auditHostAndPorts) {
 
         super(
                 new Elasticsearch7ApiCallBridge(httpHosts, restClientFactory),
@@ -81,7 +82,8 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                 elasticsearchSinkFunction,
                 failureHandler,
                 inlongMetric,
-                dirtySinkHelper);
+                dirtySinkHelper,
+                auditHostAndPorts);
     }
 
     /**
@@ -101,6 +103,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         };
         private String inlongMetric = null;
         private DirtySinkHelper<Object> dirtySinkHelper;
+        private String auditHostAndPorts;
 
         /**
          * Creates a new {@code ElasticsearchSink} that connects to the cluster using a {@link
@@ -131,6 +134,14 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
          */
         public void setDirtySinkHelper(DirtySinkHelper<Object> dirtySinkHelper) {
             this.dirtySinkHelper = dirtySinkHelper;
+        }
+
+        /**
+         * Set audit hosts and ports
+         * @param auditHostAndPorts
+         */
+        public void setAuditHostAndPorts(String auditHostAndPorts) {
+            this.auditHostAndPorts = auditHostAndPorts;
         }
 
         /**
@@ -258,7 +269,8 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                     failureHandler,
                     restClientFactory,
                     inlongMetric,
-                    dirtySinkHelper);
+                    dirtySinkHelper,
+                    auditHostAndPorts);
         }
 
         @Override

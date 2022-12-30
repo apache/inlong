@@ -50,7 +50,7 @@ import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.doris.model.RespContent;
 import org.apache.inlong.sort.doris.util.DorisParseUtils;
@@ -136,7 +136,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private transient ScheduledExecutorService scheduler;
     private transient ScheduledFuture<?> scheduledFuture;
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
-    private transient SinkMetricData metricData;
+    private transient SinkTableMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
     private final String[] fieldNames;
@@ -270,7 +270,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 .withRegisterMetric(MetricOption.RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
-            metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
+            metricData = new SinkTableMetricData(metricOption, getRuntimeContext().getMetricGroup());
+            if (multipleSink) {
+                metricData.registerSubMetricsGroup(metricState);
+            }
         }
         if (dirtySink != null) {
             try {
@@ -607,7 +610,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             respContent = load(tableIdentifier, loadValue);
             try {
                 if (null != metricData && null != respContent) {
-                    metricData.invoke(respContent.getNumberLoadedRows(), respContent.getLoadBytes());
+                    if (multipleSink) {
+                        String[] tableWithDb = tableIdentifier.split("\\.");
+                        metricData.outputMetrics(tableWithDb[0], null, tableWithDb[1],
+                                respContent.getNumberLoadedRows(), respContent.getLoadBytes());
+                    } else {
+                        metricData.invoke(respContent.getNumberLoadedRows(), respContent.getLoadBytes());
+                    }
                 }
             } catch (Exception e) {
                 LOG.warn("metricData invoke get err:", e);
@@ -616,10 +625,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             // Clean the data that has been loaded.
             values.clear();
         } catch (Exception e) {
-            flushExceptionMap.put(tableIdentifier, e);
-            errorNum.getAndAdd(values.size());
+            LOG.error(String.format("Flush table: %s error", tableIdentifier), e);
+            // Makesure it is a dirty data
             if (respContent != null && StringUtils.isNotBlank(respContent.getErrorURL())) {
-                // Makesure it is a dirty data
+                flushExceptionMap.put(tableIdentifier, e);
+                errorNum.getAndAdd(values.size());
                 for (Object value : values) {
                     try {
                         handleDirtyData(OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsString(value)),
@@ -631,16 +641,18 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                         LOG.warn("Dirty sink failed", ex);
                     }
                 }
+                if (!ignoreSingleTableErrors) {
+                    throw new RuntimeException(
+                            String.format("Writing records to streamload of tableIdentifier:%s failed, the value: %s.",
+                                    tableIdentifier, loadValue),
+                            e);
+                }
+                errorTables.add(tableIdentifier);
+                LOG.warn("The tableIdentifier: {} load failed and the data will be throw away in the future"
+                        + " because the option 'sink.multiple.ignore-single-table-errors' is 'true'", tableIdentifier);
+            } else {
+                throw new RuntimeException(e);
             }
-            if (!ignoreSingleTableErrors) {
-                throw new RuntimeException(
-                        String.format("Writing records to streamload of tableIdentifier:%s failed, the value: %s.",
-                                tableIdentifier, loadValue),
-                        e);
-            }
-            errorTables.add(tableIdentifier);
-            LOG.warn("The tableIdentifier: {} load failed and the data will be throw away in the future"
-                    + " because the option 'sink.multiple.ignore-single-table-errors' is 'true'", tableIdentifier);
         }
     }
 

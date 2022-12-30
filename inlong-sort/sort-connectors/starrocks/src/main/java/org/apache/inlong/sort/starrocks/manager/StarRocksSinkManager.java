@@ -47,11 +47,15 @@ import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Histogram;
 import org.apache.flink.runtime.metrics.DescriptiveStatisticsHistogram;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.TableColumn;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +68,7 @@ public class StarRocksSinkManager implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StarRocksSinkManager.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final StarRocksJdbcConnectionProvider jdbcConnProvider;
     private final StarRocksQueryVisitor starrocksQueryVisitor;
@@ -115,21 +120,24 @@ public class StarRocksSinkManager implements Serializable {
 
     private final boolean multipleSink;
     private final SchemaUpdateExceptionPolicy schemaUpdatePolicy;
-    private transient SinkMetricData metricData;
+    private transient SinkTableMetricData metricData;
+
+    private final DirtySinkHelper<Object> dirtySinkHelper;;
 
     /**
      * If a table writing throws exception, ignore it when receiving data later again
      */
     private Set<String> ignoreWriteTables = new HashSet<>();
 
-    public void setSinkMetricData(SinkMetricData metricData) {
+    public void setSinkMetricData(SinkTableMetricData metricData) {
         this.metricData = metricData;
     }
 
     public StarRocksSinkManager(StarRocksSinkOptions sinkOptions,
             TableSchema flinkSchema,
             boolean multipleSink,
-            SchemaUpdateExceptionPolicy schemaUpdatePolicy) {
+            SchemaUpdateExceptionPolicy schemaUpdatePolicy,
+            DirtySinkHelper<Object> dirtySinkHelper) {
         this.sinkOptions = sinkOptions;
         StarRocksJdbcConnectionOptions jdbcOptions = new StarRocksJdbcConnectionOptions(sinkOptions.getJdbcUrl(),
                 sinkOptions.getUsername(), sinkOptions.getPassword());
@@ -140,6 +148,8 @@ public class StarRocksSinkManager implements Serializable {
         this.multipleSink = multipleSink;
         this.schemaUpdatePolicy = schemaUpdatePolicy;
 
+        this.dirtySinkHelper = dirtySinkHelper;
+
         init(flinkSchema);
     }
 
@@ -148,13 +158,16 @@ public class StarRocksSinkManager implements Serializable {
             StarRocksJdbcConnectionProvider jdbcConnProvider,
             StarRocksQueryVisitor starrocksQueryVisitor,
             boolean multipleSink,
-            SchemaUpdateExceptionPolicy schemaUpdatePolicy) {
+            SchemaUpdateExceptionPolicy schemaUpdatePolicy,
+            DirtySinkHelper<Object> dirtySinkHelper) {
         this.sinkOptions = sinkOptions;
         this.jdbcConnProvider = jdbcConnProvider;
         this.starrocksQueryVisitor = starrocksQueryVisitor;
 
         this.multipleSink = multipleSink;
         this.schemaUpdatePolicy = schemaUpdatePolicy;
+
+        this.dirtySinkHelper = dirtySinkHelper;
 
         init(flinkSchema);
     }
@@ -391,7 +404,12 @@ public class StarRocksSinkManager implements Serializable {
                     updateMetricsFromStreamLoadResult(result);
 
                     if (null != metricData) {
-                        metricData.invoke(flushData.getBatchCount(), flushData.getBatchSize());
+                        if (multipleSink) {
+                            metricData.outputMetrics(flushData.getDatabase(), null, flushData.getTable(),
+                                    flushData.getBatchCount(), flushData.getBatchSize());
+                        } else {
+                            metricData.invoke(flushData.getBatchCount(), flushData.getBatchSize());
+                        }
                     }
                 }
                 startScheduler();
@@ -402,6 +420,8 @@ public class StarRocksSinkManager implements Serializable {
                 }
                 LOGGER.warn("Failed to flush batch data to StarRocks, retry times = {}", i, e);
                 if (i >= sinkOptions.getSinkMaxRetries()) {
+                    handleDirtyData(flushData, e);
+
                     if (schemaUpdatePolicy == null
                             || schemaUpdatePolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
                         throw e;
@@ -424,6 +444,30 @@ public class StarRocksSinkManager implements Serializable {
             }
         }
         return true;
+    }
+
+    private void handleDirtyData(StarRocksSinkBufferEntity flushData, Exception e) throws JsonProcessingException {
+        // archive dirty data
+        if (StarRocksSinkOptions.StreamLoadFormat.CSV.equals(sinkOptions.getStreamLoadFormat())) {
+            for (byte[] row : flushData.getBuffer()) {
+                dirtySinkHelper.invoke(new String(row, StandardCharsets.UTF_8), DirtyType.BATCH_LOAD_ERROR, e);
+            }
+        } else if (StarRocksSinkOptions.StreamLoadFormat.JSON.equals(sinkOptions.getStreamLoadFormat())) {
+            for (byte[] row : flushData.getBuffer()) {
+                dirtySinkHelper.invoke(OBJECT_MAPPER.readTree(new String(row, StandardCharsets.UTF_8)),
+                        DirtyType.BATCH_LOAD_ERROR, e);
+            }
+        }
+
+        // upload metrics for dirty data
+        if (null != metricData) {
+            if (multipleSink) {
+                metricData.outputDirtyMetrics(flushData.getDatabase(), null, flushData.getTable(),
+                        flushData.getBatchCount(), flushData.getBatchSize());
+            } else {
+                metricData.invokeDirty(flushData.getBatchCount(), flushData.getBatchSize());
+            }
+        }
     }
 
     private void waitAsyncFlushingDone() throws InterruptedException {
