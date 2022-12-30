@@ -107,7 +107,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     private transient Map<String, List<String>> pkNameMap = new HashMap<>();
     private transient Map<String, List<GenericRowData>> recordsMap = new HashMap<>();
     private transient Map<String, Exception> tableExceptionMap = new HashMap<>();
-    private transient Boolean isIgnoreTableException;
+    private transient Boolean stopWritingWhenTableException;
 
     private transient ListState<MetricState> metricStateListState;
     private final String sinkMultipleFormat;
@@ -175,8 +175,9 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         rowTypeMap = new HashMap<>();
         recordsMap = new HashMap<>();
         tableExceptionMap = new HashMap<>();
-        isIgnoreTableException = schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE)
-                || schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.STOP_PARTIAL);
+        stopWritingWhenTableException =
+                schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE)
+                        || schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.STOP_PARTIAL);
         if (executionOptions.getBatchIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
             this.scheduler =
                     Executors.newScheduledThreadPool(
@@ -445,9 +446,9 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     protected void attemptFlush() throws IOException {
         for (Map.Entry<String, List<GenericRowData>> entry : recordsMap.entrySet()) {
             String tableIdentifier = entry.getKey();
-            boolean isIgnoreTableIdentifierException = isIgnoreTableException
+            boolean stopTableIdentifierWhenException = stopWritingWhenTableException
                     && (null != tableExceptionMap.get(tableIdentifier));
-            if (isIgnoreTableIdentifierException) {
+            if (stopTableIdentifierWhenException) {
                 continue;
             }
             List<GenericRowData> tableIdRecordList = entry.getValue();
@@ -495,7 +496,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                             flushFlag = true;
                             break;
                         } catch (Exception e) {
-                            LOG.error("Flush one record tableIdentifier:{} ,retryTimes:{} get err:",
+                            LOG.warn("Flush one record tableIdentifier:{} ,retryTimes:{} get err:",
                                     tableIdentifier, retryTimes, e);
                             getAndSetPkFromErrMsg(e.getMessage(), tableIdentifier);
                             tableException = e;
@@ -514,12 +515,14 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                                 tableIdentifier, tableException.getMessage());
                         outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                 1L, true);
-                        dirtySinkHelper.invoke(record, DirtyType.RETRY_LOAD_ERROR, tableException);
+                        if (!schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.THROW_WITH_STOP)) {
+                            dirtySinkHelper.invoke(record, DirtyType.RETRY_LOAD_ERROR, tableException);
+                        }
                         tableExceptionMap.put(tableIdentifier, tableException);
-                        if (isIgnoreTableException) {
+                        if (stopWritingWhenTableException) {
                             LOG.info("Stop write table:{} because occur exception",
                                     tableIdentifier);
-                            continue;
+                            break;
                         }
                     }
                 }
