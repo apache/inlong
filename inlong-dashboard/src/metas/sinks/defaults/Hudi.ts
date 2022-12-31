@@ -277,7 +277,7 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sinks.Hudi.PartitionKeyHelper'),
-    rules: [{ required: true }],
+    rules: [{ required: false }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
