@@ -20,6 +20,8 @@ package org.apache.inlong.common.monitor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,7 @@ public class MonitorIndex {
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorIndex.class);
     private static final LogCounter logPrinter = new LogCounter(10, 100000, 60 * 1000);
+    private static final AtomicLong recId = new AtomicLong(0);
 
     private IndexCollectThread indexCol;
     private String name;
@@ -113,6 +116,8 @@ public class MonitorIndex {
 
         @Override
         public void run() {
+            String uuidStr;
+            long currentKey;
             Map<String, String> counterExt = new HashMap<String, String>();
             while (!bShutDown) {
                 try {
@@ -123,9 +128,12 @@ public class MonitorIndex {
                             return null;
                         });
                     }
+                    // get print time (second)
+                    currentKey = System.currentTimeMillis() / 1000;
                     for (Map.Entry<String, String> entrys : counterExt.entrySet()) {
-                        logger.info("{}#{}#{}",
-                                new Object[]{name, entrys.getKey(), entrys.getValue()});
+                        uuidStr = currentKey + "_" + recId.incrementAndGet();
+                        logger.info("{}#{}#{}#{}",
+                                new Object[]{name, uuidStr, entrys.getKey(), entrys.getValue()});
                     }
                     counterExt.clear();
                 } catch (Exception e) {
