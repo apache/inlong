@@ -276,7 +276,8 @@ public class InlongMultiTopicManager extends TopicManager {
                 ConsumeConfig consumeConfig = queryConsumeConfig
                         .queryCurrentConsumeConfig(context.getConfig().getSortTaskId());
                 if (consumeConfig != null) {
-                    handleUpdatedConsumeConfig(consumeConfig.getTopics());
+                    List<InLongTopic> topicSubset = context.getConfig().getConsumerSubset(consumeConfig.getTopics());
+                    handleUpdatedConsumeConfig(topicSubset);
                 } else {
                     logger.warn("subscribedInfo is null");
                     context.addRequestManagerFail(System.currentTimeMillis() - start);

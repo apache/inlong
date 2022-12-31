@@ -19,8 +19,11 @@ package org.apache.inlong.sdk.sort.api;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
@@ -61,6 +64,10 @@ public class SortClientConfig implements Serializable {
     private int emptyPollTimes = 10;
     private int cleanOldConsumerIntervalSec = 60;
     private int maxConsumerSize = 5;
+
+    private ConsumerSubsetType consumerSubsetType = ConsumerSubsetType.ALL;
+    private int consumerSubsetSize = 1;
+
     private boolean topicStaticsEnabled = true;
     private boolean partitionStaticsEnabled = true;
 
@@ -347,6 +354,22 @@ public class SortClientConfig implements Serializable {
         this.maxConsumerSize = maxConsumerSize;
     }
 
+    public ConsumerSubsetType getConsumerSubsetType() {
+        return consumerSubsetType;
+    }
+
+    public void setConsumerSubsetSize(ConsumerSubsetType consumerSubsetType) {
+        this.consumerSubsetType = consumerSubsetType;
+    }
+
+    public int getConsumerSubsetSize() {
+        return consumerSubsetSize;
+    }
+
+    public void setConsumerSubsetSize(int consumerSubsetSize) {
+        this.consumerSubsetSize = consumerSubsetSize;
+    }
+
     public boolean isTopicStaticsEnabled() {
         return topicStaticsEnabled;
     }
@@ -381,19 +404,19 @@ public class SortClientConfig implements Serializable {
      * @param sortSdkParams
      */
     public void setParameters(Map<String, String> sortSdkParams) {
-        this.callbackQueueSize =
-                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.CALLBACK_QUEUE_SIZE), callbackQueueSize);
+        this.callbackQueueSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.CALLBACK_QUEUE_SIZE),
+                callbackQueueSize);
         this.pulsarReceiveQueueSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.PULSAR_RECEIVE_QUEUE_SIZE),
                 pulsarReceiveQueueSize);
         this.statsIntervalSeconds = NumberUtils.toLong(sortSdkParams.get(ConfigConstants.STATS_INTERVAL_SECONDS),
                 statsIntervalSeconds);
-        this.kafkaFetchWaitMs =
-                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.KAFKA_FETCH_WAIT_MS), kafkaFetchWaitMs);
-        this.kafkaFetchSizeBytes =
-                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.KAFKA_FETCH_SIZE_BYTES), kafkaFetchSizeBytes);
-        this.kafkaSocketRecvBufferSize =
-                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.KAFKA_SOCKET_RECV_BUFFER_SIZE),
-                        kafkaSocketRecvBufferSize);
+        this.kafkaFetchWaitMs = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.KAFKA_FETCH_WAIT_MS),
+                kafkaFetchWaitMs);
+        this.kafkaFetchSizeBytes = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.KAFKA_FETCH_SIZE_BYTES),
+                kafkaFetchSizeBytes);
+        this.kafkaSocketRecvBufferSize = NumberUtils.toInt(
+                sortSdkParams.get(ConfigConstants.KAFKA_SOCKET_RECV_BUFFER_SIZE),
+                kafkaSocketRecvBufferSize);
 
         this.localIp = sortSdkParams.getOrDefault(ConfigConstants.LOCAL_IP, localIp);
         this.appName = sortSdkParams.getOrDefault(ConfigConstants.APP_NAME, appName);
@@ -403,34 +426,40 @@ public class SortClientConfig implements Serializable {
         this.env = sortSdkParams.getOrDefault(ConfigConstants.ENV, env);
         this.managerApiUrl = sortSdkParams.getOrDefault(ConfigConstants.MANAGER_API_URL, managerApiUrl);
         this.managerApiVersion = sortSdkParams.getOrDefault(ConfigConstants.MANAGER_API_VERSION, managerApiVersion);
-        String strConsumeStrategy =
-                sortSdkParams.getOrDefault(ConfigConstants.CONSUME_STRATEGY, consumeStrategy.name());
+        String strConsumeStrategy = sortSdkParams.getOrDefault(ConfigConstants.CONSUME_STRATEGY,
+                consumeStrategy.name());
         String strManagerType = sortSdkParams.getOrDefault(ConfigConstants.TOPIC_MANAGER_TYPE,
                 TopicType.MULTI_TOPIC.toString());
         this.consumeStrategy = ConsumeStrategy.valueOf(strConsumeStrategy);
         this.topicType = TopicType.valueOf(strManagerType);
 
-        this.reportStatisticIntervalSec =
-                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.REPORT_STATISTIC_INTERVAL_SEC),
-                        reportStatisticIntervalSec);
-        this.updateMetaDataIntervalSec =
-                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.UPDATE_META_DATA_INTERVAL_SEC),
-                        updateMetaDataIntervalSec);
+        this.reportStatisticIntervalSec = NumberUtils.toInt(
+                sortSdkParams.get(ConfigConstants.REPORT_STATISTIC_INTERVAL_SEC),
+                reportStatisticIntervalSec);
+        this.updateMetaDataIntervalSec = NumberUtils.toInt(
+                sortSdkParams.get(ConfigConstants.UPDATE_META_DATA_INTERVAL_SEC),
+                updateMetaDataIntervalSec);
         this.ackTimeoutSec = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.ACK_TIMEOUT_SEC), ackTimeoutSec);
-        this.cleanOldConsumerIntervalSec =
-                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.CLEAN_OLD_CONSUMER_INTERVAL_SEC),
-                        cleanOldConsumerIntervalSec);
+        this.cleanOldConsumerIntervalSec = NumberUtils.toInt(
+                sortSdkParams.get(ConfigConstants.CLEAN_OLD_CONSUMER_INTERVAL_SEC),
+                cleanOldConsumerIntervalSec);
 
-        String strPrometheusEnabled =
-                sortSdkParams.getOrDefault(ConfigConstants.IS_PROMETHEUS_ENABLED, Boolean.TRUE.toString());
+        String strPrometheusEnabled = sortSdkParams.getOrDefault(ConfigConstants.IS_PROMETHEUS_ENABLED,
+                Boolean.TRUE.toString());
         this.isPrometheusEnabled = StringUtils.equalsIgnoreCase(strPrometheusEnabled, Boolean.TRUE.toString());
 
-        this.emptyPollSleepStepMs =
-                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.EMPTY_POLL_SLEEP_STEP_MS), emptyPollSleepStepMs);
-        this.maxEmptyPollSleepMs =
-                NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_EMPTY_POLL_SLEEP_MS), maxEmptyPollSleepMs);
+        this.emptyPollSleepStepMs = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.EMPTY_POLL_SLEEP_STEP_MS),
+                emptyPollSleepStepMs);
+        this.maxEmptyPollSleepMs = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_EMPTY_POLL_SLEEP_MS),
+                maxEmptyPollSleepMs);
         this.emptyPollTimes = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.EMPTY_POLL_TIMES), emptyPollTimes);
-        this.maxConsumerSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_CONSUMER_SIZE), maxConsumerSize);
+
+        this.maxConsumerSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.MAX_CONSUMER_SIZE),
+                maxConsumerSize);
+        this.consumerSubsetType = ConsumerSubsetType.convert(
+                sortSdkParams.getOrDefault(ConfigConstants.CONSUMER_SUBSET_TYPE, ConsumerSubsetType.CLUSTER.name()));
+        this.consumerSubsetSize = NumberUtils.toInt(sortSdkParams.get(ConfigConstants.CONSUMER_SUBSET_SIZE),
+                consumerSubsetSize);
 
         String strTopicStaticsEnabled = sortSdkParams.getOrDefault(ConfigConstants.IS_TOPIC_STATICS_ENABLED,
                 Boolean.TRUE.toString());
@@ -439,6 +468,30 @@ public class SortClientConfig implements Serializable {
                 Boolean.TRUE.toString());
         this.partitionStaticsEnabled = StringUtils.equalsIgnoreCase(strPartitionStaticsEnabled,
                 Boolean.TRUE.toString());
+    }
+
+    public List<InLongTopic> getConsumerSubset(List<InLongTopic> totalTopics) {
+        if (this.consumerSubsetSize <= 1
+                || this.containerId == null
+                || this.consumerSubsetType == ConsumerSubsetType.ALL) {
+            return totalTopics;
+        }
+        List<InLongTopic> subset = new ArrayList<>(totalTopics.size());
+        int containerHashId = Math.abs(this.containerId.hashCode()) % this.consumerSubsetSize;
+        for (InLongTopic topic : totalTopics) {
+            int topicHashId = 0;
+            if (this.consumerSubsetType == ConsumerSubsetType.CLUSTER) {
+                String hashString = topic.getInLongCluster().getClusterId();
+                topicHashId = Math.abs(hashString.hashCode()) % this.consumerSubsetSize;
+            } else {
+                String hashString = topic.getTopicKey();
+                topicHashId = Math.abs(hashString.hashCode()) % this.consumerSubsetSize;
+            }
+            if (containerHashId == topicHashId) {
+                subset.add(topic);
+            }
+        }
+        return subset;
     }
 
 }
