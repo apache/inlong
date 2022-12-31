@@ -321,6 +321,7 @@
   "meta.Group.Pulsar.Parallel": "并行",
   "meta.Group.Pulsar.Serial": "顺序",
   "meta.Group.Pulsar.PartitionNum": "Topic 分区数",
+  "meta.Group.Pulsar.PartitionExtra": "Topic 分区数，最高可配置 100",
   "meta.Group.Pulsar.EnsembleSuffix": "节点数",
   "meta.Group.Pulsar.EnsembleExtra": "Topic 保存到多少个节点，最高可配置10个",
   "meta.Group.Pulsar.WriteQuorumSuffix": "副本数",

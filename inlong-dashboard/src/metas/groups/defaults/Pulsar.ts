@@ -54,9 +54,10 @@ export default class PulsarGroup
     type: 'inputnumber',
     initialValue: 3,
     rules: [{ required: true }],
+    extra: i18n.t('meta.Group.Pulsar.PartitionExtra'),
     props: {
       min: 1,
-      max: 20,
+      max: 100,
       precision: 0,
     },
     visible: values => values.queueModule === 'PARALLEL',

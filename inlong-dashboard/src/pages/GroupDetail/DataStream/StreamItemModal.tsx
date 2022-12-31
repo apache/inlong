@@ -52,6 +52,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
         type: 'inputnumber',
         label: i18n.t('meta.Group.TubeMq.NumberOfAccess'),
         name: 'dailyRecords',
+        initialValue: 1,
+        isPro: true,
         rules: [{ required: true }],
         suffix: i18n.t('meta.Group.TubeMq.TenThousand/Day'),
         props: {
@@ -64,6 +66,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
         type: 'inputnumber',
         label: i18n.t('meta.Group.TubeMq.AccessSize'),
         name: 'dailyStorage',
+        initialValue: 10,
+        isPro: true,
         rules: [{ required: true }],
         suffix: i18n.t('meta.Group.TubeMq.GB/Day'),
         props: {
@@ -76,6 +80,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
         type: 'inputnumber',
         label: i18n.t('meta.Group.TubeMq.AccessPeakPerSecond'),
         name: 'peakRecords',
+        initialValue: 100,
+        isPro: true,
         rules: [{ required: true }],
         suffix: i18n.t('meta.Group.TubeMq.Stripe/Second'),
         props: {
@@ -88,6 +94,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
         type: 'inputnumber',
         label: i18n.t('meta.Group.TubeMq.SingleStripMaximumLength'),
         name: 'maxLength',
+        initialValue: 1024,
+        isPro: true,
         rules: [{ required: true }],
         suffix: 'Byte',
         props: {
