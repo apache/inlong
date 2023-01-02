@@ -69,7 +69,9 @@ public class BrokerAbnHolder {
             int reportReadStatus,
             int reportWriteStatus) {
         StringBuilder sBuffer = new StringBuilder(512);
-        if (reportReadStatus == 0 && reportWriteStatus == 0) {
+        ManageStatus reqMngStatus =
+                getManageStatus(reportWriteStatus, reportReadStatus);
+        if (reqMngStatus == ManageStatus.STATUS_MANAGE_ONLINE) {
             BrokerAbnInfo brokerAbnInfo = brokerAbnormalMap.get(brokerId);
             if (brokerAbnInfo != null) {
                 if (brokerForbiddenMap.get(brokerId) == null) {
@@ -89,13 +91,6 @@ public class BrokerAbnHolder {
         if (curEntry == null) {
             return;
         }
-        ManageStatus reqMngStatus =
-                getManageStatus(reportWriteStatus, reportReadStatus);
-        if ((curEntry.getManageStatus() == reqMngStatus)
-                || ((reqMngStatus == ManageStatus.STATUS_MANAGE_OFFLINE)
-                        && (curEntry.getManageStatus().getCode() < ManageStatus.STATUS_MANAGE_ONLINE.getCode()))) {
-            return;
-        }
         BrokerAbnInfo brokerAbnInfo = brokerAbnormalMap.get(brokerId);
         if (brokerAbnInfo == null) {
             if (brokerAbnormalMap.putIfAbsent(brokerId,
@@ -110,20 +105,30 @@ public class BrokerAbnHolder {
         } else {
             brokerAbnInfo.updateLastRepStatus(reportReadStatus, reportWriteStatus);
         }
+        ManageStatus curStatus = curEntry.getManageStatus();
+        if (curStatus == reqMngStatus
+                || curStatus.getCode() < ManageStatus.STATUS_MANAGE_ONLINE.getCode()
+                || curStatus.getCode() >= ManageStatus.STATUS_MANAGE_OFFLINE.getCode()) {
+            return;
+        }
+        ManageStatus newStatus = reqMngStatus;
+        if (reqMngStatus == ManageStatus.STATUS_MANAGE_ONLINE_NOT_WRITE
+                && curStatus == ManageStatus.STATUS_MANAGE_ONLINE_NOT_READ) {
+            newStatus = ManageStatus.STATUS_MANAGE_OFFLINE;
+        }
         BrokerFbdInfo brokerFbdInfo = brokerForbiddenMap.get(brokerId);
         if (brokerFbdInfo == null) {
-            BrokerFbdInfo tmpBrokerFbdInfo =
-                    new BrokerFbdInfo(brokerId, curEntry.getManageStatus(),
-                            reqMngStatus, System.currentTimeMillis());
+            BrokerFbdInfo tmpFbdInfo = new BrokerFbdInfo(brokerId,
+                    curStatus, newStatus, System.currentTimeMillis());
             if (reportReadStatus > 0 || reportWriteStatus > 0) {
-                if (updateCurManageStatus(brokerId, reqMngStatus, sBuffer)) {
-                    if (brokerForbiddenMap.putIfAbsent(brokerId, tmpBrokerFbdInfo) == null) {
+                if (updateCurManageStatus(brokerId, newStatus, sBuffer)) {
+                    if (brokerForbiddenMap.putIfAbsent(brokerId, tmpFbdInfo) == null) {
                         brokerForbiddenCount.incrementAndGet();
                         MasterSrvStatsHolder.incBrokerForbiddenCnt();
                         logger.warn(sBuffer
                                 .append("[Broker AutoForbidden] master add missing forbidden broker, ")
                                 .append(brokerId).append("'s manage status to ")
-                                .append(reqMngStatus.getDescription()).toString());
+                                .append(newStatus.getDescription()).toString());
                         sBuffer.delete(0, sBuffer.length());
                     }
                 }
@@ -132,8 +137,8 @@ public class BrokerAbnHolder {
                     brokerForbiddenCount.decrementAndGet();
                     return;
                 }
-                if (updateCurManageStatus(brokerId, reqMngStatus, sBuffer)) {
-                    if (brokerForbiddenMap.putIfAbsent(brokerId, tmpBrokerFbdInfo) != null) {
+                if (updateCurManageStatus(brokerId, newStatus, sBuffer)) {
+                    if (brokerForbiddenMap.putIfAbsent(brokerId, tmpFbdInfo) != null) {
                         brokerForbiddenCount.decrementAndGet();
                         return;
                     }
@@ -141,15 +146,15 @@ public class BrokerAbnHolder {
                     logger.warn(sBuffer
                             .append("[Broker AutoForbidden] master auto forbidden broker, ")
                             .append(brokerId).append("'s manage status to ")
-                            .append(reqMngStatus.getDescription()).toString());
+                            .append(newStatus.getDescription()).toString());
                     sBuffer.delete(0, sBuffer.length());
                 } else {
                     brokerForbiddenCount.decrementAndGet();
                 }
             }
         } else {
-            if (updateCurManageStatus(brokerId, reqMngStatus, sBuffer)) {
-                brokerFbdInfo.updateInfo(curEntry.getManageStatus(), reqMngStatus);
+            if (updateCurManageStatus(brokerId, newStatus, sBuffer)) {
+                brokerFbdInfo.updateInfo(curStatus, newStatus);
             }
         }
     }

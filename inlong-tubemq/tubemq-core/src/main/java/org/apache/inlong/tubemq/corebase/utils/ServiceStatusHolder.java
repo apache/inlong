@@ -70,16 +70,10 @@ public class ServiceStatusHolder {
     }
 
     public static boolean addWriteIOErrCnt() {
-        long curTime = lastWriteStatsTime.get();
-        if (System.currentTimeMillis() - curTime > statsDurationMs) {
-            if (lastWriteStatsTime.compareAndSet(curTime, System.currentTimeMillis())) {
-                curWriteIOExcptCnt.getAndSet(0);
-                if (isPauseWrite.get()) {
-                    isPauseWrite.compareAndSet(true, false);
-                }
-            }
-        }
         if (curWriteIOExcptCnt.incrementAndGet() > allowedWriteIOExcptCnt) {
+            if (isPauseWrite.get()) {
+                return true;
+            }
             isPauseWrite.set(true);
             return true;
         }
@@ -95,16 +89,10 @@ public class ServiceStatusHolder {
     }
 
     public static boolean addReadIOErrCnt() {
-        long curTime = lastReadStatsTime.get();
-        if (System.currentTimeMillis() - curTime > statsDurationMs) {
-            if (lastReadStatsTime.compareAndSet(curTime, System.currentTimeMillis())) {
-                curReadIOExcptCnt.getAndSet(0);
-                if (isPauseRead.get()) {
-                    isPauseRead.compareAndSet(true, false);
-                }
-            }
-        }
         if (curReadIOExcptCnt.incrementAndGet() > allowedReadIOExcptCnt) {
+            if (isPauseRead.get()) {
+                return true;
+            }
             isPauseRead.set(true);
             return true;
         }

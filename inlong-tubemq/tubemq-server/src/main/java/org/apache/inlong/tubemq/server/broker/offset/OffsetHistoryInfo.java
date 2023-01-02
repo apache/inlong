@@ -17,10 +17,17 @@
 
 package org.apache.inlong.tubemq.server.broker.offset;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
+import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 
 /**
@@ -159,4 +166,64 @@ public class OffsetHistoryInfo {
         }
         strBuff.append("]}");
     }
+
+    /**
+     * Parse history offset record info
+     *
+     * @param jsonData  string offset information
+     * @param result    process result
+     */
+    public static boolean parseRecordInfo(String jsonData, ProcessResult result) {
+        JsonObject jsonObject = null;
+        try {
+            jsonObject = JsonParser.parseString(jsonData).getAsJsonObject();
+        } catch (Throwable e1) {
+            result.setFailResult(String.format(
+                    "Parse history offset value failure, reason is %s", e1.getMessage()));
+            return result.isSuccess();
+        }
+        if (jsonObject == null) {
+            result.setFailResult("Parse error, history offset value must be valid json format!");
+            return result.isSuccess();
+        }
+        if (!jsonObject.has("ver")) {
+            result.setFailResult("FIELD ver is required in history offset value!");
+            return result.isSuccess();
+        }
+        int verValue = jsonObject.get("ver").getAsInt();
+        if (verValue < TServerConstants.OFFSET_HISTORY_RECORD_SHORT_VERSION) {
+            result.setFailResult("Only support v2 or next version in history offset value!");
+            return result.isSuccess();
+        }
+        if (!jsonObject.has("records")) {
+            result.setFailResult("FIELD records is required in history offset value!");
+            return result.isSuccess();
+        }
+        List<Tuple3<String, Integer, Long>> resetOffsets = new ArrayList<>();
+        JsonArray records = jsonObject.get("records").getAsJsonArray();
+        for (int i = 0; i < records.size(); i++) {
+            JsonObject itemInfo = records.get(i).getAsJsonObject();
+            if (itemInfo == null) {
+                continue;
+            }
+            String topicName = itemInfo.get("topic").getAsString();
+            JsonArray offsets = itemInfo.get("offsets").getAsJsonArray();
+            for (int j = 0; j < offsets.size(); j++) {
+                JsonObject storeInfo = offsets.get(j).getAsJsonObject();
+                if (storeInfo == null) {
+                    continue;
+                }
+                JsonArray partInfos = storeInfo.get("parts").getAsJsonArray();
+                for (int k = 0; k < partInfos.size(); k++) {
+                    JsonObject partItem = partInfos.get(k).getAsJsonObject();
+                    int partId = partItem.get("partId").getAsInt();
+                    long offsetVal = partItem.get("iCfm").getAsLong();
+                    resetOffsets.add(new Tuple3<>(topicName, partId, offsetVal));
+                }
+            }
+        }
+        result.setSuccResult(resetOffsets);
+        return true;
+    }
+
 }
