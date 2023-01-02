@@ -188,14 +188,20 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
     }
 
     private Map<String, String> delegateInlongFormat(
-            Map<String, String> formatOptions,
+            Map<String, String> realOptions,
             boolean wrapWithInlongMsg) {
         if (!wrapWithInlongMsg) {
-            return formatOptions;
+            return realOptions;
         }
         Map<String, String> options = new HashMap<>();
-        for (Entry<String, String> entry : formatOptions.entrySet()) {
-            options.put("inlong-msg." + entry.getKey(), entry.getValue());
+        for (Entry<String, String> entry : realOptions.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if ("format".equals(key)) {
+                options.put("inlong-msg.inner.format", value);
+            } else {
+                options.put("inlong-msg." + key, value);
+            }
         }
         return options;
     }
