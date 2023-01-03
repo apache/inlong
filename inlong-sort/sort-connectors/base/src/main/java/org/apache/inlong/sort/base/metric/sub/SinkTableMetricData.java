@@ -196,6 +196,34 @@ public class SinkTableMetricData extends SinkMetricData implements SinkSubMetric
         subSinkMetricData.invoke(rowCount, rowSize);
     }
 
+    /**
+     * output dirty metrics with estimate
+     *
+     * @param database the database name of record
+     * @param schema the schema name of record
+     * @param table the table name of record
+     * @param rowCount the row count of records
+     * @param rowSize the row size of records
+     */
+    public void outputDirtyMetricsWithEstimate(String database, String table, long rowCount,
+            long rowSize) {
+        if (StringUtils.isBlank(database) || StringUtils.isBlank(table)) {
+            invokeDirty(rowCount, rowSize);
+            return;
+        }
+        String identify = buildSchemaIdentify(database, null, table);
+        SinkMetricData subSinkMetricData;
+        if (subSinkMetricMap.containsKey(identify)) {
+            subSinkMetricData = subSinkMetricMap.get(identify);
+        } else {
+            subSinkMetricData = buildSubSinkMetricData(new String[]{database, table}, this);
+            subSinkMetricMap.put(identify, subSinkMetricData);
+        }
+        // sink metric and sub sink metric output metrics
+        this.invokeDirty(rowCount, rowSize);
+        subSinkMetricData.invokeDirty(rowCount, rowSize);
+    }
+
     public void outputMetricsWithEstimate(Object data) {
         long size = data.toString().getBytes(StandardCharsets.UTF_8).length;
         invoke(1, size);
