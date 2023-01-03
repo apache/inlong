@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import org.apache.flink.api.common.state.ListState;
+import org.apache.flink.api.common.state.ListStateDescriptor;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.runtime.state.StateInitializationContext;
+import org.apache.flink.runtime.state.StateSnapshotContext;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.streaming.api.operators.AbstractStreamOperator;
 import org.apache.flink.streaming.api.operators.OneInputStreamOperator;
@@ -43,9 +49,14 @@ import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
 import org.apache.inlong.sort.base.sink.TableChange;
 import org.apache.inlong.sort.base.sink.TableChange.AddColumn;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +71,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
 public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWithSchema>
         implements
@@ -90,13 +107,22 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
 
+    // metric
+    private final String inlongMetric;
+    private final String auditHostAndPorts;
+    private @Nullable transient SinkTableMetricData metricData;
+    private transient ListState<MetricState> metricStateListState;
+    private transient MetricState metricState;
+
     public DynamicSchemaHandleOperator(CatalogLoader catalogLoader,
             MultipleSinkOption multipleSinkOption, DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink, String inlongMetric, String auditHostAndPorts) {
         this.catalogLoader = catalogLoader;
         this.multipleSinkOption = multipleSinkOption;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @SuppressWarnings("unchecked")
@@ -117,6 +143,20 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         this.recordQueues = new HashMap<>();
         this.schemaCache = new HashMap<>();
         this.blacklist = new HashSet<>();
+
+        // Initialize metric
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withInlongAudit(auditHostAndPorts)
+                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
+                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .build();
+        if (metricOption != null) {
+            metricData = new SinkTableMetricData(metricOption, getRuntimeContext().getMetricGroup());
+        }
     }
 
     @Override
@@ -136,14 +176,15 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             LOGGER.error(String.format("Deserialize error, raw data: %s",
                     new String(element.getValue().getBinary(0))), e);
             handleDirtyData(new String(element.getValue().getBinary(0)),
-                    null, DirtyType.DESERIALIZE_ERROR, e);
+                    null, DirtyType.DESERIALIZE_ERROR, e, TableIdentifier.of("unknow", "unknow"));
         }
         TableIdentifier tableId = null;
         try {
             tableId = parseId(jsonNode);
         } catch (Exception e) {
             LOGGER.error(String.format("Table identifier parse error, raw data: %s", jsonNode), e);
-            handleDirtyData(jsonNode, jsonNode, DirtyType.TABLE_IDENTIFIER_PARSE_ERROR, e);
+            handleDirtyData(jsonNode, jsonNode, DirtyType.TABLE_IDENTIFIER_PARSE_ERROR,
+                    e, TableIdentifier.of("unknow", "unknow"));
         }
         if (blacklist.contains(tableId)) {
             return;
@@ -156,7 +197,11 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         }
     }
 
-    private void handleDirtyData(Object dirtyData, JsonNode rootNode, DirtyType dirtyType, Exception e) {
+    private void handleDirtyData(Object dirtyData,
+            JsonNode rootNode,
+            DirtyType dirtyType,
+            Exception e,
+            TableIdentifier tableId) {
         if (!dirtyOptions.ignoreDirty()) {
             RuntimeException ex;
             if (e instanceof RuntimeException) {
@@ -182,6 +227,10 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                             .setIdentifier(dirtyOptions.getIdentifier());
                 }
                 dirtySink.invoke(builder.build());
+                if (metricData != null) {
+                    metricData.outputDirtyMetricsWithEstimate(
+                            tableId.namespace().toString(), null, tableId.name(), dirtyData);
+                }
             } catch (Exception ex) {
                 if (!dirtyOptions.ignoreSideOutputErrors()) {
                     throw new RuntimeException(ex);
@@ -196,6 +245,29 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         LOG.info("Black list table: {} at time {}.", blacklist, timestamp);
         processingTimeService.registerTimer(
                 processingTimeService.getCurrentProcessingTime() + HELPER_DEBUG_INTERVEL, this);
+    }
+
+    @Override
+    public void snapshotState(StateSnapshotContext context) throws Exception {
+        if (metricData != null && metricStateListState != null) {
+            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, metricData,
+                    getRuntimeContext().getIndexOfThisSubtask());
+        }
+    }
+
+    @Override
+    public void initializeState(StateInitializationContext context) throws Exception {
+        // init metric state
+        if (this.inlongMetric != null) {
+            this.metricStateListState = context.getOperatorStateStore().getUnionListState(
+                    new ListStateDescriptor<>(
+                            String.format(INLONG_METRIC_STATE_NAME), TypeInformation.of(new TypeHint<MetricState>() {
+                            })));
+        }
+        if (context.isRestored()) {
+            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
+                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
+        }
     }
 
     private void execDDL(JsonNode jsonNode, TableIdentifier tableId) {
@@ -242,7 +314,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                                 LOG.warn("Ignore table {} schema change, old: {} new: {}.",
                                         tableId, dataSchema, latestSchema, e);
                                 blacklist.add(tableId);
-                                handleDirtyData(jsonNode, jsonNode, DirtyType.EXTRACT_ROWDATA_ERROR, e);
+                                handleDirtyData(jsonNode, jsonNode, DirtyType.EXTRACT_ROWDATA_ERROR, e, tableId);
                             }
                             return Collections.emptyList();
                         });
@@ -329,7 +401,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                     tableId,
                     pkListStr);
         } catch (Exception e) {
-            handleDirtyData(data, data, DirtyType.EXTRACT_SCHEMA_ERROR, e);
+            handleDirtyData(data, data, DirtyType.EXTRACT_SCHEMA_ERROR, e, tableId);
         }
         return null;
     }
