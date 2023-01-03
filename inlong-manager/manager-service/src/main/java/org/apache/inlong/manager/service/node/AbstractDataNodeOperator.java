@@ -85,4 +85,10 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
     public Map<String, String> parse2SinkParams(DataNodeInfo info) {
         return JsonUtils.parseObject(info.getExtParams(), HashMap.class);
     }
+
+    @Override
+    public Boolean testConnection(DataNodeRequest request) {
+        throw new BusinessException(
+                String.format(ErrorCodeEnum.DATA_NODE_TYPE_NOT_SUPPORTED.getMessage(), request.getType()));
+    }
 }

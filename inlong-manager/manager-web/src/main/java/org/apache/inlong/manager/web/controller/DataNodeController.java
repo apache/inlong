@@ -118,7 +118,7 @@ public class DataNodeController {
 
     @PostMapping("/node/testConnection")
     @ApiOperation(value = "Test connection for data node")
-    public Response<Boolean> testConnection(@Validated @RequestBody DataNodeRequest request) {
+    public Response<Boolean> testConnection(@RequestBody DataNodeRequest request) {
         return Response.success(dataNodeService.testConnection(request));
     }
 

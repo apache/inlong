@@ -227,7 +227,7 @@ public class ElasticsearchApi {
      *
      * @return RestHighLevelClient
      */
-    private RestHighLevelClient getEsClient() {
+    public RestHighLevelClient getEsClient() {
         return esConfig.highLevelClient();
     }
 

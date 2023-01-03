@@ -235,4 +235,10 @@ public class InlongClusterController {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.bindNodeTag(request, username));
     }
+
+    @PostMapping("/cluster/testConnection")
+    @ApiOperation(value = "Test connection for inlong cluster")
+    public Response<Boolean> testConnection(@RequestBody ClusterRequest request) {
+        return Response.success(clusterService.testConnection(request));
+    }
 }
