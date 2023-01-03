@@ -47,8 +47,6 @@ jobs:
     strategy:
       matrix:
         kubernetes-version:
-          - 'kindest/node:v1.14.10'
-          - 'kindest/node:v1.18.20'
           - 'kindest/node:v1.21.10'
           - 'kindest/node:v1.23.4'
     steps:

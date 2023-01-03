@@ -1,9 +1,9 @@
-#### InLong Audit docker image
+#### Audit docker image
 InLong Audit is available for development and experience.
 
 ##### Pull Image
 ```
-docker pull inlong/audit:latest
+docker pull inlong/audit:1.5.0
 ```
 
 ##### Start Container

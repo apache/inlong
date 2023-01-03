@@ -1,9 +1,9 @@
-#### InLong Agent docker image
+#### Agent docker image
 InLong Agent is available for development and experience.
 
 ##### Pull Image
 ```
-docker pull inlong/agent:latest
+docker pull inlong/agent:1.5.0
 ```
 
 ##### Start Container
