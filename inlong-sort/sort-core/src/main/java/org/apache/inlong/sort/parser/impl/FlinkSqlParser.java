@@ -879,7 +879,7 @@ public class FlinkSqlParser implements Parser {
     private String parseFields(List<FieldInfo> fields, Node node, String filterPrimaryKey) {
         StringBuilder sb = new StringBuilder();
         for (FieldInfo field : fields) {
-            if (field.getName().equals(filterPrimaryKey)) {
+            if (StringUtils.isNotBlank(filterPrimaryKey) && field.getName().equals(filterPrimaryKey)) {
                 continue;
             }
             sb.append("    `").append(field.getName()).append("` ");
@@ -915,7 +915,7 @@ public class FlinkSqlParser implements Parser {
      */
     private String genPrimaryKey(String primaryKey, String filterPrimaryKey) {
         boolean checkPrimaryKeyFlag = StringUtils.isNotBlank(primaryKey)
-                && (StringUtils.isBlank(filterPrimaryKey) || !primaryKey.contains(filterPrimaryKey));
+                && (StringUtils.isBlank(filterPrimaryKey) || !primaryKey.equals(filterPrimaryKey));
         if (checkPrimaryKeyFlag) {
             primaryKey = String.format("    PRIMARY KEY (%s) NOT ENFORCED,\n",
                     StringUtils.join(formatFields(primaryKey.split(",")), ","));
