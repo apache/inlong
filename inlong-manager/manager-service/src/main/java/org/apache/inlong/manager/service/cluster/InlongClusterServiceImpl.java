@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
@@ -33,7 +34,6 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -1647,6 +1647,18 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         return configJson;
+    }
+
+    @Override
+    public Boolean testConnection(ClusterRequest request) {
+        LOGGER.info("begin test connection for: {}", request);
+        String type = request.getType();
+
+        // according to the data node type, test connection
+        InlongClusterOperator clusterOperator = clusterOperatorFactory.getInstance(request.getType());
+        Boolean result = clusterOperator.testConnection(request);
+        LOGGER.info("connection [{}] for: {}", result ? "success" : "failed", request);
+        return result;
     }
 
     /**

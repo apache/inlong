@@ -429,4 +429,12 @@ public interface InlongClusterService {
      */
     String getAllConfig(String clusterName, String md5);
 
+    /**
+     * Test whether the connection can be successfully established.
+     *
+     * @param request connection request
+     * @return true or false
+     */
+    Boolean testConnection(ClusterRequest request);
+
 }
