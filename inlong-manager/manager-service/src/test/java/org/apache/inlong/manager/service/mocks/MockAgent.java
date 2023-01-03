@@ -83,7 +83,7 @@ public class MockAgent {
         heartbeat.setComponentType(ComponentTypeEnum.Agent.getType());
         heartbeat.setClusterName(CLUSTER_NAME);
         heartbeat.setClusterTag(CLUSTER_TAG);
-        heartbeat.setNodeTag(tags.stream().collect(Collectors.joining(InlongConstants.COMMA)));
+        heartbeat.setNodeLabel(tags.stream().collect(Collectors.joining(InlongConstants.COMMA)));
         heartbeat.setInCharges(GLOBAL_OPERATOR);
         heartbeat.setReportTime(System.currentTimeMillis());
         heartbeatService.reportHeartbeat(heartbeat);

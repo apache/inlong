@@ -78,7 +78,7 @@ public class HeartbeatMsg {
     /**
       * Tag of node, separated by commas(,)
       */
-    private String nodeTag;
+    private String nodeLabel;
 
     /**
      * Ext tag of cluster, key=value pairs seperated by &

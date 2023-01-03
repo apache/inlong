@@ -15,36 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.dao.mapper;
 
-import lombok.Data;
+import org.apache.inlong.manager.dao.entity.InlongLabelEntity;
 
-import java.io.Serializable;
-import java.util.Date;
+public interface InlongLabelEntityMapper {
 
-/**
- * Inlong cluster node entity, including parent id, type, ip, etc.
- */
-@Data
-public class InlongClusterNodeEntity implements Serializable {
+    int insert(InlongLabelEntity record);
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private Integer parentId;
-    private String type;
-    private String ip;
-    private Integer port;
-    private String protocolType;
-    private Integer nodeLoad;
-    private String extParams;
-    private String description;
+    InlongLabelEntity selectByPrimaryKey(Integer id);
 
-    private Integer status;
-    private Integer isDeleted;
-    private String creator;
-    private String modifier;
-    private Date createTime;
-    private Date modifyTime;
-    private Integer version;
-
+    InlongLabelEntity selectByLabelName(String labelName);
 }

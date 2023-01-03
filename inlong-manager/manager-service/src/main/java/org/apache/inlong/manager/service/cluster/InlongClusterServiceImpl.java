@@ -45,16 +45,20 @@ import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongLabelEntity;
+import org.apache.inlong.manager.dao.entity.InlongLabelNodeRelationEntity;
 import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterTagEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongLabelEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongLabelNodeRelationEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindLabelRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -111,6 +115,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
+    @Autowired
+    private InlongLabelEntityMapper labelMapper;
+    @Autowired
+    private InlongLabelNodeRelationEntityMapper labelNodeRelationMapper;
     @Lazy
     @Autowired
     private DataProxyConfigRepository proxyRepository;
@@ -1391,7 +1399,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public Boolean bindNodeTag(ClusterNodeBindTagRequest request, String operator) {
+    public Boolean bindNodeLabel(ClusterNodeBindLabelRequest request, String operator) {
         HashSet<String> bindSet = Sets.newHashSet();
         HashSet<String> unbindSet = Sets.newHashSet();
         if (request.getBindClusterNodes() != null) {
@@ -1405,6 +1413,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterEntity cluster = clusterMapper.selectByNameAndType(request.getClusterName(), request.getType());
         String message = "Current user does not have permission to bind cluster node tag";
         checkUser(cluster, operator, message);
+        InlongLabelEntity label = labelMapper.selectByLabelName(request.getClusterNodeLabel());
+        Preconditions.checkNotNull(label, "Current label must exist before bind it.");
 
         if (CollectionUtils.isNotEmpty(bindSet)) {
             bindSet.stream().flatMap(clusterNode -> {
@@ -1415,12 +1425,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 return clusterNodeMapper.selectByCondition(pageRequest).stream();
             }).filter(entity -> entity != null)
                     .forEach(entity -> {
-                        String nodeTags = entity.getNodeTags();
-                        Set<String> tagSet = nodeTags == null ? Sets.newHashSet()
-                                : Sets.newHashSet(entity.getNodeTags().split(InlongConstants.COMMA));
-                        tagSet.add(request.getClusterNodeTag());
-                        entity.setNodeTags(String.join(InlongConstants.COMMA, tagSet));
-                        clusterNodeMapper.updateById(entity);
+                        InlongLabelNodeRelationEntity relationEntity = new InlongLabelNodeRelationEntity();
+                        relationEntity.setLabelId(label.getId());
+                        relationEntity.setNodeId(entity.getId());
+                        labelNodeRelationMapper.insert(relationEntity);
                     });
         }
 
@@ -1433,12 +1441,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 return clusterNodeMapper.selectByCondition(pageRequest).stream();
             }).filter(entity -> entity != null)
                     .forEach(entity -> {
-                        String nodeTags = entity.getNodeTags();
-                        Set<String> tagSet = nodeTags == null ? Sets.newHashSet()
-                                : Sets.newHashSet(entity.getNodeTags().split(InlongConstants.COMMA));
-                        tagSet.remove(request.getClusterNodeTag());
-                        entity.setNodeTags(String.join(InlongConstants.COMMA, tagSet));
-                        clusterNodeMapper.updateById(entity);
+                        labelNodeRelationMapper.deleteByLabelNodeKV(label.getId(), entity.getId());
                     });
         }
         return true;

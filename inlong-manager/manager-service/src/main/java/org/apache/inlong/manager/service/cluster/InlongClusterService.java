@@ -21,7 +21,7 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindLabelRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -393,7 +393,7 @@ public interface InlongClusterService {
      * @param operator current operator
      * @return whether succeed
      */
-    Boolean bindNodeTag(ClusterNodeBindTagRequest request, String operator);
+    Boolean bindNodeLabel(ClusterNodeBindLabelRequest request, String operator);
 
     /**
      * Delete cluster node.

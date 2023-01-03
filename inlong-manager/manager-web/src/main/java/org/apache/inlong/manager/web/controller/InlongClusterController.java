@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindLabelRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -228,12 +228,12 @@ public class InlongClusterController {
         return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUser().getName()));
     }
 
-    @RequestMapping(value = "/cluster/node/bindTag")
+    @RequestMapping(value = "/cluster/node/bindLabel")
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Bind or unbind cluster node tag")
-    public Response<Boolean> bindNodeTag(@Validated @RequestBody ClusterNodeBindTagRequest request) {
+    @ApiOperation(value = "Bind or unbind cluster node label")
+    public Response<Boolean> bindNodeTag(@Validated @RequestBody ClusterNodeBindLabelRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
-        return Response.success(clusterService.bindNodeTag(request, username));
+        return Response.success(clusterService.bindNodeLabel(request, username));
     }
 
     @PostMapping("/cluster/testConnection")

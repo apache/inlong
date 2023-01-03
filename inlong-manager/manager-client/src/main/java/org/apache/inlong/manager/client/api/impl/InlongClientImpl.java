@@ -39,7 +39,8 @@ import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindLabelRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindLabelRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -289,8 +290,8 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public Boolean bindNodeTag(ClusterNodeBindTagRequest request) {
-        return clusterClient.bindNodeTag(request);
+    public Boolean bindNodeTag(ClusterNodeBindLabelRequest request) {
+        return clusterClient.bindNodeLabel(request);
     }
 
     private SimpleGroupStatus recheckGroupStatus(SimpleGroupStatus groupStatus, List<StreamSource> sources) {

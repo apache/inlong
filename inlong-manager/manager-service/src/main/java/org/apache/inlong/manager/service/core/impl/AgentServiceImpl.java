@@ -46,12 +46,15 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongLabelEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongLabelEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongLabelNodeRelationEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -107,6 +110,10 @@ public class AgentServiceImpl implements AgentService {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
+    @Autowired
+    private InlongLabelEntityMapper labelMapper;
+    @Autowired
+    private InlongLabelNodeRelationEntityMapper labelNodeRelationMapper;
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
@@ -251,7 +258,7 @@ public class AgentServiceImpl implements AgentService {
 
     private void preProcessFileTask(TaskRequest taskRequest) {
         preProcessTemplateFileTask(taskRequest);
-        preProcessTagFileTasks(taskRequest);
+        preProcessLabelFileTasks(taskRequest);
     }
 
     /**
@@ -306,7 +313,7 @@ public class AgentServiceImpl implements AgentService {
      *
      * @param taskRequest
      */
-    private void preProcessTagFileTasks(TaskRequest taskRequest) {
+    private void preProcessLabelFileTasks(TaskRequest taskRequest) {
         List<Integer> needProcessedStatusList = Arrays.asList(
                 SourceStatus.SOURCE_NORMAL.getCode(),
                 SourceStatus.SOURCE_FAILED.getCode(),
@@ -320,6 +327,13 @@ public class AgentServiceImpl implements AgentService {
                 "both agent ip and cluster name are blank when fetching file task");
 
         InlongClusterNodeEntity clusterNodeEntity = selectByIpAndCluster(agentClusterName, agentIp);
+        Set<String> nodeLabels = clusterNodeEntity == null ? new HashSet<>()
+                : labelNodeRelationMapper.selectByNodeId(clusterNodeEntity.getId())
+                        .stream()
+                        .map(labelNodeRelation -> labelMapper.selectByPrimaryKey(labelNodeRelation.getLabelId()))
+                        .filter(label -> label != null)
+                        .map(InlongLabelEntity::getLabelName)
+                        .collect(Collectors.toSet());
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpAndCluster(needProcessedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName);
 
@@ -329,7 +343,7 @@ public class AgentServiceImpl implements AgentService {
                     Set<SourceStatus> exceptedUnmatchedStatus = Sets.newHashSet(
                             SourceStatus.SOURCE_FROZEN,
                             SourceStatus.TO_BE_ISSUED_FROZEN);
-                    if (!matchTag(sourceEntity, clusterNodeEntity)
+                    if (!matchLabel(sourceEntity, nodeLabels)
                             && !exceptedUnmatchedStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))) {
                         LOGGER.info("Transform task({}) from {} to {} because tag mismatch "
                                 + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
@@ -348,7 +362,7 @@ public class AgentServiceImpl implements AgentService {
                             SourceStatus.TO_BE_ISSUED_ACTIVE);
                     Set<StreamStatus> exceptedMatchedStreamStatus = Sets.newHashSet(
                             StreamStatus.SUSPENDED, StreamStatus.SUSPENDED);
-                    if (matchTag(sourceEntity, clusterNodeEntity)
+                    if (matchLabel(sourceEntity, nodeLabels)
                             && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
                             && !exceptedMatchedStreamStatus.contains(StreamStatus.forCode(streamEntity.getStatus()))) {
                         LOGGER.info("Transform task({}) from {} to {} because tag rematch "
@@ -514,20 +528,14 @@ public class AgentServiceImpl implements AgentService {
         }).collect(Collectors.toList());
     }
 
-    private boolean matchTag(StreamSourceEntity sourceEntity, InlongClusterNodeEntity clusterNodeEntity) {
+    private boolean matchLabel(StreamSourceEntity sourceEntity, Set<String> clusterNodeLabels) {
         Preconditions.checkNotNull(sourceEntity, "cluster must be valid");
         if (sourceEntity.getInlongClusterNodeTag() == null) {
             return true;
         }
-        if (clusterNodeEntity == null || clusterNodeEntity.getNodeTags() == null) {
-            return false;
-        }
 
-        Set<String> nodeTags = Stream.of(
-                clusterNodeEntity.getNodeTags().split(InlongConstants.COMMA)).collect(Collectors.toSet());
-        Set<String> sourceTags = Stream.of(
+        Set<String> sourceLabels = Stream.of(
                 sourceEntity.getInlongClusterNodeTag().split(InlongConstants.COMMA)).collect(Collectors.toSet());
-        return sourceTags.stream().anyMatch(sourceTag -> nodeTags.contains(sourceTag));
+        return sourceLabels.stream().anyMatch(sourceLabel -> clusterNodeLabels.contains(sourceLabel));
     }
-
 }

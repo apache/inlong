@@ -23,7 +23,7 @@ import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindLabelRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -304,7 +304,7 @@ public class InlongClusterClient {
      * @param request cluster info to be modified
      * @return whether succeed
      */
-    public Boolean bindNodeTag(ClusterNodeBindTagRequest request) {
+    public Boolean bindNodeLabel(ClusterNodeBindLabelRequest request) {
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongClusterApi.bindNodeTag(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
