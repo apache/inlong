@@ -44,6 +44,7 @@ import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetHistoryInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerStatsType;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
@@ -118,6 +119,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // set or update group's offset info
         innRegisterWebMethod("admin_set_offset",
                 "adminSetGroupOffSet", false);
+        // set or update group's offset info by history offset time
+        innRegisterWebMethod("admin_set_offset_by_time",
+                "adminSetGroupOffSetByTime", false);
         // remove group's offset info
         innRegisterWebMethod("admin_rmv_offset",
                 "adminRemoveGroupOffSet", false);
@@ -999,6 +1003,228 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         }
         broker.getOffsetManager().modifyGroupOffset(groupNameSet, resetOffsets, modifier);
         sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"OK\"}");
+    }
+
+    /**
+     * Add or Modify consumer group offset by group's history offset time.
+     *
+     * @param req      request
+     * @param sBuffer  process result
+     */
+    public void adminSetGroupOffSetByTime(HttpServletRequest req, StringBuilder sBuffer) {
+        ProcessResult result = new ProcessResult();
+        // get group name
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.GROUPNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return;
+        }
+        final String groupName = (String) result.getRetData();
+        // get modify user
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.MODIFYUSER, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return;
+        }
+        final String modifyUser = (String) result.getRetData();
+        // get the left timestamp to be set
+        if (!WebParameterUtils.getDateParameter(req,
+                WebFieldDef.RECORDTIME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return;
+        }
+        final Date tmpDataTime1 = (Date) result.getRetData();
+        final long recStartTime = tmpDataTime1.getTime();
+        // get the right timestamp to be set
+        if (!WebParameterUtils.getDateParameter(req,
+                WebFieldDef.ENDTIME, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return;
+        }
+        final Date tmpDataTime2 = (Date) result.getRetData();
+        long recEndTime = recStartTime + 5 * 60 * 1000L;
+        if (tmpDataTime2 != null) {
+            recEndTime = tmpDataTime2.getTime();
+            if (recEndTime < recStartTime) {
+                WebParameterUtils.buildFailResult(sBuffer,
+                        String.format("Parameter %s value must >= %s",
+                                WebFieldDef.ENDTIME.name, WebFieldDef.RECORDTIME.name));
+                return;
+            }
+        }
+        // check storage status
+        if (ServiceStatusHolder.isReadServiceStop()) {
+            WebParameterUtils.buildFailResult(sBuffer,
+                    "Read StoreService temporary unavailable!");
+            return;
+        }
+        // get offset history storage
+        MessageStore msgStore;
+        MessageStoreManager storeManager = broker.getStoreManager();
+        try {
+            msgStore = storeManager.getOrCreateMessageStore(
+                    TServerConstants.OFFSET_HISTORY_NAME, 0);
+        } catch (Throwable ex) {
+            WebParameterUtils.buildFailResult(sBuffer,
+                    String.format("Get offset history store fail, reason=%s", ex.getMessage()));
+            return;
+        }
+        // get the history offset in the time range
+        // read history data
+        int totalCnt = 0;
+        // locate start offset
+        int maxRetryCnt = 50;
+        long requestOffset = msgStore.getStartOffsetByTimeStamp(recStartTime);
+        if (!getStoredGroupHisOffsets(groupName, msgStore,
+                requestOffset, maxRetryCnt, recStartTime, recEndTime, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return;
+        }
+        List<Tuple3<String, Integer, Long>> resetOffsets =
+                (List<Tuple3<String, Integer, Long>>) result.getRetData();
+        if (resetOffsets.isEmpty()) {
+            WebParameterUtils.buildFailResult(sBuffer, "Not found history offset value!");
+            return;
+        }
+        Set<String> groupNameSet = new HashSet<>();
+        groupNameSet.add(groupName);
+        Set<String> topicSet = new HashSet<>();
+        // before
+        Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> befGroupOffsetMap =
+                getGroupOffsetInfo(WebFieldDef.COMPSGROUPNAME, groupNameSet, topicSet);
+        Map<String, Map<Integer, GroupOffsetInfo>> befTopicPartMap =
+                befGroupOffsetMap.get(groupName);
+        // change
+        broker.getOffsetManager().modifyGroupOffset(groupNameSet, resetOffsets, modifyUser);
+        // after
+        Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> aftGroupOffsetMap =
+                getGroupOffsetInfo(WebFieldDef.COMPSGROUPNAME, groupNameSet, topicSet);
+        Map<String, Map<Integer, GroupOffsetInfo>> aftTopicPartMap =
+                aftGroupOffsetMap.get(groupName);
+        // build result
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        int topicCnt = 0;
+        sBuffer.append("{\"groupName\":\"").append(groupName).append("\",\"before\":[");
+        for (Map.Entry<String, Map<Integer, GroupOffsetInfo>> entry1 : befTopicPartMap.entrySet()) {
+            if (topicCnt++ > 0) {
+                sBuffer.append(",");
+            }
+            Map<Integer, GroupOffsetInfo> partOffMap = entry1.getValue();
+            sBuffer.append("{\"topicName\":\"").append(entry1.getKey())
+                    .append("\",\"offsets\":[");
+            int partCnt = 0;
+            for (Map.Entry<Integer, GroupOffsetInfo> entry2 : partOffMap.entrySet()) {
+                if (partCnt++ > 0) {
+                    sBuffer.append(",");
+                }
+                GroupOffsetInfo offsetInfo = entry2.getValue();
+                offsetInfo.buildOffsetInfo(sBuffer);
+            }
+            sBuffer.append("],\"partCount\":").append(partCnt).append("}");
+        }
+        sBuffer.append("],\"after\":[");
+        topicCnt = 0;
+        for (Map.Entry<String, Map<Integer, GroupOffsetInfo>> entry1 : aftTopicPartMap.entrySet()) {
+            if (topicCnt++ > 0) {
+                sBuffer.append(",");
+            }
+            Map<Integer, GroupOffsetInfo> partOffMap = entry1.getValue();
+            sBuffer.append("{\"topicName\":\"").append(entry1.getKey())
+                    .append("\",\"offsets\":[");
+            int partCnt = 0;
+            for (Map.Entry<Integer, GroupOffsetInfo> entry2 : partOffMap.entrySet()) {
+                if (partCnt++ > 0) {
+                    sBuffer.append(",");
+                }
+                GroupOffsetInfo offsetInfo = entry2.getValue();
+                offsetInfo.buildOffsetInfo(sBuffer);
+            }
+            sBuffer.append("],\"partCount\":").append(partCnt).append("}");
+        }
+        sBuffer.append("]}");
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+    }
+
+    /**
+     * Query group's offset records stored in broker.
+     *
+     * @param groupName      group name
+     * @param msgStore       history offset store
+     * @param requestOffset  request offset
+     * @param maxRetryCnt    max query turns
+     * @param recStartTime   record start timestamp
+     * @param recEndTime     record end timestamp
+     * @param result         query result
+     * @return  whether success
+     */
+    private boolean getStoredGroupHisOffsets(String groupName, MessageStore msgStore,
+            long requestOffset, int maxRetryCnt,
+            long recStartTime, long recEndTime,
+            ProcessResult result) {
+        int msgTypeCode;
+        int partitionId;
+        Throwable qryThrow;
+        GetMessageResult getMessageResult;
+        // locate partitionId and filter-item
+        msgTypeCode = groupName.hashCode();
+        partitionId = Math.abs(msgTypeCode) % TServerConstants.OFFSET_HISTORY_NUMPARTS;
+        Set<String> filterCodes = new HashSet<>();
+        filterCodes.add(groupName);
+        // build consumer node information
+        ConsumerNodeInfo consumerNodeInfo = new ConsumerNodeInfo(broker.getStoreManager(),
+                groupName, "offsetConsumer", filterCodes, "", System.currentTimeMillis(), "", "");
+        // query records from storage
+        int qryRetryCount = 0;
+        long itemInitOffset = requestOffset;
+        int maxTransferSize = broker.getStoreManager().getMaxMsgTransferSize();
+        do {
+            qryThrow = null;
+            try {
+                getMessageResult = msgStore.getMessages(303, itemInitOffset,
+                        partitionId, consumerNodeInfo, TServerConstants.OFFSET_HISTORY_NAME,
+                        maxTransferSize, recStartTime);
+            } catch (Throwable e2) {
+                qryThrow = e2;
+                continue;
+            }
+            // check query result
+            if (getMessageResult.transferedMessageList == null
+                    || getMessageResult.transferedMessageList.isEmpty()) {
+                itemInitOffset += getMessageResult.lastReadOffset;
+                continue;
+            }
+            // build record to return result
+            List<Message> messageList = DataConverterUtil.convertMessage(
+                    TServerConstants.OFFSET_HISTORY_NAME, getMessageResult.transferedMessageList);
+            for (Message message : messageList) {
+                if (message == null) {
+                    continue;
+                }
+                long recAppTime = DateTimeConvertUtils.yyyyMMddHHmm2ms(
+                        message.getAttrValue(TokenConstants.TOKEN_MSG_TIME));
+                if (recAppTime > recEndTime) {
+                    result.setFailResult(String.format(
+                            "Over required endTime range, current time is %s",
+                            message.getAttrValue(TokenConstants.TOKEN_MSG_TIME)));
+                    return result.isSuccess();
+                }
+                if (!groupName.equals(message.getAttrValue(
+                        TServerConstants.TOKEN_OFFSET_GROUP))) {
+                    continue;
+                }
+                return OffsetHistoryInfo.parseRecordInfo(
+                        StringUtils.newStringUtf8(message.getData()), result);
+            }
+            itemInitOffset += getMessageResult.lastReadOffset;
+        } while (++qryRetryCount < maxRetryCnt);
+        // check query result
+        if (qryThrow == null) {
+            result.setFailResult("Not found record in required search range");
+        } else {
+            result.setFailResult(String.format(
+                    "Query record failure, reason is :%s", qryThrow.getMessage()));
+        }
+        return result.isSuccess();
     }
 
     /**

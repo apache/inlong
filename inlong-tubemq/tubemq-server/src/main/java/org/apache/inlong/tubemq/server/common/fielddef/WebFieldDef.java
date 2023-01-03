@@ -259,7 +259,13 @@ public enum WebFieldDef {
     MAXRETRYCOUNT(93, "maxRetryCnt", "mrc", WebFieldType.INT,
             "Max retry query turns", RegexDef.TMP_NUMBER),
     STATSTYPE(94, "statsType", "st", WebFieldType.STRING,
-            "Statistics type", TServerConstants.META_MAX_STATSTYPE_LENGTH);
+            "Statistics type", TServerConstants.META_MAX_STATSTYPE_LENGTH),
+
+    RESETVALUE(95, "resetValue", "rv", WebFieldType.BOOLEAN,
+            "Reset value, default is false"),
+    ENDTIME(96, "endTime", "et", WebFieldType.STRING,
+            "The end record time of the historical offset of the consume group",
+            DateTimeConvertUtils.LENGTH_YYYYMMDDHHMMSS);
 
     public final int id;
     public final String name;
