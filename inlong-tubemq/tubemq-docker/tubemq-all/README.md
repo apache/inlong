@@ -1,9 +1,9 @@
-#### tubemq-all docker image
+#### TubeMQ-all docker image
 TubeMQ standalone is available for development and experience.
 
 ##### Pull Image
 ```
-docker pull inlong/tubemq-all:latest
+docker pull inlong/tubemq-all:1.5.0
 ```
 
 ##### Start Standalone Container
