@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-audit</artifactId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>1.6.0-SNAPSHOT</version>
     </parent>
     <artifactId>audit-common</artifactId>
     <name>Apache InLong - Audit common</name>
