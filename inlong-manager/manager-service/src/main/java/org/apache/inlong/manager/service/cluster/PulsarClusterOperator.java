@@ -94,7 +94,7 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
         PulsarClusterInfo pulsarInfo = new PulsarClusterInfo();
         CommonBeanUtils.copyProperties(pulsarRequest, pulsarInfo);
         try (PulsarAdmin ignored = PulsarUtils.getPulsarAdmin(pulsarInfo)) {
-            LOGGER.info("pulsar connection not null - connection success");
+            LOGGER.info("pulsar connection not null - connection success for adminUrl={}", pulsarInfo.getAdminUrl());
             return true;
         } catch (Exception e) {
             String errMsg = String.format("pulsar connection failed for adminUrl=%s, password=%s",

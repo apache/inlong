@@ -105,7 +105,8 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
         boolean result;
         try {
             result = client.getEsClient().ping(RequestOptions.DEFAULT);
-            LOGGER.info("elasticsearch connection is {}", result);
+            LOGGER.info("elasticsearch connection is {} for url={}, username={}, password={}", result, url, username,
+                    password);
             return result;
         } catch (Exception e) {
             String errMsg = String.format("elasticsearch connection failed for url=%s, username=%s, password=%s", url,
