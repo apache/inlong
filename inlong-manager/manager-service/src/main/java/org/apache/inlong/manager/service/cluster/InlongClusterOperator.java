@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.cluster;
 
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 
 /**
  * Interface of the inlong cluster operator.
@@ -62,5 +62,13 @@ public interface InlongClusterOperator {
      * @param operator name of operator
      */
     void updateOpt(ClusterRequest request, String operator);
+
+    /**
+     * Test connection
+     *
+     * @param request request of the cluster
+     * @return Whether the connection is successful
+     */
+    Boolean testConnection(ClusterRequest request);
 
 }

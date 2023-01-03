@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -30,6 +31,9 @@ import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
+import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
+import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchConfig;
+import org.elasticsearch.client.RequestOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,4 +86,34 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
         LOGGER.debug("success to get elasticsearch data node from entity");
         return info;
     }
+
+    @Override
+    public Boolean testConnection(DataNodeRequest request) {
+        String url = request.getUrl();
+        String username = request.getUsername();
+        String password = request.getToken();
+        Preconditions.checkNotNull(url, "connection url cannot be empty");
+        ElasticsearchApi client = new ElasticsearchApi();
+        ElasticsearchConfig config = new ElasticsearchConfig();
+        if (StringUtils.isNotEmpty(request.getUsername())) {
+            config.setAuthEnable(true);
+            config.setUsername(username);
+            config.setPassword(password);
+        }
+        config.setHosts(url);
+        client.setEsConfig(config);
+        boolean result;
+        try {
+            result = client.getEsClient().ping(RequestOptions.DEFAULT);
+            LOGGER.info("elasticsearch connection is {} for url={}, username={}, password={}", result, url, username,
+                    password);
+            return result;
+        } catch (Exception e) {
+            String errMsg = String.format("elasticsearch connection failed for url=%s, username=%s, password=%s", url,
+                    username, password);
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
+        }
+    }
+
 }

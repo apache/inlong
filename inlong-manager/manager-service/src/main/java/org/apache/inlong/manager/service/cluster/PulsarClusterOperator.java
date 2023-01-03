@@ -22,13 +22,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
+import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
+import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +85,22 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
             LOGGER.info("success to set entity for pulsar cluster");
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Boolean testConnection(ClusterRequest request) {
+        PulsarClusterRequest pulsarRequest = (PulsarClusterRequest) request;
+        PulsarClusterInfo pulsarInfo = new PulsarClusterInfo();
+        CommonBeanUtils.copyProperties(pulsarRequest, pulsarInfo);
+        try (PulsarAdmin ignored = PulsarUtils.getPulsarAdmin(pulsarInfo)) {
+            LOGGER.info("pulsar connection not null - connection success for adminUrl={}", pulsarInfo.getAdminUrl());
+            return true;
+        } catch (Exception e) {
+            String errMsg = String.format("pulsar connection failed for adminUrl=%s, password=%s",
+                    pulsarInfo.getAdminUrl(), pulsarInfo.getToken());
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
         }
     }
 
