@@ -124,7 +124,7 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
         StarRocksQueryVisitor starrocksQueryVisitor = new StarRocksQueryVisitor(jdbcConnProvider,
                 sinkOptions.getDatabaseName(), sinkOptions.getTableName());
         this.sinkManager = new StarRocksSinkManager(sinkOptions, schema, jdbcConnProvider, starrocksQueryVisitor,
-                multipleSink, schemaUpdatePolicy, dirtySinkHelper);
+                multipleSink, schemaUpdatePolicy, dirtySinkHelper, sinkMultipleFormat);
 
         rowTransformer.setStarRocksColumns(starrocksQueryVisitor.getFieldMapping());
         rowTransformer.setTableSchema(schema);
