@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.compress.utils.Lists;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -106,7 +105,7 @@ public class HudiNodeSqlParserTest extends AbstractTestBase {
                 null,
                 "hdfs://localhost:9000/hudi/warehouse",
                 extList,
-                Lists.newArrayList());
+                "f1");
     }
 
     private HudiLoadNode buildHudiLoadNodeWithHiveCatalog() {
@@ -145,7 +144,7 @@ public class HudiNodeSqlParserTest extends AbstractTestBase {
                 "thrift://localhost:9083",
                 "/hive/warehouse",
                 extList,
-                Lists.newArrayList());
+                "f1");
     }
 
     /**

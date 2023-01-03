@@ -63,7 +63,7 @@ public class HudiSinkRequest extends SinkRequest {
     private List<HashMap<String, String>> extList;
 
     @ApiModelProperty("Partition field list")
-    private List<HudiPartitionField> partitionFieldList;
+    private String partitionKey;
 
     @ApiModelProperty("Primary key")
     private String primaryKey;

@@ -17,9 +17,12 @@
 
 package org.apache.inlong.manager.service.sink.hudi;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -72,7 +75,28 @@ public class HudiSinkOperator extends AbstractSinkOperator {
         Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
         HudiSinkRequest sinkRequest = (HudiSinkRequest) request;
-        List<HashMap<String, String>> extList = sinkRequest.getExtList();
+
+        String partitionKey = sinkRequest.getPartitionKey();
+        String primaryKey = sinkRequest.getPrimaryKey();
+        boolean primaryKeyExist = StringUtils.isNotEmpty(partitionKey);
+        boolean partitionKeyExist = StringUtils.isNotEmpty(primaryKey);
+        if (primaryKeyExist || partitionKeyExist) {
+            Set<String> fieldNames = sinkRequest.getSinkFieldList().stream().map(SinkField::getFieldName)
+                    .collect(Collectors.toSet());
+            if (primaryKeyExist) {
+                checkState(
+                        fieldNames.contains(partitionKey),
+                        "The partitionKey({}) must be included in the sinkFieldList({})",
+                        partitionKey, fieldNames);
+            }
+            if (partitionKeyExist) {
+                checkState(
+                        fieldNames.contains(partitionKey),
+                        "The primaryKey({}) must be included in the sinkFieldList({})",
+                        primaryKey,
+                        fieldNames);
+            }
+        }
 
         try {
             HudiSinkDTO dto = HudiSinkDTO.getFromRequest(sinkRequest);

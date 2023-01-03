@@ -77,7 +77,7 @@ public class HudiSink extends StreamSink {
     private List<HashMap<String, String>> extList;
 
     @ApiModelProperty("Partition field list")
-    private List<HudiPartitionField> partitionFieldList;
+    private String partitionKey;
 
     public HudiSink() {
         this.setSinkType(SinkType.HUDI);

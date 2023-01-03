@@ -35,4 +35,6 @@ public class HudiTableInfo {
     private List<HudiColumnInfo> columns;
 
     private String primaryKey;
+
+    private String partitionKey;
 }
