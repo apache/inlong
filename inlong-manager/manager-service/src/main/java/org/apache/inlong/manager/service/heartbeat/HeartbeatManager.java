@@ -246,20 +246,24 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             InlongLabelEntity labelEntity = labelMapper.selectByLabelName(label);
             int labelId = 0;
             if (labelEntity == null) {
-                InlongLabelEntity entity = new InlongLabelEntity();
-                entity.setLabelName(label);
-                entity.setDescription(AUTO_REGISTERED);
-                entity.setInCharges(heartbeat.getInCharges());
-                entity.setCreator(creator);
-                entity.setModifier(creator);
-                labelId = labelMapper.insert(entity);
-            } else {
-                labelId = labelEntity.getId();
+                labelEntity = new InlongLabelEntity();
+                labelEntity.setLabelName(label);
+                labelEntity.setDescription(AUTO_REGISTERED);
+                labelEntity.setInCharges(heartbeat.getInCharges());
+                labelEntity.setCreator(creator);
+                labelEntity.setModifier(creator);
+                labelMapper.insert(labelEntity);
             }
-            InlongLabelNodeRelationEntity labelNodeRelation = new InlongLabelNodeRelationEntity();
-            labelNodeRelation.setLabelId(labelId);
-            labelNodeRelation.setNodeId(clusterNode.getId());
-            labelNodeRelationMapper.insert(labelNodeRelation);
+            labelId = labelEntity.getId();
+
+            InlongLabelNodeRelationEntity relationEntity =
+                    labelNodeRelationMapper.selectByLabelNodeKV(labelId, clusterNode.getId());
+            if (relationEntity == null) {
+                InlongLabelNodeRelationEntity labelNodeRelation = new InlongLabelNodeRelationEntity();
+                labelNodeRelation.setLabelId(labelId);
+                labelNodeRelation.setNodeId(clusterNode.getId());
+                labelNodeRelationMapper.insert(labelNodeRelation);
+            }
         });
     }
 

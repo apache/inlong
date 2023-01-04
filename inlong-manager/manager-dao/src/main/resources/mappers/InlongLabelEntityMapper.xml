@@ -49,14 +49,13 @@
     from inlong_label
     where label_name = #{labelName,jdbcType=VARCHAR}
   </select>
-  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.InlongLabelEntity">
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+          parameterType="org.apache.inlong.manager.dao.entity.InlongLabelEntity">
     insert into inlong_label (id, label_name, description, 
-      in_charges, is_deleted, creator, 
-      modifier, create_time, modify_time, 
-      version, ext_params)
+      in_charges, creator,
+      modifier, ext_params)
     values (#{id,jdbcType=INTEGER}, #{labelName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
-      #{inCharges,jdbcType=VARCHAR}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, 
-      #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, 
-      #{version,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR})
+      #{inCharges,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR},
+      #{modifier,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR})
   </insert>
 </mapper>

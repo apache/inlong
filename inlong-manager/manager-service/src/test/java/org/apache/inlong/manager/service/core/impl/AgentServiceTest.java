@@ -121,7 +121,7 @@ class AgentServiceTest extends ServiceBaseTest {
         sourceInfo.setInlongStreamId(streamId);
         sourceInfo.setSourceType(SourceType.FILE);
         sourceInfo.setInlongClusterName(MockAgent.CLUSTER_NAME);
-        sourceInfo.setInlongClusterNodeTag(tag);
+        sourceInfo.setInlongClusterNodeLabel(tag);
         sourceInfo.setSourceName(
                 String.format("Source task for cluster(%s) and tag(%s)", MockAgent.CLUSTER_NAME, tag));
         sourceService.save(sourceInfo, GLOBAL_OPERATOR);

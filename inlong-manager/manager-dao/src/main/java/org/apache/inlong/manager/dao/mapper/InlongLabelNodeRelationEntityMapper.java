@@ -34,5 +34,8 @@ public interface InlongLabelNodeRelationEntityMapper {
 
     InlongLabelNodeRelationEntity selectByPrimaryKey(Integer id);
 
+    InlongLabelNodeRelationEntity selectByLabelNodeKV(
+            @Param("labelId") Integer labelId, @Param("nodeId") Integer nodeId);
+
     List<InlongLabelNodeRelationEntity> selectByNodeId(Integer nodeId);
 }
