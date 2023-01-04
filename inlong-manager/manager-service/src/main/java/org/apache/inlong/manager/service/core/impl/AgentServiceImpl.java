@@ -530,12 +530,12 @@ public class AgentServiceImpl implements AgentService {
 
     private boolean matchLabel(StreamSourceEntity sourceEntity, Set<String> clusterNodeLabels) {
         Preconditions.checkNotNull(sourceEntity, "cluster must be valid");
-        if (sourceEntity.getInlongClusterNodeTag() == null) {
+        if (sourceEntity.getInlongClusterNodeLabel() == null) {
             return true;
         }
 
         Set<String> sourceLabels = Stream.of(
-                sourceEntity.getInlongClusterNodeTag().split(InlongConstants.COMMA)).collect(Collectors.toSet());
+                sourceEntity.getInlongClusterNodeLabel().split(InlongConstants.COMMA)).collect(Collectors.toSet());
         return sourceLabels.stream().anyMatch(sourceLabel -> clusterNodeLabels.contains(sourceLabel));
     }
 }

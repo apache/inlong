@@ -228,7 +228,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
             heartbeatMsg.setInCharges(inCharges);
         }
         if (StringUtils.isNotBlank(nodeTag)) {
-            heartbeatMsg.setNodeTag(nodeTag);
+            heartbeatMsg.setNodeLabel(nodeTag);
         }
 
         Map<String, JobWrapper> jobWrapperMap = jobmanager.getJobs();

@@ -381,7 +381,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `uuid`                varchar(30)           DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
     `data_node_name`      varchar(128)          DEFAULT NULL COMMENT 'Node name, which links to data_node table',
     `inlong_cluster_name` varchar(128)          DEFAULT NULL COMMENT 'Cluster name of the agent running the task',
-    `inlong_cluster_node_tag` varchar(512)      DEFAULT NULL COMMENT 'Cluster node tag',
+    `inlong_cluster_node_label` varchar(512)      DEFAULT NULL COMMENT 'Cluster node label',
     `serialization_type`  varchar(20)           DEFAULT NULL COMMENT 'Serialization type, support: csv, json, canal, avro, etc',
     `snapshot`            mediumtext            DEFAULT NULL COMMENT 'Snapshot of this source task',
     `report_time`         timestamp    NULL COMMENT 'Snapshot time',
