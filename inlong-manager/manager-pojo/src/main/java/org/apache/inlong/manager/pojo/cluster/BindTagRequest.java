@@ -17,11 +17,15 @@
 
 package org.apache.inlong.manager.pojo.cluster;
 
+import org.hibernate.validator.constraints.Length;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
 import java.util.List;
 
 /**
@@ -33,6 +37,8 @@ public class BindTagRequest {
 
     @NotBlank(message = "clusterTag cannot be blank")
     @ApiModelProperty(value = "Cluster tag")
+    @Length(min = 1, max = 128, message = "length must be between 1 and 128")
+    @Pattern(regexp = "^[a-z0-9_-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String clusterTag;
 
     @ApiModelProperty(value = "Cluster-ID list which needs to bind tag")

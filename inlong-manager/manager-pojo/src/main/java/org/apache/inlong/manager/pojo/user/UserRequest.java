@@ -27,6 +27,8 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.validation.InEnumInt;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -48,24 +50,30 @@ public class UserRequest extends PageRequest {
 
     @NotBlank(message = "User name cannot be blank")
     @ApiModelProperty(value = "User name", required = true)
+    @Length(min = 1, max = 256, message = "length must be between 1 and 256")
     private String name;
 
     @ApiModelProperty(value = "Keyword, can be user name")
     private String keyword;
 
     @ApiModelProperty(value = "User password")
+    @Length(min = 1, max = 64, message = "length must be between 1 and 64")
     private String password;
 
     @ApiModelProperty(value = "New password, is required if needs updated")
+    @Length(min = 1, max = 64, message = "length must be between 1 and 64")
     private String newPassword;
 
     @ApiModelProperty("Secret key")
+    @Length(min = 1, max = 256, message = "length must be between 1 and 256")
     private String secretKey;
 
     @ApiModelProperty("Public key")
+    @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String publicKey;
 
     @ApiModelProperty("Private key")
+    @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String privateKey;
 
     @ApiModelProperty("Encryption key version")
@@ -74,6 +82,7 @@ public class UserRequest extends PageRequest {
     @NotNull(message = "accountType cannot be null")
     @InEnumInt(UserTypeEnum.class)
     @ApiModelProperty(value = "Account type: 0 - manager, 1 - operator", required = true)
+    @Range(min = 0, max = 1, message = "only supports [0: manager, 1: operator]")
     private Integer accountType;
 
     @Min(1)
@@ -85,6 +94,7 @@ public class UserRequest extends PageRequest {
     private Integer version;
 
     @ApiModelProperty(value = "Extension json info")
+    @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String extParams;
 
 }
