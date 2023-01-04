@@ -517,6 +517,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 LOG.warn("Dirty sink failed", ex);
             }
         }
+
         metricData.invokeDirty(1, dirtyData.toString().getBytes(StandardCharsets.UTF_8).length);
     }
 
@@ -553,8 +554,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
         }
         try {
-            metricData.outputDirtyMetricsWithEstimate(
-                    jsonDynamicSchemaFormat.parse(rootNode, databasePattern),
+            metricData.outputDirtyMetrics(
+                    jsonDynamicSchemaFormat.parse(rootNode, databasePattern), null,
                     jsonDynamicSchemaFormat.parse(rootNode, tablePattern), 1,
                     ((RowData) dirtyData).getBinary(0).length);
         } catch (Exception ex) {
@@ -685,68 +686,68 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             values.clear();
         } catch (Exception e) {
             // Makesure it is a dirty data
-            if (respContent != null && StringUtils.isNotBlank(respContent.getErrorURL())) {
-                flushExceptionMap.put(tableIdentifier, e);
-                errorNum.getAndAdd(values.size());
-                LOG.warn("starting to archive dirty data");
-                for (Object value : values) {
-                    try {
-                        handleDirtyData(OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsString(value)),
-                                DirtyType.BATCH_LOAD_ERROR, e);
-                    } catch (IOException ex) {
-                        if (!dirtyOptions.ignoreSideOutputErrors()) {
-                            throw new RuntimeException(ex);
-                        }
-                        LOG.warn("Dirty sink failed", ex);
-                    }
-                }
-                if (!ignoreSingleTableErrors) {
-                    throw new RuntimeException(
-                            String.format("Writing records to streamload of tableIdentifier:%s failed, the value: %s.",
-                                    tableIdentifier, loadValue),
-                            e);
-                }
-                errorTables.add(tableIdentifier);
-                LOG.warn("The tableIdentifier: {} load failed and the data will be throw away in the future"
-                        + " because the option 'sink.multiple.ignore-single-table-errors' is 'true'", tableIdentifier);
-            } else {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    @SuppressWarnings("rawtypes")
-    private boolean hasRecords() {
-        if (batchMap.isEmpty()) {
-            return false;
-        }
-        boolean hasRecords = false;
-        for (List value : batchMap.values()) {
-            if (!value.isEmpty()) {
-                hasRecords = true;
-                break;
-            }
-        }
-        return hasRecords;
-    }
-
-    private RespContent load(String tableIdentifier, String result) {
-        String[] tableWithDb = tableIdentifier.split("\\.");
-        RespContent respContent = null;
-        // Dynamic set COLUMNS_KEY for tableIdentifier every time for multiple sink scenario
-        if (multipleSink) {
-            executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
-        }
-        for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
-            try {
-                respContent = dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result);
-                if (respContent.getErrorURL() != null) {
-                    throw new StreamLoadException();
-                }
-                break;
+              break;
             } catch (StreamLoadException e) {
                 if (i >= executionOptions.getMaxRetries()) {
-                    LOG.error("dirty data detected");
+                    if (respContent != null && StringUtils.isNotBlank(respContent.getErrorURL())) {
+                        flushExceptionMap.put(tableIdentifier, e);
+                        errorNum.getAndAdd(values.size());
+                        LOG.warn("starting to archive dirty data");
+                        for (Object value : values) {
+                            try {
+                                handleDirtyData(OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsString(value)),
+                                        DirtyType.BATCH_LOAD_ERROR, e);
+                            } catch (IOException ex) {
+                                if (!dirtyOptions.ignoreSideOutputErrors()) {
+                                    throw new RuntimeException(ex);
+                                }
+                                LOG.warn("Dirty sink failed", ex);
+                            }
+                        }
+                        if (!ignoreSingleTableErrors) {
+                            throw new RuntimeException(
+                                    String.format("Writing records to streamload of tableIdentifier:%s failed, the value: %s.",
+                                            tableIdentifier, loadValue),
+                                    e);
+                        }
+                        errorTables.add(tableIdentifier);
+                        LOG.warn("The tableIdentifier: {} load failed and the data will be throw away in the future"
+                                + " because the option 'sink.multiple.ignore-single-table-errors' is 'true'", tableIdentifier);
+                    } else {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @SuppressWarnings("rawtypes")
+            private boolean hasRecords() {
+                if (batchMap.isEmpty()) {
+                    return false;
+                }
+                boolean hasRecords = false;
+                for (List value : batchMap.values()) {
+                    if (!value.isEmpty()) {
+                        hasRecords = true;
+                        break;
+                    }
+                }
+                return hasRecords;
+            }
+
+            private RespContent load(String tableIdentifier, String result) {
+                String[] tableWithDb = tableIdentifier.split("\\.");
+                RespContent respContent = null;
+                // Dynamic set COLUMNS_KEY for tableIdentifier every time for multiple sink scenario
+                if (multipleSink) {
+                    executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
+                }
+                for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
+                    try {
+                        respContent = dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result);
+                        if (respContent.getErrorURL() != null) {
+                            throw new StreamLoadException();
+                        }
+                        LOG.error("dirty data detected");
                     return respContent;
                 }
                 try {
