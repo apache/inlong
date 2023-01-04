@@ -439,6 +439,7 @@
   "components.Layout.NavWidget.Remind": "Password does not match, please re-enter",
   "components.HighSelect.Customize": "Customize",
   "components.HighSelect.SearchPlaceholder": "Please enter keyword...",
+  "components.NodeSelect.Create": "Create Node",
   "configs.pagination.Total": "Total {{total}} items",
   "pages.GroupDashboard.ExecutionLogModal.Re-executingSuccess": "Re-executing success",
   "pages.GroupDashboard.ExecutionLogModal.TaskType": "Task type",
