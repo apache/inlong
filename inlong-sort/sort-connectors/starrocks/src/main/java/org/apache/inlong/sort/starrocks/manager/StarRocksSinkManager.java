@@ -122,7 +122,8 @@ public class StarRocksSinkManager implements Serializable {
     private final SchemaUpdateExceptionPolicy schemaUpdatePolicy;
     private transient SinkTableMetricData metricData;
 
-    private final DirtySinkHelper<Object> dirtySinkHelper;;
+    private final DirtySinkHelper<Object> dirtySinkHelper;
+    private String sinkMultipleFormat;
 
     /**
      * If a table writing throws exception, ignore it when receiving data later again
@@ -149,7 +150,6 @@ public class StarRocksSinkManager implements Serializable {
         this.schemaUpdatePolicy = schemaUpdatePolicy;
 
         this.dirtySinkHelper = dirtySinkHelper;
-
         init(flinkSchema);
     }
 
@@ -159,7 +159,8 @@ public class StarRocksSinkManager implements Serializable {
             StarRocksQueryVisitor starrocksQueryVisitor,
             boolean multipleSink,
             SchemaUpdateExceptionPolicy schemaUpdatePolicy,
-            DirtySinkHelper<Object> dirtySinkHelper) {
+            DirtySinkHelper<Object> dirtySinkHelper,
+            String multipleformat) {
         this.sinkOptions = sinkOptions;
         this.jdbcConnProvider = jdbcConnProvider;
         this.starrocksQueryVisitor = starrocksQueryVisitor;
@@ -168,7 +169,7 @@ public class StarRocksSinkManager implements Serializable {
         this.schemaUpdatePolicy = schemaUpdatePolicy;
 
         this.dirtySinkHelper = dirtySinkHelper;
-
+        this.sinkMultipleFormat = multipleformat;
         init(flinkSchema);
     }
 
@@ -450,12 +451,13 @@ public class StarRocksSinkManager implements Serializable {
         // archive dirty data
         if (StarRocksSinkOptions.StreamLoadFormat.CSV.equals(sinkOptions.getStreamLoadFormat())) {
             for (byte[] row : flushData.getBuffer()) {
-                dirtySinkHelper.invoke(new String(row, StandardCharsets.UTF_8), DirtyType.BATCH_LOAD_ERROR, e);
+                dirtySinkHelper.invokeMultiple(new String(row, StandardCharsets.UTF_8), DirtyType.BATCH_LOAD_ERROR, e,
+                        sinkMultipleFormat);
             }
         } else if (StarRocksSinkOptions.StreamLoadFormat.JSON.equals(sinkOptions.getStreamLoadFormat())) {
             for (byte[] row : flushData.getBuffer()) {
-                dirtySinkHelper.invoke(OBJECT_MAPPER.readTree(new String(row, StandardCharsets.UTF_8)),
-                        DirtyType.BATCH_LOAD_ERROR, e);
+                dirtySinkHelper.invokeMultiple(OBJECT_MAPPER.readTree(new String(row, StandardCharsets.UTF_8)),
+                        DirtyType.BATCH_LOAD_ERROR, e, sinkMultipleFormat);
             }
         }
 
