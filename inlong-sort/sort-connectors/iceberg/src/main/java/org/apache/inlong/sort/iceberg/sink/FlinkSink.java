@@ -548,7 +548,7 @@ public class FlinkSink {
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             DynamicSchemaHandleOperator routeOperator = new DynamicSchemaHandleOperator(
-                    catalogLoader, multipleSinkOption, dirtyOptions, dirtySink);
+                    catalogLoader, multipleSinkOption, dirtyOptions, dirtySink, inlongMetric, auditHostAndPorts);
             SingleOutputStreamOperator<RecordWithSchema> routeStream = input
                     .transform(operatorName(ICEBERG_WHOLE_DATABASE_MIGRATION_NAME),
                             TypeInformation.of(RecordWithSchema.class),
