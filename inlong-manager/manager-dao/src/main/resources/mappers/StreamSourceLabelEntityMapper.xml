@@ -19,8 +19,8 @@
 -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.apache.inlong.manager.dao.mapper.InlongLabelEntityMapper">
-  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.InlongLabelEntity">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.StreamSourceLabelEntityMapper">
+  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StreamSourceLabelEntity">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="label_name" jdbcType="VARCHAR" property="labelName" />
     <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams" />
@@ -40,18 +40,18 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from inlong_label
+    from stream_source_label
     where id = #{id,jdbcType=INTEGER}
   </select>
   <select id="selectByLabelName" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    from inlong_label
+    from stream_source_label
     where label_name = #{labelName,jdbcType=VARCHAR}
   </select>
   <insert id="insert" useGeneratedKeys="true" keyProperty="id"
-          parameterType="org.apache.inlong.manager.dao.entity.InlongLabelEntity">
-    insert into inlong_label (id, label_name, description, 
+          parameterType="org.apache.inlong.manager.dao.entity.StreamSourceLabelEntity">
+    insert into stream_source_label (id, label_name, description, 
       in_charges, creator,
       modifier, ext_params)
     values (#{id,jdbcType=INTEGER}, #{labelName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 

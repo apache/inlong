@@ -37,12 +37,12 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
-import org.apache.inlong.manager.dao.entity.InlongLabelEntity;
-import org.apache.inlong.manager.dao.entity.InlongLabelNodeRelationEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceLabelEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceLabelNodeRelationEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongLabelEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongLabelNodeRelationEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceLabelEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceLabelNodeRelationEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
@@ -74,9 +74,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
     @Autowired
-    private InlongLabelEntityMapper labelMapper;
+    private StreamSourceLabelEntityMapper labelMapper;
     @Autowired
-    private InlongLabelNodeRelationEntityMapper labelNodeRelationMapper;
+    private StreamSourceLabelNodeRelationEntityMapper labelNodeRelationMapper;
 
     @PostConstruct
     public void init() {
@@ -243,10 +243,10 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 .collect(Collectors.toSet());
         labelNodeRelationMapper.deleteByNodeId(clusterNode.getId());
         labels.forEach(label -> {
-            InlongLabelEntity labelEntity = labelMapper.selectByLabelName(label);
+            StreamSourceLabelEntity labelEntity = labelMapper.selectByLabelName(label);
             int labelId = 0;
             if (labelEntity == null) {
-                labelEntity = new InlongLabelEntity();
+                labelEntity = new StreamSourceLabelEntity();
                 labelEntity.setLabelName(label);
                 labelEntity.setDescription(AUTO_REGISTERED);
                 labelEntity.setInCharges(heartbeat.getInCharges());
@@ -256,10 +256,10 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             }
             labelId = labelEntity.getId();
 
-            InlongLabelNodeRelationEntity relationEntity =
+            StreamSourceLabelNodeRelationEntity relationEntity =
                     labelNodeRelationMapper.selectByLabelNodeKV(labelId, clusterNode.getId());
             if (relationEntity == null) {
-                InlongLabelNodeRelationEntity labelNodeRelation = new InlongLabelNodeRelationEntity();
+                StreamSourceLabelNodeRelationEntity labelNodeRelation = new StreamSourceLabelNodeRelationEntity();
                 labelNodeRelation.setLabelId(labelId);
                 labelNodeRelation.setNodeId(clusterNode.getId());
                 labelNodeRelationMapper.insert(labelNodeRelation);

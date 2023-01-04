@@ -15,27 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.dao.entity.InlongLabelNodeRelationEntity;
-import org.springframework.stereotype.Repository;
+import lombok.Data;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.Date;
 
-@Repository
-public interface InlongLabelNodeRelationEntityMapper {
+/**
+ * Inlong label entity.
+ */
+@Data
+public class StreamSourceLabelEntity implements Serializable {
 
-    int insert(InlongLabelNodeRelationEntity record);
+    private static final long serialVersionUID = 1L;
 
-    int deleteByNodeId(Integer nodeId);
+    private Integer id;
 
-    int deleteByLabelNodeKV(@Param("labelId") Integer labelId, @Param("nodeId") Integer nodeId);
+    private String labelName;
 
-    InlongLabelNodeRelationEntity selectByPrimaryKey(Integer id);
+    private String description;
 
-    InlongLabelNodeRelationEntity selectByLabelNodeKV(
-            @Param("labelId") Integer labelId, @Param("nodeId") Integer nodeId);
+    private String inCharges;
 
-    List<InlongLabelNodeRelationEntity> selectByNodeId(Integer nodeId);
+    private Integer isDeleted;
+
+    private String creator;
+
+    private String modifier;
+
+    private Date createTime;
+
+    private Date modifyTime;
+
+    private Integer version;
+
+    private String extParams;
 }

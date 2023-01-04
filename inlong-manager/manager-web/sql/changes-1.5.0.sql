@@ -35,7 +35,8 @@ ALTER TABLE `inlong_cluster_node`
 ALTER TABLE `stream_source`
     ADD COLUMN `inlong_cluster_node_label` varchar(512) DEFAULT NULL COMMENT 'Cluster node label';
 
-CREATE TABLE IF NOT EXISTS `inlong_label`
+
+CREATE TABLE IF NOT EXISTS `stream_source_label`
 (
     `id`           int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `label_name`   varchar(128) NOT NULL COMMENT 'label name',
@@ -50,15 +51,16 @@ CREATE TABLE IF NOT EXISTS `inlong_label`
     `version`      int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY (`label_name`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong collect task label table';
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong collect task label table';
 
-CREATE TABLE IF NOT EXISTS `inlong_label_node_relation`
+
+CREATE TABLE IF NOT EXISTS `stream_source_label_node_relation`
 (
     `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `label_id`      int(11)      NOT NULL COMMENT 'Id of the label id',
     `node_id`       int(11)      NOT NULL COMMENT 'Id of the cluster node id.',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_label_kv` (`label_id`, `node_id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong collect task label table';
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong collect task label table';

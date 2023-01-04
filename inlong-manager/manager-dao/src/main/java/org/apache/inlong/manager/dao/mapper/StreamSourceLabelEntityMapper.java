@@ -15,23 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.dao.mapper;
 
-import lombok.Data;
+import org.apache.inlong.manager.dao.entity.StreamSourceLabelEntity;
+import org.springframework.stereotype.Repository;
 
-import java.io.Serializable;
+@Repository
+public interface StreamSourceLabelEntityMapper {
 
-/**
- * Inlong label node relation entity.
- */
-@Data
-public class InlongLabelNodeRelationEntity implements Serializable {
+    int insert(StreamSourceLabelEntity record);
 
-    private static final long serialVersionUID = 1L;
+    StreamSourceLabelEntity selectByPrimaryKey(Integer id);
 
-    private Integer id;
-
-    private Integer labelId;
-
-    private Integer nodeId;
+    StreamSourceLabelEntity selectByLabelName(String labelName);
 }

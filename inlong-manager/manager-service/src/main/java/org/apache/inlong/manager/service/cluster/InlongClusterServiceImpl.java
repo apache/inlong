@@ -45,15 +45,15 @@ import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.InlongLabelEntity;
-import org.apache.inlong.manager.dao.entity.InlongLabelNodeRelationEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceLabelEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceLabelNodeRelationEntity;
 import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterTagEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongLabelEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongLabelNodeRelationEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceLabelEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceLabelNodeRelationEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
@@ -116,9 +116,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
     @Autowired
-    private InlongLabelEntityMapper labelMapper;
+    private StreamSourceLabelEntityMapper labelMapper;
     @Autowired
-    private InlongLabelNodeRelationEntityMapper labelNodeRelationMapper;
+    private StreamSourceLabelNodeRelationEntityMapper labelNodeRelationMapper;
     @Lazy
     @Autowired
     private DataProxyConfigRepository proxyRepository;
@@ -1413,7 +1413,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterEntity cluster = clusterMapper.selectByNameAndType(request.getClusterName(), request.getType());
         String message = "Current user does not have permission to bind cluster node tag";
         checkUser(cluster, operator, message);
-        InlongLabelEntity label = labelMapper.selectByLabelName(request.getClusterNodeLabel());
+        StreamSourceLabelEntity label = labelMapper.selectByLabelName(request.getClusterNodeLabel());
         Preconditions.checkNotNull(label, "Current label must exist before bind it.");
 
         if (CollectionUtils.isNotEmpty(bindSet)) {
@@ -1425,7 +1425,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 return clusterNodeMapper.selectByCondition(pageRequest).stream();
             }).filter(entity -> entity != null)
                     .forEach(entity -> {
-                        InlongLabelNodeRelationEntity relationEntity = new InlongLabelNodeRelationEntity();
+                        StreamSourceLabelNodeRelationEntity relationEntity = new StreamSourceLabelNodeRelationEntity();
                         relationEntity.setLabelId(label.getId());
                         relationEntity.setNodeId(entity.getId());
                         labelNodeRelationMapper.insert(relationEntity);

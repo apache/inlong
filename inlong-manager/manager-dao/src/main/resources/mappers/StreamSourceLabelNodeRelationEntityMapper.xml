@@ -19,8 +19,8 @@
 -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.apache.inlong.manager.dao.mapper.InlongLabelNodeRelationEntityMapper">
-  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.InlongLabelNodeRelationEntity">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.StreamSourceLabelNodeRelationEntityMapper">
+  <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StreamSourceLabelNodeRelationEntity">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="label_id" jdbcType="INTEGER" property="labelId" />
     <result column="node_id" jdbcType="INTEGER" property="nodeId" />
@@ -32,39 +32,39 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from inlong_label_node_relation
+    from stream_source_label_node_relation
     where id = #{id,jdbcType=INTEGER}
   </select>
 
   <select id="selectByNodeId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    from inlong_label_node_relation
+    from stream_source_label_node_relation
     where node_id = #{nodeId,jdbcType=INTEGER}
   </select>
 
   <select id="selectByLabelNodeKV" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    from inlong_label_node_relation
+    from stream_source_label_node_relation
     where node_id = #{nodeId,jdbcType=INTEGER} and label_id = #{labelId,jdbcType=INTEGER}
   </select>
 
   <insert id="insert" useGeneratedKeys="true" keyProperty="id"
-          parameterType="org.apache.inlong.manager.dao.entity.InlongLabelNodeRelationEntity">
-    insert into inlong_label_node_relation (id, label_id, node_id
+          parameterType="org.apache.inlong.manager.dao.entity.StreamSourceLabelNodeRelationEntity">
+    insert into stream_source_label_node_relation (id, label_id, node_id
       )
     values (#{id,jdbcType=INTEGER}, #{labelId,jdbcType=INTEGER}, #{nodeId,jdbcType=INTEGER}
       )
   </insert>
 
   <delete id="deleteByNodeId" parameterType="java.lang.Integer">
-    delete from inlong_label_node_relation
+    delete from stream_source_label_node_relation
     where node_id = #{nodeId,jdbcType=INTEGER}
   </delete>
 
   <delete id="deleteByLabelNodeKV">
-    delete from inlong_label_node_relation
+    delete from stream_source_label_node_relation
     where node_id = #{nodeId,jdbcType=INTEGER} and label_id = #{labelId,jdbcType=INTEGER}
   </delete>
 </mapper>

@@ -20,35 +20,18 @@ package org.apache.inlong.manager.dao.entity;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
- * Inlong label entity.
+ * Inlong label node relation entity.
  */
 @Data
-public class InlongLabelEntity implements Serializable {
+public class StreamSourceLabelNodeRelationEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Integer id;
 
-    private String labelName;
+    private Integer labelId;
 
-    private String description;
-
-    private String inCharges;
-
-    private Integer isDeleted;
-
-    private String creator;
-
-    private String modifier;
-
-    private Date createTime;
-
-    private Date modifyTime;
-
-    private Integer version;
-
-    private String extParams;
+    private Integer nodeId;
 }

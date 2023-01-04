@@ -46,15 +46,15 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.InlongLabelEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceLabelEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongLabelEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongLabelNodeRelationEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceLabelEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceLabelNodeRelationEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -111,9 +111,9 @@ public class AgentServiceImpl implements AgentService {
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
     @Autowired
-    private InlongLabelEntityMapper labelMapper;
+    private StreamSourceLabelEntityMapper labelMapper;
     @Autowired
-    private InlongLabelNodeRelationEntityMapper labelNodeRelationMapper;
+    private StreamSourceLabelNodeRelationEntityMapper labelNodeRelationMapper;
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
@@ -332,7 +332,7 @@ public class AgentServiceImpl implements AgentService {
                         .stream()
                         .map(labelNodeRelation -> labelMapper.selectByPrimaryKey(labelNodeRelation.getLabelId()))
                         .filter(label -> label != null)
-                        .map(InlongLabelEntity::getLabelName)
+                        .map(StreamSourceLabelEntity::getLabelName)
                         .collect(Collectors.toSet());
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpAndCluster(needProcessedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName);

@@ -17,15 +17,25 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.dao.entity.InlongLabelEntity;
+import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.manager.dao.entity.StreamSourceLabelNodeRelationEntity;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
-public interface InlongLabelEntityMapper {
+public interface StreamSourceLabelNodeRelationEntityMapper {
 
-    int insert(InlongLabelEntity record);
+    int insert(StreamSourceLabelNodeRelationEntity record);
 
-    InlongLabelEntity selectByPrimaryKey(Integer id);
+    int deleteByNodeId(Integer nodeId);
 
-    InlongLabelEntity selectByLabelName(String labelName);
+    int deleteByLabelNodeKV(@Param("labelId") Integer labelId, @Param("nodeId") Integer nodeId);
+
+    StreamSourceLabelNodeRelationEntity selectByPrimaryKey(Integer id);
+
+    StreamSourceLabelNodeRelationEntity selectByLabelNodeKV(
+            @Param("labelId") Integer labelId, @Param("nodeId") Integer nodeId);
+
+    List<StreamSourceLabelNodeRelationEntity> selectByNodeId(Integer nodeId);
 }
