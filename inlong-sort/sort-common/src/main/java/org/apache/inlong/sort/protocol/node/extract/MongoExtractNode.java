@@ -121,12 +121,49 @@ public class MongoExtractNode extends ExtractNode implements InlongMetric, Metad
     }
 
     @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case TABLE_NAME:
+                metadataKey = "table_name";
+                break;
+            case COLLECTION_NAME:
+                metadataKey = "collection_name";
+                break;
+            case SCHEMA_NAME:
+                metadataKey = "schema_name";
+                break;
+            case DATABASE_NAME:
+                metadataKey = "database_name";
+                break;
+            case OP_TS:
+                metadataKey = "op_ts";
+                break;
+            case DATA_DEBEZIUM:
+            case DATA_BYTES_DEBEZIUM:
+                metadataKey = "meta.data_debezium";
+                break;
+            case DATA_CANAL:
+            case DATA_BYTES_CANAL:
+                metadataKey = "meta.data_canal";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
+
+    @Override
     public boolean isVirtual(MetaField metaField) {
         return true;
     }
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.COLLECTION_NAME, MetaField.DATABASE_NAME, MetaField.OP_TS);
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.COLLECTION_NAME,
+                MetaField.DATABASE_NAME, MetaField.OP_TS,
+                MetaField.DATA_DEBEZIUM, MetaField.DATA_BYTES_DEBEZIUM,
+                MetaField.DATA_CANAL, MetaField.DATA_BYTES_CANAL);
     }
 }
