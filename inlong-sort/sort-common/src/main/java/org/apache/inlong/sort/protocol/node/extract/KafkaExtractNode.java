@@ -136,7 +136,17 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
     }
 
     /**
-     * generate table options
+     * Generate table options for Kafka extract node.
+     * <p/>
+     * Upsert Kafka stores message keys and values as bytes, so no need specified the schema or data types for Kafka.
+     * <br/>
+     * The messages of Kafka are serialized and deserialized by formats, e.g. csv, json, avro.
+     * <br/>
+     * Thus, the data type mapping is determined by specific formats.
+     * <p/>
+     * For more details:
+     * <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/docs/connectors/table/upsert-kafka/">
+     * upsert-kafka</a>
      *
      * @return options
      */
@@ -148,14 +158,6 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
 
         boolean wrapWithInlongMsg = format instanceof InLongMsgFormat;
         Format realFormat = wrapWithInlongMsg ? ((InLongMsgFormat) format).getInnerFormat() : format;
-
-        // Please refer to the documentation of flink 1.13 kafka connector：
-        // Upsert Kafka stores message keys and values as bytes, so Upsert Kafka doesn’t
-        // have schema or data types. The messages are serialized and deserialized by formats,
-        // e.g. csv, json, avro. Thus, the data type mapping is determined by specific formats.
-        // Please check the details:
-        // https://nightlies.apache.org/flink/flink-docs-release-1.13/docs/connectors/table/upsert-kafka/
-
         if (realFormat instanceof JsonFormat
                 || realFormat instanceof AvroFormat
                 || realFormat instanceof CsvFormat) {
