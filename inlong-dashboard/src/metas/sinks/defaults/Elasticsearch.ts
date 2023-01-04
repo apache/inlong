@@ -57,10 +57,10 @@ export default class ElasticsearchSink
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      asyncValueLabel: 'ELASTICSEARCH',
+      nodeType: 'ELASTICSEARCH',
     }),
   })
-  @I18n('meta.Sinks.ClickHouse.DataNodeName')
+  @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
 
   @FieldDecorator({

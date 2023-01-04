@@ -34,7 +34,7 @@ const NodeSelect: React.FC<HighSelectProps> = _props => {
         method: 'POST',
         data: {
           keyword,
-          type: props.asyncValueLabel,
+          type: props.nodeType,
           pageNum: 1,
           pageSize: 20,
         },

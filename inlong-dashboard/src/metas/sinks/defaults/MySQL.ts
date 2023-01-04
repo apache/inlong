@@ -113,10 +113,10 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      asyncValueLabel: 'MYSQL',
+      nodeType: 'MYSQL',
     }),
   })
-  @I18n('meta.Sinks.ClickHouse.DataNodeName')
+  @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
 
   @FieldDecorator({

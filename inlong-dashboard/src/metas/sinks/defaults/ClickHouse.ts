@@ -98,10 +98,10 @@ export default class ClickHouseSink
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      asyncValueLabel: 'CLICKHOUSE',
+      nodeType: 'CLICKHOUSE',
     }),
   })
-  @I18n('meta.Sinks.ClickHouse.DataNodeName')
+  @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
 
   @FieldDecorator({

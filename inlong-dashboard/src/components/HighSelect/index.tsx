@@ -48,6 +48,7 @@ export interface HighSelectProps extends Omit<SelectProps<any>, 'options'> {
         requestTrigger?: ('onOpen' | 'onSearch')[];
       };
   asyncValueLabel?: string;
+  nodeType?: string;
   useInput?: boolean;
   useInputProps?: Record<string, unknown>;
   addonAfter?: React.ReactNode;
@@ -56,6 +57,7 @@ export interface HighSelectProps extends Omit<SelectProps<any>, 'options'> {
 const HighSelect: React.FC<HighSelectProps> = ({
   options,
   asyncValueLabel,
+  nodeType,
   useInput = false,
   useInputProps,
   addonAfter,
