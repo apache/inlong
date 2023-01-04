@@ -19,9 +19,11 @@ package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongLabelNodeRelationEntity;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface InlongLabelNodeRelationEntityMapper {
 
     int insert(InlongLabelNodeRelationEntity record);

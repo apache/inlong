@@ -23,6 +23,7 @@
   <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.InlongLabelEntity">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="label_name" jdbcType="VARCHAR" property="labelName" />
+    <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="in_charges" jdbcType="VARCHAR" property="inCharges" />
     <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
@@ -32,29 +33,19 @@
     <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="version" jdbcType="INTEGER" property="version" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="org.apache.inlong.manager.dao.entity.InlongLabelEntity">
-    <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams" />
-  </resultMap>
   <sql id="Base_Column_List">
-    id, label_name, description, in_charges, is_deleted, creator, modifier, create_time, 
+    id, label_name, ext_params, description, in_charges, is_deleted, creator, modifier, create_time,
     modify_time, version
   </sql>
-  <sql id="Blob_Column_List">
-    ext_params
-  </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from inlong_label
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="selectByLabelName" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByLabelName" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from inlong_label
     where label_name = #{labelName,jdbcType=VARCHAR}
   </select>

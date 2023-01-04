@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_node`
 );
 
 -- ----------------------------
--- Table structure for inlong_label
+-- Table structure for inlong_label, label is used for filtering operations, such as which nodes are filtered when sending collection tasks
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `inlong_label`
 (

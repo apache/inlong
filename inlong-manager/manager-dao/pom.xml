@@ -114,11 +114,6 @@
                         <artifactId>postgresql</artifactId>
                         <version>${postgresql.version}</version>
                     </dependency>
-                    <dependency>
-                        <groupId>mysql</groupId>
-                        <artifactId>mysql-connector-java</artifactId>
-                        <version>${mysql.jdbc.version}</version>
-                    </dependency>
                 </dependencies>
             </plugin>
         </plugins>
