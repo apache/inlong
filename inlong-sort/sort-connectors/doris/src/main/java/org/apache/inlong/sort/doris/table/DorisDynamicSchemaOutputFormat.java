@@ -750,13 +750,14 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                     LOG.warn("streamload error,switch be: {}",
                             dorisStreamLoad.getLoadUrlStr(tableWithDb[0], tableWithDb[1]), e);
                     Thread.sleep(1000L * i);
-                } catch (InterruptedException | IOException ex) {
+                } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                     LOG.error("unable to flush; interrupted while doing another attempt", e);
                     return respContent;
+                } catch (Exception exception) {
+                    LOG.error("load exception :{}", e.getMessage());
+                    return respContent;
                 }
-            } catch (Exception e) {
-                LOG.error("load exception, tableIdentifier:{}", tableIdentifier);
             }
         }
         return respContent;
