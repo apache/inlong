@@ -62,7 +62,6 @@ public class InlongStreamRequest extends BaseInlongStream {
 
     @ApiModelProperty(value = "MQ resource")
     @Length(max = 64, message = "length must be less than or equal to 64")
-    @Pattern(regexp = "^[a-z0-9_]{0,64}$", message = "must begin with a letter,can only contain lowercase letters,numbers,and underscores")
     private String mqResource;
 
     @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")

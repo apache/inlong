@@ -68,7 +68,6 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
 
     @ApiModelProperty(value = "MQ resource", notes = "in inlong group, TubeMQ corresponds to Topic, Pulsar corresponds to Namespace")
     @Length(max = 64, message = "length must be less than or equal to 64")
-    @Pattern(regexp = "^[a-z0-9_]{0,64}$", message = "must begin with a letter,can only contain lowercase letters,numbers,and underscores")
     private String mqResource;
 
     @ApiModelProperty(value = "TubeMQ master URL")
