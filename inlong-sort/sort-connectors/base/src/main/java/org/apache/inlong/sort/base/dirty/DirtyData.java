@@ -86,7 +86,6 @@ public class DirtyData<T> {
         this.labels = PatternReplaceUtils.replace(labels, paramMap);
         this.logTag = PatternReplaceUtils.replace(logTag, paramMap);
         this.identifier = PatternReplaceUtils.replace(identifier, paramMap);
-
     }
 
     public static <T> Builder<T> builder() {
@@ -94,6 +93,14 @@ public class DirtyData<T> {
     }
 
     private Map<String, String> genParamMap() {
+        Map<String, String> paramMap = new HashMap<>();
+        paramMap.put(SYSTEM_TIME_KEY, DATE_TIME_FORMAT.format(LocalDateTime.now()));
+        paramMap.put(DIRTY_TYPE_KEY, dirtyType.format());
+        paramMap.put(DIRTY_MESSAGE_KEY, dirtyMessage);
+        return paramMap;
+    }
+
+    public static Map<String, String> genParamMap(DirtyType dirtyType, String dirtyMessage) {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put(SYSTEM_TIME_KEY, DATE_TIME_FORMAT.format(LocalDateTime.now()));
         paramMap.put(DIRTY_TYPE_KEY, dirtyType.format());

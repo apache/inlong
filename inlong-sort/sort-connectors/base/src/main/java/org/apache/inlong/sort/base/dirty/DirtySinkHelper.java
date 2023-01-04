@@ -18,13 +18,19 @@
 package org.apache.inlong.sort.base.dirty;
 
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
+import org.apache.inlong.sort.base.util.PatternReplaceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Dirty sink helper, it helps dirty data sink for {@link DirtySink}
@@ -83,6 +89,49 @@ public class DirtySinkHelper<T> implements Serializable {
                         .setLogTag(dirtyOptions.getLogTag())
                         .setDirtyMessage(e.getMessage())
                         .setIdentifier(dirtyOptions.getIdentifier());
+                dirtySink.invoke(builder.build());
+            } catch (Exception ex) {
+                if (!dirtyOptions.ignoreSideOutputErrors()) {
+                    throw new RuntimeException(ex);
+                }
+                LOGGER.warn("Dirty sink failed", ex);
+            }
+        }
+    }
+
+    public void invokeMultiple(T dirtyData, DirtyType dirtyType, Throwable e,
+            String sinkMultipleFormat) {
+        JsonDynamicSchemaFormat jsonDynamicSchemaFormat =
+                (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
+        if (!dirtyOptions.ignoreDirty()) {
+            RuntimeException ex;
+            if (e instanceof RuntimeException) {
+                ex = (RuntimeException) e;
+            } else {
+                ex = new RuntimeException(e);
+            }
+            throw ex;
+        }
+        if (dirtySink != null) {
+            JsonNode rootNode;
+            DirtyData.Builder<T> builder = DirtyData.builder();
+            Map<String, String> paramMap = DirtyData.genParamMap(dirtyType, e.getMessage());
+            String labels = PatternReplaceUtils.replace(dirtyOptions.getLabels(), paramMap);
+            String logTag = PatternReplaceUtils.replace(dirtyOptions.getLogTag(), paramMap);
+            String identifier = PatternReplaceUtils.replace(dirtyOptions.getIdentifier(), paramMap);
+            try {
+                rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
+            } catch (Exception ex) {
+                invoke(dirtyData, DirtyType.DESERIALIZE_ERROR, e);
+                return;
+            }
+            try {
+                builder.setData(dirtyData)
+                        .setDirtyType(dirtyType)
+                        .setLabels(jsonDynamicSchemaFormat.parse(rootNode, labels))
+                        .setLogTag(jsonDynamicSchemaFormat.parse(rootNode, logTag))
+                        .setDirtyMessage(e.getMessage())
+                        .setIdentifier(jsonDynamicSchemaFormat.parse(rootNode, identifier));
                 dirtySink.invoke(builder.build());
             } catch (Exception ex) {
                 if (!dirtyOptions.ignoreSideOutputErrors()) {

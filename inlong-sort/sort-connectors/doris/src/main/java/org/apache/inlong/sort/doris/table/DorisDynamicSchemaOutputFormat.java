@@ -52,6 +52,7 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.base.util.PatternReplaceUtils;
 import org.apache.inlong.sort.doris.model.RespContent;
 import org.apache.inlong.sort.doris.util.DorisParseUtils;
 import org.slf4j.Logger;
@@ -251,7 +252,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
             for (int i = 0; i < logicalTypes.length; i++) {
                 fieldGetters[i] = RowData.createFieldGetter(logicalTypes[i], i);
-                if ("DATE".equalsIgnoreCase(logicalTypes[i].toString())) {
+                if (logicalTypes[i] != null && "DATE".equalsIgnoreCase(logicalTypes[i].toString())) {
                     int finalI = i;
                     fieldGetters[i] = row -> DorisParseUtils.epochToDate(row.getInt(finalI));
                 }
@@ -417,10 +418,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 for (RowKind rowKind : rowKinds) {
                     if (updateBeforeList != null && updateBeforeList.size() > i) {
                         addRow(rowKind, rootNode, physicalData, updateBeforeNode,
-                                physicalDataList.get(i), updateBeforeList.get(i));
+                                physicalDataList.get(i), updateBeforeList.get(i), tableIdentifier);
                     } else {
                         addRow(rowKind, rootNode, physicalData, updateBeforeNode,
-                                physicalDataList.get(i), null);
+                                physicalDataList.get(i), null, tableIdentifier);
                     }
                 }
             }
@@ -433,7 +434,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     @SuppressWarnings({"unchecked"})
     private void addRow(RowKind rowKind, JsonNode rootNode, JsonNode physicalNode, JsonNode updateBeforeNode,
-            Map<String, String> physicalData, Map<String, String> updateBeforeData) {
+            Map<String, String> physicalData, Map<String, String> updateBeforeData, String tableIdentifier) {
         switch (rowKind) {
             case INSERT:
             case UPDATE_AFTER:
@@ -486,6 +487,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
             throw ex;
         }
+
+        if (multipleSink && dirtyType != DirtyType.DESERIALIZE_ERROR) {
+            handleMultipleDirtyData(dirtyData, dirtyType, e);
+            return;
+        }
+
         if (dirtySink != null) {
             DirtyData.Builder<Object> builder = DirtyData.builder();
             try {
@@ -502,6 +509,50 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 }
                 LOG.warn("Dirty sink failed", ex);
             }
+        }
+
+        metricData.invokeDirty(1, dirtyData.toString().getBytes(StandardCharsets.UTF_8).length);
+    }
+
+    private void handleMultipleDirtyData(Object dirtyData, DirtyType dirtyType, Exception e) {
+        JsonNode rootNode;
+        try {
+            rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
+        } catch (Exception ex) {
+            LOG.warn("parse rootnode failed");
+            handleDirtyData(dirtyData, DirtyType.DESERIALIZE_ERROR, e);
+            return;
+        }
+
+        if (dirtySink != null) {
+            DirtyData.Builder<Object> builder = DirtyData.builder();
+            // must manually replace system params first, else the ${} will be lost in regex parsing
+            Map<String, String> paramMap = DirtyData.genParamMap(dirtyType, e.getMessage());
+            String labels = PatternReplaceUtils.replace(dirtyOptions.getLabels(), paramMap);
+            String logTag = PatternReplaceUtils.replace(dirtyOptions.getLogTag(), paramMap);
+            String identifier = PatternReplaceUtils.replace(dirtyOptions.getIdentifier(), paramMap);
+            try {
+                builder.setData(dirtyData)
+                        .setDirtyType(dirtyType)
+                        .setLabels(jsonDynamicSchemaFormat.parse(rootNode, labels))
+                        .setLogTag(jsonDynamicSchemaFormat.parse(rootNode, logTag))
+                        .setDirtyMessage(e.getMessage())
+                        .setIdentifier(jsonDynamicSchemaFormat.parse(rootNode, identifier));
+                dirtySink.invoke(builder.build());
+            } catch (Exception ex) {
+                if (!dirtyOptions.ignoreSideOutputErrors()) {
+                    throw new RuntimeException(ex);
+                }
+                LOG.warn("Dirty sink failed", ex);
+            }
+        }
+        try {
+            metricData.outputDirtyMetrics(
+                    jsonDynamicSchemaFormat.parse(rootNode, databasePattern), null,
+                    jsonDynamicSchemaFormat.parse(rootNode, tablePattern), 1,
+                    ((RowData) dirtyData).getBinary(0).length);
+        } catch (Exception ex) {
+            metricData.invokeDirty(1, dirtyData.toString().getBytes(StandardCharsets.UTF_8).length);
         }
     }
 
@@ -582,7 +633,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             flushing = false;
             return;
         }
-
         for (Entry<String, List> kvs : batchMap.entrySet()) {
             flushSingleTable(kvs.getKey(), kvs.getValue());
         }
@@ -608,6 +658,9 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         try {
             loadValue = OBJECT_MAPPER.writeValueAsString(values);
             respContent = load(tableIdentifier, loadValue);
+            if (respContent.getErrorURL() != null) {
+                throw new Exception();
+            }
             try {
                 if (null != metricData && null != respContent) {
                     if (multipleSink) {
@@ -625,11 +678,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             // Clean the data that has been loaded.
             values.clear();
         } catch (Exception e) {
-            LOG.error(String.format("Flush table: %s error", tableIdentifier), e);
             // Makesure it is a dirty data
             if (respContent != null && StringUtils.isNotBlank(respContent.getErrorURL())) {
                 flushExceptionMap.put(tableIdentifier, e);
                 errorNum.getAndAdd(values.size());
+                LOG.warn("starting to archive dirty data");
                 for (Object value : values) {
                     try {
                         handleDirtyData(OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsString(value)),
@@ -671,7 +724,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         return hasRecords;
     }
 
-    private RespContent load(String tableIdentifier, String result) throws IOException {
+    private RespContent load(String tableIdentifier, String result) {
         String[] tableWithDb = tableIdentifier.split("\\.");
         RespContent respContent = null;
         // Dynamic set COLUMNS_KEY for tableIdentifier every time for multiple sink scenario
@@ -681,21 +734,27 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
                 respContent = dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result);
+                if (respContent.getErrorURL() != null) {
+                    throw new StreamLoadException();
+                }
                 break;
             } catch (StreamLoadException e) {
-                LOG.error("doris sink error, retry times = {}", i, e);
                 if (i >= executionOptions.getMaxRetries()) {
-                    throw new IOException(e);
+                    LOG.error("dirty data detected");
+                    return respContent;
                 }
                 try {
                     dorisStreamLoad.setHostPort(getBackend());
                     LOG.warn("streamload error,switch be: {}",
                             dorisStreamLoad.getLoadUrlStr(tableWithDb[0], tableWithDb[1]), e);
                     Thread.sleep(1000L * i);
-                } catch (InterruptedException ex) {
+                } catch (InterruptedException | IOException ex) {
                     Thread.currentThread().interrupt();
-                    throw new IOException("unable to flush; interrupted while doing another attempt", e);
+                    LOG.error("unable to flush; interrupted while doing another attempt", e);
+                    return respContent;
                 }
+            } catch (Exception e) {
+                LOG.error("load exception, tableIdentifier:{}", tableIdentifier);
             }
         }
         return respContent;
