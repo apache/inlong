@@ -554,8 +554,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
         }
         try {
-            metricData.outputDirtyMetrics(
-                    jsonDynamicSchemaFormat.parse(rootNode, databasePattern), null,
+            metricData.outputDirtyMetricsWithEstimate(
+                    jsonDynamicSchemaFormat.parse(rootNode, databasePattern),
                     jsonDynamicSchemaFormat.parse(rootNode, tablePattern), 1,
                     ((RowData) dirtyData).getBinary(0).length);
         } catch (Exception ex) {
@@ -781,7 +781,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
