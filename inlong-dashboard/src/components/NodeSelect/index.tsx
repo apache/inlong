@@ -21,37 +21,39 @@ import i18n from '@/i18n';
 import { Link } from 'react-router-dom';
 
 export interface NodeSelectProps extends HighSelectProps {
-  nodeType: String;
+  nodeType: string;
 }
 
-const NodeSelect: React.FC<NodeSelectProps> = ({ nodeType }) => {
-  return (
-    <HighSelect
-      showSearch
-      allowClear
-      options={{
-        requestTrigger: ['onOpen', 'onSearch'],
-        requestService: keyword => ({
-          url: '/node/list',
-          method: 'POST',
-          data: {
-            keyword,
-            type: nodeType,
-            pageNum: 1,
-            pageSize: 20,
-          },
-        }),
-        requestParams: {
-          formatResult: result =>
-            result?.list?.map(item => ({
-              label: item.name,
-              value: item.name,
-            })),
+const NodeSelect: React.FC<NodeSelectProps> = _props => {
+  const props: HighSelectProps = {
+    ..._props,
+    showSearch: true,
+    allowClear: true,
+    filterOption: false,
+    options: {
+      ..._props.options,
+      requestTrigger: ['onOpen', 'onSearch'],
+      requestService: keyword => ({
+        url: '/node/list',
+        method: 'POST',
+        data: {
+          keyword,
+          type: _props.nodeType,
+          pageNum: 1,
+          pageSize: 20,
         },
-      }}
-      addonAfter={<Link to="/node">{i18n.t('components.NodeSelect.Create')}</Link>}
-    />
-  );
+      }),
+      requestParams: {
+        formatResult: result =>
+          result?.list?.map(item => ({
+            label: item.name,
+            value: item.name,
+          })),
+      },
+    },
+    addonAfter: <Link to="/node">{i18n.t('components.NodeSelect.Create')}</Link>,
+  };
+  return <HighSelect {...props} />;
 };
 
 export default NodeSelect;
