@@ -239,6 +239,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     }
 
     private void insertOrUpdateLabel(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat, String creator) {
+        if (heartbeat.getNodeLabel() == null) {
+            return;
+        }
         Set<String> labels = Arrays.stream(heartbeat.getNodeLabel().split(InlongConstants.COMMA))
                 .collect(Collectors.toSet());
         labelNodeRelationMapper.deleteByNodeId(clusterNode.getId());
