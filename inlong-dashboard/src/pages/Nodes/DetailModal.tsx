@@ -18,13 +18,14 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Modal, message } from 'antd';
+import { Modal, message, Button } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect } from '@/hooks';
 import { dao } from '@/metas/nodes';
 import { useDefaultMeta, useLoadMeta, NodeMetaType } from '@/metas';
 import i18n from '@/i18n';
+import request from '@/utils/request';
 
 const { useFindNodeDao, useSaveNodeDao } = dao;
 
@@ -63,6 +64,22 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
     message.success(i18n.t('basic.OperatingSuccess'));
   };
 
+  const testConnection = async () => {
+    const values = await form.validateFields();
+    const isUpdate = id;
+    const submitData = { ...values };
+    if (isUpdate) {
+      submitData.id = id;
+      submitData.version = savedData?.version;
+    }
+    await request({
+      url: '/node/testConnection',
+      method: 'POST',
+      data: submitData,
+    });
+    message.success(i18n.t('basic.ConnectionSuccess'));
+  };
+
   useUpdateEffect(() => {
     if (modalProps.visible) {
       // open
@@ -88,7 +105,15 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
       {...modalProps}
       width={720}
       title={id ? i18n.t('basic.Detail') : i18n.t('basic.Create')}
-      onOk={onOk}
+      footer={[
+        <Button onClick={modalProps.onCancel}>{i18n.t('basic.Cancel')}</Button>,
+        <Button type="primary" onClick={onOk}>
+          {i18n.t('basic.Save')}
+        </Button>,
+        <Button type="primary" onClick={testConnection}>
+          {i18n.t('pages.Nodes.TestConnection')}
+        </Button>,
+      ]}
     >
       <FormGenerator
         content={content}

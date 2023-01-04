@@ -638,5 +638,6 @@
   "pages.ApprovalManagement.Approvers": "Approvers",
   "pages.ApprovalManagement.Creator": "Creator Name",
   "pages.ApprovalManagement.Modifier": "Modifier Name",
-  "pages.ApprovalManagement.CreateProcess": "Create Process"
+  "pages.ApprovalManagement.CreateProcess": "Create Process",
+  "pages.Nodes.TestConnection": "Test Connection"
 }
