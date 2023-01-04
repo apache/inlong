@@ -18,7 +18,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Modal, message } from 'antd';
+import { Modal, message, Button } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
@@ -78,6 +78,26 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
     message.success(i18n.t('basic.OperatingSuccess'));
   };
 
+  const testConnection = async () => {
+    const values = await form.validateFields();
+    const isUpdate = id;
+    const submitData = {
+      ...values,
+      inCharges: values.inCharges?.join(','),
+      clusterTags: values.clusterTags?.join(','),
+    };
+    if (isUpdate) {
+      submitData.id = id;
+      submitData.version = savedData?.version;
+    }
+    await request({
+      url: '/cluster/testConnection',
+      method: 'POST',
+      data: submitData,
+    });
+    message.success(i18n.t('basic.ConnectionSuccess'));
+  };
+
   useUpdateEffect(() => {
     if (modalProps.visible) {
       if (id) {
@@ -101,7 +121,17 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
     <Modal
       {...modalProps}
       title={id ? i18n.t('pages.Clusters.Edit') : i18n.t('pages.Clusters.Create')}
-      onOk={onOk}
+      footer={[
+        <Button onClick={modalProps.onCancel}>{i18n.t('basic.Cancel')}</Button>,
+        <Button type="primary" onClick={onOk}>
+          {i18n.t('basic.Save')}
+        </Button>,
+        (type === 'PULSAR' || type === 'KAFKA' || type === 'TUBEMQ') && (
+          <Button type="primary" onClick={testConnection}>
+            {i18n.t('pages.Clusters.TestConnection')}
+          </Button>
+        ),
+      ]}
     >
       <FormGenerator
         content={content}
