@@ -23,16 +23,23 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterDTO;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterRequest;
+import org.apache.kafka.clients.admin.Admin;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.ListTopicsOptions;
+import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Properties;
 
 /**
  * Kafka cluster operator.
@@ -83,6 +90,24 @@ public class KafkaClusterOperator extends AbstractClusterOperator {
             LOGGER.info("success to set entity for kafka cluster");
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Boolean testConnection(ClusterRequest request) {
+        String bootstrapServers = request.getUrl();
+        Preconditions.checkNotNull(bootstrapServers, "connection url cannot be empty");
+        Properties props = new Properties();
+        props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        try (Admin ignored = Admin.create(props)) {
+            ListTopicsResult topics = ignored.listTopics(new ListTopicsOptions().timeoutMs(30000));
+            topics.names().get();
+            LOGGER.info("kafka connection not null - connection success for bootstrapServers={}", topics);
+            return true;
+        } catch (Exception e) {
+            String errMsg = String.format("kafka connection failed for bootstrapServers=%s", bootstrapServers);
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
         }
     }
 

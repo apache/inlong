@@ -19,10 +19,12 @@ package org.apache.inlong.manager.service.node.iceberg;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.iceberg.hive.HiveCatalog;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -30,6 +32,7 @@ import org.apache.inlong.manager.pojo.node.iceberg.IcebergDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.iceberg.IcebergDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.iceberg.IcebergDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
+import org.apache.inlong.manager.service.resource.sink.iceberg.IcebergCatalogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +83,26 @@ public class IcebergDataNodeOperator extends AbstractDataNodeOperator {
         } catch (Exception e) {
             LOGGER.error("failed to set entity for iceberg data node: ", e);
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+        }
+    }
+
+    @Override
+    public Boolean testConnection(DataNodeRequest request) {
+        IcebergDataNodeRequest icebergDataNodeRequest = (IcebergDataNodeRequest) request;
+        String metastoreUri = icebergDataNodeRequest.getUrl();
+        String warehouse = icebergDataNodeRequest.getWarehouse();
+        Preconditions.checkNotNull(metastoreUri, "connection url cannot be empty");
+        try {
+            HiveCatalog catalog = IcebergCatalogUtils.getCatalog(metastoreUri, warehouse);
+            catalog.listNamespaces();
+            LOGGER.info("iceberg connection not null - connection success for metastoreUri={}, warehouse={}",
+                    metastoreUri, warehouse);
+            return true;
+        } catch (Exception e) {
+            String errMsg = String.format("iceberg connection failed for metastoreUri=%s, warhouse=%s", metastoreUri,
+                    warehouse);
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
         }
     }
 
