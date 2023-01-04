@@ -37,7 +37,10 @@ public final class PatternReplaceUtils {
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String keyText = matcher.group(1);
-            String replacement = params.getOrDefault(keyText, keyText);
+            String replacement = params.get(keyText);
+            if (replacement == null) {
+                replacement = "\\$\\{" + keyText + "\\}";
+            }
             matcher.appendReplacement(sb, replacement);
         }
         matcher.appendTail(sb);
