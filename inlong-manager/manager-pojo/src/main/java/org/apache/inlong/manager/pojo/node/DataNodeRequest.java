@@ -47,7 +47,7 @@ public abstract class DataNodeRequest {
     @NotBlank(message = "node name cannot be blank")
     @ApiModelProperty(value = "Data node name")
     @Length(min = 1, max = 128, message = "length must be between 1 and 128")
-    @Pattern(regexp = "^[a-z0-9_-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[A-Za-z0-9_-]{1,128}$", message = "only supports letters, numbers, '-', or '_'")
     private String name;
 
     @NotBlank(message = "node type cannot be blank")
