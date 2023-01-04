@@ -88,7 +88,13 @@ public class DorisStreamLoad implements Serializable {
             throw new StreamLoadException("stream load error: " + loadResponse.respContent);
         } else {
             try {
-                return OBJECT_MAPPER.readValue(loadResponse.respContent, RespContent.class);
+                RespContent respContent = OBJECT_MAPPER.readValue(loadResponse.respContent, RespContent.class);
+                if (!DORIS_SUCCESS_STATUS.contains(respContent.getStatus())) {
+                    String errMsg = String.format("stream load error: %s, see more in %s", respContent.getMessage(),
+                            respContent.getErrorURL());
+                    throw new StreamLoadException(errMsg);
+                }
+                return respContent;
             } catch (IOException e) {
                 throw new StreamLoadException(e);
             }
