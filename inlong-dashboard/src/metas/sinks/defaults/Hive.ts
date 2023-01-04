@@ -24,6 +24,7 @@ import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
+import NodeSelect from '@/components/NodeSelect';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
@@ -117,34 +118,14 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   password: string;
 
   @FieldDecorator({
-    type: 'select',
+    type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
-      showSearch: true,
       disabled: [110, 130].includes(values?.status),
-      options: {
-        requestTrigger: ['onOpen', 'onSearch'],
-        requestService: keyword => ({
-          url: '/node/list',
-          method: 'POST',
-          data: {
-            keyword,
-            type: 'HIVE',
-            pageNum: 1,
-            pageSize: 20,
-          },
-        }),
-        requestParams: {
-          formatResult: result =>
-            result?.list?.map(item => ({
-              label: item.name,
-              value: item.name,
-            })),
-        },
-      },
+      nodeType: 'HIVE',
     }),
   })
-  @I18n('meta.Sinks.Hive.DataNodeName')
+  @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
 
   @FieldDecorator({

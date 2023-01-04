@@ -19,13 +19,10 @@ package org.apache.inlong.manager.service.node;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-
-import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -34,14 +31,12 @@ import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
-import org.apache.inlong.manager.service.resource.sink.hive.HiveJdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Connection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -341,28 +336,11 @@ public class DataNodeServiceImpl implements DataNodeService {
         LOGGER.info("begin test connection for: {}", request);
         String type = request.getType();
 
-        Boolean result = false;
-        if (DataNodeType.HIVE.equals(type)) {
-            result = testHiveConnection(request);
-        }
-
+        // according to the data node type, test connection
+        DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
+        Boolean result = dataNodeOperator.testConnection(request);
         LOGGER.info("connection [{}] for: {}", result ? "success" : "failed", request);
         return result;
-    }
-
-    /**
-     * Test connection for Hive
-     */
-    private Boolean testHiveConnection(DataNodeRequest request) {
-        String url = request.getUrl();
-        Preconditions.checkNotNull(url, "connection url cannot be empty");
-        try (Connection ignored = HiveJdbcUtils.getConnection(url, request.getUsername(), request.getToken())) {
-            LOGGER.info("hive connection not null - connection success");
-            return true;
-        } catch (Exception e) {
-            LOGGER.error("hive connection failed: {}", e.getMessage());
-            return false;
-        }
     }
 
 }

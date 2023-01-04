@@ -18,16 +18,21 @@
 package org.apache.inlong.manager.service.resource.sink.mysql;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
+import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -52,6 +57,9 @@ public class MySQLResourceOperator implements SinkResourceOperator {
 
     @Autowired
     private StreamSinkFieldEntityMapper fieldEntityMapper;
+
+    @Autowired
+    private DataNodeOperateHelper dataNodeHelper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -90,7 +98,7 @@ public class MySQLResourceOperator implements SinkResourceOperator {
             columnList.add(columnInfo);
         }
 
-        MySQLSinkDTO sinkDTO = MySQLSinkDTO.getFromJson(sinkInfo.getExtParams());
+        MySQLSinkDTO sinkDTO = this.getMysqlInfo(sinkInfo);
         MySQLTableInfo tableInfo = MySQLSinkDTO.getTableInfo(sinkDTO, columnList);
         try (Connection conn = MySQLJdbcUtils.getConnection(sinkDTO.getJdbcUrl(), sinkDTO.getUsername(),
                 sinkDTO.getPassword())) {
@@ -112,6 +120,20 @@ public class MySQLResourceOperator implements SinkResourceOperator {
             throw new WorkflowException(errMsg);
         }
         LOG.info("success create MySQL table for data sink [" + sinkInfo.getId() + "]");
+    }
+
+    private MySQLSinkDTO getMysqlInfo(SinkInfo sinkInfo) {
+        MySQLSinkDTO mysqlInfo = MySQLSinkDTO.getFromJson(sinkInfo.getExtParams());
+
+        if (StringUtils.isBlank(mysqlInfo.getJdbcUrl())) {
+            String dataNodeName = sinkInfo.getDataNodeName();
+            Preconditions.checkNotEmpty(dataNodeName, "mysql jdbc url not specified and data node is empty");
+            DataNodeInfo dataNodeInfo = dataNodeHelper.getDataNodeInfo(dataNodeName, sinkInfo.getSinkType());
+            CommonBeanUtils.copyProperties(dataNodeInfo, mysqlInfo);
+            mysqlInfo.setJdbcUrl(dataNodeInfo.getUrl());
+            mysqlInfo.setPassword(dataNodeInfo.getToken());
+        }
+        return mysqlInfo;
     }
 
 }

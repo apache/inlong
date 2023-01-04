@@ -51,6 +51,6 @@ public class HudiLoadNodeTest extends SerializeBaseTest<HudiLoadNode> {
                 "thrift://localhost:9083",
                 "hdfs://localhost:9000/user/hudi/warehouse",
                 new ArrayList<>(),
-                new ArrayList<>());
+                "f1");
     }
 }

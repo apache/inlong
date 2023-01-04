@@ -141,7 +141,6 @@ public class HudiCatalogClient {
                 // filter out the metadata columns
                 .filter(s -> !HoodieAvroUtils.isMetadataField(s.getName()))
                 .collect(Collectors.toList());
-        allCols.addAll(hiveTable.getPartitionKeys());
 
         return allCols.stream()
                 .map((FieldSchema s) -> {

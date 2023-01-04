@@ -39,7 +39,7 @@ public class S3Helper implements Serializable {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     private static final int SEQUENCE_LENGTH = 4;
-    private static final String ESCAPE_PATTERN = "[\\pP\\p{Punct}\\s]";
+    private static final String ESCAPE_PATTERN = "[，,+=: ;()（）。/.；]";
     private static final String FILE_NAME_SUFFIX = ".txt";
     private final Random r = new Random();
     private final AmazonS3 s3Client;

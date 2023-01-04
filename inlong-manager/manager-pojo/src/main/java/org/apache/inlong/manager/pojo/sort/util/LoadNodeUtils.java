@@ -409,14 +409,7 @@ public class LoadNodeUtils {
     public static HudiLoadNode createLoadNode(HudiSink hudiSink, List<FieldInfo> fieldInfos,
             List<FieldRelation> fieldRelations, Map<String, String> properties) {
         HudiConstant.CatalogType catalogType = HudiConstant.CatalogType.forName(hudiSink.getCatalogType());
-        List<FieldInfo> partitionFields = Lists.newArrayList();
-        if (CollectionUtils.isNotEmpty(hudiSink.getPartitionFieldList())) {
-            partitionFields = hudiSink.getPartitionFieldList().stream()
-                    .map(partitionField -> new FieldInfo(partitionField.getFieldName(), hudiSink.getSinkName(),
-                            FieldInfoUtils.convertFieldFormat(partitionField.getFieldType(),
-                                    partitionField.getFieldFormat())))
-                    .collect(Collectors.toList());
-        }
+
         return new HudiLoadNode(
                 hudiSink.getSinkName(),
                 hudiSink.getSinkName(),
@@ -433,7 +426,7 @@ public class LoadNodeUtils {
                 hudiSink.getCatalogUri(),
                 hudiSink.getWarehouse(),
                 hudiSink.getExtList(),
-                partitionFields);
+                hudiSink.getPartitionKey());
     }
 
     /**

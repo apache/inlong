@@ -263,50 +263,6 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({
-    type: EditableTable,
-    tooltip: i18n.t('meta.Sinks.Hudi.PartitionFieldListHelp'),
-    col: 24,
-    props: {
-      size: 'small',
-      required: false,
-      columns: [
-        {
-          title: i18n.t('meta.Sinks.Hudi.FieldName'),
-          dataIndex: 'fieldName',
-          rules: [{ required: true }],
-        },
-        {
-          title: i18n.t('meta.Sinks.Hudi.FieldType'),
-          dataIndex: 'fieldType',
-          type: 'select',
-          initialValue: 'string',
-          props: {
-            options: ['string', 'timestamp'].map(item => ({
-              label: item,
-              value: item,
-            })),
-          },
-        },
-        {
-          title: i18n.t('meta.Sinks.Hudi.FieldFormat'),
-          dataIndex: 'fieldFormat',
-          type: 'autocomplete',
-          props: {
-            options: ['MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'SQL', 'ISO_8601'].map(item => ({
-              label: item,
-              value: item,
-            })),
-          },
-          rules: [{ required: true }],
-          visible: (text, record) => record.fieldType === 'timestamp',
-        },
-      ],
-    },
-  })
-  @I18n('meta.Sinks.Hudi.PartitionFieldList')
-  partitionFieldList: Record<string, unknown>[];
-
-  @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sinks.Hudi.PrimaryKeyHelper'),
     rules: [{ required: true }],
@@ -317,6 +273,18 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   @ColumnDecorator()
   @I18n('meta.Sinks.Hudi.PrimaryKey')
   primaryKey: string;
+
+  @FieldDecorator({
+    type: 'input',
+    tooltip: i18n.t('meta.Sinks.Hudi.PartitionKeyHelper'),
+    rules: [{ required: false }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.Hudi.PartitionKey')
+  partitionKey: string;
 }
 
 const getFieldListColumns = sinkValues => {
