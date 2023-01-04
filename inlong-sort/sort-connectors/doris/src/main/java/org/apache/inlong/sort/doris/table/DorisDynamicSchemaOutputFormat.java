@@ -425,10 +425,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 for (RowKind rowKind : rowKinds) {
                     if (updateBeforeList != null && updateBeforeList.size() > i) {
                         addRow(rowKind, rootNode, physicalData, updateBeforeNode,
-                                physicalDataList.get(i), updateBeforeList.get(i), tableIdentifier);
+                                physicalDataList.get(i), updateBeforeList.get(i));
                     } else {
                         addRow(rowKind, rootNode, physicalData, updateBeforeNode,
-                                physicalDataList.get(i), null, tableIdentifier);
+                                physicalDataList.get(i), null);
                     }
                 }
             }
@@ -441,7 +441,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     @SuppressWarnings({"unchecked"})
     private void addRow(RowKind rowKind, JsonNode rootNode, JsonNode physicalNode, JsonNode updateBeforeNode,
-            Map<String, String> physicalData, Map<String, String> updateBeforeData, String tableIdentifier) {
+            Map<String, String> physicalData, Map<String, String> updateBeforeData) {
         switch (rowKind) {
             case INSERT:
             case UPDATE_AFTER:
