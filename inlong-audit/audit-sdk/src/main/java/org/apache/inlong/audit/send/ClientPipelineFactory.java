@@ -18,21 +18,20 @@
 package org.apache.inlong.audit.send;
 
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import org.apache.inlong.audit.util.Decoder;
 
 public class ClientPipelineFactory extends ChannelInitializer<SocketChannel> {
 
-    private final SimpleChannelInboundHandler sendHandler;
+    private SenderManager senderManager;
 
-    public ClientPipelineFactory(SimpleChannelInboundHandler sendHandler) {
-        this.sendHandler = sendHandler;
+    public ClientPipelineFactory(SenderManager senderManager) {
+        this.senderManager = senderManager;
     }
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
         ch.pipeline().addLast("contentDecoder", new Decoder());
-        ch.pipeline().addLast("handler", sendHandler);
+        ch.pipeline().addLast("handler", new SenderHandler(senderManager));
     }
 }
