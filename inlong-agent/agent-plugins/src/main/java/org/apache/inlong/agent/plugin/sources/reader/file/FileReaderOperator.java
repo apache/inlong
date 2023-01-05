@@ -21,11 +21,11 @@ import com.google.gson.Gson;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.except.FileException;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Validator;
-import org.apache.inlong.agent.except.FileException;
 import org.apache.inlong.agent.plugin.sources.reader.AbstractReader;
 import org.apache.inlong.agent.plugin.utils.FileDataUtils;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
@@ -104,6 +104,7 @@ public class FileReaderOperator extends AbstractReader {
 
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
     private final StringBuffer sb = new StringBuffer();
+    private boolean needMetadata = false;
 
     public FileReaderOperator(File file, int position) {
         this(file, position, "");
@@ -261,6 +262,9 @@ public class FileReaderOperator extends AbstractReader {
     }
 
     public String metadataMessage(String message) {
+        if (!needMetadata) {
+            return message;
+        }
         long timestamp = System.currentTimeMillis();
         boolean isJson = FileDataUtils.isJSON(message);
         Map<String, String> mergeData = new HashMap<>(metadata);
@@ -280,8 +284,10 @@ public class FileReaderOperator extends AbstractReader {
         String[] env = jobConf.get(JOB_FILE_META_ENV_LIST).split(COMMA);
         Arrays.stream(env).forEach(data -> {
             if (data.equalsIgnoreCase(KUBERNETES)) {
+                needMetadata = true;
                 new KubernetesMetadataProvider(this).getData();
             } else if (data.equalsIgnoreCase(ENV_CVM)) {
+                needMetadata = true;
                 metadata.put(METADATA_HOST_NAME, AgentUtils.getLocalHost());
                 metadata.put(METADATA_SOURCE_IP, AgentUtils.fetchLocalIp());
                 metadata.put(METADATA_FILE_NAME, file.getName());
