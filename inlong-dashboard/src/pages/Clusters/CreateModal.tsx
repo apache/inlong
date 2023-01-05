@@ -80,16 +80,11 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
 
   const testConnection = async () => {
     const values = await form.validateFields();
-    const isUpdate = id;
     const submitData = {
       ...values,
       inCharges: values.inCharges?.join(','),
       clusterTags: values.clusterTags?.join(','),
     };
-    if (isUpdate) {
-      submitData.id = id;
-      submitData.version = savedData?.version;
-    }
     await request({
       url: '/cluster/testConnection',
       method: 'POST',
