@@ -54,7 +54,6 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -1386,60 +1385,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                             "cluster node has already updated with parentId=%s, type=%s, ip=%s, port=%s, protocolType=%s",
                             entity.getParentId(), entity.getType(), entity.getIp(), entity.getPort(),
                             entity.getProtocolType()));
-        }
-        return true;
-    }
-
-    @Override
-    public Boolean bindNodeTag(ClusterNodeBindTagRequest request, String operator) {
-        HashSet<String> bindSet = Sets.newHashSet();
-        HashSet<String> unbindSet = Sets.newHashSet();
-        if (request.getBindClusterNodes() != null) {
-            bindSet.addAll(request.getBindClusterNodes());
-        }
-        if (request.getUnbindClusterNodes() != null) {
-            unbindSet.addAll(request.getUnbindClusterNodes());
-        }
-        Preconditions.checkTrue(Sets.union(bindSet, unbindSet).size() == bindSet.size() + unbindSet.size(),
-                "can not add and del node tag in the sameTime");
-        InlongClusterEntity cluster = clusterMapper.selectByNameAndType(request.getClusterName(), request.getType());
-        String message = "Current user does not have permission to bind cluster node tag";
-        checkUser(cluster, operator, message);
-
-        if (CollectionUtils.isNotEmpty(bindSet)) {
-            bindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(request.getType());
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(entity -> entity != null)
-                    .forEach(entity -> {
-                        String nodeTags = entity.getNodeTags();
-                        Set<String> tagSet = nodeTags == null ? Sets.newHashSet()
-                                : Sets.newHashSet(entity.getNodeTags().split(InlongConstants.COMMA));
-                        tagSet.add(request.getClusterNodeTag());
-                        entity.setNodeTags(String.join(InlongConstants.COMMA, tagSet));
-                        clusterNodeMapper.updateById(entity);
-                    });
-        }
-
-        if (CollectionUtils.isNotEmpty(unbindSet)) {
-            unbindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(request.getType());
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(entity -> entity != null)
-                    .forEach(entity -> {
-                        String nodeTags = entity.getNodeTags();
-                        Set<String> tagSet = nodeTags == null ? Sets.newHashSet()
-                                : Sets.newHashSet(entity.getNodeTags().split(InlongConstants.COMMA));
-                        tagSet.remove(request.getClusterNodeTag());
-                        entity.setNodeTags(String.join(InlongConstants.COMMA, tagSet));
-                        clusterNodeMapper.updateById(entity);
-                    });
         }
         return true;
     }

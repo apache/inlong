@@ -51,7 +51,7 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_IN_C
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HTTP_PORT;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_NODE_TAG;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_NODE_GROUP;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HEARTBEAT_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
@@ -211,7 +211,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         final String clusterName = conf.get(AGENT_CLUSTER_NAME);
         final String clusterTag = conf.get(AGENT_CLUSTER_TAG);
         final String inCharges = conf.get(AGENT_CLUSTER_IN_CHARGES);
-        final String nodeTag = conf.get(AGENT_NODE_TAG);
+        final String nodeGroup = conf.get(AGENT_NODE_GROUP);
 
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp(agentIp);
@@ -227,8 +227,8 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         if (StringUtils.isNotBlank(inCharges)) {
             heartbeatMsg.setInCharges(inCharges);
         }
-        if (StringUtils.isNotBlank(nodeTag)) {
-            heartbeatMsg.setNodeTag(nodeTag);
+        if (StringUtils.isNotBlank(nodeGroup)) {
+            heartbeatMsg.setNodeGroup(nodeGroup);
         }
 
         Map<String, JobWrapper> jobWrapperMap = jobmanager.getJobs();

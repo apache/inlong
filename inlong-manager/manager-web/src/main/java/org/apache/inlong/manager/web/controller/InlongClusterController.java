@@ -25,7 +25,6 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -226,14 +225,6 @@ public class InlongClusterController {
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> deleteNode(@PathVariable Integer id) {
         return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUser().getName()));
-    }
-
-    @RequestMapping(value = "/cluster/node/bindTag")
-    @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Bind or unbind cluster node tag")
-    public Response<Boolean> bindNodeTag(@Validated @RequestBody ClusterNodeBindTagRequest request) {
-        String username = LoginUserUtils.getLoginUser().getName();
-        return Response.success(clusterService.bindNodeTag(request, username));
     }
 
     @PostMapping("/cluster/testConnection")

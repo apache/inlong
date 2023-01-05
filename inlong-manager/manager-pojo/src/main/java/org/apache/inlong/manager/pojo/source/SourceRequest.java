@@ -81,10 +81,10 @@ public class SourceRequest {
     @Pattern(regexp = "^[a-z0-9_-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongClusterName;
 
-    @ApiModelProperty("Inlong cluster node tag")
+    @ApiModelProperty("Inlong cluster node label for filtering stream source collect task")
     @Length(min = 1, max = 128, message = "length must be between 1 and 128")
     @Pattern(regexp = "^[a-z0-9_-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
-    private String inlongClusterNodeTag;
+    private String inlongClusterNodeGroup;
 
     @ApiModelProperty("Data node name")
     @Length(max = 128, message = "length must be less than or equal to 128")

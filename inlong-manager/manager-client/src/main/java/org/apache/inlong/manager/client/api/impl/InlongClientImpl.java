@@ -39,7 +39,6 @@ import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -286,11 +285,6 @@ public class InlongClientImpl implements InlongClient {
     public Boolean deleteNode(Integer id) {
         Preconditions.checkNotNull(id, "cluster node id cannot be empty");
         return clusterClient.deleteNode(id);
-    }
-
-    @Override
-    public Boolean bindNodeTag(ClusterNodeBindTagRequest request) {
-        return clusterClient.bindNodeTag(request);
     }
 
     private SimpleGroupStatus recheckGroupStatus(SimpleGroupStatus groupStatus, List<StreamSource> sources) {

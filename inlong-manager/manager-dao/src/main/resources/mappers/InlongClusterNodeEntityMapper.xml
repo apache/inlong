@@ -28,7 +28,6 @@
         <result column="port" jdbcType="INTEGER" property="port"/>
         <result column="protocol_type" jdbcType="VARCHAR" property="protocolType"/>
         <result column="node_load" jdbcType="INTEGER" property="nodeLoad"/>
-        <result column="node_tags" jdbcType="VARCHAR" property="nodeTags"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
@@ -40,7 +39,7 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, parent_id, type, ip, port, protocol_type, node_load, node_tags, ext_params, description,
+        id, parent_id, type, ip, port, protocol_type, node_load, ext_params, description,
         status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
@@ -48,12 +47,12 @@
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         insert into inlong_cluster_node (id, parent_id, type,
                                          ip, port, protocol_type,
-                                         node_load, node_tags, ext_params,
+                                         node_load, ext_params,
                                          description, status,
                                          creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR},
                 #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{protocolType,jdbcType=VARCHAR},
-                #{nodeLoad,jdbcType=INTEGER}, #{nodeTags,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
+                #{nodeLoad,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR},
                 #{description, jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
@@ -62,14 +61,13 @@
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         insert into inlong_cluster_node (id, parent_id, type,
                                          ip, port, protocol_type,
-                                         node_load, node_tags, ext_params, status,
+                                         node_load, ext_params, status,
                                          creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR},
                 #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{protocolType,jdbcType=VARCHAR},
-                #{nodeLoad,jdbcType=INTEGER}, #{nodeTags,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
+                #{nodeLoad,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR},
                 #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
         ON DUPLICATE KEY UPDATE node_load  = VALUES(node_load),
-                                node_tags  = VALUES(node_tags),
                                 ext_params = VALUES(ext_params),
                                 status     = VALUES(status),
                                 modifier   = VALUES(modifier)
@@ -143,7 +141,6 @@
             port          = #{port,jdbcType=INTEGER},
             protocol_type = #{protocolType,jdbcType=VARCHAR},
             node_load     = #{nodeLoad,jdbcType=INTEGER},
-            node_tags     = #{nodeTags,jdbcType=VARCHAR},
             ext_params    = #{extParams,jdbcType=LONGVARCHAR},
             description   = #{description,jdbcType=VARCHAR},
             status        = #{status,jdbcType=INTEGER},
