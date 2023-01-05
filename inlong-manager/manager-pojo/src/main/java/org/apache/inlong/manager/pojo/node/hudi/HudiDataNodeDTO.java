@@ -66,8 +66,8 @@ public class HudiDataNodeDTO {
         try {
             return JsonUtils.parseObject(extParams, HudiDataNodeDTO.class);
         } catch (Exception e) {
-            LOGGER.error("Failed to extract additional parameters for Hudi data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
+                    String.format("Failed to parse extParams for Hudi node: %s", e.getMessage()));
         }
     }
 

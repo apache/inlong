@@ -57,7 +57,8 @@ public class StarRocksDataNodeDTO {
         try {
             return JsonUtils.parseObject(extParams, StarRocksDataNodeDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
+                    String.format("Failed to parse extParams for StarRocks node: %s", e.getMessage()));
         }
     }
 
