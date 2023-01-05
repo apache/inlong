@@ -39,7 +39,7 @@ public final class PatternReplaceUtils {
             String keyText = matcher.group(1);
             String replacement = params.get(keyText);
             if (replacement == null) {
-                replacement = "\\$\\{" + keyText + "\\}";
+                continue;
             }
             matcher.appendReplacement(sb, replacement);
         }

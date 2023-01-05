@@ -313,7 +313,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
     @Override
-    public synchronized void writeRecord(T row) {
+    public synchronized void writeRecord(T row) throws IOException {
         addBatch(row);
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
                 || batchBytes >= executionOptions.getMaxBatchBytes();
@@ -372,7 +372,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     }
 
-    private void addBatch(T row) {
+    private void addBatch(T row) throws IOException {
         readInNum.incrementAndGet();
         if (!multipleSink) {
             addSingle(row);
@@ -441,7 +441,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     @SuppressWarnings({"unchecked"})
     private void addRow(RowKind rowKind, JsonNode rootNode, JsonNode physicalNode, JsonNode updateBeforeNode,
-            Map<String, String> physicalData, Map<String, String> updateBeforeData) {
+            Map<String, String> physicalData, Map<String, String> updateBeforeData) throws IOException {
+        String tableIdentifier = StringUtils.join(
+                jsonDynamicSchemaFormat.parse(rootNode, databasePattern), ".",
+                jsonDynamicSchemaFormat.parse(rootNode, tablePattern));
         switch (rowKind) {
             case INSERT:
             case UPDATE_AFTER:
@@ -495,9 +498,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             throw ex;
         }
 
-        if (multipleSink && dirtyType != DirtyType.DESERIALIZE_ERROR) {
-            handleMultipleDirtyData(dirtyData, dirtyType, e);
-            return;
+        if (multipleSink) {
+            if (dirtyType == DirtyType.DESERIALIZE_ERROR) {
+                LOG.error("database and table can't be identified, will use default ${database}${table}");
+            } else {
+                handleMultipleDirtyData(dirtyData, dirtyType, e);
+                return;
+            }
         }
 
         if (dirtySink != null) {
@@ -522,11 +529,26 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
     private void handleMultipleDirtyData(Object dirtyData, DirtyType dirtyType, Exception e) {
-        JsonNode rootNode;
+        JsonNode rootNode = null;
+        String database = null;
+        String table = null;
         try {
-            rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
+            if (dirtyData instanceof RowData) {
+                rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
+            } else if (dirtyData instanceof JsonNode) {
+                rootNode = (JsonNode) dirtyData;
+            } else if (dirtyData instanceof String) {
+                // parse and remove the added identifier for string cases
+                String[] arr = ((String) dirtyData).split("\\.");
+                database = arr[0];
+                table = arr[1];
+                dirtyData = ((String) dirtyData).replace(database + "." + table + ".", "");
+            } else {
+                LOG.error("unidentified dirty data :{}", dirtyData);
+                throw new Exception();
+            }
         } catch (Exception ex) {
-            LOG.warn("parse rootnode failed");
+            LOG.warn("parse dirtydata failed");
             handleDirtyData(dirtyData, DirtyType.DESERIALIZE_ERROR, e);
             return;
         }
@@ -535,16 +557,26 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             DirtyData.Builder<Object> builder = DirtyData.builder();
             // must manually replace system params first, else the ${} will be lost in regex parsing
             Map<String, String> paramMap = DirtyData.genParamMap(dirtyType, e.getMessage());
-            String labels = PatternReplaceUtils.replace(dirtyOptions.getLabels(), paramMap);
-            String logTag = PatternReplaceUtils.replace(dirtyOptions.getLogTag(), paramMap);
-            String identifier = PatternReplaceUtils.replace(dirtyOptions.getIdentifier(), paramMap);
+            if (database != null && table != null) {
+                paramMap.put("database", database);
+                paramMap.put("table", table);
+                LOG.info("parammap:{},{}", paramMap, paramMap.entrySet());
+            }
+            String labels = PatternReplaceUtils.replace(dirtyOptions.getLabels(), paramMap);;
+            String logTag = PatternReplaceUtils.replace(dirtyOptions.getLogTag(), paramMap);;
+            String identifier = PatternReplaceUtils.replace(dirtyOptions.getIdentifier(), paramMap);;
             try {
+                if (rootNode != null) {
+                    labels = jsonDynamicSchemaFormat.parse(rootNode, labels);
+                    logTag = jsonDynamicSchemaFormat.parse(rootNode, logTag);
+                    identifier = jsonDynamicSchemaFormat.parse(rootNode, identifier);
+                }
                 builder.setData(dirtyData)
                         .setDirtyType(dirtyType)
-                        .setLabels(jsonDynamicSchemaFormat.parse(rootNode, labels))
-                        .setLogTag(jsonDynamicSchemaFormat.parse(rootNode, logTag))
+                        .setLabels(labels)
+                        .setLogTag(logTag)
                         .setDirtyMessage(e.getMessage())
-                        .setIdentifier(jsonDynamicSchemaFormat.parse(rootNode, identifier));
+                        .setIdentifier(identifier);
                 dirtySink.invoke(builder.build());
             } catch (Exception ex) {
                 if (!dirtyOptions.ignoreSideOutputErrors()) {
@@ -683,14 +715,15 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             // Clean the data that has been loaded.
             values.clear();
         } catch (Exception e) {
-            LOG.error(String.format("Flush table: %s error", tableIdentifier), e);
+            LOG.error(String.format("Flush table: %s error : %s", tableIdentifier, e.getMessage()));
             // Makesure it is a dirty data
-            if (respContent == null && e instanceof IOException) {
+            if (e.getMessage().contains("see more in")) {
                 flushExceptionMap.put(tableIdentifier, e);
                 errorNum.getAndAdd(values.size());
                 for (Object value : values) {
                     try {
-                        handleDirtyData(OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsString(value)),
+                        handleDirtyData(
+                                tableIdentifier + "." + OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsString(value)),
                                 DirtyType.BATCH_LOAD_ERROR, e);
                     } catch (IOException ex) {
                         if (!dirtyOptions.ignoreSideOutputErrors()) {

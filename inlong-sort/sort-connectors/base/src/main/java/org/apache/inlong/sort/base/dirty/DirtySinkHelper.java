@@ -103,8 +103,7 @@ public class DirtySinkHelper<T> implements Serializable {
 
     public void invokeMultiple(T dirtyData, DirtyType dirtyType, Throwable e,
             String sinkMultipleFormat) {
-        JsonDynamicSchemaFormat jsonDynamicSchemaFormat =
-                (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
+
         if (!dirtyOptions.ignoreDirty()) {
             RuntimeException ex;
             if (e instanceof RuntimeException) {
@@ -114,27 +113,59 @@ public class DirtySinkHelper<T> implements Serializable {
             }
             throw ex;
         }
-        if (dirtySink != null) {
-            JsonNode rootNode;
-            DirtyData.Builder<T> builder = DirtyData.builder();
-            Map<String, String> paramMap = DirtyData.genParamMap(dirtyType, e.getMessage());
-            String labels = PatternReplaceUtils.replace(dirtyOptions.getLabels(), paramMap);
-            String logTag = PatternReplaceUtils.replace(dirtyOptions.getLogTag(), paramMap);
-            String identifier = PatternReplaceUtils.replace(dirtyOptions.getIdentifier(), paramMap);
-            try {
+
+        JsonDynamicSchemaFormat jsonDynamicSchemaFormat =
+                (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
+        JsonNode rootNode = null;
+        String database = null;
+        String table = null;
+
+        try {
+            if (dirtyData instanceof RowData) {
                 rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
-            } catch (Exception ex) {
-                invoke(dirtyData, DirtyType.DESERIALIZE_ERROR, e);
-                return;
+            } else if (dirtyData instanceof JsonNode) {
+                rootNode = (JsonNode) dirtyData;
+            } else if (dirtyData instanceof String) {
+                // parse and remove the added identifier for string cases
+                String[] arr = ((String) dirtyData).split("\\.");
+                database = arr[0];
+                table = arr[1];
+                //this is possible since dirtydata is a string
+                dirtyData = (T) ((String) dirtyData).replace(database + "." + table + ".", "");
+            } else {
+                LOGGER.error("unidentified dirty data :{}", dirtyData);
+                throw new Exception();
             }
+        } catch (Exception ex) {
+            LOGGER.warn("parse dirtydata failed");
+            invoke(dirtyData, DirtyType.DESERIALIZE_ERROR, e);
+            return;
+        }
+
+        if (dirtySink != null) {
+            DirtyData.Builder<Object> builder = DirtyData.builder();
+            // must manually replace system params first, else the ${} will be lost in regex parsing
+            Map<String, String> paramMap = DirtyData.genParamMap(dirtyType, e.getMessage());
+            if (database != null && table != null) {
+                paramMap.put("database", database);
+                paramMap.put("table", table);
+            }
+            String labels = PatternReplaceUtils.replace(dirtyOptions.getLabels(), paramMap);;
+            String logTag = PatternReplaceUtils.replace(dirtyOptions.getLogTag(), paramMap);;
+            String identifier = PatternReplaceUtils.replace(dirtyOptions.getIdentifier(), paramMap);;
             try {
+                if (rootNode != null) {
+                    labels = jsonDynamicSchemaFormat.parse(rootNode, labels);
+                    logTag = jsonDynamicSchemaFormat.parse(rootNode, logTag);
+                    identifier = jsonDynamicSchemaFormat.parse(rootNode, identifier);
+                }
                 builder.setData(dirtyData)
                         .setDirtyType(dirtyType)
-                        .setLabels(jsonDynamicSchemaFormat.parse(rootNode, labels))
-                        .setLogTag(jsonDynamicSchemaFormat.parse(rootNode, logTag))
+                        .setLabels(labels)
+                        .setLogTag(logTag)
                         .setDirtyMessage(e.getMessage())
-                        .setIdentifier(jsonDynamicSchemaFormat.parse(rootNode, identifier));
-                dirtySink.invoke(builder.build());
+                        .setIdentifier(identifier);
+                dirtySink.invoke((DirtyData<T>) builder.build());
             } catch (Exception ex) {
                 if (!dirtyOptions.ignoreSideOutputErrors()) {
                     throw new RuntimeException(ex);
