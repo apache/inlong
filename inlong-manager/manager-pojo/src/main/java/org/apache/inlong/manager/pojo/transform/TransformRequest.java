@@ -42,10 +42,14 @@ public class TransformRequest {
 
     @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty("Inlong group id")
+    @Length(min = 4, max = 100, message = "length must be between 4 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
 
     @NotBlank(message = "inlongStreamId cannot be blank")
     @ApiModelProperty("Inlong stream id")
+    @Length(min = 4, max = 100, message = "inlongStreamId length must be between 4 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "inlongStreamId only supports lowercase letters, numbers, '-', or '_'")
     private String inlongStreamId;
 
     @NotBlank(message = "transformName cannot be blank")
@@ -56,18 +60,22 @@ public class TransformRequest {
 
     @NotBlank(message = "transformType cannot be blank")
     @ApiModelProperty("Transform type, including: splitter, filter, joiner, etc.")
+    @Length(max = 15, message = "length must be less than or equal to 15")
     private String transformType;
 
     @NotBlank(message = "preNodeNames cannot be blank")
     @ApiModelProperty("Pre node names of transform in this stream, join by ','")
+    @Length(min = 1, max = 1638400, message = "length must be between 1 and 1638400")
     private String preNodeNames;
 
     @NotBlank(message = "postNodeNames cannot be blank")
     @ApiModelProperty("Post node names of transform in this stream, join by ','")
+    @Length(min = 1, max = 1638400, message = "length must be between 1 and 1638400")
     private String postNodeNames;
 
     @NotBlank(message = "transformDefinition cannot be blank")
     @ApiModelProperty("Transform definition in json type")
+    @Length(min = 1, max = 1638400, message = "length must be between 1 and 1638400")
     private String transformDefinition;
 
     @ApiModelProperty("Version of transform")
