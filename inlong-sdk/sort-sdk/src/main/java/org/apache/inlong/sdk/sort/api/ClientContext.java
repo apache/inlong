@@ -144,7 +144,7 @@ public abstract class ClientContext implements Cleanable {
     private SortSdkMetricItem getMetricItem(InLongTopic topic, int partitionId) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(SortSdkMetricItem.KEY_SORT_TASK_ID, sortTaskId);
-        if (topic != null || config.isTopicStaticsEnabled()) {
+        if (topic != null && config.isTopicStaticsEnabled()) {
             dimensions.put(SortSdkMetricItem.KEY_CLUSTER_ID, topic.getInLongCluster().getClusterId());
             dimensions.put(SortSdkMetricItem.KEY_TOPIC_ID, topic.getTopic());
         }
