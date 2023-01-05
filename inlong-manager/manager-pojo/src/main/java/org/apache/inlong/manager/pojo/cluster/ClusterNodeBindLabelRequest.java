@@ -28,7 +28,8 @@ import java.util.List;
  * Inlong cluster node bind or unbind tag request
  */
 @Data
-@ApiModel("Cluster node bind and unbind tag request")
+@ApiModel("Cluster node bind and unbind stream source label request, stream source label is a filter to judge "
+        + "whether to accept the stream source task")
 public class ClusterNodeBindLabelRequest {
 
     @NotBlank(message = "Cluster nodeTag cannot be blank")

@@ -100,6 +100,6 @@ public interface InlongClusterApi {
     @DELETE("cluster/node/delete/{id}")
     Call<Response<Boolean>> deleteNode(@Path("id") Integer id);
 
-    @POST("cluster/node/bindTag")
-    Call<Response<Boolean>> bindNodeTag(@Body ClusterNodeBindLabelRequest request);
+    @POST("cluster/node/bindLabel")
+    Call<Response<Boolean>> bindNodeLabel(@Body ClusterNodeBindLabelRequest request);
 }

@@ -387,7 +387,7 @@ public interface InlongClusterService {
     Boolean deleteNode(Integer id, String operator);
 
     /**
-     * Bind or unbind cluster tag node for cluster node.
+     * Bind or unbind label for filtering stream source collect task for cluster node.
      *
      * @param request cluster info to be modified
      * @param operator current operator

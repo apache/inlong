@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Inlong label entity.
+ * Inlong label entity for filtering stream source collect task.
  */
 @Data
 public class StreamSourceLabelEntity implements Serializable {

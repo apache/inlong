@@ -299,13 +299,13 @@ public class InlongClusterClient {
     }
 
     /**
-     * Bind or unbind cluster tag node for cluster node.
+     * Bind or unbind cluster label node for cluster node for filtering stream source collect task.
      *
      * @param request cluster info to be modified
      * @return whether succeed
      */
     public Boolean bindNodeLabel(ClusterNodeBindLabelRequest request) {
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongClusterApi.bindNodeTag(request));
+        Response<Boolean> response = ClientUtils.executeHttpCall(inlongClusterApi.bindNodeLabel(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
