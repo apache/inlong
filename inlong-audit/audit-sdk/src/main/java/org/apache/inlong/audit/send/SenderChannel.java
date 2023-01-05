@@ -130,8 +130,7 @@ public class SenderChannel {
         client.option(ChannelOption.SO_REUSEADDR, true);
         client.option(ChannelOption.SO_RCVBUF, DEFAULT_RECEIVE_BUFFER_SIZE);
         client.option(ChannelOption.SO_SNDBUF, DEFAULT_SEND_BUFFER_SIZE);
-        SenderHandler senderHandler = new SenderHandler(senderManager);
-        client.handler(new ClientPipelineFactory(senderHandler));
+        client.handler(new ClientPipelineFactory(senderManager));
     }
 
     /**
@@ -144,7 +143,10 @@ public class SenderChannel {
             return true;
         }
         try {
-            init();
+            if (client == null) {
+                init();
+            }
+
             synchronized (client) {
                 ChannelFuture future = client.connect(this.ipPort.addr).sync();
                 this.channel = future.channel();
