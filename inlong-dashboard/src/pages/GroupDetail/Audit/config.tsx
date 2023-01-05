@@ -152,7 +152,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
 
 export const getTableColumns = source => {
   const data = source.map(item => ({
-    title: auditMap[item.auditId]?.label + (item.nodeType || '') || item.auditId,
+    title: auditMap[item.auditId]?.label || item.auditId,
     dataIndex: item.auditId,
     render: text => text || 0,
   }));

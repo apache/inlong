@@ -17,28 +17,11 @@
  * under the License.
  */
 
-import type { MetaExportWithBackendList } from '@/metas/types';
-import type { ConsumeMetaType } from '../types';
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
+import { ConsumeInfo } from '../common/ConsumeInfo';
 
-export const allDefaultConsumes: MetaExportWithBackendList<ConsumeMetaType> = [
-  {
-    label: 'ALL',
-    value: '',
-    LoadEntity: () => import('../common/ConsumeInfo').then(r => ({ default: r.ConsumeInfo })),
-  },
-  {
-    label: 'Kafka',
-    value: 'KAFKA',
-    LoadEntity: () => import('./Kafka'),
-  },
-  {
-    label: 'Pulsar',
-    value: 'PULSAR',
-    LoadEntity: () => import('./Pulsar'),
-  },
-  {
-    label: 'TubeMq',
-    value: 'TUBEMQ',
-    LoadEntity: () => import('./TubeMq'),
-  },
-];
+export default class KafkaConsume
+  extends ConsumeInfo
+  implements DataWithBackend, RenderRow, RenderList {}
