@@ -110,7 +110,7 @@ class AgentServiceTest extends ServiceBaseTest {
     /**
      * mock {@link StreamSourceService#save}
      */
-    public Pair<String, String> saveSource(String tag) {
+    public Pair<String, String> saveSource(String group) {
         String groupId = UUID.randomUUID().toString();
         String streamId = UUID.randomUUID().toString();
         groupStreamCache.add(new ImmutablePair<>(groupId, streamId));
@@ -121,9 +121,9 @@ class AgentServiceTest extends ServiceBaseTest {
         sourceInfo.setInlongStreamId(streamId);
         sourceInfo.setSourceType(SourceType.FILE);
         sourceInfo.setInlongClusterName(MockAgent.CLUSTER_NAME);
-        sourceInfo.setInlongClusterNodeGroup(tag);
+        sourceInfo.setInlongClusterNodeGroup(group);
         sourceInfo.setSourceName(
-                String.format("Source task for cluster(%s) and tag(%s)", MockAgent.CLUSTER_NAME, tag));
+                String.format("Source task for cluster(%s) and group(%s)", MockAgent.CLUSTER_NAME, group));
         sourceService.save(sourceInfo, GLOBAL_OPERATOR);
         sourceService.updateStatus(
                 groupId,
@@ -195,16 +195,16 @@ class AgentServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Test bind tag for node.
+     * Test bind group for node.
      */
     @Test
-    public void testTagMatch() {
-        saveSource("tag1,tag3");
-        saveSource("tag2,tag3");
-        saveSource("tag2,tag3");
-        saveSource("tag4");
-        bindGroup(true, "tag1");
-        bindGroup(true, "tag2");
+    public void testGroupMatch() {
+        saveSource("group1,group3");
+        saveSource("group2,group3");
+        saveSource("group2,group3");
+        saveSource("group4");
+        bindGroup(true, "group1");
+        bindGroup(true, "group2");
 
         TaskResult taskResult = agent.pullTask();
         Assertions.assertTrue(taskResult.getCmdConfigs().isEmpty());
@@ -220,12 +220,12 @@ class AgentServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Test node tag mismatch source task and next time rematch source task.
+     * Test node group mismatch source task and next time rematch source task.
      */
     @Test
-    public void testTagMismatchAndRematch() {
-        final Pair<String, String> groupStream = saveSource("tag1,tag3");
-        bindGroup(true, "tag1");
+    public void testGroupMismatchAndRematch() {
+        final Pair<String, String> groupStream = saveSource("group1,group3");
+        bindGroup(true, "group1");
 
         agent.pullTask();
         agent.pullTask(); // report last success status
@@ -235,8 +235,8 @@ class AgentServiceTest extends ServiceBaseTest {
                 .findAny()
                 .get()
                 .getId();
-        // unbind tag and mismatch
-        bindGroup(false, "tag1");
+        // unbind group and mismatch
+        bindGroup(false, "group1");
         TaskResult t1 = agent.pullTask();
         Assertions.assertEquals(1, t1.getDataConfigs().size());
         Assertions.assertEquals(1, t1.getDataConfigs().stream()
@@ -246,8 +246,8 @@ class AgentServiceTest extends ServiceBaseTest {
         DataConfig d1 = t1.getDataConfigs().get(0);
         Assertions.assertEquals(sourceId, d1.getTaskId());
 
-        // bind tag and rematch
-        bindGroup(true, "tag1");
+        // bind group and rematch
+        bindGroup(true, "group1");
         TaskResult t2 = agent.pullTask();
         Assertions.assertEquals(1, t2.getDataConfigs().size());
         Assertions.assertEquals(1, t2.getDataConfigs().stream()
@@ -263,14 +263,14 @@ class AgentServiceTest extends ServiceBaseTest {
      */
     @Test
     public void testSuspendFailWhenNotAck() {
-        Pair<String, String> groupStream = saveSource("tag1,tag3");
-        bindGroup(true, "tag1");
+        Pair<String, String> groupStream = saveSource("group1,group3");
+        bindGroup(true, "group1");
 
         agent.pullTask();
         agent.pullTask(); // report last success status
 
         // mismatch
-        bindGroup(false, "tag1");
+        bindGroup(false, "group1");
         agent.pullTask();
 
         // suspend
@@ -282,21 +282,21 @@ class AgentServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Test node tag rematch source task but group suspend
+     * Test node group rematch source task but group suspend
      */
     @Test
     public void testRematchedWhenSuspend() {
-        final Pair<String, String> groupStream = saveSource("tag1,tag3");
-        bindGroup(true, "tag1");
+        final Pair<String, String> groupStream = saveSource("group1,group3");
+        bindGroup(true, "group1");
 
         agent.pullTask();
         agent.pullTask(); // report last success status
 
         // mismatch and rematch
-        bindGroup(false, "tag1");
+        bindGroup(false, "group1");
         agent.pullTask();
         agent.pullTask(); // report last to make it from 304 -> 104
-        bindGroup(true, "tag1");
+        bindGroup(true, "group1");
 
         // suspend
         suspendSource(groupStream.getLeft(), groupStream.getRight());
@@ -305,12 +305,12 @@ class AgentServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Test node tag mismatch source task but group restart
+     * Test node group mismatch source task but group restart
      */
     @Test
     public void testMismatchedWhenRestart() {
-        final Pair<String, String> groupStream = saveSource("tag1,tag3");
-        bindGroup(true, "tag1");
+        final Pair<String, String> groupStream = saveSource("group1,group3");
+        bindGroup(true, "group1");
 
         agent.pullTask();
         agent.pullTask(); // report last success status
@@ -318,7 +318,7 @@ class AgentServiceTest extends ServiceBaseTest {
         // suspend and restart
         suspendSource(groupStream.getLeft(), groupStream.getRight());
         restartSource(groupStream.getLeft(), groupStream.getRight());
-        bindGroup(false, "tag1");
+        bindGroup(false, "group1");
         TaskResult taskResult = agent.pullTask();
         Assertions.assertEquals(1, taskResult.getDataConfigs().size());
         Assertions.assertEquals(1, taskResult.getDataConfigs().stream()
