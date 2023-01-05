@@ -88,8 +88,10 @@ public class CommonPropertiesHolder {
      * @return the props
      */
     public static Map<String, String> get() {
-        if (props != null) {
-            return props;
+        synchronized (KEY_COMMON_PROPERTIES) {
+            if (props != null) {
+                return props;
+            }
         }
         init();
         return props;

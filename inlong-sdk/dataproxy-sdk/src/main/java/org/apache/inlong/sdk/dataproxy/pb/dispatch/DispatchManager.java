@@ -104,7 +104,7 @@ public class DispatchManager {
      * @return
      */
     public void outputOvertimeData() {
-        LOG.info("start to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{}",
+        LOG.debug("start to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{}",
                 profileCache.size(), dispatchQueue.size());
         long currentTime = System.currentTimeMillis();
         long createThreshold = currentTime - dispatchTimeout;
@@ -122,7 +122,7 @@ public class DispatchManager {
         removeKeys.forEach((key) -> {
             dispatchQueue.offer(this.profileCache.remove(key));
         });
-        LOG.info("end to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{},eventCount:{}",
+        LOG.debug("end to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{},eventCount:{}",
                 profileCache.size(), dispatchQueue.size(), eventCount);
     }
 
