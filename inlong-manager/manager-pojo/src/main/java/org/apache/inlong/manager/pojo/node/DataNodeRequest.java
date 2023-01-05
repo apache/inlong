@@ -24,9 +24,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 /**
  * Data node request
@@ -44,29 +46,38 @@ public abstract class DataNodeRequest {
 
     @NotBlank(message = "node name cannot be blank")
     @ApiModelProperty(value = "Data node name")
+    @Length(min = 1, max = 128, message = "length must be between 1 and 128")
+    @Pattern(regexp = "^[A-Za-z0-9_-]{1,128}$", message = "only supports letters, numbers, '-', or '_'")
     private String name;
 
     @NotBlank(message = "node type cannot be blank")
     @ApiModelProperty(value = "Data node type, including MYSQL, HIVE, KAFKA, ES, etc.")
+    @Length(max = 20, message = "length must be less than or equal to 20")
     private String type;
 
     @ApiModelProperty(value = "Data node URL")
+    @Length(max = 512, message = "length must be less than or equal to 512")
     private String url;
 
     @ApiModelProperty(value = "Data node username")
+    @Length(max = 128, message = "length must be less than or equal to 128")
     private String username;
 
     @ApiModelProperty(value = "Data node token if needed")
+    @Length(max = 512, message = "length must be less than or equal to 512")
     private String token;
 
     @ApiModelProperty(value = "Extended params")
+    @Length(min = 1, max = 16384, message = "length must be between 1 and 16384")
     private String extParams;
 
     @ApiModelProperty(value = "Description of the data node")
+    @Length(max = 256, message = "length must be less than or equal to 256")
     private String description;
 
     @NotBlank(message = "inCharges cannot be blank")
     @ApiModelProperty(value = "Name of responsible person, separated by commas", required = true)
+    @Length(max = 512, message = "length must be less than or equal to 512")
     private String inCharges;
 
     @ApiModelProperty(value = "Version number")

@@ -47,14 +47,19 @@ public class SourceRequest {
 
     @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty("Inlong group id")
+    @Length(min = 4, max = 100, message = "length must be between 4 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
 
     @NotBlank(message = "inlongStreamId cannot be blank")
     @ApiModelProperty("Inlong stream id")
+    @Length(min = 4, max = 100, message = "inlongStreamId length must be between 4 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "inlongStreamId only supports lowercase letters, numbers, '-', or '_'")
     private String inlongStreamId;
 
     @NotBlank(message = "sourceType cannot be blank")
     @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
+    @Length(min = 1, max = 20, message = "length must be between 1 and 20")
     private String sourceType;
 
     @NotBlank(message = "sourceName cannot be blank")
@@ -64,24 +69,33 @@ public class SourceRequest {
     private String sourceName;
 
     @ApiModelProperty("Ip of the agent running the task")
+    @Length(max = 40, message = "length must be less than or equal to 40")
     private String agentIp;
 
     @ApiModelProperty("Mac uuid of the agent running the task")
+    @Length(max = 30, message = "length must be less than or equal to 30")
     private String uuid;
 
     @ApiModelProperty("Inlong cluster name")
+    @Length(min = 1, max = 128, message = "length must be between 1 and 128")
+    @Pattern(regexp = "^[a-z0-9_-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongClusterName;
 
     @ApiModelProperty("Inlong cluster node tag")
+    @Length(min = 1, max = 128, message = "length must be between 1 and 128")
+    @Pattern(regexp = "^[a-z0-9_-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongClusterNodeTag;
 
     @ApiModelProperty("Data node name")
+    @Length(max = 128, message = "length must be less than or equal to 128")
     private String dataNodeName;
 
     @ApiModelProperty("Serialization type, support: csv, json, canal, avro, etc")
+    @Length(max = 20, message = "length must be less than or equal to 20")
     private String serializationType;
 
     @ApiModelProperty("Snapshot of the source task")
+    @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String snapshot;
 
     @ApiModelProperty("Version")

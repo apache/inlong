@@ -50,9 +50,11 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong group name", required = true)
+    @Length(max = 128, message = "length must be less than or equal to 128")
     private String name;
 
     @ApiModelProperty(value = "Inlong group description")
+    @Length(max = 256, message = "length must be less than or equal to 256")
     private String description;
 
     @Deprecated
@@ -61,25 +63,30 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
 
     @NotBlank(message = "cannot be blank")
     @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
+    @Length(min = 1, max = 20, message = "length must be between 1 and 20")
     private String mqType;
 
     @ApiModelProperty(value = "MQ resource", notes = "in inlong group, TubeMQ corresponds to Topic, Pulsar corresponds to Namespace")
+    @Length(max = 64, message = "length must be less than or equal to 64")
     private String mqResource;
 
     @ApiModelProperty(value = "TubeMQ master URL")
     private String tubeMaster;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    @Range(min = 0, max = 1, message = "default is 0, only supports [0: disable, 1: enable]")
     private Integer enableZookeeper = 0;
 
     @ApiModelProperty(value = "Whether to enable create resource? 0: disable, 1: enable")
+    @Range(min = 0, max = 1, message = "default is 1, only supports [0: disable, 1: enable]")
     private Integer enableCreateResource = 1;
 
     @ApiModelProperty(value = "Whether to use lightweight mode, 0: no, 1: yes")
+    @Range(min = 0, max = 1, message = "default is 0, only supports [0: no, 1: yes]")
     private Integer lightweight = 0;
 
     @NotNull(message = "cannot be null")
-    @Range(min = 0, max = 2, message = "only supports 0, 1, 2")
+    @Range(min = 0, max = 2, message = "default is 0, only supports [0, 1, 2]")
     @ApiModelProperty(value = "Data report type, default is 0.\n"
             + " 0: report to DataProxy and respond when the DataProxy received data.\n"
             + " 1: report to DataProxy and respond after DataProxy sends data.\n"
@@ -87,6 +94,7 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     private Integer dataReportType = 0;
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
+    @Length(max = 128, message = "Length must be less than or equal to 128")
     private String inlongClusterTag;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
@@ -103,9 +111,11 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
 
     @NotBlank(message = "cannot be blank")
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
+    @Length(max = 512, message = "length must be less than or equal to 512")
     private String inCharges;
 
     @ApiModelProperty(value = "Name of followers, separated by commas")
+    @Length(max = 512, message = "length must be less than or equal to 512")
     private String followers;
 
     @ApiModelProperty(value = "Inlong group Extension properties")
