@@ -78,7 +78,7 @@ class AgentServiceTest extends ServiceBaseTest {
     private InlongStreamEntityMapper streamMapper;
 
     private List<Pair<String, String>> groupStreamCache;
-    private List<String> tagCache;
+    private List<String> groupCache;
 
     /**
      * Save template source
@@ -121,7 +121,7 @@ class AgentServiceTest extends ServiceBaseTest {
         sourceInfo.setInlongStreamId(streamId);
         sourceInfo.setSourceType(SourceType.FILE);
         sourceInfo.setInlongClusterName(MockAgent.CLUSTER_NAME);
-        sourceInfo.setInlongClusterNodeLabel(tag);
+        sourceInfo.setInlongClusterNodeGroup(tag);
         sourceInfo.setSourceName(
                 String.format("Source task for cluster(%s) and tag(%s)", MockAgent.CLUSTER_NAME, tag));
         sourceService.save(sourceInfo, GLOBAL_OPERATOR);
@@ -170,7 +170,7 @@ class AgentServiceTest extends ServiceBaseTest {
     @BeforeEach
     public void setupEach() {
         groupStreamCache = new ArrayList<>();
-        tagCache = new ArrayList<>();
+        groupCache = new ArrayList<>();
     }
 
     @AfterEach
@@ -184,14 +184,14 @@ class AgentServiceTest extends ServiceBaseTest {
                     groupStreamCache.stream().map(Pair::getValue).collect(Collectors.toList()));
         }
         groupStreamCache.clear();
-        tagCache.stream().forEach(tag -> bindTag(false, tag));;
+        groupCache.stream().forEach(group -> bindGroup(false, group));;
     }
 
-    private void bindTag(boolean bind, String tag) {
+    private void bindGroup(boolean bind, String group) {
         if (bind) {
-            tagCache.add(tag);
+            groupCache.add(group);
         }
-        agent.bindTag(bind, tag);
+        agent.bindGroup(bind, group);
     }
 
     /**
@@ -203,8 +203,8 @@ class AgentServiceTest extends ServiceBaseTest {
         saveSource("tag2,tag3");
         saveSource("tag2,tag3");
         saveSource("tag4");
-        bindTag(true, "tag1");
-        bindTag(true, "tag2");
+        bindGroup(true, "tag1");
+        bindGroup(true, "tag2");
 
         TaskResult taskResult = agent.pullTask();
         Assertions.assertTrue(taskResult.getCmdConfigs().isEmpty());
@@ -225,7 +225,7 @@ class AgentServiceTest extends ServiceBaseTest {
     @Test
     public void testTagMismatchAndRematch() {
         final Pair<String, String> groupStream = saveSource("tag1,tag3");
-        bindTag(true, "tag1");
+        bindGroup(true, "tag1");
 
         agent.pullTask();
         agent.pullTask(); // report last success status
@@ -236,7 +236,7 @@ class AgentServiceTest extends ServiceBaseTest {
                 .get()
                 .getId();
         // unbind tag and mismatch
-        bindTag(false, "tag1");
+        bindGroup(false, "tag1");
         TaskResult t1 = agent.pullTask();
         Assertions.assertEquals(1, t1.getDataConfigs().size());
         Assertions.assertEquals(1, t1.getDataConfigs().stream()
@@ -247,7 +247,7 @@ class AgentServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(sourceId, d1.getTaskId());
 
         // bind tag and rematch
-        bindTag(true, "tag1");
+        bindGroup(true, "tag1");
         TaskResult t2 = agent.pullTask();
         Assertions.assertEquals(1, t2.getDataConfigs().size());
         Assertions.assertEquals(1, t2.getDataConfigs().stream()
@@ -264,13 +264,13 @@ class AgentServiceTest extends ServiceBaseTest {
     @Test
     public void testSuspendFailWhenNotAck() {
         Pair<String, String> groupStream = saveSource("tag1,tag3");
-        bindTag(true, "tag1");
+        bindGroup(true, "tag1");
 
         agent.pullTask();
         agent.pullTask(); // report last success status
 
         // mismatch
-        bindTag(false, "tag1");
+        bindGroup(false, "tag1");
         agent.pullTask();
 
         // suspend
@@ -287,16 +287,16 @@ class AgentServiceTest extends ServiceBaseTest {
     @Test
     public void testRematchedWhenSuspend() {
         final Pair<String, String> groupStream = saveSource("tag1,tag3");
-        bindTag(true, "tag1");
+        bindGroup(true, "tag1");
 
         agent.pullTask();
         agent.pullTask(); // report last success status
 
         // mismatch and rematch
-        bindTag(false, "tag1");
+        bindGroup(false, "tag1");
         agent.pullTask();
         agent.pullTask(); // report last to make it from 304 -> 104
-        bindTag(true, "tag1");
+        bindGroup(true, "tag1");
 
         // suspend
         suspendSource(groupStream.getLeft(), groupStream.getRight());
@@ -310,7 +310,7 @@ class AgentServiceTest extends ServiceBaseTest {
     @Test
     public void testMismatchedWhenRestart() {
         final Pair<String, String> groupStream = saveSource("tag1,tag3");
-        bindTag(true, "tag1");
+        bindGroup(true, "tag1");
 
         agent.pullTask();
         agent.pullTask(); // report last success status
@@ -318,7 +318,7 @@ class AgentServiceTest extends ServiceBaseTest {
         // suspend and restart
         suspendSource(groupStream.getLeft(), groupStream.getRight());
         restartSource(groupStream.getLeft(), groupStream.getRight());
-        bindTag(false, "tag1");
+        bindGroup(false, "tag1");
         TaskResult taskResult = agent.pullTask();
         Assertions.assertEquals(1, taskResult.getDataConfigs().size());
         Assertions.assertEquals(1, taskResult.getDataConfigs().stream()

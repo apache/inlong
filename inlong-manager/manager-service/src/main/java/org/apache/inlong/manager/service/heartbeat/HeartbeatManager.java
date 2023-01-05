@@ -22,6 +22,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.Scheduler;
+import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
+import org.apache.inlong.manager.common.consts.AgentConstants;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterStatus;
 import org.apache.inlong.manager.common.enums.NodeStatus;
@@ -37,12 +39,8 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
-import org.apache.inlong.manager.dao.entity.StreamSourceLabelEntity;
-import org.apache.inlong.manager.dao.entity.StreamSourceLabelNodeRelationEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSourceLabelEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSourceLabelNodeRelationEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
@@ -52,6 +50,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -62,6 +63,7 @@ import java.util.stream.Collectors;
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
     private static final String AUTO_REGISTERED = "auto registered";
+    private static final Gson GSON = new Gson();
 
     @Getter
     private Cache<ComponentHeartbeat, HeartbeatMsg> heartbeatCache;
@@ -73,10 +75,6 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
-    @Autowired
-    private StreamSourceLabelEntityMapper labelMapper;
-    @Autowired
-    private StreamSourceLabelNodeRelationEntityMapper labelNodeRelationMapper;
 
     @PostConstruct
     public void init() {
@@ -148,7 +146,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 if (clusterNode == null) {
                     handlerNum += insertClusterNode(clusterInfo, heartbeatMsg, clusterInfo.getCreator());
                 } else {
-                    handlerNum += updateClusterNode(clusterNode, heartbeatMsg, clusterInfo.getCreator());
+                    handlerNum += updateClusterNode(clusterNode, heartbeatMsg);
                 }
             }
         }
@@ -226,48 +224,24 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setCreator(creator);
         clusterNode.setModifier(creator);
         clusterNode.setDescription(AUTO_REGISTERED);
-        int res = clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
-        insertOrUpdateLabel(clusterNode, heartbeat, creator);
-        return res;
+        insertOrUpdateLabel(clusterNode, heartbeat);
+        return clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
     }
 
-    private int updateClusterNode(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat, String creator) {
+    private int updateClusterNode(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
         clusterNode.setNodeLoad(heartbeat.getLoad());
-        insertOrUpdateLabel(clusterNode, heartbeat, creator);
+        insertOrUpdateLabel(clusterNode, heartbeat);
         return clusterNodeMapper.updateById(clusterNode);
     }
 
-    private void insertOrUpdateLabel(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat, String creator) {
-        if (heartbeat.getNodeLabel() == null) {
-            return;
-        }
-        Set<String> labels = Arrays.stream(heartbeat.getNodeLabel().split(InlongConstants.COMMA))
-                .collect(Collectors.toSet());
-        labelNodeRelationMapper.deleteByNodeId(clusterNode.getId());
-        labels.forEach(label -> {
-            StreamSourceLabelEntity labelEntity = labelMapper.selectByLabelName(label);
-            int labelId = 0;
-            if (labelEntity == null) {
-                labelEntity = new StreamSourceLabelEntity();
-                labelEntity.setLabelName(label);
-                labelEntity.setDescription(AUTO_REGISTERED);
-                labelEntity.setInCharges(heartbeat.getInCharges());
-                labelEntity.setCreator(creator);
-                labelEntity.setModifier(creator);
-                labelMapper.insert(labelEntity);
-            }
-            labelId = labelEntity.getId();
-
-            StreamSourceLabelNodeRelationEntity relationEntity =
-                    labelNodeRelationMapper.selectByLabelNodeKV(labelId, clusterNode.getId());
-            if (relationEntity == null) {
-                StreamSourceLabelNodeRelationEntity labelNodeRelation = new StreamSourceLabelNodeRelationEntity();
-                labelNodeRelation.setLabelId(labelId);
-                labelNodeRelation.setNodeId(clusterNode.getId());
-                labelNodeRelationMapper.insert(labelNodeRelation);
-            }
-        });
+    private void insertOrUpdateLabel(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
+        Set<String> groupSet = heartbeat.getNodeGroup() == null ? new HashSet<>()
+                : Arrays.stream(heartbeat.getNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
+        Map<String, String> extParams = clusterNode.getExtParams() == null ? new HashMap<>()
+                : GSON.fromJson(clusterNode.getExtParams(), Map.class);
+        extParams.put(AgentConstants.AGENT_GROUP_KEY, String.join(InlongConstants.COMMA, groupSet));
+        clusterNode.setExtParams(GSON.toJson(extParams));
     }
 
     private int deleteClusterNode(InlongClusterNodeEntity clusterNode) {
@@ -325,6 +299,6 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         if (oldHB == null) {
             return true;
         }
-        return oldHB.getNodeLabel() != newHB.getNodeLabel() || oldHB.getLoad() != newHB.getLoad();
+        return oldHB.getNodeGroup() != newHB.getNodeGroup() || oldHB.getLoad() != newHB.getLoad();
     }
 }

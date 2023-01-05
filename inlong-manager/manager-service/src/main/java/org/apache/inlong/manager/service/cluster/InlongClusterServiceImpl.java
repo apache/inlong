@@ -45,20 +45,15 @@ import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.StreamSourceLabelEntity;
-import org.apache.inlong.manager.dao.entity.StreamSourceLabelNodeRelationEntity;
 import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterTagEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSourceLabelEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSourceLabelNodeRelationEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindLabelRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -115,10 +110,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
-    @Autowired
-    private StreamSourceLabelEntityMapper labelMapper;
-    @Autowired
-    private StreamSourceLabelNodeRelationEntityMapper labelNodeRelationMapper;
     @Lazy
     @Autowired
     private DataProxyConfigRepository proxyRepository;
@@ -1394,55 +1385,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                             "cluster node has already updated with parentId=%s, type=%s, ip=%s, port=%s, protocolType=%s",
                             entity.getParentId(), entity.getType(), entity.getIp(), entity.getPort(),
                             entity.getProtocolType()));
-        }
-        return true;
-    }
-
-    @Override
-    public Boolean bindNodeLabel(ClusterNodeBindLabelRequest request, String operator) {
-        HashSet<String> bindSet = Sets.newHashSet();
-        HashSet<String> unbindSet = Sets.newHashSet();
-        if (request.getBindClusterNodes() != null) {
-            bindSet.addAll(request.getBindClusterNodes());
-        }
-        if (request.getUnbindClusterNodes() != null) {
-            unbindSet.addAll(request.getUnbindClusterNodes());
-        }
-        Preconditions.checkTrue(Sets.union(bindSet, unbindSet).size() == bindSet.size() + unbindSet.size(),
-                "can not add and del node tag in the sameTime");
-        InlongClusterEntity cluster = clusterMapper.selectByNameAndType(request.getClusterName(), request.getType());
-        String message = "Current user does not have permission to bind cluster node tag";
-        checkUser(cluster, operator, message);
-        StreamSourceLabelEntity label = labelMapper.selectByLabelName(request.getClusterNodeLabel());
-        Preconditions.checkNotNull(label, "Current label must exist before bind it.");
-
-        if (CollectionUtils.isNotEmpty(bindSet)) {
-            bindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(request.getType());
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(entity -> entity != null)
-                    .forEach(entity -> {
-                        StreamSourceLabelNodeRelationEntity relationEntity = new StreamSourceLabelNodeRelationEntity();
-                        relationEntity.setLabelId(label.getId());
-                        relationEntity.setNodeId(entity.getId());
-                        labelNodeRelationMapper.insert(relationEntity);
-                    });
-        }
-
-        if (CollectionUtils.isNotEmpty(unbindSet)) {
-            unbindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(request.getType());
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(entity -> entity != null)
-                    .forEach(entity -> {
-                        labelNodeRelationMapper.deleteByLabelNodeKV(label.getId(), entity.getId());
-                    });
         }
         return true;
     }

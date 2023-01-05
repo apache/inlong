@@ -231,40 +231,6 @@ CREATE TABLE IF NOT EXISTS `stream_source_cmd_config`
   DEFAULT CHARSET = utf8;
 
 -- ----------------------------
--- Table structure for stream_source_label, label is used for filtering operations, such as which nodes are filtered when sending collection tasks
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `stream_source_label`
-(
-    `id`           int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `label_name`   varchar(128) NOT NULL COMMENT 'label name',
-    `ext_params`   mediumtext            DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string',
-    `description`  varchar(256)          DEFAULT '' COMMENT 'Description of cluster tag',
-    `in_charges`   varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
-    `is_deleted`   int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`      varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`     varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `version`      int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY (`label_name`)
-    ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong collect task label table';
-
--- ----------------------------
--- Table structure for stream_source_label_node_relation
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `stream_source_label_node_relation`
-(
-    `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `label_id`      int(11)      NOT NULL COMMENT 'Id of the label id',
-    `node_id`       int(11)      NOT NULL COMMENT 'Id of the cluster node id.',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_label_kv` (`label_id`, `node_id`)
-    ) ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong collect task label table';
-
--- ----------------------------
 -- Table structure for inlong_stream
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `inlong_stream`
@@ -381,7 +347,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `uuid`                varchar(30)           DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
     `data_node_name`      varchar(128)          DEFAULT NULL COMMENT 'Node name, which links to data_node table',
     `inlong_cluster_name` varchar(128)          DEFAULT NULL COMMENT 'Cluster name of the agent running the task',
-    `inlong_cluster_node_label` varchar(512)      DEFAULT NULL COMMENT 'Cluster node label',
+    `inlong_cluster_node_group` varchar(512)      DEFAULT NULL COMMENT 'Cluster node label',
     `serialization_type`  varchar(20)           DEFAULT NULL COMMENT 'Serialization type, support: csv, json, canal, avro, etc',
     `snapshot`            mediumtext            DEFAULT NULL COMMENT 'Snapshot of this source task',
     `report_time`         timestamp    NULL COMMENT 'Snapshot time',

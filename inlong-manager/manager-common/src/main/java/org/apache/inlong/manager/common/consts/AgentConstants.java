@@ -15,40 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
-
-import lombok.Data;
-
-import java.io.Serializable;
-import java.util.Date;
+package org.apache.inlong.manager.common.consts;
 
 /**
- * Inlong label entity for filtering stream source collect task.
+ * Constant class for agent ext params
  */
-@Data
-public class StreamSourceLabelEntity implements Serializable {
+public class AgentConstants {
 
-    private static final long serialVersionUID = 1L;
-
-    private Integer id;
-
-    private String labelName;
-
-    private String description;
-
-    private String inCharges;
-
-    private Integer isDeleted;
-
-    private String creator;
-
-    private String modifier;
-
-    private Date createTime;
-
-    private Date modifyTime;
-
-    private Integer version;
-
-    private String extParams;
+    public static final String AGENT_GROUP_KEY = "agentGroup";
 }
