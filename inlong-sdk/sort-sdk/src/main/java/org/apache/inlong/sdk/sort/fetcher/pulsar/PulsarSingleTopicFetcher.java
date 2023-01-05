@@ -203,9 +203,6 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                 if (consumer != null) {
                     consumer.close();
                 }
-                if (fetchThread != null) {
-                    fetchThread.interrupt();
-                }
             } catch (PulsarClientException e) {
                 LOGGER.warn(e.getMessage(), e);
             }
@@ -251,78 +248,82 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
         public void run() {
             boolean hasPermit;
             while (true) {
-                hasPermit = false;
-                long fetchTimeCost = -1;
                 try {
-                    if (context.getConfig().isStopConsume() || stopConsume) {
-                        TimeUnit.MILLISECONDS.sleep(50);
-                        continue;
-                    }
-
-                    if (sleepTime > 0) {
-                        TimeUnit.MILLISECONDS.sleep(sleepTime);
-                    }
-
-                    context.acquireRequestPermit();
-                    hasPermit = true;
-                    context.addConsumeTime(topic, -1);
-
-                    long startFetchTime = System.currentTimeMillis();
-                    Messages<byte[]> messages = consumer.batchReceive();
-                    fetchTimeCost = System.currentTimeMillis() - startFetchTime;
-                    if (null != messages && messages.size() != 0) {
-                        for (Message<byte[]> msg : messages) {
-                            // if need seek
-                            if (msg.getPublishTime() < seeker.getSeekTime()) {
-                                seeker.seek();
-                                break;
-                            }
-
-                            String offsetKey = getOffset(msg.getMessageId());
-                            offsetCache.put(offsetKey, msg.getMessageId());
-
-                            // deserialize
-                            List<InLongMessage> inLongMessages = deserializer
-                                    .deserialize(context, topic, msg.getProperties(), msg.getData());
-                            context.addConsumeSuccess(topic, -1, inLongMessages.size(), msg.getData().length,
-                                    fetchTimeCost);
-                            int originSize = inLongMessages.size();
-                            // intercept
-                            inLongMessages = interceptor.intercept(inLongMessages);
-                            if (inLongMessages.isEmpty()) {
-                                ack(offsetKey);
-                                continue;
-                            }
-                            int filterSize = originSize - inLongMessages.size();
-                            context.addConsumeFilter(topic, -1, filterSize);
-
-                            List<MessageRecord> msgs = new ArrayList<>();
-                            msgs.add(new MessageRecord(topic.getTopicKey(),
-                                    inLongMessages,
-                                    offsetKey, System.currentTimeMillis()));
-                            handleAndCallbackMsg(msgs);
+                    hasPermit = false;
+                    long fetchTimeCost = -1;
+                    try {
+                        if (context.getConfig().isStopConsume() || stopConsume) {
+                            TimeUnit.MILLISECONDS.sleep(50);
+                            continue;
                         }
-                        sleepTime = 0L;
-                    } else {
-                        context.addConsumeEmpty(topic, -1, fetchTimeCost);
-                        emptyFetchTimes++;
-                        if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
-                            sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
-                                    context.getConfig().getMaxEmptyPollSleepMs());
-                            emptyFetchTimes = 0;
+
+                        if (sleepTime > 0) {
+                            TimeUnit.MILLISECONDS.sleep(sleepTime);
+                        }
+
+                        context.acquireRequestPermit();
+                        hasPermit = true;
+                        context.addConsumeTime(topic, -1);
+
+                        long startFetchTime = System.currentTimeMillis();
+                        Messages<byte[]> messages = consumer.batchReceive();
+                        fetchTimeCost = System.currentTimeMillis() - startFetchTime;
+                        if (null != messages && messages.size() != 0) {
+                            for (Message<byte[]> msg : messages) {
+                                // if need seek
+                                if (msg.getPublishTime() < seeker.getSeekTime()) {
+                                    seeker.seek();
+                                    break;
+                                }
+
+                                String offsetKey = getOffset(msg.getMessageId());
+                                offsetCache.put(offsetKey, msg.getMessageId());
+
+                                // deserialize
+                                List<InLongMessage> inLongMessages = deserializer
+                                        .deserialize(context, topic, msg.getProperties(), msg.getData());
+                                context.addConsumeSuccess(topic, -1, inLongMessages.size(), msg.getData().length,
+                                        fetchTimeCost);
+                                int originSize = inLongMessages.size();
+                                // intercept
+                                inLongMessages = interceptor.intercept(inLongMessages);
+                                if (inLongMessages.isEmpty()) {
+                                    ack(offsetKey);
+                                    continue;
+                                }
+                                int filterSize = originSize - inLongMessages.size();
+                                context.addConsumeFilter(topic, -1, filterSize);
+
+                                List<MessageRecord> msgs = new ArrayList<>();
+                                msgs.add(new MessageRecord(topic.getTopicKey(),
+                                        inLongMessages,
+                                        offsetKey, System.currentTimeMillis()));
+                                handleAndCallbackMsg(msgs);
+                            }
+                            sleepTime = 0L;
+                        } else {
+                            context.addConsumeEmpty(topic, -1, fetchTimeCost);
+                            emptyFetchTimes++;
+                            if (emptyFetchTimes >= context.getConfig().getEmptyPollTimes()) {
+                                sleepTime = Math.min((sleepTime += context.getConfig().getEmptyPollSleepStepMs()),
+                                        context.getConfig().getMaxEmptyPollSleepMs());
+                                emptyFetchTimes = 0;
+                            }
+                        }
+                    } catch (Exception e) {
+                        context.addConsumeError(topic, -1, fetchTimeCost);
+                        LOGGER.error("failed to fetch msg: {}", e.getMessage(), e);
+                    } finally {
+                        if (hasPermit) {
+                            context.releaseRequestPermit();
                         }
                     }
-                } catch (Exception e) {
-                    context.addConsumeError(topic, -1, fetchTimeCost);
-                    LOGGER.error("failed to fetch msg: {}", e.getMessage(), e);
-                } finally {
-                    if (hasPermit) {
-                        context.releaseRequestPermit();
-                    }
-                }
 
-                if (closed) {
-                    break;
+                    if (closed) {
+                        break;
+                    }
+                } catch (Throwable t) {
+                    LOGGER.error("got exception while process fetching", t);
                 }
             }
         }
