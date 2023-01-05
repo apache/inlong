@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -60,7 +61,7 @@ public class DataNodeController {
     @ApiOperation(value = "Save node")
     @OperationLog(operation = OperationType.CREATE)
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Integer> save(@Validated @RequestBody DataNodeRequest request) {
+    public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody DataNodeRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(dataNodeService.save(request, currentUser));
     }
