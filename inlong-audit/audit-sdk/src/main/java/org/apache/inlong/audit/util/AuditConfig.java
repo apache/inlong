@@ -17,11 +17,9 @@
 
 package org.apache.inlong.audit.util;
 
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Data
 public class AuditConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(AuditConfig.class);

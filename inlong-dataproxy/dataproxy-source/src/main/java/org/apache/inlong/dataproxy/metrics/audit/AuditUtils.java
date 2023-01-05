@@ -17,7 +17,6 @@
 
 package org.apache.inlong.dataproxy.metrics.audit;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -38,7 +37,6 @@ import java.util.Map;
 /**
  * Audit utils
  */
-@Slf4j
 public class AuditUtils {
 
     public static final String AUDIT_KEY_FILE_PATH = "audit.filePath";
