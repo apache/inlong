@@ -111,8 +111,8 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                 consumer.acknowledgeAsync(messageId)
                         .thenAccept(consumer -> ackSucc(msgOffset))
                         .exceptionally(exception -> {
-                            LOGGER.error("ack fail:{} {},error:{}",
-                                    topic, msgOffset, exception.getMessage(), exception);
+                            LOGGER.error("ack fail:{} {}",
+                                    topic, msgOffset, exception);
                             context.addAckFail(topic, -1);
                             return null;
                         });
@@ -162,9 +162,10 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
             String threadName = String.format("sort_sdk_pulsar_single_topic_fetch_thread_%s_%s_%d",
                     this.topic.getInLongCluster().getClusterId(), topic.getTopic(), this.hashCode());
             this.fetchThread = new Thread(new PulsarSingleTopicFetcher.Fetcher(), threadName);
+            this.fetchThread.setDaemon(true);
             this.fetchThread.start();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("fail to create consumer", e);
             return false;
         }
         return true;
@@ -236,7 +237,7 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
             } catch (Exception e) {
                 context.addCallBackFail(topic, -1, messageRecords.size(),
                         System.currentTimeMillis() - start);
-                LOGGER.error("failed to callback {}", e.getMessage(), e);
+                LOGGER.error("failed to callback", e);
             }
         }
 
@@ -312,7 +313,7 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                         }
                     } catch (Exception e) {
                         context.addConsumeError(topic, -1, fetchTimeCost);
-                        LOGGER.error("failed to fetch msg: {}", e.getMessage(), e);
+                        LOGGER.error("failed to fetch msg", e);
                     } finally {
                         if (hasPermit) {
                             context.releaseRequestPermit();
