@@ -33,6 +33,7 @@ export default class KafkaGroup
   @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
+    initialValue: 1,
     extra: i18n.t('meta.Group.Kafka.PartitionExtra'),
     props: {
       min: 1,
