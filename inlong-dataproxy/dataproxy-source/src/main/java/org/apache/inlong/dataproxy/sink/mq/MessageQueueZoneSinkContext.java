@@ -175,7 +175,6 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, topic);
         final long currentTime = System.currentTimeMillis();
-        List<ProxyEvent> events = currentRecord.getEvents();
         if (currentRecord instanceof SimpleBatchPackProfileV0) {
             AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS,
                     ((SimpleBatchPackProfileV0) currentRecord).getSimpleProfile());
