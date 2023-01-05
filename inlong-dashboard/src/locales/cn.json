@@ -3,6 +3,7 @@
   "basic.Detail": "详情",
   "basic.Operating": "操作",
   "basic.OperatingSuccess": "操作成功",
+  "basic.ConnectionSuccess": "连接成功",
   "basic.Save": "保存",
   "basic.Cancel": "取消",
   "basic.Create": "新建",
@@ -587,6 +588,7 @@
   "pages.Clusters.Tag": "集群标签",
   "pages.Clusters.InCharges": "责任人",
   "pages.Clusters.Description": "集群描述",
+  "pages.Clusters.TestConnection": "测试连接",
   "pages.Clusters.Node.Name": "节点",
   "pages.Clusters.Node.Port": "端口",
   "pages.Clusters.Node.ProtocolType": "协议类型",
@@ -636,5 +638,6 @@
   "pages.ApprovalManagement.Approvers": "审批者",
   "pages.ApprovalManagement.Creator": "创建人",
   "pages.ApprovalManagement.Modifier": "修改人",
-  "pages.ApprovalManagement.CreateProcess": "新建流程"
+  "pages.ApprovalManagement.CreateProcess": "新建流程",
+  "pages.Nodes.TestConnection": "测试连接"
 }
