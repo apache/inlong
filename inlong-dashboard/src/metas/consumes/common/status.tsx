@@ -38,22 +38,22 @@ export const statusList: StatusProp[] = [
   },
   {
     label: i18n.t('pages.Approvals.status.Processing'),
-    value: 11,
+    value: 101,
     type: 'warning',
   },
   {
     label: i18n.t('pages.Approvals.status.Rejected'),
-    value: 20,
+    value: 102,
     type: 'error',
   },
   {
     label: i18n.t('pages.Approvals.status.Ok'),
-    value: 21,
+    value: 103,
     type: 'success',
   },
   {
     label: i18n.t('pages.Approvals.status.Canceled'),
-    value: 22,
+    value: 104,
     type: 'error',
   },
 ];
