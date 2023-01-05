@@ -287,9 +287,7 @@ public class TubeHandler implements MessageQueueHandler {
         // sendAsync
         Message message = new Message(topic, bodyBytes);
         // add headers
-        headers.forEach((key, value) -> {
-            message.setAttrKeyVal(key, value);
-        });
+        headers.forEach(message::setAttrKeyVal);
         // callback
         long sendTime = System.currentTimeMillis();
         MessageSentCallback callback = new MessageSentCallback() {

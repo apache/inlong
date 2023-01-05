@@ -164,6 +164,12 @@ public class MessageQueueZoneSinkContext extends SinkContext {
      * addSendResultMetric
      */
     public void addSendResultMetric(BatchPackProfile currentRecord, String topic, boolean result, long sendTime) {
+        if (currentRecord instanceof SimpleBatchPackProfileV0) {
+            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS,
+                    ((SimpleBatchPackProfileV0) currentRecord).getSimpleProfile());
+            return;
+        }
+
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, "-");
