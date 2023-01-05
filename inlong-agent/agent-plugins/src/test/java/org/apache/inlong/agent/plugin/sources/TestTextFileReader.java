@@ -56,6 +56,7 @@ import java.util.stream.Stream;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TRIGGER_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
@@ -63,6 +64,7 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
+import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
 
 @PowerMockIgnore({"javax.management.*", "javax.script.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*",
         "org.w3c.*"})
@@ -152,6 +154,7 @@ public class TestTextFileReader {
         jobConfiguration.set(JOB_STREAM_ID, "streamid");
         jobConfiguration.set(JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
         jobConfiguration.set(JOB_FILE_LINE_END_PATTERN, "line-end-symbol");
+        jobConfiguration.set(JOB_FILE_META_ENV_LIST, KUBERNETES);
         TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);
         Assert.assertEquals(1, readerList.size());
@@ -224,6 +227,7 @@ public class TestTextFileReader {
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
         jobProfile.set(JOB_INSTANCE_ID, "1");
+        jobProfile.set(JOB_FILE_META_ENV_LIST, KUBERNETES);
         fileReaderOperator.init(jobProfile);
 
         Assert.assertEquals("world", getContent(
