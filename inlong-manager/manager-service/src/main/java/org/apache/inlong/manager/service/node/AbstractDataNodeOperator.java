@@ -76,7 +76,8 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
         int rowCount = dataNodeEntityMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
-                    String.format("failure to update data node with name=%s, type=%s, request version=%d, updated row=%d",
+                    String.format(
+                            "failure to update data node with name=%s, type=%s, request version=%d, updated row=%d",
                             request.getName(), request.getType(), request.getVersion(), rowCount));
         }
     }
