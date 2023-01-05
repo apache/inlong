@@ -76,9 +76,9 @@ public class HeartbeatMsg {
     private String clusterTag;
 
     /**
-      * Tag of node, separated by commas(,)
+      * Group of node for filtering stream source collect task, separated by commas(,)
       */
-    private String nodeTag;
+    private String nodeGroup;
 
     /**
      * Ext tag of cluster, key=value pairs seperated by &

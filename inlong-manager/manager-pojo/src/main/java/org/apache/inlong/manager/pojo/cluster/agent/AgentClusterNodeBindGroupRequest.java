@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.cluster;
+package org.apache.inlong.manager.pojo.cluster.agent;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,23 +25,20 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
- * Inlong cluster node bind or unbind tag request
+ * Inlong cluster node bind or unbind group.Group is used to distinguish which stream source tasks are collected
  */
 @Data
-@ApiModel("Cluster node bind and unbind tag request")
-public class ClusterNodeBindTagRequest {
+@ApiModel("Cluster node bind and unbind stream source label request, stream source label is a filter to judge "
+        + "whether to accept the stream source task")
+public class AgentClusterNodeBindGroupRequest {
 
-    @NotBlank(message = "Cluster nodeTag cannot be blank")
-    @ApiModelProperty(value = "Cluster node tag")
-    private String clusterNodeTag;
+    @NotBlank(message = "Cluster agent group cannot be blank")
+    @ApiModelProperty(value = "Cluster agent group")
+    private String agentGroup;
 
     @NotBlank(message = "clusterName cannot be blank")
     @ApiModelProperty(value = "Cluster name")
     private String clusterName;
-
-    @NotBlank(message = "type cannot be blank")
-    @ApiModelProperty(value = "Cluster type, including AGENT, DATAPROXY, etc.")
-    private String type;
 
     @ApiModelProperty(value = "Cluster node ip list which needs to bind tag")
     private List<String> bindClusterNodes;

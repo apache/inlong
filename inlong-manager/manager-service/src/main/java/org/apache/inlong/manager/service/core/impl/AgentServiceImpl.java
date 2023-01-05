@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +34,7 @@ import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
+import org.apache.inlong.manager.common.consts.AgentConstants;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.consts.SourceType;
@@ -54,6 +56,7 @@ import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeBindGroupRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
@@ -75,6 +78,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -92,6 +96,7 @@ public class AgentServiceImpl implements AgentService {
     private static final int ISSUED_STATUS = 3;
     private static final int MODULUS_100 = 100;
     private static final int TASK_FETCH_SIZE = 2;
+    private static final Gson GSON = new Gson();
 
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
@@ -192,6 +197,66 @@ public class AgentServiceImpl implements AgentService {
         return TaskResult.builder().dataConfigs(tasks).cmdConfigs(cmdConfigs).build();
     }
 
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+    public Boolean bindGroup(AgentClusterNodeBindGroupRequest request) {
+        HashSet<String> bindSet = Sets.newHashSet();
+        HashSet<String> unbindSet = Sets.newHashSet();
+        if (request.getBindClusterNodes() != null) {
+            bindSet.addAll(request.getBindClusterNodes());
+        }
+        if (request.getUnbindClusterNodes() != null) {
+            unbindSet.addAll(request.getUnbindClusterNodes());
+        }
+        Preconditions.checkTrue(Sets.union(bindSet, unbindSet).size() == bindSet.size() + unbindSet.size(),
+                "can not add and del node tag in the sameTime");
+        InlongClusterEntity cluster = clusterMapper.selectByNameAndType(request.getClusterName(), ClusterType.AGENT);
+        String message = "Current user does not have permission to bind cluster node tag";
+
+        if (CollectionUtils.isNotEmpty(bindSet)) {
+            bindSet.stream().flatMap(clusterNode -> {
+                ClusterPageRequest pageRequest = new ClusterPageRequest();
+                pageRequest.setParentId(cluster.getId());
+                pageRequest.setType(ClusterType.AGENT);
+                pageRequest.setKeyword(clusterNode);
+                return clusterNodeMapper.selectByCondition(pageRequest).stream();
+            }).filter(entity -> entity != null)
+                    .forEach(entity -> {
+                        Map<String, String> extParams = entity.getExtParams() == null ? new HashMap<>()
+                                : GSON.fromJson(entity.getExtParams(), Map.class);
+                        Set<String> groupSet = !extParams.containsKey(AgentConstants.AGENT_GROUP_KEY) ? new HashSet<>()
+                                : Sets.newHashSet(
+                                        extParams.get(AgentConstants.AGENT_GROUP_KEY).split(InlongConstants.COMMA));
+                        groupSet.add(request.getAgentGroup());
+                        extParams.put(AgentConstants.AGENT_GROUP_KEY, String.join(InlongConstants.COMMA, groupSet));
+                        entity.setExtParams(GSON.toJson(extParams));
+                        clusterNodeMapper.insertOnDuplicateKeyUpdate(entity);
+                    });
+        }
+
+        if (CollectionUtils.isNotEmpty(unbindSet)) {
+            unbindSet.stream().flatMap(clusterNode -> {
+                ClusterPageRequest pageRequest = new ClusterPageRequest();
+                pageRequest.setParentId(cluster.getId());
+                pageRequest.setType(ClusterType.AGENT);
+                pageRequest.setKeyword(clusterNode);
+                return clusterNodeMapper.selectByCondition(pageRequest).stream();
+            }).filter(entity -> entity != null)
+                    .forEach(entity -> {
+                        Map<String, String> extParams = entity.getExtParams() == null ? new HashMap<>()
+                                : GSON.fromJson(entity.getExtParams(), Map.class);
+                        Set<String> groupSet = !extParams.containsKey(AgentConstants.AGENT_GROUP_KEY) ? new HashSet<>()
+                                : Sets.newHashSet(
+                                        extParams.get(AgentConstants.AGENT_GROUP_KEY).split(InlongConstants.COMMA));
+                        groupSet.remove(request.getAgentGroup());
+                        extParams.put(AgentConstants.AGENT_GROUP_KEY, String.join(InlongConstants.COMMA, groupSet));
+                        entity.setExtParams(GSON.toJson(extParams));
+                        clusterNodeMapper.insertOnDuplicateKeyUpdate(entity);
+                    });
+        }
+        return true;
+    }
+
     /**
      * Query the tasks that source is waited to be operated.(only clusterName and ip matched it can be operated)
      *
@@ -251,7 +316,7 @@ public class AgentServiceImpl implements AgentService {
 
     private void preProcessFileTask(TaskRequest taskRequest) {
         preProcessTemplateFileTask(taskRequest);
-        preProcessTagFileTasks(taskRequest);
+        preProcessLabelFileTasks(taskRequest);
     }
 
     /**
@@ -306,7 +371,7 @@ public class AgentServiceImpl implements AgentService {
      *
      * @param taskRequest
      */
-    private void preProcessTagFileTasks(TaskRequest taskRequest) {
+    private void preProcessLabelFileTasks(TaskRequest taskRequest) {
         List<Integer> needProcessedStatusList = Arrays.asList(
                 SourceStatus.SOURCE_NORMAL.getCode(),
                 SourceStatus.SOURCE_FAILED.getCode(),
@@ -329,7 +394,7 @@ public class AgentServiceImpl implements AgentService {
                     Set<SourceStatus> exceptedUnmatchedStatus = Sets.newHashSet(
                             SourceStatus.SOURCE_FROZEN,
                             SourceStatus.TO_BE_ISSUED_FROZEN);
-                    if (!matchTag(sourceEntity, clusterNodeEntity)
+                    if (!matchLabel(sourceEntity, clusterNodeEntity)
                             && !exceptedUnmatchedStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))) {
                         LOGGER.info("Transform task({}) from {} to {} because tag mismatch "
                                 + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
@@ -348,7 +413,7 @@ public class AgentServiceImpl implements AgentService {
                             SourceStatus.TO_BE_ISSUED_ACTIVE);
                     Set<StreamStatus> exceptedMatchedStreamStatus = Sets.newHashSet(
                             StreamStatus.SUSPENDED, StreamStatus.SUSPENDED);
-                    if (matchTag(sourceEntity, clusterNodeEntity)
+                    if (matchLabel(sourceEntity, clusterNodeEntity)
                             && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
                             && !exceptedMatchedStreamStatus.contains(StreamStatus.forCode(streamEntity.getStatus()))) {
                         LOGGER.info("Transform task({}) from {} to {} because tag rematch "
@@ -514,20 +579,21 @@ public class AgentServiceImpl implements AgentService {
         }).collect(Collectors.toList());
     }
 
-    private boolean matchTag(StreamSourceEntity sourceEntity, InlongClusterNodeEntity clusterNodeEntity) {
+    private boolean matchLabel(StreamSourceEntity sourceEntity, InlongClusterNodeEntity clusterNodeEntity) {
         Preconditions.checkNotNull(sourceEntity, "cluster must be valid");
-        if (sourceEntity.getInlongClusterNodeTag() == null) {
+        if (sourceEntity.getInlongClusterNodeGroup() == null) {
             return true;
         }
-        if (clusterNodeEntity == null || clusterNodeEntity.getNodeTags() == null) {
+
+        if (clusterNodeEntity == null || clusterNodeEntity.getExtParams() == null) {
             return false;
         }
 
-        Set<String> nodeTags = Stream.of(
-                clusterNodeEntity.getNodeTags().split(InlongConstants.COMMA)).collect(Collectors.toSet());
-        Set<String> sourceTags = Stream.of(
-                sourceEntity.getInlongClusterNodeTag().split(InlongConstants.COMMA)).collect(Collectors.toSet());
-        return sourceTags.stream().anyMatch(sourceTag -> nodeTags.contains(sourceTag));
+        Map<String, String> extParams = GSON.fromJson(clusterNodeEntity.getExtParams(), Map.class);
+        Set<String> clusterNodeLabels = !extParams.containsKey(AgentConstants.AGENT_GROUP_KEY) ? new HashSet<>()
+                : Sets.newHashSet(extParams.get(AgentConstants.AGENT_GROUP_KEY).split(InlongConstants.COMMA));
+        Set<String> sourceLabels = Stream.of(
+                sourceEntity.getInlongClusterNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
+        return sourceLabels.stream().anyMatch(sourceLabel -> clusterNodeLabels.contains(sourceLabel));
     }
-
 }
