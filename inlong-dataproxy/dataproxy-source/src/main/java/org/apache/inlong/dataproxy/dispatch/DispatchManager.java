@@ -164,7 +164,7 @@ public class DispatchManager {
         if (!needOutputOvertimeData.getAndSet(false)) {
             return;
         }
-        LOG.info("start to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{}",
+        LOG.debug("start to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{}",
                 profileCache.size(), dispatchQueues.stream().mapToInt(LinkedBlockingQueue::size).sum());
         long currentTime = System.currentTimeMillis();
         long createThreshold = currentTime - dispatchTimeout;
@@ -187,7 +187,7 @@ public class DispatchManager {
                 outCounter.addAndGet(dispatchProfile.getCount());
             }
         });
-        LOG.info("end to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{},eventCount:{},"
+        LOG.debug("end to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{},eventCount:{},"
                 + "inCounter:{},outCounter:{}",
                 profileCache.size(), dispatchQueues.stream().mapToInt(LinkedBlockingQueue::size).sum(), eventCount,
                 inCounter.getAndSet(0), outCounter.getAndSet(0));

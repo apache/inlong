@@ -22,6 +22,7 @@ import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.common.EventHandler;
 import org.apache.inlong.dataproxy.sink.common.TubeUtils;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
@@ -29,6 +30,7 @@ import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
 import org.apache.inlong.dataproxy.sink.mq.OrderBatchPackProfileV0;
 import org.apache.inlong.dataproxy.sink.mq.SimpleBatchPackProfileV0;
+import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
@@ -235,6 +237,9 @@ public class TubeHandler implements MessageQueueHandler {
                 sinkContext.addSendResultMetric(event, topic, true, sendTime);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
+                for (ProxyEvent auditEvent : event.getEvents()) {
+                    AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, auditEvent);
+                }
             }
 
             @Override
@@ -263,6 +268,7 @@ public class TubeHandler implements MessageQueueHandler {
                 sinkContext.addSendResultMetric(event, topic, true, sendTime);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event.getSimpleProfile());
             }
 
             @Override
@@ -287,9 +293,7 @@ public class TubeHandler implements MessageQueueHandler {
         // sendAsync
         Message message = new Message(topic, bodyBytes);
         // add headers
-        headers.forEach((key, value) -> {
-            message.setAttrKeyVal(key, value);
-        });
+        headers.forEach(message::setAttrKeyVal);
         // callback
         long sendTime = System.currentTimeMillis();
         MessageSentCallback callback = new MessageSentCallback() {
@@ -300,6 +304,9 @@ public class TubeHandler implements MessageQueueHandler {
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
                 event.ackOrder();
+                for (ProxyEvent auditEvent : event.getEvents()) {
+                    AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, auditEvent);
+                }
             }
 
             @Override
