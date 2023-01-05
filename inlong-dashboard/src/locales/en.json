@@ -3,6 +3,7 @@
   "basic.Detail": "Detail",
   "basic.Operating": "Operate",
   "basic.OperatingSuccess": "Operating Success",
+  "basic.ConnectionSuccess": "Connection Success",
   "basic.Save": "Save",
   "basic.Cancel": "Cancel",
   "basic.Create": "Create",
@@ -587,6 +588,7 @@
   "pages.Clusters.Tag": "Cluster Tag",
   "pages.Clusters.InCharges": "Owners",
   "pages.Clusters.Description": "Description",
+  "pages.Clusters.TestConnection": "Test Connection",
   "pages.Clusters.Node.Name": "Node",
   "pages.Clusters.Node.Port": "Port",
   "pages.Clusters.Node.ProtocolType": "Protocol Type",
@@ -636,5 +638,6 @@
   "pages.ApprovalManagement.Approvers": "Approvers",
   "pages.ApprovalManagement.Creator": "Creator Name",
   "pages.ApprovalManagement.Modifier": "Modifier Name",
-  "pages.ApprovalManagement.CreateProcess": "Create Process"
+  "pages.ApprovalManagement.CreateProcess": "Create Process",
+  "pages.Nodes.TestConnection": "Test Connection"
 }
