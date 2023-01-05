@@ -103,8 +103,6 @@ public class BaseTest {
         pulsarInfo.setInCharges(IN_CHARGES);
 
         // pulsar conf
-        pulsarInfo.setServiceUrl(PULSAR_SERVICE_URL);
-        pulsarInfo.setAdminUrl(PULSAR_ADMIN_URL);
         pulsarInfo.setTenant(TENANT);
         pulsarInfo.setMqResource(NAMESPACE);
 

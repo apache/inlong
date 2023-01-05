@@ -21,10 +21,11 @@ import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -83,22 +84,27 @@ public class PulsarResourceOperator implements QueueResourceOperator {
         String clusterTag = groupInfo.getInlongClusterTag();
         log.info("begin to create pulsar resource for groupId={}, clusterTag={}", groupId, clusterTag);
 
+        if (!(groupInfo instanceof InlongPulsarInfo)) {
+            throw new BusinessException("the mqType must be PULSAR for inlongGroupId=" + groupId);
+        }
+
+        InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
+        String tenant = pulsarInfo.getTenant();
         // get pulsar cluster via the inlong cluster tag from the inlong group
         List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
         for (ClusterInfo clusterInfo : clusterInfos) {
             PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
             try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
                 // create pulsar tenant and namespace
-                String tenant = pulsarCluster.getTenant();
-                if (StringUtils.isEmpty(tenant)) {
-                    tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+                if (StringUtils.isBlank(tenant)) {
+                    tenant = pulsarCluster.getTenant();
                 }
 
                 // if the group was not successful, need create tenant and namespace
                 if (!Objects.equal(GroupStatus.CONFIG_SUCCESSFUL.getCode(), groupInfo.getStatus())) {
                     pulsarOperator.createTenant(pulsarAdmin, tenant);
                     String namespace = groupInfo.getMqResource();
-                    pulsarOperator.createNamespace(pulsarAdmin, (InlongPulsarInfo) groupInfo, tenant, namespace);
+                    pulsarOperator.createNamespace(pulsarAdmin, pulsarInfo, tenant, namespace);
 
                     log.info("success to create pulsar resource for groupId={}, tenant={}, namespace={}, cluster={}",
                             groupId, tenant, namespace, pulsarCluster);
@@ -131,7 +137,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
             PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
             try {
                 for (InlongStreamBriefInfo streamInfo : streamInfos) {
-                    this.deletePulsarTopic(groupInfo, pulsarCluster, streamInfo.getMqResource());
+                    this.deletePulsarTopic((InlongPulsarInfo) groupInfo, pulsarCluster, streamInfo.getMqResource());
                 }
             } catch (Exception e) {
                 String msg = "failed to delete pulsar resource for groupId=" + groupId;
@@ -192,7 +198,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
         for (ClusterInfo clusterInfo : clusterInfos) {
             PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
             try {
-                this.deletePulsarTopic(groupInfo, pulsarCluster, streamInfo.getMqResource());
+                this.deletePulsarTopic((InlongPulsarInfo) groupInfo, pulsarCluster, streamInfo.getMqResource());
                 log.info("success to delete pulsar topic for groupId={}, streamId={}, topic={}, cluster={}",
                         groupId, streamId, streamInfo.getMqResource(), pulsarCluster);
             } catch (Exception e) {
@@ -211,9 +217,9 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     private void createTopic(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster, String topicName)
             throws Exception {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            String tenant = pulsarCluster.getTenant();
-            if (StringUtils.isEmpty(tenant)) {
-                tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+            String tenant = pulsarInfo.getTenant();
+            if (StringUtils.isBlank(tenant)) {
+                tenant = pulsarCluster.getTenant();
             }
             String namespace = pulsarInfo.getMqResource();
             PulsarTopicInfo topicInfo = PulsarTopicInfo.builder()
@@ -233,9 +239,9 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     private void createSubscription(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster, String topicName,
             String streamId) throws Exception {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            String tenant = pulsarCluster.getTenant();
-            if (StringUtils.isEmpty(tenant)) {
-                tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+            String tenant = pulsarInfo.getTenant();
+            if (StringUtils.isBlank(tenant)) {
+                tenant = pulsarCluster.getTenant();
             }
             String namespace = pulsarInfo.getMqResource();
             String fullTopicName = tenant + "/" + namespace + "/" + topicName;
@@ -274,14 +280,14 @@ public class PulsarResourceOperator implements QueueResourceOperator {
      * Delete Pulsar Topic and Subscription, and delete the consumer group info.
      * TODO delete Subscription and InlongConsume info
      */
-    private void deletePulsarTopic(InlongGroupInfo groupInfo, PulsarClusterInfo pulsarCluster, String topicName)
+    private void deletePulsarTopic(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster, String topicName)
             throws Exception {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            String tenant = pulsarCluster.getTenant();
-            if (StringUtils.isEmpty(tenant)) {
-                tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+            String tenant = pulsarInfo.getTenant();
+            if (StringUtils.isBlank(tenant)) {
+                tenant = pulsarCluster.getTenant();
             }
-            String namespace = groupInfo.getMqResource();
+            String namespace = pulsarInfo.getMqResource();
             PulsarTopicInfo topicInfo = PulsarTopicInfo.builder()
                     .tenant(tenant)
                     .namespace(namespace)

@@ -24,6 +24,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -43,9 +44,9 @@ public class PulsarClusterInfo extends ClusterInfo {
     @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080", notes = "Pulsar service URL is the 'url' field of the cluster")
     private String adminUrl;
 
-    @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
     @Builder.Default
-    private String tenant = "public";
+    @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
+    private String tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
 
     public PulsarClusterInfo() {
         this.setType(ClusterType.PULSAR);

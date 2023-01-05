@@ -71,8 +71,6 @@ public class BaseExample {
         pulsarInfo.setInCharges("admin");
 
         // pulsar conf
-        pulsarInfo.setServiceUrl(pulsarServiceUrl);
-        pulsarInfo.setAdminUrl(pulsarAdminUrl);
         pulsarInfo.setTenant(tenant);
         pulsarInfo.setMqResource(namespace);
 

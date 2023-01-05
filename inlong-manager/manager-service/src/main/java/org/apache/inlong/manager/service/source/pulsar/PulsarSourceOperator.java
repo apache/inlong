@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -33,6 +32,7 @@ import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
@@ -112,12 +112,15 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
         String adminUrl = pulsarCluster.getAdminUrl();
         String serviceUrl = pulsarCluster.getUrl();
-        String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
-                ? InlongConstants.DEFAULT_PULSAR_TENANT
-                : pulsarCluster.getTenant();
+
+        // First get the tenant from the InlongGroup, and then get it from the PulsarCluster.
+        String tenant = ((InlongPulsarInfo) groupInfo).getTenant();
+        if (StringUtils.isBlank(tenant)) {
+            tenant = pulsarCluster.getTenant();
+        }
 
         Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
-        streamInfos.forEach(streamInfo -> {
+        for (InlongStreamInfo streamInfo : streamInfos) {
             PulsarSource pulsarSource = new PulsarSource();
             String streamId = streamInfo.getInlongStreamId();
             pulsarSource.setSourceName(streamId);
@@ -166,7 +169,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
             pulsarSource.setFieldList(streamInfo.getFieldList());
             sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(pulsarSource);
-        });
+        }
 
         return sourceMap;
     }

@@ -156,8 +156,6 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
         request.setType(ClusterType.PULSAR);
         String adminUrl = "http://127.0.0.1:8080";
         request.setAdminUrl(adminUrl);
-        String tenant = "public";
-        request.setTenant(tenant);
         request.setInCharges(GLOBAL_OPERATOR);
         clusterId = clusterService.save(request, GLOBAL_OPERATOR);
     }

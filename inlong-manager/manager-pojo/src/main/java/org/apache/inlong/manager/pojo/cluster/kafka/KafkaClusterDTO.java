@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.cluster.kafka;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,6 +44,7 @@ public class KafkaClusterDTO {
     private String messageQueueHandler = "org.apache.inlong.dataproxy.sink.mq.kafka.KafkaHandler";
 
     @JsonProperty("bootstrap.servers")
+    @ApiModelProperty(value = "Kafka bootstrap servers' URL, is the 'url' field of the cluster")
     private String bootstrapServers;
 
     /**
@@ -50,6 +52,7 @@ public class KafkaClusterDTO {
      */
     public static KafkaClusterDTO getFromRequest(KafkaClusterRequest request) {
         return KafkaClusterDTO.builder()
+                .bootstrapServers(request.getUrl())
                 .build();
     }
 

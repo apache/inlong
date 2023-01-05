@@ -70,7 +70,6 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
             CommonBeanUtils.copyProperties(dto, pulsarInfo);
         }
 
-        LOGGER.info("success to get pulsar cluster info from entity");
         return pulsarInfo;
     }
 
@@ -80,7 +79,6 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
         CommonBeanUtils.copyProperties(pulsarRequest, targetEntity, true);
         try {
             PulsarClusterDTO dto = PulsarClusterDTO.getFromRequest(pulsarRequest);
-            dto.setServiceUrl(request.getUrl());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
             LOGGER.info("success to set entity for pulsar cluster");
         } catch (Exception e) {

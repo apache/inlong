@@ -76,7 +76,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         request.setName(clusterName);
         request.setType(ClusterType.PULSAR);
         request.setAdminUrl(adminUrl);
-        request.setTenant("public");
         request.setInCharges(GLOBAL_OPERATOR);
         return clusterService.save(request, GLOBAL_OPERATOR);
     }
