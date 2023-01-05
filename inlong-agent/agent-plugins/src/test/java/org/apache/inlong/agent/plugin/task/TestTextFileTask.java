@@ -255,6 +255,7 @@ public class TestTextFileTask {
         jobProfile.set(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.FULL);
         jobProfile.set(JobConstants.JOB_TASK_BEGIN_WAIT_SECONDS, String.valueOf(0));
         jobProfile.set(JobConstants.JOB_FILE_LINE_END_PATTERN, "[0-9]");
+        jobProfile.set(JOB_FILE_META_ENV_LIST, KUBERNETES);
 
         // mock data
         final MockSink sink = mockTextTask(jobProfile);

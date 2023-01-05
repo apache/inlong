@@ -169,7 +169,7 @@ public class TestFileAgent {
         await().atMost(10, TimeUnit.SECONDS).until(() -> {
             Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
             return jobs.size() == 1
-                    && jobs.values().stream().collect(Collectors.toList()).get(0).getAllTasks().size() == 4;
+                    && jobs.values().stream().collect(Collectors.toList()).get(0).getAllTasks().size() == 5;
         });
     }
 
