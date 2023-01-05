@@ -60,6 +60,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
+import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -180,7 +182,7 @@ public class TestTextFileTask {
         jobProfile.set(JobConstants.JOB_DIR_FILTER_PATTERNS, file.getAbsolutePath());
         jobProfile.set(JobConstants.JOB_TASK_BEGIN_WAIT_SECONDS, String.valueOf(0));
         jobProfile.set(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.FULL);
-
+        jobProfile.set(JOB_FILE_META_ENV_LIST, KUBERNETES);
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
         await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 100);
@@ -220,6 +222,7 @@ public class TestTextFileTask {
         jobProfile.set(JobConstants.JOB_DIR_FILTER_PATTERNS, file.getAbsolutePath());
         jobProfile.set(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.INCREMENT);
         jobProfile.set(JobConstants.JOB_TASK_BEGIN_WAIT_SECONDS, String.valueOf(0));
+        jobProfile.set(JOB_FILE_META_ENV_LIST, KUBERNETES);
 
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
@@ -252,6 +255,7 @@ public class TestTextFileTask {
         jobProfile.set(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.FULL);
         jobProfile.set(JobConstants.JOB_TASK_BEGIN_WAIT_SECONDS, String.valueOf(0));
         jobProfile.set(JobConstants.JOB_FILE_LINE_END_PATTERN, "[0-9]");
+        jobProfile.set(JOB_FILE_META_ENV_LIST, KUBERNETES);
 
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
