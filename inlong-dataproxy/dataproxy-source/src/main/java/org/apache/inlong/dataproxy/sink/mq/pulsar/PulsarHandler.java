@@ -23,14 +23,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
-import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.common.EventHandler;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
 import org.apache.inlong.dataproxy.sink.mq.OrderBatchPackProfileV0;
 import org.apache.inlong.dataproxy.sink.mq.SimpleBatchPackProfileV0;
-import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.CompressionType;
@@ -322,9 +320,6 @@ public class PulsarHandler implements MessageQueueHandler {
                 sinkContext.addSendResultMetric(event, producerTopic, true, sendTime);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
-                for (ProxyEvent auditEvent : event.getEvents()) {
-                    AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, auditEvent);
-                }
             }
         });
     }
@@ -356,7 +351,6 @@ public class PulsarHandler implements MessageQueueHandler {
                 sinkContext.addSendResultMetric(event, producerTopic, true, sendTime);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
-                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event.getSimpleProfile());
             }
         });
     }
@@ -385,9 +379,6 @@ public class PulsarHandler implements MessageQueueHandler {
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
                 event.ackOrder();
-                for (ProxyEvent auditEvent : event.getEvents()) {
-                    AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, auditEvent);
-                }
             }
         });
     }
