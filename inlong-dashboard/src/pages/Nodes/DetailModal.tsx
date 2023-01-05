@@ -106,11 +106,13 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
       width={720}
       title={id ? i18n.t('basic.Detail') : i18n.t('basic.Create')}
       footer={[
-        <Button onClick={modalProps.onCancel}>{i18n.t('basic.Cancel')}</Button>,
-        <Button type="primary" onClick={onOk}>
+        <Button key="cancel" onClick={modalProps.onCancel}>
+          {i18n.t('basic.Cancel')}
+        </Button>,
+        <Button key="save" type="primary" onClick={onOk}>
           {i18n.t('basic.Save')}
         </Button>,
-        <Button type="primary" onClick={testConnection}>
+        <Button key="run" type="primary" onClick={testConnection}>
           {i18n.t('pages.Nodes.TestConnection')}
         </Button>,
       ]}

@@ -122,15 +122,15 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
       {...modalProps}
       title={id ? i18n.t('pages.Clusters.Edit') : i18n.t('pages.Clusters.Create')}
       footer={[
-        <Button onClick={modalProps.onCancel}>{i18n.t('basic.Cancel')}</Button>,
-        <Button type="primary" onClick={onOk}>
+        <Button key="cancel" onClick={modalProps.onCancel}>
+          {i18n.t('basic.Cancel')}
+        </Button>,
+        <Button key="save" type="primary" onClick={onOk}>
           {i18n.t('basic.Save')}
         </Button>,
-        (type === 'PULSAR' || type === 'KAFKA' || type === 'TUBEMQ') && (
-          <Button type="primary" onClick={testConnection}>
-            {i18n.t('pages.Clusters.TestConnection')}
-          </Button>
-        ),
+        <Button key="run" type="primary" onClick={testConnection}>
+          {i18n.t('pages.Clusters.TestConnection')}
+        </Button>,
       ]}
     >
       <FormGenerator
