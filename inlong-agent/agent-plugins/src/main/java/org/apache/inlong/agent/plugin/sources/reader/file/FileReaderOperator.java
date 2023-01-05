@@ -282,13 +282,12 @@ public class FileReaderOperator extends AbstractReader {
             return;
         }
         String[] env = jobConf.get(JOB_FILE_META_ENV_LIST).split(COMMA);
-        if (env.length > 0) {
-            needMetaData = true;
-        }
         Arrays.stream(env).forEach(data -> {
             if (data.equalsIgnoreCase(KUBERNETES)) {
+                needMetaData = true;
                 new KubernetesMetadataProvider(this).getData();
             } else if (data.equalsIgnoreCase(ENV_CVM)) {
+                needMetaData = true;
                 metadata.put(METADATA_HOST_NAME, AgentUtils.getLocalHost());
                 metadata.put(METADATA_SOURCE_IP, AgentUtils.fetchLocalIp());
                 metadata.put(METADATA_FILE_NAME, file.getName());
