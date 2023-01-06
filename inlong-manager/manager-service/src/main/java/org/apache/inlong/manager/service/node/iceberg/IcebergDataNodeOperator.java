@@ -61,15 +61,12 @@ public class IcebergDataNodeOperator extends AbstractDataNodeOperator {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.DATA_NODE_NOT_FOUND);
         }
-
         IcebergDataNodeInfo icebergDataNodeInfo = new IcebergDataNodeInfo();
         CommonBeanUtils.copyProperties(entity, icebergDataNodeInfo);
         if (StringUtils.isNotBlank(entity.getExtParams())) {
             IcebergDataNodeDTO dto = IcebergDataNodeDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, icebergDataNodeInfo);
         }
-
-        LOGGER.debug("success to get iceberg data node from entity");
         return icebergDataNodeInfo;
     }
 
@@ -81,8 +78,8 @@ public class IcebergDataNodeOperator extends AbstractDataNodeOperator {
             IcebergDataNodeDTO dto = IcebergDataNodeDTO.getFromRequest(icebergDataNodeRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            LOGGER.error("failed to set entity for iceberg data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("Failed to build extParams for Iceberg node: %s", e.getMessage()));
         }
     }
 

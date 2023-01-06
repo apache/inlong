@@ -18,16 +18,15 @@
 package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.common.validation.SaveValidation;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.node.DataNodeService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -71,16 +70,14 @@ public class OpenDataNodeController {
     @PostMapping(value = "/node/save")
     @ApiOperation(value = "Save node")
     @OperationLog(operation = OperationType.CREATE)
-    @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Integer> save(@Validated @RequestBody DataNodeRequest request) {
+    public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody DataNodeRequest request) {
         return Response.success(dataNodeService.save(request, LoginUserUtils.getLoginUser()));
     }
 
     @PostMapping(value = "/node/update")
-    @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data node")
-    @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody DataNodeRequest request) {
+    @OperationLog(operation = OperationType.UPDATE)
+    public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody DataNodeRequest request) {
         return Response.success(dataNodeService.update(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -88,7 +85,6 @@ public class OpenDataNodeController {
     @ApiOperation(value = "Delete data node by id")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUser()));
     }

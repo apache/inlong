@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.node;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
@@ -129,7 +131,7 @@ public class DataNodeServiceImpl implements DataNodeService {
         }
         DataNodeEntity entity = dataNodeMapper.selectById(id);
         if (entity == null) {
-            throw new BusinessException("data node not found");
+            throw new BusinessException(ErrorCodeEnum.DATA_NODE_NOT_FOUND);
         }
         String dataNodeType = entity.getType();
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(dataNodeType);
@@ -195,18 +197,26 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(DataNodeRequest request, String operator) {
         LOGGER.info("begin to update data node by id: {}", request);
-
-        // Check whether the data node name exists with the same groupId and streamId
-        String name = request.getName();
-        String type = request.getType();
-        DataNodeEntity existEntity = dataNodeMapper.selectByUniqueKey(name, type);
-        Integer id = request.getId();
-        if (existEntity != null && !existEntity.getId().equals(id)) {
-            String errMsg = String.format("data node already exist for name=%s, type=%s", name, type);
-            LOGGER.error(errMsg);
-            throw new BusinessException(errMsg);
+        // check whether record existed
+        DataNodeEntity curEntity = dataNodeMapper.selectById(request.getId());
+        if (curEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
+                    String.format("data node record not found by id=%d", request.getId()));
         }
-
+        // Check whether the data node name exists with the same name and type
+        if (request.getName() != null) {
+            if (StringUtils.isBlank(request.getName())) {
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                        "the name changed of data node is blank!");
+            }
+            DataNodeEntity existEntity =
+                    dataNodeMapper.selectByUniqueKey(request.getName(), request.getType());
+            if (existEntity != null && !existEntity.getId().equals(request.getId())) {
+                throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
+                        String.format("data node already exist for name=%s, type=%s, required id=%s, exist id=%s",
+                                request.getName(), request.getType(), request.getId(), existEntity.getId()));
+            }
+        }
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
         dataNodeOperator.updateOpt(request, operator);
 
@@ -229,17 +239,25 @@ public class DataNodeServiceImpl implements DataNodeService {
         if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED);
         }
-        // Check whether the data node name exists with the same groupId and streamId
-        DataNodeEntity existEntity =
-                dataNodeMapper.selectByUniqueKey(request.getName(), request.getType());
-        if (existEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.DATA_NODE_NOT_FOUND);
+        // check the record existed
+        DataNodeEntity curEntity = dataNodeMapper.selectById(request.getId());
+        if (curEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
+                    String.format("data node record not found by id=%d", request.getId()));
         }
-        Integer id = request.getId();
-        if (id != null && !existEntity.getId().equals(id)) {
-            throw new BusinessException(ErrorCodeEnum.DATA_NODE_ID_CHANGED,
-                    String.format("data node already exist for name=%s, type=%s, required id=%s, exist id=%s",
-                            request.getName(), request.getType(), id, existEntity.getId()));
+        // Check whether the data node name exists with the same name and type
+        if (request.getName() != null) {
+            if (StringUtils.isBlank(request.getName())) {
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                        "the name changed of data node is blank!");
+            }
+            DataNodeEntity existEntity =
+                    dataNodeMapper.selectByUniqueKey(request.getName(), request.getType());
+            if (existEntity != null && !existEntity.getId().equals(request.getId())) {
+                throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
+                        String.format("data node already exist for name=%s, type=%s, required id=%s, exist id=%s",
+                                request.getName(), request.getType(), request.getId(), existEntity.getId()));
+            }
         }
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
         dataNodeOperator.updateOpt(request, opInfo.getName());

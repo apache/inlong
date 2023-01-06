@@ -72,8 +72,6 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
             MySQLDataNodeDTO dto = MySQLDataNodeDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, dataNodeInfo);
         }
-
-        LOGGER.debug("success to get MySQL data node from entity");
         return dataNodeInfo;
     }
 
@@ -84,10 +82,9 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
         try {
             MySQLDataNodeDTO dto = MySQLDataNodeDTO.getFromRequest(dataNodeRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            LOGGER.debug("success to set entity for MySQL data node");
         } catch (Exception e) {
-            LOGGER.error("failed to set entity for MySQL data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("Failed to build extParams for MySQL node: %s", e.getMessage()));
         }
     }
 

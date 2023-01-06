@@ -23,7 +23,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
+
+import org.apache.inlong.manager.common.validation.SaveValidation;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -40,18 +43,18 @@ import javax.validation.constraints.Pattern;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
 public abstract class DataNodeRequest {
 
-    @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
+    @NotNull(groups = UpdateByIdValidation.class, message = "id cannot be null")
     private Integer id;
 
-    @NotBlank(message = "node name cannot be blank")
     @ApiModelProperty(value = "Data node name")
+    @NotBlank(groups = {SaveValidation.class, UpdateByKeyValidation.class}, message = "node name cannot be blank")
     @Length(min = 1, max = 128, message = "length must be between 1 and 128")
     @Pattern(regexp = "^[A-Za-z0-9_-]{1,128}$", message = "only supports letters, numbers, '-', or '_'")
     private String name;
 
-    @NotBlank(message = "node type cannot be blank")
     @ApiModelProperty(value = "Data node type, including MYSQL, HIVE, KAFKA, ES, etc.")
+    @NotBlank(message = "node type cannot be blank")
     @Length(max = 20, message = "length must be less than or equal to 20")
     private String type;
 
@@ -75,12 +78,13 @@ public abstract class DataNodeRequest {
     @Length(max = 256, message = "length must be less than or equal to 256")
     private String description;
 
-    @NotBlank(message = "inCharges cannot be blank")
-    @ApiModelProperty(value = "Name of responsible person, separated by commas", required = true)
+    @ApiModelProperty(value = "Name of responsible person, separated by commas")
+    @NotBlank(groups = SaveValidation.class, message = "inCharges cannot be blank")
     @Length(max = 512, message = "length must be less than or equal to 512")
     private String inCharges;
 
     @ApiModelProperty(value = "Version number")
+    @NotNull(groups = {UpdateByIdValidation.class, UpdateByKeyValidation.class}, message = "version cannot be null")
     private Integer version;
 
 }

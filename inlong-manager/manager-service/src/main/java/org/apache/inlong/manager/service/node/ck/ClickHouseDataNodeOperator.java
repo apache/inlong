@@ -81,8 +81,8 @@ public class ClickHouseDataNodeOperator extends AbstractDataNodeOperator {
             ClickHouseDataNodeDTO dto = ClickHouseDataNodeDTO.getFromRequest(ckDataNodeRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            LOGGER.error("failed to set entity for hive data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("Failed to build extParams for ClickHouse node: %s", e.getMessage()));
         }
     }
 

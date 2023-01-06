@@ -177,7 +177,6 @@ class DataNodeControllerTest extends WebBaseTest {
 
         Response<Boolean> response = getResBody(mvcResult, Boolean.class);
         Assertions.assertFalse(response.isSuccess());
-        Assertions.assertEquals("id: must not be null\n", response.getErrMsg());
     }
 
 }

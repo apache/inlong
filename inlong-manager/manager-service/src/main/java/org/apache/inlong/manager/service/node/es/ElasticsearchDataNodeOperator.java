@@ -64,10 +64,9 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
         try {
             ElasticsearchDataNodeDTO dto = ElasticsearchDataNodeDTO.getFromRequest(esRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            LOGGER.debug("success to set entity for elasticsearch data node");
         } catch (Exception e) {
-            LOGGER.error("failed to set entity for elasticsearch data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("Failed to build extParams for Elasticsearch node: %s", e.getMessage()));
         }
     }
 
@@ -82,8 +81,6 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
             ElasticsearchDataNodeDTO dto = ElasticsearchDataNodeDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, info);
         }
-
-        LOGGER.debug("success to get elasticsearch data node from entity");
         return info;
     }
 
