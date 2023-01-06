@@ -40,12 +40,18 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Kafka cluster info")
 public class KafkaClusterDTO {
 
-    @Builder.Default
-    private String messageQueueHandler = "org.apache.inlong.dataproxy.sink.mq.kafka.KafkaHandler";
-
+    /**
+     * Repeated save to ext_params field, it is convenient for DataProxy to obtain.
+     */
     @JsonProperty("bootstrap.servers")
     @ApiModelProperty(value = "Kafka bootstrap servers' URL, is the 'url' field of the cluster")
     private String bootstrapServers;
+
+    /**
+     * Saved to ext_params field, it is convenient for DataProxy to obtain.
+     */
+    @Builder.Default
+    private String messageQueueHandler = "org.apache.inlong.dataproxy.sink.mq.kafka.KafkaHandler";
 
     /**
      * Get the dto instance from the request

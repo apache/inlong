@@ -42,14 +42,20 @@ public class PulsarClusterDTO {
     @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080")
     private String adminUrl;
 
+    /**
+     * Repeated save to ext_params field, it is convenient for DataProxy to obtain.
+     */
+    @ApiModelProperty(value = "Pulsar service URL, is the 'url' field of the cluster")
+    private String serviceUrl;
+
     @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
     private String tenant;
 
+    /**
+     * Saved to ext_params field, it is convenient for DataProxy to obtain.
+     */
     @Builder.Default
     private String messageQueueHandler = "org.apache.inlong.dataproxy.sink.mq.pulsar.PulsarHandler";
-
-    @ApiModelProperty(value = "Pulsar service URL, is the 'url' field of the cluster")
-    private String serviceUrl;
 
     /**
      * Get the dto instance from the request
