@@ -20,6 +20,9 @@
 import { useMemo } from 'react';
 import { useLoadMeta, ConsumeMetaType } from '@/metas';
 import { excludeObjectArray } from '@/utils';
+import React from 'react';
+import { Table } from 'antd';
+import i18n from '@/i18n';
 
 export const useFormContent = ({ mqType, editing, isCreate }) => {
   const { Entity } = useLoadMeta<ConsumeMetaType>('consume', mqType);
@@ -45,6 +48,31 @@ export const useFormContent = ({ mqType, editing, isCreate }) => {
             : item.suffix,
         extra: null,
       }));
+};
+
+export const getFormContent = ({ clusterInfos, isCreate, formContent }) => {
+  const array = [
+    ...formContent,
+    {
+      type: <label>{i18n.t('pages.ConsumeDetail.ClusterInfo')}</label>,
+    },
+    {
+      type: (
+        <Table
+          size="small"
+          columns={[
+            { title: 'name', dataIndex: 'name' },
+            { title: 'type', dataIndex: 'type' },
+            { title: 'serviceUrl', dataIndex: 'url' },
+            { title: 'adminUrl', dataIndex: 'adminUrl' },
+          ]}
+          dataSource={clusterInfos}
+          rowKey="name"
+        />
+      ),
+    },
+  ];
+  return isCreate ? formContent : array;
 };
 
 function transType(editing: boolean, conf) {

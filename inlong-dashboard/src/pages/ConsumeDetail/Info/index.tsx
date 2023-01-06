@@ -25,7 +25,7 @@ import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
 import { useDefaultMeta } from '@/metas';
 import { CommonInterface } from '../common';
-import { useFormContent } from './config';
+import { getFormContent, useFormContent } from './config';
 
 type Props = CommonInterface;
 
@@ -36,6 +36,8 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
   const { defaultValue } = useDefaultMeta('consume');
 
   const [mqType, setMqType] = useState(defaultValue);
+
+  const [clusterInfos, setClusterInfos] = useState(defaultValue);
 
   const [form] = useForm();
 
@@ -54,6 +56,7 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
     onSuccess: data => {
       form.setFieldsValue(data);
       setMqType(data.mqType);
+      setClusterInfos(data.clusterInfos);
     },
   });
 
@@ -104,7 +107,11 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
     <div style={{ position: 'relative' }}>
       <FormGenerator
         form={form}
-        content={formContent}
+        content={getFormContent({
+          clusterInfos,
+          isCreate,
+          formContent,
+        })}
         initialValues={data}
         onValuesChange={(c, values) => setMqType(values.mqType)}
         useMaxWidth={800}

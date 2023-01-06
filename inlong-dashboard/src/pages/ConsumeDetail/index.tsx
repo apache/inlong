@@ -55,7 +55,9 @@ const Comp: React.FC = () => {
   const list = useMemo(
     () => [
       {
-        label: t('pages.ConsumeDetail.SubscribeDetails'),
+        label: isCreate
+          ? t('pages.ConsumeCreate.NewSubscribe')
+          : t('pages.ConsumeDetail.SubscribeDetails'),
         value: 'consumeDetail',
         content: Info,
       },
