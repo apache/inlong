@@ -187,10 +187,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
         String groupId = request.getInlongGroupId();
-        if (StringUtils.isBlank(groupId)) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "inlong group id in request cannot be blank");
-        }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity != null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
@@ -459,10 +455,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
         String groupId = request.getInlongGroupId();
-        if (StringUtils.isBlank(groupId)) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "inlong group id in request cannot be blank");
-        }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
@@ -563,17 +555,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> exts) {
-        LOGGER.info("begin to save or update inlong group ext info, groupId={}, ext={}", groupId, exts);
         if (CollectionUtils.isEmpty(exts)) {
             return;
         }
-
-        List<InlongGroupExtEntity> entityList = CommonBeanUtils.copyListProperties(exts, InlongGroupExtEntity::new);
+        List<InlongGroupExtEntity> entityList =
+                CommonBeanUtils.copyListProperties(exts, InlongGroupExtEntity::new);
         for (InlongGroupExtEntity entity : entityList) {
             entity.setInlongGroupId(groupId);
         }
         groupExtMapper.insertOnDuplicateKeyUpdate(entityList);
-        LOGGER.info("success to save or update inlong group ext for groupId={}", groupId);
     }
 
     @Override
@@ -596,16 +586,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // only the person in charges can update
         List<String> inCharges = Arrays.asList(groupInfo.getInCharges().split(InlongConstants.COMMA));
         if (!inCharges.contains(operator)) {
-            LOGGER.error("user [{}] has no privilege for the inlong group", operator);
-            throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED,
+                    String.format("user [%s] has no privilege for the inlong group", operator));
         }
-
         // determine whether the current status can be deleted
         GroupStatus curState = GroupStatus.forCode(groupInfo.getStatus());
         if (GroupStatus.notAllowedTransition(curState, GroupStatus.DELETING)) {
-            String errMsg = String.format("current group status=%s was not allowed to delete", curState);
-            LOGGER.error(errMsg);
-            throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED, errMsg);
+            throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED,
+                    String.format("current group status=%s was not allowed to delete", curState));
         }
 
         // If the status not allowed deleting directly, you need to delete the related "inlong_stream" first,
@@ -613,8 +601,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         if (GroupStatus.deleteStreamFirst(curState)) {
             int count = streamService.selectCountByGroupId(groupId);
             if (count >= 1) {
-                LOGGER.error("groupId={} have [{}] inlong streams, deleted failed", groupId, count);
-                throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_HAS_STREAM);
+                throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_HAS_STREAM,
+                        String.format("groupId=%s have [%s] inlong streams, deleted failed", groupId, count));
             }
         }
 

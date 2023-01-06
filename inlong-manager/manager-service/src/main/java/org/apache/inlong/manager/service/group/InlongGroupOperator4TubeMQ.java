@@ -79,7 +79,8 @@ public class InlongGroupOperator4TubeMQ extends AbstractGroupOperator {
             InlongTubeMQDTO dto = InlongTubeMQDTO.getFromRequest(tubeMQRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("serialize extParams of TubeMQ failure: %s", e.getMessage()));
         }
     }
 

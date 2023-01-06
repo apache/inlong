@@ -70,7 +70,8 @@ public class MqttSourceDTO {
         try {
             return JsonUtils.parseObject(extParams, MqttSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("parse extParams of MqttSource failure: %s", e.getMessage()));
         }
     }
 

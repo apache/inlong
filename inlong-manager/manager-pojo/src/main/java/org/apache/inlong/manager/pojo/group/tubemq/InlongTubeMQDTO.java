@@ -51,7 +51,8 @@ public class InlongTubeMQDTO extends BaseInlongGroup {
         try {
             return JsonUtils.parseObject(extParams, InlongTubeMQDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
+                    String.format("parse extParams of TubeMQ failure: %s", e.getMessage()));
         }
     }
 
