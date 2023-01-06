@@ -59,6 +59,8 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -104,6 +106,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
 
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
+    private final Set<In> batchSet = new HashSet<>();
 
     public JdbcBatchingOutputFormat(
             @Nonnull JdbcConnectionProvider connectionProvider,
@@ -241,8 +244,11 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         if (sinkMetricData != null) {
             sinkMetricData.invokeDirty(rowSize, dataSize);
         }
+
         if (dirtySink != null) {
             DirtyData.Builder<Object> builder = DirtyData.builder();
+            LOG.info("labels:{},logtag:{},identifier:{}", dirtyOptions.getLabels(),
+                    dirtyOptions.getLogTag(), dirtyOptions.getIdentifier());
             try {
                 builder.setData(dirtyData)
                         .setDirtyType(dirtyType)
@@ -262,7 +268,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
 
     @Override
     public final synchronized void writeRecord(In record) {
-
         updateMetric(record);
 
         if (!isValidRowKind(record)) {
@@ -273,6 +278,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
 
         try {
             addToBatch(record, jdbcRecordExtractor.apply(record));
+            batchSet.add(record);
             batchCount++;
             if (executionOptions.getBatchSize() > 0
                     && batchCount >= executionOptions.getBatchSize()) {
@@ -295,6 +301,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     }
 
     private void resetStateAfterFlush() {
+        batchSet.clear();
         dataSize = 0L;
         rowSize = 0L;
     }
@@ -342,7 +349,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             } catch (SQLException e) {
                 LOG.error("JDBC executeBatch error, retry times = {}", i, e);
                 if (i >= executionOptions.getMaxRetries()) {
-                    throw new IOException(e);
+                    clearBatchSet(e);
                 }
                 try {
                     if (!connectionProvider.isConnectionValid()) {
@@ -362,6 +369,16 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                             "unable to flush; interrupted while doing another attempt", e);
                 }
             }
+        }
+    }
+
+    private void clearBatchSet(Exception e) {
+        try {
+            for (In data : batchSet) {
+                handleDirtyData(data, DirtyType.BATCH_LOAD_ERROR, e);
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException("dirty data archive failed", ex);
         }
     }
 

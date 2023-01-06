@@ -25,13 +25,14 @@ import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.util.PatternReplaceUtils;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -116,28 +117,27 @@ public class DirtySinkHelper<T> implements Serializable {
 
         JsonDynamicSchemaFormat jsonDynamicSchemaFormat =
                 (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
+        final String SEPARATOR = "%#%#%#";
         JsonNode rootNode = null;
-        String database = null;
-        String table = null;
+        List<String> actualIdentifier = new ArrayList<>();
 
         try {
+            // for rowdata where identifier is not the first element, append identifier and SEPARATOR before it.
             if (dirtyData instanceof RowData) {
                 rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
             } else if (dirtyData instanceof JsonNode) {
                 rootNode = (JsonNode) dirtyData;
             } else if (dirtyData instanceof String) {
                 // parse and remove the added identifier for string cases
-                String[] arr = ((String) dirtyData).split("\\.");
-                database = arr[0];
-                table = arr[1];
-                //this is possible since dirtydata is a string
-                dirtyData = (T) ((String) dirtyData).replace(database + "." + table + ".", "");
+                String rawIdentifier = ((String) dirtyData).split(SEPARATOR)[0];
+                String[] arr = rawIdentifier.split("\\.");
+                actualIdentifier.addAll(Arrays.asList(arr));
+                dirtyData = (T) ((String) dirtyData).split(SEPARATOR)[1];
             } else {
-                LOGGER.error("unidentified dirty data :{}", dirtyData);
-                throw new Exception();
+                throw new Exception("unidentified dirty data " + dirtyData);
             }
         } catch (Exception ex) {
-            LOGGER.warn("parse dirtydata failed");
+            LOGGER.warn("parse dirtydata failed:{}", ex.getMessage());
             invoke(dirtyData, DirtyType.DESERIALIZE_ERROR, e);
             return;
         }
@@ -146,9 +146,12 @@ public class DirtySinkHelper<T> implements Serializable {
             DirtyData.Builder<Object> builder = DirtyData.builder();
             // must manually replace system params first, else the ${} will be lost in regex parsing
             Map<String, String> paramMap = DirtyData.genParamMap(dirtyType, e.getMessage());
-            if (database != null && table != null) {
-                paramMap.put("database", database);
-                paramMap.put("table", table);
+            try {
+                PatternReplaceUtils.fillParamMap(actualIdentifier, paramMap, dirtyOptions.getIdentifier());
+                LOGGER.info("param map:{}", paramMap);
+            } catch (Exception ex) {
+                LOGGER.error("error generating param map:{}, {}", actualIdentifier, dirtyOptions.getIdentifier());
+                invoke(dirtyData, DirtyType.UNDEFINED, ex);
             }
             String labels = PatternReplaceUtils.replace(dirtyOptions.getLabels(), paramMap);;
             String logTag = PatternReplaceUtils.replace(dirtyOptions.getLogTag(), paramMap);;

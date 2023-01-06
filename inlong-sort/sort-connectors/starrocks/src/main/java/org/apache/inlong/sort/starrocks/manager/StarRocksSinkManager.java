@@ -452,7 +452,7 @@ public class StarRocksSinkManager implements Serializable {
         if (StarRocksSinkOptions.StreamLoadFormat.CSV.equals(sinkOptions.getStreamLoadFormat())) {
             for (byte[] row : flushData.getBuffer()) {
                 dirtySinkHelper.invokeMultiple(
-                        flushData.getDatabase() + "," + flushData.getTable() + ","
+                        flushData.getDatabase() + "." + flushData.getTable() + "%#%#%#"
                                 + new String(row, StandardCharsets.UTF_8),
                         DirtyType.BATCH_LOAD_ERROR, e,
                         sinkMultipleFormat);
@@ -460,7 +460,7 @@ public class StarRocksSinkManager implements Serializable {
         } else if (StarRocksSinkOptions.StreamLoadFormat.JSON.equals(sinkOptions.getStreamLoadFormat())) {
             for (byte[] row : flushData.getBuffer()) {
                 dirtySinkHelper.invokeMultiple(
-                        flushData.getDatabase() + "." + flushData.getTable() + "."
+                        flushData.getDatabase() + "." + flushData.getTable() + "%#%#%#"
                                 + OBJECT_MAPPER.readTree(new String(row, StandardCharsets.UTF_8)).toString(),
                         DirtyType.BATCH_LOAD_ERROR, e, sinkMultipleFormat);
             }

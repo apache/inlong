@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.base.util;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,4 +48,27 @@ public final class PatternReplaceUtils {
         matcher.appendTail(sb);
         return sb.toString();
     }
+
+    /**
+     * fills the paramMap with user defined ${} functions. Similar to jsonDynamicFormat.parse, but designed specifically for dirty data scenerios.
+     * @param actualIdentifier a list of actual database/table/etc names to replace the ${} in identifier
+     * @param paramMap the generated default paramMap
+     * @param identifier the dirty identifier which has the literal regex wrapped in ${} to replace.
+     */
+    public static void fillParamMap(List<String> actualIdentifier, Map<String, String> paramMap, String identifier)
+            throws IOException {
+        Matcher matcher = REGEX_PATTERN.matcher(identifier);
+        int i = 0;
+        while (matcher.find()) {
+            try {
+                String keyText = matcher.group(1);
+                String s = actualIdentifier.get(i);
+                paramMap.put(keyText, s);
+            } catch (Exception e) {
+                throw new IOException("param map replacement failed");
+            }
+            i++;
+        }
+    }
+
 }

@@ -508,6 +508,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             JdbcExec jdbcStatementExecutor = null;
             Boolean flushFlag = false;
             Exception tableException = null;
+            LOG.info("starting to flush");
             try {
                 jdbcStatementExecutor = getOrCreateStatementExecutor(tableIdentifier);
                 Long totalDataSize = 0L;
@@ -521,7 +522,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         totalDataSize, false);
             } catch (Exception e) {
                 tableException = e;
-                LOG.warn("Flush all data for tableIdentifier:{} get err:", tableIdentifier, e);
+                LOG.warn("table exception: Flush all data for tableIdentifier:{} get err:", tableIdentifier, e);
                 getAndSetPkFromErrMsg(tableIdentifier, e.getMessage());
                 updateOneExecutor(true, tableIdentifier);
                 try {
@@ -566,7 +567,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                 1L, true);
                         if (!schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.THROW_WITH_STOP)) {
-                            dirtySinkHelper.invokeMultiple(record, DirtyType.RETRY_LOAD_ERROR, tableException,
+                            dirtySinkHelper.invokeMultiple(tableIdentifier + "%#%#%#" + record.toString(),
+                                    DirtyType.RETRY_LOAD_ERROR, tableException,
                                     sinkMultipleFormat);
                         }
                         tableExceptionMap.put(tableIdentifier, tableException);
