@@ -560,7 +560,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             if (database != null && table != null) {
                 paramMap.put("database", database);
                 paramMap.put("table", table);
-                LOG.info("parammap:{},{}", paramMap, paramMap.entrySet());
             }
             String labels = PatternReplaceUtils.replace(dirtyOptions.getLabels(), paramMap);;
             String logTag = PatternReplaceUtils.replace(dirtyOptions.getLogTag(), paramMap);;

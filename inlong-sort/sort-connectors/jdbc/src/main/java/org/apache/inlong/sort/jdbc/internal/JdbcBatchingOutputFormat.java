@@ -247,8 +247,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
 
         if (dirtySink != null) {
             DirtyData.Builder<Object> builder = DirtyData.builder();
-            LOG.info("labels:{},logtag:{},identifier:{}", dirtyOptions.getLabels(),
-                    dirtyOptions.getLogTag(), dirtyOptions.getIdentifier());
             try {
                 builder.setData(dirtyData)
                         .setDirtyType(dirtyType)

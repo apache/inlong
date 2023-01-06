@@ -508,7 +508,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             JdbcExec jdbcStatementExecutor = null;
             Boolean flushFlag = false;
             Exception tableException = null;
-            LOG.info("starting to flush");
             try {
                 jdbcStatementExecutor = getOrCreateStatementExecutor(tableIdentifier);
                 Long totalDataSize = 0L;
