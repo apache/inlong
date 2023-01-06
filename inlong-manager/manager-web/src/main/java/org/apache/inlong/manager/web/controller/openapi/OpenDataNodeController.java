@@ -19,7 +19,7 @@ package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.SaveValidation;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
@@ -77,7 +77,7 @@ public class OpenDataNodeController {
     @PostMapping(value = "/node/update")
     @ApiOperation(value = "Update data node")
     @OperationLog(operation = OperationType.UPDATE)
-    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody DataNodeRequest request) {
+    public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody DataNodeRequest request) {
         return Response.success(dataNodeService.update(request, LoginUserUtils.getLoginUser()));
     }
 

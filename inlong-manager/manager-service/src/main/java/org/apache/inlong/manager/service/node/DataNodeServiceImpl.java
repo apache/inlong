@@ -270,10 +270,6 @@ public class DataNodeServiceImpl implements DataNodeService {
         LOGGER.info("begin to update data node by key: {}", request);
 
         // Check whether the data node exists
-        if (StringUtils.isBlank(request.getName())) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "the name changed of data node is blank!");
-        }
         String name = request.getName();
         String type = request.getType();
         DataNodeEntity entity = dataNodeMapper.selectByUniqueKey(name, type);

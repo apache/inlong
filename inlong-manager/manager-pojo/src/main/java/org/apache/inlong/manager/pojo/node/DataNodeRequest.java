@@ -25,7 +25,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import org.apache.inlong.manager.common.validation.SaveValidation;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -43,11 +44,11 @@ import javax.validation.constraints.Pattern;
 public abstract class DataNodeRequest {
 
     @ApiModelProperty(value = "Primary key")
-    @NotNull(groups = UpdateValidation.class)
+    @NotNull(groups = UpdateByIdValidation.class, message = "id cannot be null")
     private Integer id;
 
     @ApiModelProperty(value = "Data node name")
-    @NotBlank(groups = SaveValidation.class, message = "node name cannot be blank")
+    @NotBlank(groups = {SaveValidation.class, UpdateByKeyValidation.class}, message = "node name cannot be blank")
     @Length(min = 1, max = 128, message = "length must be between 1 and 128")
     @Pattern(regexp = "^[A-Za-z0-9_-]{1,128}$", message = "only supports letters, numbers, '-', or '_'")
     private String name;
@@ -83,7 +84,7 @@ public abstract class DataNodeRequest {
     private String inCharges;
 
     @ApiModelProperty(value = "Version number")
-    @NotNull(groups = UpdateValidation.class)
+    @NotNull(groups = {UpdateByIdValidation.class, UpdateByKeyValidation.class}, message = "version cannot be null" )
     private Integer version;
 
 }

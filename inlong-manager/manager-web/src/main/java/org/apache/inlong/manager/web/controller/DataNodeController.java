@@ -23,7 +23,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.SaveValidation;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
@@ -82,7 +83,7 @@ public class DataNodeController {
     @PostMapping(value = "/node/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data node")
-    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody DataNodeRequest request) {
+    public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody DataNodeRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(dataNodeService.update(request, username));
     }
@@ -90,7 +91,7 @@ public class DataNodeController {
     @PostMapping(value = "/node/updateByKey")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data node by key")
-    public Response<UpdateResult> updateByKey(@RequestBody DataNodeRequest request) {
+    public Response<UpdateResult> updateByKey(@Validated(UpdateByKeyValidation.class) @RequestBody DataNodeRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(dataNodeService.updateByKey(request, username));
     }
