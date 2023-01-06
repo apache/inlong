@@ -78,8 +78,8 @@ public class HiveDataNodeDTO {
         try {
             return JsonUtils.parseObject(extParams, HiveDataNodeDTO.class);
         } catch (Exception e) {
-            LOGGER.error("Failed to extract additional parameters for hive data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
+                    String.format("Failed to parse extParams for Hive node: %s", e.getMessage()));
         }
     }
 

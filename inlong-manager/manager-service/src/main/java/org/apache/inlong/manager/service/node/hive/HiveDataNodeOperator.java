@@ -69,8 +69,6 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
             HiveDataNodeDTO dto = HiveDataNodeDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, hiveDataNodeInfo);
         }
-
-        LOGGER.debug("success to get hive data node from entity");
         return hiveDataNodeInfo;
     }
 
@@ -81,10 +79,9 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
         try {
             HiveDataNodeDTO dto = HiveDataNodeDTO.getFromRequest(hiveDataNodeRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            LOGGER.debug("success to set entity for hive data node");
         } catch (Exception e) {
-            LOGGER.error("failed to set entity for hive data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("Failed to build extParams for Hive node: %s", e.getMessage()));
         }
     }
 

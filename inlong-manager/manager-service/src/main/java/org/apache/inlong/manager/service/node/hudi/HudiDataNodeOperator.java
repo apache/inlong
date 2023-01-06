@@ -65,8 +65,6 @@ public class HudiDataNodeOperator extends AbstractDataNodeOperator {
             HudiDataNodeDTO dto = HudiDataNodeDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, hudiDataNodeInfo);
         }
-
-        LOGGER.debug("success to get Hudi data node from entity");
         return hudiDataNodeInfo;
     }
 
@@ -78,8 +76,8 @@ public class HudiDataNodeOperator extends AbstractDataNodeOperator {
             HudiDataNodeDTO dto = HudiDataNodeDTO.getFromRequest(hudiDataNodeRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            LOGGER.error("failed to set entity for Hudi data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("Failed to build extParams for Hudi node: %s", e.getMessage()));
         }
     }
 

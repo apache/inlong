@@ -62,7 +62,8 @@ public class MySQLDataNodeDTO {
         try {
             return JsonUtils.parseObject(extParams, MySQLDataNodeDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    String.format("Failed to parse extParams for MySQL node: %s", e.getMessage()));
         }
     }
 }
