@@ -161,7 +161,7 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
         this.checkpointsState = context.getOperatorStateStore().getListState(stateDescriptor);
         this.jobIdState = context.getOperatorStateStore().getListState(jobIdDescriptor);
         if (context.isRestored()) {
-            // Newly table doesn't have restored flink job id.
+            // New table doesn't have restored flink job id.
             if (!jobIdState.get().iterator().hasNext()) {
                 return;
             }
