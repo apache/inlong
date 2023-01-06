@@ -177,7 +177,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
     private static final ConfigOption<Duration> SINK_BUFFER_FLUSH_INTERVAL =
             ConfigOptions.key("sink.buffer-flush.interval")
                     .durationType()
-                    .defaultValue(Duration.ofSeconds(1))
+                    .defaultValue(Duration.ofSeconds(60))
                     .withDescription(
                             "The flush interval mills, over this time, asynchronous threads will flush data.");
     private static final ConfigOption<Integer> SINK_MAX_RETRIES =
