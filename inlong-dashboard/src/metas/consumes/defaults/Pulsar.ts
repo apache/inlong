@@ -47,7 +47,7 @@ export default class PulsarConsume
       ],
     },
   })
-  @I18n('isDlq')
+  @I18n('meta.Consume.Pulsar.isDiq')
   isDlq: 0 | 1;
 
   @FieldDecorator({
@@ -76,7 +76,7 @@ export default class PulsarConsume
     },
     visible: values => values?.isDlq,
   })
-  @I18n('isRlq')
+  @I18n('meta.Consume.Pulsar.isDiq')
   isRlq: 0 | 1;
 
   @FieldDecorator({
