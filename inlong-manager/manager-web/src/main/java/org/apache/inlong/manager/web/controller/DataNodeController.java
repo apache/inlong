@@ -91,7 +91,8 @@ public class DataNodeController {
     @PostMapping(value = "/node/updateByKey")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data node by key")
-    public Response<UpdateResult> updateByKey(@Validated(UpdateByKeyValidation.class) @RequestBody DataNodeRequest request) {
+    public Response<UpdateResult> updateByKey(
+            @Validated(UpdateByKeyValidation.class) @RequestBody DataNodeRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(dataNodeService.updateByKey(request, username));
     }

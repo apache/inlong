@@ -78,13 +78,13 @@ public abstract class DataNodeRequest {
     @Length(max = 256, message = "length must be less than or equal to 256")
     private String description;
 
-    @ApiModelProperty(value = "Name of responsible person, separated by commas", required = true)
-    @NotBlank(message = "inCharges cannot be blank")
+    @ApiModelProperty(value = "Name of responsible person, separated by commas")
+    @NotBlank(groups = SaveValidation.class, message = "inCharges cannot be blank")
     @Length(max = 512, message = "length must be less than or equal to 512")
     private String inCharges;
 
     @ApiModelProperty(value = "Version number")
-    @NotNull(groups = {UpdateByIdValidation.class, UpdateByKeyValidation.class}, message = "version cannot be null" )
+    @NotNull(groups = {UpdateByIdValidation.class, UpdateByKeyValidation.class}, message = "version cannot be null")
     private Integer version;
 
 }
