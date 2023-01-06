@@ -160,6 +160,7 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
 
         this.checkpointsState = context.getOperatorStateStore().getListState(stateDescriptor);
         this.jobIdState = context.getOperatorStateStore().getListState(jobIdDescriptor);
+        // New table doesn't have state.
         if (context.isRestored() && jobIdState.get().iterator().hasNext()) {
             String restoredFlinkJobId = jobIdState.get().iterator().next();
             Preconditions.checkState(!Strings.isNullOrEmpty(restoredFlinkJobId),
