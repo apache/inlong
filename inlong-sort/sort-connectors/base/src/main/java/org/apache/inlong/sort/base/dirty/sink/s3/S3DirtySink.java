@@ -78,6 +78,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
     private transient ScheduledExecutorService scheduler;
     private transient ScheduledFuture<?> scheduledFuture;
     private transient S3Helper s3Helper;
+    public static long currentTime;
 
     public S3DirtySink(S3Options s3Options, DataType physicalRowDataType) {
         this.s3Options = s3Options;
@@ -130,6 +131,10 @@ public class S3DirtySink<T> implements DirtySink<T> {
     }
 
     private boolean valid() {
+        // stash dirty data for at least a minute to avoid flushing too fast
+        if (System.currentTimeMillis() - currentTime < 60000) {
+            return false;
+        }
         return (s3Options.getBatchSize() > 0 && (size >= s3Options.getBatchSize()
                 || batchBytes <= s3Options.getMaxBatchBytes()));
     }
@@ -218,6 +223,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
      */
     public synchronized void flush() {
         flushing = true;
+        currentTime = System.currentTimeMillis();
         if (!hasRecords()) {
             flushing = false;
             return;
