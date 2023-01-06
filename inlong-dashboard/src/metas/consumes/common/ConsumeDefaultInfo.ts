@@ -71,10 +71,36 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   inCharges: string;
 
   @FieldDecorator({
+    type: 'radio',
+    rules: [{ required: true }],
+    props: {
+      options: [
+        {
+          label: 'Kafka',
+          value: 'KAFKA',
+        },
+        {
+          label: 'Pulsar',
+          value: 'PULSAR',
+        },
+        {
+          label: 'TubeMQ',
+          value: 'TUBEMQ',
+        },
+      ],
+    },
+  })
+  @ColumnDecorator({
+    render: text => consumes.find(c => c.value === text)?.label || text,
+  })
+  @I18n('meta.Consume.MQType')
+  mqType: string;
+
+  @FieldDecorator({
     type: 'select',
     extraNames: ['mqType'],
     rules: [{ required: true }],
-    props: {
+    props: values => ({
       showSearch: true,
       filterOption: false,
       options: {
@@ -84,6 +110,7 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
           method: 'POST',
           data: {
             keyword,
+            mqType: values.mqType,
             pageNum: 1,
             pageSize: 20,
             status: 130,
@@ -93,7 +120,7 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
           formatResult: result =>
             result?.list?.map(item => ({
               ...item,
-              label: `${item.inlongGroupId} (${item.mqType})`,
+              label: item.inlongGroupId,
               value: item.inlongGroupId,
             })),
         },
@@ -102,17 +129,11 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
         topic: undefined,
         mqType: option.mqType,
       }),
-    },
+    }),
   })
   @ColumnDecorator()
   @I18n('meta.Consume.TargetInlongGroupID')
   inlongGroupId: string;
-
-  @ColumnDecorator({
-    render: text => consumes.find(c => c.value === text)?.label || text,
-  })
-  @I18n('meta.Consume.MQType')
-  mqType: string;
 
   @FieldDecorator({
     type: 'select',
@@ -186,12 +207,6 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   })
   @I18n('pages.ConsumeDashboard.config.OperatingStatus')
   readonly lastConsumeStatus: string;
-
-  @FieldDecorator({
-    type: 'text',
-  })
-  @I18n('meta.Consume.MQAddress')
-  readonly masterUrl: string;
 
   parse(data) {
     return data;
