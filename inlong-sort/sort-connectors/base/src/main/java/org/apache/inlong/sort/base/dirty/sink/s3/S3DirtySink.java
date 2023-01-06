@@ -132,6 +132,10 @@ public class S3DirtySink<T> implements DirtySink<T> {
 
     private boolean valid() {
         // stash dirty data for at least a minute to avoid flushing too fast
+        if (currentTime == 0) {
+            currentTime = System.currentTimeMillis();
+            return false;
+        }
         if (System.currentTimeMillis() - currentTime < 60000) {
             return false;
         }
