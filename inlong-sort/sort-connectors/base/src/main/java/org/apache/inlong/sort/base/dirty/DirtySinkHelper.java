@@ -143,12 +143,11 @@ public class DirtySinkHelper<T> implements Serializable {
         }
 
         if (dirtySink != null) {
-            DirtyData.Builder<Object> builder = DirtyData.builder();
+            DirtyData.Builder<T> builder = DirtyData.builder();
             // must manually replace system params first, else the ${} will be lost in regex parsing
             Map<String, String> paramMap = DirtyData.genParamMap(dirtyType, e.getMessage());
             try {
                 PatternReplaceUtils.fillParamMap(actualIdentifier, paramMap, dirtyOptions.getIdentifier());
-                LOGGER.info("param map:{}", paramMap);
             } catch (Exception ex) {
                 LOGGER.error("error generating param map:{}, {}", actualIdentifier, dirtyOptions.getIdentifier());
                 invoke(dirtyData, DirtyType.UNDEFINED, ex);
@@ -168,7 +167,7 @@ public class DirtySinkHelper<T> implements Serializable {
                         .setLogTag(logTag)
                         .setDirtyMessage(e.getMessage())
                         .setIdentifier(identifier);
-                dirtySink.invoke((DirtyData<T>) builder.build());
+                dirtySink.invoke(builder.build());
             } catch (Exception ex) {
                 if (!dirtyOptions.ignoreSideOutputErrors()) {
                     throw new RuntimeException(ex);
