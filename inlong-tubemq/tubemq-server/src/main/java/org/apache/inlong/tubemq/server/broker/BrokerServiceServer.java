@@ -72,7 +72,7 @@ import org.apache.inlong.tubemq.server.broker.stats.audit.AuditUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
 import org.apache.inlong.tubemq.server.common.aaaserver.CertificateBrokerHandler;
-import org.apache.inlong.tubemq.server.common.aaaserver.CertifiedResult;
+import org.apache.inlong.tubemq.server.common.aaaserver.CertifiedInfo;
 import org.apache.inlong.tubemq.server.common.exception.HeartbeatException;
 import org.apache.inlong.tubemq.server.common.heartbeat.HeartbeatManager;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutInfo;
@@ -607,13 +607,12 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg("Write StoreService temporary unavailable!");
             return builder.build();
         }
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), true);
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), true, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
+        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
         // get and check clientId field
         if (!PBParameterUtils.checkClientId(request.getClientId(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
@@ -659,12 +658,10 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     .append(checkSum).toString());
             return builder.build();
         }
-        CertifiedResult authorizeResult =
-                serverAuthHandler.validProduceAuthorizeInfo(
-                        certResult.userName, topicName, msgType, rmtAddress);
-        if (!authorizeResult.result) {
-            builder.setErrCode(authorizeResult.errCode);
-            builder.setErrMsg(authorizeResult.errInfo);
+        if (!serverAuthHandler.validProduceAuthorizeInfo(
+                certifiedInfo.getUserName(), topicName, msgType, rmtAddress, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         try {
@@ -682,7 +679,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 AuditUtils.addProduceRecord(topicName,
                         request.getMsgType(), request.getMsgTime(), 1, dataLength);
                 builder.setSuccess(true);
-                builder.setRequireAuth(certResult.reAuth);
+                builder.setRequireAuth(certifiedInfo.isReAuth());
                 builder.setErrCode(TErrCodeConstants.SUCCESS);
                 // begin Deprecated, after 1.0, the ErrMsg set "Ok" or ""
                 builder.setErrMsg(String.valueOf(appendResult.getMsgId()));
@@ -811,21 +808,21 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     public RegisterResponseB2C consumerRegisterC2B(RegisterRequestC2B request,
             final String rmtAddress,
             boolean overtls) throws Throwable {
+        ProcessResult result = new ProcessResult();
         RegisterResponseB2C.Builder builder = RegisterResponseB2C.newBuilder();
         builder.setSuccess(false);
         builder.setCurrOffset(-1);
-        CertifiedResult certResult = serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false);
         if (!this.started.get()) {
             builder.setErrCode(TErrCodeConstants.SERVICE_UNAVAILABLE);
             builder.setErrMsg("StoreService temporary unavailable!");
             return builder.build();
         }
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ProcessResult result = new ProcessResult();
+        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
         final StringBuilder strBuffer = new StringBuilder(512);
         // get and check clientId field
         if (!PBParameterUtils.checkClientId(request.getClientId(), strBuffer, result)) {
@@ -859,12 +856,10 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 }
             }
         }
-        CertifiedResult authorizeResult =
-                serverAuthHandler.validConsumeAuthorizeInfo(certResult.userName,
-                        groupName, topicName, filterCondSet, isRegister, rmtAddress);
-        if (!authorizeResult.result) {
-            builder.setErrCode(authorizeResult.errCode);
-            builder.setErrMsg(authorizeResult.errInfo);
+        if (!serverAuthHandler.validConsumeAuthorizeInfo(certifiedInfo.getUserName(),
+                groupName, topicName, filterCondSet, isRegister, rmtAddress, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         Integer lid = null;
@@ -1098,13 +1093,12 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg("StoreService temporary unavailable!");
             return builder.build();
         }
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false);
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
+        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
         // get and check clientId field
         if (!PBParameterUtils.checkClientId(request.getClientId(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
@@ -1124,7 +1118,6 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 : TBaseConstants.META_VALUE_UNDEFINED;
         List<Partition> partitions =
                 DataConverterUtil.convertPartitionInfo(request.getPartitionInfoList());
-        CertifiedResult authorizeResult = null;
         boolean isAuthorized = false;
         List<String> failureInfo = new ArrayList<>();
         for (Partition partition : partitions) {
@@ -1135,7 +1128,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             if (consumerNodeInfo == null) {
                 failureInfo.add(strBuffer.append(TErrCodeConstants.HB_NO_NODE)
                         .append(TokenConstants.ATTR_SEP)
-                        .append(partition.toString()).toString());
+                        .append(partition).toString());
                 strBuffer.delete(0, strBuffer.length());
                 logger.warn(strBuffer.append("[Heartbeat Check] UnRegistered Consumer:")
                         .append(clientId).append(TokenConstants.SEGMENT_SEP)
@@ -1145,7 +1138,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             }
             if (!clientId.equals(consumerNodeInfo.getConsumerId())) {
                 failureInfo.add(strBuffer.append(TErrCodeConstants.DUPLICATE_PARTITION)
-                        .append(TokenConstants.ATTR_SEP).append(partition.toString()).toString());
+                        .append(TokenConstants.ATTR_SEP).append(partition).toString());
                 strBuffer.delete(0, strBuffer.length());
                 strBuffer.append("[Heartbeat Check] Duplicated partition: Partition ").append(partStr)
                         .append(" has been consumed by ").append(consumerNodeInfo.getConsumerId())
@@ -1155,13 +1148,10 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 continue;
             }
             if (!isAuthorized) {
-                authorizeResult =
-                        serverAuthHandler.validConsumeAuthorizeInfo(certResult.userName,
-                                groupName, topic, consumerNodeInfo.getFilterCondStrs(), true, rmtAddress);
-                if (!authorizeResult.result) {
-                    builder.setRequireAuth(authorizeResult.reAuth);
-                    builder.setErrCode(authorizeResult.errCode);
-                    builder.setErrMsg(authorizeResult.errInfo);
+                if (!serverAuthHandler.validConsumeAuthorizeInfo(certifiedInfo.getUserName(),
+                        groupName, topic, consumerNodeInfo.getFilterCondStrs(), true, rmtAddress, result)) {
+                    builder.setErrCode(result.getErrCode());
+                    builder.setErrMsg(result.getErrMsg());
                     return builder.build();
                 }
                 isAuthorized = true;
@@ -1171,8 +1161,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                         getHeartbeatNodeId(clientId, partStr));
             } catch (HeartbeatException e) {
                 failureInfo.add(strBuffer.append(TErrCodeConstants.HB_NO_NODE)
-                        .append(TokenConstants.ATTR_SEP)
-                        .append(partition.toString()).toString());
+                        .append(TokenConstants.ATTR_SEP).append(partition).toString());
                 strBuffer.delete(0, strBuffer.length());
                 logger.warn(strBuffer.append("[Heartbeat Check] Invalid Request")
                         .append(clientId).append(TokenConstants.SEGMENT_SEP)
@@ -1184,7 +1173,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 consumerNodeInfo.setQryPriorityId(reqQryPriorityId);
             }
         }
-        builder.setRequireAuth(certResult.reAuth);
+        builder.setRequireAuth(certifiedInfo.isReAuth());
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
         builder.setHasPartFailure(false);

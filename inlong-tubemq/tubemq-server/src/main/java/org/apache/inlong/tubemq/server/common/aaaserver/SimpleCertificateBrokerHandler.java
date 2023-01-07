@@ -25,6 +25,7 @@ import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.TubeBroker;
 import org.slf4j.Logger;
@@ -79,12 +80,12 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
         }
         lastUpdatedVisitTokens = curBrokerVisitTokens;
         String[] visitTokenItems = curBrokerVisitTokens.split(TokenConstants.ARRAY_SEP);
-        for (int i = 0; i < visitTokenItems.length; i++) {
-            if (TStringUtils.isBlank(visitTokenItems[i])) {
+        for (String visitTokenItem : visitTokenItems) {
+            if (TStringUtils.isBlank(visitTokenItem)) {
                 continue;
             }
             try {
-                long curVisitToken = Long.parseLong(visitTokenItems[i].trim());
+                long curVisitToken = Long.parseLong(visitTokenItem.trim());
                 List<Long> currList = visitTokenList.get();
                 if (!currList.contains(curVisitToken)) {
                     while (true) {
@@ -109,13 +110,12 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
     }
 
     @Override
-    public CertifiedResult identityValidUserInfo(final ClientBroker.AuthorizedInfo authorizedInfo,
-            boolean isProduce) {
-        CertifiedResult result = new CertifiedResult();
+    public boolean identityValidUserInfo(ClientBroker.AuthorizedInfo authorizedInfo,
+            boolean isProduce, ProcessResult result) {
         if (authorizedInfo == null) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Authorized Info is required!");
-            return result;
+            return result.isSuccess();
         }
         if (enableVisitTokenCheck) {
             long curVisitToken = authorizedInfo.getVisitAuthorizedToken();
@@ -123,58 +123,53 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
             if (tubeBroker.isKeepAlive()) {
                 if (!currList.contains(curVisitToken)
                         && (System.currentTimeMillis() - tubeBroker.getLastRegTime() > inValidTokenCheckTimeMs)) {
-                    result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+                    result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                             "Visit Authorized Token is invalid!");
-                    return result;
+                    return result.isSuccess();
                 }
             }
         }
         if ((isProduce && !enableProduceAuthenticate)
                 || (!isProduce && !enableConsumeAuthenticate)) {
-            result.setSuccessResult("", "");
-            return result;
+            result.setSuccResult(new CertifiedInfo());
+            return result.isSuccess();
         }
         if (TStringUtils.isBlank(authorizedInfo.getAuthAuthorizedToken())) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "authAuthorizedToken is Blank!");
-            return result;
+            return result.isSuccess();
         }
         // process authAuthorizedToken info from certificate center begin
         // process authAuthorizedToken info from certificate center end
         // set userName, reAuth info
-        result.setSuccessResult("", "", false);
-        return result;
+        result.setSuccResult(new CertifiedInfo());
+        return result.isSuccess();
     }
 
     @Override
-    public CertifiedResult validConsumeAuthorizeInfo(final String userName, final String groupName,
-            final String topicName, final Set<String> msgTypeLst,
-            boolean isRegister, String clientIp) {
-        CertifiedResult result = new CertifiedResult();
+    public boolean validConsumeAuthorizeInfo(String userName, String groupName, String topicName,
+            Set<String> msgTypeLst, boolean isRegister, String clientIp, ProcessResult result) {
         if (!enableConsumeAuthorize) {
-            result.setSuccessResult("", "");
-            return result;
+            result.setSuccResult(new CertifiedInfo());
+            return result.isSuccess();
         }
-
         // process authorize from authorize center begin
         // process authorize from authorize center end
-        result.setSuccessResult("", "");
-        return result;
+        result.setSuccResult(new CertifiedInfo());
+        return result.isSuccess();
     }
 
     @Override
-    public CertifiedResult validProduceAuthorizeInfo(final String userName, final String topicName,
-            final String msgType, String clientIp) {
-        CertifiedResult result = new CertifiedResult();
+    public boolean validProduceAuthorizeInfo(String userName, String topicName,
+            String msgType, String clientIp, ProcessResult result) {
         if (!enableProduceAuthorize) {
-            result.setSuccessResult("", "");
-            return result;
+            result.setSuccResult(new CertifiedInfo());
+            return result.isSuccess();
         }
-
         // process authorize from authorize center begin
         // process authorize from authorize center end
-        result.setSuccessResult("", "");
-        return result;
+        result.setSuccResult(new CertifiedInfo());
+        return result.isSuccess();
     }
 
     @Override
