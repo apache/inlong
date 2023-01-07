@@ -27,6 +27,7 @@ public enum ErrorCodeEnum {
     PERMISSION_REQUIRED(2003, "The current user does not have operation authority"),
     AUTHENTICATION_REQUIRED(2004, "Authentication failed"),
     CONFIG_EXPIRED(2005, "The config has expired, please refresh the page or re-fetch the data and try again"),
+    ILLEGAL_RECORD_FIELD_VALUE(2006, "The field value of record is illegal"),
 
     ID_IS_EMPTY(101, "Primary key is empty"),
     GROUP_ID_IS_EMPTY(102, "Inlong group id is empty"),

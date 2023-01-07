@@ -42,7 +42,8 @@ public class InlongGroupOperatorFactory {
                 .filter(inst -> inst.accept(mqType))
                 .findFirst();
         if (!instance.isPresent()) {
-            throw new BusinessException(String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType));
+            throw new BusinessException(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED,
+                    String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType));
         }
         return instance.get();
     }

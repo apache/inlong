@@ -90,7 +90,8 @@ public class OracleSourceDTO {
         try {
             return JsonUtils.parseObject(extParams, OracleSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("parse extParams of OracleSource failure: %s", e.getMessage()));
         }
     }
 
