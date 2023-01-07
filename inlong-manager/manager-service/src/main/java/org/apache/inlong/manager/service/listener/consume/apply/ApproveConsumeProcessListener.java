@@ -132,7 +132,7 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
             String tenant = pulsarDTO.getTenant();
-            if (StringUtils.isEmpty(tenant)) {
+            if (StringUtils.isBlank(tenant)) {
                 tenant = pulsarCluster.getTenant();
             }
             PulsarTopicInfo topicMessage = new PulsarTopicInfo();

@@ -112,10 +112,6 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         }
         String groupId = entity.getInlongGroupId();
         InlongGroupInfo groupInfo = groupService.get(groupId);
-        if (!(groupInfo instanceof InlongPulsarInfo)) {
-            throw new BusinessException("the mqType must be PULSAR for this consume with inlongGroupId=" + groupId);
-        }
-
         String clusterTag = groupInfo.getInlongClusterTag();
         List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
         Preconditions.checkNotEmpty(clusterInfos, "pulsar cluster not exist for groupId=" + groupId);
