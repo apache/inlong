@@ -74,7 +74,6 @@ import org.apache.inlong.tubemq.server.common.TStatusConstants;
 import org.apache.inlong.tubemq.server.common.aaaserver.CertificateBrokerHandler;
 import org.apache.inlong.tubemq.server.common.aaaserver.CertifiedResult;
 import org.apache.inlong.tubemq.server.common.exception.HeartbeatException;
-import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.heartbeat.HeartbeatManager;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutInfo;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutListener;
@@ -295,16 +294,14 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         ProcessResult result = new ProcessResult();
         StringBuilder strBuffer = new StringBuilder(512);
         // get and check clientId field
-        if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
-                request.getClientId(), strBuffer, result)) {
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         final String clientId = (String) result.getRetData();
         // get and check groupName field
-        if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
-                request.getGroupName(), strBuffer, result)) {
+        if (!PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
@@ -618,8 +615,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             return builder.build();
         }
         // get and check clientId field
-        if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
-                request.getClientId(), strBuffer, result)) {
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
@@ -832,8 +828,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         ProcessResult result = new ProcessResult();
         final StringBuilder strBuffer = new StringBuilder(512);
         // get and check clientId field
-        if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
-                request.getClientId(), strBuffer, result)) {
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
@@ -849,8 +844,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         // get consumer info
         final String topicName = (String) result.getRetData();
         // get and check groupName field
-        if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
-                request.getGroupName(), strBuffer, result)) {
+        if (!PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
@@ -1112,16 +1106,14 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             return builder.build();
         }
         // get and check clientId field
-        if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
-                request.getClientId(), strBuffer, result)) {
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         final String clientId = (String) result.getRetData();
         // get and check groupName field
-        if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
-                request.getGroupName(), strBuffer, result)) {
+        if (!PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
@@ -1229,16 +1221,14 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         ProcessResult result = new ProcessResult();
         StringBuilder strBuffer = new StringBuilder(512);
         // get and check clientId field
-        if (!PBParameterUtils.getStringParameter(WebFieldDef.CLIENTID,
-                request.getClientId(), strBuffer, result)) {
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         final String clientId = (String) result.getRetData();
         // get and check groupName field
-        if (!PBParameterUtils.getStringParameter(WebFieldDef.GROUPNAME,
-                request.getGroupName(), strBuffer, result)) {
+        if (!PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
