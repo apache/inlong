@@ -24,6 +24,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import org.apache.inlong.manager.common.validation.SaveValidation;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
@@ -43,8 +46,8 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
 public abstract class InlongGroupRequest extends BaseInlongGroup {
 
-    @NotBlank(message = "cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
+    @NotBlank(message = "inlongGroupId cannot be blank")
     @Length(min = 4, max = 100, message = "length must be between 4 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
@@ -61,13 +64,14 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "MQ type, replaced by mqType")
     private String middlewareType;
 
-    @NotBlank(message = "cannot be blank")
     @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
+    @NotBlank(message = "mqType cannot be blank")
     @Length(min = 1, max = 20, message = "length must be between 1 and 20")
     private String mqType;
 
     @ApiModelProperty(value = "MQ resource", notes = "in inlong group, TubeMQ corresponds to Topic, Pulsar corresponds to Namespace")
-    @Length(max = 64, message = "length must be less than or equal to 64")
+    @Length(max = 128, message = "length must be less than or equal to 128")
+    @Pattern(regexp = "^[a-z0-9_-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String mqResource;
 
     @ApiModelProperty(value = "TubeMQ master URL")
@@ -85,12 +89,11 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @Range(min = 0, max = 1, message = "default is 0, only supports [0: no, 1: yes]")
     private Integer lightweight = 0;
 
-    @NotNull(message = "cannot be null")
-    @Range(min = 0, max = 2, message = "default is 0, only supports [0, 1, 2]")
     @ApiModelProperty(value = "Data report type, default is 0.\n"
             + " 0: report to DataProxy and respond when the DataProxy received data.\n"
             + " 1: report to DataProxy and respond after DataProxy sends data.\n"
             + " 2: report to MQ and respond when the MQ received data.", notes = "Current constraint is that all InLong Agents under one InlongGroup use the same type")
+    @Range(min = 0, max = 2, message = "default is 0, only supports [0, 1, 2]")
     private Integer dataReportType = 0;
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
@@ -109,8 +112,8 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "The maximum length of a single piece of data, unit: Byte")
     private Integer maxLength;
 
-    @NotBlank(message = "cannot be blank")
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
+    @NotBlank(groups = SaveValidation.class, message = "inCharges cannot be blank")
     @Length(max = 512, message = "length must be less than or equal to 512")
     private String inCharges;
 
@@ -122,6 +125,7 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     private List<InlongGroupExtInfo> extList;
 
     @ApiModelProperty(value = "Version number")
+    @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
     private Integer version;
 
 }

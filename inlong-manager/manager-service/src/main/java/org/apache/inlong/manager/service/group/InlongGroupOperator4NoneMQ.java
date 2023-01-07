@@ -50,7 +50,7 @@ public class InlongGroupOperator4NoneMQ extends AbstractGroupOperator {
 
     @Override
     protected void setTargetEntity(InlongGroupRequest request, InlongGroupEntity targetEntity) {
-        LOGGER.info("do nothing for inlong group without MQ");
+        // do nothing without mq
     }
 
     @Override

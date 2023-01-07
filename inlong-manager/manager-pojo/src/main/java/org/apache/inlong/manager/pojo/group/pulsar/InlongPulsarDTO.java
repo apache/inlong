@@ -89,7 +89,8 @@ public class InlongPulsarDTO extends BaseInlongGroup {
         try {
             return JsonUtils.parseObject(extParams, InlongPulsarDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
+                    String.format("parse extParams of Pulsar failure: %s", e.getMessage()));
         }
     }
 
