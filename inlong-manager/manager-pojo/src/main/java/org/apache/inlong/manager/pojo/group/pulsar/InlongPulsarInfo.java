@@ -42,12 +42,6 @@ public class InlongPulsarInfo extends InlongGroupInfo {
     @ApiModelProperty(value = "Pulsar tenant")
     private String tenant;
 
-    @ApiModelProperty(value = "Pulsar admin URL")
-    private String adminUrl;
-
-    @ApiModelProperty(value = "Pulsar service URL")
-    private String serviceUrl;
-
     @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
             + "serial: single partition, low throughput, and orderly messages")
     private String queueModule = "PARALLEL";

@@ -66,6 +66,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
@@ -1482,7 +1483,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             return result;
         }
 
-        LOGGER.debug("GetDPConfig: begin to get config for cluster tags={}, associated group num={}",
+        LOGGER.debug("GetDPConfig: begin to get config for cluster tags={}, associated InlongGroup num={}",
                 clusterTagList, groupList.size());
         List<DataProxyTopicInfo> topicList = new ArrayList<>();
         for (InlongGroupBriefInfo groupInfo : groupList) {
@@ -1492,27 +1493,29 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
             String mqType = groupInfo.getMqType();
             if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
-                List<InlongStreamBriefInfo> streamList = streamMapper.selectBriefList(groupId);
-                for (InlongStreamBriefInfo streamInfo : streamList) {
+                InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupInfo.getExtParams());
+                // First get the tenant from the InlongGroup, and then get it from the PulsarCluster.
+                String tenant = pulsarDTO.getTenant();
+                if (StringUtils.isBlank(tenant)) {
+                    // If there are multiple Pulsar clusters, take the first one.
+                    // Note that the tenants in multiple Pulsar clusters must be identical.
                     List<InlongClusterEntity> pulsarClusters = clusterMapper.selectByKey(realClusterTag, null,
                             ClusterType.PULSAR);
                     if (CollectionUtils.isEmpty(pulsarClusters)) {
                         LOGGER.error("GetDPConfig: not found pulsar cluster by cluster tag={}", realClusterTag);
                         continue;
                     }
+                    PulsarClusterDTO cluster = PulsarClusterDTO.getFromJson(pulsarClusters.get(0).getExtParams());
+                    tenant = cluster.getTenant();
+                }
 
-                    // if there are multiple Pulsar clusters, take the first one
-                    InlongClusterEntity cluster = pulsarClusters.get(0);
-                    PulsarClusterDTO pulsarCluster = PulsarClusterDTO.getFromJson(cluster.getExtParams());
-                    String tenant = pulsarCluster.getTenant();
-                    if (StringUtils.isBlank(tenant)) {
-                        tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
-                    }
-
+                List<InlongStreamBriefInfo> streamList = streamMapper.selectBriefList(groupId);
+                for (InlongStreamBriefInfo streamInfo : streamList) {
                     String streamId = streamInfo.getInlongStreamId();
                     String topic = String.format(InlongConstants.PULSAR_TOPIC_FORMAT,
                             tenant, mqResource, streamInfo.getMqResource());
                     DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
+                    // must format to groupId/streamId, needed by DataProxy
                     topicConfig.setInlongGroupId(groupId + "/" + streamId);
                     topicConfig.setTopic(topic);
                     topicList.add(topicConfig);

@@ -37,6 +37,7 @@ import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarInfo;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarTopicInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
@@ -115,8 +116,17 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
         Preconditions.checkNotEmpty(clusterInfos, "pulsar cluster not exist for groupId=" + groupId);
         consumeInfo.setClusterInfos(clusterInfos);
-        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfos.get(0);
-        consumeInfo.setTopic(getFullPulsarTopic(groupInfo, pulsarCluster.getTenant(), entity.getTopic()));
+
+        // First get the tenant from the InlongGroup, and then get it from the PulsarCluster.
+        String tenant = ((InlongPulsarInfo) groupInfo).getTenant();
+        if (StringUtils.isBlank(tenant)) {
+            // If there are multiple Pulsar clusters, take the first one.
+            // Note that the tenants in multiple Pulsar clusters must be identical.
+            PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfos.get(0);
+            tenant = pulsarCluster.getTenant();
+        }
+
+        consumeInfo.setTopic(getFullPulsarTopic(groupInfo, tenant, entity.getTopic()));
         return consumeInfo;
     }
 

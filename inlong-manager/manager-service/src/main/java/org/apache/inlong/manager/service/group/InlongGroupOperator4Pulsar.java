@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.group;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -122,10 +121,12 @@ public class InlongGroupOperator4Pulsar extends AbstractGroupOperator {
     public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(
                 groupInfo.getInlongClusterTag(), null, ClusterType.PULSAR);
-        String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
-                ? InlongConstants.DEFAULT_PULSAR_TENANT
-                : pulsarCluster.getTenant();
 
+        // First get the tenant from the InlongGroup, and then get it from the PulsarCluster.
+        String tenant = ((InlongPulsarInfo) groupInfo).getTenant();
+        if (StringUtils.isBlank(tenant)) {
+            tenant = pulsarCluster.getTenant();
+        }
         InlongPulsarTopicInfo topicInfo = new InlongPulsarTopicInfo();
         topicInfo.setTenant(tenant);
         topicInfo.setNamespace(groupInfo.getMqResource());
