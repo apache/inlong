@@ -17,42 +17,36 @@
 
 package org.apache.inlong.tubemq.server.common.aaaserver;
 
-import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
+public class CertifiedInfo {
 
-public class CertifiedResult {
+    private String userName = "";
+    private String authorizedToken = "";
+    private boolean reAuth = false;
 
-    public boolean result = false;
-    public int errCode = TErrCodeConstants.BAD_REQUEST;
-    public String errInfo = "Not authenticate!";
-    public String authorizedToken = "";
-    public boolean reAuth = false;
-    public String userName = "";
-
-    public CertifiedResult() {
+    public CertifiedInfo() {
 
     }
 
-    public void setFailureResult(int errCode, final String resultInfo) {
-        this.result = false;
-        this.errCode = errCode;
-        this.errInfo = resultInfo;
-    }
-
-    public void setSuccessResult(final String userName, final String authorizedToken) {
-        this.result = true;
-        this.errCode = TErrCodeConstants.SUCCESS;
-        this.errInfo = "Ok!";
+    public CertifiedInfo(String userName, String authorizedToken) {
         this.userName = userName;
         this.authorizedToken = authorizedToken;
     }
 
-    public void setSuccessResult(final String userName, final String authorizedToken, boolean reAuth) {
-        this.result = true;
-        this.errCode = TErrCodeConstants.SUCCESS;
-        this.errInfo = "Ok!";
+    public void setSuccessResult(String userName, String authorizedToken, boolean reAuth) {
         this.userName = userName;
         this.authorizedToken = authorizedToken;
         this.reAuth = reAuth;
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getAuthorizedToken() {
+        return authorizedToken;
+    }
+
+    public boolean isReAuth() {
+        return reAuth;
+    }
 }
