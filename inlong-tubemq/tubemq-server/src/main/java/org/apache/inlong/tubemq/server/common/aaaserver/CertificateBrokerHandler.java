@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.server.common.aaaserver;
 import java.util.Set;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 
 public interface CertificateBrokerHandler {
 
@@ -27,15 +28,15 @@ public interface CertificateBrokerHandler {
 
     void appendVisitToken(ClientMaster.MasterBrokerAuthorizedInfo authorizedInfo);
 
-    CertifiedResult identityValidUserInfo(ClientBroker.AuthorizedInfo authorizedInfo,
-            boolean isProduce);
+    boolean identityValidUserInfo(ClientBroker.AuthorizedInfo authorizedInfo,
+            boolean isProduce, ProcessResult result);
 
-    CertifiedResult validProduceAuthorizeInfo(String userName, String topicName,
-            String msgType, String clientIp);
+    boolean validProduceAuthorizeInfo(String userName, String topicName,
+            String msgType, String clientIp, ProcessResult result);
 
-    CertifiedResult validConsumeAuthorizeInfo(String userName, String groupName,
+    boolean validConsumeAuthorizeInfo(String userName, String groupName,
             String topicName, Set<String> msgTypeLst,
-            boolean isRegister, String clientIp);
+            boolean isRegister, String clientIp, ProcessResult result);
 
     boolean isEnableProduceAuthenticate();
 

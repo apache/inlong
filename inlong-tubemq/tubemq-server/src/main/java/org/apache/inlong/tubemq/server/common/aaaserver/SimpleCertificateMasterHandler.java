@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 
@@ -34,140 +35,138 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
     }
 
     @Override
-    public CertifiedResult identityValidBrokerInfo(
-            final ClientMaster.MasterCertificateInfo certificateInfo) {
-        CertifiedResult result = new CertifiedResult();
+    public boolean identityValidBrokerInfo(
+            ClientMaster.MasterCertificateInfo certificateInfo, ProcessResult result) {
         if (!masterConfig.isNeedBrokerVisitAuth()) {
-            result.setSuccessResult("", "");
-            return result;
+            result.setSuccResult(new CertifiedInfo());
+            return result.isSuccess();
         }
         if (certificateInfo == null) {
-            return result;
+            result.setSuccResult(new CertifiedInfo());
+            return result.isSuccess();
         }
         ClientMaster.AuthenticateInfo authInfo = certificateInfo.getAuthInfo();
         if (authInfo == null) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: AuthenticateInfo is null!");
-            return result;
+            return result.isSuccess();
         }
         if (TStringUtils.isBlank(authInfo.getUserName())) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: authInfo.userName is Blank!");
-            return result;
+            return result.isSuccess();
         }
         String inUserName = authInfo.getUserName().trim();
         if (TStringUtils.isBlank(authInfo.getSignature())) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: authInfo.signature is Blank!");
-            return result;
+            return result.isSuccess();
         }
         String inSignature = authInfo.getSignature().trim();
         if (!inUserName.equals(masterConfig.getVisitName())) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: userName is not equal in authenticateToken!");
-            return result;
+            return result.isSuccess();
         }
         if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp()) > masterConfig
                 .getAuthValidTimeStampPeriodMs()) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: timestamp out of effective period in authenticateToken!");
-            return result;
+            return result.isSuccess();
         }
         String signature =
                 TStringUtils.getAuthSignature(inUserName,
                         masterConfig.getVisitPassword(),
                         authInfo.getTimestamp(), authInfo.getNonce());
         if (!inSignature.equals(signature)) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: userName or password is not correct!");
-            return result;
+            return result.isSuccess();
         }
-        result.setSuccessResult("", "");
-        return result;
+        result.setSuccResult(new CertifiedInfo());
+        return result.isSuccess();
     }
 
     @Override
-    public CertifiedResult identityValidUserInfo(final ClientMaster.MasterCertificateInfo certificateInfo,
-            boolean isProduce) {
+    public boolean identityValidUserInfo(ClientMaster.MasterCertificateInfo certificateInfo,
+            boolean isProduce, ProcessResult result) {
         String inUserName = "";
         String authorizedToken = "";
         String othParams = "";
-        CertifiedResult result = new CertifiedResult();
         if (isProduce) {
             if (!masterConfig.isStartProduceAuthenticate()) {
-                result.setSuccessResult(inUserName, authorizedToken);
-                return result;
+                result.setSuccResult(new CertifiedInfo(inUserName, authorizedToken));
+                return result.isSuccess();
             }
         } else {
             if (!masterConfig.isStartConsumeAuthenticate()) {
-                result.setSuccessResult(inUserName, authorizedToken);
-                return result;
+                result.setSuccResult(new CertifiedInfo(inUserName, authorizedToken));
+                return result.isSuccess();
             }
         }
         if (certificateInfo == null) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Server required MasterCertificateInfo!");
-            return result;
+            return result.isSuccess();
         }
         ClientMaster.AuthenticateInfo authInfo = certificateInfo.getAuthInfo();
         if (authInfo == null) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: AuthenticateInfo is null!");
-            return result;
+            return result.isSuccess();
         }
         if (TStringUtils.isBlank(authInfo.getUserName())) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: authInfo.userName is Blank!");
-            return result;
+            return result.isSuccess();
         }
         inUserName = authInfo.getUserName().trim();
         if (TStringUtils.isNotBlank(authInfo.getOthParams())) {
             othParams = authInfo.getOthParams().trim();
         }
         if (TStringUtils.isBlank(authInfo.getSignature())) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: authInfo.signature is Blank!");
-            return result;
+            return result.isSuccess();
         }
         String inSignature = authInfo.getSignature().trim();
         if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp()) > masterConfig
                 .getAuthValidTimeStampPeriodMs()) {
-            result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
+            result.setFailResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: timestamp out of effective period in authenticateToken!");
-            return result;
+            return result.isSuccess();
         }
         // get username and password from certificate center begin
         // get username and password from certificate center end
         // get identified userName and authorized token info and return
-        result.setSuccessResult(inUserName, authorizedToken);
-        return result;
+        result.setSuccResult(new CertifiedInfo(inUserName, authorizedToken));
+        return result.isSuccess();
     }
 
     @Override
-    public CertifiedResult validProducerAuthorizeInfo(String userName, Set<String> topics, String clientIp) {
-        CertifiedResult result = new CertifiedResult();
+    public boolean validProducerAuthorizeInfo(String userName, Set<String> topics,
+            String clientIp, ProcessResult result) {
         if (!masterConfig.isStartProduceAuthorize()) {
-            result.setSuccessResult("", "");
-            return result;
+            result.setSuccResult(new CertifiedInfo());
+            return result.isSuccess();
         }
         // call authorize center begin
         // call authorize center end
-        result.setSuccessResult("", "");
-        return result;
+        result.setSuccResult(new CertifiedInfo());
+        return result.isSuccess();
     }
 
     @Override
-    public CertifiedResult validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
-            Map<String, TreeSet<String>> topicConds, String clientIp) {
-        CertifiedResult result = new CertifiedResult();
+    public boolean validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
+            Map<String, TreeSet<String>> topicConds, String clientIp, ProcessResult result) {
         if (!masterConfig.isStartProduceAuthorize()) {
-            result.setSuccessResult("", "");
-            return result;
+            result.setSuccResult(new CertifiedInfo());
+            return result.isSuccess();
         }
         // call authorize center begin
         // call authorize center end
-        result.setSuccessResult("", "");
-        return result;
+        result.setSuccResult(new CertifiedInfo());
+        return result.isSuccess();
     }
 
 }

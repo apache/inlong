@@ -21,17 +21,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 
 public interface CertificateMasterHandler {
 
-    CertifiedResult identityValidBrokerInfo(ClientMaster.MasterCertificateInfo authenticInfo);
+    boolean identityValidBrokerInfo(
+            ClientMaster.MasterCertificateInfo authenticInfo, ProcessResult result);
 
-    CertifiedResult identityValidUserInfo(ClientMaster.MasterCertificateInfo authenticInfo,
-            boolean isProduce);
+    boolean identityValidUserInfo(ClientMaster.MasterCertificateInfo authenticInfo,
+            boolean isProduce, ProcessResult result);
 
-    CertifiedResult validProducerAuthorizeInfo(String userName, Set<String> topics, String clientIp);
+    boolean validProducerAuthorizeInfo(String userName,
+            Set<String> topics, String clientIp, ProcessResult result);
 
-    CertifiedResult validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
-            Map<String, TreeSet<String>> topicConds, String clientIp);
+    boolean validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
+            Map<String, TreeSet<String>> topicConds, String clientIp, ProcessResult result);
 
 }
