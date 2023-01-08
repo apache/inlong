@@ -24,6 +24,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
 import org.apache.inlong.common.enums.TaskTypeEnum;
@@ -36,7 +37,6 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.manager.common.consts.AgentConstants;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.SourceStatus;
@@ -59,6 +59,7 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeBindGroupRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
@@ -259,9 +260,6 @@ public class AgentServiceImpl implements AgentService {
 
     /**
      * Query the tasks that source is waited to be operated.(only clusterName and ip matched it can be operated)
-     *
-     * @param request
-     * @return
      */
     private List<DataConfig> processQueuedTasks(TaskRequest request) {
         HashSet<SourceStatus> needAddStatusSet = Sets.newHashSet(SourceStatus.TOBE_ISSUED_SET);
@@ -307,7 +305,7 @@ public class AgentServiceImpl implements AgentService {
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndType(needAddStatusList, sourceTypes,
                 TASK_FETCH_SIZE);
         for (StreamSourceEntity sourceEntity : sourceEntities) {
-            // refresh agentip and uuid to make it can be processed in queued task
+            // refresh agent ip and uuid to make it can be processed in queued task
             sourceEntity.setAgentIp(taskRequest.getAgentIp());
             sourceEntity.setUuid(taskRequest.getUuid());
             sourceMapper.updateByPrimaryKeySelective(sourceEntity);
@@ -322,8 +320,6 @@ public class AgentServiceImpl implements AgentService {
     /**
      * Add subtasks to template tasks.
      * (Template task are agent_ip is null and template_id is null)
-     *
-     * @param taskRequest
      */
     private void preProcessTemplateFileTask(TaskRequest taskRequest) {
         List<Integer> needCopiedStatusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_ADD.getCode(),
@@ -368,8 +364,6 @@ public class AgentServiceImpl implements AgentService {
      *  1.agent ip match
      *  2.cluster name match
      *  Send the corresponding task action request according to the matching state of the tag and the current state
-     *
-     * @param taskRequest
      */
     private void preProcessLabelFileTasks(TaskRequest taskRequest) {
         List<Integer> needProcessedStatusList = Arrays.asList(
@@ -388,42 +382,41 @@ public class AgentServiceImpl implements AgentService {
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpAndCluster(needProcessedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName);
 
-        sourceEntities.stream()
-                .forEach(sourceEntity -> {
-                    // case: agent tag unbind and mismatch source task
-                    Set<SourceStatus> exceptedUnmatchedStatus = Sets.newHashSet(
-                            SourceStatus.SOURCE_FROZEN,
-                            SourceStatus.TO_BE_ISSUED_FROZEN);
-                    if (!matchLabel(sourceEntity, clusterNodeEntity)
-                            && !exceptedUnmatchedStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))) {
-                        LOGGER.info("Transform task({}) from {} to {} because tag mismatch "
-                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
-                                sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(),
-                                agentIp, agentClusterName);
-                        sourceMapper.updateStatus(
-                                sourceEntity.getId(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), false);
-                    }
+        sourceEntities.forEach(sourceEntity -> {
+            // case: agent tag unbind and mismatch source task
+            Set<SourceStatus> exceptedUnmatchedStatus = Sets.newHashSet(
+                    SourceStatus.SOURCE_FROZEN,
+                    SourceStatus.TO_BE_ISSUED_FROZEN);
+            if (!matchLabel(sourceEntity, clusterNodeEntity)
+                    && !exceptedUnmatchedStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))) {
+                LOGGER.info("Transform task({}) from {} to {} because tag mismatch "
+                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                        sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(),
+                        agentIp, agentClusterName);
+                sourceMapper.updateStatus(
+                        sourceEntity.getId(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), false);
+            }
 
-                    // case: agent tag rebind and match source task again and stream is not in 'SUSPENDED' status
-                    InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
-                            sourceEntity.getInlongGroupId(), sourceEntity.getInlongStreamId());
-                    Set<SourceStatus> exceptedMatchedSourceStatus = Sets.newHashSet(
-                            SourceStatus.SOURCE_NORMAL,
-                            SourceStatus.TO_BE_ISSUED_ADD,
-                            SourceStatus.TO_BE_ISSUED_ACTIVE);
-                    Set<StreamStatus> exceptedMatchedStreamStatus = Sets.newHashSet(
-                            StreamStatus.SUSPENDED, StreamStatus.SUSPENDED);
-                    if (matchLabel(sourceEntity, clusterNodeEntity)
-                            && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
-                            && !exceptedMatchedStreamStatus.contains(StreamStatus.forCode(streamEntity.getStatus()))) {
-                        LOGGER.info("Transform task({}) from {} to {} because tag rematch "
-                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
-                                sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(),
-                                agentIp, agentClusterName);
-                        sourceMapper.updateStatus(
-                                sourceEntity.getId(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(), false);
-                    }
-                });
+            // case: agent tag rebind and match source task again and stream is not in 'SUSPENDED' status
+            InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
+                    sourceEntity.getInlongGroupId(), sourceEntity.getInlongStreamId());
+            Set<SourceStatus> exceptedMatchedSourceStatus = Sets.newHashSet(
+                    SourceStatus.SOURCE_NORMAL,
+                    SourceStatus.TO_BE_ISSUED_ADD,
+                    SourceStatus.TO_BE_ISSUED_ACTIVE);
+            Set<StreamStatus> exceptedMatchedStreamStatus = Sets.newHashSet(
+                    StreamStatus.SUSPENDED, StreamStatus.SUSPENDED);
+            if (matchLabel(sourceEntity, clusterNodeEntity)
+                    && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
+                    && !exceptedMatchedStreamStatus.contains(StreamStatus.forCode(streamEntity.getStatus()))) {
+                LOGGER.info("Transform task({}) from {} to {} because tag rematch "
+                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                        sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(),
+                        agentIp, agentClusterName);
+                sourceMapper.updateStatus(
+                        sourceEntity.getId(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(), false);
+            }
+        });
     }
 
     private InlongClusterNodeEntity selectByIpAndCluster(String clusterName, String ip) {
@@ -436,9 +429,7 @@ public class AgentServiceImpl implements AgentService {
         nodeRequest.setKeyword(ip);
         nodeRequest.setParentId(clusterEntity.getId());
         nodeRequest.setType(ClusterType.AGENT);
-        InlongClusterNodeEntity clusterNodeEntity =
-                clusterNodeMapper.selectByCondition(nodeRequest).stream().findFirst().orElse(null);
-        return clusterNodeEntity;
+        return clusterNodeMapper.selectByCondition(nodeRequest).stream().findFirst().orElse(null);
     }
 
     private int getOp(int status) {
@@ -496,7 +487,7 @@ public class AgentServiceImpl implements AgentService {
         if (InlongConstants.REPORT_TO_MQ_RECEIVED == dataReportType) {
             // add mq cluster setting
             List<MQClusterInfo> mqSet = new ArrayList<>();
-            List<String> clusterTagList = Arrays.asList(groupEntity.getInlongClusterTag());
+            List<String> clusterTagList = Collections.singletonList(groupEntity.getInlongClusterTag());
             List<String> typeList = Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR);
             ClusterPageRequest pageRequest = ClusterPageRequest.builder()
                     .typeList(typeList)
@@ -512,16 +503,21 @@ public class AgentServiceImpl implements AgentService {
                 mqSet.add(clusterInfo);
             }
             dataConfig.setMqClusters(mqSet);
+
             // add topic setting
-            InlongClusterEntity cluster = mqClusterList.get(0);
             String mqResource = groupEntity.getMqResource();
             String mqType = groupEntity.getMqType();
             if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
-                PulsarClusterDTO pulsarCluster = PulsarClusterDTO.getFromJson(cluster.getExtParams());
-                String tenant = pulsarCluster.getTenant();
+                // first get the tenant from the InlongGroup, and then get it from the PulsarCluster.
+                InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
+                String tenant = pulsarDTO.getTenant();
                 if (StringUtils.isBlank(tenant)) {
-                    tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+                    // If there are multiple Pulsar clusters, take the first one.
+                    // Note that the tenants in multiple Pulsar clusters must be identical.
+                    PulsarClusterDTO pulsarCluster = PulsarClusterDTO.getFromJson(mqClusterList.get(0).getExtParams());
+                    tenant = pulsarCluster.getTenant();
                 }
+
                 String topic = String.format(InlongConstants.PULSAR_TOPIC_FORMAT,
                         tenant, mqResource, streamEntity.getMqResource());
                 DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
@@ -594,6 +590,7 @@ public class AgentServiceImpl implements AgentService {
                 : Sets.newHashSet(extParams.get(AgentConstants.AGENT_GROUP_KEY).split(InlongConstants.COMMA));
         Set<String> sourceLabels = Stream.of(
                 sourceEntity.getInlongClusterNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
-        return sourceLabels.stream().anyMatch(sourceLabel -> clusterNodeLabels.contains(sourceLabel));
+        return sourceLabels.stream().anyMatch(clusterNodeLabels::contains);
     }
+
 }
