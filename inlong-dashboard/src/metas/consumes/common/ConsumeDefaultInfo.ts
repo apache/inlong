@@ -71,36 +71,10 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   inCharges: string;
 
   @FieldDecorator({
-    type: 'radio',
-    rules: [{ required: true }],
-    props: {
-      options: [
-        {
-          label: 'Kafka',
-          value: 'KAFKA',
-        },
-        {
-          label: 'Pulsar',
-          value: 'PULSAR',
-        },
-        {
-          label: 'TubeMQ',
-          value: 'TUBEMQ',
-        },
-      ],
-    },
-  })
-  @ColumnDecorator({
-    render: text => consumes.find(c => c.value === text)?.label || text,
-  })
-  @I18n('meta.Consume.MQType')
-  mqType: string;
-
-  @FieldDecorator({
     type: 'select',
     extraNames: ['mqType'],
     rules: [{ required: true }],
-    props: values => ({
+    props: {
       showSearch: true,
       filterOption: false,
       options: {
@@ -110,7 +84,6 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
           method: 'POST',
           data: {
             keyword,
-            mqType: values.mqType,
             pageNum: 1,
             pageSize: 20,
             status: 130,
@@ -120,7 +93,7 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
           formatResult: result =>
             result?.list?.map(item => ({
               ...item,
-              label: item.inlongGroupId,
+              label: `${item.inlongGroupId} (${item.mqType})`,
               value: item.inlongGroupId,
             })),
         },
@@ -129,7 +102,7 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
         topic: undefined,
         mqType: option.mqType,
       }),
-    }),
+    },
   })
   @ColumnDecorator()
   @I18n('meta.Consume.TargetInlongGroupID')
@@ -171,6 +144,16 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   @ColumnDecorator()
   @I18n('meta.Consume.TopicName')
   topic: string;
+
+  @FieldDecorator({
+    type: 'text',
+    visible: values => values.id,
+  })
+  @ColumnDecorator({
+    render: text => consumes.find(c => c.value === text)?.label || text,
+  })
+  @I18n('meta.Consume.MQType')
+  mqType: string;
 
   @FieldDecorator({
     type: 'select',
