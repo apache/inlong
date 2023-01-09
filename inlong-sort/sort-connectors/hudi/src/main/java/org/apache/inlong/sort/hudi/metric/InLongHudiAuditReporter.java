@@ -22,20 +22,14 @@ import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.hudi.metric.HudiMetricsConfig.REPORT_PERIOD_IN_SECONDS;
 import static org.apache.inlong.sort.hudi.metric.HudiMetricsConfig.getConfig;
-import static org.apache.inlong.sort.hudi.metric.HudiMetricsConst.METRIC_TOTAL_BYTES_WRITTEN;
-import static org.apache.inlong.sort.hudi.metric.HudiMetricsConst.METRIC_TOTAL_RECORDS_WRITTEN;
-import static org.apache.inlong.sort.hudi.metric.HudiMetricsUtil.getMetricsName;
 
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.flink.util.StringUtils;
-import org.apache.hudi.com.codahale.metrics.Gauge;
 import org.apache.hudi.com.codahale.metrics.MetricFilter;
 import org.apache.hudi.com.codahale.metrics.MetricRegistry;
-import org.apache.hudi.com.codahale.metrics.MetricRegistryListener.Base;
 import org.apache.hudi.metrics.custom.CustomizableMetricsReporter;
-import org.apache.inlong.sort.base.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
