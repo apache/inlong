@@ -18,14 +18,14 @@
  */
 
 import React, { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
-import { Button, message, Space } from 'antd';
+import { Button, message, Space, Table } from 'antd';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useBoolean, useRequest } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
 import { useDefaultMeta } from '@/metas';
 import { CommonInterface } from '../common';
-import { getFormContent, useFormContent } from './config';
+import { useFormContent } from './config';
 
 type Props = CommonInterface;
 
@@ -37,7 +37,7 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
 
   const [mqType, setMqType] = useState(defaultValue);
 
-  const [clusterInfos, setClusterInfos] = useState(defaultValue);
+  const [clusterInfos, setClusterInfos] = useState([]);
 
   const [form] = useForm();
 
@@ -107,15 +107,26 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
     <div style={{ position: 'relative' }}>
       <FormGenerator
         form={form}
-        content={getFormContent({
-          clusterInfos,
-          isCreate,
-          formContent,
-        })}
+        content={formContent}
         initialValues={data}
         onValuesChange={(c, values) => setMqType(values.mqType)}
         useMaxWidth={800}
       />
+      {!isCreate && <label>{t('pages.ConsumeDetail.ClusterInfo')}</label>}
+      {!isCreate && (
+        <Table
+          size="small"
+          columns={[
+            { title: 'name', dataIndex: 'name' },
+            { title: 'type', dataIndex: 'type' },
+            { title: 'serviceUrl', dataIndex: 'url' },
+            { title: 'adminUrl', dataIndex: 'adminUrl' },
+          ]}
+          style={{ marginTop: 20 }}
+          dataSource={clusterInfos}
+          rowKey="name"
+        ></Table>
+      )}
 
       {!isCreate && !readonly && (
         <div style={{ position: 'absolute', top: 0, right: 0 }}>
