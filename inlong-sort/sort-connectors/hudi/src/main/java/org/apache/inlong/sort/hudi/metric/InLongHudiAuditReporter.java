@@ -42,14 +42,14 @@ import org.slf4j.LoggerFactory;
 /**
  * The main entry of hudi audit reporter.
  */
-public class InLongHudiReporter extends CustomizableMetricsReporter {
+public class InLongHudiAuditReporter extends CustomizableMetricsReporter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InLongHudiReporter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InLongHudiAuditReporter.class);
 
     private HudiAuditReporter hudiAuditReporter;
     private Integer reportPeriodSeconds;
 
-    public InLongHudiReporter(Properties props, MetricRegistry registry) {
+    public InLongHudiAuditReporter(Properties props, MetricRegistry registry) {
         super(props, registry);
 
         String inLongLabels = getConfig(props, INLONG_METRIC);
@@ -75,21 +75,6 @@ public class InLongHudiReporter extends CustomizableMetricsReporter {
                 MetricFilter.ALL,
                 TimeUnit.SECONDS,
                 TimeUnit.SECONDS);
-
-        String totalRecordsWrittenMetricName =
-                getMetricsName(metricNamePrefix, "", METRIC_TOTAL_RECORDS_WRITTEN);
-        String totalBytesWrittenMetricName = getMetricsName(metricNamePrefix, "", METRIC_TOTAL_BYTES_WRITTEN);
-        registry.addListener(new Base() {
-
-            @Override
-            public void onGaugeAdded(String name, Gauge<?> gauge) {
-                if (totalBytesWrittenMetricName.equals(name)) {
-                    registry.gauge(Constants.NUM_RECORDS_OUT, () -> gauge);
-                } else if (totalRecordsWrittenMetricName.equals(name)) {
-                    registry.gauge(Constants.NUM_BYTES_OUT, () -> gauge);
-                }
-            }
-        });
     }
 
     @Override
