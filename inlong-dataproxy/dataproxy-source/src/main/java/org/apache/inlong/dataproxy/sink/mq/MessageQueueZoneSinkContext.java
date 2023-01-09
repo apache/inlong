@@ -17,20 +17,34 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
+import org.apache.flume.Event;
+import org.apache.inlong.common.monitor.MonitorIndex;
+import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.common.util.NetworkUtils;
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CacheClusterConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
+import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.common.SinkContext;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
+import org.apache.inlong.dataproxy.utils.DateTimeUtils;
+import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.inlong.dataproxy.consts.AttrConstants.SEP_HASHTAG;
 
 /**
  * 
@@ -41,6 +55,8 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     public static final String KEY_NODE_ID = "nodeId";
     public static final String PREFIX_PRODUCER = "producer.";
     public static final String KEY_COMPRESS_TYPE = "compressType";
+    public static final String MONITOR_SINK_INDEX_NAME = "MessageQueue_Sink";
+    public static final String MONITOR_SINK_EXT_NAME_PREFIX = "MessageQueue_Sink_monitors#";
 
     private final BufferQueue<BatchPackProfile> dispatchQueue;
 
@@ -51,6 +67,10 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     private final IdTopicConfigHolder idTopicHolder;
     private final CacheClusterConfigHolder cacheHolder;
     private final INLONG_COMPRESSED_TYPE compressType;
+
+    private final MQClusterConfig mqConfig;
+    private MonitorIndex monitorIndex;
+    private MonitorIndexExt monitorIndexExt;
 
     /**
      * Constructor
@@ -77,6 +97,25 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         // cacheHolder
         this.cacheHolder = new CacheClusterConfigHolder();
         this.cacheHolder.configure(commonPropertiesContext);
+
+        // index file
+        int maxMonitorCnt = ConfigConstants.DEF_MONITOR_STAT_CNT;
+        try {
+            maxMonitorCnt = context.getInteger(
+                    ConfigConstants.MAX_MONITOR_CNT, ConfigConstants.DEF_MONITOR_STAT_CNT);
+        } catch (NumberFormatException e) {
+            LOG.warn("Property {} must specify an integer value: {}",
+                    ConfigConstants.MAX_MONITOR_CNT, context.getString(ConfigConstants.MAX_MONITOR_CNT));
+        }
+        mqConfig = ConfigManager.getInstance().getMqClusterConfig();
+        int statIntervalSec = mqConfig.getStatIntervalSec();
+        Preconditions.checkArgument(statIntervalSec >= 0, "statIntervalSec must be >= 0");
+        if (statIntervalSec > 0) {
+            // switch for lots of metrics
+            monitorIndex = new MonitorIndex(MONITOR_SINK_INDEX_NAME, statIntervalSec, maxMonitorCnt);
+            monitorIndexExt = new MonitorIndexExt(MONITOR_SINK_EXT_NAME_PREFIX + sinkName,
+                    statIntervalSec, maxMonitorCnt);
+        }
     }
 
     /**
@@ -165,8 +204,9 @@ public class MessageQueueZoneSinkContext extends SinkContext {
      */
     public void addSendResultMetric(BatchPackProfile currentRecord, String topic, boolean result, long sendTime) {
         if (currentRecord instanceof SimpleBatchPackProfileV0) {
-            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS,
-                    ((SimpleBatchPackProfileV0) currentRecord).getSimpleProfile());
+            Event event = ((SimpleBatchPackProfileV0) currentRecord).getSimpleProfile();
+            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
+            appendIndex(event, result);
             return;
         }
 
@@ -266,6 +306,42 @@ public class MessageQueueZoneSinkContext extends SinkContext {
             this.addSendResultMetric(currentRecord, topic, false, sendTime);
         } else {
             currentRecord.fail();
+        }
+    }
+
+    private void appendIndex(Event event, boolean isSuccess) {
+        if (event == null) {
+            return;
+        }
+        if (mqConfig.getStatIntervalSec() <= 0) {
+            return;
+        }
+        // add monitor items base file storage
+        String topic = event.getHeaders().get(ConfigConstants.TOPIC_KEY);
+        String streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
+        String nodeIp = event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY);
+        int intMsgCnt = Integer.parseInt(
+                event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
+        long dataTimeL = Long.parseLong(
+                event.getHeaders().get(AttributeConstants.DATA_TIME));
+        Pair<Boolean, String> evenProcType =
+                MessageUtils.getEventProcType(event);
+        // build statistic key
+        StringBuilder newBase = new StringBuilder(512)
+                .append(getSinkName()).append(SEP_HASHTAG).append(topic)
+                .append(SEP_HASHTAG).append(streamId).append(SEP_HASHTAG)
+                .append(nodeIp).append(SEP_HASHTAG).append(NetworkUtils.getLocalIp())
+                .append(SEP_HASHTAG).append(evenProcType.getRight()).append(SEP_HASHTAG)
+                .append(DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
+        // count data
+        if (isSuccess) {
+            monitorIndex.addAndGet(newBase.toString(),
+                    intMsgCnt, 1, event.getBody().length, 0);
+            monitorIndexExt.incrementAndGet("PULSAR_SINK_SUCCESS");
+        } else {
+            monitorIndexExt.incrementAndGet("PULSAR_SINK_EXP");
+            monitorIndex.addAndGet(newBase.toString(),
+                    0, 0, 0, intMsgCnt);
         }
     }
 }
