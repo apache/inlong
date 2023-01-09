@@ -71,33 +71,6 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   inCharges: string;
 
   @FieldDecorator({
-    type: 'radio',
-    rules: [{ required: true }],
-    visible: values => values.id,
-    props: {
-      options: [
-        {
-          label: 'Kafka',
-          value: 'KAFKA',
-        },
-        {
-          label: 'Pulsar',
-          value: 'PULSAR',
-        },
-        {
-          label: 'TubeMQ',
-          value: 'TUBEMQ',
-        },
-      ],
-    },
-  })
-  @ColumnDecorator({
-    render: text => consumes.find(c => c.value === text)?.label || text,
-  })
-  @I18n('meta.Consume.MQType')
-  mqType: string;
-
-  @FieldDecorator({
     type: 'select',
     extraNames: ['mqType'],
     rules: [{ required: true }],
@@ -171,6 +144,16 @@ export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   @ColumnDecorator()
   @I18n('meta.Consume.TopicName')
   topic: string;
+
+  @FieldDecorator({
+    type: 'text',
+    visible: values => values.id,
+  })
+  @ColumnDecorator({
+    render: text => consumes.find(c => c.value === text)?.label || text,
+  })
+  @I18n('meta.Consume.MQType')
+  mqType: string;
 
   @FieldDecorator({
     type: 'select',
