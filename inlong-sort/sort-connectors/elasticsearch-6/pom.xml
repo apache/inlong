@@ -251,6 +251,10 @@
                                     <pattern>com.fasterxml.jackson</pattern>
                                     <shadedPattern>org.apache.flink.elasticsearch6.shaded.com.fasterxml.jackson</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.elasticsearch</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.elasticsearch6</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>

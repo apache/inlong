@@ -248,6 +248,10 @@
                                     <pattern>com.github.mustachejava</pattern>
                                     <shadedPattern>org.apache.flink.elasticsearch7.shaded.com.github.mustachejava</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.elasticsearch</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.elasticsearch7</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
