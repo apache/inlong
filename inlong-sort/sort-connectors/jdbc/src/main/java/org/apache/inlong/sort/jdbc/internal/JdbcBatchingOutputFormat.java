@@ -127,13 +127,10 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         this.dirtySink = dirtySink;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     static JdbcBatchStatementExecutor<Row> createSimpleRowExecutor(
             String sql, int[] fieldTypes, boolean objectReuse) {
-        return JdbcBatchStatementExecutor.simple(
+
+        return SimpleStatementExecutor.build(
                 sql,
                 createRowJdbcStatementBuilder(fieldTypes),
                 objectReuse ? Row::copy : Function.identity());
@@ -299,7 +296,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     }
 
     private void resetStateAfterFlush() {
-        batchSet.clear();
         dataSize = 0L;
         rowSize = 0L;
     }
@@ -347,7 +343,8 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             } catch (SQLException e) {
                 LOG.error("JDBC executeBatch error, retry times = {}", i, e);
                 if (i >= executionOptions.getMaxRetries()) {
-                    clearBatchSet(e);
+                    clearBatch(e);
+                    throw new IOException(e);
                 }
                 try {
                     if (!connectionProvider.isConnectionValid()) {
@@ -370,14 +367,12 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         }
     }
 
-    private void clearBatchSet(Exception e) {
-        try {
-            for (In data : batchSet) {
-                handleDirtyData(data, DirtyType.BATCH_LOAD_ERROR, e);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException("dirty data archive failed", ex);
+    private void clearBatch(Exception e) {
+        In[] input = (In[]) batchSet.toArray();
+        for (In record : input) {
+            handleDirtyData(record, DirtyType.BATCH_LOAD_ERROR, e);
         }
+        batchSet.clear();
     }
 
     protected void attemptFlush() throws SQLException {
