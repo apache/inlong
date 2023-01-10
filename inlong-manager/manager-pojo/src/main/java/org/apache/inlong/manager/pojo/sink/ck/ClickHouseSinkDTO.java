@@ -32,6 +32,7 @@ import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Sink info of ClickHouse
@@ -130,9 +131,11 @@ public class ClickHouseSinkDTO {
 
     public static ClickHouseSinkDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, ClickHouseSinkDTO.class).decryptPassword();
+            return Objects.requireNonNull(JsonUtils.parseObject(
+                    extParams, ClickHouseSinkDTO.class)).decryptPassword();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of ClickHouse Sink failure: %s", e.getMessage()));
         }
     }
 

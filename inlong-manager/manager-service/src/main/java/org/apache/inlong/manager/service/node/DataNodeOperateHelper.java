@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.node;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
@@ -43,13 +45,11 @@ public class DataNodeOperateHelper {
     public DataNodeInfo getDataNodeInfo(String nodeName, String nodeType) {
         DataNodeEntity entity = dataNodeMapper.selectByUniqueKey(nodeName, nodeType);
         if (entity == null) {
-            String errMsg = String.format("data node not found by name=%s, type=%s", nodeName, nodeType);
-            log.error(errMsg);
-            throw new BusinessException(errMsg);
+            throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
+                    String.format("data node not found by name=%s, type=%s", nodeName, nodeType));
         }
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(nodeType);
         DataNodeInfo dataNodeInfo = dataNodeOperator.getFromEntity(entity);
-
         log.debug("success to get data node info by name={}, type={}", nodeName, nodeType);
         return dataNodeInfo;
     }

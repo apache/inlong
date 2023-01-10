@@ -79,7 +79,7 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
 
     @Override
     public Boolean testConnection(ClusterRequest request) {
-        throw new BusinessException(
+        throw new BusinessException(ErrorCodeEnum.CLUSTER_TYPE_NOT_SUPPORTED,
                 String.format(ErrorCodeEnum.CLUSTER_TYPE_NOT_SUPPORTED.getMessage(), request.getType()));
     }
 
