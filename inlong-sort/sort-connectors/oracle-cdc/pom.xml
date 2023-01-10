@@ -145,6 +145,10 @@
                                     <shadedPattern>org.apache.inlong.sort.cdc.oracle.shaded.org.apache.inlong.sort.base</shadedPattern>
                                 </relocation>
                                 <relocation>
+                                    <pattern>org.apache.inlong.sort.cdc.base</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.cdc.oracle.shaded.org.apache.inlong.sort.cdc.base</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>io.debezium</pattern>
                                     <shadedPattern>org.apache.inlong.sort.cdc.oracle.shaded.io.debezium</shadedPattern>
                                 </relocation>
