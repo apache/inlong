@@ -227,8 +227,9 @@ public class AgentServiceImpl implements AgentService {
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
                         if (StringUtils.isNotBlank(entity.getExtParams())) {
                             agentClusterNodeDTO = AgentClusterNodeDTO.getFromJson(entity.getExtParams());
-                            groupSet = Sets.newHashSet(
-                                    agentClusterNodeDTO.getAgentGroup().split(InlongConstants.COMMA));
+                            String agentGroup = agentClusterNodeDTO.getAgentGroup();
+                            groupSet = StringUtils.isBlank(agentGroup) ? groupSet
+                                    : Sets.newHashSet(agentGroup.split(InlongConstants.COMMA));
                         }
                         groupSet.add(request.getAgentGroup());
                         agentClusterNodeDTO.setAgentGroup(Joiner.on(",").join(groupSet));
@@ -250,8 +251,9 @@ public class AgentServiceImpl implements AgentService {
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
                         if (StringUtils.isNotBlank(entity.getExtParams())) {
                             agentClusterNodeDTO = AgentClusterNodeDTO.getFromJson(entity.getExtParams());
-                            groupSet = Sets.newHashSet(
-                                    agentClusterNodeDTO.getAgentGroup().split(InlongConstants.COMMA));
+                            String agentGroup = agentClusterNodeDTO.getAgentGroup();
+                            groupSet = StringUtils.isBlank(agentGroup) ? groupSet
+                                    : Sets.newHashSet(agentGroup.split(InlongConstants.COMMA));
                         }
                         groupSet.remove(request.getAgentGroup());
                         agentClusterNodeDTO.setAgentGroup(Joiner.on(",").join(groupSet));
@@ -592,7 +594,9 @@ public class AgentServiceImpl implements AgentService {
         Set<String> clusterNodeGroups = new HashSet<>();
         if (StringUtils.isNotBlank(clusterNodeEntity.getExtParams())) {
             AgentClusterNodeDTO agentClusterNodeDTO = AgentClusterNodeDTO.getFromJson(clusterNodeEntity.getExtParams());
-            clusterNodeGroups = Sets.newHashSet(agentClusterNodeDTO.getAgentGroup().split(InlongConstants.COMMA));
+            String agentGroup = agentClusterNodeDTO.getAgentGroup();
+            clusterNodeGroups = StringUtils.isBlank(agentGroup) ? new HashSet<>()
+                    : Sets.newHashSet(agentGroup.split(InlongConstants.COMMA));
         }
         Set<String> sourceGroups = Stream.of(
                 sourceEntity.getInlongClusterNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
