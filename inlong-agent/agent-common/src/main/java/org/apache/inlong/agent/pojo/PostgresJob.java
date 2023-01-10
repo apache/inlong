@@ -19,6 +19,7 @@ package org.apache.inlong.agent.pojo;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,7 +35,7 @@ public class PostgresJob {
     private String database;
     private String schema;
     private String decodingPluginName;
-    private String tableName;
+    private List<String> tableName;
     private String serverTimeZone;
     private String scanStartupMode;
     private String primaryKey;

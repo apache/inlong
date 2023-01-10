@@ -27,6 +27,7 @@ import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
@@ -210,7 +211,7 @@ public class JobProfileDto {
         postgresJob.setDatabase(config.getDatabase());
         postgresJob.setSchema(config.getSchema());
         postgresJob.setDecodingPluginName(config.getDecodingPluginName());
-        postgresJob.setTableName(config.getTableName());
+        postgresJob.setTableName(Arrays.asList(config.getTableName().split(",")));
         postgresJob.setServerTimeZone(config.getServerTimeZone());
         postgresJob.setScanStartupMode(config.getScanStartupMode());
         postgresJob.setPrimaryKey(config.getPrimaryKey());
