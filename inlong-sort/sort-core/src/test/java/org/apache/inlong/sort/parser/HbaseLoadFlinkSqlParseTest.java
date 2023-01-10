@@ -74,7 +74,7 @@ public class HbaseLoadFlinkSqlParseTest extends AbstractTestBase {
         Map<String, String> properties = new LinkedHashMap<>();
         properties.put("dirty.side-output.connector", "log");
         properties.put("dirty.ignore", "true");
-        properties.put("dirty.side-output.enable", "true");
+        properties.put("dirty.side-output.enable", "false");
         properties.put("dirty.side-output.format", "csv");
         properties.put("dirty.side-output.labels",
                 "SYSTEM_TIME=${SYSTEM_TIME}&DIRTY_TYPE=${DIRTY_TYPE}&database=default&table=mytable");

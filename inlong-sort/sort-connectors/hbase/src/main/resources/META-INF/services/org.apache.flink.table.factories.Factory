@@ -14,4 +14,3 @@
 # limitations under the License.
 
 org.apache.inlong.sort.hbase.HBase2DynamicTableFactory
-org.apache.inlong.sort.hbase.shaded.org.apache.inlong.sort.base.dirty.sink.log.LogDirtySinkFactory
