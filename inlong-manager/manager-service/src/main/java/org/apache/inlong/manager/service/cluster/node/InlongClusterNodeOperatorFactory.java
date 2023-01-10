@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Factory for {@link InlongClusterNodeOperator}.
@@ -45,6 +44,7 @@ public class InlongClusterNodeOperatorFactory {
                 .orElseGet(() -> clusterNodeOperatorList.stream()
                         .filter(inst -> inst.accept(DEFAULT))
                         .findFirst()
-                        .orElseThrow(() -> new BusinessException("not found any instance of InlongClusterNodeOperator")));
+                        .orElseThrow(
+                                () -> new BusinessException("not found any instance of InlongClusterNodeOperator")));
     }
 }
