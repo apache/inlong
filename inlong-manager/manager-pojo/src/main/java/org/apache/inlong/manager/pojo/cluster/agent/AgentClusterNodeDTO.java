@@ -57,7 +57,8 @@ public class AgentClusterNodeDTO {
         try {
             return JsonUtils.parseObject(extParams, AgentClusterNodeDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 }
