@@ -125,6 +125,10 @@
                                     <shadedPattern>org.apache.inlong.sort.cdc.mysql.shaded.org.apache.inlong.sort.base</shadedPattern>
                                 </relocation>
                                 <relocation>
+                                    <pattern>org.apache.inlong.sort.cdc.base</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.cdc.mysql.shaded.org.apache.inlong.sort.cdc.base</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>org.apache.kafka</pattern>
                                     <shadedPattern>com.ververica.cdc.connectors.shaded.org.apache.kafka</shadedPattern>
                                 </relocation>
