@@ -241,11 +241,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
         if (StringUtils.isNotBlank(clusterNode.getExtParams())) {
             agentClusterNodeDTO = AgentClusterNodeDTO.getFromJson(clusterNode.getExtParams());
-            String agentGroup = agentClusterNodeDTO.getAgentGroup();
-            Set<String> extParams = StringUtils.isBlank(agentGroup) ? new HashSet<>()
-                    : Sets.newHashSet(agentGroup.split(InlongConstants.COMMA));
-            groupSet.addAll(extParams);
-            agentClusterNodeDTO.setAgentGroup(Joiner.on(",").join(groupSet));
+            agentClusterNodeDTO.setAgentGroup(Joiner.on(InlongConstants.COMMA).join(groupSet));
         }
         clusterNode.setExtParams(GSON.toJson(agentClusterNodeDTO));
     }
