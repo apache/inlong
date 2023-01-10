@@ -39,8 +39,7 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id
-        , parent_id, type, ip, port, protocol_type, node_load, ext_params, description,
+        id, parent_id, type, ip, port, protocol_type, node_load, ext_params, description,
         status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
