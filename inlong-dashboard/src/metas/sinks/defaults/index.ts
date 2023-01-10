@@ -101,4 +101,9 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     value: 'TDSQLPOSTGRESQL',
     LoadEntity: () => import('./TDSQLPostgreSQL'),
   },
+  {
+    label: 'Redis',
+    value: 'REDIS',
+    LoadEntity: () => import('./Redis'),
+  },
 ];
