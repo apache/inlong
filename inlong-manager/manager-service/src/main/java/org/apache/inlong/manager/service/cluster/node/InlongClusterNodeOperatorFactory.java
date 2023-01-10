@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.cluster.node;
 
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,7 @@ public class InlongClusterNodeOperatorFactory {
                         .filter(inst -> inst.accept(DEFAULT))
                         .findFirst()
                         .orElseThrow(
-                                () -> new BusinessException("not found any instance of InlongClusterNodeOperator")));
+                                () -> new BusinessException(ErrorCodeEnum.CLUSTER_TYPE_NOT_SUPPORTED,
+                                        String.format(ErrorCodeEnum.CLUSTER_TYPE_NOT_SUPPORTED.getMessage(), type))));
     }
 }
