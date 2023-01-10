@@ -337,9 +337,9 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         if (isSuccess) {
             monitorIndex.addAndGet(newBase.toString(),
                     intMsgCnt, 1, event.getBody().length, 0);
-            monitorIndexExt.incrementAndGet("PULSAR_SINK_SUCCESS");
+            monitorIndexExt.incrementAndGet("MQ_SINK_SUCCESS");
         } else {
-            monitorIndexExt.incrementAndGet("PULSAR_SINK_EXP");
+            monitorIndexExt.incrementAndGet("MQ_SINK_EXP");
             monitorIndex.addAndGet(newBase.toString(),
                     0, 0, 0, intMsgCnt);
         }
