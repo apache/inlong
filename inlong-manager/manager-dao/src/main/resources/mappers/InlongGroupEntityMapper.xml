@@ -166,7 +166,7 @@
     </select>
     <select id="selectBriefList" parameterType="org.apache.inlong.manager.pojo.group.InlongGroupPageRequest"
             resultType="org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo">
-        select id, inlong_group_id, name, mq_type, mq_resource, dataReportType, inlong_cluster_tag, ext_params,
+        select id, inlong_group_id, name, mq_type, mq_resource, inlong_cluster_tag, ext_params,
                in_charges, status, creator, modifier, create_time, modify_time
         from inlong_group
         <where>
