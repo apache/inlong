@@ -87,10 +87,6 @@ class SimpleStatementExecutor<T, V> implements JdbcBatchStatementExecutor<T> {
         }
     }
 
-    public void clear() {
-        batch.clear();
-    }
-
     @Override
     public void closeStatements() throws SQLException {
         if (st != null) {
