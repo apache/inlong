@@ -43,6 +43,8 @@ public interface InlongClusterNodeEntityMapper {
 
     int updateById(InlongClusterNodeEntity record);
 
+    int updateByIdSelective(InlongClusterNodeEntity record);
+
     int deleteById(Integer id);
 
 }

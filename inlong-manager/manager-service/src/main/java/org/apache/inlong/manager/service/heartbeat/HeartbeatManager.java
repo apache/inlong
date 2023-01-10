@@ -22,6 +22,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.Scheduler;
+import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -31,7 +32,6 @@ import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
-import org.apache.inlong.manager.common.consts.AgentConstants;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterStatus;
 import org.apache.inlong.manager.common.enums.NodeStatus;
@@ -43,6 +43,7 @@ import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +51,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -224,24 +223,26 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setCreator(creator);
         clusterNode.setModifier(creator);
         clusterNode.setDescription(AUTO_REGISTERED);
-        insertOrUpdateLabel(clusterNode, heartbeat);
+        insertOrUpdateNodeGroup(clusterNode, heartbeat);
         return clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
     }
 
     private int updateClusterNode(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
         clusterNode.setNodeLoad(heartbeat.getLoad());
-        insertOrUpdateLabel(clusterNode, heartbeat);
+        insertOrUpdateNodeGroup(clusterNode, heartbeat);
         return clusterNodeMapper.updateById(clusterNode);
     }
 
-    private void insertOrUpdateLabel(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
-        Set<String> groupSet = heartbeat.getNodeGroup() == null ? new HashSet<>()
+    private void insertOrUpdateNodeGroup(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
+        Set<String> groupSet = StringUtils.isBlank(heartbeat.getNodeGroup()) ? new HashSet<>()
                 : Arrays.stream(heartbeat.getNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
-        Map<String, String> extParams = clusterNode.getExtParams() == null ? new HashMap<>()
-                : GSON.fromJson(clusterNode.getExtParams(), Map.class);
-        extParams.put(AgentConstants.AGENT_GROUP_KEY, String.join(InlongConstants.COMMA, groupSet));
-        clusterNode.setExtParams(GSON.toJson(extParams));
+        AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
+        if (StringUtils.isNotBlank(clusterNode.getExtParams())) {
+            agentClusterNodeDTO = AgentClusterNodeDTO.getFromJson(clusterNode.getExtParams());
+            agentClusterNodeDTO.setAgentGroup(Joiner.on(InlongConstants.COMMA).join(groupSet));
+        }
+        clusterNode.setExtParams(GSON.toJson(agentClusterNodeDTO));
     }
 
     private int deleteClusterNode(InlongClusterNodeEntity clusterNode) {

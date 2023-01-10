@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.cluster;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -31,6 +32,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @ApiModel("Cluster node request")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type", defaultImpl = ClusterNodeRequest.class)
 public class ClusterNodeRequest {
 
     @NotNull(groups = UpdateValidation.class)
@@ -53,7 +55,6 @@ public class ClusterNodeRequest {
 
     @NotNull(message = "port cannot be null")
     @ApiModelProperty(value = "Cluster port")
-    @Length(max = 6, message = "length must be less than or equal to 6")
     private Integer port;
 
     @NotBlank(message = "protocolType cannot be blank")

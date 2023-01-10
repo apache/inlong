@@ -150,6 +150,47 @@
         where id = #{id,jdbcType=INTEGER}
           and version = #{version,jdbcType=INTEGER}
     </update>
+    <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
+        update inlong_cluster_node
+        <set>
+            <if test="parentId != null">
+                parent_id = #{parentId,jdbcType=INTEGER},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="ip != null">
+                ip = #{ip,jdbcType=VARCHAR},
+            </if>
+            <if test="port != null">
+                port = #{port,jdbcType=INTEGER},
+            </if>
+            <if test="protocolType != null">
+                protocol_type = #{protocolType,jdbcType=VARCHAR},
+            </if>
+            <if test="nodeLoad != null">
+                node_load = #{nodeLoad,jdbcType=INTEGER},
+            </if>
+            <if test="extParams != null">
+                ext_params = #{extParams,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            version = #{version,jdbcType=INTEGER} + 1
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
+    </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">
         delete
