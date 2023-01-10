@@ -22,9 +22,12 @@ import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.pojo.FileJob.Line;
+import org.apache.inlong.agent.utils.GsonUtil;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
+
+import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
@@ -207,11 +210,11 @@ public class JobProfileDto {
         postgresJob.setDatabase(config.getDatabase());
         postgresJob.setSchema(config.getSchema());
         postgresJob.setDecodingPluginName(config.getDecodingPluginName());
-        postgresJob.setTableNameList(config.getTableNameList());
+        postgresJob.setTableName(config.getTableName());
         postgresJob.setServerTimeZone(config.getServerTimeZone());
         postgresJob.setScanStartupMode(config.getScanStartupMode());
         postgresJob.setPrimaryKey(config.getPrimaryKey());
-        postgresJob.setProperties(config.getProperties());
+        postgresJob.setProperties(GsonUtil.fromJson(config.getProperties(), Map.class));
 
         return postgresJob;
     }
