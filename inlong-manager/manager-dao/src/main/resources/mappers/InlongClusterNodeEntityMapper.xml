@@ -150,7 +150,7 @@
         where id = #{id,jdbcType=INTEGER}
           and version = #{version,jdbcType=INTEGER}
     </update>
-    <update id="updateByIdSelective">
+    <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         update inlong_cluster_node
         <set>
             <if test="parentId != null">
@@ -165,10 +165,10 @@
             <if test="port != null">
                 port = #{port,jdbcType=INTEGER},
             </if>
-            <if test="protocol_type != null">
+            <if test="protocolType != null">
                 protocol_type = #{protocolType,jdbcType=VARCHAR},
             </if>
-            <if test="node_load != null">
+            <if test="nodeLoad != null">
                 node_load = #{nodeLoad,jdbcType=INTEGER},
             </if>
             <if test="extParams != null">

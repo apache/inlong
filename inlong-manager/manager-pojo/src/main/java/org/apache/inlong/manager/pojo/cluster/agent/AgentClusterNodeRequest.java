@@ -36,7 +36,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 @ApiModel("Inlong cluster node request for Agent")
 public class AgentClusterNodeRequest extends ClusterNodeRequest {
 
-    @ApiModelProperty(value = "Cluster agent group")
+    @ApiModelProperty(value = "Agent group name")
     private String agentGroup;
 
     public AgentClusterNodeRequest() {

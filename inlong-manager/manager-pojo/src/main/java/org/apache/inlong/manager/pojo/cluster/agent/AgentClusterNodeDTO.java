@@ -40,7 +40,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Agent cluster node info")
 public class AgentClusterNodeDTO {
 
-    @ApiModelProperty(value = "Cluster agent grou")
+    @ApiModelProperty(value = "Agent group name")
     private String agentGroup;
 
     /**
