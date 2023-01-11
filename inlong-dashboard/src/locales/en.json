@@ -321,6 +321,8 @@
   "meta.Sinks.Redis.MaxIdle": "Max Idle",
   "meta.Sinks.Redis.MinIdle": "Min Idle",
   "meta.Sinks.Redis.maxRetries": "Max Retries",
+  "meta.Sinks.Redis.dataType": "Data Type",
+  "meta.Sinks.Redis.schemaMapMode": "Schema Map Mode",
   "meta.Group.InlongGroupId": "Inlong Group ID",
   "meta.Group.InlongGroupIdRules": "Only lowercase letters, numbers, minus, and underscores",
   "meta.Group.InlongGroupName": "Inlong Group Name",

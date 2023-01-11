@@ -321,6 +321,8 @@
   "meta.Sinks.Redis.MaxIdle": "最大空闲连接数",
   "meta.Sinks.Redis.MinIdle": "最小空闲连接数",
   "meta.Sinks.Redis.maxRetries": "最大重试次数",
+  "meta.Sinks.Redis.dataType": "数据类型",
+  "meta.Sinks.Redis.schemaMapMode": "Schema映射模式",
   "meta.Group.InlongGroupId": "数据流组 ID",
   "meta.Group.InlongGroupIdRules": "只能包含小写字母、数字、中划线、下划线",
   "meta.Group.InlongGroupName": "数据流组名称",

@@ -84,6 +84,58 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
   database: number;
 
   @FieldDecorator({
+    type: 'select',
+    rules: [{ required: false }],
+    initialValue: 'PLAIN',
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: 'PLAIN',
+          value: 'PLAIN',
+        },
+        {
+          label: 'HASH',
+          value: 'HASH',
+        },
+        {
+          label: 'BITMAP',
+          value: 'BITMAP',
+        },
+      ],
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.Redis.dataType')
+  dataType: string;
+
+  @FieldDecorator({
+    type: 'select',
+    rules: [{ required: false }],
+    initialValue: 'STATIC_PREFIX_MATCH',
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: 'STATIC_PREFIX_MATCH',
+          value: 'STATIC_PREFIX_MATCH',
+        },
+        {
+          label: 'STATIC_KV_PAIR',
+          value: 'STATIC_KV_PAIR',
+        },
+        {
+          label: 'DYNAMIC',
+          value: 'DYNAMIC',
+        },
+      ],
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.Redis.schemaMapMode')
+  schemaMapMode: string;
+
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: false }],
     initialValue: '',
