@@ -59,8 +59,6 @@ public class MySQLSinkDTO {
         }
     };
 
-    private static final String SENSITIVE_PARAM_TRUE = "autoDeserialize=true";
-    private static final String SENSITIVE_PARAM_FALSE = "autoDeserialize=false";
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkDTO.class);
 
     @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
