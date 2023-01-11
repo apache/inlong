@@ -155,14 +155,16 @@ export default class PostgreSQLSource
   decodingPluginName: string;
 
   parse(data) {
-    data.tableNameList = data.tableNameList.join(',');
-    return data;
+    let obj = { ...data };
+    obj.tableNameList = obj.tableNameList.join(',');
+    return obj;
   }
 
   stringify(data) {
-    if (typeof data.tableNameList === 'string') {
-      data.tableNameList = data.tableNameList.split(',');
+    let obj = { ...data };
+    if (typeof obj.tableNameList === 'string') {
+      obj.tableNameList = obj.tableNameList.split(',');
     }
-    return data;
+    return obj;
   }
 }
