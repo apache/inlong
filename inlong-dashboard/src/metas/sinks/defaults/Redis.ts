@@ -136,7 +136,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
   schemaMapMode: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: 'password',
     rules: [{ required: false }],
     initialValue: '',
     props: values => ({
