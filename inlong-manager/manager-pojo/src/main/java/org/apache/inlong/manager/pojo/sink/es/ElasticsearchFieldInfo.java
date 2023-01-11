@@ -64,7 +64,8 @@ public class ElasticsearchFieldInfo extends SinkField {
         try {
             return JsonUtils.parseObject(extParams, ElasticsearchFieldInfo.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("Failed to parse extParams for Elasticsearch fieldInfo: %s", e.getMessage()));
         }
     }
 

@@ -212,16 +212,16 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public StreamSink get(Integer id) {
-        Preconditions.checkNotNull(id, "sink id is empty");
+        if (id == null) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "sink id is empty");
+        }
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         if (entity == null) {
-            LOGGER.error("sink not found by id={}", id);
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND,
+                    String.format("sink not found by id=%s", id));
         }
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
-        StreamSink streamSink = sinkOperator.getFromEntity(entity);
-        LOGGER.debug("success to get sink info by id={}", id);
-        return streamSink;
+        return sinkOperator.getFromEntity(entity);
     }
 
     @Override
@@ -263,15 +263,15 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public List<StreamSink> listSink(String groupId, String streamId) {
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        if (StringUtils.isBlank(groupId)) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY, "groupId id is blank");
+        }
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
         }
         List<StreamSink> responseList = new ArrayList<>();
         entityList.forEach(entity -> responseList.add(this.get(entity.getId())));
-
-        LOGGER.debug("success to list sink by groupId={}, streamId={}", groupId, streamId);
         return responseList;
     }
 

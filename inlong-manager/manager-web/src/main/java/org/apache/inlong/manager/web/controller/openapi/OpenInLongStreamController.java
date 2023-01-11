@@ -18,16 +18,17 @@
 package org.apache.inlong.manager.web.controller.openapi;
 
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.service.group.InlongGroupProcessService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -51,9 +52,6 @@ public class OpenInLongStreamController {
 
     @Autowired
     private InlongStreamService streamService;
-
-    @Autowired
-    private InlongGroupProcessService groupProcessOperation;
 
     @RequestMapping(value = "/stream/get", method = RequestMethod.GET)
     @ApiOperation(value = "Get inlong stream")
@@ -81,7 +79,7 @@ public class OpenInLongStreamController {
     @RequestMapping(value = "/stream/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong stream")
-    public Response<Boolean> update(@RequestBody InlongStreamRequest request) {
+    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody InlongStreamRequest request) {
         return Response.success(streamService.update(request, LoginUserUtils.getLoginUser()));
     }
 

@@ -85,8 +85,10 @@ public class ClickHouseSinkOperator extends AbstractSinkOperator {
 
         ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromJson(entity.getExtParams());
         if (StringUtils.isBlank(dto.getJdbcUrl())) {
-            Preconditions.checkNotEmpty(entity.getDataNodeName(),
-                    "clickhouse jdbc url unspecified and data node is empty");
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
+                        "clickhouse jdbc url unspecified and data node is empty");
+            }
             ClickHouseDataNodeInfo dataNodeInfo = (ClickHouseDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     entity.getDataNodeName(), entity.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);

@@ -163,11 +163,13 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public StreamSource get(Integer id) {
-        Preconditions.checkNotNull(id, "source id is empty");
+        if (id == null) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "source id is empty");
+        }
         StreamSourceEntity entity = sourceMapper.selectById(id);
         if (entity == null) {
-            LOGGER.error("source not found by id={}", id);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND,
+                    String.format("source not found by id=%s", id));
         }
         StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
         StreamSource streamSource = sourceOperator.getFromEntity(entity);
