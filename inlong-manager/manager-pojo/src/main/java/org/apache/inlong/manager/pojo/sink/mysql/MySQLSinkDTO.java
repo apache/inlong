@@ -50,6 +50,7 @@ public class MySQLSinkDTO {
      * The sensitive param may lead the attack.
      */
     private static final Map<String, String> SENSITIVE_PARAM_MAP = new HashMap<String, String>() {
+
         {
             put("autoDeserialize=true", "autoDeserialize=false");
             put("allowLoadLocalInfile=true", "allowLoadLocalInfile=false");
