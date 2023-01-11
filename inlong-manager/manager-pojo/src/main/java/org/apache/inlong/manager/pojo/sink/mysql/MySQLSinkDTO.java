@@ -32,6 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,8 +49,16 @@ public class MySQLSinkDTO {
     /**
      * The sensitive param may lead the attack.
      */
-    private static final String SENSITIVE_PARAM_TRUE = "autoDeserialize=true";
-    private static final String SENSITIVE_PARAM_FALSE = "autoDeserialize=false";
+    private static final Map<String, String> SENSITIVE_PARAM_MAP = new HashMap<String, String>() {
+
+        {
+            put("autoDeserialize=true", "autoDeserialize=false");
+            put("allowLoadLocalInfile=true", "allowLoadLocalInfile=false");
+            put("allowUrlInLocalInfile=true", "allowUrlInLocalInfile=false");
+            put("allowLoadLocalInfileInPath=/", "allowLoadLocalInfileInPath=");
+        }
+    };
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkDTO.class);
 
     @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
@@ -178,14 +188,20 @@ public class MySQLSinkDTO {
         if (StringUtils.isBlank(url)) {
             return url;
         }
-
-        String resultUrl = url;
-        if (StringUtils.containsIgnoreCase(url, SENSITIVE_PARAM_TRUE)) {
-            resultUrl = StringUtils.replaceIgnoreCase(url, SENSITIVE_PARAM_TRUE, SENSITIVE_PARAM_FALSE);
+        try {
+            String resultUrl = URLDecoder.decode(url, "UTF-8");
+            for (String sensitiveParam : SENSITIVE_PARAM_MAP.keySet()) {
+                if (StringUtils.containsIgnoreCase(resultUrl, sensitiveParam)) {
+                    resultUrl = StringUtils.replaceIgnoreCase(resultUrl, sensitiveParam,
+                            SENSITIVE_PARAM_MAP.get(sensitiveParam));
+                }
+            }
+            LOGGER.info("the origin url [{}] was replaced to: [{}]", url, resultUrl);
+            return resultUrl;
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
-
-        LOGGER.debug("the origin url [{}] was replaced to: [{}]", url, resultUrl);
-        return resultUrl;
     }
 
 }
