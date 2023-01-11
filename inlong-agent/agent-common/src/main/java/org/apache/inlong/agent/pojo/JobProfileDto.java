@@ -202,13 +202,13 @@ public class JobProfileDto {
                 PostgresSQLJob.PostgresSQLJobConfig.class);
         PostgresSQLJob postgresSQLJob = new PostgresSQLJob();
 
-        postgresSQLJob.setUsername(config.getUsername());
+        postgresSQLJob.setUser(config.getUsername());
         postgresSQLJob.setPassword(config.getPassword());
         postgresSQLJob.setHostname(config.getHostname());
         postgresSQLJob.setPort(config.getPort());
-        postgresSQLJob.setDatabase(config.getDatabase());
+        postgresSQLJob.setDbname(config.getDatabase());
         postgresSQLJob.setSchema(config.getSchema());
-        postgresSQLJob.setDecodingPluginName(config.getDecodingPluginName());
+        postgresSQLJob.setPluginname(config.getDecodingPluginName());
         postgresSQLJob.setTableNameList(Arrays.asList(config.getTableNameList().split(",")));
         postgresSQLJob.setServerTimeZone(config.getServerTimeZone());
         postgresSQLJob.setScanStartupMode(config.getScanStartupMode());

@@ -27,13 +27,14 @@ import java.util.List;
 @Data
 public class PostgresSQLJob {
 
-    private String username;
+    private String user;
     private String password;
     private String hostname;
     private String port;
-    private String database;
+    private String dbname;
     private String schema;
-    private String decodingPluginName;
+    private String serverName;
+    private String pluginname;
     private List<String> tableNameList;
     private String serverTimeZone;
     private String scanStartupMode;
