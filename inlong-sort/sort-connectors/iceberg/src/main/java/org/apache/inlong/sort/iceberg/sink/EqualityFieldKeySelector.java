@@ -34,52 +34,56 @@ import org.apache.iceberg.util.StructProjection;
  */
 class EqualityFieldKeySelector implements KeySelector<RowData, Integer> {
 
-  private final Schema schema;
-  private final RowType flinkSchema;
-  private final Schema deleteSchema;
+    private final Schema schema;
+    private final RowType flinkSchema;
+    private final Schema deleteSchema;
 
-  private transient RowDataWrapper rowDataWrapper;
-  private transient StructProjection structProjection;
-  private transient StructLikeWrapper structLikeWrapper;
+    private transient RowDataWrapper rowDataWrapper;
+    private transient StructProjection structProjection;
+    private transient StructLikeWrapper structLikeWrapper;
 
-  EqualityFieldKeySelector(Schema schema, RowType flinkSchema, List<Integer> equalityFieldIds) {
-    this.schema = schema;
-    this.flinkSchema = flinkSchema;
-    this.deleteSchema = TypeUtil.select(schema, Sets.newHashSet(equalityFieldIds));
-  }
-
-  /**
-   * Construct the {@link RowDataWrapper} lazily here because few members in it are not
-   * serializable. In this way, we don't have to serialize them with forcing.
-   */
-  protected RowDataWrapper lazyRowDataWrapper() {
-    if (rowDataWrapper == null) {
-      rowDataWrapper = new RowDataWrapper(flinkSchema, schema.asStruct());
+    EqualityFieldKeySelector(Schema schema, RowType flinkSchema, List<Integer> equalityFieldIds) {
+        this.schema = schema;
+        this.flinkSchema = flinkSchema;
+        this.deleteSchema = TypeUtil.select(schema, Sets.newHashSet(equalityFieldIds));
     }
-    return rowDataWrapper;
-  }
 
-  /** Construct the {@link StructProjection} lazily because it is not serializable. */
-  protected StructProjection lazyStructProjection() {
-    if (structProjection == null) {
-      structProjection = StructProjection.create(schema, deleteSchema);
+    /**
+     * Construct the {@link RowDataWrapper} lazily here because few members in it are not
+     * serializable. In this way, we don't have to serialize them with forcing.
+     */
+    protected RowDataWrapper lazyRowDataWrapper() {
+        if (rowDataWrapper == null) {
+            rowDataWrapper = new RowDataWrapper(flinkSchema, schema.asStruct());
+        }
+        return rowDataWrapper;
     }
-    return structProjection;
-  }
 
-  /** Construct the {@link StructLikeWrapper} lazily because it is not serializable. */
-  protected StructLikeWrapper lazyStructLikeWrapper() {
-    if (structLikeWrapper == null) {
-      structLikeWrapper = StructLikeWrapper.forType(deleteSchema.asStruct());
+    /**
+     * Construct the {@link StructProjection} lazily because it is not serializable.
+     */
+    protected StructProjection lazyStructProjection() {
+        if (structProjection == null) {
+            structProjection = StructProjection.create(schema, deleteSchema);
+        }
+        return structProjection;
     }
-    return structLikeWrapper;
-  }
 
-  @Override
-  public Integer getKey(RowData row) {
-    RowDataWrapper wrappedRowData = lazyRowDataWrapper().wrap(row);
-    StructProjection projectedRowData = lazyStructProjection().wrap(wrappedRowData);
-    StructLikeWrapper wrapper = lazyStructLikeWrapper().set(projectedRowData);
-    return wrapper.hashCode();
-  }
+    /**
+     * Construct the {@link StructLikeWrapper} lazily because it is not serializable.
+     */
+    protected StructLikeWrapper lazyStructLikeWrapper() {
+        if (structLikeWrapper == null) {
+            structLikeWrapper = StructLikeWrapper.forType(deleteSchema.asStruct());
+        }
+        return structLikeWrapper;
+    }
+
+    @Override
+    public Integer getKey(RowData row) {
+        RowDataWrapper wrappedRowData = lazyRowDataWrapper().wrap(row);
+        StructProjection projectedRowData = lazyStructProjection().wrap(wrappedRowData);
+        StructLikeWrapper wrapper = lazyStructLikeWrapper().set(projectedRowData);
+        return wrapper.hashCode();
+    }
 }
