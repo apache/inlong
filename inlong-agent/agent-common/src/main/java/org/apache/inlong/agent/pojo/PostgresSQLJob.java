@@ -50,7 +50,7 @@ public class PostgresSQLJob {
         private String database;
         private String schema;
         private String decodingPluginName;
-        private String tableNameList;
+        private List<String> tableNameList;
         private String serverTimeZone;
         private String scanStartupMode;
         private String primaryKey;

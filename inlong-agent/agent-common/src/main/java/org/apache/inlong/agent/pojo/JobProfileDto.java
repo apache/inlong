@@ -26,8 +26,6 @@ import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
-import java.util.Arrays;
-
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
@@ -209,7 +207,7 @@ public class JobProfileDto {
         postgresSQLJob.setDbname(config.getDatabase());
         postgresSQLJob.setSchema(config.getSchema());
         postgresSQLJob.setPluginname(config.getDecodingPluginName());
-        postgresSQLJob.setTableNameList(Arrays.asList(config.getTableNameList().split(",")));
+        postgresSQLJob.setTableNameList(config.getTableNameList());
         postgresSQLJob.setServerTimeZone(config.getServerTimeZone());
         postgresSQLJob.setScanStartupMode(config.getScanStartupMode());
         postgresSQLJob.setPrimaryKey(config.getPrimaryKey());
