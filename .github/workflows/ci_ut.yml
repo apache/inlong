@@ -55,7 +55,7 @@ on:
 jobs:
   unit-test:
     name: Unit Test
-    runs-on: ubuntu-22.04
+    runs-on: [ windows-2022, ubuntu-22.04 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
