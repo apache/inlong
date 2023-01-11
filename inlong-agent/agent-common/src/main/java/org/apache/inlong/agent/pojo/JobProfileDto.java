@@ -22,13 +22,11 @@ import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.pojo.FileJob.Line;
-import org.apache.inlong.agent.utils.GsonUtil;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
@@ -199,25 +197,24 @@ public class JobProfileDto {
         return kafkaJob;
     }
 
-    private static PostgresJob getPostgresJob(DataConfig dataConfigs) {
-        PostgresJob.PostgresJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
-                PostgresJob.PostgresJobConfig.class);
-        PostgresJob postgresJob = new PostgresJob();
+    private static PostgresSQLJob getPostgresJob(DataConfig dataConfigs) {
+        PostgresSQLJob.PostgresSQLJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                PostgresSQLJob.PostgresSQLJobConfig.class);
+        PostgresSQLJob postgresSQLJob = new PostgresSQLJob();
 
-        postgresJob.setUsername(config.getUsername());
-        postgresJob.setPassword(config.getPassword());
-        postgresJob.setHostname(config.getHostname());
-        postgresJob.setPort(config.getPort());
-        postgresJob.setDatabase(config.getDatabase());
-        postgresJob.setSchema(config.getSchema());
-        postgresJob.setDecodingPluginName(config.getDecodingPluginName());
-        postgresJob.setTableName(Arrays.asList(config.getTableName().split(",")));
-        postgresJob.setServerTimeZone(config.getServerTimeZone());
-        postgresJob.setScanStartupMode(config.getScanStartupMode());
-        postgresJob.setPrimaryKey(config.getPrimaryKey());
-        postgresJob.setProperties(GsonUtil.fromJson(config.getProperties(), Map.class));
+        postgresSQLJob.setUsername(config.getUsername());
+        postgresSQLJob.setPassword(config.getPassword());
+        postgresSQLJob.setHostname(config.getHostname());
+        postgresSQLJob.setPort(config.getPort());
+        postgresSQLJob.setDatabase(config.getDatabase());
+        postgresSQLJob.setSchema(config.getSchema());
+        postgresSQLJob.setDecodingPluginName(config.getDecodingPluginName());
+        postgresSQLJob.setTableNameList(Arrays.asList(config.getTableNameList().split(",")));
+        postgresSQLJob.setServerTimeZone(config.getServerTimeZone());
+        postgresSQLJob.setScanStartupMode(config.getScanStartupMode());
+        postgresSQLJob.setPrimaryKey(config.getPrimaryKey());
 
-        return postgresJob;
+        return postgresSQLJob;
     }
 
     private static MongoJob getMongoJob(DataConfig dataConfigs) {
@@ -422,8 +419,8 @@ public class JobProfileDto {
                 profileDto.setJob(job);
                 break;
             case POSTGRES:
-                PostgresJob postgresJob = getPostgresJob(dataConfig);
-                job.setPostgresJob(postgresJob);
+                PostgresSQLJob postgresSQLJob = getPostgresJob(dataConfig);
+                job.setPostgresSQLJob(postgresSQLJob);
                 job.setSource(POSTGRES_SOURCE);
                 profileDto.setJob(job);
             case ORACLE:
@@ -482,7 +479,7 @@ public class JobProfileDto {
         private FileJob fileJob;
         private BinlogJob binlogJob;
         private KafkaJob kafkaJob;
-        private PostgresJob postgresJob;
+        private PostgresSQLJob postgresSQLJob;
         private OracleJob oracleJob;
         private MongoJob mongoJob;
         private MqttJob mqttJob;
