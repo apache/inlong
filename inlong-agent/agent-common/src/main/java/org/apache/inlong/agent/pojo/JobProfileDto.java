@@ -421,6 +421,7 @@ public class JobProfileDto {
                 job.setPostgresSQLJob(postgresSQLJob);
                 job.setSource(POSTGRES_SOURCE);
                 profileDto.setJob(job);
+                break;
             case ORACLE:
                 OracleJob oracleJob = getOracleJob(dataConfig);
                 job.setOracleJob(oracleJob);
