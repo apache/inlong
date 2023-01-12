@@ -414,8 +414,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(SinkRequest request, UserInfo opInfo) {
-        // check request parameter
-        // checkSinkRequestParams(request);
         if (request.getId() == null) {
             throw new BusinessException(ErrorCodeEnum.ID_IS_EMPTY);
         }
@@ -433,13 +431,13 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                             curEntity.getInlongGroupId(), curEntity.getInlongStreamId(), curEntity.getSinkName(),
                             curEntity.getVersion()));
         }
-        if (StringUtils.isNotBlank(request.getInlongGroupId())) {
-            if (!curEntity.getInlongGroupId().equals(request.getInlongGroupId())) {
-                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                        "InlongGroupId not allowed modify");
-            }
+        if (StringUtils.isNotBlank(request.getInlongGroupId())
+                && !curEntity.getInlongGroupId().equals(request.getInlongGroupId())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "InlongGroupId not allowed modify");
         }
-        if (StringUtils.isNotBlank(request.getInlongStreamId())) {
+        if (StringUtils.isNotBlank(request.getInlongStreamId())
+                && !curEntity.getInlongStreamId().equals(request.getInlongStreamId())) {
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
                     "InlongStreamId not allowed modify");
         }

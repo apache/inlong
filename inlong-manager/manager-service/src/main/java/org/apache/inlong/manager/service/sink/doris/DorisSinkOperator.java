@@ -20,6 +20,8 @@ package org.apache.inlong.manager.service.sink.doris;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -82,9 +84,9 @@ public class DorisSinkOperator extends AbstractSinkOperator {
         }
 
         DorisSinkDTO dto = DorisSinkDTO.getFromJson(entity.getExtParams());
-        if (dto.getFeNodes() == null) {
+        if (StringUtils.isBlank(dto.getFeNodes())) {
             throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
-                    "doris fe nodes is empty");
+                    "doris fe nodes is blank");
         }
         CommonBeanUtils.copyProperties(entity, sink, true);
         CommonBeanUtils.copyProperties(dto, sink, true);
