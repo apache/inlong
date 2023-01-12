@@ -32,7 +32,6 @@ import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSinkDTO;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 import org.slf4j.Logger;
@@ -67,15 +66,17 @@ public class IcebergSinkOperator extends AbstractSinkOperator {
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
-        Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
-                ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        if (!this.getSinkType().equals(request.getSinkType())) {
+            throw new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
+                    ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        }
         IcebergSinkRequest sinkRequest = (IcebergSinkRequest) request;
         try {
             IcebergSinkDTO dto = IcebergSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            LOGGER.error("parsing json string to sink info failed", e);
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
+                    String.format("serialize extParams of Iceberg SinkDTO failure: %s", e.getMessage()));
         }
     }
 
@@ -88,8 +89,10 @@ public class IcebergSinkOperator extends AbstractSinkOperator {
 
         IcebergSinkDTO dto = IcebergSinkDTO.getFromJson(entity.getExtParams());
         if (StringUtils.isBlank(dto.getCatalogUri()) && CATALOG_TYPE_HIVE.equals(dto.getCatalogType())) {
-            Preconditions.checkNotEmpty(entity.getDataNodeName(),
-                    "iceberg catalog uri unspecified and data node is empty");
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                        "iceberg catalog uri unspecified and data node is blank");
+            }
             IcebergDataNodeInfo dataNodeInfo = (IcebergDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     entity.getDataNodeName(), entity.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);

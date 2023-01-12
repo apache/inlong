@@ -27,7 +27,6 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
@@ -73,8 +72,10 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
-        Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
-                ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        if (!this.getSinkType().equals(request.getSinkType())) {
+            throw new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
+                    ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        }
         ElasticsearchSinkRequest sinkRequest = (ElasticsearchSinkRequest) request;
         try {
             ElasticsearchSinkDTO dto = ElasticsearchSinkDTO.getFromRequest(sinkRequest);
@@ -95,8 +96,8 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
             dto.setEncryptVersion(encryptVersion);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            LOGGER.error("parsing json string to sink info failed", e);
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
+                    String.format("serialize extParams of Elasticsearch SinkDTO failure: %s", e.getMessage()));
         }
     }
 
@@ -129,7 +130,7 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
     @Override
     public void saveFieldOpt(SinkRequest request) {
         List<SinkField> fieldList = request.getSinkFieldList();
-        LOGGER.info("begin to save es sink fields={}", fieldList);
+        LOGGER.debug("begin to save es sink fields={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
         }
@@ -150,8 +151,8 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
                 ElasticsearchFieldInfo dto = ElasticsearchFieldInfo.getFromRequest(fieldInfo);
                 fieldEntity.setExtParams(objectMapper.writeValueAsString(dto));
             } catch (Exception e) {
-                LOGGER.error("parsing json string to sink field info failed", e);
-                throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
+                throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
+                        String.format("serialize extParams of Elasticsearch FieldInfo failure: %s", e.getMessage()));
             }
             fieldEntity.setInlongGroupId(groupId);
             fieldEntity.setInlongStreamId(streamId);
@@ -162,7 +163,7 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
         }
 
         sinkFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save es sink fields");
+        LOGGER.debug("success to save es sink fields");
     }
 
     @Override

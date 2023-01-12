@@ -82,7 +82,8 @@ public class HDFSSinkDTO {
         try {
             return JsonUtils.parseObject(extParams, HDFSSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of HDFS SinkDTO failure: %s", e.getMessage()));
         }
     }
 

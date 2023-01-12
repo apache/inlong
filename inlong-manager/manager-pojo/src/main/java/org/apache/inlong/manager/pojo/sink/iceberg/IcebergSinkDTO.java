@@ -91,7 +91,8 @@ public class IcebergSinkDTO {
         try {
             return JsonUtils.parseObject(extParams, IcebergSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of Iceberg SinkDTO failure: %s", e.getMessage()));
         }
     }
 

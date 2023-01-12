@@ -103,7 +103,8 @@ public class ElasticsearchSinkDTO {
         try {
             return JsonUtils.parseObject(extParams, ElasticsearchSinkDTO.class).decryptPassword();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of Elasticsearch SinkDTO failure: %s", e.getMessage()));
         }
     }
 

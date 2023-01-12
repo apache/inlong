@@ -108,8 +108,8 @@ public class MySQLSinkDTO {
         try {
             return JsonUtils.parseObject(extParams, MySQLSinkDTO.class);
         } catch (Exception e) {
-            LOGGER.error("fetch mysql sink info failed from json params: " + extParams, e);
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of MySQL SinkDTO failure: %s", e.getMessage()));
         }
     }
 
