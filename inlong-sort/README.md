@@ -37,6 +37,7 @@ informations and storage informations).
 - PostgreSQL
 - HDFS
 - TDSQL Postgres
+- Redis 
 
 ## Future Plans
 
