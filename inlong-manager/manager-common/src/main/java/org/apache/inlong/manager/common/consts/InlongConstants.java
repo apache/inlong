@@ -43,6 +43,8 @@ public class InlongConstants {
 
     public static final String LEFT_BRACKET = "(";
 
+    public static final String PERCENT = "%";
+
     public static final String ADMIN_USER = "admin";
 
     public static final Integer AFFECTED_ONE_ROW = 1;
