@@ -191,7 +191,7 @@ public class MySQLSinkDTO {
         }
         try {
             String resultUrl = url;
-            while (resultUrl.contains(InlongConstants.PERCENT)){
+            while (resultUrl.contains(InlongConstants.PERCENT)) {
                 resultUrl = URLDecoder.decode(resultUrl, "UTF-8");
             }
             for (String sensitiveParam : SENSITIVE_PARAM_MAP.keySet()) {
