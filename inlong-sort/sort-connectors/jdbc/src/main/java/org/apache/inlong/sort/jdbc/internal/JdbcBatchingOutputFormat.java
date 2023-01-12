@@ -129,7 +129,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
 
     static JdbcBatchStatementExecutor<Row> createSimpleRowExecutor(
             String sql, int[] fieldTypes, boolean objectReuse) {
-        return JdbcBatchStatementExecutor.simple((
+        return JdbcBatchStatementExecutor.simple(
                 sql,
                 createRowJdbcStatementBuilder(fieldTypes),
                 objectReuse ? Row::copy : Function.identity());
