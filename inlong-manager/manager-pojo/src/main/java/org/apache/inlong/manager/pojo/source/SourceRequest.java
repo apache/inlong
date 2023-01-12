@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.hibernate.validator.constraints.Length;
@@ -41,31 +43,31 @@ import java.util.Map;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sourceType")
 public class SourceRequest {
 
-    @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
+    @NotNull(groups = UpdateValidation.class)
     private Integer id;
 
-    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty("Inlong group id")
+    @NotBlank(groups = SaveValidation.class, message = "inlongGroupId cannot be blank")
     @Length(min = 4, max = 100, message = "length must be between 4 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
 
-    @NotBlank(message = "inlongStreamId cannot be blank")
     @ApiModelProperty("Inlong stream id")
+    @NotBlank(groups = SaveValidation.class, message = "inlongStreamId cannot be blank")
     @Length(min = 4, max = 100, message = "inlongStreamId length must be between 4 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "inlongStreamId only supports lowercase letters, numbers, '-', or '_'")
     private String inlongStreamId;
 
-    @NotBlank(message = "sourceType cannot be blank")
     @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
+    @NotBlank(message = "sourceType cannot be blank")
     @Length(min = 1, max = 20, message = "length must be between 1 and 20")
     private String sourceType;
 
-    @NotBlank(message = "sourceName cannot be blank")
+    @ApiModelProperty("Source name, unique in one stream")
+    @NotBlank(groups = SaveValidation.class, message = "sourceName cannot be blank")
     @Length(min = 1, max = 100, message = "sourceName length must be between 1 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{1,100}$", message = "sourceName only supports lowercase letters, numbers, '-', or '_'")
-    @ApiModelProperty("Source name, unique in one stream")
     private String sourceName;
 
     @ApiModelProperty("Ip of the agent running the task")
@@ -99,6 +101,7 @@ public class SourceRequest {
     private String snapshot;
 
     @ApiModelProperty("Version")
+    @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
     private Integer version;
 
     @ApiModelProperty("Field list, only support when inlong group in light weight mode")
