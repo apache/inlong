@@ -81,7 +81,8 @@ public class TDSQLPostgreSQLSinkDTO {
         try {
             return JsonUtils.parseObject(extParams, TDSQLPostgreSQLSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of TDSQLPostgreSQL SinkDTO failure: %s", e.getMessage()));
         }
     }
 

@@ -98,7 +98,8 @@ public class PostgreSQLSinkDTO {
         try {
             return JsonUtils.parseObject(extParams, PostgreSQLSinkDTO.class).decryptPassword();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of PostgreSQL SinkDTO failure: %s", e.getMessage()));
         }
     }
 

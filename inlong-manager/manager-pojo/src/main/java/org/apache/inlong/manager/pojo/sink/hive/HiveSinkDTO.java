@@ -128,7 +128,8 @@ public class HiveSinkDTO {
         try {
             return JsonUtils.parseObject(extParams, HiveSinkDTO.class).decryptPassword();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of Hive SinkDTO failure: %s", e.getMessage()));
         }
     }
 

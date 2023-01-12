@@ -78,7 +78,8 @@ public class KafkaSinkDTO {
         try {
             return JsonUtils.parseObject(extParams, KafkaSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of Kafka SinkDTO failure: %s", e.getMessage()));
         }
     }
 }

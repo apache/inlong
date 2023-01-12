@@ -22,7 +22,10 @@ import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
+
+import org.apache.inlong.manager.common.validation.SaveValidation;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
@@ -40,29 +43,29 @@ import java.util.Map;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sinkType")
 public abstract class SinkRequest {
 
-    @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
+    @NotNull(groups = UpdateByIdValidation.class, message = "id cannot be null")
     private Integer id;
 
-    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty("Inlong group id")
+    @NotBlank(groups = {SaveValidation.class, UpdateByKeyValidation.class}, message = "inlongGroupId cannot be blank")
     @Length(min = 4, max = 100, message = "length must be between 4 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
 
-    @NotBlank(message = "inlongStreamId cannot be blank")
     @ApiModelProperty("Inlong stream id")
+    @NotBlank(groups = {SaveValidation.class, UpdateByKeyValidation.class}, message = "inlongStreamId cannot be blank")
     @Length(min = 4, max = 100, message = "inlongStreamId length must be between 4 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "inlongStreamId only supports lowercase letters, numbers, '-', or '_'")
     private String inlongStreamId;
 
-    @NotBlank(message = "sinkType cannot be blank")
     @ApiModelProperty("Sink type, including: HIVE, ES, etc.")
+    @NotBlank(message = "sinkType cannot be blank")
     @Length(max = 15, message = "length must be less than or equal to 15")
     private String sinkType;
 
-    @NotBlank(message = "sinkName cannot be blank")
     @ApiModelProperty("Sink name, unique in one stream")
+    @NotBlank(groups = {SaveValidation.class, UpdateByKeyValidation.class}, message = "sinkName cannot be blank")
     @Length(min = 1, max = 100, message = "sinkName length must be between 1 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{1,100}$", message = "sinkName only supports lowercase letters, numbers, '-', or '_'")
     private String sinkName;
@@ -103,6 +106,7 @@ public abstract class SinkRequest {
     private Map<String, Object> properties = Maps.newHashMap();
 
     @ApiModelProperty(value = "Version number")
+    @NotNull(groups = {UpdateByIdValidation.class, UpdateByKeyValidation.class}, message = "version cannot be null")
     private Integer version;
 
 }
