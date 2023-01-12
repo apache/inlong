@@ -716,7 +716,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         } catch (Exception e) {
             LOG.error(String.format("Flush table: %s error : %s", tableIdentifier, e.getMessage()));
             // Makesure it is a dirty data
-            if (e.getMessage().contains("see more in")) {
+            if (respContent != null && StringUtils.isNotBlank(respContent.getErrorURL())) {
                 flushExceptionMap.put(tableIdentifier, e);
                 errorNum.getAndAdd(values.size());
                 for (Object value : values) {
