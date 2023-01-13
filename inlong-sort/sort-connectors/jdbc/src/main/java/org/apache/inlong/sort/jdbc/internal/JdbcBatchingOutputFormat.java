@@ -260,7 +260,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         }
 
         if (sinkMetricData != null && rowSize > 0 && dataSize > 0) {
-            LOG.info("invoking dirty:{},{}",rowSize,dataSize);
             sinkMetricData.invokeDirty(rowSize, dataSize);
             resetStateAfterFlush();
         }
