@@ -18,11 +18,14 @@
 package org.apache.inlong.manager.common.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -125,6 +128,41 @@ public class Preconditions {
         }
     }
 
+    public static void checkBlank(String obj, ErrorCodeEnum errorCodeEnum) {
+        if (StringUtils.isBlank(obj)) {
+            throw new BusinessException(errorCodeEnum);
+        }
+    }
+
+    public static void checkBlank(String obj, ErrorCodeEnum errorCodeEnum, String errMsg) {
+        if (StringUtils.isBlank(obj)) {
+            throw new BusinessException(errorCodeEnum, errMsg);
+        }
+    }
+
+    public static void checkNull(Object obj, ErrorCodeEnum errorCodeEnum) {
+        if (obj == null) {
+            throw new BusinessException(errorCodeEnum);
+        }
+    }
+
+    public static void checkNull(Object obj, ErrorCodeEnum errorCodeEnum, String errMsg) {
+        if (obj == null) {
+            throw new BusinessException(errorCodeEnum, errMsg);
+        }
+    }
+
+    public static void chkNotEquals(Object a, Object b, ErrorCodeEnum errorCodeEnum) {
+        if (!Objects.equals(a, b)) {
+            throw new BusinessException(errorCodeEnum);
+        }
+    }
+
+    public static void chkNotEquals(Object a, Object b, ErrorCodeEnum errorCodeEnum, String errMsg) {
+        if (!Objects.equals(a, b)) {
+            throw new BusinessException(errorCodeEnum, errMsg);
+        }
+    }
     /**
      * Whether a target string is in a string separated by the separator.
      *

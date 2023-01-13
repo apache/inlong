@@ -68,7 +68,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -152,10 +151,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     public Integer save(SinkRequest request, UserInfo opInfo) {
         // check request parameter
         checkSinkRequestParams(request);
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         InlongGroupEntity entity = groupMapper.selectByGroupId(request.getInlongGroupId());
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
@@ -227,14 +222,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public StreamSink get(Integer id, UserInfo opInfo) {
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
-        // check sink id
-        if (id == null) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "sink id is empty");
-        }
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
@@ -327,17 +314,9 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public List<? extends StreamSink> listByCondition(SinkPageRequest request, UserInfo opInfo) {
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "group query request cannot be empty");
-        }
         // check sink id
         if (StringUtils.isBlank(request.getInlongGroupId())) {
             throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        }
-        // check opInfo
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
         // query result
         List<StreamSinkEntity> sinkEntityList = sinkMapper.selectByCondition(request);
@@ -383,29 +362,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         if (curEntity == null) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
         }
-        // check record version
-        if (!Objects.equals(curEntity.getVersion(), request.getVersion())) {
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
-                    String.format("record has expired with record version=%d, request version=%d",
-                            curEntity.getVersion(), request.getVersion()));
-        }
-        // check whether modify sinkType
-        if (!Objects.equals(curEntity.getSinkType(), request.getSinkType())) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "sinkType not allowed modify");
-        }
-        if (StringUtils.isNotBlank(request.getInlongGroupId())
-                && !curEntity.getInlongGroupId().equals(request.getInlongGroupId())) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "InlongGroupId not allowed modify");
-        }
-        if (StringUtils.isNotBlank(request.getInlongStreamId())
-                && !curEntity.getInlongStreamId().equals(request.getInlongStreamId())) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "InlongStreamId not allowed modify");
-        }
-        request.setInlongGroupId(curEntity.getInlongGroupId());
-        request.setInlongStreamId(curEntity.getInlongStreamId());
+        chkUnmodifiableParams(curEntity, request);
         groupCheckService.checkGroupStatus(request.getInlongGroupId(), operator);
         // Check whether the stream exist or not
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
@@ -443,44 +400,14 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(SinkRequest request, UserInfo opInfo) {
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "inlong sink request is empty");
-        }
         if (request.getId() == null) {
             throw new BusinessException(ErrorCodeEnum.ID_IS_EMPTY);
-        }
-        // check opInfo
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
         StreamSinkEntity curEntity = sinkMapper.selectByPrimaryKey(request.getId());
         if (curEntity == null) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
         }
-        // check record version
-        if (!Objects.equals(curEntity.getVersion(), request.getVersion())) {
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
-                    String.format("record has expired with record version=%d, request version=%d",
-                            curEntity.getVersion(), request.getVersion()));
-        }
-        // check whether modify sinkType
-        if (!Objects.equals(curEntity.getSinkType(), request.getSinkType())) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "sinkType not allowed modify");
-        }
-        if (StringUtils.isNotBlank(request.getInlongGroupId())
-                && !curEntity.getInlongGroupId().equals(request.getInlongGroupId())) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "InlongGroupId not allowed modify");
-        }
-        if (StringUtils.isNotBlank(request.getInlongStreamId())
-                && !curEntity.getInlongStreamId().equals(request.getInlongStreamId())) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "InlongStreamId not allowed modify");
-        }
-        request.setInlongGroupId(curEntity.getInlongGroupId());
-        request.setInlongStreamId(curEntity.getInlongStreamId());
+        chkUnmodifiableParams(curEntity, request);
         // check group record
         InlongGroupEntity curGroupEntity = groupMapper.selectByGroupId(curEntity.getInlongGroupId());
         if (curGroupEntity == null) {
@@ -548,17 +475,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
-        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
-                    String.format("record has expired with record version=%d, request version=%d",
-                            entity.getVersion(), request.getVersion()));
-        }
-        // check whether modify sinkType
-        if (!Objects.equals(entity.getSinkType(), request.getSinkType())) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "sinkType not allowed modify");
-        }
-
         request.setId(entity.getId());
         Boolean result = this.update(request, operator);
         LOGGER.info("success to update sink by key: {}", request);
@@ -600,13 +516,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean delete(Integer id, Boolean startProcess, UserInfo opInfo) {
-        if (id == null) {
-            throw new BusinessException(ErrorCodeEnum.ID_IS_EMPTY);
-        }
-        // check opInfo
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         // check stream sink record
         StreamSinkEntity sinkEntity = sinkMapper.selectByPrimaryKey(id);
         if (sinkEntity == null) {
@@ -777,9 +686,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     private void checkSinkRequestParams(SinkRequest request) {
         // check request parameter
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.REQUEST_IS_EMPTY);
-        }
         // check group id
         String groupId = request.getInlongGroupId();
         if (StringUtils.isBlank(groupId)) {
@@ -834,5 +740,28 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         streamProcessOperation.deleteProcess(groupId, streamId, operator, false);
         LOGGER.debug("success to start the delete-stream-process for groupId={} streamId={}", groupId, streamId);
+    }
+
+    private void chkUnmodifiableParams(StreamSinkEntity curEntity, SinkRequest request) {
+        // check type
+        Preconditions.chkNotEquals(curEntity.getSinkType(), request.getSinkType(),
+                ErrorCodeEnum.INVALID_PARAMETER, "sinkType not allowed modify");
+        // check record version
+        Preconditions.chkNotEquals(curEntity.getVersion(), request.getVersion(),
+                ErrorCodeEnum.CONFIG_EXPIRED,
+                String.format("record has expired with record version=%d, request version=%d",
+                        curEntity.getVersion(), request.getVersion()));
+        if (StringUtils.isNotBlank(request.getInlongGroupId())
+                && !curEntity.getInlongGroupId().equals(request.getInlongGroupId())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "InlongGroupId not allowed modify");
+        }
+        if (StringUtils.isNotBlank(request.getInlongStreamId())
+                && !curEntity.getInlongStreamId().equals(request.getInlongStreamId())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "InlongStreamId not allowed modify");
+        }
+        request.setInlongGroupId(curEntity.getInlongGroupId());
+        request.setInlongStreamId(curEntity.getInlongStreamId());
     }
 }

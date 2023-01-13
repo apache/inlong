@@ -233,15 +233,6 @@ public class InlongGroupProcessService {
      * Delete InlongGroup logically and delete related resource in a synchronous way.
      */
     public Boolean deleteProcess(String groupId, UserInfo opInfo) {
-        // check groupId parameter
-        if (StringUtils.isBlank(groupId)) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "inlong group id in request cannot be blank");
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             return true;
