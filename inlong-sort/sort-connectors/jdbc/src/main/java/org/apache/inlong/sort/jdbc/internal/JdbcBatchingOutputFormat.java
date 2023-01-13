@@ -29,6 +29,7 @@ import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
 import org.apache.flink.connector.jdbc.internal.connection.JdbcConnectionProvider;
 import org.apache.flink.connector.jdbc.internal.connection.SimpleJdbcConnectionProvider;
 import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
+import org.apache.flink.connector.jdbc.internal.executor.TableBufferReducedStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatementImpl;
@@ -56,10 +57,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -237,9 +240,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             }
             throw ex;
         }
-        if (sinkMetricData != null) {
-            sinkMetricData.invokeDirty(rowSize, dataSize);
-        }
 
         if (dirtySink != null) {
             DirtyData.Builder<Object> builder = DirtyData.builder();
@@ -257,6 +257,12 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                 }
                 LOG.warn("Dirty sink failed", ex);
             }
+        }
+
+        if (sinkMetricData != null && rowSize > 0 && dataSize > 0) {
+            LOG.info("invoking dirty:{},{}",rowSize,dataSize);
+            sinkMetricData.invokeDirty(rowSize, dataSize);
+            resetStateAfterFlush();
         }
     }
 
@@ -285,7 +291,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         } catch (Exception e) {
             LOG.error(String.format("jdbc batch write record error, raw data: %s", record), e);
             handleDirtyData(record, DirtyType.EXTRACT_ROWDATA_ERROR, e);
-            resetStateAfterFlush();
         }
     }
 
