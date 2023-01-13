@@ -15,20 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.consts;
+package org.apache.inlong.manager.service.core;
 
 /**
- * Constant class for audit ids
+ * The service interface for audit id.
  */
-public class AuditConstants {
+public interface AuditIdService {
 
-    public static final String AUDIT_ID_SDK_COLLECT = "1";
-    public static final String AUDIT_ID_SDK_SENT = "2";
-    public static final String AUDIT_ID_AGENT_COLLECT = "3";
-    public static final String AUDIT_ID_AGENT_SENT = "4";
-    public static final String AUDIT_ID_DATAPROXY_RECEIVED = "5";
-    public static final String AUDIT_ID_DATAPROXY_SENT = "6";
-    public static final String AUDIT_ID_SORT_INPUT = "7";
-    public static final String AUDIT_ID_SORT_OUTPUT = "8";
+    String getAuditId(String type, boolean isSent);
+
+    void refreshCache();
+
+    void test();
 
 }

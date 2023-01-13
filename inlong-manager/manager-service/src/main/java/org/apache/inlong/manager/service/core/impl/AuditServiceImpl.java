@@ -19,9 +19,9 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.ibatis.jdbc.SQL;
-import org.apache.inlong.manager.common.consts.AuditConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -32,11 +32,10 @@ import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.pojo.user.UserRoleCode;
+import org.apache.inlong.manager.service.core.AuditIdService;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
-import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -85,9 +84,9 @@ public class AuditServiceImpl implements AuditService {
 
     // defaults to return all audit ids, can be overwritten in properties file
     // see audit id definitions: https://inlong.apache.org/docs/modules/audit/overview#audit-id
-    @Value("#{'${audit.admin.ids:3,4,5,6,7,8}'.split(',')}")
+    @Value("#{'${audit.admin.ids:3,4,5,6}'.split(',')}")
     private List<String> auditIdListForAdmin;
-    @Value("#{'${audit.user.ids:3,4,5,6,7,8}'.split(',')}")
+    @Value("#{'${audit.user.ids:3,4,5,6}'.split(',')}")
     private List<String> auditIdListForUser;
 
     @Value("${audit.query.source}")
@@ -100,6 +99,8 @@ public class AuditServiceImpl implements AuditService {
     private StreamSinkEntityMapper sinkEntityMapper;
     @Autowired
     private StreamSourceEntityMapper sourceEntityMapper;
+    @Autowired
+    private AuditIdService auditIdService;
 
     @Override
     public List<AuditVO> listByCondition(AuditRequest request) throws Exception {
@@ -109,9 +110,6 @@ public class AuditServiceImpl implements AuditService {
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();
 
-        // properly overwrite audit ids by role and stream config
-        request.setAuditIds(getAuditIds(groupId, streamId));
-
         // for now, we use the first sink type only.
         // this is temporary behavior before multiple sinks in one stream is fully supported.
         List<StreamSinkEntity> sinkEntityList = sinkEntityMapper.selectByRelatedId(groupId, streamId);
@@ -119,6 +117,9 @@ public class AuditServiceImpl implements AuditService {
         if (CollectionUtils.isNotEmpty(sinkEntityList)) {
             sinkNodeType = sinkEntityList.get(0).getSinkType();
         }
+
+        // properly overwrite audit ids by role and stream config
+        request.setAuditIds(getAuditIds(groupId, streamId, sinkNodeType));
 
         List<AuditVO> result = new ArrayList<>();
         AuditQuerySource querySource = AuditQuerySource.valueOf(auditQuerySource);
@@ -138,7 +139,7 @@ public class AuditServiceImpl implements AuditService {
                     return vo;
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditSet,
-                        auditId.equals(AuditConstants.AUDIT_ID_SORT_OUTPUT) ? sinkNodeType : null));
+                        auditId.equals(auditIdService.getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
             } else if (AuditQuerySource.ELASTICSEARCH == querySource) {
                 String index = String.format("%s_%s", request.getDt().replaceAll("-", ""), auditId);
                 if (!elasticsearchApi.indexExists(index)) {
@@ -157,7 +158,7 @@ public class AuditServiceImpl implements AuditService {
                             return vo;
                         }).collect(Collectors.toList());
                         result.add(new AuditVO(auditId, auditSet,
-                                auditId.equals(AuditConstants.AUDIT_ID_SORT_OUTPUT) ? sinkNodeType : null));
+                                auditId.equals(auditIdService.getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
                     }
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
@@ -173,7 +174,7 @@ public class AuditServiceImpl implements AuditService {
                         auditSet.add(vo);
                     }
                     result.add(new AuditVO(auditId, auditSet,
-                            auditId.equals(AuditConstants.AUDIT_ID_SORT_OUTPUT) ? sinkNodeType : null));
+                            auditId.equals(auditIdService.getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
                 }
             }
         }
@@ -181,28 +182,35 @@ public class AuditServiceImpl implements AuditService {
         return aggregateByTimeDim(result, request.getTimeStaticsDim());
     }
 
-    private List<String> getAuditIds(String groupId, String streamId) {
-        List<String> auditIds = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN)
-                ? auditIdListForAdmin
-                : auditIdListForUser;
+    private List<String> getAuditIds(String groupId, String streamId, String sinkNodeType) {
+        List<String> auditIds = new ArrayList<>(auditIdListForAdmin);
+
+        // if no sink is configured, return data-proxy output instead of sort
+        if (sinkNodeType == null) {
+            String auditIdForDpSent = auditIdService.getAuditId(ClusterType.DATAPROXY, true);
+            if (!auditIds.contains(auditIdForDpSent)) {
+                auditIds.add(auditIdForDpSent);
+            }
+        } else {
+            String auditIdForSortReceived = auditIdService.getAuditId(sinkNodeType, false);
+            if (!auditIds.contains(auditIdForSortReceived)) {
+                auditIds.add(auditIdForSortReceived);
+            }
+            String auditIdForSortSent = auditIdService.getAuditId(sinkNodeType, true);
+            if (!auditIds.contains(auditIdForSortSent)) {
+                auditIds.add(auditIdForSortSent);
+            }
+        }
 
         // auto push source has no agent, return data-proxy audit data instead of agent
         List<StreamSourceEntity> sourceList = sourceEntityMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(sourceList)
                 || sourceList.stream().allMatch(s -> SourceType.AUTO_PUSH.equals(s.getSourceType()))) {
-            boolean dpReceivedNeeded = (auditIds.contains(AuditConstants.AUDIT_ID_AGENT_COLLECT)
-                    && !auditIds.contains(AuditConstants.AUDIT_ID_DATAPROXY_RECEIVED));
+            String auditIdForDpReceived = auditIdService.getAuditId(ClusterType.DATAPROXY, false);
+            boolean dpReceivedNeeded = (auditIds.contains(auditIdService.getAuditId(ClusterType.AGENT, false))
+                    && !auditIds.contains(auditIdForDpReceived));
             if (dpReceivedNeeded) {
-                auditIds.add(AuditConstants.AUDIT_ID_DATAPROXY_RECEIVED);
-            }
-        }
-
-        // if no sink is configured, return data-proxy output instead of sort
-        if (sinkEntityMapper.selectCount(groupId, streamId) == 0) {
-            boolean dpSentNeeded = (auditIds.contains(AuditConstants.AUDIT_ID_SORT_OUTPUT)
-                    && !auditIds.contains(AuditConstants.AUDIT_ID_DATAPROXY_SENT));
-            if (dpSentNeeded) {
-                auditIds.add(AuditConstants.AUDIT_ID_DATAPROXY_SENT);
+                auditIds.add(auditIdForDpReceived);
             }
         }
 
