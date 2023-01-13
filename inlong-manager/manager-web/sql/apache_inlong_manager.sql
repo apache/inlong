@@ -801,15 +801,23 @@ CREATE TABLE IF NOT EXISTS `audit_id_info`
     `audit_id`         varchar(11)  NOT NULL COMMENT 'audit ID mapping of audit name',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_audit_id_info` (`type`, `is_sent`),
-    UNIQUE KEY `audit_name_uindex` (`name`),
-    UNIQUE KEY `audit_id_uindex` (`audit_id`)
-
+    UNIQUE KEY `audit_name_uindex` (`name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8 COMMENT ='Audit info table';
 
 -- ----------------------------
 -- Create audit info
 -- ----------------------------
+INSERT INTO `audit_id_info`(`name`, `type`, `is_sent`, `audit_id`)
+VALUES ('audit_id_sort_inner_hive_input', 'INNER_HIVE', 0, '7'),
+       ('audit_id_sort_inner_hive_output', 'INNER_HIVE', 1, '8'),
+       ('audit_id_sort_inner_thive_input', 'INNER_THIVE', 0, '7'),
+       ('audit_id_sort_inner_thive_output', 'INNER_THIVE', 1, '8'),
+       ('audit_id_sort_inner_clickhouse_input', 'INNER_CLICKHOUSE', 0, '9'),
+       ('audit_id_sort_inner_clickhouse_output', 'INNER_CLICKHOUSE', 1, '10'),
+       ('audit_id_sort_inner_iceberg_input', 'INNER_ICEBERG', 0, '17'),
+       ('audit_id_sort_inner_iceberg_output', 'INNER_ICEBERG', 1, '18');
+
 INSERT INTO `audit_id_info`(`name`, `type`, `is_sent`, `audit_id`)
 VALUES ('audit_id_sdk_collect', 'SDK', 0, '1'),
        ('audit_id_sdk_sent', 'SDK', 1, '2'),
