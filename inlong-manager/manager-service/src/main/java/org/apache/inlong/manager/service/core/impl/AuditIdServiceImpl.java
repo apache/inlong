@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.dao.entity.AuditIdEntity;
@@ -81,6 +82,9 @@ public class AuditIdServiceImpl implements AuditIdService {
 
     @Override
     public String getAuditId(String type, boolean isSent) {
+        if (StringUtils.isBlank(type)) {
+            return null;
+        }
         AuditIdEntity auditIdEntity = isSent ? auditIdSentMap.get(type) : auditIdReceivedMap.get(type);
         if (auditIdEntity == null) {
             throw new BusinessException(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
