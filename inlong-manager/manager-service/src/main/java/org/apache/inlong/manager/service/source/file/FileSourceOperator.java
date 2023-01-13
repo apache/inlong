@@ -68,7 +68,8 @@ public class FileSourceOperator extends AbstractSourceOperator {
             FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("serialize extParams of File SourceDTO failure: %s", e.getMessage()));
         }
     }
 

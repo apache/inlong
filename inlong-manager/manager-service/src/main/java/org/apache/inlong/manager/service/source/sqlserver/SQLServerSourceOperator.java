@@ -62,7 +62,8 @@ public class SQLServerSourceOperator extends AbstractSourceOperator {
             SQLServerSourceDTO dto = SQLServerSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("serialize extParams of SQLServer SourceDTO failure: %s", e.getMessage()));
         }
     }
 
