@@ -448,6 +448,12 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
+        // check record version
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format("record has expired with record version=%d, request version=%d",
+                            entity.getVersion(), request.getVersion()));
+        }
         // only the person in charges can query
         if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));

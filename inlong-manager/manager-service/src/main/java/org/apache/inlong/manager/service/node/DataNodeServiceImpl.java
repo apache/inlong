@@ -40,6 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -203,6 +204,17 @@ public class DataNodeServiceImpl implements DataNodeService {
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
                     String.format("data node record not found by id=%d", request.getId()));
         }
+        // check whether modify type
+        if (!Objects.equals(curEntity.getType(), request.getType())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "type not allowed modify");
+        }
+        // check record version
+        if (!Objects.equals(curEntity.getVersion(), request.getVersion())) {
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format("record has expired with record version=%d, request version=%d",
+                            curEntity.getVersion(), request.getVersion()));
+        }
         // Check whether the data node name exists with the same name and type
         if (request.getName() != null) {
             if (StringUtils.isBlank(request.getName())) {
@@ -245,6 +257,17 @@ public class DataNodeServiceImpl implements DataNodeService {
             throw new BusinessException(ErrorCodeEnum.RECORD_NOT_FOUND,
                     String.format("data node record not found by id=%d", request.getId()));
         }
+        // check whether modify type
+        if (!Objects.equals(curEntity.getType(), request.getType())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "type not allowed modify");
+        }
+        // check record version
+        if (!Objects.equals(curEntity.getVersion(), request.getVersion())) {
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format("record has expired with record version=%d, request version=%d",
+                            curEntity.getVersion(), request.getVersion()));
+        }
         // Check whether the data node name exists with the same name and type
         if (request.getName() != null) {
             if (StringUtils.isBlank(request.getName())) {
@@ -278,7 +301,6 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
-
         request.setId(entity.getId());
         Boolean result = this.update(request, operator);
         LOGGER.info("success to update data node by key: {}", request);

@@ -424,10 +424,16 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
+        // check record version
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            LOGGER.error("inlong group has already updated with groupId={}, curVersion={}",
-                    groupId, request.getVersion());
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format("record has expired with record version=%d, request version=%d",
+                            entity.getVersion(), request.getVersion()));
+        }
+        // check whether modify mqType
+        if (!Objects.equals(entity.getMqType(), request.getMqType())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "mqType not allowed modify");
         }
         // check whether the current status can be modified
         doUpdateCheck(entity, request, operator);
@@ -459,8 +465,16 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
+        // check record version
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format("record has expired with record version=%d, request version=%d",
+                            entity.getVersion(), request.getVersion()));
+        }
+        // check whether modify mqType
+        if (!Objects.equals(entity.getMqType(), request.getMqType())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "mqType not allowed modify");
         }
         // only the person in charges can query
         if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
