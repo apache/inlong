@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,10 +43,12 @@ public class MessageQueueZoneProducer {
     private final MessageQueueZoneSinkContext context;
     private Timer reloadTimer;
 
+    private HashSet<String> currentClusterNames = new HashSet<>();
     private List<MessageQueueClusterProducer> clusterList = new ArrayList<>();
     private List<MessageQueueClusterProducer> deletingClusterList = new ArrayList<>();
 
     private AtomicInteger clusterIndex = new AtomicInteger(0);
+    private CacheClusterSelector cacheClusterSelector;
 
     /**
      * Constructor
@@ -58,6 +59,7 @@ public class MessageQueueZoneProducer {
     public MessageQueueZoneProducer(String workerName, MessageQueueZoneSinkContext context) {
         this.workerName = workerName;
         this.context = context;
+        this.cacheClusterSelector = context.createCacheClusterSelector();
     }
 
     /**
@@ -110,34 +112,33 @@ public class MessageQueueZoneProducer {
             // stop deleted cluster
             deletingClusterList.forEach(MessageQueueClusterProducer::stop);
             deletingClusterList.clear();
+            // get new cluster list
+            List<CacheClusterConfig> allConfigList = this.context.getCacheHolder().getConfigList();
+            List<CacheClusterConfig> newConfigList = this.cacheClusterSelector.select(allConfigList);
+            if (newConfigList == null || newConfigList.size() == 0) {
+                LOG.info("selectedCacheClusters:{}", newConfigList);
+                return;
+            }
+            LOG.info("selectedCacheClusters:{}", newConfigList.size());
+            newConfigList.forEach(v -> LOG.info("selectedCacheCluster clusterName:{}", v.getClusterName()));
+            // check cluster name change
+            HashSet<String> newClusterNames = new HashSet<>();
+            newConfigList.forEach(v -> newClusterNames.add(v.getClusterName()));
+            if (newClusterNames.equals(currentClusterNames)) {
+                return;
+            }
+
             // update cluster list
-            List<CacheClusterConfig> configList = this.context.getCacheHolder().getConfigList();
-            List<MessageQueueClusterProducer> newClusterList = new ArrayList<>(configList.size());
-            // prepare
-            Set<String> newClusterNames = new HashSet<>();
-            configList.forEach(item -> {
-                newClusterNames.add(item.getClusterName());
-            });
-            Set<String> oldClusterNames = new HashSet<>();
-            clusterList.forEach(item -> {
-                oldClusterNames.add(item.getCacheClusterName());
-            });
-            // add
-            for (CacheClusterConfig config : configList) {
-                if (!oldClusterNames.contains(config.getClusterName())) {
-                    MessageQueueClusterProducer cluster = new MessageQueueClusterProducer(workerName, config, context);
-                    cluster.start();
-                    newClusterList.add(cluster);
-                }
+            List<MessageQueueClusterProducer> newClusterList = new ArrayList<>(newConfigList.size());
+            for (CacheClusterConfig config : newConfigList) {
+                // create
+                MessageQueueClusterProducer cluster = new MessageQueueClusterProducer(workerName, config, context);
+                cluster.start();
+                newClusterList.add(cluster);
             }
-            // remove
-            for (MessageQueueClusterProducer cluster : this.clusterList) {
-                if (newClusterNames.contains(cluster.getCacheClusterName())) {
-                    newClusterList.add(cluster);
-                } else {
-                    deletingClusterList.add(cluster);
-                }
-            }
+            // replace
+            this.currentClusterNames = newClusterNames;
+            this.deletingClusterList = this.clusterList;
             this.clusterList = newClusterList;
             if (!ConfigManager.getInstance().isMqClusterReady()) {
                 LOG.info("set mq cluster status ready");

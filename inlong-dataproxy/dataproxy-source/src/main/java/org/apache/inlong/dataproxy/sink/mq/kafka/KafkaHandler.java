@@ -51,11 +51,12 @@ public class KafkaHandler implements MessageQueueHandler {
     public static final String KEY_NAMESPACE = "namespace";
 
     private CacheClusterConfig config;
+    private String clusterName;
     private MessageQueueZoneSinkContext sinkContext;
 
     // kafka producer
     private KafkaProducer<String, byte[]> producer;
-    private EventHandler handler;
+    private ThreadLocal<EventHandler> handlerLocal = new ThreadLocal<>();
 
     /**
      * init
@@ -65,8 +66,8 @@ public class KafkaHandler implements MessageQueueHandler {
     @Override
     public void init(CacheClusterConfig config, MessageQueueZoneSinkContext sinkContext) {
         this.config = config;
+        this.clusterName = config.getClusterName();
         this.sinkContext = sinkContext;
-        this.handler = this.sinkContext.createEventHandler();
     }
 
     /**
@@ -110,23 +111,21 @@ public class KafkaHandler implements MessageQueueHandler {
             // idConfig
             IdTopicConfig idConfig = sinkContext.getIdTopicHolder().getIdConfig(event.getUid());
             if (idConfig == null) {
-                sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+                sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 return false;
             }
             String baseTopic = idConfig.getTopicName();
             if (baseTopic == null) {
-                sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+                sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 return false;
             }
             String topic = getProducerTopic(baseTopic, idConfig);
 
-            // metric
-            sinkContext.addSendMetric(event, topic);
             // create producer failed
             if (producer == null) {
-                sinkContext.processSendFail(event, topic, 0);
+                sinkContext.processSendFail(event, clusterName, topic, 0);
                 return false;
             }
             // send
@@ -140,7 +139,7 @@ public class KafkaHandler implements MessageQueueHandler {
             return true;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            sinkContext.processSendFail(event, event.getUid(), 0);
+            sinkContext.processSendFail(event, clusterName, event.getUid(), 0);
             return false;
         }
     }
@@ -161,11 +160,18 @@ public class KafkaHandler implements MessageQueueHandler {
      */
     private void sendProfileV1(BatchPackProfile event, IdTopicConfig idConfig,
             String topic) throws Exception {
+        EventHandler handler = handlerLocal.get();
+        if (handler == null) {
+            handler = this.sinkContext.createEventHandler();
+            handlerLocal.set(handler);
+        }
         // headers
-        Map<String, String> headers = this.handler.parseHeader(idConfig, event, sinkContext.getNodeId(),
+        Map<String, String> headers = handler.parseHeader(idConfig, event, sinkContext.getNodeId(),
                 sinkContext.getCompressType());
         // compress
-        byte[] bodyBytes = this.handler.parseBody(idConfig, event, sinkContext.getCompressType());
+        byte[] bodyBytes = handler.parseBody(idConfig, event, sinkContext.getCompressType());
+        // metric
+        sinkContext.addSendMetric(event, clusterName, topic, bodyBytes.length);
         // sendAsync
         long sendTime = System.currentTimeMillis();
 
@@ -185,12 +191,12 @@ public class KafkaHandler implements MessageQueueHandler {
                     LOG.error("Send fail:{}", ex.getMessage());
                     LOG.error(ex.getMessage(), ex);
                     if (event.isResend()) {
-                        sinkContext.processSendFail(event, topic, sendTime);
+                        sinkContext.processSendFail(event, clusterName, topic, sendTime);
                     } else {
                         event.fail();
                     }
                 } else {
-                    sinkContext.addSendResultMetric(event, topic, true, sendTime);
+                    sinkContext.addSendResultMetric(event, clusterName, topic, true, sendTime);
                     sinkContext.getDispatchQueue().release(event.getSize());
                     event.ack();
                 }
@@ -211,6 +217,8 @@ public class KafkaHandler implements MessageQueueHandler {
         }
         // body
         byte[] bodyBytes = event.getSimpleProfile().getBody();
+        // metric
+        sinkContext.addSendMetric(event, clusterName, topic, bodyBytes.length);
         // sendAsync
         long sendTime = System.currentTimeMillis();
 
@@ -230,12 +238,12 @@ public class KafkaHandler implements MessageQueueHandler {
                     LOG.error("Send fail:{}", ex.getMessage());
                     LOG.error(ex.getMessage(), ex);
                     if (event.isResend()) {
-                        sinkContext.processSendFail(event, topic, sendTime);
+                        sinkContext.processSendFail(event, clusterName, topic, sendTime);
                     } else {
                         event.fail();
                     }
                 } else {
-                    sinkContext.addSendResultMetric(event, topic, true, sendTime);
+                    sinkContext.addSendResultMetric(event, clusterName, topic, true, sendTime);
                     sinkContext.getDispatchQueue().release(event.getSize());
                     event.ack();
                 }
@@ -253,6 +261,8 @@ public class KafkaHandler implements MessageQueueHandler {
         Map<String, String> headers = event.getOrderProfile().getHeaders();
         // compress
         byte[] bodyBytes = event.getOrderProfile().getBody();
+        // metric
+        sinkContext.addSendMetric(event, clusterName, topic, bodyBytes.length);
         // sendAsync
         long sendTime = System.currentTimeMillis();
 
@@ -272,12 +282,12 @@ public class KafkaHandler implements MessageQueueHandler {
                     LOG.error("Send fail:{}", ex.getMessage());
                     LOG.error(ex.getMessage(), ex);
                     if (event.isResend()) {
-                        sinkContext.processSendFail(event, topic, sendTime);
+                        sinkContext.processSendFail(event, clusterName, topic, sendTime);
                     } else {
                         event.fail();
                     }
                 } else {
-                    sinkContext.addSendResultMetric(event, topic, true, sendTime);
+                    sinkContext.addSendResultMetric(event, clusterName, topic, true, sendTime);
                     sinkContext.getDispatchQueue().release(event.getSize());
                     event.ack();
                 }
