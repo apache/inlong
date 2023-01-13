@@ -809,16 +809,6 @@ CREATE TABLE IF NOT EXISTS `audit_id_info`
 -- Create audit info
 -- ----------------------------
 INSERT INTO `audit_id_info`(`name`, `type`, `is_sent`, `audit_id`)
-VALUES ('audit_id_sort_inner_hive_input', 'INNER_HIVE', 0, '7'),
-       ('audit_id_sort_inner_hive_output', 'INNER_HIVE', 1, '8'),
-       ('audit_id_sort_inner_thive_input', 'INNER_THIVE', 0, '7'),
-       ('audit_id_sort_inner_thive_output', 'INNER_THIVE', 1, '8'),
-       ('audit_id_sort_inner_clickhouse_input', 'INNER_CLICKHOUSE', 0, '9'),
-       ('audit_id_sort_inner_clickhouse_output', 'INNER_CLICKHOUSE', 1, '10'),
-       ('audit_id_sort_inner_iceberg_input', 'INNER_ICEBERG', 0, '17'),
-       ('audit_id_sort_inner_iceberg_output', 'INNER_ICEBERG', 1, '18');
-
-INSERT INTO `audit_id_info`(`name`, `type`, `is_sent`, `audit_id`)
 VALUES ('audit_id_sdk_collect', 'SDK', 0, '1'),
        ('audit_id_sdk_sent', 'SDK', 1, '2'),
        ('audit_id_agent_collect', 'AGENT', 0, '3'),
