@@ -42,9 +42,9 @@ public class AuditIdServiceImpl implements AuditIdService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditIdServiceImpl.class);
 
     // key : audit id type, value : audit id info
-    private Map<String, AuditIdEntity> auditIdSentMap = new ConcurrentHashMap<>();
+    private final Map<String, AuditIdEntity> auditIdSentMap = new ConcurrentHashMap<>();
 
-    private Map<String, AuditIdEntity> auditIdReceivedMap = new ConcurrentHashMap<>();
+    private final Map<String, AuditIdEntity> auditIdReceivedMap = new ConcurrentHashMap<>();
 
     @Autowired
     private AuditIdEntityMapper auditIdMapper;
@@ -89,13 +89,4 @@ public class AuditIdServiceImpl implements AuditIdService {
         return auditIdEntity.getAuditId();
     }
 
-    @Override
-    public void test() {
-        for (String name : auditIdSentMap.keySet()) {
-            LOGGER.info("test name={}, info={}", name, auditIdSentMap.get(name));
-        }
-        for (String name : auditIdReceivedMap.keySet()) {
-            LOGGER.info("test name={}, info={}", name, auditIdReceivedMap.get(name));
-        }
-    }
 }
