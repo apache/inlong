@@ -25,7 +25,7 @@ import java.util.List;
  * PostgresJob : postgres job
  */
 @Data
-public class PostgresSQLJob {
+public class PostgreSQLJob {
 
     private String user;
     private String password;
@@ -33,7 +33,7 @@ public class PostgresSQLJob {
     private String port;
     private String dbname;
     private String schema;
-    private String serverName;
+    private String servername;
     private String pluginname;
     private List<String> tableNameList;
     private String serverTimeZone;
@@ -41,7 +41,7 @@ public class PostgresSQLJob {
     private String primaryKey;
 
     @Data
-    public static class PostgresSQLJobConfig {
+    public static class PostgreSQLJobConfig {
 
         private String username;
         private String password;
