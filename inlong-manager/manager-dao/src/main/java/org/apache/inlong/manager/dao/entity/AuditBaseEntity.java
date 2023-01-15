@@ -20,7 +20,7 @@ package org.apache.inlong.manager.dao.entity;
 import lombok.Data;
 
 /**
- * Audit id info
+ * Audit base info
  */
 @Data
 public class AuditBaseEntity {

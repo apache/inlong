@@ -30,8 +30,8 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.AuditBaseEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
 import org.apache.inlong.manager.dao.mapper.AuditBaseEntityMapper;
+import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
@@ -240,7 +240,9 @@ public class AuditServiceImpl implements AuditService {
     }
 
     private List<String> getAuditIds(String groupId, String streamId, String sinkNodeType) {
-        List<String> auditIds = new ArrayList<>(auditIdListForAdmin);
+        List<String> auditIds = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN)
+                ? new ArrayList<>(auditIdListForAdmin)
+                : new ArrayList<>(auditIdListForUser);
 
         // if no sink is configured, return data-proxy output instead of sort
         if (sinkNodeType == null) {
