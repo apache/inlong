@@ -36,16 +36,13 @@ public class MessageQueueZoneWorker extends Thread {
 
     /**
      * Constructor
-     * 
-     * @param sinkName
-     * @param workerIndex
-     * @param context
      */
-    public MessageQueueZoneWorker(String sinkName, int workerIndex, MessageQueueZoneSinkContext context) {
+    public MessageQueueZoneWorker(String sinkName, int workerIndex, MessageQueueZoneSinkContext context,
+            MessageQueueZoneProducer zoneProducer) {
         super();
         this.workerName = sinkName + "-worker-" + workerIndex;
         this.context = context;
-        this.zoneProducer = new MessageQueueZoneProducer(workerName, this.context);
+        this.zoneProducer = zoneProducer;
         this.status = LifecycleState.IDLE;
     }
 
@@ -54,7 +51,6 @@ public class MessageQueueZoneWorker extends Thread {
      */
     @Override
     public void start() {
-        this.zoneProducer.start();
         this.status = LifecycleState.START;
         super.start();
     }

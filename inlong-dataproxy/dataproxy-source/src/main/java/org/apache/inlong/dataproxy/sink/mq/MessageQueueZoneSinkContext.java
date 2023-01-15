@@ -17,9 +17,11 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.config.holder.CacheClusterConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
@@ -41,6 +43,7 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     public static final String KEY_NODE_ID = "nodeId";
     public static final String PREFIX_PRODUCER = "producer.";
     public static final String KEY_COMPRESS_TYPE = "compressType";
+    public static final String KEY_CACHE_CLUSTER_SELECTOR = "cacheClusterSelector";
 
     private final BufferQueue<BatchPackProfile> dispatchQueue;
 
@@ -163,7 +166,8 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     /**
      * addSendResultMetric
      */
-    public void addSendResultMetric(BatchPackProfile currentRecord, String topic, boolean result, long sendTime) {
+    public void addSendResultMetric(BatchPackProfile currentRecord, String mqName, String topic, boolean result,
+            long sendTime) {
         if (currentRecord instanceof SimpleBatchPackProfileV0) {
             AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS,
                     ((SimpleBatchPackProfileV0) currentRecord).getSimpleProfile());
@@ -176,7 +180,7 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, "-");
         // metric
         fillInlongId(currentRecord, dimensions);
-        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
+        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, mqName);
         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, topic);
         final long currentTime = System.currentTimeMillis();
         currentRecord.getEvents().forEach(event -> {
@@ -206,14 +210,14 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     /**
      * addSendMetric
      */
-    public void addSendMetric(BatchPackProfile currentRecord, String topic) {
+    public void addSendMetric(BatchPackProfile currentRecord, String mqName, String topic, int sendPackSize) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, "-");
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, "-");
         // metric
         fillInlongId(currentRecord, dimensions);
-        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
+        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, mqName);
         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, topic);
         long msgTime = currentRecord.getDispatchTime();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
@@ -223,6 +227,8 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         long size = currentRecord.getSize();
         metricItem.sendCount.addAndGet(count);
         metricItem.sendSize.addAndGet(size);
+        metricItem.sendPackCount.incrementAndGet();
+        metricItem.sendPackSize.addAndGet(sendPackSize);
     }
 
     /**
@@ -260,12 +266,36 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     /**
      * processSendFail
      */
-    public void processSendFail(BatchPackProfile currentRecord, String topic, long sendTime) {
+    public void processSendFail(BatchPackProfile currentRecord, String mqName, String topic, long sendTime) {
         if (currentRecord.isResend()) {
             dispatchQueue.offer(currentRecord);
-            this.addSendResultMetric(currentRecord, topic, false, sendTime);
+            this.addSendResultMetric(currentRecord, mqName, topic, false, sendTime);
         } else {
             currentRecord.fail();
         }
+    }
+
+    /**
+     * createCacheClusterSelector
+     */
+    public CacheClusterSelector createCacheClusterSelector() {
+        String strSelectorClass = CommonPropertiesHolder.getString(KEY_CACHE_CLUSTER_SELECTOR,
+                AllCacheClusterSelector.class.getName());
+        try {
+            Class<?> selectorClass = ClassUtils.getClass(strSelectorClass);
+            Object selectorObject = selectorClass.getDeclaredConstructor().newInstance();
+            if (selectorObject instanceof Configurable) {
+                Configurable configurable = (Configurable) selectorObject;
+                configurable.configure(new Context(CommonPropertiesHolder.get()));
+            }
+            if (selectorObject instanceof CacheClusterSelector) {
+                CacheClusterSelector selector = (CacheClusterSelector) selectorObject;
+                return selector;
+            }
+        } catch (Throwable t) {
+            LOG.error("Fail to init CacheClusterSelector,selectorClass:{},error:{}",
+                    strSelectorClass, t.getMessage(), t);
+        }
+        return null;
     }
 }

@@ -56,6 +56,8 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable {
     // dispatch
     private ScheduledExecutorService scheduledPool;
 
+    private MessageQueueZoneProducer zoneProducer;
+
     /**
      * configure
      * 
@@ -89,9 +91,12 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable {
                 }
             }, this.dispatchManager.getDispatchTimeout(), this.dispatchManager.getDispatchTimeout(),
                     TimeUnit.MILLISECONDS);
+            // create producer
+            this.zoneProducer = new MessageQueueZoneProducer(this.getName(), this.context);
+            this.zoneProducer.start();
             // create worker
             for (int i = 0; i < context.getMaxThreads(); i++) {
-                MessageQueueZoneWorker worker = new MessageQueueZoneWorker(this.getName(), i, context);
+                MessageQueueZoneWorker worker = new MessageQueueZoneWorker(this.getName(), i, context, zoneProducer);
                 worker.start();
                 this.workers.add(worker);
             }
