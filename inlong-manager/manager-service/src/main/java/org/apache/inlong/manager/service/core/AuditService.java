@@ -35,4 +35,18 @@ public interface AuditService {
      */
     List<AuditVO> listByCondition(AuditRequest request) throws Exception;
 
+    /**
+     * Get audit id by type and isSent.
+     *
+     * @param type audit type.
+     * @param isSent Whether to receive or send
+     * @return Audit id.
+     */
+    String getAuditId(String type, boolean isSent);
+
+    /**
+     * Refresh audit id cache information.
+     */
+    void refreshCache();
+
 }

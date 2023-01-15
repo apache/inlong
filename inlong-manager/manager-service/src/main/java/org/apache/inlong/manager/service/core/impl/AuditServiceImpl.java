@@ -18,24 +18,30 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.AuditBaseEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
+import org.apache.inlong.manager.dao.mapper.AuditBaseEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.service.core.AuditIdService;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -54,7 +60,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -82,6 +90,11 @@ public class AuditServiceImpl implements AuditService {
     private static final String HOUR_FORMAT = "yyyy-MM-dd HH";
     private static final String DAY_FORMAT = "yyyy-MM-dd";
 
+    // key : audit id type, value : audit id info
+    private final Map<String, AuditBaseEntity> auditIdSentMap = new ConcurrentHashMap<>();
+
+    private final Map<String, AuditBaseEntity> auditIdReceivedMap = new ConcurrentHashMap<>();
+
     // defaults to return all audit ids, can be overwritten in properties file
     // see audit id definitions: https://inlong.apache.org/docs/modules/audit/overview#audit-id
     @Value("#{'${audit.admin.ids:3,4,5,6}'.split(',')}")
@@ -99,8 +112,52 @@ public class AuditServiceImpl implements AuditService {
     private StreamSinkEntityMapper sinkEntityMapper;
     @Autowired
     private StreamSourceEntityMapper sourceEntityMapper;
+
     @Autowired
-    private AuditIdService auditIdService;
+    private AuditBaseEntityMapper auditIdMapper;
+
+    @PostConstruct
+    public void initialize() {
+        LOGGER.info("init auditIdMap for " + AuditServiceImpl.class.getSimpleName());
+        try {
+            refreshCache();
+        } catch (Throwable t) {
+            LOGGER.error("initialize auditIdMap error", t);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void refreshCache() {
+        LOGGER.debug("start to reload audit id info.");
+        try {
+            List<AuditBaseEntity> auditBaseEntityList = auditIdMapper.selectAll();
+            for (AuditBaseEntity auditBaseEntity : auditBaseEntityList) {
+                String type = auditBaseEntity.getType();
+                if (auditBaseEntity.getIsSent() == 1) {
+                    auditIdSentMap.put(type, auditBaseEntity);
+                } else {
+                    auditIdReceivedMap.put(type, auditBaseEntity);
+                }
+            }
+        } catch (Throwable t) {
+            LOGGER.error("fail to reload audit id info", t);
+        }
+        LOGGER.debug("end to reload audit id info");
+    }
+
+    @Override
+    public String getAuditId(String type, boolean isSent) {
+        if (StringUtils.isBlank(type)) {
+            return null;
+        }
+        AuditBaseEntity auditBaseEntity = isSent ? auditIdSentMap.get(type) : auditIdReceivedMap.get(type);
+        if (auditBaseEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
+                    String.format(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED.getMessage(), type));
+        }
+        return auditBaseEntity.getAuditId();
+    }
 
     @Override
     public List<AuditVO> listByCondition(AuditRequest request) throws Exception {
@@ -139,7 +196,7 @@ public class AuditServiceImpl implements AuditService {
                     return vo;
                 }).collect(Collectors.toList());
                 result.add(new AuditVO(auditId, auditSet,
-                        auditId.equals(auditIdService.getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
+                        auditId.equals(getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
             } else if (AuditQuerySource.ELASTICSEARCH == querySource) {
                 String index = String.format("%s_%s", request.getDt().replaceAll("-", ""), auditId);
                 if (!elasticsearchApi.indexExists(index)) {
@@ -158,7 +215,7 @@ public class AuditServiceImpl implements AuditService {
                             return vo;
                         }).collect(Collectors.toList());
                         result.add(new AuditVO(auditId, auditSet,
-                                auditId.equals(auditIdService.getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
+                                auditId.equals(getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
                     }
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
@@ -174,7 +231,7 @@ public class AuditServiceImpl implements AuditService {
                         auditSet.add(vo);
                     }
                     result.add(new AuditVO(auditId, auditSet,
-                            auditId.equals(auditIdService.getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
+                            auditId.equals(getAuditId(sinkNodeType, true)) ? sinkNodeType : null));
                 }
             }
         }
@@ -187,16 +244,16 @@ public class AuditServiceImpl implements AuditService {
 
         // if no sink is configured, return data-proxy output instead of sort
         if (sinkNodeType == null) {
-            String auditIdForDpSent = auditIdService.getAuditId(ClusterType.DATAPROXY, true);
+            String auditIdForDpSent = getAuditId(ClusterType.DATAPROXY, true);
             if (!auditIds.contains(auditIdForDpSent)) {
                 auditIds.add(auditIdForDpSent);
             }
         } else {
-            String auditIdForSortReceived = auditIdService.getAuditId(sinkNodeType, false);
+            String auditIdForSortReceived = getAuditId(sinkNodeType, false);
             if (!auditIds.contains(auditIdForSortReceived)) {
                 auditIds.add(auditIdForSortReceived);
             }
-            String auditIdForSortSent = auditIdService.getAuditId(sinkNodeType, true);
+            String auditIdForSortSent = getAuditId(sinkNodeType, true);
             if (!auditIds.contains(auditIdForSortSent)) {
                 auditIds.add(auditIdForSortSent);
             }
@@ -206,8 +263,8 @@ public class AuditServiceImpl implements AuditService {
         List<StreamSourceEntity> sourceList = sourceEntityMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(sourceList)
                 || sourceList.stream().allMatch(s -> SourceType.AUTO_PUSH.equals(s.getSourceType()))) {
-            String auditIdForDpReceived = auditIdService.getAuditId(ClusterType.DATAPROXY, false);
-            boolean dpReceivedNeeded = (auditIds.contains(auditIdService.getAuditId(ClusterType.AGENT, false))
+            String auditIdForDpReceived = getAuditId(ClusterType.DATAPROXY, false);
+            boolean dpReceivedNeeded = (auditIds.contains(getAuditId(ClusterType.AGENT, false))
                     && !auditIds.contains(auditIdForDpReceived));
             if (dpReceivedNeeded) {
                 auditIds.add(auditIdForDpReceived);

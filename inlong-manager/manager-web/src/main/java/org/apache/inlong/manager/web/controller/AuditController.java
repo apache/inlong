@@ -25,6 +25,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,6 +47,13 @@ public class AuditController {
     @ApiOperation(value = "Query audit list according to conditions")
     public Response<List<AuditVO>> listByCondition(@Valid AuditRequest request) throws Exception {
         return Response.success(auditService.listByCondition(request));
+    }
+
+    @ApiOperation(value = "refresh audit ID cache")
+    @PostMapping("/audit/refreshCache")
+    public Response<Boolean> refreshCache() {
+        auditService.refreshCache();
+        return Response.success();
     }
 
 }

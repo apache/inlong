@@ -745,7 +745,48 @@ CREATE TABLE IF NOT EXISTS `stream_heartbeat`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_stream_heartbeat` (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`)
 );
+-- ----------------------------
+-- Table structure for audit_info
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `audit_base`
+(
+    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `name`             varchar(256) NOT NULL COMMENT 'audit name',
+    `type`             varchar(20)           DEFAULT '' COMMENT 'audit type, such as: AGENT, DATAPROXY, etc',
+    `is_sent`          int(11)               DEFAULT '0' COMMENT '0: received, 1: sent',
+    `audit_id`         varchar(11)  NOT NULL COMMENT 'audit ID mapping of audit name',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_audit_id_info` (`type`, `is_sent`),
+    UNIQUE KEY `audit_name_uindex` (`name`)
+    ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8 COMMENT ='Audit info table';
 
+-- ----------------------------
+-- Create audit info
+-- ----------------------------
+INSERT INTO `audit_base`(`name`, `type`, `is_sent`, `audit_id`)
+VALUES ('audit_id_sdk_collect', 'SDK', 0, '1'),
+       ('audit_id_sdk_sent', 'SDK', 1, '2'),
+       ('audit_id_agent_collect', 'AGENT', 0, '3'),
+       ('audit_id_agent_sent', 'AGENT', 1, '4'),
+       ('audit_id_dataproxy_received', 'DATAPROXY', 0, '5'),
+       ('audit_id_dataproxy_sent', 'DATAPROXY', 1, '6'),
+       ('audit_id_sort_hive_input', 'HIVE', 0, '7'),
+       ('audit_id_sort_hive_output', 'HIVE', 1, '8'),
+       ('audit_id_sort_clickhouse_input', 'CLICKHOUSE', 0, '9'),
+       ('audit_id_sort_clickhouse_output', 'CLICKHOUSE', 1, '10'),
+       ('audit_id_sort_es_input', 'ELASTICSEARCH', 0, '11'),
+       ('audit_id_sort_es_output', 'ELASTICSEARCH', 1, '12'),
+       ('audit_id_sort_starrocks_input', 'STARROCKS', 0, '13'),
+       ('audit_id_sort_starrocks_output', 'STARROCKS', 1, '14'),
+       ('audit_id_sort_hudi_input', 'HUDI', 0, '15'),
+       ('audit_id_sort_hudi_output', 'HUDI', 1, '16'),
+       ('audit_id_sort_iceberg_input', 'ICEBERG', 0, '17'),
+       ('audit_id_sort_iceberg_output', 'ICEBERG', 1, '18'),
+       ('audit_id_sort_hbase_input', 'HBASE', 0, '19'),
+       ('audit_id_sort_hbase_output', 'HBASE', 1, '20'),
+       ('audit_id_sort_doris_input', 'DORIS', 0, '21'),
+       ('audit_id_sort_doris_output', 'DORIS', 1, '22');
 -- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;

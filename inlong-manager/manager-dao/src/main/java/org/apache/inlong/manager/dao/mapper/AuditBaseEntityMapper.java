@@ -15,25 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.dao.mapper;
 
-/**
- * The service interface for audit id.
- */
-public interface AuditIdService {
+import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.manager.dao.entity.AuditBaseEntity;
+import org.springframework.stereotype.Repository;
 
-    /**
-     * Get audit id by type and isSent.
-     *
-     * @param type audit type.
-     * @param isSent Whether to receive or send
-     * @return Audit id.
-     */
-    String getAuditId(String type, boolean isSent);
+import java.util.List;
 
-    /**
-     * Refresh audit id cache information.
-     */
-    void refreshCache();
+@Repository
+public interface AuditBaseEntityMapper {
+
+    int insert(AuditBaseEntity record);
+
+    List<AuditBaseEntity> selectAll();
+
+    AuditBaseEntity selectByPrimaryKey(Integer id);
+
+    AuditBaseEntity selectByType(@Param("type") String type);
 
 }

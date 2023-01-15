@@ -792,7 +792,7 @@ CREATE TABLE IF NOT EXISTS `stream_heartbeat`
 -- ----------------------------
 -- Table structure for audit_info
 -- ----------------------------
-CREATE TABLE IF NOT EXISTS `audit_id_info`
+CREATE TABLE IF NOT EXISTS `audit_base`
 (
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `name`             varchar(256) NOT NULL COMMENT 'audit name',
@@ -808,7 +808,7 @@ CREATE TABLE IF NOT EXISTS `audit_id_info`
 -- ----------------------------
 -- Create audit info
 -- ----------------------------
-INSERT INTO `audit_id_info`(`name`, `type`, `is_sent`, `audit_id`)
+INSERT INTO `audit_base`(`name`, `type`, `is_sent`, `audit_id`)
 VALUES ('audit_id_sdk_collect', 'SDK', 0, '1'),
        ('audit_id_sdk_sent', 'SDK', 1, '2'),
        ('audit_id_agent_collect', 'AGENT', 0, '3'),

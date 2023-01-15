@@ -15,23 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.dao.entity.AuditIdEntity;
-import org.springframework.stereotype.Repository;
+import lombok.Data;
 
-import java.util.List;
+/**
+ * Audit id info
+ */
+@Data
+public class AuditBaseEntity {
 
-@Repository
-public interface AuditIdEntityMapper {
-
-    int insert(AuditIdEntity record);
-
-    List<AuditIdEntity> selectAll();
-
-    AuditIdEntity selectByPrimaryKey(Integer id);
-
-    AuditIdEntity selectByType(@Param("type") String type);
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String name;
+    private String type;
+    private Integer isSent;
+    private String auditId;
 
 }
