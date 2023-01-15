@@ -15,21 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.consts;
+package org.apache.inlong.manager.pojo.sink.redis;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
- * Constants of data node.
+ * The data type of Redis.
  */
-public class DataNodeType {
+public enum RedisDataType {
 
-    public static final String HIVE = "HIVE";
-    public static final String KAFKA = "KAFKA";
-    public static final String ICEBERG = "ICEBERG";
-    public static final String HUDI = "HUDI";
-    public static final String CLICKHOUSE = "CLICKHOUSE";
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
-    public static final String MYSQL = "MYSQL";
-    public static final String STARROCKS = "STARROCKS";
-    public static final String REDIS = "REDIS";
+    HASH(
+            RedisSchemaMapMode.DYNAMIC,
+            RedisSchemaMapMode.STATIC_KV_PAIR,
+            RedisSchemaMapMode.STATIC_PREFIX_MATCH),
+    BITMAP(
+            RedisSchemaMapMode.DYNAMIC),
+    PLAIN(
+            RedisSchemaMapMode.STATIC_PREFIX_MATCH);
 
+    private final HashSet<RedisSchemaMapMode> mapModes;
+
+    private RedisDataType(RedisSchemaMapMode... modes) {
+        this.mapModes = new HashSet<>(Arrays.asList(modes));
+    }
+
+    public HashSet<RedisSchemaMapMode> getMapModes() {
+        return mapModes;
+    }
 }

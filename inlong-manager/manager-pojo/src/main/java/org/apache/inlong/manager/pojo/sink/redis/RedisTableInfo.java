@@ -15,21 +15,43 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.consts;
+package org.apache.inlong.manager.pojo.sink.redis;
+
+import java.util.List;
+import lombok.Data;
 
 /**
- * Constants of data node.
+ * Redis table info.
  */
-public class DataNodeType {
+@Data
+public class RedisTableInfo {
 
-    public static final String HIVE = "HIVE";
-    public static final String KAFKA = "KAFKA";
-    public static final String ICEBERG = "ICEBERG";
-    public static final String HUDI = "HUDI";
-    public static final String CLICKHOUSE = "CLICKHOUSE";
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
-    public static final String MYSQL = "MYSQL";
-    public static final String STARROCKS = "STARROCKS";
-    public static final String REDIS = "REDIS";
+    private String clusterMode;
+
+    private Integer database;
+
+    private String dataType;
+
+    private String schemaMapMode;
+
+    private String password;
+
+    private String databaseName;
+
+    private Integer ttl;
+
+    private Integer timeout;
+
+    private Integer soTimeout;
+
+    private Integer maxTotal;
+
+    private Integer maxIdle;
+
+    private Integer minIdle;
+
+    private Integer maxRetries;
+
+    private List<RedisColumnInfo> columns;
 
 }

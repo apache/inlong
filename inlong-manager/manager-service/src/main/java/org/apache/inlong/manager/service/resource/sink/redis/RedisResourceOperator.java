@@ -15,21 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.consts;
+package org.apache.inlong.manager.service.resource.sink.redis;
+
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.pojo.sink.SinkInfo;
+import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
- * Constants of data node.
+ * Redis resource operator
  */
-public class DataNodeType {
+@Service
+public class RedisResourceOperator implements SinkResourceOperator {
 
-    public static final String HIVE = "HIVE";
-    public static final String KAFKA = "KAFKA";
-    public static final String ICEBERG = "ICEBERG";
-    public static final String HUDI = "HUDI";
-    public static final String CLICKHOUSE = "CLICKHOUSE";
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
-    public static final String MYSQL = "MYSQL";
-    public static final String STARROCKS = "STARROCKS";
-    public static final String REDIS = "REDIS";
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedisResourceOperator.class);
+
+    @Override
+    public Boolean accept(String sinkType) {
+        return SinkType.REDIS.equals(sinkType);
+    }
+
+    /**
+     * Create Redis table according to the sink config
+     */
+    public void createSinkResource(SinkInfo sinkInfo) {
+
+    }
 
 }
