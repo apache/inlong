@@ -159,7 +159,7 @@ public class LoadNodeUtils {
      * Create load node of Kafka.
      */
     public static KafkaLoadNode createLoadNode(KafkaSink kafkaSink, List<FieldInfo> fieldInfos,
-                                               List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         Integer sinkParallelism = null;
         if (StringUtils.isNotEmpty(kafkaSink.getPartitionNum())) {
             sinkParallelism = Integer.parseInt(kafkaSink.getPartitionNum());
@@ -208,7 +208,7 @@ public class LoadNodeUtils {
      * Create load node of Hive.
      */
     public static HiveLoadNode createLoadNode(HiveSink hiveSink, List<FieldInfo> fieldInfos,
-                                              List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         List<FieldInfo> partitionFields = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(hiveSink.getPartitionFieldList())) {
             partitionFields = hiveSink.getPartitionFieldList().stream()
@@ -239,7 +239,7 @@ public class LoadNodeUtils {
      * Create load node of HBase.
      */
     public static HbaseLoadNode createLoadNode(HBaseSink hbaseSink, List<FieldInfo> fieldInfos,
-                                               List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         return new HbaseLoadNode(
                 hbaseSink.getSinkName(),
                 hbaseSink.getSinkName(),
@@ -263,7 +263,7 @@ public class LoadNodeUtils {
      * Create load node of PostgreSQL.
      */
     public static PostgresLoadNode createLoadNode(PostgreSQLSink postgreSQLSink, List<FieldInfo> fieldInfos,
-                                                  List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         return new PostgresLoadNode(
                 postgreSQLSink.getSinkName(),
                 postgreSQLSink.getSinkName(),
@@ -284,7 +284,7 @@ public class LoadNodeUtils {
      * Create load node of ClickHouse.
      */
     public static ClickHouseLoadNode createLoadNode(ClickHouseSink ckSink, List<FieldInfo> fieldInfos,
-                                                    List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         return new ClickHouseLoadNode(
                 ckSink.getSinkName(),
                 ckSink.getSinkName(),
@@ -305,7 +305,7 @@ public class LoadNodeUtils {
      * Create load node of Doris.
      */
     public static DorisLoadNode createLoadNode(DorisSink dorisSink, List<FieldInfo> fieldInfos,
-                                               List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         Format format = null;
         if (dorisSink.getSinkMultipleEnable() != null && dorisSink.getSinkMultipleEnable() && StringUtils.isNotBlank(
                 dorisSink.getSinkMultipleFormat())) {
@@ -345,7 +345,7 @@ public class LoadNodeUtils {
      * Create load node of StarRocks.
      */
     public static StarRocksLoadNode createLoadNode(StarRocksSink starRocksSink, List<FieldInfo> fieldInfos,
-                                                   List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         Format format = null;
         if (starRocksSink.getSinkMultipleEnable() != null && starRocksSink.getSinkMultipleEnable()
                 && StringUtils.isNotBlank(
@@ -448,7 +448,7 @@ public class LoadNodeUtils {
      * Create load node of Iceberg.
      */
     public static IcebergLoadNode createLoadNode(IcebergSink icebergSink, List<FieldInfo> fieldInfos,
-                                                 List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         CatalogType catalogType = CatalogType.forName(icebergSink.getCatalogType());
         return new IcebergLoadNode(
                 icebergSink.getSinkName(),
@@ -471,7 +471,7 @@ public class LoadNodeUtils {
      * Create load node of Hudi.
      */
     public static HudiLoadNode createLoadNode(HudiSink hudiSink, List<FieldInfo> fieldInfos,
-                                              List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         HudiConstant.CatalogType catalogType = HudiConstant.CatalogType.forName(hudiSink.getCatalogType());
 
         return new HudiLoadNode(
@@ -497,7 +497,7 @@ public class LoadNodeUtils {
      * Create load node of SQLServer.
      */
     public static SqlServerLoadNode createLoadNode(SQLServerSink sqlServerSink, List<FieldInfo> fieldInfos,
-                                                   List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         return new SqlServerLoadNode(
                 sqlServerSink.getSinkName(),
                 sqlServerSink.getSinkName(),
@@ -519,7 +519,7 @@ public class LoadNodeUtils {
      * Create Elasticsearch load node
      */
     public static ElasticsearchLoadNode createLoadNode(ElasticsearchSink elasticsearchSink,
-                                                       List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations, Map<String, String> properties) {
         return new ElasticsearchLoadNode(
                 elasticsearchSink.getSinkName(),
                 elasticsearchSink.getSinkName(),
@@ -542,7 +542,7 @@ public class LoadNodeUtils {
      * Create load node of HDFS.
      */
     public static FileSystemLoadNode createLoadNode(HDFSSink hdfsSink, List<FieldInfo> fieldInfos,
-                                                    List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         List<FieldInfo> partitionFields = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(hdfsSink.getPartitionFieldList())) {
             partitionFields = hdfsSink.getPartitionFieldList().stream()
@@ -570,7 +570,7 @@ public class LoadNodeUtils {
      * Create greenplum load node
      */
     public static GreenplumLoadNode createLoadNode(GreenplumSink greenplumSink, List<FieldInfo> fieldInfos,
-                                                   List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         return new GreenplumLoadNode(
                 greenplumSink.getSinkName(),
                 greenplumSink.getSinkName(),
@@ -591,7 +591,7 @@ public class LoadNodeUtils {
      * Create load node of MySQL.
      */
     public static MySqlLoadNode createLoadNode(MySQLSink mysqlSink, List<FieldInfo> fieldInfos,
-                                               List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         return new MySqlLoadNode(
                 mysqlSink.getSinkName(),
                 mysqlSink.getSinkName(),
@@ -612,7 +612,7 @@ public class LoadNodeUtils {
      * Create load node of ORACLE.
      */
     public static OracleLoadNode createLoadNode(OracleSink oracleSink, List<FieldInfo> fieldInfos,
-                                                List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         return new OracleLoadNode(
                 oracleSink.getSinkName(),
                 oracleSink.getSinkName(),
@@ -633,7 +633,7 @@ public class LoadNodeUtils {
      * Create load node of TDSQLPostgreSQL.
      */
     public static TDSQLPostgresLoadNode createLoadNode(TDSQLPostgreSQLSink tdsqlPostgreSQLSink,
-                                                       List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations, Map<String, String> properties) {
         return new TDSQLPostgresLoadNode(
                 tdsqlPostgreSQLSink.getSinkName(),
                 tdsqlPostgreSQLSink.getSinkName(),
