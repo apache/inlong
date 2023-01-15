@@ -114,7 +114,7 @@ public class AuditServiceImpl implements AuditService {
     private StreamSourceEntityMapper sourceEntityMapper;
 
     @Autowired
-    private AuditBaseEntityMapper auditIdMapper;
+    private AuditBaseEntityMapper auditBaseMapper;
 
     @PostConstruct
     public void initialize() {
@@ -131,7 +131,7 @@ public class AuditServiceImpl implements AuditService {
     public void refreshCache() {
         LOGGER.debug("start to reload audit id info.");
         try {
-            List<AuditBaseEntity> auditBaseEntityList = auditIdMapper.selectAll();
+            List<AuditBaseEntity> auditBaseEntityList = auditBaseMapper.selectAll();
             for (AuditBaseEntity auditBaseEntity : auditBaseEntityList) {
                 String type = auditBaseEntity.getType();
                 if (auditBaseEntity.getIsSent() == 1) {
