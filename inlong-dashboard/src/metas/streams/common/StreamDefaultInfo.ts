@@ -97,7 +97,6 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   @FieldDecorator({
     type: 'radio',
     initialValue: 'CSV',
-    tooltip: i18n.t('meta.Stream.DataTypeHelp'),
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       options: [

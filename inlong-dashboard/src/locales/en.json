@@ -381,7 +381,6 @@
   "meta.Stream.FieldName": "Field name",
   "meta.Stream.FieldNameRule": "At the beginning of English letters, only English letters, numbers, and underscores",
   "meta.Stream.DataType": "DataType",
-  "meta.Stream.DataTypeHelp": "CSV: InLong message type whose message body is raw CSV",
   "meta.Stream.FieldType": "FieldType",
   "meta.Stream.FieldComment": "Field comment",
   "meta.Stream.DataEncoding": "Data encoding",
