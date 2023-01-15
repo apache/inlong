@@ -48,6 +48,7 @@ import org.apache.inlong.sort.protocol.node.load.KuduLoadNode;
 import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
+import org.apache.inlong.sort.protocol.node.load.RedisLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.node.load.StarRocksLoadNode;
 import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
@@ -95,6 +96,7 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = HudiLoadNode.class, name = "hudiLoad"),
         @JsonSubTypes.Type(value = DorisLoadNode.class, name = "dorisLoad"),
         @JsonSubTypes.Type(value = StarRocksLoadNode.class, name = "starRocksLoad"),
+        @JsonSubTypes.Type(value = RedisLoadNode.class, name = "redisLoad"),
         @JsonSubTypes.Type(value = KuduLoadNode.class, name = "kuduLoad"),
 })
 public interface Node {
