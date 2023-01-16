@@ -307,7 +307,7 @@ public class AgentServiceImpl implements AgentService {
                     SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         }
         List<String> sourceTypes = Lists.newArrayList(SourceType.MYSQL_SQL, SourceType.KAFKA,
-                SourceType.MYSQL_BINLOG);
+                SourceType.MYSQL_BINLOG, SourceType.POSTGRESQL);
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndType(needAddStatusList, sourceTypes,
                 TASK_FETCH_SIZE);
         for (StreamSourceEntity sourceEntity : sourceEntities) {
