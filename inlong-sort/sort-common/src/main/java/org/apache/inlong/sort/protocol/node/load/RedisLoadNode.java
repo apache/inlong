@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The load node of hudi.
+ * The load node of redis.
  */
 @JsonTypeName("redisLoad")
 @Data

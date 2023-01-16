@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -31,25 +38,17 @@ import org.apache.inlong.sort.parser.result.FlinkSqlParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
-import org.apache.inlong.sort.protocol.constant.HudiConstant.CatalogType;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
-import org.apache.inlong.sort.protocol.node.load.HudiLoadNode;
+import org.apache.inlong.sort.protocol.node.format.CsvFormat;
+import org.apache.inlong.sort.protocol.node.load.RedisLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 /**
- * Test for Hudi SQL parser.
+ * Test for Redis SQL parser.
  */
 public class RedisNodeSqlParserTest extends AbstractTestBase {
 
@@ -70,46 +69,7 @@ public class RedisNodeSqlParserTest extends AbstractTestBase {
                 null, null);
     }
 
-    private HudiLoadNode buildHudiLoadNodeWithHadoopCatalog() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("salary", new StringFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                        new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo())));
-
-        List<HashMap<String, String>> extList = new ArrayList<>();
-        HashMap<String, String> map = new HashMap<>();
-        map.put("table.type", "MERGE_ON_READ");
-        extList.add(map);
-
-        return new HudiLoadNode(
-                "hudi",
-                "hudi_table_name",
-                fields,
-                relations,
-                null,
-                null,
-                null,
-                null,
-                "inlong",
-                "inlong_hudi",
-                null,
-                CatalogType.HADOOP,
-                null,
-                "hdfs://localhost:9000/hudi/warehouse",
-                extList,
-                "f1");
-    }
-
-    private HudiLoadNode buildHudiLoadNodeWithHiveCatalog() {
+    private RedisLoadNode buildRedisLoadNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()),
@@ -125,33 +85,44 @@ public class RedisNodeSqlParserTest extends AbstractTestBase {
                                 new FieldInfo("ts", new TimestampFormatInfo())));
         List<HashMap<String, String>> extList = new ArrayList<>();
         HashMap<String, String> map = new HashMap<>();
-        map.put("table.type", "MERGE_ON_READ");
         extList.add(map);
 
-        // set HIVE_CONF_DIR,or set uri and warehouse
-        return new HudiLoadNode(
-                "hudi",
-                "hudi_table_name",
+        CsvFormat format = new CsvFormat();
+
+        return new RedisLoadNode(
+                "redis_table_name",
+                "redis_table_name",
                 fields,
                 relations,
                 null,
                 null,
                 null,
                 null,
-                "inlong",
-                "inlong_hudi",
                 null,
-                CatalogType.HIVE,
-                "thrift://localhost:9083",
-                "/hive/warehouse",
-                extList,
-                "f1");
+                "standalone",
+                "HASH",
+                "STATIC_PREFIX_MATCH",
+                "127.0.0.1",
+                6379,
+                null,
+                null,
+                null,
+                0,
+                null,
+                0,
+                format,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
     }
 
     /**
      * build node relation
      *
-     * @param inputs  extract node
+     * @param inputs extract node
      * @param outputs load node
      * @return node relation
      */
@@ -162,7 +133,7 @@ public class RedisNodeSqlParserTest extends AbstractTestBase {
     }
 
     @Test
-    public void testHudi() throws Exception {
+    public void testRedis() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
                 .useBlinkPlanner()
@@ -173,7 +144,7 @@ public class RedisNodeSqlParserTest extends AbstractTestBase {
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildMySQLExtractNode("1");
-        Node outputNode = buildHudiLoadNodeWithHiveCatalog();
+        Node outputNode = buildRedisLoadNode();
         StreamInfo streamInfo = new StreamInfo("1L", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));
