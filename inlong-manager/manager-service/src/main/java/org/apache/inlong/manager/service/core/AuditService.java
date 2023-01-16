@@ -45,8 +45,10 @@ public interface AuditService {
     String getAuditId(String type, boolean isSent);
 
     /**
-     * Refresh audit id cache information.
+     * Refresh the base item of audit cache.
+     *
+     * @return true if not exception, or false if it has exception
      */
-    void refreshCache();
+    Boolean refreshBaseItemCache();
 
 }

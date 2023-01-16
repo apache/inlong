@@ -70,9 +70,11 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -90,10 +92,10 @@ public class AuditServiceImpl implements AuditService {
     private static final String HOUR_FORMAT = "yyyy-MM-dd HH";
     private static final String DAY_FORMAT = "yyyy-MM-dd";
 
-    // key : audit id type, value : audit id info
-    private final Map<String, AuditBaseEntity> auditIdSentMap = new ConcurrentHashMap<>();
+    // key: type of audit base item, value: entity of audit base item
+    private final Map<String, AuditBaseEntity> auditSentItemMap = new ConcurrentHashMap<>();
 
-    private final Map<String, AuditBaseEntity> auditIdReceivedMap = new ConcurrentHashMap<>();
+    private final Map<String, AuditBaseEntity> auditReceivedItemMap = new ConcurrentHashMap<>();
 
     // defaults to return all audit ids, can be overwritten in properties file
     // see audit id definitions: https://inlong.apache.org/docs/modules/audit/overview#audit-id
@@ -104,6 +106,9 @@ public class AuditServiceImpl implements AuditService {
 
     @Value("${audit.query.source}")
     private String auditQuerySource = AuditQuerySource.MYSQL.name();
+
+    @Autowired
+    private AuditBaseEntityMapper auditBaseMapper;
     @Autowired
     private AuditEntityMapper auditEntityMapper;
     @Autowired
@@ -113,37 +118,37 @@ public class AuditServiceImpl implements AuditService {
     @Autowired
     private StreamSourceEntityMapper sourceEntityMapper;
 
-    @Autowired
-    private AuditBaseEntityMapper auditBaseMapper;
-
     @PostConstruct
     public void initialize() {
-        LOGGER.info("init auditIdMap for " + AuditServiceImpl.class.getSimpleName());
+        LOGGER.info("init audit base item cache map for {}", AuditServiceImpl.class.getSimpleName());
         try {
-            refreshCache();
+            refreshBaseItemCache();
         } catch (Throwable t) {
-            LOGGER.error("initialize auditIdMap error", t);
+            LOGGER.error("initialize audit base item cache error", t);
         }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void refreshCache() {
-        LOGGER.debug("start to reload audit id info.");
+    public Boolean refreshBaseItemCache() {
+        LOGGER.debug("start to reload audit base item info");
         try {
-            List<AuditBaseEntity> auditBaseEntityList = auditBaseMapper.selectAll();
-            for (AuditBaseEntity auditBaseEntity : auditBaseEntityList) {
+            List<AuditBaseEntity> auditBaseEntities = auditBaseMapper.selectAll();
+            for (AuditBaseEntity auditBaseEntity : auditBaseEntities) {
                 String type = auditBaseEntity.getType();
                 if (auditBaseEntity.getIsSent() == 1) {
-                    auditIdSentMap.put(type, auditBaseEntity);
+                    auditSentItemMap.put(type, auditBaseEntity);
                 } else {
-                    auditIdReceivedMap.put(type, auditBaseEntity);
+                    auditReceivedItemMap.put(type, auditBaseEntity);
                 }
             }
         } catch (Throwable t) {
-            LOGGER.error("fail to reload audit id info", t);
+            LOGGER.error("failed to reload audit base item info", t);
+            return false;
         }
-        LOGGER.debug("end to reload audit id info");
+
+        LOGGER.debug("success to reload audit base item info");
+        return true;
     }
 
     @Override
@@ -151,7 +156,7 @@ public class AuditServiceImpl implements AuditService {
         if (StringUtils.isBlank(type)) {
             return null;
         }
-        AuditBaseEntity auditBaseEntity = isSent ? auditIdSentMap.get(type) : auditIdReceivedMap.get(type);
+        AuditBaseEntity auditBaseEntity = isSent ? auditSentItemMap.get(type) : auditReceivedItemMap.get(type);
         if (auditBaseEntity == null) {
             throw new BusinessException(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
                     String.format(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED.getMessage(), type));
@@ -240,25 +245,23 @@ public class AuditServiceImpl implements AuditService {
     }
 
     private List<String> getAuditIds(String groupId, String streamId, String sinkNodeType) {
-        List<String> auditIds = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN)
-                ? new ArrayList<>(auditIdListForAdmin)
-                : new ArrayList<>(auditIdListForUser);
+        Set<String> auditSet = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN)
+                ? new HashSet<>(auditIdListForAdmin)
+                : new HashSet<>(auditIdListForUser);
+
+        Object fixedObj = new Object();
+        Map<String, Object> auditIdMap = auditSet.stream().collect(Collectors.toMap(x -> x, x -> fixedObj));
 
         // if no sink is configured, return data-proxy output instead of sort
         if (sinkNodeType == null) {
             String auditIdForDpSent = getAuditId(ClusterType.DATAPROXY, true);
-            if (!auditIds.contains(auditIdForDpSent)) {
-                auditIds.add(auditIdForDpSent);
-            }
+            auditIdMap.putIfAbsent(auditIdForDpSent, fixedObj);
         } else {
             String auditIdForSortReceived = getAuditId(sinkNodeType, false);
-            if (!auditIds.contains(auditIdForSortReceived)) {
-                auditIds.add(auditIdForSortReceived);
-            }
+            auditIdMap.putIfAbsent(auditIdForSortReceived, fixedObj);
+
             String auditIdForSortSent = getAuditId(sinkNodeType, true);
-            if (!auditIds.contains(auditIdForSortSent)) {
-                auditIds.add(auditIdForSortSent);
-            }
+            auditIdMap.putIfAbsent(auditIdForSortSent, fixedObj);
         }
 
         // auto push source has no agent, return data-proxy audit data instead of agent
@@ -266,14 +269,14 @@ public class AuditServiceImpl implements AuditService {
         if (CollectionUtils.isEmpty(sourceList)
                 || sourceList.stream().allMatch(s -> SourceType.AUTO_PUSH.equals(s.getSourceType()))) {
             String auditIdForDpReceived = getAuditId(ClusterType.DATAPROXY, false);
-            boolean dpReceivedNeeded = (auditIds.contains(getAuditId(ClusterType.AGENT, false))
-                    && !auditIds.contains(auditIdForDpReceived));
+            boolean dpReceivedNeeded = (auditIdMap.containsKey(getAuditId(ClusterType.AGENT, false))
+                    && !auditIdMap.containsKey(auditIdForDpReceived));
             if (dpReceivedNeeded) {
-                auditIds.add(auditIdForDpReceived);
+                auditIdMap.put(auditIdForDpReceived, fixedObj);
             }
         }
 
-        return auditIds;
+        return new ArrayList<>(auditIdMap.keySet());
     }
 
     /**

@@ -49,11 +49,10 @@ public class AuditController {
         return Response.success(auditService.listByCondition(request));
     }
 
-    @ApiOperation(value = "refresh audit ID cache")
+    @ApiOperation(value = "Refresh audit base item cache")
     @PostMapping("/audit/refreshCache")
     public Response<Boolean> refreshCache() {
-        auditService.refreshCache();
-        return Response.success();
+        return Response.success(auditService.refreshBaseItemCache());
     }
 
 }
