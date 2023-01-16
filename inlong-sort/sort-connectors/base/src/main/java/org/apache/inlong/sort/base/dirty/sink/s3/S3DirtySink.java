@@ -136,7 +136,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
             currentTime = System.currentTimeMillis();
             return false;
         }
-        if (System.currentTimeMillis() - currentTime < 60000) {
+        if (System.currentTimeMillis() - currentTime < s3Options.getBatchIntervalMs()) {
             return false;
         }
         return (s3Options.getBatchSize() > 0 && (size >= s3Options.getBatchSize()
