@@ -63,6 +63,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -249,34 +250,26 @@ public class AuditServiceImpl implements AuditService {
                 ? new HashSet<>(auditIdListForAdmin)
                 : new HashSet<>(auditIdListForUser);
 
-        Object fixedObj = new Object();
-        Map<String, Object> auditIdMap = auditSet.stream().collect(Collectors.toMap(x -> x, x -> fixedObj));
-
         // if no sink is configured, return data-proxy output instead of sort
         if (sinkNodeType == null) {
-            String auditIdForDpSent = getAuditId(ClusterType.DATAPROXY, true);
-            auditIdMap.putIfAbsent(auditIdForDpSent, fixedObj);
+            auditSet.add(getAuditId(ClusterType.DATAPROXY, true));
         } else {
-            String auditIdForSortReceived = getAuditId(sinkNodeType, false);
-            auditIdMap.putIfAbsent(auditIdForSortReceived, fixedObj);
-
-            String auditIdForSortSent = getAuditId(sinkNodeType, true);
-            auditIdMap.putIfAbsent(auditIdForSortSent, fixedObj);
+            auditSet.add(getAuditId(sinkNodeType, true));
+            auditSet.add(getAuditId(sinkNodeType, false));
         }
 
         // auto push source has no agent, return data-proxy audit data instead of agent
         List<StreamSourceEntity> sourceList = sourceEntityMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(sourceList)
                 || sourceList.stream().allMatch(s -> SourceType.AUTO_PUSH.equals(s.getSourceType()))) {
-            String auditIdForDpReceived = getAuditId(ClusterType.DATAPROXY, false);
-            boolean dpReceivedNeeded = (auditIdMap.containsKey(getAuditId(ClusterType.AGENT, false))
-                    && !auditIdMap.containsKey(auditIdForDpReceived));
+            // need data_proxy received type when agent has received type
+            boolean dpReceivedNeeded = auditSet.contains(getAuditId(ClusterType.AGENT, false));
             if (dpReceivedNeeded) {
-                auditIdMap.put(auditIdForDpReceived, fixedObj);
+                auditSet.add(getAuditId(ClusterType.DATAPROXY, false));
             }
         }
 
-        return new ArrayList<>(auditIdMap.keySet());
+        return new ArrayList<>(auditSet);
     }
 
     /**
