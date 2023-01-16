@@ -118,7 +118,7 @@ class DataNodeControllerTest extends WebBaseTest {
         // insert the test data
         DataNodeEntity nodeEntity = new DataNodeEntity();
         nodeEntity.setName("test");
-        nodeEntity.setType("MYSQL");
+        nodeEntity.setType(DataNodeType.HIVE);
         nodeEntity.setIsDeleted(0);
         nodeEntity.setModifier("test");
         nodeEntity.setCreator("test");

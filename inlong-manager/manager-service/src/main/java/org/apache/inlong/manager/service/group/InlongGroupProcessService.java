@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.group;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
@@ -233,15 +232,6 @@ public class InlongGroupProcessService {
      * Delete InlongGroup logically and delete related resource in a synchronous way.
      */
     public Boolean deleteProcess(String groupId, UserInfo opInfo) {
-        // check groupId parameter
-        if (StringUtils.isBlank(groupId)) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "inlong group id in request cannot be blank");
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             return true;

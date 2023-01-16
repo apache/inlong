@@ -177,15 +177,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public String save(InlongGroupRequest request, UserInfo opInfo) {
-        // check parameter
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.REQUEST_IS_EMPTY,
-                    "inlong group request cannot be empty");
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         String groupId = request.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity != null) {
@@ -232,14 +223,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     public InlongGroupInfo get(String groupId, UserInfo opInfo) {
-        // check group id
-        if (StringUtils.isBlank(groupId)) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
@@ -372,14 +355,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     public List<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request, UserInfo opInfo) {
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "group query request cannot be empty");
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         // filter records;
         List<InlongGroupEntity> filterGroupEntities = new ArrayList<>();
         for (InlongGroupEntity groupEntity : groupMapper.selectByCondition(request)) {
@@ -424,11 +399,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            LOGGER.error("inlong group has already updated with groupId={}, curVersion={}",
-                    groupId, request.getVersion());
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-        }
+        chkUnmodifiableParams(entity, request);
         // check whether the current status can be modified
         doUpdateCheck(entity, request, operator);
 
@@ -446,22 +417,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public String update(InlongGroupRequest request, UserInfo opInfo) {
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "group query request cannot be empty");
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         String groupId = request.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-        }
+        chkUnmodifiableParams(entity, request);
         // only the person in charges can query
         if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
@@ -696,5 +657,16 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             sortConf.setProperties(Maps.newHashMap());
         }
         return sortConf;
+    }
+
+    private void chkUnmodifiableParams(InlongGroupEntity entity, InlongGroupRequest request) {
+        // check mqType
+        Preconditions.chkNotEquals(entity.getMqType(), request.getMqType(),
+                ErrorCodeEnum.INVALID_PARAMETER, "mqType not allowed modify");
+        // check record version
+        Preconditions.chkNotEquals(entity.getVersion(), request.getVersion(),
+                ErrorCodeEnum.CONFIG_EXPIRED,
+                String.format("record has expired with record version=%d, request version=%d",
+                        entity.getVersion(), request.getVersion()));
     }
 }
