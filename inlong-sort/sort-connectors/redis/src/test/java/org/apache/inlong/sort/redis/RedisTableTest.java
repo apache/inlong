@@ -334,9 +334,9 @@ public class RedisTableTest {
                 + "SELECT "
                 + "aaa as key, "
                 + "bbb,"
-                + "ccc<'2' as cccc,"
+                + "ccc = cast(1.2 as double) as cccc,"
                 + "ddd,"
-                + "eee<'2' as eeee "
+                + "eee = cast(1 as bigint) as eeee "
                 + "FROM source";
         tableEnv.executeSql(query);
 
