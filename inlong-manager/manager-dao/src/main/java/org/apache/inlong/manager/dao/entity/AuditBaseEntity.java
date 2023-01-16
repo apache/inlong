@@ -15,20 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.consts;
+package org.apache.inlong.manager.dao.entity;
+
+import lombok.Data;
 
 /**
- * Constant class for audit ids
+ * Audit base info
  */
-public class AuditConstants {
+@Data
+public class AuditBaseEntity {
 
-    public static final String AUDIT_ID_SDK_COLLECT = "1";
-    public static final String AUDIT_ID_SDK_SENT = "2";
-    public static final String AUDIT_ID_AGENT_COLLECT = "3";
-    public static final String AUDIT_ID_AGENT_SENT = "4";
-    public static final String AUDIT_ID_DATAPROXY_RECEIVED = "5";
-    public static final String AUDIT_ID_DATAPROXY_SENT = "6";
-    public static final String AUDIT_ID_SORT_INPUT = "7";
-    public static final String AUDIT_ID_SORT_OUTPUT = "8";
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String name;
+    private String type;
+    private Integer isSent;
+    private String auditId;
 
 }

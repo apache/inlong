@@ -142,6 +142,8 @@ public enum ErrorCodeEnum {
     CONSUME_SAVE_FAILED(3004, "Failed to save/update inlong consume"),
     CONSUME_PERMISSION_DENIED(3005, "No permission to access this inlong consume"),
 
+    AUDIT_ID_TYPE_NOT_SUPPORTED(4001, "Audit id type '%s' not supported"),
+
     ;
 
     private final int code;
