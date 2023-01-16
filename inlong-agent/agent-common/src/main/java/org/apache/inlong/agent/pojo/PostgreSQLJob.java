@@ -22,7 +22,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * PostgresJob : postgres job
+ * PostgreSQL Job info
  */
 @Data
 public class PostgreSQLJob {
