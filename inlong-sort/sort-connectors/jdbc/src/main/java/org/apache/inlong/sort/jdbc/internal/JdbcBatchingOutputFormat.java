@@ -28,10 +28,14 @@ import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
 import org.apache.flink.connector.jdbc.internal.connection.JdbcConnectionProvider;
 import org.apache.flink.connector.jdbc.internal.connection.SimpleJdbcConnectionProvider;
+import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
+import org.apache.flink.connector.jdbc.internal.executor.TableBufferReducedStatementExecutor;
+import org.apache.flink.connector.jdbc.internal.executor.TableSimpleStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatementImpl;
+import org.apache.flink.connector.jdbc.statement.StatementFactory;
 import org.apache.flink.connector.jdbc.utils.JdbcUtils;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
@@ -42,6 +46,7 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.base.dirty.DirtyData;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.metric.MetricOption;
@@ -56,6 +61,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -204,6 +210,11 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     private JdbcExec createAndOpenStatementExecutor(
             StatementExecutorFactory<JdbcExec> statementExecutorFactory) throws IOException {
         JdbcExec exec = statementExecutorFactory.apply(getRuntimeContext());
+        try {
+            enhanceExecutor(exec);
+        } catch (Exception e) {
+            LOG.info("class enhance failed");
+        }
         try {
             exec.prepareStatements(connectionProvider.getConnection());
         } catch (SQLException e) {
@@ -363,6 +374,24 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                 }
             }
         }
+    }
+
+    private void enhanceExecutor(JdbcExec exec) throws NoSuchFieldException, IllegalAccessException {
+        final DirtySinkHelper dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
+        // given a TableBufferReducedStatementExecutor, enhance its upsertExecutor to become
+        // tablemetricstatementexecutor
+        Field f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+        f1.setAccessible(true);
+        TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) f1.get(exec);
+        Field f2 = TableSimpleStatementExecutor.class.getDeclaredField("stmtFactory");
+        Field f3 = TableSimpleStatementExecutor.class.getDeclaredField("converter");
+        f2.setAccessible(true);
+        f3.setAccessible(true);
+        final StatementFactory stmtFactory = (StatementFactory) f2.get(executor);
+        final JdbcRowConverter converter = (JdbcRowConverter) f3.get(executor);
+        TableMetricStatementExecutor newExecutor =
+                new TableMetricStatementExecutor(stmtFactory, converter, dirtySinkHelper, sinkMetricData);
+        f1.set(exec, newExecutor);
     }
 
     protected void attemptFlush() throws SQLException {
