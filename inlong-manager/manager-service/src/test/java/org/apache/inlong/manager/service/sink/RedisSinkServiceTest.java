@@ -17,12 +17,11 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.hudi.HudiSink;
-import org.apache.inlong.manager.pojo.sink.hudi.HudiSinkRequest;
+import org.apache.inlong.manager.pojo.sink.redis.RedisSink;
+import org.apache.inlong.manager.pojo.sink.redis.RedisSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.junit.jupiter.api.Assertions;
@@ -30,7 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Hudi stream sink service test.
+ * Redis stream sink service test.
  */
 public class RedisSinkServiceTest extends ServiceBaseTest {
 
@@ -48,15 +47,12 @@ public class RedisSinkServiceTest extends ServiceBaseTest {
      */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-        HudiSinkRequest sinkInfo = new HudiSinkRequest();
+        RedisSinkRequest sinkInfo = new RedisSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.HUDI);
-        sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
-        sinkInfo.setDataPath("hdfs://127.0.0.1:8020/data");
+        sinkInfo.setSinkType(SinkType.REDIS);
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setId((int) (Math.random() * 100000 + 1));
-        sinkInfo.setCatalogUri("thrift://127.0.0.1:9000");
         return sinkService.save(sinkInfo, globalOperator);
     }
 
@@ -82,8 +78,7 @@ public class RedisSinkServiceTest extends ServiceBaseTest {
         StreamSink streamSink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
 
-        HudiSink sink = (HudiSink) streamSink;
-        sink.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        RedisSink sink = (RedisSink) streamSink;
         SinkRequest request = sink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);

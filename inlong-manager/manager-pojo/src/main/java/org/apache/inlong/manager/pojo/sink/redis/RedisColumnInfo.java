@@ -31,12 +31,12 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 
 /**
- * StarRocks column info.
+ * Redis column info.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeDefine(value = SinkType.STARROCKS)
+@JsonTypeDefine(value = SinkType.REDIS)
 public class RedisColumnInfo extends SinkField {
 
     private Boolean isSortKey = false;
@@ -61,7 +61,7 @@ public class RedisColumnInfo extends SinkField {
             return JsonUtils.parseObject(extParams, RedisColumnInfo.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
-                    String.format("Failed to parse extParams for StarRocks ColumnInfo: %s", e.getMessage()));
+                    String.format("Failed to parse extParams for Redis ColumnInfo: %s", e.getMessage()));
         }
     }
 }

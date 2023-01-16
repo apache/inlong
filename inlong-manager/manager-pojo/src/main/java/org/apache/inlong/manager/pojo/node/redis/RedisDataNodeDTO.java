@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.pojo.node.redis;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,20 +42,11 @@ public class RedisDataNodeDTO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisDataNodeDTO.class);
 
-    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
-    @Builder.Default
-    private String catalogType = "HIVE";
-
-    @ApiModelProperty("Redis data warehouse dir")
-    private String warehouse;
-
     /**
      * Get the dto instance from the request
      */
     public static RedisDataNodeDTO getFromRequest(RedisDataNodeRequest request) throws Exception {
         return RedisDataNodeDTO.builder()
-                .catalogType(request.getCatalogType())
-                .warehouse(request.getWarehouse())
                 .build();
     }
 

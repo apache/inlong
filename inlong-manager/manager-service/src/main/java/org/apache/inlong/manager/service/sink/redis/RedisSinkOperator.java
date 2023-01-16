@@ -17,11 +17,15 @@
 
 package org.apache.inlong.manager.service.sink.redis;
 
+import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.SINK_SAVE_FAILED;
+import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT;
+import static org.apache.inlong.manager.common.util.BusinessPreconditions.verify;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.BusinessPreconditions.Verification;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -44,16 +48,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Hudi sink operator, such as save or update hudi field, etc.
+ * Redis sink operator, such as save or update redis field, etc.
  */
 @Service
 public class RedisSinkOperator extends AbstractSinkOperator {
 
-    private static final String HOODIE_PRIMARY_KEY_FIELD = "hoodie.datasource.write.recordkey.field";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisSinkOperator.class);
-
-    private static final String CATALOG_TYPE_HIVE = "HIVE";
+    private static final int PORT_MAX_VALUE = 65535;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -70,47 +71,72 @@ public class RedisSinkOperator extends AbstractSinkOperator {
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
-        if (!this.getSinkType().equals(request.getSinkType())) {
-            throw new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
-                    ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
-        }
+
+        verify(SINK_TYPE_NOT_SUPPORT)
+                .checkTrue(
+                        this.getSinkType().equals(request.getSinkType()),
+                        SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+
         RedisSinkRequest sinkRequest = (RedisSinkRequest) request;
 
         String clusterMode = sinkRequest.getClusterMode();
         RedisClusterMode redisClusterMode = RedisClusterMode.of(clusterMode);
-        if (redisClusterMode == null) {
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
-                    "Redis ClusterMode must in [" + Arrays.toString(RedisClusterMode.values()) + "] !");
-        }
+        Verification saveFailedVerify = verify(SINK_SAVE_FAILED);
+        saveFailedVerify
+                .checkNotNull(
+                        redisClusterMode,
+                        "Redis ClusterMode must in [" + Arrays.toString(RedisClusterMode.values()) + "] !");
 
         switch (redisClusterMode) {
             case CLUSTER:
                 String clusterNodes = sinkRequest.getClusterNodes();
-
+                checkClusterNodes(clusterNodes);
+                break;
             case SENTINEL:
                 String sentinelMasterName = sinkRequest.getSentinelMasterName();
+                saveFailedVerify.checkNotEmpty(sentinelMasterName,
+                        "Redis MasterName of Sentinel cluster must not null!");
                 String sentinelsInfo = sinkRequest.getSentinelsInfo();
+                saveFailedVerify.checkNotEmpty(sentinelsInfo, "Redis sentinelsInfo of Sentinel cluster must not null!");
+                break;
             case STANDALONE:
                 String host = sinkRequest.getHost();
                 Integer port = sinkRequest.getPort();
+                saveFailedVerify.checkNotEmpty(host, "Redis server host must not null!");
+                saveFailedVerify.checkTrue(
+                        port == null || port < 1 || port > PORT_MAX_VALUE,
+                        "The port of the redis server must be greater than 0 and less than 65535!");
+                break;
         }
         RedisDataType dataType = RedisDataType.valueOf(sinkRequest.getDataType());
-        if (dataType == null) {
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
-                    "Redis DataType must not null");
-        }
+        saveFailedVerify.checkNotNull(dataType, "Redis DataType must not null");
         RedisSchemaMapMode mapMode = RedisSchemaMapMode.valueOf(sinkRequest.getSchemaMapMode());
-        if (!dataType.getMapModes().contains(mapMode)) {
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
-                    "Redis schemaMapMode '" + mapMode + "' is not supported in '" + dataType + "'");
-        }
+        saveFailedVerify.checkTrue(
+                dataType.getMapModes().contains(mapMode),
+                "Redis schemaMapMode '" + mapMode + "' is not supported in '" + dataType + "'");
 
         try {
             RedisSinkDTO dto = RedisSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
+            throw new BusinessException(SINK_SAVE_FAILED,
                     String.format("serialize extParams of Redis SinkDTO failure: %s", e.getMessage()));
+        }
+    }
+
+    private void checkClusterNodes(String clusterNodes) {
+
+        Verification verify = verify(SINK_SAVE_FAILED);
+        verify.checkNotBlank(clusterNodes, "the nodes of Redis cluster must not null");
+        String[] nodeArray = clusterNodes.split(",");
+        verify.checkNotEmpty(nodeArray, "the nodes of Redis cluster must not null");
+
+        for (String node : nodeArray) {
+            verify.checkNotBlank(node, "Redis server host must not null!");
+            String[] ipPort = node.split(":");
+            verify.checkTrue(ipPort.length == 2, "The ip and port of Redis server must be in form: ip:port");
+            verify.checkNotBlank(ipPort[0], "The ip can not be null");
+            verify.checkNotBlank(ipPort[1], "The port can not be null");
         }
     }
 

@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.pojo.node.redis;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -28,23 +27,17 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 
 /**
- * Hudi data node info
+ * Redis data node info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = DataNodeType.HUDI)
-@ApiModel("Hudi data node info")
+@JsonTypeDefine(value = DataNodeType.REDIS)
+@ApiModel("Redis data node info")
 public class RedisDataNodeInfo extends DataNodeInfo {
 
-    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
-    private String catalogType = "HIVE";
-
-    @ApiModelProperty("Hudi data warehouse dir")
-    private String warehouse;
-
     public RedisDataNodeInfo() {
-        this.setType(DataNodeType.HUDI);
+        this.setType(DataNodeType.REDIS);
     }
 
     @Override

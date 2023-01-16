@@ -26,9 +26,9 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.pojo.node.hudi.HudiDataNodeDTO;
-import org.apache.inlong.manager.pojo.node.hudi.HudiDataNodeInfo;
-import org.apache.inlong.manager.pojo.node.hudi.HudiDataNodeRequest;
+import org.apache.inlong.manager.pojo.node.redis.RedisDataNodeDTO;
+import org.apache.inlong.manager.pojo.node.redis.RedisDataNodeInfo;
+import org.apache.inlong.manager.pojo.node.redis.RedisDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +50,7 @@ public class RedisDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     public String getDataNodeType() {
-        return DataNodeType.HUDI;
+        return DataNodeType.REDIS;
     }
 
     @Override
@@ -59,25 +59,25 @@ public class RedisDataNodeOperator extends AbstractDataNodeOperator {
             throw new BusinessException(ErrorCodeEnum.DATA_NODE_NOT_FOUND);
         }
 
-        HudiDataNodeInfo hudiDataNodeInfo = new HudiDataNodeInfo();
-        CommonBeanUtils.copyProperties(entity, hudiDataNodeInfo);
+        RedisDataNodeInfo redisDataNodeInfo = new RedisDataNodeInfo();
+        CommonBeanUtils.copyProperties(entity, redisDataNodeInfo);
         if (StringUtils.isNotBlank(entity.getExtParams())) {
-            HudiDataNodeDTO dto = HudiDataNodeDTO.getFromJson(entity.getExtParams());
-            CommonBeanUtils.copyProperties(dto, hudiDataNodeInfo);
+            RedisDataNodeDTO dto = RedisDataNodeDTO.getFromJson(entity.getExtParams());
+            CommonBeanUtils.copyProperties(dto, redisDataNodeInfo);
         }
-        return hudiDataNodeInfo;
+        return redisDataNodeInfo;
     }
 
     @Override
     protected void setTargetEntity(DataNodeRequest request, DataNodeEntity targetEntity) {
-        HudiDataNodeRequest hudiDataNodeRequest = (HudiDataNodeRequest) request;
-        CommonBeanUtils.copyProperties(hudiDataNodeRequest, targetEntity, true);
+        RedisDataNodeRequest redisDataNodeRequest = (RedisDataNodeRequest) request;
+        CommonBeanUtils.copyProperties(redisDataNodeRequest, targetEntity, true);
         try {
-            HudiDataNodeDTO dto = HudiDataNodeDTO.getFromRequest(hudiDataNodeRequest);
+            RedisDataNodeDTO dto = RedisDataNodeDTO.getFromRequest(redisDataNodeRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
-                    String.format("Failed to build extParams for Hudi node: %s", e.getMessage()));
+                    String.format("Failed to build extParams for Redis node: %s", e.getMessage()));
         }
     }
 
