@@ -62,7 +62,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
      */
     public TableMetricStatementExecutor(StatementFactory stmtFactory, JdbcRowConverter converter,
             DirtySinkHelper<Object> dirtySinkHelper, SinkMetricData sinkMetricData) {
-        LOG.info("creating executor {},{},{},{}", stmtFactory, converter, dirtySinkHelper, sinkMetricData);
         this.stmtFactory = checkNotNull(stmtFactory);
         this.converter = checkNotNull(converter);
         this.batch = new ArrayList<>();
@@ -93,13 +92,11 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
 
     @Override
     public void prepareStatements(Connection connection) throws SQLException {
-        LOG.info("creating preparedstatemet");
         st = stmtFactory.createStatement(connection);
     }
 
     @Override
     public void addToBatch(RowData record) throws SQLException {
-        LOG.info("sample record:{}", record);
         batch.add(record);
         converter.toExternal(record, st);
         st.addBatch();
@@ -111,16 +108,13 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
             st.executeBatch();
             addMetrics();
         } catch (SQLException e) {
-            LOG.info("exception encountered, retry times:{}", counter);
             if (counter.incrementAndGet() == 3) {
                 // parse record from error and handle
                 List<Integer> dirtyRecords = new ArrayList<>();
                 parseRecord(e, dirtyRecords);
                 handleDirty(dirtyRecords);
-                LOG.info("dirty record process completed");
                 counter.set(0);
             } else {
-                LOG.info("not yet:{},{}", e.getCause(), e.getMessage());
                 throw new SQLException(e);
             }
         }
