@@ -30,26 +30,48 @@ const { FieldDecorator } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const redisTargetTypes = [
-  'BOOLEAN',
-  'INT',
-  'BIGINT',
-  'FLOAT',
-  'DOUBLE',
-  'DATE',
-  'DATETIME',
-  'CHAR',
-  'TIME',
+  'int',
+  'long',
+  'string',
+  'float',
+  'double',
+  'date',
+  'timestamp',
+  'time',
+  'boolean',
+  'timestamptz',
+  'binary',
 ].map(item => ({
   label: item,
   value: item,
 }));
 
+const schemaMappingModeStrategies = dataType => {
+  const data = [
+    {
+      label: 'STATIC_PREFIX_MATCH',
+      value: 'STATIC_PREFIX_MATCH',
+      enable: !['BITMAP'].includes(dataType),
+    },
+    {
+      label: 'STATIC_KV_PAIR',
+      value: 'STATIC_KV_PAIR',
+      enable: !['BITMAP', 'PLAIN'].includes(dataType),
+    },
+    {
+      label: 'DYNAMIC',
+      value: 'DYNAMIC',
+      enable: !['PLAIN'].includes(dataType),
+    },
+  ];
+  return data.filter(item => item.enable);
+};
+
 export default class RedisSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
   @FieldDecorator({
     type: 'select',
     rules: [{ required: true }],
-    initialValue: 0,
-    tooltip: i18n.t('meta.Sinks.Redis.clusterModeHelp'),
+    tooltip: i18n.t('meta.Sinks.Redis.ClusterNameHelper'),
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       options: [
@@ -66,27 +88,87 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
           value: 'standalone',
         },
       ],
+      placeholder: i18n.t('meta.Sinks.Redis.ClusterModeHelper'),
     }),
   })
-  @I18n('meta.Sinks.Redis.clusterMode')
+  @I18n('meta.Sinks.Redis.ClusterMode')
   clusterMode: string;
+
+  @FieldDecorator({
+    type: 'input',
+    initialValue: '127.0.0.1',
+    rules: [{ required: false }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: '127.0.0.1',
+    }),
+    visible: values => values!.clusterMode == 'standalone',
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.Redis.Host')
+  host: String;
 
   @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: false }],
+    initialValue: 6379,
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      min: 0,
+      min: 1,
+      max: 65535,
+      placeholder: i18n.t('meta.Sinks.Redis.PortHelper'),
     }),
+    visible: values => values!.clusterMode == 'standalone',
   })
   @ColumnDecorator()
-  @I18n('meta.Sinks.Redis.database')
-  database: number;
+  @I18n('meta.Sinks.Redis.Port')
+  port: number;
+
+  @FieldDecorator({
+    type: 'input',
+    initialValue: '',
+    rules: [{ required: false }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    visible: values => values!.clusterMode == 'sentinel',
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.Redis.SentinelMasterName')
+  sentinelMasterName: String;
+
+  @FieldDecorator({
+    type: 'input',
+    initialValue: '',
+    rules: [{ required: false }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: '127.0.0.1:6379,127.0.0.1:6378',
+    }),
+    visible: values => values!.clusterMode == 'sentinel',
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.Redis.SentinelsInfo')
+  sentinelsInfo: String;
+
+  @FieldDecorator({
+    type: 'input',
+    initialValue: '',
+    rules: [{ required: false }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: '127.0.0.1:6379,127.0.0.1:6378',
+    }),
+    visible: values => values!.clusterMode == 'cluster',
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.Redis.ClusterNodes')
+  clusterNodes: String;
 
   @FieldDecorator({
     type: 'select',
-    rules: [{ required: false }],
-    initialValue: 'PLAIN',
+    rules: [{ required: true }],
+    initialValue: '',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       options: [
@@ -106,34 +188,159 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     }),
   })
   @ColumnDecorator()
-  @I18n('meta.Sinks.Redis.dataType')
+  @I18n('meta.Sinks.Redis.DataType')
   dataType: string;
 
   @FieldDecorator({
     type: 'select',
-    rules: [{ required: false }],
-    initialValue: 'STATIC_PREFIX_MATCH',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: schemaMappingModeStrategies(values!.dataType),
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.Redis.SchemaMapMode')
+  schemaMapMode: string;
+
+  @FieldDecorator({
+    type: 'select',
+    initialValue: 'CSV',
+    visible: values => values!.schemaMapMode == 'STATIC_PREFIX_MATCH',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       options: [
         {
-          label: 'STATIC_PREFIX_MATCH',
-          value: 'STATIC_PREFIX_MATCH',
+          label: 'CSV',
+          value: 'CSV',
         },
         {
-          label: 'STATIC_KV_PAIR',
-          value: 'STATIC_KV_PAIR',
+          label: 'KV',
+          value: 'KV',
         },
         {
-          label: 'DYNAMIC',
-          value: 'DYNAMIC',
+          label: 'AVRO',
+          value: 'AVRO',
+        },
+        {
+          label: 'JSON',
+          value: 'JSON',
+        },
+      ],
+    }),
+    rules: [{ required: true }],
+  })
+  @I18n('meta.Sinks.Redis.FormatDataType')
+  formatDataType: string;
+
+  @FieldDecorator({
+    type: 'radio',
+    rules: [{ required: true }],
+    initialValue: true,
+    visible: values => values!.schemaMapMode == 'STATIC_PREFIX_MATCH',
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: true,
+        },
+        {
+          label: i18n.t('basic.No'),
+          value: false,
         },
       ],
     }),
   })
+  @I18n('meta.Sinks.Redis.FormatIgnoreParseError')
+  formatIgnoreParseError: boolean;
+
+  @FieldDecorator({
+    type: 'radio',
+    initialValue: 'UTF-8',
+    visible: values => values!.schemaMapMode == 'STATIC_PREFIX_MATCH',
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: 'UTF-8',
+          value: 'UTF-8',
+        },
+        {
+          label: 'GBK',
+          value: 'GBK',
+        },
+      ],
+    }),
+    rules: [{ required: true }],
+  })
+  @I18n('meta.Sinks.Redis.FormatDataEncoding')
+  formatDataEncoding: string;
+
+  @FieldDecorator({
+    type: 'select',
+    initialValue: '124',
+    visible: values => values!.schemaMapMode == 'STATIC_PREFIX_MATCH',
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      dropdownMatchSelectWidth: false,
+      options: [
+        {
+          label: i18n.t('meta.Sinks.Redis.DataSeparator.Space'),
+          value: '32',
+        },
+        {
+          label: i18n.t('meta.Sinks.Redis.DataSeparator.VerticalLine'),
+          value: '124',
+        },
+        {
+          label: i18n.t('meta.Sinks.Redis.DataSeparator.Comma'),
+          value: '44',
+        },
+        {
+          label: i18n.t('meta.Sinks.Redis.DataSeparator.Semicolon'),
+          value: '59',
+        },
+        {
+          label: i18n.t('meta.Sinks.Redis.DataSeparator.Asterisk'),
+          value: '42',
+        },
+        {
+          label: i18n.t('meta.Sinks.Redis.DataSeparator.DoubleQuotes'),
+          value: '34',
+        },
+      ],
+      useInput: true,
+      useInputProps: {
+        placeholder: 'ASCII',
+      },
+      style: { width: 100 },
+    }),
+    rules: [
+      {
+        required: true,
+        type: 'number',
+        transform: val => +val,
+        min: 0,
+        max: 127,
+      },
+    ],
+  })
+  @I18n('meta.Sinks.Redis.FormatDataSeparator')
+  formatDataSeparator: string;
+
+  @FieldDecorator({
+    type: 'inputnumber',
+    rules: [{ required: false }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      min: 0,
+      placholder: '0',
+    }),
+  })
   @ColumnDecorator()
-  @I18n('meta.Sinks.Redis.schemaMapMode')
-  schemaMapMode: string;
+  @I18n('meta.Sinks.Redis.Database')
+  database: number;
 
   @FieldDecorator({
     type: 'password',
@@ -144,7 +351,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     }),
   })
   @ColumnDecorator()
-  @I18n('meta.Sinks.Redis.password')
+  @I18n('meta.Sinks.Redis.Password')
   password: string;
 
   @FieldDecorator({
@@ -152,13 +359,23 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
     initialValue: 0,
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      min: 1,
+      min: 0,
     }),
-    rules: [{ required: true }],
-    suffix: i18n.t('meta.Sinks.Redis.ttlUnit'),
+    rules: [{ required: false }],
+    suffix: i18n.t('meta.Sinks.Redis.TtlUnit'),
   })
-  @I18n('meta.Sinks.Redis.ttl')
+  @I18n('meta.Sinks.Redis.Ttl')
   ttl: number;
+
+  @FieldDecorator({
+    type: EditableTable,
+    props: values => ({
+      size: 'small',
+      editing: ![110, 130].includes(values?.status),
+      columns: getFieldListColumns(values),
+    }),
+  })
+  sinkFieldList: Record<string, unknown>[];
 
   @FieldDecorator({
     type: EditableTable,
@@ -189,37 +406,35 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
   extList: string;
 
   @FieldDecorator({
-    type: EditableTable,
-    props: values => ({
-      size: 'small',
-      editing: ![110, 130].includes(values?.status),
-      columns: getFieldListColumns(values),
-    }),
-  })
-  sinkFieldList: Record<string, unknown>[];
-
-  @FieldDecorator({
     type: 'inputnumber',
+    isPro: true,
+    initialValue: 2000,
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),
+    suffix: i18n.t('meta.Sinks.Redis.TimeoutUnit'),
   })
   @I18n('meta.Sinks.Redis.Timeout')
   timeout: number;
 
   @FieldDecorator({
     type: 'inputnumber',
+    isPro: true,
+    initialValue: 2000,
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),
+    suffix: i18n.t('meta.Sinks.Redis.SoTimeoutUnit'),
   })
   @I18n('meta.Sinks.Redis.SoTimeout')
   soTimeout: number;
 
   @FieldDecorator({
     type: 'inputnumber',
+    isPro: true,
+    initialValue: 2,
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
@@ -230,6 +445,8 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
 
   @FieldDecorator({
     type: 'inputnumber',
+    isPro: true,
+    initialValue: 8,
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
@@ -240,6 +457,8 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
 
   @FieldDecorator({
     type: 'inputnumber',
+    isPro: true,
+    initialValue: 1,
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
@@ -250,6 +469,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
 
   @FieldDecorator({
     type: 'inputnumber',
+    isPro: true,
     rules: [{ required: true }],
     initialValue: 1,
     props: values => ({
@@ -257,7 +477,7 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
       min: 1,
     }),
   })
-  @I18n('meta.Sinks.Redis.maxRetries')
+  @I18n('meta.Sinks.Redis.MaxRetries')
   maxRetries: number;
 }
 
@@ -289,24 +509,6 @@ const getFieldListColumns = sinkValues => {
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [{ required: true }],
-    },
-    {
-      title: i18n.t('meta.Sinks.Redis.IsMetaField'),
-      dataIndex: 'isMetaField',
-      initialValue: 0,
-      type: 'select',
-      props: (text, record, idx, isNew) => ({
-        options: [
-          {
-            label: i18n.t('basic.Yes'),
-            value: 1,
-          },
-          {
-            label: i18n.t('basic.No'),
-            value: 0,
-          },
-        ],
-      }),
     },
     {
       title: i18n.t('meta.Sinks.Redis.FieldFormat'),
