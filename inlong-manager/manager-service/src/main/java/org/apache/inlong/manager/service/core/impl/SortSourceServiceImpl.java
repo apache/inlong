@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,6 +53,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -70,7 +73,6 @@ public class SortSourceServiceImpl implements SortSourceService {
 
     private static final Gson GSON = new Gson();
     private static final Set<String> SUPPORTED_MQ_TYPE = new HashSet<String>() {
-
         {
             add(MQType.KAFKA);
             add(MQType.TUBEMQ);
@@ -94,6 +96,7 @@ public class SortSourceServiceImpl implements SortSourceService {
      */
     private Map<String, Map<String, CacheZoneConfig>> sortSourceConfigMap = new ConcurrentHashMap<>();
 
+    private Map<String, SortSourceClusterInfo> sortClusters;
     private Map<String, List<SortSourceClusterInfo>> mqClusters;
     private Map<String, SortSourceGroupInfo> groupInfos;
     private Map<String, Map<String, SortSourceStreamInfo>> allStreams;
@@ -187,6 +190,8 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // reload mq cluster and sort cluster
         List<SortSourceClusterInfo> allClusters = configLoader.loadAllClusters();
+        sortClusters = allClusters.stream()
+                .collect(Collectors.toMap(SortSourceClusterInfo::getName, v -> v));
 
         // group mq clusters by cluster tag
         mqClusters = allClusters.stream()
@@ -256,7 +261,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                                     .sortTaskId(taskName)
                                     .build();
                     Map<String, CacheZone> cacheZoneMap =
-                            this.parseCacheZones(sinkList);
+                            this.parseCacheZones(sortClusterName, sinkList);
                     cacheZoneConfig.setCacheZones(cacheZoneMap);
 
                     // prepare md5
@@ -275,6 +280,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         });
         sortSourceConfigMap = newConfigMap;
         sortSourceMd5Map = newMd5Map;
+        sortClusters = null;
         mqClusters = null;
         groupInfos = null;
         allStreams = null;
@@ -285,7 +291,11 @@ public class SortSourceServiceImpl implements SortSourceService {
     }
 
     private Map<String, CacheZone> parseCacheZones(
+            String clusterName,
             List<SortSourceStreamSinkInfo> sinkList) {
+
+        Preconditions.checkNotNull(sortClusters.get(clusterName));
+        String sortClusterTag = sortClusters.get(clusterName).getClusterTags();
 
         // get group infos
         List<SortSourceStreamSinkInfo> sinkInfoList = sinkList.stream()
@@ -296,6 +306,12 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // group them by cluster tag.
         Map<String, List<SortSourceStreamSinkInfo>> tag2SinkInfos = sinkInfoList.stream()
+                .filter(sink -> {
+                    if (StringUtils.isBlank(sortClusterTag)) {
+                        return true;
+                    }
+                    return groupInfos.get(sink.getGroupId()).getClusterTag().equals(sortClusterTag);
+                })
                 .collect(Collectors.groupingBy(sink -> {
                     SortSourceGroupInfo groupInfo = groupInfos.get(sink.getGroupId());
                     return groupInfo.getClusterTag();
@@ -303,7 +319,13 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // group them by second cluster tag.
         Map<String, List<SortSourceStreamSinkInfo>> backupTag2SinkInfos = sinkInfoList.stream()
-                .filter(info -> backupClusterTag.containsKey(info.getGroupId()))
+                .filter(sink -> backupClusterTag.containsKey(sink.getGroupId()))
+                .filter(sink -> {
+                    if (StringUtils.isBlank(sortClusterTag)) {
+                        return true;
+                    }
+                    return sortClusterTag.equals(backupClusterTag.get(sink.getGroupId()));
+                })
                 .collect(Collectors.groupingBy(info -> backupClusterTag.get(info.getGroupId())));
 
         List<CacheZone> cacheZones = this.parseCacheZonesByTag(tag2SinkInfos, false);
@@ -348,8 +370,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             SortSourceClusterInfo cluster,
             boolean isBackupTag) {
         switch (cluster.getType()) {
-            case ClusterType.PULSAR:
-                return parsePulsarZone(sinks, cluster, isBackupTag);
+            case ClusterType.PULSAR: return parsePulsarZone(sinks, cluster, isBackupTag);
             default:
                 throw new BusinessException(String.format("do not support cluster type=%s of cluster=%s",
                         cluster.getType(), cluster));
