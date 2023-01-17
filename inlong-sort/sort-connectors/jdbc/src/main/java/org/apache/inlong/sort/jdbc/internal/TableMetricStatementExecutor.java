@@ -47,16 +47,14 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  */
 public final class TableMetricStatementExecutor implements JdbcBatchStatementExecutor<RowData> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TableMetricStatementExecutor.class);
     private final StatementFactory stmtFactory;
     private final JdbcRowConverter converter;
-
-    private transient FieldNamedPreparedStatement st;
-
     private final List<RowData> batch;
     private final DirtySinkHelper<Object> dirtySinkHelper;
     private final SinkMetricData sinkMetricData;
-    private static final Logger LOG = LoggerFactory.getLogger(TableMetricStatementExecutor.class);
     private final AtomicInteger counter = new AtomicInteger();
+    private transient FieldNamedPreparedStatement st;
 
     /**
      * Keep in mind object reuse: if it's on then key extractor may be required to return new
@@ -70,6 +68,27 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         this.batch = new ArrayList<>();
         this.dirtySinkHelper = dirtySinkHelper;
         this.sinkMetricData = sinkMetricData;
+    }
+
+    /**
+     * parses an SQL exception message, and returns dirty records
+     *
+     * @param e the exception
+     * @return a string that can be compared with the return value of other parseRecord calls
+     */
+    public static void parseRecord(Exception e, List<Integer> answer) {
+        final Pattern pattern = Pattern.compile("Batch entry (\\d+) ");
+        Matcher matcher = pattern.matcher(e.getMessage());
+        if (matcher.find()) {
+            answer.add(Integer.parseInt(matcher.group(1)));
+        }
+        // if e is sql exciption, identify all dirty data, else identify only one dirty data.
+        if (e instanceof SQLException) {
+            SQLException next = ((SQLException) e).getNextException();
+            if (next != null) {
+                parseRecord(next, answer);
+            }
+        }
     }
 
     @Override
@@ -106,28 +125,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
             }
         }
     }
-
-    /**
-     * parses an SQL exception message, and returns dirty records
-     * @param e the exception
-     * @return a string that can be compared with the return value of other parseRecord calls
-     */
-    public static void parseRecord(Exception e, List<Integer> answer) {
-        final Pattern pattern = Pattern.compile("Batch entry (\\d+) ");
-        Matcher matcher = pattern.matcher(e.getMessage());
-        if (matcher.find()) {
-            answer.add(Integer.parseInt(matcher.group(1)));
-        }
-        // if e is sql exciption, identify all dirty data, else identify only one dirty data.
-        if (e instanceof SQLException) {
-            SQLException next = ((SQLException) e).getNextException();
-            if (next != null) {
-                parseRecord(next, answer);
-            }
-        }
-    }
-
-
 
     private void addMetrics() {
         Set<RowData> set = new HashSet<>();
