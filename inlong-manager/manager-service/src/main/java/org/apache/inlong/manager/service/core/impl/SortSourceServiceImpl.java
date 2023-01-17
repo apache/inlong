@@ -45,7 +45,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,7 +52,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -73,6 +71,7 @@ public class SortSourceServiceImpl implements SortSourceService {
 
     private static final Gson GSON = new Gson();
     private static final Set<String> SUPPORTED_MQ_TYPE = new HashSet<String>() {
+
         {
             add(MQType.KAFKA);
             add(MQType.TUBEMQ);
@@ -370,7 +369,8 @@ public class SortSourceServiceImpl implements SortSourceService {
             SortSourceClusterInfo cluster,
             boolean isBackupTag) {
         switch (cluster.getType()) {
-            case ClusterType.PULSAR: return parsePulsarZone(sinks, cluster, isBackupTag);
+            case ClusterType.PULSAR:
+                return parsePulsarZone(sinks, cluster, isBackupTag);
             default:
                 throw new BusinessException(String.format("do not support cluster type=%s of cluster=%s",
                         cluster.getType(), cluster));

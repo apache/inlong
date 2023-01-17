@@ -228,7 +228,6 @@ public class SortServiceImplTest extends ServiceBaseTest {
         Assertions.assertEquals("testPulsar", zone.getZoneName());
         Assertions.assertEquals(1, zone.getTopics().size());
 
-
         response = sortService.getSourceConfig(TEST_CLUSTER_3, TEST_TASK_3, "");
         jo = new JSONObject(response);
         System.out.println(jo);
