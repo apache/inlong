@@ -25,7 +25,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.util.PatternReplaceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,15 +112,18 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
      * @param e the exception
      * @return a string that can be compared with the return value of other parseRecord calls
      */
-    public static void parseRecord(SQLException e, List<Integer> answer) {
+    public static void parseRecord(Exception e, List<Integer> answer) {
         final Pattern pattern = Pattern.compile("Batch entry (\\d+) ");
         Matcher matcher = pattern.matcher(e.getMessage());
         if (matcher.find()) {
-            answer.add(Integer.parseInt(matcher.group(1)) - 1);
+            answer.add(Integer.parseInt(matcher.group(1)));
         }
-        SQLException next = e.getNextException();
-        if (next != null) {
-            parseRecord(next, answer);
+        // if e is sql exciption, identify all dirty data, else identify only one dirty data.
+        if (e instanceof SQLException) {
+            SQLException next = ((SQLException) e).getNextException();
+            if (next != null) {
+                parseRecord(next, answer);
+            }
         }
     }
 
