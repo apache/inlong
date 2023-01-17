@@ -254,7 +254,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 fieldGetters[i] = RowData.createFieldGetter(logicalTypes[i], i);
                 if ("DATE".equalsIgnoreCase(logicalTypes[i].toString())) {
                     int finalI = i;
-                    fieldGetters[i] = row -> DorisParseUtils.epochToDate(row.getInt(finalI));
+                    fieldGetters[i] = row -> {
+                        if (row.isNullAt(finalI)) {
+                            return null;
+                        }
+                        return DorisParseUtils.epochToDate(row.getInt(finalI));
+                    };
                 }
             }
         }
