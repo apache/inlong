@@ -332,7 +332,7 @@
   "meta.Sinks.Redis.ClusterNodes": "集群节点",
   "meta.Sinks.Redis.TimeoutUnit": "秒",
   "meta.Sinks.Redis.SoTimeoutUnit": "秒",
-  "meta.Sinks.Redis.ClusterModeHelper": "请选择Redis集群模式",
+  "meta.Sinks.Redis.ClusterModeHelper": "请选择 Redis 集群模式",
   "meta.Sinks.Redis.PortHelper": "请设置Redis服务器的端口, 默认: 6379",
   "meta.Sinks.Redis.FormatDataType": "数据格式",
   "meta.Sinks.Redis.FormatIgnoreParseError": "忽略数据解析错误",
