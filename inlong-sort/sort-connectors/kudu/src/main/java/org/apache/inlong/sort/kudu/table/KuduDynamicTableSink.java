@@ -20,7 +20,6 @@ package org.apache.inlong.sort.kudu.table;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -95,9 +94,6 @@ public class KuduDynamicTableSink implements DynamicTableSink {
     public DataStreamSink<?> consumeStream(DataStream<RowData> dataStream) {
 
         SinkFunction<RowData> kuduSinkFunction = createSinkFunction();
-        if (configuration.getBoolean(KuduOptions.SINK_START_NEW_CHAIN)) {
-            dataStream = ((SingleOutputStreamOperator) dataStream).startNewChain();
-        }
 
         return dataStream
                 .addSink(kuduSinkFunction)

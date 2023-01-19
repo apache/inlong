@@ -24,6 +24,10 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.apache.inlong.sort.kudu.source.KuduConsumerTask;
+import org.apache.kudu.Schema;
+import org.apache.kudu.client.KuduClient;
+import org.apache.kudu.client.KuduException;
+import org.apache.kudu.client.KuduTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,11 +42,13 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.flink.util.TimeUtils.parseDuration;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.CACHE_QUEUE_MAX_LENGTH;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_BUFFER_TIME;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.SINK_FORCE_WITH_UPSERT_MODE;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.WRITE_THREAD_COUNT;
+import static org.apache.inlong.sort.kudu.common.KuduUtils.checkSchema;
 
 /**
  * The Flink kudu Producer in async Mode.
@@ -93,10 +99,29 @@ public class KuduAsyncSinkFunction
                 namedThreadFactory,
                 new ThreadPoolExecutor.AbortPolicy());
 
+        KuduClient client = new KuduClient.KuduClientBuilder(kuduTableInfo.getMasters())
+                .build();
+        KuduTable kuduTable;
+        try {
+            String tableName = kuduTableInfo.getTableName();
+            kuduTable = client.openTable(tableName);
+            checkState(client.tableExists(tableName), "Can not find table with name:{} in kudu.", tableName);
+        } catch (KuduException e) {
+            LOG.error("Error on Open kudu table", e);
+            throw new RuntimeException(e);
+        }
+
+        // check table schema
+        Schema schema = kuduTable.getSchema();
+        try {
+            checkSchema(kuduTableInfo.getFieldNames(), kuduTableInfo.getDataTypes(), schema);
+        } catch (Exception e) {
+            LOG.error("The provided schema is invalid!", e);
+            throw new RuntimeException(e);
+        }
         boolean forceInUpsertMode = configuration.getBoolean(SINK_FORCE_WITH_UPSERT_MODE);
         for (int threadIndex = 0; threadIndex < threadCnt; threadIndex++) {
-            KuduWriter kuduWriter = new KuduWriter(kuduTableInfo);
-            kuduWriter.open();
+            KuduWriter kuduWriter = new KuduWriter(client, kuduTable, kuduTableInfo);
             KuduConsumerTask task = new KuduConsumerTask(
                     queue, kuduWriter, maxBufferSize, maxBufferTime, maxRetries);
             consumerTasks.add(task);

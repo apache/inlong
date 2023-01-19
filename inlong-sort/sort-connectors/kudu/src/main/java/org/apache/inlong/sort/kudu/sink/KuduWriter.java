@@ -23,7 +23,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.kudu.common.KuduTableInfo;
-import org.apache.kudu.Schema;
 import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.KuduException;
 import org.apache.kudu.client.KuduSession;
@@ -31,7 +30,6 @@ import org.apache.kudu.client.KuduTable;
 import org.apache.kudu.client.Operation;
 import org.apache.kudu.client.PartialRow;
 import org.apache.kudu.client.RowError;
-import org.apache.kudu.client.SessionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +42,6 @@ import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.kudu.common.KuduUtils.checkSchema;
-
 /**
  * The WriteClient for kudu, which holds a client and session.
  */
@@ -54,42 +49,23 @@ public class KuduWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(KuduWriter.class);
 
-    /**
-     * The flush mode of kudu client. <br/>
-     * AUTO_FLUSH_BACKGROUND： calls will return immediately, but the writes will be sent in the background,
-     * potentially batched together with other writes from the same session. <br/>
-     * AUTO_FLUSH_SYNC: call will return only after being flushed to the server automatically. <br/>
-     * MANUAL_FLUSH: calls will return immediately, but the writes will not be sent
-     * until the user calls <code>KuduSession.flush()</code>.
-     */
-    private final SessionConfiguration.FlushMode flushMode;
-
-    /**
-     * The masters of kudu server.
-     */
-    private final String masters;
-
-    /**
-     * The name of kudu table.
-     */
-    private final String tableName;
     private final String[] fieldNames;
     private final DataType[] dataTypes;
 
     /**
      * The client of kudu.
      */
-    private transient KuduClient client;
+    private final transient KuduClient client;
 
     /**
      * The session of kudu client.
      */
-    private transient KuduSession session;
+    private final transient KuduSession session;
 
     /**
      * The kudu table object.
      */
-    private transient KuduTable kuduTable;
+    private final transient KuduTable kuduTable;
 
     private final boolean forceInUpsertMode;
 
@@ -103,42 +79,19 @@ public class KuduWriter {
     private int applyNum = 0;
 
     public KuduWriter(
+            KuduClient client,
+            KuduTable kuduTable,
             KuduTableInfo kuduTableInfo) {
-        this.masters = kuduTableInfo.getMasters();
-        this.tableName = kuduTableInfo.getTableName();
+        LOG.info("Creating new kuduWriter: {}.", kuduTableInfo);
+        this.client = client;
+        this.kuduTable = kuduTable;
         this.fieldNames = kuduTableInfo.getFieldNames();
         this.dataTypes = kuduTableInfo.getDataTypes();
-        this.flushMode = kuduTableInfo.getFlushMode();
         this.forceInUpsertMode = kuduTableInfo.isForceInUpsertMode();
 
         this.consumeTimes = Collections.synchronizedList(new ArrayList<>(100));
-    }
-
-    public void open() {
-        this.flushThrowable = new AtomicReference<>();
-
-        this.client = new KuduClient.KuduClientBuilder(masters)
-                .build();
-        this.session = client.newSession();
-        session.setFlushMode(flushMode);
-
-        try {
-            kuduTable = this.client.openTable(this.tableName);
-            checkState(client.tableExists(tableName), "Can not find table with name:{} in kudu.", tableName);
-        } catch (KuduException e) {
-            LOG.error("Error on Open kudu table", e);
-            throw new RuntimeException(e);
-        }
-
-        // check table schema
-        Schema schema = kuduTable.getSchema();
-        try {
-            checkSchema(fieldNames, dataTypes, schema);
-        } catch (Exception e) {
-            LOG.error("The provided schema is invalid!", e);
-            throw new RuntimeException(e);
-        }
-        LOG.info("Kudu actual fieldNames: {}.", Arrays.toString(fieldNames));
+        this.session = this.client.newSession();
+        session.setFlushMode(kuduTableInfo.getFlushMode());
     }
 
     private DataType[] getExpectedDataTypes(TableSchema flinkSchema) {

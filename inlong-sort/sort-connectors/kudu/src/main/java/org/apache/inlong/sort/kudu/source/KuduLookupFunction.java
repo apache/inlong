@@ -35,7 +35,6 @@ import org.apache.kudu.client.KuduScanner;
 import org.apache.kudu.client.KuduTable;
 import org.apache.kudu.client.LocatedTablet;
 import org.apache.kudu.client.RowResult;
-import org.apache.kudu.client.RowResultIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,10 +244,7 @@ public class KuduLookupFunction extends TableFunction<Row> {
                             .collect(Collectors.toList()).toArray(new String[replicas.size()]);
                     final byte[] scanToken = token.serialize();
                     final KuduScanner scanner = KuduScanToken.deserializeIntoScanner(scanToken, client);
-                    RowResultIterator rowIterator = scanner.nextRows();
-                    while (rowIterator.hasNext()
-                            || (scanner.hasMoreRows() && (rowIterator = scanner.nextRows()).hasNext())) {
-                        final RowResult rowResult = rowIterator.next();
+                    for (RowResult rowResult : scanner) {
                         final Row row = convertor(rowResult);
                         if (cache != null) {
                             rows.add(row);

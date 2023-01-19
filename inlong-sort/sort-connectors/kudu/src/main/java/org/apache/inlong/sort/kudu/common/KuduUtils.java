@@ -64,8 +64,8 @@ import static org.apache.kudu.Type.VARCHAR;
  */
 public class KuduUtils {
 
-    private static final Map<Type, TypeInfo> KUDU_TYPE_2_TYPE_INFO_MAP = new HashMap<>(13);
-    private static final Map<Type, TypeInfo> KUDU_TYPE_2_DATA_TYPE_MAP = new HashMap<>(13);
+    private static final Map<Type, TypeInfo> KUDU_TYPE_2_TYPE_INFO_MAP = new HashMap<>();
+    private static final Map<Type, TypeInfo> KUDU_TYPE_2_DATA_TYPE_MAP = new HashMap<>();
 
     static {
         // kudu type to flink typeInfo

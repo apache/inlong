@@ -31,6 +31,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.slf4j.Logger;
@@ -94,21 +95,29 @@ public abstract class AbstractKuduSinkFunction
 
     private final String auditHostAndPorts;
 
-    private final String inlongMetric;
+    private final String inLongMetric;
+
+    private SourceMetricData sourceMetricData;
 
     public AbstractKuduSinkFunction(
             KuduTableInfo kuduTableInfo,
             Configuration configuration,
-            String inlongMetric,
+            String inLongMetric,
             String auditHostAndPorts) {
         this.kuduTableInfo = kuduTableInfo;
         this.configuration = configuration;
         this.maxRetries = configuration.getInteger(MAX_RETRIES);
         this.maxBufferSize = configuration.getInteger(MAX_BUFFER_SIZE);
-        this.inlongMetric = inlongMetric;
+        this.inLongMetric = inLongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+
+    }
+
+    @Override
+    public void open(Configuration parameters) throws Exception {
+        this.running = true;
         MetricOption metricOption = MetricOption.builder()
-                .withInlongLabels(inlongMetric)
+                .withInlongLabels(inLongMetric)
                 .withInlongAudit(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
@@ -119,11 +128,6 @@ public abstract class AbstractKuduSinkFunction
         if (metricOption != null) {
             sinkMetricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }
-    }
-
-    @Override
-    public void open(Configuration parameters) throws Exception {
-        this.running = true;
     }
 
     @Override
@@ -145,7 +149,11 @@ public abstract class AbstractKuduSinkFunction
     }
 
     @Override
-    public void snapshotState(FunctionSnapshotContext functionSnapshotContext) {
+    public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
+        if (sourceMetricData != null && metricStateListState != null) {
+            MetricStateUtils.snapshotMetricStateForSourceMetricData(metricStateListState, sourceMetricData,
+                    getRuntimeContext().getIndexOfThisSubtask());
+        }
         checkError();
         // We must store the exception caught in the flushing so that the
         // task thread can be aware of the failure.
@@ -163,7 +171,7 @@ public abstract class AbstractKuduSinkFunction
 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
-        if (this.inlongMetric != null) {
+        if (this.inLongMetric != null) {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {

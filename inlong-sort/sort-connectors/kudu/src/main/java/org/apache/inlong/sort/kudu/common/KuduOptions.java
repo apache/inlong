@@ -26,12 +26,12 @@ import org.apache.flink.configuration.ConfigOptions;
 public class KuduOptions {
 
     public static final ConfigOption<String> CONNECTOR_TABLE =
-            ConfigOptions.key("connector.table")
+            ConfigOptions.key("table")
                     .stringType()
                     .noDefaultValue().withDescription("The name of kudu table.");
 
     public static final ConfigOption<String> CONNECTOR_MASTERS =
-            ConfigOptions.key("connector.masters")
+            ConfigOptions.key("masters")
                     .stringType()
                     .noDefaultValue().withDescription(" The masters of kudu server.");
 
@@ -116,7 +116,7 @@ public class KuduOptions {
                     .withDescription("The maximum queue lengths.");
 
     public static final ConfigOption<Boolean> IGNORE_ALL_CHANGELOG =
-            ConfigOptions.key("ignore.all.changelog")
+            ConfigOptions.key("sink.ignore-all-changelog")
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Whether ignore delete/update_before/update_after message.");

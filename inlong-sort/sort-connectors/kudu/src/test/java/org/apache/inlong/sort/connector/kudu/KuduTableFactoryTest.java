@@ -94,8 +94,8 @@ public class KuduTableFactoryTest extends KuduTestBase {
 
         properties.put("connector", "kudu-inlong");
         properties.put("connector.property-version", "1");
-        properties.put("connector.masters", masters);
-        properties.put("connector.table", tableName);
+        properties.put("masters", masters);
+        properties.put("table", tableName);
 
         properties.put("schema.0.name", "key");
         properties.put("schema.0.type", "STRING");
@@ -112,4 +112,5 @@ public class KuduTableFactoryTest extends KuduTestBase {
 
         return properties;
     }
+
 }
