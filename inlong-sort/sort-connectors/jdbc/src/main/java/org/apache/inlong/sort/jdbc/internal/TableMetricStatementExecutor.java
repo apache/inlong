@@ -131,7 +131,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
                 rowSize += record.toString().getBytes(StandardCharsets.UTF_8).length;
             }
         }
-        sinkMetricData.invoke(rowCount, rowSize * 8);
+        sinkMetricData.invoke(rowCount, rowSize);
         batch.clear();
     }
 

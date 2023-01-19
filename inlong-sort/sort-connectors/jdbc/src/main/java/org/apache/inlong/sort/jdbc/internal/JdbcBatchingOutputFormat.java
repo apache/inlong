@@ -257,6 +257,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                         .setLogTag(dirtyOptions.getLogTag())
                         .setDirtyMessage(e.getMessage())
                         .setIdentifier(dirtyOptions.getIdentifier());
+                dirtySink.invoke(builder.build());
             } catch (Exception ex) {
                 if (!dirtyOptions.ignoreSideOutputErrors()) {
                     throw new RuntimeException(ex);
