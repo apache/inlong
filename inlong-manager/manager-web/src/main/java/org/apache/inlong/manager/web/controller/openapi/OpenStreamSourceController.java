@@ -17,7 +17,9 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -55,12 +57,16 @@ public class OpenStreamSourceController {
     @ApiOperation(value = "Get stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<StreamSource> get(@PathVariable Integer id) {
+        Preconditions.checkNull(id, ErrorCodeEnum.INVALID_PARAMETER, "source id is empty");
+        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sourceService.get(id, LoginUserUtils.getLoginUser()));
     }
 
     @RequestMapping(value = "/source/list", method = RequestMethod.GET)
     @ApiOperation(value = "List stream sources by paginating")
     public Response<PageResult<? extends StreamSource>> listByCondition(SourcePageRequest request) {
+        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be empty");
+        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sourceService.listByCondition(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -68,6 +74,8 @@ public class OpenStreamSourceController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save stream source")
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody SourceRequest request) {
+        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be empty");
+        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sourceService.save(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -75,6 +83,8 @@ public class OpenStreamSourceController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream source")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SourceRequest request) {
+        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be empty");
+        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sourceService.update(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -83,6 +93,8 @@ public class OpenStreamSourceController {
     @ApiOperation(value = "Delete stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
+        Preconditions.checkNull(id, ErrorCodeEnum.INVALID_PARAMETER, "source id is empty");
+        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sourceService.delete(id, LoginUserUtils.getLoginUser()));
     }
 }

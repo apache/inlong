@@ -22,7 +22,7 @@ import javax.validation.groups.Default;
 /**
  * Used for validate add request fields group
  *
- * @see UpdateValidation
+ * @see SaveValidation
  */
 public interface SaveValidation extends Default {
 
