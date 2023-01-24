@@ -344,7 +344,7 @@
   "meta.Sinks.Redis.DataSeparator.Asterisk": "星号(*)",
   "meta.Sinks.Redis.DataSeparator.DoubleQuotes": "双引号(\")",
   "meta.Sinks.Redis.FormatDataSeparator": "数据字段分隔符",
-  "meta.Sinks.Kudu.DbName": "库名",
+  "meta.Sinks.Kudu.masters": "masters",
   "meta.Sinks.Kudu.TableName": "表名",
   "meta.Sinks.Kudu.ExtListHelper": "kudu表的DDL属性需带前缀'ddl.'",
   "meta.Sinks.Kudu.ExtList": "高级参数",

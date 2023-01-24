@@ -344,7 +344,7 @@
   "meta.Sinks.Redis.DataSeparator.Asterisk": "Asterisk(*)",
   "meta.Sinks.Redis.DataSeparator.DoubleQuotes": "Double quotes(\")",
   "meta.Sinks.Redis.FormatDataSeparator": "Data separator",
-  "meta.Sinks.Kudu.DbName": "Database",
+  "meta.Sinks.Kudu.masters": "masters",
   "meta.Sinks.Kudu.TableName": "Table",
   "meta.Sinks.Kudu.ExtListHelper": "The DDL attribute of the hudi table needs to be prefixed with 'ddl.'",
   "meta.Sinks.Kudu.ExtList": "ExtList",

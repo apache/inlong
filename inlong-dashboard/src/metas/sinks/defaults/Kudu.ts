@@ -52,14 +52,16 @@ const kuduFieldTypes = [
 export default class KuduSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
   @FieldDecorator({
     type: 'input',
+    initialValue: '127.0.0.1:5071,127.0.0.1:5072',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
+      placeholder: '127.0.0.1:5071,127.0.0.1:5072',
     }),
   })
   @ColumnDecorator()
-  @I18n('meta.Sinks.Kudu.DbName')
-  dbName: string;
+  @I18n('meta.Sinks.Kudu.masters')
+  masters: string;
 
   @FieldDecorator({
     type: 'input',
