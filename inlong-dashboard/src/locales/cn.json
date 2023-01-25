@@ -346,7 +346,7 @@
   "meta.Sinks.Redis.FormatDataSeparator": "数据字段分隔符",
   "meta.Sinks.Kudu.masters": "masters",
   "meta.Sinks.Kudu.TableName": "表名",
-  "meta.Sinks.Kudu.ExtListHelper": "kudu表的DDL属性需带前缀'ddl.'",
+  "meta.Sinks.Kudu.ExtListHelper": "Kudu 表的 DDL 属性需添加'ddl.'前缀",
   "meta.Sinks.Kudu.ExtList": "高级参数",
   "meta.Sinks.Kudu.DataConsistency": "数据一致性",
   "meta.Sinks.Kudu.PartitionKeyHelper": "主键字段需以逗号分割",
