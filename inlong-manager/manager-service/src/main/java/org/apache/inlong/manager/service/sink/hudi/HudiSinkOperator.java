@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
@@ -87,7 +88,7 @@ public class HudiSinkOperator extends AbstractSinkOperator {
             Set<String> fieldNames = sinkRequest.getSinkFieldList().stream().map(SinkField::getFieldName)
                     .collect(Collectors.toSet());
             if (partitionKeyExist) {
-                List<String> partitionKeys = Arrays.asList(partitionKey.split(","));
+                List<String> partitionKeys = Arrays.asList(partitionKey.split(InlongConstants.COMMA));
                 if (!CollectionUtils.isSubCollection(partitionKeys, fieldNames)) {
                     throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
                             String.format("The partitionKey(%s) must be included in the sinkFieldList(%s)",
@@ -95,7 +96,7 @@ public class HudiSinkOperator extends AbstractSinkOperator {
                 }
             }
             if (primaryKeyExist) {
-                List<String> primaryKeys = Arrays.asList(primaryKey.split(","));
+                List<String> primaryKeys = Arrays.asList(primaryKey.split(InlongConstants.COMMA));
                 if (!CollectionUtils.isSubCollection(primaryKeys, fieldNames)) {
                     throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
                             String.format("The primaryKey(%s) must be included in the sinkFieldList(%s)",
