@@ -145,14 +145,18 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         List<RowData> toClear = new ArrayList<>();
         // find statements
         for (int i = 0; i < dirtyRecords.get(0); i++) {
-            toClear.add(batch.get(i));
-            rowSize += batch.get(i).toString().getBytes(StandardCharsets.UTF_8).length;
+            try {
+                toClear.add(batch.get(i));
+                rowSize += batch.get(i).toString().getBytes(StandardCharsets.UTF_8).length;
+            } catch (Exception e) {
+                throw new SQLException(e);
+            }
         }
         sinkMetricData.invoke(rowCount, rowSize);
-        for (int i : dirtyRecords) {
-            LOG.error("record {} is dirty", i);
+        for (int dirtyPosition : dirtyRecords) {
+            LOG.error("record {} is dirty", dirtyPosition);
             LOG.error("print batch {}", batch.toArray());
-            RowData dirtyRecord = batch.get(i);
+            RowData dirtyRecord = batch.get(dirtyPosition);
             dirtySinkHelper.invoke(dirtyRecord, DirtyType.BATCH_LOAD_ERROR, new SQLException("jdbc dirty record"));
             sinkMetricData.invokeDirty(1, dirtyRecord.toString().getBytes(StandardCharsets.UTF_8).length);
             toClear.add(dirtyRecord);
