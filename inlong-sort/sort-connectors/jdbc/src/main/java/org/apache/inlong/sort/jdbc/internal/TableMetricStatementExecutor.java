@@ -55,6 +55,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
     private final SinkMetricData sinkMetricData;
     private final AtomicInteger counter = new AtomicInteger();
     private transient FieldNamedPreparedStatement st;
+    private boolean multipleSink;
 
     /**
      * Keep in mind object reuse: if it's on then key extractor may be required to return new
@@ -73,7 +74,8 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
      * parses an SQL exception message, and returns dirty records
      *
      * @param e the exception
-     * @return a string that can be compared with the return value of other parseRecord calls
+     * @param answer the position(s) of dirty record
+     * @return as many dirty record positions as it can identify
      */
     public static void parseRecord(Exception e, List<Integer> answer) {
         final Pattern pattern = Pattern.compile("Batch entry (\\d+) ");
@@ -83,6 +85,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         }
         // if e is sql exciption, identify all dirty data, else identify only one dirty data.
         if (e instanceof SQLException) {
+            LOG.error("SQL exception found");
             SQLException next = ((SQLException) e).getNextException();
             if (next != null) {
                 parseRecord(next, answer);
@@ -95,9 +98,14 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         st = stmtFactory.createStatement(connection);
     }
 
+    public void setMultipleSink(boolean multipleSink) {
+        this.multipleSink = multipleSink;
+    }
+
     @Override
     public void addToBatch(RowData record) throws SQLException {
         batch.add(record);
+        LOG.info("record is:{},st is:{}", record, st);
         converter.toExternal(record, st);
         st.addBatch();
     }
@@ -108,8 +116,8 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
             st.executeBatch();
             addMetrics();
         } catch (SQLException e) {
-            if (counter.incrementAndGet() == 3) {
-                // parse record from error and handle
+            if (counter.incrementAndGet() == 3 || multipleSink) {
+                LOG.info("record parse start");
                 List<Integer> dirtyRecords = new ArrayList<>();
                 parseRecord(e, dirtyRecords);
                 handleDirty(dirtyRecords);
@@ -147,8 +155,9 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         sinkMetricData.invoke(rowCount, rowSize);
         for (int i : dirtyRecords) {
             LOG.error("record {} is dirty", i);
+            LOG.error("print batch {}", batch.toArray());
             RowData dirtyRecord = batch.get(i);
-            dirtySinkHelper.invoke(dirtyRecord, DirtyType.BATCH_LOAD_ERROR, new SQLException());
+            dirtySinkHelper.invoke(dirtyRecord, DirtyType.BATCH_LOAD_ERROR, new SQLException("jdbc dirty record"));
             sinkMetricData.invokeDirty(1, dirtyRecord.toString().getBytes(StandardCharsets.UTF_8).length);
             toClear.add(dirtyRecord);
         }

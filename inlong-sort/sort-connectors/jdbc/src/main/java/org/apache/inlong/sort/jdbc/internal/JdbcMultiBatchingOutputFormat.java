@@ -27,9 +27,13 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.internal.connection.JdbcConnectionProvider;
 import org.apache.flink.connector.jdbc.internal.connection.SimpleJdbcConnectionProvider;
+import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
+import org.apache.flink.connector.jdbc.internal.executor.TableBufferReducedStatementExecutor;
+import org.apache.flink.connector.jdbc.internal.executor.TableSimpleStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
+import org.apache.flink.connector.jdbc.statement.StatementFactory;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
@@ -43,7 +47,6 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
-import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.MetricOption;
@@ -58,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -289,12 +293,39 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 return null;
             }
             connectionExecProviderMap.put(tableIdentifier, tableConnectionProvider);
+
+            if (!schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.THROW_WITH_STOP)) {
+                try {
+                    enhanceExecutor(jdbcExec);
+                } catch (Exception e) {
+                    LOG.info("enhance executor failed : {} {}",
+                            e.getMessage(), e.getStackTrace(), jdbcExec.getClass());
+                }
+            }
+
             jdbcExec.prepareStatements(tableConnectionProvider.getConnection());
         } catch (Exception e) {
             return null;
         }
         jdbcExecMap.put(tableIdentifier, jdbcExec);
         return jdbcExec;
+    }
+
+    private void enhanceExecutor(JdbcExec exec) throws NoSuchFieldException, IllegalAccessException {
+        // given a TableBufferReducedStatementExecutor, enhance its upsertExecutor to become
+        // tablemetricstatementexecutor
+        Field f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+        f1.setAccessible(true);
+        TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) f1.get(exec);
+        Field f2 = TableSimpleStatementExecutor.class.getDeclaredField("stmtFactory");
+        Field f3 = TableSimpleStatementExecutor.class.getDeclaredField("converter");
+        f2.setAccessible(true);
+        f3.setAccessible(true);
+        final StatementFactory stmtFactory = (StatementFactory) f2.get(executor);
+        final JdbcRowConverter converter = (JdbcRowConverter) f3.get(executor);
+        TableMetricStatementExecutor newExecutor =
+                new TableMetricStatementExecutor(stmtFactory, converter, dirtySinkHelper, sinkMetricData);
+        f1.set(exec, newExecutor);
     }
 
     public void getAndSetPkNamesFromDb(String tableIdentifier) {
@@ -520,6 +551,21 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                         totalDataSize, false);
             } catch (Exception e) {
+                if (dirtySinkHelper.getDirtySink() != null) {
+                    try {
+                        Field f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+                        f1.setAccessible(true);
+                        TableMetricStatementExecutor executor =
+                                (TableMetricStatementExecutor) f1.get(jdbcStatementExecutor);
+                        executor.setMultipleSink(true);
+                        jdbcStatementExecutor.executeBatch();
+                        tableIdRecordList.clear();
+                        return;
+                    } catch (Exception ex) {
+                        throw new IOException(
+                                "unable to archive dirty data for jdbc multiple sink", e);
+                    }
+                }
                 tableException = e;
                 LOG.warn("Flush all data for tableIdentifier:{} get err:", tableIdentifier, e);
                 getAndSetPkFromErrMsg(tableIdentifier, e.getMessage());
@@ -565,10 +611,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                                 tableIdentifier, tableException.getMessage());
                         outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                 1L, true);
-                        if (!schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.THROW_WITH_STOP)) {
-                            dirtySinkHelper.invokeMultiple(record, DirtyType.RETRY_LOAD_ERROR, tableException,
-                                    sinkMultipleFormat);
-                        }
                         tableExceptionMap.put(tableIdentifier, tableException);
                         if (stopWritingWhenTableException) {
                             LOG.info("Stop write table:{} because occur exception",

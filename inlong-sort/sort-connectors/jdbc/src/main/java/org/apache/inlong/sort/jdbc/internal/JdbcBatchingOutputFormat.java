@@ -370,6 +370,9 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     }
 
     private void enhanceExecutor(JdbcExec exec) throws NoSuchFieldException, IllegalAccessException {
+        if (dirtySink == null) {
+            return;
+        }
         final DirtySinkHelper dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
         // given a TableBufferReducedStatementExecutor, enhance its upsertExecutor to become
         // tablemetricstatementexecutor
