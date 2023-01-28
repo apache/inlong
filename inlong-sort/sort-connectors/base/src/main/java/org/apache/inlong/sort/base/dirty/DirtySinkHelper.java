@@ -87,7 +87,8 @@ public class DirtySinkHelper<T> implements Serializable {
                         .setLogTag(dirtyOptions.getLogTag())
                         .setDirtyMessage(e.getMessage())
                         .setIdentifier(dirtyOptions.getIdentifier());
-                LOGGER.info("dirty sink build debug: {}, {}, {}, {}", dirtyData, dirtyType, dirtyOptions.getLabels(),
+                LOGGER.info("dirty sink build debug: {}, {}, {}, {}, {}, {}",
+                        dirtyData, dirtyType, dirtyOptions.getLabels(),
                         dirtyOptions.getLogTag(), dirtyOptions.getIdentifier(), e.getMessage());
                 dirtySink.invoke(builder.build());
             } catch (Exception ex) {

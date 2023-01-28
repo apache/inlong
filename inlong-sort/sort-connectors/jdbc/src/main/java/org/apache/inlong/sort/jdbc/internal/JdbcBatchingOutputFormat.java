@@ -31,6 +31,7 @@ import org.apache.flink.connector.jdbc.internal.connection.SimpleJdbcConnectionP
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.executor.TableBufferReducedStatementExecutor;
+import org.apache.flink.connector.jdbc.internal.executor.TableBufferedStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.executor.TableSimpleStatementExecutor;
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
@@ -374,10 +375,17 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             return;
         }
         final DirtySinkHelper dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
-        // given a TableBufferReducedStatementExecutor, enhance its upsertExecutor to become
-        // tablemetricstatementexecutor
-        Field f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+        // enhance the actual executor to tablemetricstatementexecutor
+        Field f1;
+        if (exec instanceof TableBufferReducedStatementExecutor) {
+            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+        } else if (exec instanceof TableBufferedStatementExecutor) {
+            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("statementExecutor");
+        } else {
+            throw new RuntimeException("table enhance failed, can't enhance " + exec.getClass());
+        }
         f1.setAccessible(true);
+        LOG.info("actual executor type:{}", f1.get(exec).getClass());
         TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) f1.get(exec);
         Field f2 = TableSimpleStatementExecutor.class.getDeclaredField("stmtFactory");
         Field f3 = TableSimpleStatementExecutor.class.getDeclaredField("converter");

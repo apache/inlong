@@ -57,10 +57,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
     private transient FieldNamedPreparedStatement st;
     private boolean multipleSink;
 
-    /**
-     * Keep in mind object reuse: if it's on then key extractor may be required to return new
-     * object.
-     */
     public TableMetricStatementExecutor(StatementFactory stmtFactory, JdbcRowConverter converter,
             DirtySinkHelper<Object> dirtySinkHelper, SinkMetricData sinkMetricData) {
         this.stmtFactory = checkNotNull(stmtFactory);
