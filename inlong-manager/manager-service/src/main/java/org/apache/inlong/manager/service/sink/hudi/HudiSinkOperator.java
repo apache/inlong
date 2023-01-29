@@ -82,8 +82,8 @@ public class HudiSinkOperator extends AbstractSinkOperator {
 
         String partitionKey = sinkRequest.getPartitionKey();
         String primaryKey = sinkRequest.getPrimaryKey();
-        boolean primaryKeyExist = StringUtils.isNotBlank(partitionKey);
-        boolean partitionKeyExist = StringUtils.isNotBlank(primaryKey);
+        boolean primaryKeyExist = StringUtils.isNotBlank(primaryKey);
+        boolean partitionKeyExist = StringUtils.isNotBlank(partitionKey);
         if (primaryKeyExist || partitionKeyExist) {
             Set<String> fieldNames = sinkRequest.getSinkFieldList().stream().map(SinkField::getFieldName)
                     .collect(Collectors.toSet());
