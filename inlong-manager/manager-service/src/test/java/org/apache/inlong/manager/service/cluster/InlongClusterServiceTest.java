@@ -158,10 +158,12 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * Update cluster node info.
      */
-    public Boolean updateClusterNode(Integer id, Integer parentId, String ip, Integer port, Integer version) {
+    public Boolean updateClusterNode(Integer id, Integer parentId, String clusterType, String ip, Integer port,
+            Integer version) {
         ClusterNodeRequest request = new ClusterNodeRequest();
         request.setId(id);
         request.setParentId(parentId);
+        request.setType(clusterType);
         request.setIp(ip);
         request.setPort(port);
         request.setVersion(version);
@@ -230,7 +232,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         String ipUpdate = "localhost";
         Integer portUpdate = 8083;
         Integer version = listNode.getList().get(0).getVersion();
-        Boolean updateNodeSuccess = this.updateClusterNode(nodeId, parentId, ipUpdate, portUpdate, version);
+        Boolean updateNodeSuccess =
+                this.updateClusterNode(nodeId, parentId, ClusterType.PULSAR, ipUpdate, portUpdate, version);
         Assertions.assertTrue(updateNodeSuccess);
 
         // delete cluster node
@@ -285,7 +288,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         String ipUpdate = "localhost";
         Integer portUpdate = 8083;
         Integer version = listNode.getList().get(0).getVersion();
-        Boolean updateNodeSuccess = this.updateClusterNode(nodeId, parentId, ipUpdate, portUpdate, version);
+        Boolean updateNodeSuccess =
+                this.updateClusterNode(nodeId, parentId, ClusterType.PULSAR, ipUpdate, portUpdate, version);
         Assertions.assertTrue(updateNodeSuccess);
 
         // delete cluster node
