@@ -93,9 +93,11 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * Update cluster info.
      */
-    public Boolean updatePulsarCluster(Integer id, String name, String clusterTag, String adminUrl, Integer version) {
+    public Boolean updatePulsarCluster(Integer id, String clusterType, String name, String clusterTag, String adminUrl,
+            Integer version) {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setId(id);
+        request.setType(clusterType);
         request.setName(name);
         request.setClusterTags(clusterTag);
         request.setAdminUrl(adminUrl);
@@ -107,9 +109,11 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * Update cluster by unique key.
      */
-    public UpdateResult updatePulsarClusterByKey(String name, String clusterTag, String adminUrl, Integer version) {
+    public UpdateResult updatePulsarClusterByKey(String name, String clusterType, String clusterTag, String adminUrl,
+            Integer version) {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setName(name);
+        request.setType(clusterType);
         request.setClusterTags(clusterTag);
         request.setAdminUrl(adminUrl);
         request.setInCharges(GLOBAL_OPERATOR);
@@ -213,8 +217,9 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         String clusterNameUpdate = "default_pulsar_2";
         String clusterTagUpdate = "default_cluster_2";
         String adminUrlUpdate = "http://127.0.0.1:8088";
-        Boolean updateSuccess = this.updatePulsarCluster(id, clusterNameUpdate, clusterTagUpdate, adminUrlUpdate,
-                pulsarCluster.getVersion());
+        Boolean updateSuccess =
+                this.updatePulsarCluster(id, ClusterType.PULSAR, clusterNameUpdate, clusterTagUpdate, adminUrlUpdate,
+                        pulsarCluster.getVersion());
         Assertions.assertTrue(updateSuccess);
 
         // save cluster node
@@ -264,8 +269,9 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // update cluster by unique key
         String clusterTagUpdate = "default_cluster_2";
         String adminUrlUpdate = "http://127.0.0.1:8088";
-        UpdateResult updateResult = this.updatePulsarClusterByKey(clusterName, clusterTagUpdate, adminUrlUpdate,
-                pulsarCluster.getVersion());
+        UpdateResult updateResult =
+                this.updatePulsarClusterByKey(clusterName, ClusterType.PULSAR, clusterTagUpdate, adminUrlUpdate,
+                        pulsarCluster.getVersion());
         Assertions.assertTrue(updateResult.getSuccess());
         Assertions.assertEquals(pulsarCluster.getVersion() + 1, updateResult.getVersion());
         ClusterInfo afterUpdate = clusterService.getOne(clusterTagUpdate, clusterName, ClusterType.PULSAR);
