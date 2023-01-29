@@ -55,7 +55,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
     private boolean multipleSink;
     private Function<RowData, RowData> valueTransform = null;
     // counters used for table level metric calculation for multiple sink
-    public final long[] metric = new long[4];
+    public long[] metric = new long[4];
 
     public TableMetricStatementExecutor(StatementFactory stmtFactory, JdbcRowConverter converter,
             DirtySinkHelper<Object> dirtySinkHelper, SinkTableMetricData sinkMetricData) {

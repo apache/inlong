@@ -578,6 +578,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                     try {
                         outputMetrics(tableIdentifier);
                     } catch (Exception e) {
+                        LOG.error("enhance exception:{}", e);
                         outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                 totalDataSize, false);
                     }
@@ -614,6 +615,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                                 try {
                                     outputMetrics(tableIdentifier);
                                 } catch (Exception e) {
+                                    LOG.error("enhance exception:{}", e);
                                     outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                             totalDataSize, false);
                                 }
@@ -679,24 +681,17 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
     private void outputMetrics(String tableIdentifier) throws NoSuchFieldException, IllegalAccessException {
         String[] fieldArray = tableIdentifier.split("\\.");
         // throw an exception if the executor is not enhanced
-        JdbcExec exec = jdbcExecMap.get(tableIdentifier);
-        Field f1;
-        if (exec instanceof TableBufferReducedStatementExecutor) {
-            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
-        } else if (exec instanceof TableBufferedStatementExecutor) {
-            f1 = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
-        } else {
-            throw new RuntimeException("table enhance failed, can't enhance " + exec.getClass());
+        JdbcExec executor = jdbcExecMap.get(tableIdentifier);
+        if (!(executor instanceof TableMetricStatementExecutor)) {
+            throw new NoSuchFieldException(executor.getClass().toString());
         }
-        f1.setAccessible(true);
-        TableMetricStatementExecutor executor = (TableMetricStatementExecutor) f1.get(exec);
-
         Field metricField = TableMetricStatementExecutor.class.getDeclaredField("metric");
         long[] metrics = (long[]) metricField.get(executor);
         long cleanCount = metrics[0];
         long cleanSize = metrics[1];
         long dirtyCount = metrics[2];
         long dirtySize = metrics[3];
+        LOG.info("enhanced counts:{},{}", cleanCount, dirtyCount);
 
         if (fieldArray.length == 3) {
             sinkMetricData.outputDirtyMetrics(fieldArray[0], fieldArray[1], fieldArray[2],
