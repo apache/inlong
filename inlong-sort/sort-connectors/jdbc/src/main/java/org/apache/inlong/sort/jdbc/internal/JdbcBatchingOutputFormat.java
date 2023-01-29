@@ -191,6 +191,10 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                                     if (!closed) {
                                         try {
                                             flush();
+                                            if (sinkMetricData != null && dirtySink == null) {
+                                                sinkMetricData.invoke(rowSize, dataSize);
+                                            }
+                                            resetStateAfterFlush();
                                         } catch (Exception e) {
                                             resetStateAfterFlush();
                                             flushException = e;
@@ -285,6 +289,9 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             if (executionOptions.getBatchSize() > 0
                     && batchCount >= executionOptions.getBatchSize()) {
                 flush();
+                if (sinkMetricData != null && dirtySink == null) {
+                    sinkMetricData.invoke(rowSize, dataSize);
+                }
                 resetStateAfterFlush();
             }
         } catch (Exception e) {
