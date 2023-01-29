@@ -26,9 +26,6 @@ import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
-import java.util.HashMap;
-import java.util.List;
-
 /**
  * Kudu sink request.
  */
@@ -47,9 +44,6 @@ public class KuduSinkRequest extends SinkRequest {
 
     @ApiModelProperty("Target table name")
     private String tableName;
-
-    @ApiModelProperty("Extended properties")
-    private List<HashMap<String, String>> extList;
 
     @ApiModelProperty("Partition field list")
     private String partitionKey;

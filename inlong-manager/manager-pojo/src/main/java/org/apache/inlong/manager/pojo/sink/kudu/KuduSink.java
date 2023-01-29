@@ -30,9 +30,6 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-import java.util.HashMap;
-import java.util.List;
-
 /**
  * Kudu sink info
  */
@@ -50,9 +47,6 @@ public class KuduSink extends StreamSink {
 
     @ApiModelProperty("Target table name")
     private String tableName;
-
-    @ApiModelProperty("Extended properties")
-    private List<HashMap<String, String>> extList;
 
     @ApiModelProperty("Partition field list")
     private String partitionKey;

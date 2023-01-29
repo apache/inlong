@@ -27,7 +27,6 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,9 +48,6 @@ public class KuduSinkDTO {
     @ApiModelProperty("Properties for Kudu")
     private Map<String, Object> properties;
 
-    @ApiModelProperty("Extended properties")
-    private List<HashMap<String, String>> extList;
-
     @ApiModelProperty("Partition field list")
     private String partitionKey;
 
@@ -64,7 +60,6 @@ public class KuduSinkDTO {
                 .masters(request.getMasters())
                 .partitionKey(request.getPartitionKey())
                 .properties(request.getProperties())
-                .extList(request.getExtList())
                 .build();
     }
 

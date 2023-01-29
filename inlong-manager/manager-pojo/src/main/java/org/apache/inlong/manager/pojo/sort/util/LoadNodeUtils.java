@@ -398,7 +398,6 @@ public class LoadNodeUtils {
             List<FieldInfo> fieldInfos,
             List<FieldRelation> fieldRelations,
             Map<String, String> properties) {
-        Format format = null;
         return new KuduLoadNode(
                 kuduSink.getSinkName(),
                 kuduSink.getSinkName(),
@@ -410,8 +409,7 @@ public class LoadNodeUtils {
                 properties,
                 kuduSink.getMasters(),
                 kuduSink.getTableName(),
-                kuduSink.getPartitionKey(),
-                kuduSink.getExtList());
+                kuduSink.getPartitionKey());
     }
 
     private static LoadNode createLoadNode(

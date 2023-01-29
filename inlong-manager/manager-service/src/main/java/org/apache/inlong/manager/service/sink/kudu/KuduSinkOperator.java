@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.sink.kudu;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
@@ -76,7 +77,7 @@ public class KuduSinkOperator extends AbstractSinkOperator {
         if (StringUtils.isBlank(masters)) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED, "masters can not be empty!");
         }
-        if (masters.contains(";")) {
+        if (masters.contains(InlongConstants.SEMICOLON)) {
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED, "masters can not contain comma!");
         }
 
@@ -85,7 +86,7 @@ public class KuduSinkOperator extends AbstractSinkOperator {
         if (partitionKeyExist) {
             Set<String> fieldNames = sinkRequest.getSinkFieldList().stream().map(SinkField::getFieldName)
                     .collect(Collectors.toSet());
-            List<String> partitionKeys = Arrays.asList(partitionKey.split(","));
+            List<String> partitionKeys = Arrays.asList(partitionKey.split(InlongConstants.COMMA));
             if (!CollectionUtils.isSubCollection(partitionKeys, fieldNames)) {
                 throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
                         String.format("The partitionKey(%s) must be included in the sinkFieldList(%s)",
