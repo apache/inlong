@@ -20,8 +20,9 @@ package org.apache.inlong.manager.pojo.transform;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
+import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 /**
  * Delete request of transform
@@ -30,16 +31,22 @@ import javax.validation.constraints.NotBlank;
 @ApiModel("Delete request of stream transform")
 public class DeleteTransformRequest {
 
-    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty("Inlong group id")
+    @NotBlank(message = "inlongGroupId cannot be blank")
+    @Length(min = 4, max = 100, message = "length must be between 4 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
 
-    @NotBlank(message = "inlongStreamId cannot be blank")
     @ApiModelProperty("Inlong stream id")
+    @NotBlank(message = "inlongStreamId cannot be blank")
+    @Length(min = 4, max = 100, message = "inlongStreamId length must be between 4 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "inlongStreamId only supports lowercase letters, numbers, '-', or '_'")
     private String inlongStreamId;
 
-    @NotBlank(message = "transformName cannot be blank")
     @ApiModelProperty("Transform name, unique in one stream")
+    @NotBlank(message = "transformName cannot be blank")
+    @Length(min = 1, max = 100, message = "transformName length must be between 1 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{1,100}$", message = "transformName only supports lowercase letters, numbers, '-', or '_'")
     private String transformName;
 
 }

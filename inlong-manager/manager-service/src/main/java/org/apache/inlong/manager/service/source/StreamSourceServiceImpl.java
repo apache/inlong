@@ -65,7 +65,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -124,14 +123,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public Integer save(SourceRequest request, UserInfo opInfo) {
-        // check request parameter
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.REQUEST_IS_EMPTY);
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         // Check if it can be added
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getInlongGroupId());
         if (groupEntity == null) {
@@ -195,14 +186,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public StreamSource get(Integer id, UserInfo opInfo) {
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
-        // check source id
-        if (id == null) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "source id is empty");
-        }
         StreamSourceEntity entity = sourceMapper.selectById(id);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND,
@@ -298,16 +281,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public PageResult<? extends StreamSource> listByCondition(SourcePageRequest request, UserInfo opInfo) {
-        // check request parameter
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.REQUEST_IS_EMPTY);
-        }
         if (StringUtils.isBlank(request.getInlongGroupId())) {
             throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
@@ -361,7 +336,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     public Boolean update(SourceRequest request, String operator) {
         LOGGER.info("begin to update source info: {}", request);
         // check request parameter
-        checkRequestParams(request);
+        chkUnmodifiableParams(request);
 
         // Check if it can be modified
         String groupId = request.getInlongGroupId();
@@ -382,12 +357,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean update(SourceRequest request, UserInfo opInfo) {
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         // check request parameter
-        checkRequestParams(request);
+        chkUnmodifiableParams(request);
         // Check if it can be update
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getInlongGroupId());
         if (groupEntity == null) {
@@ -466,13 +437,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean delete(Integer id, UserInfo opInfo) {
-        if (id == null) {
-            throw new BusinessException(ErrorCodeEnum.ID_IS_EMPTY);
-        }
-        // check opInfo
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         if (entity == null) {
             return true;
@@ -634,11 +598,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(sourceName, ErrorCodeEnum.SOURCE_NAME_IS_NULL.getMessage());
     }
 
-    private void checkRequestParams(SourceRequest request) {
-        // check request parameter
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.REQUEST_IS_EMPTY);
-        }
+    private void chkUnmodifiableParams(SourceRequest request) {
         // check record exists
         StreamSourceEntity entity = sourceMapper.selectById(request.getId());
         if (entity == null) {
@@ -646,17 +606,13 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                     String.format("not found source record by id=%d", request.getId()));
         }
         // check whether modify sourceType
-        if (!Objects.equals(entity.getSourceType(), request.getSourceType())) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "sourceType not allowed modify");
-        }
+        Preconditions.chkNotEquals(entity.getSourceType(), request.getSourceType(),
+                ErrorCodeEnum.INVALID_PARAMETER, "sourceType not allowed modify");
         // check record version
-        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
-                    String.format("source has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
-                            request.getInlongGroupId(), request.getInlongStreamId(), request.getSourceName(),
-                            request.getVersion()));
-        }
+        Preconditions.chkNotEquals(entity.getVersion(), request.getVersion(),
+                ErrorCodeEnum.CONFIG_EXPIRED,
+                String.format("record has expired with record version=%d, request version=%d",
+                        entity.getVersion(), request.getVersion()));
         // check whether modify groupId
         if (StringUtils.isNotBlank(request.getInlongGroupId())
                 && !entity.getInlongGroupId().equals(request.getInlongGroupId())) {
