@@ -564,7 +564,15 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             } catch (Exception e) {
                 if (dirtySinkHelper.getDirtySink() != null) {
                     try {
-                        Field f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+                        Field f1;
+                        if (jdbcStatementExecutor instanceof TableBufferReducedStatementExecutor) {
+                            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+                        } else if (jdbcStatementExecutor instanceof TableBufferedStatementExecutor) {
+                            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("statementExecutor");
+                        } else {
+                            throw new RuntimeException("table enhance failed, can't enhance "
+                                    + jdbcStatementExecutor.getClass());
+                        }
                         f1.setAccessible(true);
                         TableMetricStatementExecutor executor =
                                 (TableMetricStatementExecutor) f1.get(jdbcStatementExecutor);
