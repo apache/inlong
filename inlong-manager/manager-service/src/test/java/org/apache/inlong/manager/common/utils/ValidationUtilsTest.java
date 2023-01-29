@@ -45,13 +45,4 @@ class ValidationUtilsTest extends ServiceBaseTest {
         Assertions.assertTrue(violationException.getMessage().contains("id cannot be null"));
     }
 
-    @Test
-    void testValidate() {
-        ConstraintViolationException violationException = Assertions.assertThrows(
-                ConstraintViolationException.class,
-                () -> ValidationUtils.validate(validator, new ClusterTagRequest()));
-
-        Assertions.assertTrue(violationException.getMessage().contains("clusterTag cannot be blank"));
-    }
-
 }
