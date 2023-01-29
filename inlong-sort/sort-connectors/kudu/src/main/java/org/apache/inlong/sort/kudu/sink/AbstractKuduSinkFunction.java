@@ -131,9 +131,7 @@ public abstract class AbstractKuduSinkFunction
     }
 
     @Override
-    public void invoke(
-            RowData row,
-            Context context) throws Exception {
+    public void invoke(RowData row, Context context) throws Exception {
         addBatch(row);
         sendMetrics(row.toString().getBytes());
     }
