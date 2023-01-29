@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +28,7 @@ import org.apache.inlong.common.pojo.sdk.Topic;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
@@ -293,7 +293,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             String clusterName,
             List<SortSourceStreamSinkInfo> sinkList) {
 
-        Preconditions.checkNotNull(sortClusters.get(clusterName));
+        Preconditions.checkNotNull(sortClusters.get(clusterName), "sort cluster should not be NULL");
         String sortClusterTag = sortClusters.get(clusterName).getClusterTags();
 
         // get group infos
