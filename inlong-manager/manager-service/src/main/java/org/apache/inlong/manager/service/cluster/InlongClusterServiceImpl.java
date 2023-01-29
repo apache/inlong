@@ -642,15 +642,14 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // check parameters
         chkUnmodifiableParams(entity, request);
         // check whether the cluster already exists
-        if (StringUtils.isNotBlank(request.getClusterTags())) {
-            List<InlongClusterEntity> exist = clusterMapper.selectByKey(
-                    request.getClusterTags(), request.getName(), request.getType());
-            if (CollectionUtils.isNotEmpty(exist) && !Objects.equals(request.getId(), exist.get(0).getId())) {
-                throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
-                        String.format("inlong cluster already exist for cluster tag=%s name=%s type=%s",
-                                request.getClusterTags(), request.getName(), request.getType()));
-            }
+        List<InlongClusterEntity> exist = clusterMapper.selectByKey(
+                request.getClusterTags(), request.getName(), request.getType());
+        if (CollectionUtils.isNotEmpty(exist) && !Objects.equals(request.getId(), exist.get(0).getId())) {
+            throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
+                    String.format("inlong cluster already exist for cluster tag=%s name=%s type=%s",
+                            request.getClusterTags(), request.getName(), request.getType()));
         }
+        // update record
         InlongClusterOperator instance = clusterOperatorFactory.getInstance(request.getType());
         instance.updateOpt(request, opInfo.getName());
         return true;
@@ -1491,7 +1490,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (StringUtils.isBlank(request.getName())) {
             request.setName(entity.getName());
         }
-        Preconditions.chkNotEquals(entity.getName(), request.getName(),
-                ErrorCodeEnum.INVALID_PARAMETER, "cluster name not allowed modify");
+        // check and append clusterTag
+        if (StringUtils.isBlank(request.getClusterTags())) {
+            request.setClusterTags(entity.getClusterTags());
+        }
     }
 }
