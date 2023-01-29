@@ -54,6 +54,7 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -212,7 +213,10 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             StatementExecutorFactory<JdbcExec> statementExecutorFactory) throws IOException {
         JdbcExec exec = statementExecutorFactory.apply(getRuntimeContext());
         try {
-            enhanceExecutor(exec);
+            JdbcExec newExecutor = enhanceExecutor(exec);
+            if (newExecutor != null) {
+                exec = newExecutor;
+            }
         } catch (Exception e) {
             LOG.info("class enhance failed");
         }
@@ -377,9 +381,9 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         }
     }
 
-    private void enhanceExecutor(JdbcExec exec) throws NoSuchFieldException, IllegalAccessException {
+    private JdbcExec enhanceExecutor(JdbcExec exec) throws NoSuchFieldException, IllegalAccessException {
         if (dirtySink == null) {
-            return;
+            return null;
         }
         final DirtySinkHelper dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
         // enhance the actual executor to tablemetricstatementexecutor
@@ -387,7 +391,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         if (exec instanceof TableBufferReducedStatementExecutor) {
             f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
         } else if (exec instanceof TableBufferedStatementExecutor) {
-            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("statementExecutor");
+            f1 = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
         } else {
             throw new RuntimeException("table enhance failed, can't enhance " + exec.getClass());
         }
@@ -401,8 +405,17 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         final StatementFactory stmtFactory = (StatementFactory) f2.get(executor);
         final JdbcRowConverter converter = (JdbcRowConverter) f3.get(executor);
         TableMetricStatementExecutor newExecutor =
-                new TableMetricStatementExecutor(stmtFactory, converter, dirtySinkHelper, sinkMetricData);
+                new TableMetricStatementExecutor(stmtFactory, converter, dirtySinkHelper,
+                        (SinkTableMetricData) sinkMetricData);
+        if (exec instanceof TableBufferedStatementExecutor) {
+            f1 = TableBufferedStatementExecutor.class.getDeclaredField("valueTransform");
+            f1.setAccessible(true);
+            Function<RowData, RowData> valueTransform = (Function<RowData, RowData>) f1.get(exec);
+            newExecutor.setValueTransform(valueTransform);
+            return (JdbcExec) newExecutor;
+        }
         f1.set(exec, newExecutor);
+        return null;
     }
 
     protected void attemptFlush() throws SQLException {

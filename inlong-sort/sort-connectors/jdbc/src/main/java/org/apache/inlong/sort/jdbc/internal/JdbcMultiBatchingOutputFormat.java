@@ -297,7 +297,10 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
 
             if (!schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.THROW_WITH_STOP)) {
                 try {
-                    enhanceExecutor(jdbcExec);
+                    JdbcExec newExecutor = enhanceExecutor(jdbcExec);
+                    if (newExecutor != null) {
+                        jdbcExec = newExecutor;
+                    }
                 } catch (Exception e) {
                     LOG.info("enhance executor failed : {} ,{} ,{}",
                             e.getMessage(), e.getStackTrace(), jdbcExec.getClass());
@@ -312,16 +315,16 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         return jdbcExec;
     }
 
-    private void enhanceExecutor(JdbcExec exec) throws NoSuchFieldException, IllegalAccessException {
+    private JdbcExec enhanceExecutor(JdbcExec exec) throws NoSuchFieldException, IllegalAccessException {
         if (dirtySinkHelper.getDirtySink() == null) {
-            return;
+            return null;
         }
         // enhance the actual executor to tablemetricstatementexecutor
         Field f1;
         if (exec instanceof TableBufferReducedStatementExecutor) {
             f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
         } else if (exec instanceof TableBufferedStatementExecutor) {
-            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("statementExecutor");
+            f1 = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
         } else {
             throw new RuntimeException("table enhance failed, can't enhance " + exec.getClass());
         }
@@ -336,7 +339,16 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         final JdbcRowConverter converter = (JdbcRowConverter) f3.get(executor);
         TableMetricStatementExecutor newExecutor =
                 new TableMetricStatementExecutor(stmtFactory, converter, dirtySinkHelper, sinkMetricData);
+        newExecutor.setMultipleSink(true);
+        if (exec instanceof TableBufferedStatementExecutor) {
+            f1 = TableBufferedStatementExecutor.class.getDeclaredField("valueTransform");
+            f1.setAccessible(true);
+            Function<RowData, RowData> valueTransform = (Function<RowData, RowData>) f1.get(exec);
+            newExecutor.setValueTransform(valueTransform);
+            return (JdbcExec) newExecutor;
+        }
         f1.set(exec, newExecutor);
+        return null;
     }
 
     public void getAndSetPkNamesFromDb(String tableIdentifier) {
@@ -559,36 +571,24 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 }
                 jdbcStatementExecutor.executeBatch();
                 flushFlag = true;
-                outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
-                        totalDataSize, false);
-            } catch (Exception e) {
-                if (dirtySinkHelper.getDirtySink() != null) {
+                if (dirtySinkHelper.getDirtySink() == null) {
+                    outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
+                            totalDataSize, false);
+                } else {
                     try {
-                        Field f1;
-                        if (jdbcStatementExecutor instanceof TableBufferReducedStatementExecutor) {
-                            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
-                        } else if (jdbcStatementExecutor instanceof TableBufferedStatementExecutor) {
-                            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("statementExecutor");
-                        } else {
-                            throw new RuntimeException("table enhance failed, can't enhance "
-                                    + jdbcStatementExecutor.getClass());
-                        }
-                        f1.setAccessible(true);
-                        TableMetricStatementExecutor executor =
-                                (TableMetricStatementExecutor) f1.get(jdbcStatementExecutor);
-                        executor.setMultipleSink(true);
-                        jdbcStatementExecutor.executeBatch();
-                        tableIdRecordList.clear();
-                        return;
-                    } catch (Exception ex) {
-                        throw new IOException(
-                                "unable to archive dirty data for jdbc multiple sink", e);
+                        outputMetrics(tableIdentifier);
+                    } catch (Exception e) {
+                        outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
+                                totalDataSize, false);
                     }
                 }
+            } catch (Exception e) {
                 tableException = e;
                 LOG.warn("Flush all data for tableIdentifier:{} get err:", tableIdentifier, e);
-                getAndSetPkFromErrMsg(tableIdentifier, e.getMessage());
-                updateOneExecutor(true, tableIdentifier);
+                if (dirtySinkHelper.getDirtySink() == null) {
+                    getAndSetPkFromErrMsg(tableIdentifier, e.getMessage());
+                    updateOneExecutor(true, tableIdentifier);
+                }
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
@@ -607,7 +607,17 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                             jdbcStatementExecutor.executeBatch();
                             Long totalDataSize =
                                     Long.valueOf(record.toString().getBytes(StandardCharsets.UTF_8).length);
-                            outputMetrics(tableIdentifier, 1L, totalDataSize, false);
+                            if (dirtySinkHelper.getDirtySink() == null) {
+                                outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
+                                        totalDataSize, false);
+                            } else {
+                                try {
+                                    outputMetrics(tableIdentifier);
+                                } catch (Exception e) {
+                                    outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
+                                            totalDataSize, false);
+                                }
+                            }
                             flushFlag = true;
                             break;
                         } catch (Exception e) {
@@ -628,8 +638,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                     if (!flushFlag && null != tableException) {
                         LOG.info("Put tableIdentifier:{} exception:{}",
                                 tableIdentifier, tableException.getMessage());
-                        outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
-                                1L, true);
                         tableExceptionMap.put(tableIdentifier, tableException);
                         if (stopWritingWhenTableException) {
                             LOG.info("Stop write table:{} because occur exception",
@@ -666,6 +674,42 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         rowSize, dataSize);
             }
         }
+    }
+
+    private void outputMetrics(String tableIdentifier) throws NoSuchFieldException, IllegalAccessException {
+        String[] fieldArray = tableIdentifier.split("\\.");
+        // throw an exception if the executor is not enhanced
+        JdbcExec exec = jdbcExecMap.get(tableIdentifier);
+        Field f1;
+        if (exec instanceof TableBufferReducedStatementExecutor) {
+            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+        } else if (exec instanceof TableBufferedStatementExecutor) {
+            f1 = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
+        } else {
+            throw new RuntimeException("table enhance failed, can't enhance " + exec.getClass());
+        }
+        f1.setAccessible(true);
+        TableMetricStatementExecutor executor = (TableMetricStatementExecutor) f1.get(exec);
+
+        Field metricField = TableMetricStatementExecutor.class.getDeclaredField("metric");
+        long[] metrics = (long[]) metricField.get(executor);
+        long cleanCount = metrics[0];
+        long cleanSize = metrics[1];
+        long dirtyCount = metrics[2];
+        long dirtySize = metrics[3];
+
+        if (fieldArray.length == 3) {
+            sinkMetricData.outputDirtyMetrics(fieldArray[0], fieldArray[1], fieldArray[2],
+                    dirtyCount, dirtySize);
+            sinkMetricData.outputMetrics(fieldArray[0], fieldArray[1], fieldArray[2],
+                    cleanCount, cleanSize);
+        } else if (fieldArray.length == 2) {
+            sinkMetricData.outputDirtyMetrics(fieldArray[0], null, fieldArray[1],
+                    dirtyCount, dirtySize);
+            sinkMetricData.outputMetrics(fieldArray[0], null, fieldArray[1],
+                    cleanCount, cleanSize);
+        }
+        metricField.set(executor, new long[4]);
     }
 
     /**
