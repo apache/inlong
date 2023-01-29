@@ -18,10 +18,15 @@
 package org.apache.inlong.manager.service.sink.hudi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
@@ -77,20 +82,22 @@ public class HudiSinkOperator extends AbstractSinkOperator {
 
         String partitionKey = sinkRequest.getPartitionKey();
         String primaryKey = sinkRequest.getPrimaryKey();
-        boolean primaryKeyExist = StringUtils.isNotEmpty(partitionKey);
-        boolean partitionKeyExist = StringUtils.isNotEmpty(primaryKey);
+        boolean primaryKeyExist = StringUtils.isNotBlank(primaryKey);
+        boolean partitionKeyExist = StringUtils.isNotBlank(partitionKey);
         if (primaryKeyExist || partitionKeyExist) {
             Set<String> fieldNames = sinkRequest.getSinkFieldList().stream().map(SinkField::getFieldName)
                     .collect(Collectors.toSet());
-            if (primaryKeyExist) {
-                if (!fieldNames.contains(partitionKey)) {
+            if (partitionKeyExist) {
+                List<String> partitionKeys = Arrays.asList(partitionKey.split(InlongConstants.COMMA));
+                if (!CollectionUtils.isSubCollection(partitionKeys, fieldNames)) {
                     throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
                             String.format("The partitionKey(%s) must be included in the sinkFieldList(%s)",
                                     partitionKey, fieldNames));
                 }
             }
-            if (partitionKeyExist) {
-                if (!fieldNames.contains(primaryKey)) {
+            if (primaryKeyExist) {
+                List<String> primaryKeys = Arrays.asList(primaryKey.split(InlongConstants.COMMA));
+                if (!CollectionUtils.isSubCollection(primaryKeys, fieldNames)) {
                     throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
                             String.format("The primaryKey(%s) must be included in the sinkFieldList(%s)",
                                     primaryKey, fieldNames));
