@@ -70,12 +70,12 @@ public abstract class AbstractClusterNodeOperator implements InlongClusterNodeOp
         this.setTargetEntity(request, entity);
         entity.setModifier(operator);
         if (InlongConstants.AFFECTED_ONE_ROW != clusterNodeMapper.updateByIdSelective(entity)) {
-            String errMsg = String.format(
-                    "cluster node has already updated with ip=%s, port=%s, protocolType=%s, type=%s, curVersion=%s",
-                    entity.getIp(), entity.getPort(), entity.getProtocolType(), entity.getType(), entity.getVersion());
-            LOGGER.warn(errMsg);
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED, errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format(
+                            "cluster node has already updated with ip=%s, port=%s, protocolType=%s, type=%s, curVersion=%s",
+                            entity.getIp(), entity.getPort(), entity.getProtocolType(), entity.getType(),
+                            entity.getVersion()));
         }
-        LOGGER.info("success to update inlong cluster node={}", request);
+        LOGGER.debug("success to update inlong cluster node={}", request);
     }
 }

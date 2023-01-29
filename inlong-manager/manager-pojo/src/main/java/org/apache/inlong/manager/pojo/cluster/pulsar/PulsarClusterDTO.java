@@ -75,7 +75,8 @@ public class PulsarClusterDTO {
         try {
             return JsonUtils.parseObject(extParams, PulsarClusterDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    String.format("parse extParams of Pulsar Cluster failure: %s", e.getMessage()));
         }
     }
 

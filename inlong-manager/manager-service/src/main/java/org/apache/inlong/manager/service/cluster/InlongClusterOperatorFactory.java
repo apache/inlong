@@ -40,7 +40,7 @@ public class InlongClusterOperatorFactory {
         return clusterOperatorList.stream()
                 .filter(inst -> inst.accept(type))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException(
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.CLUSTER_TYPE_NOT_SUPPORTED,
                         String.format(ErrorCodeEnum.CLUSTER_TYPE_NOT_SUPPORTED.getMessage(), type)));
     }
 

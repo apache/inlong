@@ -49,7 +49,7 @@ public class DataProxyClusterOperator extends AbstractClusterOperator {
 
     @Override
     protected void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity) {
-        LOGGER.info("do nothing for data proxy cluster in set target entity");
+        LOGGER.debug("do nothing for data proxy cluster in set target entity");
     }
 
     @Override

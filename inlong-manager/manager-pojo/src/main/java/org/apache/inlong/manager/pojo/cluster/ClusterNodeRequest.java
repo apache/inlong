@@ -35,31 +35,30 @@ import javax.validation.constraints.NotNull;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type", defaultImpl = ClusterNodeRequest.class)
 public class ClusterNodeRequest {
 
-    @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
+    @NotNull(groups = UpdateValidation.class, message = "id cannot be null")
     private Integer id;
 
-    @NotNull(message = "parentId cannot be null")
     @ApiModelProperty(value = "ID of the parent cluster")
+    @NotNull(message = "parentId cannot be null")
     private Integer parentId;
 
-    @NotBlank(message = "type cannot be blank")
     @ApiModelProperty(value = "Cluster type, including AGENT, DATAPROXY, etc.")
+    @NotBlank(message = "type cannot be blank")
     @Length(min = 1, max = 20, message = "length must be between 1 and 20")
     private String type;
 
-    @NotBlank(message = "ip cannot be blank")
     @ApiModelProperty(value = "Cluster IP")
+    @NotBlank(message = "ip cannot be blank")
     @Length(max = 512, message = "length must be less than or equal to 512")
     private String ip;
 
-    @NotNull(message = "port cannot be null")
     @ApiModelProperty(value = "Cluster port")
+    @NotNull(message = "port cannot be null")
     private Integer port;
 
-    @NotBlank(message = "protocolType cannot be blank")
     @ApiModelProperty(value = "Cluster protocol type")
-    @Length(max = 20, message = "length must be less than or equal to 20")
+    @Length(min = 1, max = 20, message = "length must be less than or equal to 20")
     private String protocolType;
 
     @ApiModelProperty(value = "Current load value of the node")
@@ -74,6 +73,7 @@ public class ClusterNodeRequest {
     private String description;
 
     @ApiModelProperty(value = "Version number")
+    @NotNull(groups = UpdateValidation.class, message = "version cannot be null")
     private Integer version;
 
 }

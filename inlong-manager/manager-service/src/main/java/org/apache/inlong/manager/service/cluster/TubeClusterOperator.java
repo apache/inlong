@@ -69,9 +69,10 @@ public class TubeClusterOperator extends AbstractClusterOperator {
             TubeClusterDTO dto = objectMapper.convertValue(tubeRequest, TubeClusterDTO.class);
             dto.setMasterIpPortList(request.getUrl());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            LOGGER.info("success to set entity for tubemq cluster");
+            LOGGER.debug("success to set entity for tubemq cluster");
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    String.format("serialize extParams of TubeMQ Cluster failure: %s", e.getMessage()));
         }
     }
 
@@ -87,7 +88,7 @@ public class TubeClusterOperator extends AbstractClusterOperator {
             CommonBeanUtils.copyProperties(dto, tubeClusterInfo);
         }
 
-        LOGGER.info("success to get tubemq cluster info from entity");
+        LOGGER.debug("success to get tubemq cluster info from entity");
         return tubeClusterInfo;
     }
 
@@ -102,7 +103,7 @@ public class TubeClusterOperator extends AbstractClusterOperator {
         boolean result;
         try {
             result = HttpUtils.checkConnectivity(host, port, 10, TimeUnit.SECONDS);
-            LOGGER.info("tube connection not null - connection success for masterUrl={}", masterUrl);
+            LOGGER.debug("tube connection not null - connection success for masterUrl={}", masterUrl);
             return result;
         } catch (Exception e) {
             String errMsg = String.format("tube connection failed for masterUrl=%s", masterUrl);
