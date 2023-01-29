@@ -236,13 +236,6 @@ public class RedisOptions {
                     .withDescription("Set the value for max waiting time if there is " +
                             "no connection resource.");
 
-    public static final ConfigOption<Integer> MAX_CACHE_SIZE =
-            ConfigOptions.key("sink.max-cache-size")
-                    .intType()
-                    .defaultValue(-1)
-                    .withDescription("The maximum number of results cached in the " +
-                            "lookup source.");
-
     public static final ConfigOption<String> MAX_CACHE_TIME =
             ConfigOptions.key("sink.max-cache-time")
                     .stringType()
@@ -266,7 +259,7 @@ public class RedisOptions {
             ConfigOptions.key("data-type")
                     .enumType(RedisDataType.class)
                     .defaultValue(RedisDataType.PLAIN)
-                    .withDescription("Defines the redis data type, valid types are: 'PLAIN', 'HASH'");
+                    .withDescription("Defines the redis data type, valid types are: 'PLAIN', 'HASH','BITMAP'");
 
     public static final ConfigOption<SchemaMappingMode> SCHEMA_MAPPING_MODE =
             ConfigOptions.key("schema-mapping-mode")

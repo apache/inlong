@@ -41,11 +41,6 @@ public enum RedisDataType {
      * Unique means sets does not allow repetition of data in a key.
      */
     SET,
-    /**
-     * Redis Lists are simply lists of strings, sorted by insertion order.
-     * You can add elements in Redis lists in the head or the tail of the list.
-     */
-    LIST,
 
     /**
      * Bitmaps are not an actual data type, but a set of bit-oriented operations defined on the String type. <br/>

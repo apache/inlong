@@ -26,7 +26,7 @@ public enum SchemaMappingMode {
      * The DYNAMIC mode witch mapping a {@link java.util.Map} to {@link RedisDataType}.
      * There are two members in DYNAMIC mode: <br/>
      * the first member is Redis key. <br/>
-     * the second member is a {@link java.util.Map} object, witch will be iterated, <br/>
+     * the second member is a {@link java.util.Map} object, which will be iterated, <br/>
      * the entry key is redis key, and the entry value is redis value.
      */
     DYNAMIC,
