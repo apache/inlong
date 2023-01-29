@@ -55,7 +55,7 @@ public class KuduLoadNode extends LoadNode implements InlongMetric, Serializable
     private static final String DDL_ATTR_PREFIX = "ddl.";
     private static final String EXTEND_ATTR_KEY_NAME = "keyName";
     private static final String EXTEND_ATTR_VALUE_NAME = "keyValue";
-    public static final String OPTION_TABLE = "table";
+    public static final String OPTION_TABLE = "table-name";
     private static final String OPTION_MASTERS = "masters";
 
     @JsonProperty("masters")
