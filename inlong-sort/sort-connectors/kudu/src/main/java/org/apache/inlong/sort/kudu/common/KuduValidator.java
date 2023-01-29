@@ -33,12 +33,12 @@ public class KuduValidator extends ConnectorDescriptorValidator {
     /**
      * The name of kudu table.
      */
-    public static final String CONNECTOR_TABLE = "connector.table";
+    public static final String CONNECTOR_TABLE = "table-name";
 
     /**
      * The masters of kudu server.
      */
-    public static final String CONNECTOR_MASTERS = "connector.masters";
+    public static final String CONNECTOR_MASTERS = "masters";
 
     /**
      * The prefix of kudu properties (optional).

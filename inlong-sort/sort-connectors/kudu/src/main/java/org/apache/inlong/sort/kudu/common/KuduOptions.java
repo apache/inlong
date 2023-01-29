@@ -26,7 +26,7 @@ import org.apache.flink.configuration.ConfigOptions;
 public class KuduOptions {
 
     public static final ConfigOption<String> CONNECTOR_TABLE =
-            ConfigOptions.key("table")
+            ConfigOptions.key("table-name")
                     .stringType()
                     .noDefaultValue().withDescription("The name of kudu table.");
 
