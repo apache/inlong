@@ -305,11 +305,12 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // group them by cluster tag.
         Map<String, List<SortSourceStreamSinkInfo>> tag2SinkInfos = sinkInfoList.stream()
+                .filter(sink -> Objects.nonNull(groupInfos.get(sink.getGroupId())))
                 .filter(sink -> {
                     if (StringUtils.isBlank(sortClusterTag)) {
                         return true;
                     }
-                    return groupInfos.get(sink.getGroupId()).getClusterTag().equals(sortClusterTag);
+                    return sortClusterTag.equals(groupInfos.get(sink.getGroupId()).getClusterTag());
                 })
                 .collect(Collectors.groupingBy(sink -> {
                     SortSourceGroupInfo groupInfo = groupInfos.get(sink.getGroupId());
