@@ -59,7 +59,8 @@ public class ElasticsearchClusterOperator extends AbstractClusterOperator {
             ElasticsearchClusterDTO dto = ElasticsearchClusterDTO.getFromRequest(esRequest);
             targetEntity.setExtParams(mapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    String.format("serialize extParams of Elasticsearch Cluster failure: %s", e.getMessage()));
         }
     }
 

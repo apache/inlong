@@ -23,7 +23,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
+
+import org.apache.inlong.manager.common.validation.SaveValidation;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -40,29 +43,29 @@ import javax.validation.constraints.Pattern;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
 public abstract class ClusterRequest {
 
-    @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
+    @NotNull(groups = UpdateByIdValidation.class, message = "id cannot be null")
     private Integer id;
 
-    @NotBlank(message = "cluster name cannot be blank")
     @ApiModelProperty(value = "Cluster name")
+    @NotBlank(groups = {SaveValidation.class, UpdateByKeyValidation.class}, message = "cluster name cannot be blank")
     @Length(min = 1, max = 128, message = "length must be between 1 and 128")
     @Pattern(regexp = "^[a-z0-9_-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String name;
 
-    @NotBlank(message = "cluster type cannot be blank")
     @ApiModelProperty(value = "Cluster type, including TUBEMQ, PULSAR, KAFKA, DATAPROXY, etc.")
+    @NotBlank(message = "cluster type cannot be blank")
     @Length(min = 1, max = 20, message = "length must be between 1 and 20")
     private String type;
+
+    @ApiModelProperty(value = "Cluster tags, separated by commas")
+    @NotBlank(groups = {SaveValidation.class, UpdateByKeyValidation.class}, message = "clusterTags cannot be blank")
+    @Length(max = 512, message = "length must be less than or equal to 512")
+    private String clusterTags;
 
     @ApiModelProperty(value = "Cluster url")
     @Length(max = 512, message = "length must be less than or equal to 512")
     private String url;
-
-    @NotBlank(message = "clusterTags cannot be blank")
-    @ApiModelProperty(value = "Cluster tags, separated by commas")
-    @Length(max = 512, message = "length must be less than or equal to 512")
-    private String clusterTags;
 
     @ApiModelProperty(value = "Extension tag")
     @Length(max = 128, message = "length must be less than or equal to 128")
@@ -89,6 +92,7 @@ public abstract class ClusterRequest {
     private String inCharges;
 
     @ApiModelProperty(value = "Version number")
+    @NotNull(groups = {UpdateByIdValidation.class, UpdateByKeyValidation.class}, message = "version cannot be null")
     private Integer version;
 
 }

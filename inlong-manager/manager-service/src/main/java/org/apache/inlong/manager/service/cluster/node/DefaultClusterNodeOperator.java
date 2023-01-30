@@ -55,6 +55,6 @@ public class DefaultClusterNodeOperator extends AbstractClusterNodeOperator {
 
     @Override
     protected void setTargetEntity(ClusterNodeRequest request, InlongClusterNodeEntity targetEntity) {
-        LOGGER.info("do nothing for default cluster node in set target entity");
+        LOGGER.debug("do nothing for default cluster node in set target entity");
     }
 }

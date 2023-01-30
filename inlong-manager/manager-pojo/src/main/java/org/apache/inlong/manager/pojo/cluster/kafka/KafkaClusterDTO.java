@@ -69,7 +69,8 @@ public class KafkaClusterDTO {
         try {
             return JsonUtils.parseObject(extParams, KafkaClusterDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    String.format("parse extParams of Kafka Cluster failure: %s", e.getMessage()));
         }
     }
 

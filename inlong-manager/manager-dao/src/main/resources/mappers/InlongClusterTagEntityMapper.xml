@@ -77,16 +77,32 @@
         order by modify_time desc
     </select>
 
-    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+    <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
         update inlong_cluster_tag
-        set cluster_tag = #{clusterTag,jdbcType=VARCHAR},
-            ext_params  = #{extParams,jdbcType=LONGVARCHAR},
-            description = #{description,jdbcType=VARCHAR},
-            in_charges  = #{inCharges,jdbcType=VARCHAR},
-            status      = #{status,jdbcType=INTEGER},
-            is_deleted  = #{isDeleted,jdbcType=INTEGER},
-            modifier    = #{modifier,jdbcType=VARCHAR},
+        <set>
+            <if test="clusterTag != null">
+                cluster_tag = #{clusterTag,jdbcType=VARCHAR},
+            </if>
+            <if test="extParams != null">
+                ext_params = #{extParams,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="inCharges != null">
+                in_charges = #{inCharges,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                tatus = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
             version     = #{version,jdbcType=INTEGER} + 1
+        </set>
         where id = #{id,jdbcType=INTEGER}
           and version = #{version,jdbcType=INTEGER}
     </update>

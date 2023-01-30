@@ -80,9 +80,10 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
         try {
             PulsarClusterDTO dto = PulsarClusterDTO.getFromRequest(pulsarRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            LOGGER.info("success to set entity for pulsar cluster");
+            LOGGER.debug("success to set entity for pulsar cluster");
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    String.format("serialize extParams of Pulsar Cluster failure: %s", e.getMessage()));
         }
     }
 
@@ -92,7 +93,7 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
         PulsarClusterInfo pulsarInfo = new PulsarClusterInfo();
         CommonBeanUtils.copyProperties(pulsarRequest, pulsarInfo);
         try (PulsarAdmin ignored = PulsarUtils.getPulsarAdmin(pulsarInfo)) {
-            LOGGER.info("pulsar connection not null - connection success for adminUrl={}", pulsarInfo.getAdminUrl());
+            LOGGER.debug("pulsar connection not null - connection success for adminUrl={}", pulsarInfo.getAdminUrl());
             return true;
         } catch (Exception e) {
             String errMsg = String.format("pulsar connection failed for adminUrl=%s, password=%s",

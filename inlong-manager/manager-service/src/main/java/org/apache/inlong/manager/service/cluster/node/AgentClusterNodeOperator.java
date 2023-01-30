@@ -84,7 +84,7 @@ public class AgentClusterNodeOperator extends AbstractClusterNodeOperator {
             LOGGER.debug("success to set entity for agent cluster node");
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
-                    ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+                    String.format("serialize extParams of Agent ClusterNode failure: %s", e.getMessage()));
         }
     }
 }
