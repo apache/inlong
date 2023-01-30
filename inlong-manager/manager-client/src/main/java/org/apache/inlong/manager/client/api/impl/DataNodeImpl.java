@@ -22,6 +22,7 @@ import org.apache.inlong.manager.client.api.DataNode;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.DataNodeClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
@@ -39,8 +40,10 @@ public class DataNodeImpl implements DataNode {
     @Override
     public Integer save(DataNodeRequest request) {
         Preconditions.expectNotNull(request, "request cannot be null");
-        Preconditions.expectNotEmpty(request.getName(), "data node name cannot be empty");
-        Preconditions.expectNotEmpty(request.getType(), "data node type cannot be empty");
+        Preconditions.expectNotBlank(request.getName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node name cannot be blank");
+        Preconditions.expectNotBlank(request.getType(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node type cannot be blank");
         return dataNodeClient.save(request);
     }
 
@@ -59,8 +62,10 @@ public class DataNodeImpl implements DataNode {
     @Override
     public Boolean update(DataNodeRequest request) {
         Preconditions.expectNotNull(request, "request cannot be null");
-        Preconditions.expectNotEmpty(request.getName(), "data node name cannot be empty");
-        Preconditions.expectNotEmpty(request.getType(), "data node type cannot be empty");
+        Preconditions.expectNotBlank(request.getName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node name cannot be empty");
+        Preconditions.expectNotBlank(request.getType(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node type cannot be empty");
         Preconditions.expectNotNull(request.getId(), "data node id cannot be null");
         return dataNodeClient.update(request);
     }

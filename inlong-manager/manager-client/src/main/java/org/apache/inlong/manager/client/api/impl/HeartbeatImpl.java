@@ -46,8 +46,10 @@ public class HeartbeatImpl implements Heartbeat {
     @Override
     public ComponentHeartbeatResponse getComponentHeartbeat(HeartbeatQueryRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat component cannot be blank");
+        Preconditions.expectNotBlank(request.getInstance(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat instance cannot be blank");
 
         return heartbeatClient.getComponentHeartbeat(request);
     }
@@ -55,9 +57,12 @@ public class HeartbeatImpl implements Heartbeat {
     @Override
     public GroupHeartbeatResponse getGroupHeartbeat(HeartbeatQueryRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat component cannot be blank");
+        Preconditions.expectNotBlank(request.getInstance(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat instance cannot be blank");
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat groupId cannot be blank");
 
         return heartbeatClient.getGroupHeartbeat(request);
     }
@@ -65,10 +70,14 @@ public class HeartbeatImpl implements Heartbeat {
     @Override
     public StreamHeartbeatResponse getStreamHeartbeat(HeartbeatQueryRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getInlongStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat component cannot be blank");
+        Preconditions.expectNotBlank(request.getInstance(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat instance cannot be blank");
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat groupId cannot be blank");
+        Preconditions.expectNotBlank(request.getInlongStreamId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat streamId cannot be blank");
 
         return heartbeatClient.getStreamHeartbeat(request);
     }
@@ -76,7 +85,8 @@ public class HeartbeatImpl implements Heartbeat {
     @Override
     public PageResult<ComponentHeartbeatResponse> listComponentHeartbeat(HeartbeatPageRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat component cannot be blank");
 
         return heartbeatClient.listComponentHeartbeat(request);
     }
@@ -84,7 +94,8 @@ public class HeartbeatImpl implements Heartbeat {
     @Override
     public PageResult<GroupHeartbeatResponse> listGroupHeartbeat(HeartbeatPageRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat component cannot be blank");
 
         return heartbeatClient.listGroupHeartbeat(request);
     }
@@ -92,8 +103,10 @@ public class HeartbeatImpl implements Heartbeat {
     @Override
     public PageResult<StreamHeartbeatResponse> listStreamHeartbeat(HeartbeatPageRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.expectNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat component cannot be blank");
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.INVALID_PARAMETER,
+                "heartbeat groupId cannot be blank");
 
         return heartbeatClient.listStreamHeartbeat(request);
     }
