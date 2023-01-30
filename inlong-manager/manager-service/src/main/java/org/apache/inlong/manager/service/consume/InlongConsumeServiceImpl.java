@@ -69,9 +69,11 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     public Integer save(InlongConsumeRequest request, String operator) {
         LOGGER.debug("begin to save inlong consume={} by user={}", request, operator);
         Preconditions.expectNotNull(request, "inlong consume request cannot be null");
-        Preconditions.expectNotNull(request.getTopic(), "inlong consume topic cannot be null");
+        Preconditions.expectNotBlank(request.getTopic(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong consume topic cannot be null");
         String consumerGroup = request.getConsumerGroup();
-        Preconditions.expectNotNull(consumerGroup, "inlong consume topic cannot be null");
+        Preconditions.expectNotBlank(consumerGroup, ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong consume topic cannot be null");
         if (consumerGroupExists(consumerGroup, request.getId())) {
             throw new BusinessException(String.format("consumer group %s already exist", consumerGroup));
         }

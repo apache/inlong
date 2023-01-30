@@ -22,6 +22,7 @@ import org.apache.inlong.manager.client.api.InlongConsume;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.InlongConsumeClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeBriefInfo;
@@ -43,8 +44,10 @@ public class InlongConsumeImpl implements InlongConsume {
     @Override
     public Integer save(InlongConsumeRequest request) {
         Preconditions.expectNotNull(request, "inlong consume request cannot be null");
-        Preconditions.expectNotNull(request.getTopic(), "inlong consume topic cannot be null");
-        Preconditions.expectNotNull(request.getConsumerGroup(), "inlong consume topic cannot be null");
+        Preconditions.expectNotBlank(request.getTopic(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong consume topic cannot be null");
+        Preconditions.expectNotBlank(request.getConsumerGroup(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong consume topic cannot be null");
 
         return consumeClient.save(request);
     }

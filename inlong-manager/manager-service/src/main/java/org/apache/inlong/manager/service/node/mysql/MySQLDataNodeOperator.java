@@ -93,7 +93,7 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
         String jdbcUrl = request.getUrl();
         String username = request.getUsername();
         String password = request.getToken();
-        Preconditions.expectNotNull(jdbcUrl, "connection jdbcUrl cannot be empty");
+        Preconditions.expectNotBlank(jdbcUrl, ErrorCodeEnum.INVALID_PARAMETER, "connection jdbcUrl cannot be empty");
         try (Connection ignored = MySQLJdbcUtils.getConnection(jdbcUrl, username, password)) {
             LOGGER.info("mysql connection not null - connection success for jdbcUrl={}, username={}, password={}",
                     jdbcUrl, username, password);

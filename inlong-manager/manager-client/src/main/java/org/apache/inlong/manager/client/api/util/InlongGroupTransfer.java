@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.auth.TokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
@@ -47,7 +48,7 @@ public class InlongGroupTransfer {
     public static InlongGroupInfo createGroupInfo(InlongGroupInfo groupInfo, BaseSortConf sortConf) {
         Preconditions.expectNotNull(groupInfo, "Inlong group info cannot be null");
         String groupId = groupInfo.getInlongGroupId();
-        Preconditions.expectNotEmpty(groupId, "groupId cannot be empty");
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         // init extensions
         if (groupInfo.getExtList() == null) {
             groupInfo.setExtList(new ArrayList<>());

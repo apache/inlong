@@ -24,6 +24,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.plugin.PluginDefinition;
 import org.apache.inlong.manager.common.util.Preconditions;
 
@@ -168,7 +169,8 @@ public class PluginClassLoader extends URLClassLoader {
 
     private void checkPluginValid(File jarFile, PluginDefinition pluginDefinition) {
         String info = "[%s] not defined in plugin.yaml for " + jarFile.getName();
-        Preconditions.expectNotEmpty(pluginDefinition.getName(), String.format(info, "name"));
+        Preconditions.expectNotBlank(pluginDefinition.getName(), ErrorCodeEnum.INVALID_PARAMETER,
+                String.format(info, "name"));
         Preconditions.expectNotEmpty(pluginDefinition.getJavaVersion(), String.format(info, "javaVersion"));
         Preconditions.expectNotEmpty(pluginDefinition.getPluginClasses(), String.format(info, "pluginClasses"));
         if (StringUtils.isEmpty(pluginDefinition.getDescription())) {

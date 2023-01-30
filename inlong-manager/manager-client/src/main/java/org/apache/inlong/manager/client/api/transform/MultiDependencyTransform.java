@@ -19,9 +19,10 @@ package org.apache.inlong.manager.client.api.transform;
 
 import io.swagger.annotations.ApiModel;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
-import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class MultiDependencyTransform extends StreamTransform {
     public MultiDependencyTransform(String transformName, TransformDefinition transformDefinition, String... preNodes) {
         Preconditions.expectNotNull(transformDefinition, "transform definition cannot be null");
         this.transformDefinition = transformDefinition;
-        Preconditions.expectNotNull(transformName, "transform name cannot be empty");
+        Preconditions.expectNotBlank(transformName, ErrorCodeEnum.INVALID_PARAMETER, "transform name cannot be empty");
         this.transformName = transformName;
         Preconditions.expectNoNullElements(preNodes, "pre nodes cannot be null");
         for (String preNode : preNodes) {

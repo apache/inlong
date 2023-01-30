@@ -34,6 +34,7 @@ import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -74,6 +75,21 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
+
+    /**
+     * Check whether the configuration information carried in the heartbeat has been updated
+     *
+     * @param oldHB last heartbeat msg
+     * @param newHB current heartbeat msg
+     * @return
+     */
+    private static boolean heartbeatConfigModified(HeartbeatMsg oldHB, HeartbeatMsg newHB) {
+        // todo: only support dynamic renew node tag. Support clusterName/port/ip... later
+        if (oldHB == null) {
+            return true;
+        }
+        return oldHB.getNodeGroup() != newHB.getNodeGroup() || oldHB.getLoad() != newHB.getLoad();
+    }
 
     @PostConstruct
     public void init() {
@@ -254,9 +270,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         final String type = componentHeartbeat.getComponentType();
         final String clusterTag = componentHeartbeat.getClusterTag();
         final String extTag = componentHeartbeat.getExtTag();
-        Preconditions.expectNotNull(clusterTag, "cluster tag cannot be null");
-        Preconditions.expectNotNull(type, "cluster type cannot be null");
-        Preconditions.expectNotNull(clusterName, "cluster name cannot be null");
+        Preconditions.expectNotBlank(clusterTag, ErrorCodeEnum.INVALID_PARAMETER, "cluster tag cannot be null");
+        Preconditions.expectNotBlank(type, ErrorCodeEnum.INVALID_PARAMETER, "cluster type cannot be null");
+        Preconditions.expectNotBlank(clusterName, ErrorCodeEnum.INVALID_PARAMETER, "cluster name cannot be null");
         InlongClusterEntity entity = clusterMapper.selectByNameAndType(clusterName, type);
         if (null != entity) {
             // TODO Load balancing needs to be considered.
@@ -286,20 +302,5 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
         log.debug("success to fetch cluster for heartbeat: {}", componentHeartbeat);
         return clusterInfo;
-    }
-
-    /**
-     * Check whether the configuration information carried in the heartbeat has been updated
-     *
-     * @param oldHB last heartbeat msg
-     * @param newHB current heartbeat msg
-     * @return
-     */
-    private static boolean heartbeatConfigModified(HeartbeatMsg oldHB, HeartbeatMsg newHB) {
-        // todo: only support dynamic renew node tag. Support clusterName/port/ip... later
-        if (oldHB == null) {
-            return true;
-        }
-        return oldHB.getNodeGroup() != newHB.getNodeGroup() || oldHB.getLoad() != newHB.getLoad();
     }
 }

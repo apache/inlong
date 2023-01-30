@@ -141,7 +141,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Override
     public List<TransformResponse> listTransform(String groupId, String streamId) {
         LOGGER.debug("begin to fetch transform info by groupId={} and streamId={} ", groupId, streamId);
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
@@ -287,8 +287,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
 
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         groupCheckService.checkGroupStatus(groupId, operator);
 
         List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId,
@@ -360,13 +360,13 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     private void checkParams(TransformRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String groupId = request.getInlongGroupId();
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         String streamId = request.getInlongStreamId();
-        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         String transformType = request.getTransformType();
-        Preconditions.expectNotNull(transformType, ErrorCodeEnum.TRANSFORM_TYPE_IS_NULL.getMessage());
+        Preconditions.expectNotBlank(transformType, ErrorCodeEnum.TRANSFORM_TYPE_IS_NULL);
         String transformName = request.getTransformName();
-        Preconditions.expectNotNull(transformName, ErrorCodeEnum.TRANSFORM_NAME_IS_NULL.getMessage());
+        Preconditions.expectNotBlank(transformName, ErrorCodeEnum.TRANSFORM_NAME_IS_NULL);
     }
 
     private void chkUnmodifiableParams(TransformRequest request) {

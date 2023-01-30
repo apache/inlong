@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.inner.client;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.DataNodeApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -46,8 +47,10 @@ public class DataNodeClient {
      */
     public Integer save(DataNodeRequest request) {
         Preconditions.expectNotNull(request, "request cannot be null");
-        Preconditions.expectNotEmpty(request.getName(), "data node name cannot be empty");
-        Preconditions.expectNotEmpty(request.getType(), "data node type cannot be empty");
+        Preconditions.expectNotBlank(request.getName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node name cannot be empty");
+        Preconditions.expectNotBlank(request.getType(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node type cannot be empty");
         Response<Integer> response = ClientUtils.executeHttpCall(dataNodeApi.save(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -87,8 +90,10 @@ public class DataNodeClient {
      */
     public Boolean update(DataNodeRequest request) {
         Preconditions.expectNotNull(request, "request cannot be null");
-        Preconditions.expectNotEmpty(request.getName(), "data node name cannot be empty");
-        Preconditions.expectNotEmpty(request.getType(), "data node type cannot be empty");
+        Preconditions.expectNotBlank(request.getName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node name cannot be empty");
+        Preconditions.expectNotBlank(request.getType(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node type cannot be empty");
         Preconditions.expectNotNull(request.getId(), "data node id cannot be null");
         Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.update(request));
         ClientUtils.assertRespSuccess(response);
@@ -103,8 +108,10 @@ public class DataNodeClient {
      */
     public UpdateResult updateByKey(DataNodeRequest request) {
         Preconditions.expectNotNull(request, "request cannot be null");
-        Preconditions.expectNotEmpty(request.getName(), "data node name cannot be empty");
-        Preconditions.expectNotEmpty(request.getType(), "data node type cannot be empty");
+        Preconditions.expectNotBlank(request.getName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node name cannot be empty");
+        Preconditions.expectNotBlank(request.getType(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node type cannot be empty");
         Response<UpdateResult> response = ClientUtils.executeHttpCall(dataNodeApi.updateByKey(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -131,8 +138,8 @@ public class DataNodeClient {
      * @return whether succeed
      */
     public Boolean deleteByKey(String name, String type) {
-        Preconditions.expectNotEmpty(name, "data node name cannot be empty or null");
-        Preconditions.expectNotEmpty(type, "data node type cannot be empty or null");
+        Preconditions.expectNotBlank(name, ErrorCodeEnum.INVALID_PARAMETER, "data node name cannot be empty or null");
+        Preconditions.expectNotBlank(type, ErrorCodeEnum.INVALID_PARAMETER, "data node type cannot be empty or null");
         Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.deleteByKey(name, type));
         ClientUtils.assertRespSuccess(response);
         return response.getData();

@@ -22,6 +22,7 @@ import org.apache.inlong.manager.client.api.User;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.UserInfo;
@@ -43,8 +44,9 @@ public class UserImpl implements User {
 
     @Override
     public Integer register(UserRequest userInfo) {
-        Preconditions.expectNotEmpty(userInfo.getName(), "username cannot be empty");
-        Preconditions.expectNotEmpty(userInfo.getPassword(), "password cannot be empty");
+        Preconditions.expectNotBlank(userInfo.getName(), ErrorCodeEnum.INVALID_PARAMETER, "username cannot be empty");
+        Preconditions.expectNotBlank(userInfo.getPassword(), ErrorCodeEnum.INVALID_PARAMETER,
+                "password cannot be empty");
         return userClient.register(userInfo);
     }
 
@@ -56,7 +58,7 @@ public class UserImpl implements User {
 
     @Override
     public UserInfo getByName(String name) {
-        Preconditions.expectNotNull(name, "username cannot be null");
+        Preconditions.expectNotBlank(name, ErrorCodeEnum.INVALID_PARAMETER, "username cannot be null");
         return userClient.getByName(name);
     }
 

@@ -99,7 +99,7 @@ public class TubeClusterOperator extends AbstractClusterOperator {
         int portBeginIndex = masterUrl.lastIndexOf(InlongConstants.COLON);
         String host = masterUrl.substring(hostBeginIndex + 1, portBeginIndex);
         int port = Integer.parseInt(masterUrl.substring(portBeginIndex + 1));
-        Preconditions.expectNotNull(masterUrl, "connection url cannot be empty");
+        Preconditions.expectNotBlank(masterUrl, ErrorCodeEnum.INVALID_PARAMETER, "connection url cannot be empty");
         boolean result;
         try {
             result = HttpUtils.checkConnectivity(host, port, 10, TimeUnit.SECONDS);

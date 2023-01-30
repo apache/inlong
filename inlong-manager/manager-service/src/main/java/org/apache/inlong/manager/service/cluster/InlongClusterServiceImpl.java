@@ -123,7 +123,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public Integer saveTag(ClusterTagRequest request, String operator) {
         LOGGER.debug("begin to save cluster tag {}", request);
         Preconditions.expectNotNull(request, "inlong cluster request cannot be empty");
-        Preconditions.expectNotNull(request.getClusterTag(), "cluster tag cannot be empty");
+        Preconditions.expectNotBlank(request.getClusterTag(), ErrorCodeEnum.INVALID_PARAMETER,
+                "cluster tag cannot be empty");
 
         // check if the cluster tag already exist
         String clusterTag = request.getClusterTag();
@@ -684,7 +685,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         LOGGER.info("begin to bind or unbind cluster tag: {}", request);
         Preconditions.expectNotNull(request, "inlong cluster info cannot be empty");
         String clusterTag = request.getClusterTag();
-        Preconditions.expectNotNull(clusterTag, "cluster tag cannot be empty");
+        Preconditions.expectNotBlank(clusterTag, ErrorCodeEnum.INVALID_PARAMETER, "cluster tag cannot be empty");
         InlongClusterTagEntity exist = clusterTagMapper.selectByTag(clusterTag);
         UserEntity userEntity = userMapper.selectByName(operator);
         boolean isInCharge = Preconditions.inSeparatedString(operator, exist.getInCharges(), InlongConstants.COMMA);
@@ -764,8 +765,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public Boolean deleteByKey(String name, String type, String operator) {
-        Preconditions.expectNotNull(name, "cluster name should not be empty or null");
-        Preconditions.expectNotNull(name, "cluster type should not be empty or null");
+        Preconditions.expectNotBlank(name, ErrorCodeEnum.INVALID_PARAMETER, "cluster name should not be empty or null");
+        Preconditions.expectNotBlank(type, ErrorCodeEnum.INVALID_PARAMETER, "cluster type should not be empty or null");
         InlongClusterEntity entity = clusterMapper.selectByNameAndType(name, type);
         if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
             LOGGER.error("inlong cluster not found by clusterName={}, type={} or was already deleted",
@@ -1062,7 +1063,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public List<String> listNodeIpByType(String type) {
-        Preconditions.expectNotNull(type, "cluster type cannot be empty");
+        Preconditions.expectNotBlank(type, ErrorCodeEnum.INVALID_PARAMETER, "cluster type cannot be empty");
         ClusterPageRequest request = new ClusterPageRequest();
         request.setType(type);
         List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByCondition(request);

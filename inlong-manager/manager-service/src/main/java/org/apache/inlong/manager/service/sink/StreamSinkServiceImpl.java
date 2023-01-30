@@ -17,12 +17,10 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -146,6 +144,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         LOGGER.info("success to save sink info: {}", request);
         return id;
     }
+
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Integer save(SinkRequest request, UserInfo opInfo) {
@@ -265,8 +264,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public List<SinkBriefInfo> listBrief(String groupId, String streamId) {
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
         List<SinkBriefInfo> summaryList = sinkMapper.selectSummary(groupId, streamId);
         LOGGER.debug("success to list sink summary by groupId=" + groupId + ", streamId=" + streamId);
@@ -289,7 +288,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public PageResult<? extends StreamSink> listByCondition(SinkPageRequest request) {
-        Preconditions.expectNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
@@ -555,9 +554,9 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         LOGGER.info("begin to delete sink by groupId={}, streamId={}, sinkName={}", groupId, streamId, sinkName);
 
         // Check whether the sink name exists with the same groupId and streamId
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
-        Preconditions.expectNotNull(sinkName, "stream sink name is empty or null");
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(sinkName, ErrorCodeEnum.INVALID_PARAMETER, "stream sink name is empty or null");
         StreamSinkEntity entity = sinkMapper.selectByUniqueKey(groupId, streamId, sinkName);
         Preconditions.expectNotNull(entity, String.format("stream sink not exist by groupId=%s streamId=%s sinkName=%s",
                 groupId, streamId, sinkName));
@@ -579,8 +578,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Transactional(rollbackFor = Throwable.class)
     public Boolean logicDeleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to logic delete all sink info by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
         groupCheckService.checkGroupStatus(groupId, operator);
@@ -612,8 +611,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Transactional(rollbackFor = Throwable.class)
     public Boolean deleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to delete all sink by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
         groupCheckService.checkGroupStatus(groupId, operator);
@@ -663,7 +662,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         for (SinkApproveDTO dto : approveList) {
             // According to the sink type, save sink information
             String sinkType = dto.getSinkType();
-            Preconditions.expectNotNull(sinkType, ErrorCodeEnum.SINK_TYPE_IS_NULL.getMessage());
+            Preconditions.expectNotBlank(sinkType, ErrorCodeEnum.SINK_TYPE_IS_NULL);
 
             StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(dto.getId());
 
@@ -711,13 +710,13 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private void checkParams(SinkRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String groupId = request.getInlongGroupId();
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         String streamId = request.getInlongStreamId();
-        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         String sinkType = request.getSinkType();
-        Preconditions.expectNotNull(sinkType, ErrorCodeEnum.SINK_TYPE_IS_NULL.getMessage());
+        Preconditions.expectNotBlank(sinkType, ErrorCodeEnum.SINK_TYPE_IS_NULL);
         String sinkName = request.getSinkName();
-        Preconditions.expectNotNull(sinkName, ErrorCodeEnum.SINK_NAME_IS_NULL.getMessage());
+        Preconditions.expectNotBlank(sinkName, ErrorCodeEnum.SINK_NAME_IS_NULL);
     }
 
     private void startProcessForSink(String groupId, String streamId, String operator) {

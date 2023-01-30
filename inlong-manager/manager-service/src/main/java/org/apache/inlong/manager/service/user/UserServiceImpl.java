@@ -154,7 +154,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfo getByName(String name) {
-        Preconditions.expectNotNull(name, "User name cannot be null");
+        Preconditions.expectNotBlank(name, ErrorCodeEnum.INVALID_PARAMETER, "User name cannot be null");
         UserEntity entity = userMapper.selectByName(name);
         if (entity == null) {
             return null;
@@ -202,16 +202,17 @@ public class UserServiceImpl implements UserService {
         // target username must not exist
         UserEntity updateUserEntity = userMapper.selectById(request.getId());
         Preconditions.expectNotNull(updateUserEntity, "User not exists with id=" + request.getId());
-        String errMsg = String.format("user has already updated with username=%s, curVersion=%s",
-                updateName, request.getVersion());
+        String errMsg = String.format("user has already updated with username=%s, reqVersion=%s, storedVersion=%s",
+                updateName, request.getVersion(), updateUserEntity.getVersion());
         if (!Objects.equals(updateUserEntity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
 
         UserEntity targetUserEntity = userMapper.selectByName(updateName);
-        Preconditions.expectTrue(Objects.isNull(targetUserEntity)
-                || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
+        Preconditions.expectTrue(
+                Objects.isNull(targetUserEntity)
+                        || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
                 "Username [" + updateName + "] already exists");
 
         // if the current user is not a manager, needs to check the password before updating user info

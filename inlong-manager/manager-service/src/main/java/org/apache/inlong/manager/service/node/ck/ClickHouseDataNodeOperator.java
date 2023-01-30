@@ -91,7 +91,7 @@ public class ClickHouseDataNodeOperator extends AbstractDataNodeOperator {
         String url = request.getUrl();
         String username = request.getUsername();
         String password = request.getToken();
-        Preconditions.expectNotNull(url, "connection url cannot be empty");
+        Preconditions.expectNotBlank(url, ErrorCodeEnum.INVALID_PARAMETER, "connection url cannot be empty");
         try (Connection ignored = ClickHouseJdbcUtils.getConnection(url, username, password)) {
             LOGGER.info("clickhouse connection not null - connection success for url={}, username={}, password={}", url,
                     username, password);
