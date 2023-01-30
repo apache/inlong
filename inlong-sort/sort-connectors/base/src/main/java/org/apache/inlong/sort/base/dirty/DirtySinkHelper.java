@@ -197,7 +197,6 @@ public class DirtySinkHelper<T> implements Serializable {
         paramMap.put(DIRTY_MESSAGE_KEY, dirtyMessage);
 
         Matcher matcher = REGEX_PATTERN.matcher(pattern);
-
         int i = 0;
         while (matcher.find()) {
             try {
@@ -210,6 +209,7 @@ public class DirtySinkHelper<T> implements Serializable {
             i++;
         }
 
+        matcher = REGEX_PATTERN.matcher(pattern);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String keyText = matcher.group(1);
