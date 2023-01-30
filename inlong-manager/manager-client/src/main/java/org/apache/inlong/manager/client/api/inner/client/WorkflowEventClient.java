@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.WorkflowEventApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -77,7 +78,7 @@ public class WorkflowEventClient {
      */
     public void executeProcessEventListener(Integer processId, String listenerName) {
         Preconditions.expectNotNull(processId, "processId cannot be null");
-        Preconditions.expectNotEmpty(listenerName, "listenerName cannot be null");
+        Preconditions.expectNotBlank(listenerName, ErrorCodeEnum.INVALID_PARAMETER, "listenerName cannot be null");
 
         Response<Object> response = ClientUtils.executeHttpCall(
                 workflowEventApi.executeProcessEventListener(processId, listenerName));
@@ -89,7 +90,7 @@ public class WorkflowEventClient {
      */
     public void executeTaskEventListener(Integer taskId, String listenerName) {
         Preconditions.expectNotNull(taskId, "taskId cannot be null");
-        Preconditions.expectNotEmpty(listenerName, "listenerName cannot be null");
+        Preconditions.expectNotBlank(listenerName, ErrorCodeEnum.INVALID_PARAMETER, "listenerName cannot be null");
 
         Response<Object> response = ClientUtils.executeHttpCall(
                 workflowEventApi.executeTaskEventListener(taskId, listenerName));

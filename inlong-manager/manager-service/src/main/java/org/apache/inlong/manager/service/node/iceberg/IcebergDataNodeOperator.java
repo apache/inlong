@@ -88,7 +88,7 @@ public class IcebergDataNodeOperator extends AbstractDataNodeOperator {
         IcebergDataNodeRequest icebergDataNodeRequest = (IcebergDataNodeRequest) request;
         String metastoreUri = icebergDataNodeRequest.getUrl();
         String warehouse = icebergDataNodeRequest.getWarehouse();
-        Preconditions.expectNotNull(metastoreUri, "connection url cannot be empty");
+        Preconditions.expectNotBlank(metastoreUri, ErrorCodeEnum.INVALID_PARAMETER, "connection url cannot be empty");
         try {
             HiveCatalog catalog = IcebergCatalogUtils.getCatalog(metastoreUri, warehouse);
             catalog.listNamespaces();

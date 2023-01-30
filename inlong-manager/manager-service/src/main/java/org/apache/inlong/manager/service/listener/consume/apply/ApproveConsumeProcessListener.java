@@ -35,8 +35,8 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
-import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
+import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumeProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarOperator;
@@ -124,7 +124,8 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         Preconditions.expectNotNull(groupEntity, "inlong group not found for groupId=" + groupId);
         String mqResource = groupEntity.getMqResource();
-        Preconditions.expectNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
+        Preconditions.expectNotBlank(mqResource, ErrorCodeEnum.INVALID_PARAMETER,
+                "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
         ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.PULSAR);
@@ -166,7 +167,8 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         Preconditions.expectNotNull(groupEntity, "inlong group not found for groupId=" + groupId);
         String mqResource = groupEntity.getMqResource();
-        Preconditions.expectNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
+        Preconditions.expectNotBlank(mqResource, ErrorCodeEnum.INVALID_PARAMETER,
+                "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
         TubeClusterInfo clusterInfo = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);

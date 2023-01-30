@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -78,7 +79,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     @Override
     public void createQueueForGroup(InlongGroupInfo groupInfo, String operator) {
         Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
-        Preconditions.expectNotNull(operator, "operator cannot be null");
+        Preconditions.expectNotBlank(operator, ErrorCodeEnum.INVALID_PARAMETER, "operator cannot be null");
 
         String groupId = groupInfo.getInlongGroupId();
         String clusterTag = groupInfo.getInlongClusterTag();
@@ -153,7 +154,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
         Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
         Preconditions.expectNotNull(streamInfo, "inlong stream info cannot be null");
-        Preconditions.expectNotNull(operator, "operator cannot be null");
+        Preconditions.expectNotBlank(operator, ErrorCodeEnum.INVALID_PARAMETER, "operator cannot be null");
 
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();

@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import org.apache.inlong.manager.client.api.NoAuth;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.inner.client.NoAuthClient;
+import org.apache.inlong.manager.client.api.NoAuth;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
+import org.apache.inlong.manager.client.api.inner.client.NoAuthClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
@@ -39,8 +40,9 @@ public class NoAuthImpl implements NoAuth {
 
     @Override
     public Integer register(UserRequest request) {
-        Preconditions.expectNotEmpty(request.getName(), "username cannot be empty");
-        Preconditions.expectNotEmpty(request.getPassword(), "password cannot be empty");
+        Preconditions.expectNotBlank(request.getName(), ErrorCodeEnum.INVALID_PARAMETER, "username cannot be empty");
+        Preconditions.expectNotBlank(request.getPassword(), ErrorCodeEnum.INVALID_PARAMETER,
+                "password cannot be empty");
         Preconditions.expectNotNull(request.getAccountType(), "accountType cannot be null");
         Preconditions.expectNotNull(request.getValidDays(), "validDays cannot be null");
 

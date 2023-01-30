@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
@@ -60,7 +61,7 @@ public class PulsarOperator {
      */
     public void createTenant(PulsarAdmin pulsarAdmin, String tenant) throws PulsarAdminException {
         LOGGER.info("begin to create pulsar tenant={}", tenant);
-        Preconditions.expectNotEmpty(tenant, "Tenant cannot be empty");
+        Preconditions.expectNotBlank(tenant, ErrorCodeEnum.INVALID_PARAMETER, "Tenant cannot be empty");
 
         try {
             List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
@@ -85,8 +86,10 @@ public class PulsarOperator {
      */
     public void createNamespace(PulsarAdmin pulsarAdmin, InlongPulsarInfo pulsarInfo, String tenant, String namespace)
             throws PulsarAdminException {
-        Preconditions.expectNotNull(tenant, "pulsar tenant cannot be empty during create namespace");
-        Preconditions.expectNotNull(namespace, "pulsar namespace cannot be empty during create namespace");
+        Preconditions.expectNotBlank(tenant, ErrorCodeEnum.INVALID_PARAMETER,
+                "pulsar tenant cannot be empty during create namespace");
+        Preconditions.expectNotBlank(namespace, ErrorCodeEnum.INVALID_PARAMETER,
+                "pulsar namespace cannot be empty during create namespace");
 
         String namespaceName = tenant + "/" + namespace;
         LOGGER.info("begin to create namespace={}", namespaceName);

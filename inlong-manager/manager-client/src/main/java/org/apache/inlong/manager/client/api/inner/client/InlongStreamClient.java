@@ -21,6 +21,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongStreamApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -59,8 +60,8 @@ public class InlongStreamClient {
     public Boolean isStreamExists(InlongStreamInfo streamInfo) {
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        Preconditions.expectNotEmpty(groupId, "InlongGroupId should not be empty");
-        Preconditions.expectNotEmpty(streamId, "InlongStreamId should not be empty");
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.isStreamExists(groupId, streamId));
         ClientUtils.assertRespSuccess(response);
@@ -146,8 +147,8 @@ public class InlongStreamClient {
      * @return whether succeed
      */
     public boolean startProcess(String groupId, String streamId) {
-        Preconditions.expectNotEmpty(groupId, "InlongGroupId should not be empty");
-        Preconditions.expectNotEmpty(streamId, "InlongStreamId should not be empty");
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.startProcess(groupId, streamId));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -161,8 +162,8 @@ public class InlongStreamClient {
      * @return whether succeed
      */
     public boolean suspendProcess(String groupId, String streamId) {
-        Preconditions.expectNotEmpty(groupId, "InlongGroupId should not be empty");
-        Preconditions.expectNotEmpty(streamId, "InlongStreamId should not be empty");
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.suspendProcess(groupId, streamId));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -176,8 +177,8 @@ public class InlongStreamClient {
      * @return whether succeed
      */
     public boolean restartProcess(String groupId, String streamId) {
-        Preconditions.expectNotEmpty(groupId, "InlongGroupId should not be empty");
-        Preconditions.expectNotEmpty(streamId, "InlongStreamId should not be empty");
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.restartProcess(groupId, streamId));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -191,8 +192,8 @@ public class InlongStreamClient {
      * @return whether succeed
      */
     public boolean deleteProcess(String groupId, String streamId) {
-        Preconditions.expectNotEmpty(groupId, "InlongGroupId should not be empty");
-        Preconditions.expectNotEmpty(streamId, "InlongStreamId should not be empty");
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.deleteProcess(groupId, streamId));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -206,8 +207,8 @@ public class InlongStreamClient {
      * @return whether succeed
      */
     public boolean delete(String groupId, String streamId) {
-        Preconditions.expectNotEmpty(groupId, "InlongGroupId should not be empty");
-        Preconditions.expectNotEmpty(streamId, "InlongStreamId should not be empty");
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.delete(groupId, streamId));
         ClientUtils.assertRespSuccess(response);
         return response.getData();

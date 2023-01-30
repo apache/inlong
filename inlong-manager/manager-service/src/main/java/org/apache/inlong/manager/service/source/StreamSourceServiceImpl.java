@@ -215,7 +215,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public List<StreamSource> listSource(String groupId, String streamId) {
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
@@ -252,7 +252,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public PageResult<? extends StreamSource> listByCondition(SourcePageRequest request) {
-        Preconditions.expectNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
@@ -488,8 +488,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     public Boolean forceDelete(String groupId, String streamId, String operator) {
         LOGGER.info("begin to force delete source for groupId={} and streamId={} by user={}",
                 groupId, streamId, operator);
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
         int sourceCount = sourceMapper.updateByRelatedId(groupId, streamId, SourceStatus.TO_BE_ISSUED_DELETE.getCode());
         int fieldCount = sourceFieldMapper.updateByRelatedId(groupId, streamId);
@@ -534,7 +534,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean logicDeleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to logic delete all source info by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
 
         // Check if it can be deleted
         Integer nextStatus = SourceStatus.TO_BE_ISSUED_DELETE.getCode();
@@ -564,8 +564,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean deleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to delete all source by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
         groupCheckService.checkGroupStatus(groupId, operator);
@@ -589,13 +589,13 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private void checkParams(SourceRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String groupId = request.getInlongGroupId();
-        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         String streamId = request.getInlongStreamId();
-        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         String sourceType = request.getSourceType();
-        Preconditions.expectNotNull(sourceType, ErrorCodeEnum.SOURCE_TYPE_IS_NULL.getMessage());
+        Preconditions.expectNotBlank(sourceType, ErrorCodeEnum.SOURCE_TYPE_IS_NULL);
         String sourceName = request.getSourceName();
-        Preconditions.expectNotNull(sourceName, ErrorCodeEnum.SOURCE_NAME_IS_NULL.getMessage());
+        Preconditions.expectNotBlank(sourceName, ErrorCodeEnum.SOURCE_NAME_IS_NULL);
     }
 
     private void chkUnmodifiableParams(SourceRequest request) {

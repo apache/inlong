@@ -95,7 +95,8 @@ public class KafkaClusterOperator extends AbstractClusterOperator {
     @Override
     public Boolean testConnection(ClusterRequest request) {
         String bootstrapServers = request.getUrl();
-        Preconditions.expectNotNull(bootstrapServers, "connection url cannot be empty");
+        Preconditions.expectNotBlank(bootstrapServers, ErrorCodeEnum.INVALID_PARAMETER,
+                "connection url cannot be empty");
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         try (Admin ignored = Admin.create(props)) {

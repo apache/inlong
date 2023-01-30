@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongConsumeApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -53,8 +54,10 @@ public class InlongConsumeClient {
      */
     public Integer save(InlongConsumeRequest request) {
         Preconditions.expectNotNull(request, "inlong consume request cannot be null");
-        Preconditions.expectNotNull(request.getTopic(), "inlong consume topic cannot be null");
-        Preconditions.expectNotNull(request.getConsumerGroup(), "inlong consume topic cannot be null");
+        Preconditions.expectNotBlank(request.getTopic(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong consume topic cannot be null");
+        Preconditions.expectNotBlank(request.getConsumerGroup(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong consume topic cannot be null");
 
         Response<Integer> response = ClientUtils.executeHttpCall(inlongConsumeApi.save(request));
         ClientUtils.assertRespSuccess(response);

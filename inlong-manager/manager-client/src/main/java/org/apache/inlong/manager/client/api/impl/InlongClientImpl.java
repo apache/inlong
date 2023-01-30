@@ -32,6 +32,7 @@ import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.common.enums.SortStatus;
@@ -183,7 +184,8 @@ public class InlongClientImpl implements InlongClient {
     @Override
     public Integer saveTag(ClusterTagRequest request) {
         Preconditions.expectNotNull(request, "inlong cluster request cannot be empty");
-        Preconditions.expectNotNull(request.getClusterTag(), "cluster tag cannot be empty");
+        Preconditions.expectNotBlank(request.getClusterTag(), ErrorCodeEnum.INVALID_PARAMETER,
+                "cluster tag cannot be empty");
         return clusterClient.saveTag(request);
     }
 
@@ -201,7 +203,8 @@ public class InlongClientImpl implements InlongClient {
     @Override
     public Boolean updateTag(ClusterTagRequest request) {
         Preconditions.expectNotNull(request, "inlong cluster request cannot be empty");
-        Preconditions.expectNotNull(request.getClusterTag(), "inlong cluster tag cannot be empty");
+        Preconditions.expectNotBlank(request.getClusterTag(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong cluster tag cannot be empty");
         Preconditions.expectNotNull(request.getId(), "cluster tag id cannot be empty");
         return clusterClient.updateTag(request);
     }
@@ -239,7 +242,8 @@ public class InlongClientImpl implements InlongClient {
     @Override
     public Boolean bindTag(BindTagRequest request) {
         Preconditions.expectNotNull(request, "inlong cluster info cannot be empty");
-        Preconditions.expectNotNull(request.getClusterTag(), "cluster tag cannot be empty");
+        Preconditions.expectNotBlank(request.getClusterTag(), ErrorCodeEnum.INVALID_PARAMETER,
+                "cluster tag cannot be empty");
         return clusterClient.bindTag(request);
     }
 
@@ -269,8 +273,8 @@ public class InlongClientImpl implements InlongClient {
 
     @Override
     public List<ClusterNodeResponse> listNode(String inlongGroupId, String clusterType, String protocolType) {
-        Preconditions.expectNotNull(inlongGroupId, "inlongGroupId cannot be empty");
-        Preconditions.expectNotNull(clusterType, "clusterType cannot be empty");
+        Preconditions.expectNotBlank(inlongGroupId, ErrorCodeEnum.INVALID_PARAMETER, "inlongGroupId cannot be empty");
+        Preconditions.expectNotBlank(clusterType, ErrorCodeEnum.INVALID_PARAMETER, "clusterType cannot be empty");
         return clusterClient.listNode(inlongGroupId, clusterType, protocolType);
     }
 

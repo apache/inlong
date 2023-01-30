@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.inner.client;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.UserApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -55,8 +56,9 @@ public class UserClient {
      * @return user id after saving
      */
     public Integer register(UserRequest userInfo) {
-        Preconditions.expectNotEmpty(userInfo.getName(), "username cannot be empty");
-        Preconditions.expectNotEmpty(userInfo.getPassword(), "password cannot be empty");
+        Preconditions.expectNotBlank(userInfo.getName(), ErrorCodeEnum.INVALID_PARAMETER, "username cannot be empty");
+        Preconditions.expectNotBlank(userInfo.getPassword(), ErrorCodeEnum.INVALID_PARAMETER,
+                "password cannot be empty");
 
         Response<Integer> response = ClientUtils.executeHttpCall(userApi.register(userInfo));
         ClientUtils.assertRespSuccess(response);
@@ -84,7 +86,7 @@ public class UserClient {
      * @return user info
      */
     public UserInfo getByName(String name) {
-        Preconditions.expectNotNull(name, "username cannot be null");
+        Preconditions.expectNotBlank(name, ErrorCodeEnum.INVALID_PARAMETER, "username cannot be null");
 
         Response<UserInfo> response = ClientUtils.executeHttpCall(userApi.getByName(name));
         ClientUtils.assertRespSuccess(response);

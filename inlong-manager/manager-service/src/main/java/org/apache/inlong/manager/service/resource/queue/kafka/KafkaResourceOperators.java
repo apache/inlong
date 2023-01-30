@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -99,7 +100,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
         Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
         Preconditions.expectNotNull(streamInfo, "inlong stream info cannot be null");
-        Preconditions.expectNotNull(operator, "operator cannot be null");
+        Preconditions.expectNotBlank(operator, ErrorCodeEnum.INVALID_PARAMETER, "operator cannot be null");
 
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();

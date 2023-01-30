@@ -89,7 +89,7 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
         String url = request.getUrl();
         String username = request.getUsername();
         String password = request.getToken();
-        Preconditions.expectNotNull(url, "connection url cannot be empty");
+        Preconditions.expectNotBlank(url, ErrorCodeEnum.INVALID_PARAMETER, "connection url cannot be empty");
         ElasticsearchApi client = new ElasticsearchApi();
         ElasticsearchConfig config = new ElasticsearchConfig();
         if (StringUtils.isNotEmpty(request.getUsername())) {

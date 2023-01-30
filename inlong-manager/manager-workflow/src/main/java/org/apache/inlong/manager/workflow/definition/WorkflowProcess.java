@@ -24,6 +24,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -124,7 +125,7 @@ public class WorkflowProcess extends Element {
     @Override
     public void validate() {
         super.validate();
-        Preconditions.expectNotEmpty(type, "process type cannot be empty");
+        Preconditions.expectNotBlank(type, ErrorCodeEnum.INVALID_PARAMETER, "process type cannot be empty");
         Preconditions.expectNotNull(startEvent, "start event cannot be null");
         Preconditions.expectNotNull(endEvent, "end event cannot be null");
 

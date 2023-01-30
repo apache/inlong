@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.WorkflowApproverApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -52,9 +53,12 @@ public class WorkflowApproverClient {
      * @param request approver request
      */
     public Integer save(ApproverRequest request) {
-        Preconditions.expectNotEmpty(request.getProcessName(), "process name cannot be empty");
-        Preconditions.expectNotEmpty(request.getTaskName(), "task name cannot be empty");
-        Preconditions.expectNotEmpty(request.getApprovers(), "approvers cannot be empty");
+        Preconditions.expectNotBlank(request.getProcessName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "process name cannot be empty");
+        Preconditions.expectNotBlank(request.getTaskName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "task name cannot be empty");
+        Preconditions.expectNotBlank(request.getApprovers(), ErrorCodeEnum.INVALID_PARAMETER,
+                "approvers cannot be empty");
 
         Response<Integer> response = ClientUtils.executeHttpCall(workflowApproverApi.save(request));
         ClientUtils.assertRespSuccess(response);
