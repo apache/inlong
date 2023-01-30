@@ -71,7 +71,6 @@ public class S3DirtySink<T> implements DirtySink<T> {
     private final DataType physicalRowDataType;
     private RowData.FieldGetter[] fieldGetters;
     private RowDataToJsonConverter converter;
-    private long currentTime;
     private long batchBytes = 0L;
     private int size;
     private transient volatile boolean closed = false;
@@ -79,7 +78,6 @@ public class S3DirtySink<T> implements DirtySink<T> {
     private transient ScheduledExecutorService scheduler;
     private transient ScheduledFuture<?> scheduledFuture;
     private transient S3Helper s3Helper;
-
 
     public S3DirtySink(S3Options s3Options, DataType physicalRowDataType) {
         this.s3Options = s3Options;
@@ -120,7 +118,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
         } catch (Exception e) {
             if (!s3Options.ignoreSideOutputErrors()) {
                 throw new RuntimeException(String.format("Add batch to identifier:%s failed, the dirty data: %s.",
-                        dirtyData.getIdentifier(), dirtyData), e);
+                        dirtyData.getIdentifier(), dirtyData.toString()), e);
             }
             LOGGER.warn("Add batch to identifier:{} failed "
                     + "and the dirty data will be throw away in the future"
@@ -132,14 +130,6 @@ public class S3DirtySink<T> implements DirtySink<T> {
     }
 
     private boolean valid() {
-        // if invoke() is called before BatchIntervalMs is reached, then the data should not flush.
-        if (currentTime == 0) {
-            currentTime = System.currentTimeMillis();
-            return false;
-        }
-        if (System.currentTimeMillis() - currentTime < s3Options.getBatchIntervalMs()) {
-            return false;
-        }
         return (s3Options.getBatchSize() > 0 && size >= s3Options.getBatchSize())
                 || batchBytes >= s3Options.getMaxBatchBytes();
     }
@@ -228,7 +218,6 @@ public class S3DirtySink<T> implements DirtySink<T> {
      */
     public synchronized void flush() {
         flushing = true;
-        currentTime = System.currentTimeMillis();
         if (!hasRecords()) {
             flushing = false;
             return;
