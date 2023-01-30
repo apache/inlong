@@ -188,7 +188,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public Boolean exist(String groupId, String streamId) {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         return streamEntity != null;
     }
