@@ -84,7 +84,7 @@
                 cluster_tag = #{clusterTag,jdbcType=VARCHAR},
             </if>
             <if test="extParams != null">
-                ext_params = #{extParams,jdbcType=VARCHAR},
+                ext_params = #{extParams,jdbcType=LONGVARCHAR},
             </if>
             <if test="description != null">
                 description = #{description,jdbcType=VARCHAR},
