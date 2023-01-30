@@ -71,6 +71,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
     private final DataType physicalRowDataType;
     private RowData.FieldGetter[] fieldGetters;
     private RowDataToJsonConverter converter;
+    private long currentTime;
     private long batchBytes = 0L;
     private int size;
     private transient volatile boolean closed = false;
@@ -130,6 +131,16 @@ public class S3DirtySink<T> implements DirtySink<T> {
     }
 
     private boolean valid() {
+        // stash dirty data for at least a minute to avoid flushing too fast
+        if (currentTime == 0) {
+            currentTime = System.currentTimeMillis();
+            return false;
+        }
+        if (System.currentTimeMillis() - currentTime < s3Options.getBatchIntervalMs()) {
+            return false;
+        }
+        return (s3Options.getBatchSize() > 0 && (size >= s3Options.getBatchSize()
+                || batchBytes <= s3Options.getMaxBatchBytes()));
         return (s3Options.getBatchSize() > 0 && size >= s3Options.getBatchSize())
                 || batchBytes >= s3Options.getMaxBatchBytes();
     }
@@ -218,6 +229,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
      */
     public synchronized void flush() {
         flushing = true;
+        currentTime = System.currentTimeMillis();
         if (!hasRecords()) {
             flushing = false;
             return;
