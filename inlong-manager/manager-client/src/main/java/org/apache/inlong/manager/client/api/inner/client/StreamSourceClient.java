@@ -83,7 +83,7 @@ public class StreamSourceClient {
      * Delete data source information by id.
      */
     public boolean deleteSource(int id) {
-        Preconditions.checkTrue(id > 0, "sourceId is illegal");
+        Preconditions.expectTrue(id > 0, "sourceId is illegal");
         Response<Boolean> response = ClientUtils.executeHttpCall(streamSourceApi.deleteSource(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
@@ -97,8 +97,8 @@ public class StreamSourceClient {
      * @return Whether succeed
      */
     public boolean forceDelete(String groupId, String streamId) {
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         Response<Boolean> response = ClientUtils.executeHttpCall(streamSourceApi.forceDelete(groupId, streamId));
         ClientUtils.assertRespSuccess(response);
@@ -106,7 +106,7 @@ public class StreamSourceClient {
     }
 
     public StreamSource get(int id) {
-        Preconditions.checkTrue(id > 0, "sourceId is illegal");
+        Preconditions.expectTrue(id > 0, "sourceId is illegal");
         Response<StreamSource> response = ClientUtils.executeHttpCall(streamSourceApi.get(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();

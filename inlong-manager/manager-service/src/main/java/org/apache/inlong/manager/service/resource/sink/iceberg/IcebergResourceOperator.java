@@ -94,7 +94,7 @@ public class IcebergResourceOperator implements SinkResourceOperator {
         if (StringUtils.isBlank(icebergInfo.getCatalogUri())
                 && CATALOG_TYPE_HIVE.equals(icebergInfo.getCatalogType())) {
             String dataNodeName = sinkInfo.getDataNodeName();
-            Preconditions.checkNotEmpty(dataNodeName, "iceberg catalog uri not specified and data node is empty");
+            Preconditions.expectNotEmpty(dataNodeName, "iceberg catalog uri not specified and data node is empty");
             IcebergDataNodeInfo dataNodeInfo = (IcebergDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, icebergInfo);

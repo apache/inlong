@@ -88,8 +88,8 @@ public class WorkflowClient {
      * @return workflow result info
      */
     public WorkflowResult start(WorkflowOperationRequest request) {
-        Preconditions.checkNotNull(request.getName(), "process name cannot be null");
-        Preconditions.checkNotNull(request.getForm(), "form cannot be null");
+        Preconditions.expectNotNull(request.getName(), "process name cannot be null");
+        Preconditions.expectNotNull(request.getForm(), "form cannot be null");
 
         Response<WorkflowResult> response = ClientUtils.executeHttpCall(workflowApi.start(request));
         ClientUtils.assertRespSuccess(response);
@@ -104,7 +104,7 @@ public class WorkflowClient {
      * @return workflow result info
      */
     public WorkflowResult cancel(Integer processId, WorkflowOperationRequest request) {
-        Preconditions.checkNotNull(processId, "process id cannot be null");
+        Preconditions.expectNotNull(processId, "process id cannot be null");
 
         Response<WorkflowResult> response = ClientUtils.executeHttpCall(workflowApi.cancel(processId, request));
         ClientUtils.assertRespSuccess(response);
@@ -119,7 +119,7 @@ public class WorkflowClient {
      * @return workflow result info
      */
     public WorkflowResult continueProcess(Integer processId, WorkflowOperationRequest request) {
-        Preconditions.checkNotNull(processId, "process id cannot be null");
+        Preconditions.expectNotNull(processId, "process id cannot be null");
 
         Response<WorkflowResult> response = ClientUtils.executeHttpCall(
                 workflowApi.continueProcess(processId, request));
@@ -135,7 +135,7 @@ public class WorkflowClient {
      * @return workflow result info
      */
     public WorkflowResult reject(Integer taskId, WorkflowOperationRequest request) {
-        Preconditions.checkNotNull(taskId, "task id cannot be null");
+        Preconditions.expectNotNull(taskId, "task id cannot be null");
 
         Response<WorkflowResult> response = ClientUtils.executeHttpCall(workflowApi.reject(taskId, request));
         ClientUtils.assertRespSuccess(response);
@@ -150,7 +150,7 @@ public class WorkflowClient {
      * @return workflow result info
      */
     public WorkflowResult complete(Integer taskId, WorkflowOperationRequest request) {
-        Preconditions.checkNotNull(taskId, "task id cannot be null");
+        Preconditions.expectNotNull(taskId, "task id cannot be null");
 
         Response<WorkflowResult> response = ClientUtils.executeHttpCall(workflowApi.complete(taskId, request));
         ClientUtils.assertRespSuccess(response);
@@ -165,7 +165,7 @@ public class WorkflowClient {
      * @return process detail response
      */
     public ProcessDetailResponse detail(Integer processId, Integer taskId) {
-        Preconditions.checkNotNull(processId, "process id cannot be null");
+        Preconditions.expectNotNull(processId, "process id cannot be null");
 
         Response<ProcessDetailResponse> response = ClientUtils.executeHttpCall(workflowApi.detail(processId, taskId));
         ClientUtils.assertRespSuccess(response);
@@ -179,7 +179,7 @@ public class WorkflowClient {
      * @return process response list
      */
     public PageResult<ProcessResponse> listProcess(ProcessRequest request) {
-        Preconditions.checkNotNull(request, "process request cannot be null");
+        Preconditions.expectNotNull(request, "process request cannot be null");
 
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
                 new TypeReference<Map<String, Object>>() {
@@ -197,7 +197,7 @@ public class WorkflowClient {
      * @return task response list
      */
     public PageResult<TaskResponse> listTask(TaskRequest request) {
-        Preconditions.checkNotNull(request, "task request cannot be null");
+        Preconditions.expectNotNull(request, "task request cannot be null");
 
         Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
                 new TypeReference<Map<String, Object>>() {

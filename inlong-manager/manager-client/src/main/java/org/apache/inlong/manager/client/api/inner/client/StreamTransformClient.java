@@ -75,9 +75,9 @@ public class StreamTransformClient {
      * Delete conversion function info.
      */
     public boolean deleteTransform(TransformRequest transformRequest) {
-        Preconditions.checkNotEmpty(transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
-        Preconditions.checkNotEmpty(transformRequest.getInlongStreamId(), "inlongStreamId should not be null");
-        Preconditions.checkNotEmpty(transformRequest.getTransformName(), "transformName should not be null");
+        Preconditions.expectNotEmpty(transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
+        Preconditions.expectNotEmpty(transformRequest.getInlongStreamId(), "inlongStreamId should not be null");
+        Preconditions.expectNotEmpty(transformRequest.getTransformName(), "transformName should not be null");
 
         Response<Boolean> response = ClientUtils.executeHttpCall(
                 streamTransformApi.deleteTransform(transformRequest.getInlongGroupId(),

@@ -254,9 +254,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         final String type = componentHeartbeat.getComponentType();
         final String clusterTag = componentHeartbeat.getClusterTag();
         final String extTag = componentHeartbeat.getExtTag();
-        Preconditions.checkNotNull(clusterTag, "cluster tag cannot be null");
-        Preconditions.checkNotNull(type, "cluster type cannot be null");
-        Preconditions.checkNotNull(clusterName, "cluster name cannot be null");
+        Preconditions.expectNotNull(clusterTag, "cluster tag cannot be null");
+        Preconditions.expectNotNull(type, "cluster type cannot be null");
+        Preconditions.expectNotNull(clusterName, "cluster name cannot be null");
         InlongClusterEntity entity = clusterMapper.selectByNameAndType(clusterName, type);
         if (null != entity) {
             // TODO Load balancing needs to be considered.

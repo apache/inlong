@@ -268,7 +268,7 @@ public class InlongGroupProcessService {
         LOGGER.info("begin to reset group status by operator={} for request={}", operator, request);
         final String groupId = request.getInlongGroupId();
         InlongGroupInfo groupInfo = groupService.get(groupId);
-        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
 
         GroupStatus status = GroupStatus.forCode(groupInfo.getStatus());
         boolean result;

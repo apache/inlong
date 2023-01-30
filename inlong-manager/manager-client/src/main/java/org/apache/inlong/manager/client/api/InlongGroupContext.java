@@ -65,7 +65,7 @@ public class InlongGroupContext implements Serializable {
 
     public InlongGroupContext(InnerGroupContext groupContext) {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
         this.groupId = groupInfo.getInlongGroupId();
         this.groupName = groupInfo.getName();
         this.groupInfo = groupInfo;

@@ -45,7 +45,7 @@ public class StreamPipeline {
     }
 
     public StreamPipeline(List<StreamNodeRelation> pipeline) {
-        Preconditions.checkNotNull(pipeline, "Pipeline should not be null");
+        Preconditions.expectNotNull(pipeline, "Pipeline should not be null");
         this.pipeline = pipeline;
     }
 

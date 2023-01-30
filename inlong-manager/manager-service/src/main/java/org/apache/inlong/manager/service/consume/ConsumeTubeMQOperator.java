@@ -62,17 +62,17 @@ public class ConsumeTubeMQOperator extends AbstractConsumeOperator {
     public void checkTopicInfo(InlongConsumeRequest request) {
         String groupId = request.getInlongGroupId();
         InlongGroupTopicInfo topicInfo = groupService.getTopic(groupId);
-        Preconditions.checkNotNull(topicInfo, "inlong group not exist: " + groupId);
+        Preconditions.expectNotNull(topicInfo, "inlong group not exist: " + groupId);
 
         // one inlong group only has one TubeMQ topic
         InlongTubeMQTopicInfo tubeMQTopic = (InlongTubeMQTopicInfo) topicInfo;
-        Preconditions.checkTrue(Objects.equals(tubeMQTopic.getTopic(), request.getTopic()),
+        Preconditions.expectTrue(Objects.equals(tubeMQTopic.getTopic(), request.getTopic()),
                 String.format("topic %s for consume not belongs to inlong group %s", request.getTopic(), groupId));
     }
 
     @Override
     public InlongConsumeInfo getFromEntity(InlongConsumeEntity entity) {
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.CONSUME_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.CONSUME_NOT_FOUND.getMessage());
 
         ConsumePulsarInfo consumeInfo = new ConsumePulsarInfo();
         CommonBeanUtils.copyProperties(entity, consumeInfo);

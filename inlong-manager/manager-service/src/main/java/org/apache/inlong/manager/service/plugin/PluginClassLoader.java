@@ -168,9 +168,9 @@ public class PluginClassLoader extends URLClassLoader {
 
     private void checkPluginValid(File jarFile, PluginDefinition pluginDefinition) {
         String info = "[%s] not defined in plugin.yaml for " + jarFile.getName();
-        Preconditions.checkNotEmpty(pluginDefinition.getName(), String.format(info, "name"));
-        Preconditions.checkNotEmpty(pluginDefinition.getJavaVersion(), String.format(info, "javaVersion"));
-        Preconditions.checkNotEmpty(pluginDefinition.getPluginClasses(), String.format(info, "pluginClasses"));
+        Preconditions.expectNotEmpty(pluginDefinition.getName(), String.format(info, "name"));
+        Preconditions.expectNotEmpty(pluginDefinition.getJavaVersion(), String.format(info, "javaVersion"));
+        Preconditions.expectNotEmpty(pluginDefinition.getPluginClasses(), String.format(info, "pluginClasses"));
         if (StringUtils.isEmpty(pluginDefinition.getDescription())) {
             log.warn(String.format(info, "description"));
         }

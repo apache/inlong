@@ -64,8 +64,8 @@ public class KafkaResourceOperator implements SinkResourceOperator {
         KafkaSinkDTO kafkaInfo = KafkaSinkDTO.getFromJson(sinkInfo.getExtParams());
         String topicName = kafkaInfo.getTopicName();
         String partitionNum = kafkaInfo.getPartitionNum();
-        Preconditions.checkNotEmpty(topicName, "topic name cannot be empty");
-        Preconditions.checkNotEmpty(partitionNum, "partition cannot be empty");
+        Preconditions.expectNotEmpty(topicName, "topic name cannot be empty");
+        Preconditions.expectNotEmpty(partitionNum, "partition cannot be empty");
 
         try (Admin admin = getKafkaAdmin(kafkaInfo.getBootstrapServers())) {
             boolean topicExists = isTopicExists(admin, topicName, partitionNum);

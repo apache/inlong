@@ -44,7 +44,7 @@ public class InlongGroupApproveForm extends BaseTaskForm {
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(groupApproveInfo, "inlong group approve info is empty");
+        Preconditions.expectNotNull(groupApproveInfo, "inlong group approve info is empty");
     }
 
     @Override

@@ -75,7 +75,7 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
     @Override
     public WorkflowContext buildContextForProcess(Integer processId) {
         WorkflowProcessEntity processEntity = processEntityMapper.selectById(processId);
-        Preconditions.checkNotNull(processEntity, "process not exist with id: " + processId);
+        Preconditions.expectNotNull(processEntity, "process not exist with id: " + processId);
         WorkflowProcess process = definitionRepository.get(processEntity.getName()).clone();
 
         return new WorkflowContext()
@@ -117,7 +117,7 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
     private WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action, TaskForm taskForm,
             List<String> transferToUsers, String remark, String operator) {
         WorkflowTaskEntity taskEntity = taskEntityMapper.selectById(taskId);
-        Preconditions.checkNotNull(taskEntity, "task not exist with id: " + taskId);
+        Preconditions.expectNotNull(taskEntity, "task not exist with id: " + taskId);
 
         WorkflowProcessEntity processEntity = processEntityMapper.selectById(taskEntity.getProcessId());
         WorkflowProcess process = definitionRepository.get(processEntity.getName()).clone();

@@ -60,8 +60,8 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
         WorkflowProcess process = context.getProcess();
         ProcessForm form = context.getProcessForm();
         if (process.getFormClass() != null) {
-            Preconditions.checkNotNull(form, "process form cannot be null");
-            Preconditions.checkTrue(form.getClass().isAssignableFrom(process.getFormClass()),
+            Preconditions.expectNotNull(form, "process form cannot be null");
+            Preconditions.expectTrue(form.getClass().isAssignableFrom(process.getFormClass()),
                     String.format("form type %s should match the process form type %s",
                             form.getClass(), process.getFormClass()));
             form.validate();
@@ -107,7 +107,7 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
         processEntity.setHidden(process.getHidden());
 
         processEntityMapper.insert(processEntity);
-        Preconditions.checkNotNull(processEntity.getId(), "process saved failed");
+        Preconditions.expectNotNull(processEntity.getId(), "process saved failed");
         return processEntity;
     }
 }

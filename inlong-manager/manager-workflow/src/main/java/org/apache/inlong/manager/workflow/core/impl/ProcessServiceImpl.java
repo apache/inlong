@@ -53,9 +53,9 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public WorkflowContext start(String name, String applicant, ProcessForm form) {
-        Preconditions.checkNotEmpty(name, "process name cannot be null");
-        Preconditions.checkNotEmpty(applicant, "applicant cannot be null");
-        Preconditions.checkNotNull(form, "form cannot be null");
+        Preconditions.expectNotEmpty(name, "process name cannot be null");
+        Preconditions.expectNotEmpty(applicant, "applicant cannot be null");
+        Preconditions.expectNotNull(form, "form cannot be null");
 
         // build context
         WorkflowContext context = workflowContextBuilder.buildContextForProcess(name, applicant, form);
@@ -65,12 +65,12 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public WorkflowContext continueProcess(Integer processId, String operator, String remark) {
-        Preconditions.checkNotEmpty(operator, "operator cannot be null");
-        Preconditions.checkNotNull(processId, "processId cannot be null");
+        Preconditions.expectNotEmpty(operator, "operator cannot be null");
+        Preconditions.expectNotNull(processId, "processId cannot be null");
         WorkflowContext context = workflowContextBuilder.buildContextForProcess(processId);
         WorkflowProcessEntity processEntity = context.getProcessEntity();
         ProcessStatus processStatus = ProcessStatus.valueOf(processEntity.getStatus());
-        Preconditions.checkTrue(processStatus == ProcessStatus.PROCESSING,
+        Preconditions.expectTrue(processStatus == ProcessStatus.PROCESSING,
                 String.format("processId=%s should be in processing", processId));
         List<WorkflowTaskEntity> startElements = Lists.newArrayList();
         startElements.addAll(taskEntityMapper.selectByProcess(processId, TaskStatus.PENDING));
@@ -91,8 +91,8 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public WorkflowContext cancel(Integer processId, String operator, String remark) {
-        Preconditions.checkNotEmpty(operator, "operator cannot be null");
-        Preconditions.checkNotNull(processId, "processId cannot be null");
+        Preconditions.expectNotEmpty(operator, "operator cannot be null");
+        Preconditions.expectNotNull(processId, "processId cannot be null");
 
         WorkflowContext context = workflowContextBuilder.buildContextForProcess(processId);
         List<WorkflowTaskEntity> pendingTasks = taskEntityMapper.selectByProcess(processId, TaskStatus.PENDING);

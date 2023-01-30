@@ -62,18 +62,17 @@ public class OpenInLongStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<InlongStreamInfo> get(@RequestParam String groupId, @RequestParam String streamId) {
-        Preconditions.checkBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        Preconditions.checkBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.INVALID_PARAMETER, "groupId cannot be blank");
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.INVALID_PARAMETER, "streamId cannot be blank");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(streamService.get(groupId, streamId, LoginUserUtils.getLoginUser()));
     }
 
     @RequestMapping(value = "/stream/list", method = RequestMethod.POST)
     @ApiOperation(value = "List inlong stream briefs by paginating")
     public Response<List<InlongStreamBriefInfo>> listByCondition(@RequestBody InlongStreamPageRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER,
-                "request cannot be empty");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(streamService.listBrief(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -81,9 +80,8 @@ public class OpenInLongStreamController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong stream")
     public Response<Integer> save(@RequestBody InlongStreamRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER,
-                "request cannot be empty");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(streamService.save(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -91,9 +89,8 @@ public class OpenInLongStreamController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong stream")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody InlongStreamRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER,
-                "request cannot be empty");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(streamService.update(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -105,9 +102,9 @@ public class OpenInLongStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<Boolean> delete(@RequestParam String groupId, @RequestParam String streamId) {
-        Preconditions.checkBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        Preconditions.checkBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.INVALID_PARAMETER, "groupId cannot be blank");
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.INVALID_PARAMETER, "streamId cannot be blank");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(streamService.delete(groupId, streamId, LoginUserUtils.getLoginUser()));
     }
 }

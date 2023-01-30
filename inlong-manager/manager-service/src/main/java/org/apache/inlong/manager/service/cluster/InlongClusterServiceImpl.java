@@ -122,8 +122,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Integer saveTag(ClusterTagRequest request, String operator) {
         LOGGER.debug("begin to save cluster tag {}", request);
-        Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
-        Preconditions.checkNotNull(request.getClusterTag(), "cluster tag cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster request cannot be empty");
+        Preconditions.expectNotNull(request.getClusterTag(), "cluster tag cannot be empty");
 
         // check if the cluster tag already exist
         String clusterTag = request.getClusterTag();
@@ -164,7 +164,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public ClusterTagResponse getTag(Integer id, String currentUser) {
-        Preconditions.checkNotNull(id, "inlong cluster tag id cannot be empty");
+        Preconditions.expectNotNull(id, "inlong cluster tag id cannot be empty");
         InlongClusterTagEntity entity = clusterTagMapper.selectById(id);
         if (entity == null) {
             LOGGER.error("inlong cluster tag not found by id={}", id);
@@ -172,7 +172,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
         UserEntity userEntity = userMapper.selectByName(currentUser);
         boolean isInCharge = Preconditions.inSeparatedString(currentUser, entity.getInCharges(), InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        Preconditions.expectTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to get cluster tag");
 
         ClusterTagResponse response = CommonBeanUtils.copyProperties(entity, ClusterTagResponse::new);
@@ -235,9 +235,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public Boolean updateTag(ClusterTagRequest request, String operator) {
         LOGGER.debug("begin to update cluster tag={}", request);
-        Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster request cannot be empty");
         Integer id = request.getId();
-        Preconditions.checkNotNull(id, "cluster tag id cannot be empty");
+        Preconditions.expectNotNull(id, "cluster tag id cannot be empty");
         InlongClusterTagEntity exist = clusterTagMapper.selectById(id);
         if (exist == null) {
             LOGGER.warn("inlong cluster tag was not exist for id={}", id);
@@ -257,7 +257,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         UserEntity userEntity = userMapper.selectByName(operator);
         boolean isInCharge = Preconditions.inSeparatedString(operator, exist.getInCharges(), InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        Preconditions.expectTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to update cluster tag");
 
         // if the cluster tag was changed, need to check whether the new tag already exists
@@ -319,7 +319,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             }
         }
         // check record version
-        Preconditions.chkNotEquals(exist.getVersion(), request.getVersion(),
+        Preconditions.expectEquals(exist.getVersion(), request.getVersion(),
                 ErrorCodeEnum.CONFIG_EXPIRED,
                 String.format("record has expired with record version=%d, request version=%d",
                         exist.getVersion(), request.getVersion()));
@@ -368,7 +368,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public Boolean deleteTag(Integer id, String operator) {
-        Preconditions.checkNotNull(id, "cluster tag id cannot be empty");
+        Preconditions.expectNotNull(id, "cluster tag id cannot be empty");
         InlongClusterTagEntity exist = clusterTagMapper.selectById(id);
         if (exist == null || exist.getIsDeleted() > InlongConstants.UN_DELETED) {
             LOGGER.error("inlong cluster tag not found by id={}", id);
@@ -376,7 +376,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
         UserEntity userEntity = userMapper.selectByName(operator);
         boolean isInCharge = Preconditions.inSeparatedString(operator, exist.getInCharges(), InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        Preconditions.expectTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to delete cluster tag");
 
         // check if there are some InlongGroups that uses this tag
@@ -444,7 +444,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Integer save(ClusterRequest request, String operator) {
         LOGGER.debug("begin to save inlong cluster={}", request);
-        Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster request cannot be empty");
 
         // check if the cluster already exist
         String clusterTag = request.getClusterTags();
@@ -485,7 +485,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public ClusterInfo get(Integer id, String currentUser) {
-        Preconditions.checkNotNull(id, "inlong cluster id cannot be empty");
+        Preconditions.expectNotNull(id, "inlong cluster id cannot be empty");
         InlongClusterEntity entity = clusterMapper.selectById(id);
         if (entity == null) {
             LOGGER.error("inlong cluster not found by id={}", id);
@@ -597,7 +597,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Boolean update(ClusterRequest request, String operator) {
         LOGGER.debug("begin to update inlong cluster: {}", request);
-        Preconditions.checkNotNull(request, "inlong cluster info cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster info cannot be empty");
         Integer id = request.getId();
         InlongClusterEntity entity = clusterMapper.selectById(id);
         if (entity == null) {
@@ -658,7 +658,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public UpdateResult updateByKey(ClusterRequest request, String operator) {
         LOGGER.debug("begin to update inlong cluster: {}", request);
-        Preconditions.checkNotNull(request, "inlong cluster info cannot be null");
+        Preconditions.expectNotNull(request, "inlong cluster info cannot be null");
         String name = request.getName();
         String type = request.getType();
         InlongClusterEntity entity = clusterMapper.selectByNameAndType(name, type);
@@ -682,13 +682,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Boolean bindTag(BindTagRequest request, String operator) {
         LOGGER.info("begin to bind or unbind cluster tag: {}", request);
-        Preconditions.checkNotNull(request, "inlong cluster info cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster info cannot be empty");
         String clusterTag = request.getClusterTag();
-        Preconditions.checkNotNull(clusterTag, "cluster tag cannot be empty");
+        Preconditions.expectNotNull(clusterTag, "cluster tag cannot be empty");
         InlongClusterTagEntity exist = clusterTagMapper.selectByTag(clusterTag);
         UserEntity userEntity = userMapper.selectByName(operator);
         boolean isInCharge = Preconditions.inSeparatedString(operator, exist.getInCharges(), InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        Preconditions.expectTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to bind or unbind cluster tag");
         if (CollectionUtils.isNotEmpty(request.getBindClusters())) {
             request.getBindClusters().forEach(id -> {
@@ -764,8 +764,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public Boolean deleteByKey(String name, String type, String operator) {
-        Preconditions.checkNotNull(name, "cluster name should not be empty or null");
-        Preconditions.checkNotNull(name, "cluster type should not be empty or null");
+        Preconditions.expectNotNull(name, "cluster name should not be empty or null");
+        Preconditions.expectNotNull(name, "cluster type should not be empty or null");
         InlongClusterEntity entity = clusterMapper.selectByNameAndType(name, type);
         if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
             LOGGER.error("inlong cluster not found by clusterName={}, type={} or was already deleted",
@@ -774,7 +774,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
         UserEntity userEntity = userMapper.selectByName(operator);
         boolean isInCharge = Preconditions.inSeparatedString(operator, entity.getInCharges(), InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        Preconditions.expectTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to delete cluster info");
 
         List<InlongClusterNodeEntity> nodeEntities = clusterNodeMapper.selectByParentId(entity.getId(), null);
@@ -798,7 +798,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public Boolean delete(Integer id, String operator) {
-        Preconditions.checkNotNull(id, "cluster id cannot be empty");
+        Preconditions.expectNotNull(id, "cluster id cannot be empty");
         InlongClusterEntity entity = clusterMapper.selectById(id);
         if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
             LOGGER.error("inlong cluster not found by id={}, or was already deleted", id);
@@ -858,7 +858,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Integer saveNode(ClusterNodeRequest request, String operator) {
         LOGGER.debug("begin to insert inlong cluster node={}", request);
-        Preconditions.checkNotNull(request, "cluster node info cannot be empty");
+        Preconditions.expectNotNull(request, "cluster node info cannot be empty");
 
         // check cluster node if exist
         InlongClusterNodeEntity exist = clusterNodeMapper.selectByUniqueKey(request);
@@ -902,7 +902,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public ClusterNodeResponse getNode(Integer id, String currentUser) {
-        Preconditions.checkNotNull(id, "cluster node id cannot be empty");
+        Preconditions.expectNotNull(id, "cluster node id cannot be empty");
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
         if (entity == null) {
             LOGGER.error("inlong cluster node not found by id={}", id);
@@ -941,7 +941,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             return new PageResult<>(nodeList, (long) nodeList.size());
         }
         Integer parentId = request.getParentId();
-        Preconditions.checkNotNull(parentId, "Cluster id cannot be empty");
+        Preconditions.expectNotNull(parentId, "Cluster id cannot be empty");
         InlongClusterEntity cluster = clusterMapper.selectById(parentId);
         String message = "Current user does not have permission to get cluster node list";
         checkUser(cluster, currentUser, message);
@@ -1062,7 +1062,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public List<String> listNodeIpByType(String type) {
-        Preconditions.checkNotNull(type, "cluster type cannot be empty");
+        Preconditions.expectNotNull(type, "cluster type cannot be empty");
         ClusterPageRequest request = new ClusterPageRequest();
         request.setType(type);
         List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByCondition(request);
@@ -1082,7 +1082,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public Boolean updateNode(ClusterNodeRequest request, String operator) {
         LOGGER.debug("begin to update inlong cluster node={}", request);
-        Preconditions.checkNotNull(request, "inlong cluster node cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster node cannot be empty");
         Integer id = request.getId();
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
         if (entity == null) {
@@ -1090,10 +1090,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
         // check type
-        Preconditions.chkNotEquals(entity.getType(), request.getType(),
+        Preconditions.expectEquals(entity.getType(), request.getType(),
                 ErrorCodeEnum.INVALID_PARAMETER, "type not allowed modify");
         // check record version
-        Preconditions.chkNotEquals(entity.getVersion(), request.getVersion(),
+        Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
                 ErrorCodeEnum.CONFIG_EXPIRED,
                 String.format("record has expired with record version=%d, request version=%d",
                         entity.getVersion(), request.getVersion()));
@@ -1127,10 +1127,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String.format("cluster node not found by id=%s", request.getId()));
         }
         // check type
-        Preconditions.chkNotEquals(entity.getType(), request.getType(),
+        Preconditions.expectEquals(entity.getType(), request.getType(),
                 ErrorCodeEnum.INVALID_PARAMETER, "type not allowed modify");
         // check record version
-        Preconditions.chkNotEquals(entity.getVersion(), request.getVersion(),
+        Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
                 ErrorCodeEnum.CONFIG_EXPIRED,
                 String.format("record has expired with record version=%d, request version=%d",
                         entity.getVersion(), request.getVersion()));
@@ -1167,7 +1167,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public Boolean deleteNode(Integer id, String operator) {
-        Preconditions.checkNotNull(id, "cluster node id cannot be empty");
+        Preconditions.expectNotNull(id, "cluster node id cannot be empty");
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
         if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
             LOGGER.error("inlong cluster node not found by id={}", id);
@@ -1473,16 +1473,16 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private void checkUser(InlongClusterEntity cluster, String user, String errMsg) {
         UserEntity userEntity = userMapper.selectByName(user);
         boolean isInCharge = Preconditions.inSeparatedString(user, cluster.getInCharges(), InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || UserTypeEnum.ADMIN.getCode().equals(userEntity.getAccountType()),
+        Preconditions.expectTrue(isInCharge || UserTypeEnum.ADMIN.getCode().equals(userEntity.getAccountType()),
                 errMsg);
     }
 
     private void chkUnmodifiableParams(InlongClusterEntity entity, ClusterRequest request) {
         // check type
-        Preconditions.chkNotEquals(entity.getType(), request.getType(),
+        Preconditions.expectEquals(entity.getType(), request.getType(),
                 ErrorCodeEnum.INVALID_PARAMETER, "type not allowed modify");
         // check record version
-        Preconditions.chkNotEquals(entity.getVersion(), request.getVersion(),
+        Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
                 ErrorCodeEnum.CONFIG_EXPIRED,
                 String.format("record has expired with record version=%d, request version=%d",
                         entity.getVersion(), request.getVersion()));

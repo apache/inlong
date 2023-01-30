@@ -154,7 +154,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Transactional(rollbackFor = Throwable.class)
     public String save(InlongGroupRequest request, String operator) {
         LOGGER.debug("begin to save inlong group={} by user={}", request, operator);
-        Preconditions.checkNotNull(request, "inlong group request cannot be empty");
+        Preconditions.expectNotNull(request, "inlong group request cannot be empty");
 
         String groupId = request.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
@@ -192,7 +192,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     public Boolean exist(String groupId) {
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         LOGGER.debug("success to check inlong group {}, exist? {}", groupId, entity != null);
         return entity != null;
@@ -200,7 +200,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     public InlongGroupInfo get(String groupId) {
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
@@ -454,7 +454,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public Boolean updateStatus(String groupId, Integer status, String operator) {
         LOGGER.info("begin to update group status to [{}] for groupId={} by user={}", status, groupId, operator);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupIdForUpdate(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
@@ -530,7 +530,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest request) {
         LOGGER.info("start to list group topic infos, request={}", request);
-        Preconditions.checkNotEmpty(request.getClusterTag(), "cluster tag should not be empty");
+        Preconditions.expectNotEmpty(request.getClusterTag(), "cluster tag should not be empty");
         List<InlongGroupEntity> groupEntities = groupMapper.selectByTopicRequest(request);
         List<InlongGroupTopicInfo> topicInfos = new ArrayList<>();
         for (InlongGroupEntity entity : groupEntities) {
@@ -575,7 +575,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public Boolean delete(String groupId, String operator) {
         LOGGER.info("begin to delete inlong group for groupId={} by user={}", groupId, operator);
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
 
         // before deleting an inlong group, delete all inlong streams, sources, sinks, and other info under it
         if (GroupStatus.allowedDeleteSubInfos(GroupStatus.forCode(entity.getStatus()))) {
@@ -631,7 +631,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         String authenticationType = extMap.get(InlongConstants.SORT_AUTHENTICATION_TYPE);
         if (StringUtils.isNotBlank(authenticationType)) {
             AuthType authType = AuthType.forType(authenticationType);
-            Preconditions.checkTrue(authType == AuthType.SECRET_AND_TOKEN,
+            Preconditions.expectTrue(authType == AuthType.SECRET_AND_TOKEN,
                     "Only support SECRET_AND_TOKEN for flink sort auth");
             String authentication = extMap.get(InlongConstants.SORT_AUTHENTICATION);
             Map<String, String> authProperties = JsonUtils.parseObject(authentication,
@@ -661,10 +661,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     private void chkUnmodifiableParams(InlongGroupEntity entity, InlongGroupRequest request) {
         // check mqType
-        Preconditions.chkNotEquals(entity.getMqType(), request.getMqType(),
+        Preconditions.expectEquals(entity.getMqType(), request.getMqType(),
                 ErrorCodeEnum.INVALID_PARAMETER, "mqType not allowed modify");
         // check record version
-        Preconditions.chkNotEquals(entity.getVersion(), request.getVersion(),
+        Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
                 ErrorCodeEnum.CONFIG_EXPIRED,
                 String.format("record has expired with record version=%d, request version=%d",
                         entity.getVersion(), request.getVersion()));

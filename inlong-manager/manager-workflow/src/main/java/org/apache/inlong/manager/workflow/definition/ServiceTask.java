@@ -62,7 +62,7 @@ public class ServiceTask extends WorkflowTask {
 
     @Override
     public List<Element> getNextList(WorkflowAction action, WorkflowContext context) {
-        Preconditions.checkTrue(supportedActions().contains(action),
+        Preconditions.expectTrue(supportedActions().contains(action),
                 "not support workflow action " + action + ", it in one of " + supportedActions());
         switch (action) {
             case COMPLETE:

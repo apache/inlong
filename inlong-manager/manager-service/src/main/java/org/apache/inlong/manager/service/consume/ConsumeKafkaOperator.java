@@ -60,17 +60,17 @@ public class ConsumeKafkaOperator extends AbstractConsumeOperator {
     public void checkTopicInfo(InlongConsumeRequest request) {
         String groupId = request.getInlongGroupId();
         InlongGroupTopicInfo topicInfo = groupService.getTopic(groupId);
-        Preconditions.checkNotNull(topicInfo, "inlong group not exist: " + groupId);
+        Preconditions.expectNotNull(topicInfo, "inlong group not exist: " + groupId);
 
         InlongKafkaTopicInfo kafkaInfo = (InlongKafkaTopicInfo) topicInfo;
         String originTopic = request.getTopic();
-        Preconditions.checkTrue(kafkaInfo.getTopics().contains(originTopic),
+        Preconditions.expectTrue(kafkaInfo.getTopics().contains(originTopic),
                 "Kafka topic not exist for " + originTopic);
     }
 
     @Override
     public InlongConsumeInfo getFromEntity(InlongConsumeEntity entity) {
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.CONSUME_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.CONSUME_NOT_FOUND.getMessage());
 
         ConsumeKafkaInfo kafkaInfo = new ConsumeKafkaInfo();
         CommonBeanUtils.copyProperties(entity, kafkaInfo);

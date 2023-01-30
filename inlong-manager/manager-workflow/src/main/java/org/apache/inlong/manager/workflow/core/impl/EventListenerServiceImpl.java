@@ -55,7 +55,7 @@ public class EventListenerServiceImpl implements EventListenerService {
     @Override
     public void executeEventListener(Integer eventLogId) {
         WorkflowEventLogEntity eventLogEntity = eventLogMapper.selectById(eventLogId);
-        Preconditions.checkNotNull(eventLogEntity, "event log not exist with id: " + eventLogId);
+        Preconditions.expectNotNull(eventLogEntity, "event log not exist with id: " + eventLogId);
         if (ProcessEvent.class.getSimpleName().equals(eventLogEntity.getEventType())) {
             this.executeProcessEventListener(eventLogEntity.getProcessId(), eventLogEntity.getListener());
             return;

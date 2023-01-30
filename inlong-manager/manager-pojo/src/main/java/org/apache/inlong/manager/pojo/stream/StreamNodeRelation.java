@@ -43,12 +43,12 @@ public class StreamNodeRelation {
     }
 
     public void addInputNode(String inputNode) {
-        Preconditions.checkNotEmpty(inputNode, "Input node should not be empty");
+        Preconditions.expectNotEmpty(inputNode, "Input node should not be empty");
         inputNodes.add(inputNode);
     }
 
     public void addOutputNode(String outputNode) {
-        Preconditions.checkNotEmpty(outputNode, "Input node should not be empty");
+        Preconditions.expectNotEmpty(outputNode, "Input node should not be empty");
         outputNodes.add(outputNode);
     }
 }

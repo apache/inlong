@@ -41,7 +41,7 @@ public class PulsarUtils {
      * Get pulsar admin info
      */
     public static PulsarAdmin getPulsarAdmin(PulsarClusterInfo pulsarCluster) throws PulsarClientException {
-        Preconditions.checkNotNull(pulsarCluster.getAdminUrl(), "Pulsar adminUrl cannot be empty");
+        Preconditions.expectNotNull(pulsarCluster.getAdminUrl(), "Pulsar adminUrl cannot be empty");
         PulsarAdmin pulsarAdmin;
         if (StringUtils.isEmpty(pulsarCluster.getToken())) {
             pulsarAdmin = getPulsarAdmin(pulsarCluster.getAdminUrl());

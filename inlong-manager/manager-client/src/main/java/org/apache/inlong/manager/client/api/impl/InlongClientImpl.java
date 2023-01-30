@@ -182,14 +182,14 @@ public class InlongClientImpl implements InlongClient {
 
     @Override
     public Integer saveTag(ClusterTagRequest request) {
-        Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
-        Preconditions.checkNotNull(request.getClusterTag(), "cluster tag cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster request cannot be empty");
+        Preconditions.expectNotNull(request.getClusterTag(), "cluster tag cannot be empty");
         return clusterClient.saveTag(request);
     }
 
     @Override
     public ClusterTagResponse getTag(Integer id) {
-        Preconditions.checkNotNull(id, "inlong cluster tag id cannot be empty");
+        Preconditions.expectNotNull(id, "inlong cluster tag id cannot be empty");
         return clusterClient.getTag(id);
     }
 
@@ -200,27 +200,27 @@ public class InlongClientImpl implements InlongClient {
 
     @Override
     public Boolean updateTag(ClusterTagRequest request) {
-        Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
-        Preconditions.checkNotNull(request.getClusterTag(), "inlong cluster tag cannot be empty");
-        Preconditions.checkNotNull(request.getId(), "cluster tag id cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster request cannot be empty");
+        Preconditions.expectNotNull(request.getClusterTag(), "inlong cluster tag cannot be empty");
+        Preconditions.expectNotNull(request.getId(), "cluster tag id cannot be empty");
         return clusterClient.updateTag(request);
     }
 
     @Override
     public Boolean deleteTag(Integer id) {
-        Preconditions.checkNotNull(id, "cluster tag id cannot be empty");
+        Preconditions.expectNotNull(id, "cluster tag id cannot be empty");
         return clusterClient.deleteTag(id);
     }
 
     @Override
     public Integer saveCluster(ClusterRequest request) {
-        Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster request cannot be empty");
         return clusterClient.saveCluster(request);
     }
 
     @Override
     public ClusterInfo get(Integer id) {
-        Preconditions.checkNotNull(id, "inlong cluster id cannot be empty");
+        Preconditions.expectNotNull(id, "inlong cluster id cannot be empty");
         return clusterClient.get(id);
     }
 
@@ -231,59 +231,59 @@ public class InlongClientImpl implements InlongClient {
 
     @Override
     public Boolean update(ClusterRequest request) {
-        Preconditions.checkNotNull(request, "inlong cluster info cannot be empty");
-        Preconditions.checkNotNull(request.getId(), "inlong cluster id cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster info cannot be empty");
+        Preconditions.expectNotNull(request.getId(), "inlong cluster id cannot be empty");
         return clusterClient.update(request);
     }
 
     @Override
     public Boolean bindTag(BindTagRequest request) {
-        Preconditions.checkNotNull(request, "inlong cluster info cannot be empty");
-        Preconditions.checkNotNull(request.getClusterTag(), "cluster tag cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster info cannot be empty");
+        Preconditions.expectNotNull(request.getClusterTag(), "cluster tag cannot be empty");
         return clusterClient.bindTag(request);
     }
 
     @Override
     public Boolean delete(Integer id) {
-        Preconditions.checkNotNull(id, "cluster id cannot be empty");
+        Preconditions.expectNotNull(id, "cluster id cannot be empty");
         return clusterClient.delete(id);
     }
 
     @Override
     public Integer saveNode(ClusterNodeRequest request) {
-        Preconditions.checkNotNull(request, "cluster node info cannot be empty");
+        Preconditions.expectNotNull(request, "cluster node info cannot be empty");
         return clusterClient.saveNode(request);
     }
 
     @Override
     public ClusterNodeResponse getNode(Integer id) {
-        Preconditions.checkNotNull(id, "cluster node id cannot be empty");
+        Preconditions.expectNotNull(id, "cluster node id cannot be empty");
         return clusterClient.getNode(id);
     }
 
     @Override
     public PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request) {
-        Preconditions.checkNotNull(request.getParentId(), "parentId cannot be empty");
+        Preconditions.expectNotNull(request.getParentId(), "parentId cannot be empty");
         return clusterClient.listNode(request);
     }
 
     @Override
     public List<ClusterNodeResponse> listNode(String inlongGroupId, String clusterType, String protocolType) {
-        Preconditions.checkNotNull(inlongGroupId, "inlongGroupId cannot be empty");
-        Preconditions.checkNotNull(clusterType, "clusterType cannot be empty");
+        Preconditions.expectNotNull(inlongGroupId, "inlongGroupId cannot be empty");
+        Preconditions.expectNotNull(clusterType, "clusterType cannot be empty");
         return clusterClient.listNode(inlongGroupId, clusterType, protocolType);
     }
 
     @Override
     public Boolean updateNode(ClusterNodeRequest request) {
-        Preconditions.checkNotNull(request, "inlong cluster node cannot be empty");
-        Preconditions.checkNotNull(request.getId(), "cluster node id cannot be empty");
+        Preconditions.expectNotNull(request, "inlong cluster node cannot be empty");
+        Preconditions.expectNotNull(request.getId(), "cluster node id cannot be empty");
         return clusterClient.updateNode(request);
     }
 
     @Override
     public Boolean deleteNode(Integer id) {
-        Preconditions.checkNotNull(id, "cluster node id cannot be empty");
+        Preconditions.expectNotNull(id, "cluster node id cannot be empty");
         return clusterClient.deleteNode(id);
     }
 

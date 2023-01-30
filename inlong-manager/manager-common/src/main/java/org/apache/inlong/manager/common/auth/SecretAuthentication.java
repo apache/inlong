@@ -57,7 +57,7 @@ public class SecretAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        Preconditions.checkNotEmpty(properties, "Properties cannot be empty when init SecretAuthentication");
+        Preconditions.expectNotEmpty(properties, "Properties cannot be empty when init SecretAuthentication");
         this.secretId = properties.get(SECRET_ID);
         this.secretKey = properties.get(SECRET_KEY);
     }

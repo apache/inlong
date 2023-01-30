@@ -74,7 +74,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
     @Override
     public void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
 
         String groupId = groupInfo.getInlongGroupId();
         log.info("begin to delete kafka resource for groupId={}", groupId);
@@ -97,9 +97,9 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
     @Override
     public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
-        Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
-        Preconditions.checkNotNull(operator, "operator cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(streamInfo, "inlong stream info cannot be null");
+        Preconditions.expectNotNull(operator, "operator cannot be null");
 
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();
@@ -125,8 +125,8 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
     @Override
     public void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
-        Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(streamInfo, "inlong stream info cannot be null");
 
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();

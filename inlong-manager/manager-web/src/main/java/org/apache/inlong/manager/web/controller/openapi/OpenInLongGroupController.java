@@ -65,17 +65,16 @@ public class OpenInLongGroupController {
     @ApiOperation(value = "Get InLong group information by groupId")
     @ApiImplicitParam(name = "groupId", value = "InLong Group ID", dataTypeClass = String.class, required = true)
     public Response<InlongGroupInfo> get(@PathVariable String groupId) {
-        Preconditions.checkBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.INVALID_PARAMETER, "groupId cannot be blank");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(groupService.get(groupId, LoginUserUtils.getLoginUser()));
     }
 
     @PostMapping(value = "/group/list")
     @ApiOperation(value = "List inlong groups by paginating")
     public Response<List<InlongGroupBriefInfo>> listBrief(@RequestBody InlongGroupPageRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER,
-                "group query request cannot be empty");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(groupService.listBrief(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -83,9 +82,8 @@ public class OpenInLongGroupController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong group")
     public Response<String> save(@Validated(SaveValidation.class) @RequestBody InlongGroupRequest groupRequest) {
-        Preconditions.checkNull(groupRequest, ErrorCodeEnum.REQUEST_IS_EMPTY,
-                "inlong group request cannot be empty");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(groupRequest, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(groupService.save(groupRequest, LoginUserUtils.getLoginUser()));
     }
 
@@ -93,9 +91,8 @@ public class OpenInLongGroupController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong group")
     public Response<String> update(@Validated(UpdateValidation.class) @RequestBody InlongGroupRequest groupRequest) {
-        Preconditions.checkNull(groupRequest, ErrorCodeEnum.REQUEST_IS_EMPTY,
-                "group query request cannot be empty");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(groupRequest, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(groupService.update(groupRequest, LoginUserUtils.getLoginUser()));
     }
 
@@ -104,9 +101,8 @@ public class OpenInLongGroupController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<Boolean> delete(@PathVariable String groupId) {
-        Preconditions.checkBlank(groupId, ErrorCodeEnum.INVALID_PARAMETER,
-                "inlong group id in request cannot be blank");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.INVALID_PARAMETER, "groupId cannot be blank");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(groupProcessOperation.deleteProcess(groupId, LoginUserUtils.getLoginUser()));
     }
 }

@@ -77,8 +77,8 @@ public class PulsarResourceOperator implements QueueResourceOperator {
 
     @Override
     public void createQueueForGroup(InlongGroupInfo groupInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
-        Preconditions.checkNotNull(operator, "operator cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(operator, "operator cannot be null");
 
         String groupId = groupInfo.getInlongGroupId();
         String clusterTag = groupInfo.getInlongClusterTag();
@@ -121,7 +121,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
 
     @Override
     public void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
         String groupId = groupInfo.getInlongGroupId();
         String clusterTag = groupInfo.getInlongClusterTag();
         log.info("begin to delete pulsar resource for groupId={}, clusterTag={}", groupId, clusterTag);
@@ -151,9 +151,9 @@ public class PulsarResourceOperator implements QueueResourceOperator {
 
     @Override
     public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
-        Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
-        Preconditions.checkNotNull(operator, "operator cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(streamInfo, "inlong stream info cannot be null");
+        Preconditions.expectNotNull(operator, "operator cannot be null");
 
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();
@@ -185,8 +185,8 @@ public class PulsarResourceOperator implements QueueResourceOperator {
 
     @Override
     public void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
-        Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(streamInfo, "inlong stream info cannot be null");
 
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();

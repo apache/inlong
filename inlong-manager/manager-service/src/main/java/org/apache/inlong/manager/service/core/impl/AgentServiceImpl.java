@@ -209,7 +209,7 @@ public class AgentServiceImpl implements AgentService {
         if (request.getUnbindClusterNodes() != null) {
             unbindSet.addAll(request.getUnbindClusterNodes());
         }
-        Preconditions.checkTrue(Sets.union(bindSet, unbindSet).size() == bindSet.size() + unbindSet.size(),
+        Preconditions.expectTrue(Sets.union(bindSet, unbindSet).size() == bindSet.size() + unbindSet.size(),
                 "can not add and del node tag in the sameTime");
         InlongClusterEntity cluster = clusterMapper.selectByNameAndType(request.getClusterName(), ClusterType.AGENT);
         String message = "Current user does not have permission to bind cluster node tag";
@@ -332,7 +332,7 @@ public class AgentServiceImpl implements AgentService {
                 SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         final String agentIp = taskRequest.getAgentIp();
         final String agentClusterName = taskRequest.getClusterName();
-        Preconditions.checkTrue(StringUtils.isNotBlank(agentIp) || StringUtils.isNotBlank(agentClusterName),
+        Preconditions.expectTrue(StringUtils.isNotBlank(agentIp) || StringUtils.isNotBlank(agentClusterName),
                 "both agent ip and cluster name are blank when fetching file task");
 
         // find those node whose tag match stream_source tag and agent ip match stream_source agent ip
@@ -381,7 +381,7 @@ public class AgentServiceImpl implements AgentService {
                 SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         final String agentIp = taskRequest.getAgentIp();
         final String agentClusterName = taskRequest.getClusterName();
-        Preconditions.checkTrue(StringUtils.isNotBlank(agentIp) || StringUtils.isNotBlank(agentClusterName),
+        Preconditions.expectTrue(StringUtils.isNotBlank(agentIp) || StringUtils.isNotBlank(agentClusterName),
                 "both agent ip and cluster name are blank when fetching file task");
 
         InlongClusterNodeEntity clusterNodeEntity = selectByIpAndCluster(agentClusterName, agentIp);
@@ -582,7 +582,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     private boolean matchGroup(StreamSourceEntity sourceEntity, InlongClusterNodeEntity clusterNodeEntity) {
-        Preconditions.checkNotNull(sourceEntity, "cluster must be valid");
+        Preconditions.expectNotNull(sourceEntity, "cluster must be valid");
         if (sourceEntity.getInlongClusterNodeGroup() == null) {
             return true;
         }

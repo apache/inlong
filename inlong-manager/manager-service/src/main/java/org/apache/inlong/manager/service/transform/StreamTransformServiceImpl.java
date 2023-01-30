@@ -141,7 +141,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Override
     public List<TransformResponse> listTransform(String groupId, String streamId) {
         LOGGER.debug("begin to fetch transform info by groupId={} and streamId={} ", groupId, streamId);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
@@ -223,7 +223,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         // Check whether the transform can be modified
         String groupId = request.getInlongGroupId();
         groupCheckService.checkGroupStatus(groupId, operator);
-        Preconditions.checkNotNull(request.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
         StreamTransformEntity transformEntity = CommonBeanUtils.copyProperties(request,
                 StreamTransformEntity::new);
         transformEntity.setModifier(operator);
@@ -283,12 +283,12 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public Boolean delete(DeleteTransformRequest request, String operator) {
         LOGGER.info("begin to logic delete transform for request={}", request);
-        Preconditions.checkNotNull(request, "delete request of transform cannot be null");
+        Preconditions.expectNotNull(request, "delete request of transform cannot be null");
 
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
         groupCheckService.checkGroupStatus(groupId, operator);
 
         List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId,
@@ -358,15 +358,15 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     }
 
     private void checkParams(TransformRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String groupId = request.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
         String transformType = request.getTransformType();
-        Preconditions.checkNotNull(transformType, ErrorCodeEnum.TRANSFORM_TYPE_IS_NULL.getMessage());
+        Preconditions.expectNotNull(transformType, ErrorCodeEnum.TRANSFORM_TYPE_IS_NULL.getMessage());
         String transformName = request.getTransformName();
-        Preconditions.checkNotNull(transformName, ErrorCodeEnum.TRANSFORM_NAME_IS_NULL.getMessage());
+        Preconditions.expectNotNull(transformName, ErrorCodeEnum.TRANSFORM_NAME_IS_NULL.getMessage());
     }
 
     private void chkUnmodifiableParams(TransformRequest request) {
@@ -375,7 +375,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             throw new BusinessException(ErrorCodeEnum.TRANSFORM_NOT_FOUND);
         }
         // check record version
-        Preconditions.chkNotEquals(entity.getVersion(), request.getVersion(),
+        Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
                 ErrorCodeEnum.CONFIG_EXPIRED,
                 String.format("record has expired with record version=%d, request version=%d",
                         entity.getVersion(), request.getVersion()));

@@ -144,7 +144,7 @@ public class StarRocksResourceOperator implements SinkResourceOperator {
         // read from data node if not supplied by user
         if (StringUtils.isBlank(starRocksInfo.getJdbcUrl())) {
             String dataNodeName = sinkInfo.getDataNodeName();
-            Preconditions.checkNotEmpty(dataNodeName, "starRocks jdbc url not specified and data node is empty");
+            Preconditions.expectNotEmpty(dataNodeName, "starRocks jdbc url not specified and data node is empty");
             StarRocksDataNodeInfo dataNodeInfo = (StarRocksDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, starRocksInfo);

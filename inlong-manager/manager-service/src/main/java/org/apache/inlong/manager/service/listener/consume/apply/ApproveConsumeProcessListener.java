@@ -122,9 +122,9 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
     private void createPulsarSubscription(InlongConsumeEntity entity) {
         String groupId = entity.getInlongGroupId();
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        Preconditions.checkNotNull(groupEntity, "inlong group not found for groupId=" + groupId);
+        Preconditions.expectNotNull(groupEntity, "inlong group not found for groupId=" + groupId);
         String mqResource = groupEntity.getMqResource();
-        Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
+        Preconditions.expectNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
         ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.PULSAR);
@@ -164,9 +164,9 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
     private void createTubeConsumerGroup(InlongConsumeEntity entity, String operator) {
         String groupId = entity.getInlongGroupId();
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        Preconditions.checkNotNull(groupEntity, "inlong group not found for groupId=" + groupId);
+        Preconditions.expectNotNull(groupEntity, "inlong group not found for groupId=" + groupId);
         String mqResource = groupEntity.getMqResource();
-        Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
+        Preconditions.expectNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
         TubeClusterInfo clusterInfo = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);

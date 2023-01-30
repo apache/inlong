@@ -43,50 +43,50 @@ public class WorkflowImpl implements Workflow {
 
     @Override
     public WorkflowResult start(WorkflowOperationRequest request) {
-        Preconditions.checkNotNull(request.getName(), "process name cannot be null");
-        Preconditions.checkNotNull(request.getForm(), "form cannot be null");
+        Preconditions.expectNotNull(request.getName(), "process name cannot be null");
+        Preconditions.expectNotNull(request.getForm(), "form cannot be null");
         return workflowClient.start(request);
     }
 
     @Override
     public WorkflowResult cancel(Integer processId, WorkflowOperationRequest request) {
-        Preconditions.checkNotNull(processId, "process id cannot be null");
+        Preconditions.expectNotNull(processId, "process id cannot be null");
         return workflowClient.cancel(processId, request);
     }
 
     @Override
     public WorkflowResult continueProcess(Integer processId, WorkflowOperationRequest request) {
-        Preconditions.checkNotNull(processId, "process id cannot be null");
+        Preconditions.expectNotNull(processId, "process id cannot be null");
         return workflowClient.continueProcess(processId, request);
     }
 
     @Override
     public WorkflowResult reject(Integer taskId, WorkflowOperationRequest request) {
-        Preconditions.checkNotNull(taskId, "task id cannot be null");
+        Preconditions.expectNotNull(taskId, "task id cannot be null");
         return workflowClient.reject(taskId, request);
     }
 
     @Override
     public WorkflowResult complete(Integer taskId, WorkflowOperationRequest request) {
-        Preconditions.checkNotNull(taskId, "task id cannot be null");
+        Preconditions.expectNotNull(taskId, "task id cannot be null");
         return workflowClient.complete(taskId, request);
     }
 
     @Override
     public ProcessDetailResponse detail(Integer processId, Integer taskId) {
-        Preconditions.checkNotNull(processId, "process id cannot be null");
+        Preconditions.expectNotNull(processId, "process id cannot be null");
         return workflowClient.detail(processId, taskId);
     }
 
     @Override
     public PageResult<ProcessResponse> listProcess(ProcessRequest request) {
-        Preconditions.checkNotNull(request, "process request cannot be null");
+        Preconditions.expectNotNull(request, "process request cannot be null");
         return workflowClient.listProcess(request);
     }
 
     @Override
     public PageResult<TaskResponse> listTask(TaskRequest request) {
-        Preconditions.checkNotNull(request, "task request cannot be null");
+        Preconditions.expectNotNull(request, "task request cannot be null");
         return workflowClient.listTask(request);
     }
 }

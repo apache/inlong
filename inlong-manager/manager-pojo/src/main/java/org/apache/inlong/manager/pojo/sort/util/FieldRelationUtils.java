@@ -155,7 +155,7 @@ public class FieldRelationUtils {
             List<StreamField> fieldList, String transformName,
             SplitterDefinition splitterDefinition, String preNodes,
             Map<String, StreamField> constantFieldMap) {
-        Preconditions.checkNotEmpty(preNodes, "PreNodes of splitter should not be null");
+        Preconditions.expectNotEmpty(preNodes, "PreNodes of splitter should not be null");
         String preNode = preNodes.split(",")[0];
         List<SplitRule> splitRules = splitterDefinition.getSplitRules();
         Set<String> splitFields = Sets.newHashSet();
@@ -177,7 +177,7 @@ public class FieldRelationUtils {
      */
     private static List<FieldRelation> createReplacerFieldRelations(List<StreamField> fieldList, String transformName,
             StringReplacerDefinition replacerDefinition, String preNodes, Map<String, StreamField> constantFieldMap) {
-        Preconditions.checkNotEmpty(preNodes, "PreNodes of splitter should not be null");
+        Preconditions.expectNotEmpty(preNodes, "PreNodes of splitter should not be null");
         String preNode = preNodes.split(",")[0];
         List<ReplaceRule> replaceRules = replacerDefinition.getReplaceRules();
         Set<String> replaceFields = Sets.newHashSet();
@@ -197,7 +197,7 @@ public class FieldRelationUtils {
      */
     private static List<FieldRelation> createEncryptFieldRelations(List<StreamField> fieldList, String transformName,
             EncryptDefinition encryptDefinition, String preNodes, Map<String, StreamField> constantFieldMap) {
-        Preconditions.checkNotEmpty(preNodes, "PreNodes of encrypt should not be null");
+        Preconditions.expectNotEmpty(preNodes, "PreNodes of encrypt should not be null");
         String preNode = preNodes.split(",")[0];
         List<EncryptRule> encryptRules = encryptDefinition.getEncryptRules();
         Set<String> encryptFields = Sets.newHashSet();

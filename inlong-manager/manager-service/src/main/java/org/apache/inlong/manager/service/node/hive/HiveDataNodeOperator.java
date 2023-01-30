@@ -90,7 +90,7 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
         String url = request.getUrl();
         String username = request.getUsername();
         String password = request.getToken();
-        Preconditions.checkNotNull(url, "connection url cannot be empty");
+        Preconditions.expectNotNull(url, "connection url cannot be empty");
         try (Connection ignored = HiveJdbcUtils.getConnection(url, username, password)) {
             LOGGER.info("hive connection not null - connection success for url={}, username={}, password={}", url,
                     username, password);

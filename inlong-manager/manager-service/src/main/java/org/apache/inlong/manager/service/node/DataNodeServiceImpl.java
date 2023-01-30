@@ -305,10 +305,10 @@ public class DataNodeServiceImpl implements DataNodeService {
 
     private void chkUnmodifiableParams(DataNodeEntity curEntity, DataNodeRequest request) {
         // check type
-        Preconditions.chkNotEquals(curEntity.getType(), request.getType(),
+        Preconditions.expectEquals(curEntity.getType(), request.getType(),
                 ErrorCodeEnum.INVALID_PARAMETER, "type not allowed modify");
         // check record version
-        Preconditions.chkNotEquals(curEntity.getVersion(), request.getVersion(),
+        Preconditions.expectEquals(curEntity.getVersion(), request.getVersion(),
                 ErrorCodeEnum.CONFIG_EXPIRED,
                 String.format("record has expired with record version=%d, request version=%d",
                         curEntity.getVersion(), request.getVersion()));

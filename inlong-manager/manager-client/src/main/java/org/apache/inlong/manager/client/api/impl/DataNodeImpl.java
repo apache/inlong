@@ -22,6 +22,7 @@ import org.apache.inlong.manager.client.api.DataNode;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.DataNodeClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
@@ -38,36 +39,40 @@ public class DataNodeImpl implements DataNode {
 
     @Override
     public Integer save(DataNodeRequest request) {
-        Preconditions.checkNotNull(request, "request cannot be null");
-        Preconditions.checkNotEmpty(request.getName(), "data node name cannot be empty");
-        Preconditions.checkNotEmpty(request.getType(), "data node type cannot be empty");
+        Preconditions.expectNotNull(request, "request cannot be null");
+        Preconditions.expectNotBlank(request.getName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node name cannot be blank");
+        Preconditions.expectNotBlank(request.getType(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node type cannot be blank");
         return dataNodeClient.save(request);
     }
 
     @Override
     public DataNodeInfo get(Integer id) {
-        Preconditions.checkNotNull(id, "data node id cannot be null");
+        Preconditions.expectNotNull(id, "data node id cannot be null");
         return dataNodeClient.get(id);
     }
 
     @Override
     public PageResult<DataNodeInfo> list(DataNodeRequest request) {
-        Preconditions.checkNotNull(request, "request cannot be null");
+        Preconditions.expectNotNull(request, "request cannot be null");
         return dataNodeClient.list(request);
     }
 
     @Override
     public Boolean update(DataNodeRequest request) {
-        Preconditions.checkNotNull(request, "request cannot be null");
-        Preconditions.checkNotEmpty(request.getName(), "data node name cannot be empty");
-        Preconditions.checkNotEmpty(request.getType(), "data node type cannot be empty");
-        Preconditions.checkNotNull(request.getId(), "data node id cannot be null");
+        Preconditions.expectNotNull(request, "request cannot be null");
+        Preconditions.expectNotBlank(request.getName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node name cannot be empty");
+        Preconditions.expectNotBlank(request.getType(), ErrorCodeEnum.INVALID_PARAMETER,
+                "data node type cannot be empty");
+        Preconditions.expectNotNull(request.getId(), "data node id cannot be null");
         return dataNodeClient.update(request);
     }
 
     @Override
     public Boolean delete(Integer id) {
-        Preconditions.checkNotNull(id, "data node id cannot be null");
+        Preconditions.expectNotNull(id, "data node id cannot be null");
         return dataNodeClient.delete(id);
     }
 }

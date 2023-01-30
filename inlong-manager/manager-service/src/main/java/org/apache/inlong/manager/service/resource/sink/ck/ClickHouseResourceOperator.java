@@ -88,7 +88,7 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
         // read from data node if not supplied by user
         if (StringUtils.isBlank(ckInfo.getJdbcUrl())) {
             String dataNodeName = sinkInfo.getDataNodeName();
-            Preconditions.checkNotEmpty(dataNodeName, "clickhouse jdbc url not specified and data node is empty");
+            Preconditions.expectNotEmpty(dataNodeName, "clickhouse jdbc url not specified and data node is empty");
             ClickHouseDataNodeInfo dataNodeInfo = (ClickHouseDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, ckInfo);

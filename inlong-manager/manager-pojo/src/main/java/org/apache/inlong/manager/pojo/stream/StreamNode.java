@@ -43,7 +43,7 @@ public class StreamNode {
     protected List<StreamField> fieldList;
 
     public void addPre(String pre) {
-        Preconditions.checkNotEmpty(pre, "Pre node should not be empty");
+        Preconditions.expectNotEmpty(pre, "Pre node should not be empty");
         if (preNodes == null) {
             preNodes = Sets.newHashSet();
         }
@@ -51,7 +51,7 @@ public class StreamNode {
     }
 
     public void addPost(String post) {
-        Preconditions.checkNotEmpty(post, "Post node should not be empty");
+        Preconditions.expectNotEmpty(post, "Post node should not be empty");
         if (postNodes == null) {
             postNodes = Sets.newHashSet();
         }

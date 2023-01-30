@@ -38,7 +38,7 @@ public enum IcebergPartition {
      * Get partition type from name
      */
     public static IcebergPartition forName(String name) {
-        Preconditions.checkNotNull(name, "IcebergPartition should not be null");
+        Preconditions.expectNotNull(name, "IcebergPartition should not be null");
         for (IcebergPartition value : values()) {
             if (value.toString().equalsIgnoreCase(name)) {
                 return value;
