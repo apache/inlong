@@ -293,7 +293,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             String clusterName,
             List<SortSourceStreamSinkInfo> sinkList) {
 
-        Preconditions.checkNotNull(sortClusters.get(clusterName), "sort cluster should not be NULL");
+        Preconditions.expectNotNull(sortClusters.get(clusterName), "sort cluster should not be NULL");
         String sortClusterTag = sortClusters.get(clusterName).getClusterTags();
 
         // get group infos
