@@ -302,7 +302,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         jdbcExec = newExecutor;
                     }
                 } catch (Exception e) {
-                    LOG.info("enhance executor failed : {} ,{} ,{}",
+                    LOG.debug("enhance executor failed : {} ,{} ,{}",
                             e.getMessage(), e.getStackTrace(), jdbcExec.getClass());
                 }
             }
@@ -329,7 +329,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             throw new RuntimeException("table enhance failed, can't enhance " + exec.getClass());
         }
         f1.setAccessible(true);
-        LOG.info("actual executor type:{}", f1.get(exec).getClass());
+        LOG.debug("actual executor type:{}", f1.get(exec).getClass());
         TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) f1.get(exec);
         Field f2 = TableSimpleStatementExecutor.class.getDeclaredField("stmtFactory");
         Field f3 = TableSimpleStatementExecutor.class.getDeclaredField("converter");
@@ -682,9 +682,17 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         String[] fieldArray = tableIdentifier.split("\\.");
         // throw an exception if the executor is not enhanced
         JdbcExec executor = jdbcExecMap.get(tableIdentifier);
-        if (!(executor instanceof TableMetricStatementExecutor)) {
-            throw new NoSuchFieldException(executor.getClass().toString());
+        Field f1;
+        if (executor instanceof TableBufferReducedStatementExecutor) {
+            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+            f1.setAccessible(true);
+            executor = (JdbcExec) f1.get(executor);
+        } else if (executor instanceof TableBufferedStatementExecutor) {
+            f1 = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
+            f1.setAccessible(true);
+            executor = (JdbcExec) f1.get(executor);
         }
+
         Field metricField = TableMetricStatementExecutor.class.getDeclaredField("metric");
         long[] metrics = (long[]) metricField.get(executor);
         long cleanCount = metrics[0];

@@ -24,7 +24,7 @@ import org.apache.flink.connector.jdbc.statement.StatementFactory;
 import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
-import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
     private final JdbcRowConverter converter;
     private final List<RowData> batch;
     private final DirtySinkHelper<Object> dirtySinkHelper;
-    private final SinkTableMetricData sinkMetricData;
+    private final SinkMetricData sinkMetricData;
     private final AtomicInteger counter = new AtomicInteger();
     private transient FieldNamedPreparedStatement st;
     private boolean multipleSink;
@@ -58,7 +58,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
     public long[] metric = new long[4];
 
     public TableMetricStatementExecutor(StatementFactory stmtFactory, JdbcRowConverter converter,
-            DirtySinkHelper<Object> dirtySinkHelper, SinkTableMetricData sinkMetricData) {
+            DirtySinkHelper<Object> dirtySinkHelper, SinkMetricData sinkMetricData) {
         this.stmtFactory = checkNotNull(stmtFactory);
         this.converter = checkNotNull(converter);
         this.batch = new CopyOnWriteArrayList<>();
@@ -90,6 +90,9 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
     @Override
     public void executeBatch() throws SQLException {
         for (RowData record : batch) {
+            LOG.debug("print batch:{}", record);
+        }
+        for (RowData record : batch) {
             long rowSize = record.toString().getBytes(StandardCharsets.UTF_8).length * 8L;
             try {
                 converter.toExternal(record, st);
@@ -99,25 +102,24 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
                 batch.remove(record);
                 if (!multipleSink) {
                     sinkMetricData.invoke(1, rowSize);
+                    LOG.debug("print record:{} invoke clean", record);
+                } else {
+                    metric[0]++;
+                    metric[1] += rowSize;
                 }
-                metric[0]++;
-                metric[1] += rowSize;
             } catch (Exception e) {
-                if (multipleSink || counter.incrementAndGet() >= 3) {
-                    LOG.info("record parse start {}", counter);
-                    batch.remove(record);
-                    dirtySinkHelper.invoke(record, DirtyType.BATCH_LOAD_ERROR, new SQLException("jdbc dirty record"));
-                    LOG.info("invoke dirty");
-                    if (!multipleSink) {
-                        sinkMetricData.invokeDirty(1, rowSize);
-                    }
+                LOG.debug("record parse start {}, exception cause {}", counter, e);
+                batch.remove(record);
+                dirtySinkHelper.invoke(record, DirtyType.BATCH_LOAD_ERROR, new SQLException("jdbc dirty record"));
+                if (!multipleSink) {
+                    sinkMetricData.invokeDirty(1, rowSize);
+                    LOG.debug("print record:{} invoke dirty", record);
+                } else {
                     metric[2]++;
                     metric[3] += rowSize;
-                    st.clearParameters();
-                    counter.set(0);
-                } else {
-                    throw new SQLException(e);
                 }
+                st.clearParameters();
+                counter.set(0);
             }
         }
     }

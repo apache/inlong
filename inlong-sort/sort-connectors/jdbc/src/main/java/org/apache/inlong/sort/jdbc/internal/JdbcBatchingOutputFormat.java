@@ -54,7 +54,6 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -218,7 +217,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                 exec = newExecutor;
             }
         } catch (Exception e) {
-            LOG.info("class enhance failed");
+            LOG.debug("class enhance failed {}", e);
         }
         try {
             exec.prepareStatements(connectionProvider.getConnection());
@@ -396,7 +395,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             throw new RuntimeException("table enhance failed, can't enhance " + exec.getClass());
         }
         f1.setAccessible(true);
-        LOG.info("actual executor type:{}", f1.get(exec).getClass());
+        LOG.debug("actual executor type:{}", f1.get(exec).getClass());
         TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) f1.get(exec);
         Field f2 = TableSimpleStatementExecutor.class.getDeclaredField("stmtFactory");
         Field f3 = TableSimpleStatementExecutor.class.getDeclaredField("converter");
@@ -405,8 +404,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         final StatementFactory stmtFactory = (StatementFactory) f2.get(executor);
         final JdbcRowConverter converter = (JdbcRowConverter) f3.get(executor);
         TableMetricStatementExecutor newExecutor =
-                new TableMetricStatementExecutor(stmtFactory, converter, dirtySinkHelper,
-                        (SinkTableMetricData) sinkMetricData);
+                new TableMetricStatementExecutor(stmtFactory, converter, dirtySinkHelper, sinkMetricData);
         if (exec instanceof TableBufferedStatementExecutor) {
             f1 = TableBufferedStatementExecutor.class.getDeclaredField("valueTransform");
             f1.setAccessible(true);
