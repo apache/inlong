@@ -33,7 +33,7 @@ import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.cluster.SubscribeInfo;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
-import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
+// import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 
 /**
  * Tube meta info converter tools
@@ -204,6 +204,7 @@ public class DataConverterUtil {
      * @param topicName
      * @param transferedMessageList return a list of @link Message
      */
+    /**
     public static List<Message> convertMessage(final String topicName,
             List<ClientBroker.TransferedMessage> transferedMessageList) {
         if (transferedMessageList == null || transferedMessageList.isEmpty()) {
@@ -251,5 +252,6 @@ public class DataConverterUtil {
         }
         return messageList;
     }
+     **/
 
 }

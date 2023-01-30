@@ -30,7 +30,7 @@
     <name>Apache InLong - Sort-connector-oracle-cdc</name>
 
     <properties>
-        <debezium.version>1.7.0.Final</debezium.version>
+        <debezium.version>1.6.4.Final</debezium.version>
     </properties>
 
     <dependencies>
@@ -42,6 +42,10 @@
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
         </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.oracle.database.jdbc</groupId>-->
+        <!--            <artifactId>ojdbc8</artifactId>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-base</artifactId>
@@ -50,6 +54,11 @@
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-cdc-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-cdc-base-2.3.0</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -82,6 +91,12 @@
             <groupId>io.debezium</groupId>
             <artifactId>debezium-core</artifactId>
             <version>${debezium.version}</version>
+        </dependency>
+        <!--  Use fixed version 30.1.1-jre-16.0 of flink shaded guava  -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-shaded-guava</artifactId>
+            <version>30.1.1-jre-16.0</version>
         </dependency>
     </dependencies>
 
@@ -116,6 +131,7 @@
                                     <include>com.google.guava:*</include>
                                     <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>
+                                    <include>com.ververica:flink-cdc-base</include>
                                 </includes>
                             </artifactSet>
                             <filters>

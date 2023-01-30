@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.cdc.oracle;
 
+import com.ververica.cdc.connectors.base.options.StartupOptions;
 import com.ververica.cdc.connectors.oracle.OracleValidator;
-import com.ververica.cdc.connectors.oracle.table.StartupOptions;
 import io.debezium.connector.oracle.OracleConnector;
 
 import java.util.Properties;

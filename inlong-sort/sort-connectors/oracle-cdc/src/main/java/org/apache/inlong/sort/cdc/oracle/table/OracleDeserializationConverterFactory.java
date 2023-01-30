@@ -21,8 +21,10 @@ import io.debezium.data.SpecialValueDecimal;
 import io.debezium.data.VariableScaleDecimal;
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Optional;
+import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverter;
 import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverterFactory;
@@ -63,10 +65,37 @@ public class OracleDeserializationConverterFactory {
                 return createFloatConverter();
             case DOUBLE:
                 return createDoubleConverter();
+            // Debezium use io.debezium.time.ZonedTimestamp to map Oracle TIMESTAMP WITH LOCAL
+            // TIME ZONE type, the value is a string representation of a timestamp in UTC.
+            case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
+                return convertToLocalTimeZoneTimestamp();
             default:
                 // fallback to default converter
                 return Optional.empty();
         }
+    }
+
+    private static Optional<DeserializationRuntimeConverter> convertToLocalTimeZoneTimestamp() {
+        return Optional.of(
+                new DeserializationRuntimeConverter() {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema) {
+                        if (dbzObj instanceof String) {
+                            String str = (String) dbzObj;
+                            // TIMESTAMP_LTZ type is encoded in string type
+                            Instant instant = Instant.parse(str);
+                            return TimestampData.fromInstant(instant);
+                        }
+                        throw new IllegalArgumentException(
+                                "Unable to convert to TimestampData from unexpected value '"
+                                        + dbzObj
+                                        + "' of type "
+                                        + dbzObj.getClass().getName());
+                    }
+                });
     }
 
     private static Optional<DeserializationRuntimeConverter> wrapNumericConverter(

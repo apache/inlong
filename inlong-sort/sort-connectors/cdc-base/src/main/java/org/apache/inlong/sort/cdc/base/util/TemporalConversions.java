@@ -204,6 +204,10 @@ public final class TemporalConversions {
             Instant instant = Instant.parse(str);
             return LocalDateTime.ofInstant(instant, serverTimeZone);
         }
+        if (obj instanceof Long) {
+            Long ns = (Long) obj;
+            return LocalDateTime.ofInstant(Instant.ofEpochSecond(ns / 1000), serverTimeZone);
+        }
         throw new IllegalArgumentException(
                 "Unable to convert to LocalDateTime from unexpected value '"
                         + obj

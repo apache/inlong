@@ -41,7 +41,7 @@
         <module>sort-end-to-end-tests</module>
     </modules>
     <properties>
-        <debezium.version>1.5.4.Final</debezium.version>
+        <debezium.version>1.7.0.Final</debezium.version>
         <kafka.clients.version>2.7.0</kafka.clients.version>
         <rat.basedir>${basedir}</rat.basedir>
         <hbase.version>2.2.3</hbase.version>

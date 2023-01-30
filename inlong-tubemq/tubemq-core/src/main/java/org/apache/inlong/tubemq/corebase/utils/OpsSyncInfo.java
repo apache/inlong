@@ -18,7 +18,7 @@
 package org.apache.inlong.tubemq.corebase.utils;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
+// import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 
 public class OpsSyncInfo {
 
@@ -38,44 +38,43 @@ public class OpsSyncInfo {
     /**
      * Update Ops task information
      *
-     * @param opsTaskInfo   the ops task information sent from Master
      */
-    public void updOpsSyncInfo(ClientMaster.OpsTaskInfo opsTaskInfo) {
-        if (opsTaskInfo == null) {
-            return;
-        }
-        if (opsTaskInfo.hasDefFlowCheckId()) {
-            this.defFlowChkId = opsTaskInfo.getDefFlowCheckId();
-            this.updated = true;
-        }
-        if (opsTaskInfo.hasGroupFlowCheckId()) {
-            this.groupFlowChkId = opsTaskInfo.getGroupFlowCheckId();
-            this.updated = true;
-        }
-        if (opsTaskInfo.hasQryPriorityId()) {
-            this.qryPriorityId = opsTaskInfo.getQryPriorityId();
-            this.updated = true;
-        }
-        if (opsTaskInfo.hasCsmFrmMaxOffsetCtrlId()
-                && opsTaskInfo.getCsmFrmMaxOffsetCtrlId() >= 0) {
-            this.csmFrmMaxOffsetCtrlId = opsTaskInfo.getCsmFrmMaxOffsetCtrlId();
-            this.updated = true;
-        }
-        if (opsTaskInfo.hasRequireAuth() && opsTaskInfo.getRequireAuth()) {
-            this.requireAuth = true;
-            this.updated = true;
-        }
-        if (opsTaskInfo.hasDefFlowControlInfo()
-                && TStringUtils.isNotBlank(opsTaskInfo.getDefFlowControlInfo())) {
-            this.defFlowControlInfo = opsTaskInfo.getDefFlowControlInfo();
-            this.updated = true;
-        }
-        if (opsTaskInfo.hasGroupFlowControlInfo()
-                && TStringUtils.isNotBlank(opsTaskInfo.getGroupFlowControlInfo())) {
-            this.groupFlowControlInfo = opsTaskInfo.getGroupFlowControlInfo();
-            this.updated = true;
-        }
-    }
+//    public void updOpsSyncInfo(ClientMaster.OpsTaskInfo opsTaskInfo) {
+//        if (opsTaskInfo == null) {
+//            return;
+//        }
+//        if (opsTaskInfo.hasDefFlowCheckId()) {
+//            this.defFlowChkId = opsTaskInfo.getDefFlowCheckId();
+//            this.updated = true;
+//        }
+//        if (opsTaskInfo.hasGroupFlowCheckId()) {
+//            this.groupFlowChkId = opsTaskInfo.getGroupFlowCheckId();
+//            this.updated = true;
+//        }
+//        if (opsTaskInfo.hasQryPriorityId()) {
+//            this.qryPriorityId = opsTaskInfo.getQryPriorityId();
+//            this.updated = true;
+//        }
+//        if (opsTaskInfo.hasCsmFrmMaxOffsetCtrlId()
+//                && opsTaskInfo.getCsmFrmMaxOffsetCtrlId() >= 0) {
+//            this.csmFrmMaxOffsetCtrlId = opsTaskInfo.getCsmFrmMaxOffsetCtrlId();
+//            this.updated = true;
+//        }
+//        if (opsTaskInfo.hasRequireAuth() && opsTaskInfo.getRequireAuth()) {
+//            this.requireAuth = true;
+//            this.updated = true;
+//        }
+//        if (opsTaskInfo.hasDefFlowControlInfo()
+//                && TStringUtils.isNotBlank(opsTaskInfo.getDefFlowControlInfo())) {
+//            this.defFlowControlInfo = opsTaskInfo.getDefFlowControlInfo();
+//            this.updated = true;
+//        }
+//        if (opsTaskInfo.hasGroupFlowControlInfo()
+//                && TStringUtils.isNotBlank(opsTaskInfo.getGroupFlowControlInfo())) {
+//            this.groupFlowControlInfo = opsTaskInfo.getGroupFlowControlInfo();
+//            this.updated = true;
+//        }
+//    }
 
     public boolean isUpdated() {
         return updated;
