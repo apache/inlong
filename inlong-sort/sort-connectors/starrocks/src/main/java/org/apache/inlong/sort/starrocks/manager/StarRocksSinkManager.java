@@ -451,17 +451,12 @@ public class StarRocksSinkManager implements Serializable {
         // archive dirty data
         if (StarRocksSinkOptions.StreamLoadFormat.CSV.equals(sinkOptions.getStreamLoadFormat())) {
             for (byte[] row : flushData.getBuffer()) {
-                dirtySinkHelper.invokeMultiple(
-                        flushData.getDatabase() + "." + flushData.getTable() + "%#%#%#"
-                                + new String(row, StandardCharsets.UTF_8),
-                        DirtyType.BATCH_LOAD_ERROR, e,
+                dirtySinkHelper.invokeMultiple(new String(row, StandardCharsets.UTF_8), DirtyType.BATCH_LOAD_ERROR, e,
                         sinkMultipleFormat);
             }
         } else if (StarRocksSinkOptions.StreamLoadFormat.JSON.equals(sinkOptions.getStreamLoadFormat())) {
             for (byte[] row : flushData.getBuffer()) {
-                dirtySinkHelper.invokeMultiple(
-                        flushData.getDatabase() + "." + flushData.getTable() + "%#%#%#"
-                                + OBJECT_MAPPER.readTree(new String(row, StandardCharsets.UTF_8)).toString(),
+                dirtySinkHelper.invokeMultiple(OBJECT_MAPPER.readTree(new String(row, StandardCharsets.UTF_8)),
                         DirtyType.BATCH_LOAD_ERROR, e, sinkMultipleFormat);
             }
         }
