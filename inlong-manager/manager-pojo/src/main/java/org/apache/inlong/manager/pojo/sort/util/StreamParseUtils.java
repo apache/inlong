@@ -110,7 +110,7 @@ public class StreamParseUtils {
     }
 
     public static StreamPipeline parseStreamPipeline(String tempView, String inlongStreamId) {
-        Preconditions.checkNotEmpty(tempView,
+        Preconditions.expectNotEmpty(tempView,
                 String.format(" should not be null for streamId=%s", inlongStreamId));
         return GSON.fromJson(tempView, StreamPipeline.class);
     }

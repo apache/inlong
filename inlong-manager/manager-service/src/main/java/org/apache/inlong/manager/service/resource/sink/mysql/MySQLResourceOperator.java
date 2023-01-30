@@ -127,7 +127,7 @@ public class MySQLResourceOperator implements SinkResourceOperator {
 
         if (StringUtils.isBlank(mysqlInfo.getJdbcUrl())) {
             String dataNodeName = sinkInfo.getDataNodeName();
-            Preconditions.checkNotEmpty(dataNodeName, "mysql jdbc url not specified and data node is empty");
+            Preconditions.expectNotEmpty(dataNodeName, "mysql jdbc url not specified and data node is empty");
             DataNodeInfo dataNodeInfo = dataNodeHelper.getDataNodeInfo(dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, mysqlInfo);
             mysqlInfo.setJdbcUrl(dataNodeInfo.getUrl());

@@ -93,7 +93,7 @@ public class HudiResourceOperator implements SinkResourceOperator {
         if (StringUtils.isBlank(hudiInfo.getCatalogUri())
                 && CATALOG_TYPE_HIVE.equals(hudiInfo.getCatalogType())) {
             String dataNodeName = sinkInfo.getDataNodeName();
-            Preconditions.checkNotEmpty(dataNodeName, "Hudi catalog uri not specified and data node is empty");
+            Preconditions.expectNotEmpty(dataNodeName, "Hudi catalog uri not specified and data node is empty");
             HudiDataNodeInfo dataNodeInfo = (HudiDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, hudiInfo);

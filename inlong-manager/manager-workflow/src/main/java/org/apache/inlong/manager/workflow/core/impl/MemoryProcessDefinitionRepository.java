@@ -49,7 +49,7 @@ public class MemoryProcessDefinitionRepository implements ProcessDefinitionRepos
 
     @Override
     public void add(WorkflowProcess process) {
-        Preconditions.checkNotEmpty(process.getName(), "process name cannot be null");
+        Preconditions.expectNotEmpty(process.getName(), "process name cannot be null");
         if (PROCESS_BY_NAME_MAP.containsKey(process.getName())) {
             throw new WorkflowException("process already exist with the same name " + process.getName());
         }

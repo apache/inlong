@@ -41,11 +41,11 @@ public class MultiDependencyTransform extends StreamTransform {
      *         if pre streamNode is streamTransform, preNode is transformName
      */
     public MultiDependencyTransform(String transformName, TransformDefinition transformDefinition, String... preNodes) {
-        Preconditions.checkNotNull(transformDefinition, "transform definition cannot be null");
+        Preconditions.expectNotNull(transformDefinition, "transform definition cannot be null");
         this.transformDefinition = transformDefinition;
-        Preconditions.checkNotNull(transformName, "transform name cannot be empty");
+        Preconditions.expectNotNull(transformName, "transform name cannot be empty");
         this.transformName = transformName;
-        Preconditions.checkNotNullElements(preNodes, "pre nodes cannot be null");
+        Preconditions.expectNoNullElements(preNodes, "pre nodes cannot be null");
         for (String preNode : preNodes) {
             this.addPre(preNode);
         }

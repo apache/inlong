@@ -68,10 +68,10 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     @Override
     public Integer save(InlongConsumeRequest request, String operator) {
         LOGGER.debug("begin to save inlong consume={} by user={}", request, operator);
-        Preconditions.checkNotNull(request, "inlong consume request cannot be null");
-        Preconditions.checkNotNull(request.getTopic(), "inlong consume topic cannot be null");
+        Preconditions.expectNotNull(request, "inlong consume request cannot be null");
+        Preconditions.expectNotNull(request.getTopic(), "inlong consume topic cannot be null");
         String consumerGroup = request.getConsumerGroup();
-        Preconditions.checkNotNull(consumerGroup, "inlong consume topic cannot be null");
+        Preconditions.expectNotNull(consumerGroup, "inlong consume topic cannot be null");
         if (consumerGroupExists(consumerGroup, request.getId())) {
             throw new BusinessException(String.format("consumer group %s already exist", consumerGroup));
         }
@@ -130,7 +130,7 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
 
     @Override
     public InlongConsumeInfo get(Integer id) {
-        Preconditions.checkNotNull(id, "inlong consume id cannot be null");
+        Preconditions.expectNotNull(id, "inlong consume id cannot be null");
         InlongConsumeEntity entity = consumeMapper.selectById(id);
         if (entity == null) {
             LOGGER.error("inlong consume not found with id={}", id);
@@ -186,13 +186,13 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public Integer update(InlongConsumeRequest request, String operator) {
         LOGGER.debug("begin to update inlong consume={} by user={}", request, operator);
-        Preconditions.checkNotNull(request, "inlong consume request cannot be null");
+        Preconditions.expectNotNull(request, "inlong consume request cannot be null");
 
         // check if it can be modified
         Integer consumeId = request.getId();
         InlongConsumeEntity existEntity = consumeMapper.selectById(consumeId);
-        Preconditions.checkNotNull(existEntity, "inlong consume not exist with id " + consumeId);
-        Preconditions.checkTrue(existEntity.getInCharges().contains(operator),
+        Preconditions.expectNotNull(existEntity, "inlong consume not exist with id " + consumeId);
+        Preconditions.expectTrue(existEntity.getInCharges().contains(operator),
                 "operator" + operator + " has no privilege for the inlong consume");
 
         if (!Objects.equals(existEntity.getVersion(), request.getVersion())) {
@@ -202,7 +202,7 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         }
 
         ConsumeStatus consumeStatus = ConsumeStatus.forCode(existEntity.getStatus());
-        Preconditions.checkTrue(ConsumeStatus.allowedUpdate(consumeStatus),
+        Preconditions.expectTrue(ConsumeStatus.allowedUpdate(consumeStatus),
                 "inlong consume not allowed update when status is " + consumeStatus.name());
 
         InlongConsumeOperator consumeOperator = consumeOperatorFactory.getInstance(request.getMqType());
@@ -216,7 +216,7 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public Boolean updateStatus(Integer id, Integer status, String operator) {
         LOGGER.info("begin to update consume status to [{}] for id={} by user={}", status, id, operator);
-        Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
         InlongConsumeEntity entity = consumeMapper.selectById(id);
         if (entity == null) {
             LOGGER.error("inlong consume not found by id={}", id);
@@ -239,9 +239,9 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     @Override
     public Boolean delete(Integer id, String operator) {
         LOGGER.info("begin to delete inlong consume for id={} by user={}", id, operator);
-        Preconditions.checkNotNull(id, "inlong consume id cannot be null");
+        Preconditions.expectNotNull(id, "inlong consume id cannot be null");
         InlongConsumeEntity entity = consumeMapper.selectById(id);
-        Preconditions.checkNotNull(entity, "inlong consume not exist with id " + id);
+        Preconditions.expectNotNull(entity, "inlong consume not exist with id " + id);
 
         entity.setIsDeleted(id);
         entity.setStatus(ConsumeStatus.DELETED.getCode());

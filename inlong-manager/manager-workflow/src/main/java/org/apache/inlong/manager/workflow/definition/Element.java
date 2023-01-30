@@ -36,8 +36,8 @@ public abstract class Element implements Cloneable {
     }
 
     public void validate() {
-        Preconditions.checkTrue(StringUtils.isNotBlank(this.name), "process name cannot be empty");
-        Preconditions.checkTrue(StringUtils.isNotBlank(this.displayName), "process display name cannot be empty");
+        Preconditions.expectTrue(StringUtils.isNotBlank(this.name), "process name cannot be empty");
+        Preconditions.expectTrue(StringUtils.isNotBlank(this.displayName), "process display name cannot be empty");
     }
 
     @Override

@@ -77,7 +77,7 @@ public class InlongStreamProcessService {
         log.info("begin to start stream process for groupId={} streamId={}", groupId, streamId);
 
         InlongGroupInfo groupInfo = groupService.get(groupId);
-        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
         if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL && groupStatus != GroupStatus.RESTARTED) {
             throw new BusinessException(String.format("group status=%s not support start stream"
@@ -85,7 +85,7 @@ public class InlongStreamProcessService {
         }
 
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
-        Preconditions.checkNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
         if (status == StreamStatus.CONFIG_ING) {
             log.warn("stream status={}, not need restart for groupId={} streamId={}", status, groupId, streamId);
@@ -119,7 +119,7 @@ public class InlongStreamProcessService {
         log.info("begin to suspend stream process for groupId={} streamId={}", groupId, streamId);
 
         InlongGroupInfo groupInfo = groupService.get(groupId);
-        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
         if (!GroupStatus.allowedSuspend(groupStatus)) {
             throw new BusinessException(String.format("group status=%s not support suspend stream"
@@ -127,7 +127,7 @@ public class InlongStreamProcessService {
         }
 
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
-        Preconditions.checkNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
         if (status == StreamStatus.SUSPENDED || status == StreamStatus.SUSPENDING) {
             log.warn("groupId={}, streamId={} is already in {}", groupId, streamId, status);
@@ -159,7 +159,7 @@ public class InlongStreamProcessService {
         log.info("begin to restart stream process for groupId={} streamId={}", groupId, streamId);
 
         InlongGroupInfo groupInfo = groupService.get(groupId);
-        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
         if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL && groupStatus != GroupStatus.RESTARTED) {
             throw new BusinessException(
@@ -167,7 +167,7 @@ public class InlongStreamProcessService {
         }
 
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
-        Preconditions.checkNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
         if (status == StreamStatus.RESTARTED || status == StreamStatus.RESTARTING) {
             log.warn("inlong stream was already in {} for groupId={}, streamId={}", status, groupId, streamId);
@@ -210,7 +210,7 @@ public class InlongStreamProcessService {
         }
 
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
-        Preconditions.checkNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
         if (status == StreamStatus.DELETED || status == StreamStatus.DELETING) {
             log.debug("groupId={}, streamId={} is already in {}", groupId, streamId, status);

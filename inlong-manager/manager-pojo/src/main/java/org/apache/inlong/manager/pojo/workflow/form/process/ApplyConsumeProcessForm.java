@@ -41,7 +41,7 @@ public class ApplyConsumeProcessForm extends BaseProcessForm {
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(consumeInfo, "Inlong consume cannot be empty");
+        Preconditions.expectNotNull(consumeInfo, "Inlong consume cannot be empty");
     }
 
     @Override

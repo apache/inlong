@@ -87,7 +87,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         // one inlong group may have multiple Pulsar topics.
         String groupId = request.getInlongGroupId();
         InlongGroupTopicInfo topicInfo = groupService.getTopic(groupId);
-        Preconditions.checkNotNull(topicInfo, "inlong group not exist for groupId=" + groupId);
+        Preconditions.expectNotNull(topicInfo, "inlong group not exist for groupId=" + groupId);
 
         // check the origin topic from request exists
         InlongPulsarTopicInfo pulsarTopic = (InlongPulsarTopicInfo) topicInfo;
@@ -96,13 +96,13 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
             originTopic = originTopic.substring(originTopic.lastIndexOf(InlongConstants.SLASH) + 1);
             request.setTopic(originTopic);
         }
-        Preconditions.checkTrue(pulsarTopic.getTopics().contains(originTopic),
+        Preconditions.expectTrue(pulsarTopic.getTopics().contains(originTopic),
                 "Pulsar topic not exist for " + originTopic);
     }
 
     @Override
     public InlongConsumeInfo getFromEntity(InlongConsumeEntity entity) {
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.CONSUME_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.CONSUME_NOT_FOUND.getMessage());
 
         ConsumePulsarInfo consumeInfo = new ConsumePulsarInfo();
         CommonBeanUtils.copyProperties(entity, consumeInfo);
@@ -114,7 +114,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         String clusterTag = groupInfo.getInlongClusterTag();
         List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
-        Preconditions.checkNotEmpty(clusterInfos, "pulsar cluster not exist for groupId=" + groupId);
+        Preconditions.expectNotEmpty(clusterInfos, "pulsar cluster not exist for groupId=" + groupId);
         consumeInfo.setClusterInfos(clusterInfos);
 
         // First get the tenant from the InlongGroup, and then get it from the PulsarCluster.
@@ -146,7 +146,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         String groupId = targetEntity.getInlongGroupId();
         if (dlqEnable) {
             String dlqTopic = PREFIX_DLQ + "_" + pulsarRequest.getDeadLetterTopic();
-            Preconditions.checkTrue(!streamService.exist(groupId, dlqTopic),
+            Preconditions.expectTrue(!streamService.exist(groupId, dlqTopic),
                     ErrorCodeEnum.PULSAR_DLQ_DUPLICATED.getMessage());
         } else {
             pulsarRequest.setIsDlq(DLQ__RLQ_DISABLE);
@@ -155,7 +155,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         }
         if (rlqEnable) {
             String rlqTopic = PREFIX_RLQ + "_" + pulsarRequest.getRetryLetterTopic();
-            Preconditions.checkTrue(!streamService.exist(groupId, rlqTopic),
+            Preconditions.expectTrue(!streamService.exist(groupId, rlqTopic),
                     ErrorCodeEnum.PULSAR_RLQ_DUPLICATED.getMessage());
         } else {
             pulsarRequest.setIsRlq(DLQ__RLQ_DISABLE);

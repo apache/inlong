@@ -77,7 +77,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
     @Override
     public boolean create(UserTask userTask, WorkflowContext context) {
         List<String> approvers = userTask.getApproverAssign().assign(context);
-        Preconditions.checkNotEmpty(approvers, "Cannot assign approvers for task: " + userTask.getDisplayName()
+        Preconditions.expectNotEmpty(approvers, "Cannot assign approvers for task: " + userTask.getDisplayName()
                 + ", as the approvers was empty");
 
         if (!userTask.isNeedAllApprove()) {
@@ -103,11 +103,11 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
     @Override
     public boolean complete(WorkflowContext context) {
         WorkflowContext.ActionContext actionContext = context.getActionContext();
-        Preconditions.checkTrue(SUPPORT_ACTIONS.contains(actionContext.getAction()),
+        Preconditions.expectTrue(SUPPORT_ACTIONS.contains(actionContext.getAction()),
                 "UserTask not support action:" + actionContext.getAction());
 
         WorkflowTaskEntity workflowTaskEntity = actionContext.getTaskEntity();
-        Preconditions.checkTrue(TaskStatus.PENDING.name().equalsIgnoreCase(workflowTaskEntity.getStatus()),
+        Preconditions.expectTrue(TaskStatus.PENDING.name().equalsIgnoreCase(workflowTaskEntity.getStatus()),
                 "task status should be pending");
 
         checkOperator(actionContext);
@@ -156,7 +156,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
         taskEntity.setStartTime(new Date());
 
         taskEntityMapper.insert(taskEntity);
-        Preconditions.checkNotNull(taskEntity.getId(), "task saved failed");
+        Preconditions.expectNotNull(taskEntity.getId(), "task saved failed");
         return taskEntity;
     }
 
@@ -189,13 +189,13 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
         try {
             TaskForm taskForm = actionContext.getForm();
             if (needForm(userTask, actionContext.getAction())) {
-                Preconditions.checkNotNull(taskForm, "form cannot be null");
-                Preconditions.checkTrue(taskForm.getClass().isAssignableFrom(userTask.getFormClass()),
+                Preconditions.expectNotNull(taskForm, "form cannot be null");
+                Preconditions.expectTrue(taskForm.getClass().isAssignableFrom(userTask.getFormClass()),
                         "form type not match, should be class " + userTask.getFormClass());
                 taskForm.validate();
                 taskEntity.setFormData(objectMapper.writeValueAsString(taskForm));
             } else {
-                Preconditions.checkNull(taskForm, "no form required");
+                Preconditions.expectNull(taskForm, "no form required");
             }
             taskEntity.setEndTime(new Date());
 

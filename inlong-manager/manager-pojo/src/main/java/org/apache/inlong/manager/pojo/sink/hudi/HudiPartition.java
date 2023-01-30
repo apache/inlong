@@ -38,7 +38,7 @@ public enum HudiPartition {
      * Get partition type from name
      */
     public static HudiPartition forName(String name) {
-        Preconditions.checkNotNull(name, "HudiPartition should not be null");
+        Preconditions.expectNotNull(name, "HudiPartition should not be null");
         for (HudiPartition value : values()) {
             if (value.toString().equalsIgnoreCase(name)) {
                 return value;

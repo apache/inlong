@@ -51,7 +51,7 @@ public abstract class NextableElement extends Element {
     }
 
     public NextableElement addNext(WorkflowAction action, Predicate<WorkflowContext> condition, Element next) {
-        Preconditions.checkTrue(supportedActions().contains(action),
+        Preconditions.expectTrue(supportedActions().contains(action),
                 "not support workflow action " + action + ", it should in one of " + supportedActions());
         actionToNextElementMap.computeIfAbsent(action, ac -> Lists.newArrayList())
                 .add(new ConditionNextElement().setCondition(condition).setElement(next));
@@ -63,7 +63,7 @@ public abstract class NextableElement extends Element {
     }
 
     public List<Element> getNextList(WorkflowAction action, WorkflowContext context) {
-        Preconditions.checkTrue(supportedActions().contains(action),
+        Preconditions.expectTrue(supportedActions().contains(action),
                 "not support workflow action " + action + ", it should in one of " + supportedActions());
         return this.actionToNextElementMap.getOrDefault(action, NextableElement.EMPTY_NEXT)
                 .stream()
@@ -78,7 +78,7 @@ public abstract class NextableElement extends Element {
 
     @Override
     public void validate() {
-        Preconditions.checkNotEmpty(actionToNextElementMap,
+        Preconditions.expectNotEmpty(actionToNextElementMap,
                 "next elements cannot be null " + this.getClass().getName());
     }
 

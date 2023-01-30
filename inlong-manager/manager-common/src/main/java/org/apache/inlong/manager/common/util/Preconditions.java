@@ -34,71 +34,71 @@ import java.util.function.Supplier;
  */
 public class Preconditions {
 
-    public static void checkNotNull(Object obj, String errMsg) {
-        checkTrue(obj != null, errMsg);
+    public static void expectNotNull(Object obj, String errMsg) {
+        expectTrue(obj != null, errMsg);
     }
 
-    public static void checkNotNull(Object obj, Supplier<String> errMsg) {
-        checkTrue(obj != null, errMsg);
+    public static void expectNotNull(Object obj, Supplier<String> errMsg) {
+        expectTrue(obj != null, errMsg);
     }
 
-    public static void checkNull(Object obj, String errMsg) {
-        checkTrue(obj == null, errMsg);
+    public static void expectNull(Object obj, String errMsg) {
+        expectTrue(obj == null, errMsg);
     }
 
-    public static void checkNull(Object obj, Supplier<String> errMsg) {
-        checkTrue(obj == null, errMsg);
+    public static void expectNull(Object obj, Supplier<String> errMsg) {
+        expectTrue(obj == null, errMsg);
     }
 
-    public static void checkEmpty(String str, String errMsg) {
-        checkTrue(str == null || str.isEmpty(), errMsg);
+    public static void expectEmpty(String str, String errMsg) {
+        expectTrue(str == null || str.isEmpty(), errMsg);
     }
 
-    public static void checkEmpty(String str, Supplier<String> errMsg) {
-        checkTrue(str == null || str.isEmpty(), errMsg);
+    public static void expectEmpty(String str, Supplier<String> errMsg) {
+        expectTrue(str == null || str.isEmpty(), errMsg);
     }
 
-    public static void checkEmpty(Collection<?> str, String errMsg) {
-        checkTrue(str == null || str.isEmpty(), errMsg);
+    public static void expectEmpty(Collection<?> str, String errMsg) {
+        expectTrue(str == null || str.isEmpty(), errMsg);
     }
 
-    public static void checkEmpty(Collection<?> collection, Supplier<String> errMsg) {
-        checkTrue(collection == null || collection.isEmpty(), errMsg);
+    public static void expectEmpty(Collection<?> collection, Supplier<String> errMsg) {
+        expectTrue(collection == null || collection.isEmpty(), errMsg);
     }
 
-    public static void checkEmpty(Map<?, ?> map, String errMsg) {
-        checkTrue(map == null || map.isEmpty(), errMsg);
+    public static void expectEmpty(Map<?, ?> map, String errMsg) {
+        expectTrue(map == null || map.isEmpty(), errMsg);
     }
 
-    public static void checkEmpty(Map<?, ?> map, Supplier<String> errMsg) {
-        checkTrue(map == null || map.isEmpty(), errMsg);
+    public static void expectEmpty(Map<?, ?> map, Supplier<String> errMsg) {
+        expectTrue(map == null || map.isEmpty(), errMsg);
     }
 
-    public static void checkNotEmpty(String str, String errMsg) {
-        checkTrue(str != null && !str.isEmpty(), errMsg);
+    public static void expectNotEmpty(String str, String errMsg) {
+        expectTrue(str != null && !str.isEmpty(), errMsg);
     }
 
-    public static void checkNotEmpty(String str, Supplier<String> errMsg) {
-        checkTrue(str != null && !str.isEmpty(), errMsg);
+    public static void expectNotEmpty(String str, Supplier<String> errMsg) {
+        expectTrue(str != null && !str.isEmpty(), errMsg);
     }
 
-    public static void checkNotEmpty(Collection<?> collection, String errMsg) {
-        checkTrue(collection != null && !collection.isEmpty(), errMsg);
+    public static void expectNotEmpty(Collection<?> collection, String errMsg) {
+        expectTrue(collection != null && !collection.isEmpty(), errMsg);
     }
 
-    public static void checkNotEmpty(Collection<?> collection, Supplier<String> errMsg) {
-        checkTrue(collection != null && !collection.isEmpty(), errMsg);
+    public static void expectNotEmpty(Collection<?> collection, Supplier<String> errMsg) {
+        expectTrue(collection != null && !collection.isEmpty(), errMsg);
     }
 
-    public static void checkNotEmpty(Map<?, ?> map, String errMsg) {
-        checkTrue(map != null && !map.isEmpty(), errMsg);
+    public static void expectNotEmpty(Map<?, ?> map, String errMsg) {
+        expectTrue(map != null && !map.isEmpty(), errMsg);
     }
 
-    public static void checkNotEmpty(Map<?, ?> map, Supplier<String> errMsg) {
-        checkTrue(map != null && !map.isEmpty(), errMsg);
+    public static void expectNotEmpty(Map<?, ?> map, Supplier<String> errMsg) {
+        expectTrue(map != null && !map.isEmpty(), errMsg);
     }
 
-    public static void checkNotNullElements(Object[] array, String errMsg) {
+    public static void expectNoNullElements(Object[] array, String errMsg) {
         if (array != null) {
             for (Object o : array) {
                 if (o == null) {
@@ -108,57 +108,57 @@ public class Preconditions {
         }
     }
 
-    public static void checkFalse(boolean condition, String errMsg) {
-        checkTrue(!condition, errMsg);
+    public static void expectFalse(boolean condition, String errMsg) {
+        expectTrue(!condition, errMsg);
     }
 
-    public static void checkFalse(boolean condition, Supplier<String> errMsg) {
-        checkTrue(!condition, errMsg);
+    public static void expectFalse(boolean condition, Supplier<String> errMsg) {
+        expectTrue(!condition, errMsg);
     }
 
-    public static void checkTrue(boolean condition, Supplier<String> errMsg) {
+    public static void expectTrue(boolean condition, Supplier<String> errMsg) {
         if (!condition) {
             throw new IllegalArgumentException(errMsg.get());
         }
     }
 
-    public static void checkTrue(boolean condition, String errMsg) {
+    public static void expectTrue(boolean condition, String errMsg) {
         if (!condition) {
             throw new IllegalArgumentException(errMsg);
         }
     }
 
-    public static void checkBlank(String obj, ErrorCodeEnum errorCodeEnum) {
+    public static void expectNotBlank(String obj, ErrorCodeEnum errorCodeEnum) {
         if (StringUtils.isBlank(obj)) {
             throw new BusinessException(errorCodeEnum);
         }
     }
 
-    public static void checkBlank(String obj, ErrorCodeEnum errorCodeEnum, String errMsg) {
+    public static void expectNotBlank(String obj, ErrorCodeEnum errorCodeEnum, String errMsg) {
         if (StringUtils.isBlank(obj)) {
             throw new BusinessException(errorCodeEnum, errMsg);
         }
     }
 
-    public static void checkNull(Object obj, ErrorCodeEnum errorCodeEnum) {
+    public static void expectNotNull(Object obj, ErrorCodeEnum errorCodeEnum) {
         if (obj == null) {
             throw new BusinessException(errorCodeEnum);
         }
     }
 
-    public static void checkNull(Object obj, ErrorCodeEnum errorCodeEnum, String errMsg) {
+    public static void expectNotNull(Object obj, ErrorCodeEnum errorCodeEnum, String errMsg) {
         if (obj == null) {
             throw new BusinessException(errorCodeEnum, errMsg);
         }
     }
 
-    public static void chkNotEquals(Object a, Object b, ErrorCodeEnum errorCodeEnum) {
+    public static void expectEquals(Object a, Object b, ErrorCodeEnum errorCodeEnum) {
         if (!Objects.equals(a, b)) {
             throw new BusinessException(errorCodeEnum);
         }
     }
 
-    public static void chkNotEquals(Object a, Object b, ErrorCodeEnum errorCodeEnum, String errMsg) {
+    public static void expectEquals(Object a, Object b, ErrorCodeEnum errorCodeEnum, String errMsg) {
         if (!Objects.equals(a, b)) {
             throw new BusinessException(errorCodeEnum, errMsg);
         }

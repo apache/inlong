@@ -64,7 +64,7 @@ public class InlongGroupClient {
      * Check whether a group exists based on the group ID.
      */
     public Boolean isGroupExists(String inlongGroupId) {
-        Preconditions.checkNotEmpty(inlongGroupId, "InlongGroupId should not be empty");
+        Preconditions.expectNotEmpty(inlongGroupId, "InlongGroupId should not be empty");
 
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongGroupApi.isGroupExists(inlongGroupId));
         ClientUtils.assertRespSuccess(response);
@@ -89,7 +89,7 @@ public class InlongGroupClient {
      */
     @SneakyThrows
     public InlongGroupInfo getGroupInfo(String inlongGroupId) {
-        Preconditions.checkNotEmpty(inlongGroupId, "InlongGroupId should not be empty");
+        Preconditions.expectNotEmpty(inlongGroupId, "InlongGroupId should not be empty");
 
         Response<Object> responseBody = ClientUtils.executeHttpCall(inlongGroupApi.getGroupInfo(inlongGroupId));
         if (responseBody.isSuccess()) {

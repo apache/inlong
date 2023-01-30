@@ -60,16 +60,16 @@ public class OpenDataNodeController {
     @ApiOperation(value = "Get node by id")
     @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
     public Response<DataNodeInfo> get(@PathVariable Integer id) {
-        Preconditions.checkNull(id, ErrorCodeEnum.ID_IS_EMPTY);
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "data node id cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(dataNodeService.get(id, LoginUserUtils.getLoginUser()));
     }
 
     @PostMapping(value = "/node/list")
     @ApiOperation(value = "List data node")
     public Response<List<DataNodeInfo>> list(@RequestBody DataNodePageRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY);
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(dataNodeService.list(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -77,8 +77,8 @@ public class OpenDataNodeController {
     @ApiOperation(value = "Save node")
     @OperationLog(operation = OperationType.CREATE)
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody DataNodeRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY);
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(dataNodeService.save(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -86,8 +86,8 @@ public class OpenDataNodeController {
     @ApiOperation(value = "Update data node")
     @OperationLog(operation = OperationType.UPDATE)
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody DataNodeRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY);
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY);
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(dataNodeService.update(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -96,8 +96,8 @@ public class OpenDataNodeController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        Preconditions.checkNull(id, ErrorCodeEnum.ID_IS_EMPTY);
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "data node id cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUser()));
     }
 }

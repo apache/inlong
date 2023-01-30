@@ -168,7 +168,7 @@ public class AuditServiceImpl implements AuditService {
     @Override
     public List<AuditVO> listByCondition(AuditRequest request) throws Exception {
         LOGGER.info("begin query audit list request={}", request);
-        Preconditions.checkNotNull(request, "request is null");
+        Preconditions.expectNotNull(request, "request is null");
 
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();

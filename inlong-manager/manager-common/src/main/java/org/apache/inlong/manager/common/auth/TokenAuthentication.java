@@ -49,7 +49,7 @@ public class TokenAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        Preconditions.checkNotEmpty(properties, "Properties cannot be empty when init TokenAuthentication");
+        Preconditions.expectNotEmpty(properties, "Properties cannot be empty when init TokenAuthentication");
         this.token = properties.get(TOKEN);
     }
 

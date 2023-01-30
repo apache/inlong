@@ -66,7 +66,7 @@ public class WorkflowEventClient {
      * Execute the listener based on the event log ID
      */
     public void executeEventListener(Integer id) {
-        Preconditions.checkNotNull(id, "event id cannot be null");
+        Preconditions.expectNotNull(id, "event id cannot be null");
 
         Response<Object> response = ClientUtils.executeHttpCall(workflowEventApi.executeEventListener(id));
         ClientUtils.assertRespSuccess(response);
@@ -76,8 +76,8 @@ public class WorkflowEventClient {
      * Re-execute the specified listener based on the process ID
      */
     public void executeProcessEventListener(Integer processId, String listenerName) {
-        Preconditions.checkNotNull(processId, "processId cannot be null");
-        Preconditions.checkNotEmpty(listenerName, "listenerName cannot be null");
+        Preconditions.expectNotNull(processId, "processId cannot be null");
+        Preconditions.expectNotEmpty(listenerName, "listenerName cannot be null");
 
         Response<Object> response = ClientUtils.executeHttpCall(
                 workflowEventApi.executeProcessEventListener(processId, listenerName));
@@ -88,8 +88,8 @@ public class WorkflowEventClient {
      * Re-execute the specified listener based on the task ID
      */
     public void executeTaskEventListener(Integer taskId, String listenerName) {
-        Preconditions.checkNotNull(taskId, "taskId cannot be null");
-        Preconditions.checkNotEmpty(listenerName, "listenerName cannot be null");
+        Preconditions.expectNotNull(taskId, "taskId cannot be null");
+        Preconditions.expectNotEmpty(listenerName, "listenerName cannot be null");
 
         Response<Object> response = ClientUtils.executeHttpCall(
                 workflowEventApi.executeTaskEventListener(taskId, listenerName));
@@ -100,8 +100,8 @@ public class WorkflowEventClient {
      * Re-trigger the process event based on the process ID
      */
     public void triggerProcessEvent(Integer processId, ProcessEvent processEvent) {
-        Preconditions.checkNotNull(processId, "processId cannot be null");
-        Preconditions.checkNotNull(processEvent, "processEvent cannot be null");
+        Preconditions.expectNotNull(processId, "processId cannot be null");
+        Preconditions.expectNotNull(processEvent, "processEvent cannot be null");
 
         Response<Object> response = ClientUtils.executeHttpCall(
                 workflowEventApi.triggerProcessEvent(processId, processEvent));
@@ -112,8 +112,8 @@ public class WorkflowEventClient {
      * Re-trigger the process event based on the task ID
      */
     public void triggerTaskEvent(Integer processId, TaskEvent taskEvent) {
-        Preconditions.checkNotNull(processId, "processId cannot be null");
-        Preconditions.checkNotNull(taskEvent, "taskEvent cannot be null");
+        Preconditions.expectNotNull(processId, "processId cannot be null");
+        Preconditions.expectNotNull(taskEvent, "taskEvent cannot be null");
 
         Response<Object> response = ClientUtils.executeHttpCall(
                 workflowEventApi.triggerTaskEvent(processId, taskEvent));

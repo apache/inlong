@@ -97,8 +97,8 @@ public class AuthenticationFilter implements Filter {
     private UsernamePasswordToken getPasswordToken(ServletRequest servletRequest) {
         String username = servletRequest.getParameter(USERNAME);
         String password = servletRequest.getParameter(PASSWORD);
-        Preconditions.checkNotNull(username, "please input username");
-        Preconditions.checkNotNull(password, "please input password");
+        Preconditions.expectNotNull(username, "please input username");
+        Preconditions.expectNotNull(password, "please input password");
         return new UsernamePasswordToken(username, password);
     }
 

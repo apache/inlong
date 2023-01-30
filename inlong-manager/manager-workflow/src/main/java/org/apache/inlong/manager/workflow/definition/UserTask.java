@@ -58,7 +58,7 @@ public class UserTask extends WorkflowTask {
 
     @Override
     public List<Element> getNextList(WorkflowAction action, WorkflowContext context) {
-        Preconditions.checkTrue(supportedActions().contains(action),
+        Preconditions.expectTrue(supportedActions().contains(action),
                 "not support workflow action " + action + ", it should in one of " + supportedActions());
         switch (action) {
             case APPROVE:

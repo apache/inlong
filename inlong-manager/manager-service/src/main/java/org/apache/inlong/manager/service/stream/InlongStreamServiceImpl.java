@@ -101,11 +101,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public Integer save(InlongStreamRequest request, String operator) {
         LOGGER.debug("begin to save inlong stream info={}", request);
-        Preconditions.checkNotNull(request, "inlong stream info is empty");
+        Preconditions.expectNotNull(request, "inlong stream info is empty");
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be added
         checkGroupStatusIsTemp(groupId);
@@ -188,8 +188,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Override
     public Boolean exist(String groupId, String streamId) {
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         return streamEntity != null;
     }
@@ -197,8 +197,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public InlongStreamInfo get(String groupId, String streamId) {
         LOGGER.debug("begin to get inlong stream by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         if (streamEntity == null) {
@@ -329,11 +329,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public PageResult<InlongStreamInfo> listAll(InlongStreamPageRequest request) {
         LOGGER.debug("begin to list full inlong stream page by {}", request);
-        Preconditions.checkNotNull(request, "request is empty");
+        Preconditions.expectNotNull(request, "request is empty");
         String groupId = request.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        Preconditions.checkNotNull(groupEntity, "inlong group not found by groupId=" + groupId);
+        Preconditions.expectNotNull(groupEntity, "inlong group not found by groupId=" + groupId);
 
         // the person in charge of the inlong group has the authority of all inlong streams,
         // so do not filter by in charge person
@@ -372,7 +372,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public List<InlongStreamBriefInfo> listBriefWithSink(String groupId) {
         LOGGER.debug("begin to get inlong stream brief list by groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         List<InlongStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
         List<InlongStreamBriefInfo> briefInfoList = CommonBeanUtils
@@ -393,11 +393,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(InlongStreamRequest request, String operator) {
         LOGGER.debug("begin to update inlong stream info={}", request);
-        Preconditions.checkNotNull(request, "inlong stream request is empty");
+        Preconditions.expectNotNull(request, "inlong stream request is empty");
         String groupId = request.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be modified
         this.checkGroupStatusIsTemp(groupId);
@@ -413,7 +413,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
         // check record version
-        Preconditions.chkNotEquals(entity.getVersion(), request.getVersion(),
+        Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
                 ErrorCodeEnum.CONFIG_EXPIRED,
                 String.format("record has expired with record version=%d, request version=%d",
                         entity.getVersion(), request.getVersion()));
@@ -504,8 +504,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Transactional(rollbackFor = Throwable.class)
     public Boolean delete(String groupId, String streamId, String operator) {
         LOGGER.debug("begin to delete inlong stream, groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
         this.checkGroupStatusIsTemp(groupId);
@@ -597,7 +597,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public Boolean logicDeleteAll(String groupId, String operator) {
         LOGGER.debug("begin to delete all inlong stream by groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
         this.checkGroupStatusIsTemp(groupId);
@@ -644,7 +644,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public List<InlongStreamBriefInfo> getTopicList(String groupId) {
         LOGGER.debug("begin bo get topic list by group id={}", groupId);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         List<InlongStreamBriefInfo> topicList = streamMapper.selectBriefList(groupId);
         LOGGER.debug("success to get topic list by groupId={}, result size={}", groupId, topicList.size());
@@ -781,7 +781,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
      */
     private InlongGroupEntity checkGroupStatusIsTemp(String groupId) {
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        Preconditions.checkNotNull(entity, "groupId is invalid");
+        Preconditions.expectNotNull(entity, "groupId is invalid");
         // Add/modify/delete is not allowed under temporary inlong group status
         GroupStatus curState = GroupStatus.forCode(entity.getStatus());
         if (GroupStatus.isTempStatus(curState)) {

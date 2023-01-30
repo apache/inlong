@@ -70,16 +70,16 @@ public class OpenInLongClusterController {
     @ApiOperation(value = "Get cluster tag by id")
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<ClusterTagResponse> getTag(@PathVariable Integer id) {
-        Preconditions.checkNull(id, ErrorCodeEnum.INVALID_PARAMETER, "tag id cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "tag id cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.getTag(id, LoginUserUtils.getLoginUser()));
     }
 
     @PostMapping(value = "/cluster/tag/list")
     @ApiOperation(value = "List cluster tags")
     public Response<List<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.listTag(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -87,8 +87,8 @@ public class OpenInLongClusterController {
     @ApiOperation(value = "Save cluster tag")
     @OperationLog(operation = OperationType.CREATE)
     public Response<Integer> saveTag(@Validated(SaveValidation.class) @RequestBody ClusterTagRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.saveTag(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -96,8 +96,8 @@ public class OpenInLongClusterController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster tag")
     public Response<Boolean> updateTag(@Validated(UpdateValidation.class) @RequestBody ClusterTagRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.updateTag(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -106,8 +106,8 @@ public class OpenInLongClusterController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster tag ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> deleteTag(@PathVariable Integer id) {
-        Preconditions.checkNull(id, ErrorCodeEnum.INVALID_PARAMETER, "tag id cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "tag id cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.deleteTag(id, LoginUserUtils.getLoginUser()));
     }
 
@@ -115,16 +115,16 @@ public class OpenInLongClusterController {
     @ApiOperation(value = "Get cluster by id")
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<ClusterInfo> get(@PathVariable Integer id) {
-        Preconditions.checkNull(id, ErrorCodeEnum.INVALID_PARAMETER, "cluster id cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "cluster id cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.get(id, LoginUserUtils.getLoginUser()));
     }
 
     @PostMapping(value = "/cluster/list")
     @ApiOperation(value = "List clusters")
     public Response<List<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.list(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -132,8 +132,8 @@ public class OpenInLongClusterController {
     @ApiOperation(value = "Save cluster")
     @OperationLog(operation = OperationType.CREATE)
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody ClusterRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.save(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -141,8 +141,8 @@ public class OpenInLongClusterController {
     @ApiOperation(value = "Update cluster")
     @OperationLog(operation = OperationType.UPDATE)
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody ClusterRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.update(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -150,8 +150,8 @@ public class OpenInLongClusterController {
     @ApiOperation(value = "Bind or unbind cluster tag")
     @OperationLog(operation = OperationType.UPDATE)
     public Response<Boolean> bindTag(@Validated @RequestBody BindTagRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.bindTag(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -160,8 +160,8 @@ public class OpenInLongClusterController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        Preconditions.checkNull(id, ErrorCodeEnum.INVALID_PARAMETER, "cluster id cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "cluster id cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUser()));
     }
 
@@ -169,16 +169,16 @@ public class OpenInLongClusterController {
     @ApiOperation(value = "Get cluster node by id")
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
     public Response<ClusterNodeResponse> getNode(@PathVariable Integer id) {
-        Preconditions.checkNull(id, ErrorCodeEnum.INVALID_PARAMETER, "Cluster node id cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "Cluster node id cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.getNode(id, LoginUserUtils.getLoginUser()));
     }
 
     @PostMapping(value = "/cluster/node/list")
     @ApiOperation(value = "List cluster nodes")
     public Response<List<ClusterNodeResponse>> listNode(@RequestBody ClusterPageRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.listNode(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -192,9 +192,9 @@ public class OpenInLongClusterController {
     @OperationLog(operation = OperationType.GET)
     public Response<List<ClusterNodeResponse>> listByGroupId(@RequestParam String inlongGroupId,
             @RequestParam String clusterType, @RequestParam(required = false) String protocolType) {
-        Preconditions.checkBlank(inlongGroupId, ErrorCodeEnum.INVALID_PARAMETER, "inlongGroupId cannot be null");
-        Preconditions.checkBlank(clusterType, ErrorCodeEnum.INVALID_PARAMETER, "clusterType cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotBlank(inlongGroupId, ErrorCodeEnum.INVALID_PARAMETER, "inlongGroupId cannot be blank");
+        Preconditions.expectNotBlank(clusterType, ErrorCodeEnum.INVALID_PARAMETER, "clusterType cannot be blank");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.listNodeByGroupId(inlongGroupId,
                 clusterType, protocolType, LoginUserUtils.getLoginUser()));
     }
@@ -203,8 +203,8 @@ public class OpenInLongClusterController {
     @ApiOperation(value = "Save cluster node")
     @OperationLog(operation = OperationType.CREATE)
     public Response<Integer> saveNode(@Validated @RequestBody ClusterNodeRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.saveNode(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -212,8 +212,8 @@ public class OpenInLongClusterController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster node")
     public Response<Boolean> updateNode(@Validated(UpdateValidation.class) @RequestBody ClusterNodeRequest request) {
-        Preconditions.checkNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.updateNode(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -222,8 +222,8 @@ public class OpenInLongClusterController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> deleteNode(@PathVariable Integer id) {
-        Preconditions.checkNull(id, ErrorCodeEnum.INVALID_PARAMETER, "cluster id cannot be null");
-        Preconditions.checkNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "cluster id cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUser()));
     }
 

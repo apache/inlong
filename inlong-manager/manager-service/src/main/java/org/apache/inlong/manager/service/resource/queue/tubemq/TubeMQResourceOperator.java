@@ -54,8 +54,8 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
 
     @Override
     public void createQueueForGroup(InlongGroupInfo groupInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
-        Preconditions.checkNotNull(operator, "operator cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(operator, "operator cannot be null");
 
         String groupId = groupInfo.getInlongGroupId();
         log.info("begin to create pulsar resource for groupId={}", groupId);

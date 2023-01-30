@@ -91,7 +91,7 @@ public class HiveResourceOperator implements SinkResourceOperator {
         // read from data node if not supplied by user
         if (StringUtils.isBlank(hiveInfo.getJdbcUrl())) {
             String dataNodeName = sinkInfo.getDataNodeName();
-            Preconditions.checkNotEmpty(dataNodeName, "hive jdbc url not specified and data node is empty");
+            Preconditions.expectNotEmpty(dataNodeName, "hive jdbc url not specified and data node is empty");
             HiveDataNodeInfo dataNodeInfo = (HiveDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, hiveInfo);

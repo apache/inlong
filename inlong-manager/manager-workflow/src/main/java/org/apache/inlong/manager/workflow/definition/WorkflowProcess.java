@@ -124,9 +124,9 @@ public class WorkflowProcess extends Element {
     @Override
     public void validate() {
         super.validate();
-        Preconditions.checkNotEmpty(type, "process type cannot be empty");
-        Preconditions.checkNotNull(startEvent, "start event cannot be null");
-        Preconditions.checkNotNull(endEvent, "end event cannot be null");
+        Preconditions.expectNotEmpty(type, "process type cannot be empty");
+        Preconditions.expectNotNull(startEvent, "start event cannot be null");
+        Preconditions.expectNotNull(endEvent, "end event cannot be null");
 
         startEvent.validate();
         endEvent.validate();

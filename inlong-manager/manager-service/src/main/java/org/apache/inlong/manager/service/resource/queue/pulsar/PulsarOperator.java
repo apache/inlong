@@ -60,7 +60,7 @@ public class PulsarOperator {
      */
     public void createTenant(PulsarAdmin pulsarAdmin, String tenant) throws PulsarAdminException {
         LOGGER.info("begin to create pulsar tenant={}", tenant);
-        Preconditions.checkNotEmpty(tenant, "Tenant cannot be empty");
+        Preconditions.expectNotEmpty(tenant, "Tenant cannot be empty");
 
         try {
             List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
@@ -85,8 +85,8 @@ public class PulsarOperator {
      */
     public void createNamespace(PulsarAdmin pulsarAdmin, InlongPulsarInfo pulsarInfo, String tenant, String namespace)
             throws PulsarAdminException {
-        Preconditions.checkNotNull(tenant, "pulsar tenant cannot be empty during create namespace");
-        Preconditions.checkNotNull(namespace, "pulsar namespace cannot be empty during create namespace");
+        Preconditions.expectNotNull(tenant, "pulsar tenant cannot be empty during create namespace");
+        Preconditions.expectNotNull(namespace, "pulsar namespace cannot be empty during create namespace");
 
         String namespaceName = tenant + "/" + namespace;
         LOGGER.info("begin to create namespace={}", namespaceName);
@@ -139,7 +139,7 @@ public class PulsarOperator {
      * Create Pulsar topic
      */
     public void createTopic(PulsarAdmin pulsarAdmin, PulsarTopicInfo topicInfo) throws PulsarAdminException {
-        Preconditions.checkNotNull(topicInfo, "pulsar topic info cannot be empty");
+        Preconditions.expectNotNull(topicInfo, "pulsar topic info cannot be empty");
         String tenant = topicInfo.getTenant();
         String namespace = topicInfo.getNamespace();
         String topicName = topicInfo.getTopicName();
@@ -195,7 +195,7 @@ public class PulsarOperator {
      * Force delete Pulsar topic
      */
     public void forceDeleteTopic(PulsarAdmin pulsarAdmin, PulsarTopicInfo topicInfo) throws PulsarAdminException {
-        Preconditions.checkNotNull(topicInfo, "pulsar topic info cannot be empty");
+        Preconditions.expectNotNull(topicInfo, "pulsar topic info cannot be empty");
 
         String tenant = topicInfo.getTenant();
         String namespace = topicInfo.getNamespace();

@@ -45,11 +45,11 @@ public class StreamTransformTransfer {
     public static TransformRequest createTransformRequest(StreamTransform streamTransform,
             InlongStreamInfo streamInfo) {
         TransformRequest transformRequest = new TransformRequest();
-        Preconditions.checkNotEmpty(streamTransform.getTransformName(), "TransformName should not be null");
+        Preconditions.expectNotEmpty(streamTransform.getTransformName(), "TransformName should not be null");
         transformRequest.setTransformName(streamTransform.getTransformName());
         transformRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         transformRequest.setInlongStreamId(streamInfo.getInlongStreamId());
-        Preconditions.checkNotNull(streamTransform.getTransformDefinition(), "TransformDefinition should not be null");
+        Preconditions.expectNotNull(streamTransform.getTransformDefinition(), "TransformDefinition should not be null");
         TransformDefinition transformDefinition = streamTransform.getTransformDefinition();
         transformRequest.setTransformType(transformDefinition.getTransformType().getType());
         transformRequest.setVersion(InlongConstants.INITIAL_VERSION);
