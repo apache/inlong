@@ -441,7 +441,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     @SuppressWarnings({"unchecked"})
     private void addRow(RowKind rowKind, JsonNode rootNode, JsonNode physicalNode, JsonNode updateBeforeNode,
-            Map<String, String> physicalData, Map<String, String> updateBeforeData) {
+            Map<String, String> physicalData, Map<String, String> updateBeforeData) throws IOException {
+        String tableIdentifier = StringUtils.join(
+                jsonDynamicSchemaFormat.parse(rootNode, databasePattern), ".",
+                jsonDynamicSchemaFormat.parse(rootNode, tablePattern));
         switch (rowKind) {
             case INSERT:
             case UPDATE_AFTER:
