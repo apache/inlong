@@ -496,8 +496,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
 
         if (multipleSink) {
-            handleMultipleDirtyData(dirtyData, dirtyType, e);
-            return;
+            if (dirtyType == DirtyType.DESERIALIZE_ERROR) {
+                LOG.error("database and table can't be identified, will use default ${database}${table}");
+            } else {
+                handleMultipleDirtyData(dirtyData, dirtyType, e);
+                return;
+            }
         }
 
         if (dirtySink != null) {
