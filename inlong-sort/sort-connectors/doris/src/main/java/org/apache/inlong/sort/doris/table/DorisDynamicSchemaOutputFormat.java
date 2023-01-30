@@ -313,7 +313,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
     @Override
-    public synchronized void writeRecord(T row) {
+    public synchronized void writeRecord(T row) throws IOException {
         addBatch(row);
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
                 || batchBytes >= executionOptions.getMaxBatchBytes();
@@ -372,7 +372,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     }
 
-    private void addBatch(T row) {
+    private void addBatch(T row) throws IOException {
         readInNum.incrementAndGet();
         if (!multipleSink) {
             addSingle(row);
