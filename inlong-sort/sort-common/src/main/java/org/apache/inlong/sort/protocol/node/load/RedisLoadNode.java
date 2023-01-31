@@ -55,27 +55,27 @@ public class RedisLoadNode extends LoadNode implements InlongMetric, Serializabl
 
     private static final String EXTEND_ATTR_KEY_NAME = "keyName";
     private static final String EXTEND_ATTR_VALUE_NAME = "keyValue";
-    public static final String OPTION_DATA_TYPE = "data-type";
-    public static final String OPTION_REDIS_MODE = "redis-mode";
-    public static final String OPTION_SCHEMA_MAPPING_MODE = "schema-mapping-mode";
+    public static final String DATA_TYPE = "data-type";
+    public static final String REDIS_MODE = "redis-mode";
+    public static final String SCHEMA_MAPPING_MODE = "schema-mapping-mode";
     public static final String CLUSTER_MODE_STANDALONE = "standalone";
-    public static final String OPTION_VALUE_HOST = "host";
-    public static final String OPTION_VALUE_PORT = "port";
-    public static final String OPTION_PASSWORD = "password";
+    public static final String VALUE_HOST = "host";
+    public static final String VALUE_PORT = "port";
+    public static final String PASSWORD = "password";
     public static final String CLUSTER_MODE_CLUSTER = "cluster";
-    public static final String OPTION_CLUSTER_NODES = "cluster-nodes";
-    public static final String OPTION_CLUSTER_PASSWORD = "cluster.password";
-    public static final String OPTION_MASTER_NAME = "master.name";
-    public static final String OPTION_SENTINELS_INFO = "sentinels.info";
-    public static final String OPTION_SENTINELS_PASSWORD = "sentinels.password";
-    public static final String OPTION_DATABASE = "database";
-    public static final String OPTION_MAX_IDLE = "maxIdle";
-    public static final String OPTION_SINK_MAX_RETRIES = "sink.max-retries";
-    public static final String OPTION_MAX_TOTAL = "maxTotal";
-    public static final String OPTION_MIN_IDLE = "minIdle";
-    public static final String OPTION_SO_TIMEOUT = "soTimeout";
-    public static final String OPTION_TIMEOUT = "timeout";
-    public static final String OPTION_EXPIRE_TIME = "expire-time";
+    public static final String CLUSTER_NODES = "cluster-nodes";
+    public static final String CLUSTER_PASSWORD = "cluster.password";
+    public static final String MASTER_NAME = "master.name";
+    public static final String SENTINELS_INFO = "sentinels.info";
+    public static final String SENTINELS_PASSWORD = "sentinels.password";
+    public static final String DATABASE = "database";
+    public static final String MAX_IDLE = "maxIdle";
+    public static final String SINK_MAX_RETRIES = "sink.max-retries";
+    public static final String MAX_TOTAL = "maxTotal";
+    public static final String MIN_IDLE = "minIdle";
+    public static final String SO_TIMEOUT = "soTimeout";
+    public static final String TIMEOUT = "timeout";
+    public static final String EXPIRE_TIME = "expire-time";
     public static final String CONNECTOR_KEY = "connector";
     public static final String CONNECTOR_REDIS_INLONG = "redis-inlong";
     private Format format;
@@ -164,51 +164,51 @@ public class RedisLoadNode extends LoadNode implements InlongMetric, Serializabl
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
 
-        options.put(OPTION_DATA_TYPE, dataType);
-        options.put(OPTION_REDIS_MODE, clusterMode);
-        options.put(OPTION_SCHEMA_MAPPING_MODE, schemaMapMode);
+        options.put(DATA_TYPE, dataType);
+        options.put(REDIS_MODE, clusterMode);
+        options.put(SCHEMA_MAPPING_MODE, schemaMapMode);
         if (CLUSTER_MODE_STANDALONE.equals(clusterMode)) {
-            options.put(OPTION_VALUE_HOST, host);
-            options.put(OPTION_VALUE_PORT, String.valueOf(port));
+            options.put(VALUE_HOST, host);
+            options.put(VALUE_PORT, String.valueOf(port));
             if (StringUtils.isNotBlank(password)) {
-                options.put(OPTION_PASSWORD, password);
+                options.put(PASSWORD, password);
             }
         } else if (CLUSTER_MODE_CLUSTER.equals(clusterMode)) {
-            options.put(OPTION_CLUSTER_NODES, clusterNodes);
+            options.put(CLUSTER_NODES, clusterNodes);
             if (StringUtils.isNotBlank(password)) {
-                options.put(OPTION_CLUSTER_PASSWORD, password);
+                options.put(CLUSTER_PASSWORD, password);
             }
         } else {
-            options.put(OPTION_MASTER_NAME, sentinelMasterName);
-            options.put(OPTION_SENTINELS_INFO, sentinelsInfo);
+            options.put(MASTER_NAME, sentinelMasterName);
+            options.put(SENTINELS_INFO, sentinelsInfo);
             if (StringUtils.isNotBlank(password)) {
-                options.put(OPTION_SENTINELS_PASSWORD, password);
+                options.put(SENTINELS_PASSWORD, password);
             }
         }
         if (database != null) {
-            options.put(OPTION_DATABASE, String.valueOf(database));
+            options.put(DATABASE, String.valueOf(database));
         }
         if (maxIdle != null) {
-            options.put(OPTION_MAX_IDLE, String.valueOf(maxIdle));
+            options.put(MAX_IDLE, String.valueOf(maxIdle));
         }
         if (maxRetries != null) {
-            options.put(OPTION_SINK_MAX_RETRIES, String.valueOf(maxRetries));
+            options.put(SINK_MAX_RETRIES, String.valueOf(maxRetries));
         }
 
         if (maxTotal != null) {
-            options.put(OPTION_MAX_TOTAL, String.valueOf(maxTotal));
+            options.put(MAX_TOTAL, String.valueOf(maxTotal));
         }
         if (minIdle != null) {
-            options.put(OPTION_MIN_IDLE, String.valueOf(minIdle));
+            options.put(MIN_IDLE, String.valueOf(minIdle));
         }
         if (soTimeout != null) {
-            options.put(OPTION_SO_TIMEOUT, String.valueOf(soTimeout));
+            options.put(SO_TIMEOUT, String.valueOf(soTimeout));
         }
         if (timeout != null) {
-            options.put(OPTION_TIMEOUT, String.valueOf(timeout));
+            options.put(TIMEOUT, String.valueOf(timeout));
         }
         if (ttl != null) {
-            options.put(OPTION_EXPIRE_TIME, ttl + "s");
+            options.put(EXPIRE_TIME, ttl + "s");
         }
 
         options.putAll(format.generateOptions(false));
