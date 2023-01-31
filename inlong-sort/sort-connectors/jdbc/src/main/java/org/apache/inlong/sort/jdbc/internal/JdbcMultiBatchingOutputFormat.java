@@ -89,7 +89,7 @@ import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.SEPARATOR;
+import static org.apache.inlong.sort.base.Constants.DIRTY_IDENTIFIER_SEPARATOR;
 
 /**
  * A JDBC multi-table outputFormat that supports batching records before writing records to databases.
@@ -567,7 +567,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                 1L, true);
                         if (!schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.THROW_WITH_STOP)) {
-                            dirtySinkHelper.invokeMultiple(tableIdentifier + SEPARATOR + record.toString(),
+                            dirtySinkHelper.invokeMultiple(tableIdentifier + DIRTY_IDENTIFIER_SEPARATOR + record.toString(),
                                     DirtyType.RETRY_LOAD_ERROR, tableException,
                                     sinkMultipleFormat);
                         }

@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.inlong.sort.base.Constants.SEPARATOR;
+import static org.apache.inlong.sort.base.Constants.DIRTY_IDENTIFIER_SEPARATOR;
 
 /**
  * Dirty sink helper, it helps dirty data sink for {@link DirtySink}
@@ -135,10 +135,10 @@ public class DirtySinkHelper<T> implements Serializable {
                 rootNode = (JsonNode) dirtyData;
             } else if (dirtyData instanceof String) {
                 // parse and remove the added identifier for string cases
-                String rawIdentifier = ((String) dirtyData).split(SEPARATOR)[0];
+                String rawIdentifier = ((String) dirtyData).split(DIRTY_IDENTIFIER_SEPARATOR)[0];
                 String[] arr = rawIdentifier.split("\\.");
                 actualIdentifier.addAll(Arrays.asList(arr));
-                dirtyData = (T) ((String) dirtyData).split(SEPARATOR)[1];
+                dirtyData = (T) ((String) dirtyData).split(DIRTY_IDENTIFIER_SEPARATOR)[1];
             } else {
                 throw new Exception("unidentified dirty data " + dirtyData);
             }
