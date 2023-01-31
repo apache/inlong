@@ -74,4 +74,5 @@ public interface InlongRedisCommandsContainer extends RedisCommandsContainer {
      */
     Long zrevrank(String key, String member);
 
+    void setBit(String key, Long offset, Boolean value);
 }

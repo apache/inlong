@@ -158,6 +158,23 @@ public class InlongRedisContainer extends RedisContainer implements InlongRedisC
         }
     }
 
+    @Override
+    public void setBit(String key, Long offset, Boolean value) {
+        Jedis jedis = null;
+        try {
+            jedis = getInstance();
+            jedis.setbit(key, offset, value);
+        } catch (Exception e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Cannot properly execute setBit command, key: {}, offset: {}, value:{}, error message {}",
+                        key, offset, value, e.getMessage());
+            }
+            throw e;
+        } finally {
+            releaseInstance(jedis);
+        }
+    }
+
     public Jedis getInstance() {
         if (jedisSentinelPool != null) {
             return jedisSentinelPool.getResource();

@@ -112,4 +112,18 @@ public class InlongRedisClusterContainer extends RedisClusterContainer implement
             throw e;
         }
     }
+
+    @Override
+    public void setBit(String key, Long offset, Boolean value) {
+        try {
+            jedisCluster.setbit(key, offset, value);
+        } catch (Exception e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error(
+                        "Cannot send Redis message with command setBit, key: {}, offset: {}, value: {}, error message {}",
+                        key, offset, value, e.getMessage());
+            }
+            throw e;
+        }
+    }
 }
