@@ -131,8 +131,8 @@ public class S3DirtySink<T> implements DirtySink<T> {
     }
 
     private boolean valid() {
-        return (s3Options.getBatchSize() > 0 && (size >= s3Options.getBatchSize()
-                || batchBytes <= s3Options.getMaxBatchBytes()));
+        return (s3Options.getBatchSize() > 0 && size >= s3Options.getBatchSize())
+                || batchBytes >= s3Options.getMaxBatchBytes();
     }
 
 
