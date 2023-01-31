@@ -52,7 +52,6 @@ public class DirtySinkHelper<T> implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DirtySinkHelper.class);
     static final Pattern REGEX_PATTERN = Pattern.compile("\\$\\{\\s*([\\w.-]+)\\s*}", Pattern.CASE_INSENSITIVE);
 
-
     private DirtyOptions dirtyOptions;
     private final @Nullable DirtySink<T> dirtySink;
 
