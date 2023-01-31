@@ -50,6 +50,8 @@ public class DirtySinkHelper<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(DirtySinkHelper.class);
+    static final Pattern REGEX_PATTERN = Pattern.compile("\\$\\{\\s*([\\w.-]+)\\s*}", Pattern.CASE_INSENSITIVE);
+
 
     private DirtyOptions dirtyOptions;
     private final @Nullable DirtySink<T> dirtySink;
@@ -192,7 +194,6 @@ public class DirtySinkHelper<T> implements Serializable {
             return null;
         }
 
-        final Pattern REGEX_PATTERN = Pattern.compile("\\$\\{\\s*([\\w.-]+)\\s*}", Pattern.CASE_INSENSITIVE);
         final String DIRTY_TYPE_KEY = "DIRTY_TYPE";
         final String DIRTY_MESSAGE_KEY = "DIRTY_MESSAGE";
         final String SYSTEM_TIME_KEY = "SYSTEM_TIME";
