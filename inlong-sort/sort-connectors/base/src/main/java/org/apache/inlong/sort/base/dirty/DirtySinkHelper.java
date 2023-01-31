@@ -147,6 +147,12 @@ public class DirtySinkHelper<T> implements Serializable {
             return;
         }
 
+        handleDirty(dirtyType, e, actualIdentifier, rootNode, jsonDynamicSchemaFormat, dirtyData);
+    }
+
+    private void handleDirty(DirtyType dirtyType, Throwable e,
+            List<String> actualIdentifier, JsonNode rootNode, JsonDynamicSchemaFormat jsonDynamicSchemaFormat,
+            T dirtyData) {
         if (dirtySink != null) {
             DirtyData.Builder<T> builder = DirtyData.builder();
             try {
