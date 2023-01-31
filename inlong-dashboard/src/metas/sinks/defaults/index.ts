@@ -106,4 +106,9 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     value: 'REDIS',
     LoadEntity: () => import('./Redis'),
   },
+  {
+    label: 'Kudu',
+    value: 'KUDU',
+    LoadEntity: () => import('./Kudu'),
+  },
 ];
