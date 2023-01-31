@@ -567,7 +567,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                 1L, true);
                         if (!schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.THROW_WITH_STOP)) {
-                            dirtySinkHelper.invokeMultiple(tableIdentifier + DIRTY_IDENTIFIER_SEPARATOR + record.toString(),
+                            dirtySinkHelper.invokeMultiple(
+                                    tableIdentifier + DIRTY_IDENTIFIER_SEPARATOR + record.toString(),
                                     DirtyType.RETRY_LOAD_ERROR, tableException,
                                     sinkMultipleFormat);
                         }
