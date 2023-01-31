@@ -30,16 +30,20 @@ export default class HiveNode extends NodeInfo implements DataWithBackend, Rende
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    initialValue: 'jdbc:hive2://127.0.0.1:10000',
+    props: {
+      placeholder: 'jdbc:hive2://127.0.0.1:10000',
+    },
   })
   @I18n('JDBC URL')
-  jdbcUrl: string;
+  url: string;
 
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     tooltip: i18n.t('meta.Nodes.Hive.DataPathHelp'),
-    initialValue: 'hdfs://127.0.0.1:9000/user/hive/warehouse/default',
+    props: {
+      placeholder: 'hdfs://127.0.0.1:9000/user/hive/warehouse/default',
+    },
   })
   @I18n('meta.Nodes.Hive.DataPath')
   dataPath: string;
@@ -48,7 +52,9 @@ export default class HiveNode extends NodeInfo implements DataWithBackend, Rende
     type: 'input',
     rules: [{ required: true }],
     tooltip: i18n.t('meta.Nodes.Hive.ConfDirHelp'),
-    initialValue: '/usr/hive/conf',
+    props: {
+      placeholder: '/usr/hive/conf',
+    },
   })
   @I18n('meta.Nodes.Hive.ConfDir')
   hiveConfDir: string;
