@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.sink;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.redis.RedisClusterMode;
 import org.apache.inlong.manager.pojo.sink.redis.RedisSink;
 import org.apache.inlong.manager.pojo.sink.redis.RedisSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
@@ -47,13 +48,17 @@ public class RedisSinkServiceTest extends ServiceBaseTest {
      */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-        RedisSinkRequest sinkInfo = new RedisSinkRequest();
-        sinkInfo.setInlongGroupId(globalGroupId);
-        sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.REDIS);
-        sinkInfo.setSinkName(sinkName);
-        sinkInfo.setId((int) (Math.random() * 100000 + 1));
-        return sinkService.save(sinkInfo, globalOperator);
+        RedisSinkRequest sinkRequest = new RedisSinkRequest();
+        sinkRequest.setInlongGroupId(globalGroupId);
+        sinkRequest.setInlongStreamId(globalStreamId);
+        sinkRequest.setSinkType(SinkType.REDIS);
+        sinkRequest.setClusterMode(RedisClusterMode.STANDALONE.name());
+        sinkRequest.setHost("demo-host");
+        sinkRequest.setDataType("HASH");
+        sinkRequest.setSchemaMapMode("DYNAMIC");
+        sinkRequest.setSinkName(sinkName);
+        sinkRequest.setId((int) (Math.random() * 100000 + 1));
+        return sinkService.save(sinkRequest, globalOperator);
     }
 
     @Test

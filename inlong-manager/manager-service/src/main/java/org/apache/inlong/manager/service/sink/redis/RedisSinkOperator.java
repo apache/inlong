@@ -17,22 +17,25 @@
 
 package org.apache.inlong.manager.service.sink.redis;
 
+import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.IP_EMPTY;
+import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.PORT_EMPTY;
 import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.SINK_SAVE_FAILED;
 import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT;
-import static org.apache.inlong.manager.common.util.BusinessPreconditions.verify;
+import static org.apache.inlong.manager.common.util.Preconditions.expectNotBlank;
+import static org.apache.inlong.manager.common.util.Preconditions.expectNotEmpty;
+import static org.apache.inlong.manager.common.util.Preconditions.expectNotNull;
+import static org.apache.inlong.manager.common.util.Preconditions.expectTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.BusinessPreconditions.Verification;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.redis.RedisClusterMode;
-import org.apache.inlong.manager.pojo.sink.redis.RedisColumnInfo;
 import org.apache.inlong.manager.pojo.sink.redis.RedisDataType;
 import org.apache.inlong.manager.pojo.sink.redis.RedisSchemaMapMode;
 import org.apache.inlong.manager.pojo.sink.redis.RedisSink;
@@ -72,20 +75,18 @@ public class RedisSinkOperator extends AbstractSinkOperator {
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
 
-        verify(SINK_TYPE_NOT_SUPPORT)
-                .checkTrue(
-                        this.getSinkType().equals(request.getSinkType()),
-                        SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        if (!this.getSinkType().equals(request.getSinkType())) {
+            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
+                    SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        }
 
         RedisSinkRequest sinkRequest = (RedisSinkRequest) request;
 
         String clusterMode = sinkRequest.getClusterMode();
         RedisClusterMode redisClusterMode = RedisClusterMode.of(clusterMode);
-        Verification saveFailedVerify = verify(SINK_SAVE_FAILED);
-        saveFailedVerify
-                .checkNotNull(
-                        redisClusterMode,
-                        "Redis ClusterMode must in [" + Arrays.toString(RedisClusterMode.values()) + "] !");
+
+        expectNotNull(redisClusterMode,
+                "Redis ClusterMode must in one of " + Arrays.toString(RedisClusterMode.values()) + " !");
 
         switch (redisClusterMode) {
             case CLUSTER:
@@ -94,25 +95,25 @@ public class RedisSinkOperator extends AbstractSinkOperator {
                 break;
             case SENTINEL:
                 String sentinelMasterName = sinkRequest.getSentinelMasterName();
-                saveFailedVerify.checkNotEmpty(sentinelMasterName,
-                        "Redis MasterName of Sentinel cluster must not null!");
+                expectNotEmpty(sentinelMasterName, "Redis MasterName of Sentinel cluster must not null!");
                 String sentinelsInfo = sinkRequest.getSentinelsInfo();
-                saveFailedVerify.checkNotEmpty(sentinelsInfo, "Redis sentinelsInfo of Sentinel cluster must not null!");
+                expectNotEmpty(sentinelsInfo, "Redis sentinelsInfo of Sentinel cluster must not null!");
                 break;
             case STANDALONE:
                 String host = sinkRequest.getHost();
                 Integer port = sinkRequest.getPort();
-                saveFailedVerify.checkNotEmpty(host, "Redis server host must not null!");
-                saveFailedVerify.checkTrue(
+
+                expectNotEmpty(host, "Redis server host must not null!");
+                expectTrue(
                         port == null || port < 1 || port > PORT_MAX_VALUE,
                         "The port of the redis server must be greater than 0 and less than 65535!");
                 break;
         }
         RedisDataType dataType = RedisDataType.valueOf(sinkRequest.getDataType());
-        saveFailedVerify.checkNotNull(dataType, "Redis DataType must not null");
+        expectNotNull(dataType, "Redis DataType must not null");
+
         RedisSchemaMapMode mapMode = RedisSchemaMapMode.valueOf(sinkRequest.getSchemaMapMode());
-        saveFailedVerify.checkTrue(
-                dataType.getMapModes().contains(mapMode),
+        expectTrue(dataType.getMapModes().contains(mapMode),
                 "Redis schemaMapMode '" + mapMode + "' is not supported in '" + dataType + "'");
 
         try {
@@ -126,17 +127,16 @@ public class RedisSinkOperator extends AbstractSinkOperator {
 
     private void checkClusterNodes(String clusterNodes) {
 
-        Verification verify = verify(SINK_SAVE_FAILED);
-        verify.checkNotBlank(clusterNodes, "the nodes of Redis cluster must not null");
+        expectTrue(clusterNodes != null && !clusterNodes.isEmpty(), "the nodes of Redis cluster must not null");
         String[] nodeArray = clusterNodes.split(",");
-        verify.checkNotEmpty(nodeArray, "the nodes of Redis cluster must not null");
+        expectNotEmpty(nodeArray, "the nodes of Redis cluster must not null");
 
         for (String node : nodeArray) {
-            verify.checkNotBlank(node, "Redis server host must not null!");
+            expectTrue(node != null && !node.isEmpty(), "Redis server host must not null!");
             String[] ipPort = node.split(":");
-            verify.checkTrue(ipPort.length == 2, "The ip and port of Redis server must be in form: ip:port");
-            verify.checkNotBlank(ipPort[0], "The ip can not be null");
-            verify.checkNotBlank(ipPort[1], "The port can not be null");
+            expectTrue(ipPort.length == 2, "The ip and port of Redis server must be in form: ip:port");
+            expectNotBlank(ipPort[0], IP_EMPTY);
+            expectNotBlank(ipPort[1], PORT_EMPTY);
         }
     }
 
@@ -154,14 +154,6 @@ public class RedisSinkOperator extends AbstractSinkOperator {
         List<SinkField> sinkFields = super.getSinkFields(entity.getId());
         sink.setSinkFieldList(sinkFields);
         return sink;
-    }
-
-    @Override
-    protected void checkFieldInfo(SinkField field) {
-        if (FieldType.forName(field.getFieldType()) == FieldType.DECIMAL) {
-            RedisColumnInfo info = RedisColumnInfo.getFromJson(field.getExtParams());
-
-        }
     }
 
 }

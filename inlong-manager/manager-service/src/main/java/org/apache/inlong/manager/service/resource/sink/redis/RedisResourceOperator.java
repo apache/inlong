@@ -40,8 +40,9 @@ public class RedisResourceOperator implements SinkResourceOperator {
     /**
      * Create Redis table according to the sink config
      */
+    @Override
     public void createSinkResource(SinkInfo sinkInfo) {
-
+        LOGGER.info("It is not need to create redis table!");
     }
 
 }

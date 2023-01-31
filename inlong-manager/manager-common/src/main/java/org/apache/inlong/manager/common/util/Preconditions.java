@@ -90,6 +90,14 @@ public class Preconditions {
         expectTrue(collection != null && !collection.isEmpty(), errMsg);
     }
 
+    public static void expectNotEmpty(String[] collection, String errMsg) {
+        expectTrue(collection != null && collection.length != 0, errMsg);
+    }
+
+    public static void expectNotEmpty(String[] collection, Supplier<String> errMsg) {
+        expectTrue(collection != null && collection.length != 0, errMsg);
+    }
+
     public static void expectNotEmpty(Map<?, ?> map, String errMsg) {
         expectTrue(map != null && !map.isEmpty(), errMsg);
     }

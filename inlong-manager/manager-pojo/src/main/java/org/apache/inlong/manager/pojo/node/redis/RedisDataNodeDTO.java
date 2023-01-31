@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.pojo.node.redis;
 
 import io.swagger.annotations.ApiModel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,7 +35,6 @@ import javax.validation.constraints.NotNull;
 @Data
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @ApiModel("Redis data node info")
 public class RedisDataNodeDTO {
 

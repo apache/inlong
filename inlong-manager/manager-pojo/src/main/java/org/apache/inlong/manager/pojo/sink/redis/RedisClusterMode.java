@@ -35,7 +35,7 @@ public enum RedisClusterMode {
 
     public static RedisClusterMode of(String key) {
         for (RedisClusterMode redisClusterMode : RedisClusterMode.values()) {
-            if (redisClusterMode.key.equals(key)) {
+            if (key != null && redisClusterMode.key.equals(key.toLowerCase())) {
                 return redisClusterMode;
             }
         }
