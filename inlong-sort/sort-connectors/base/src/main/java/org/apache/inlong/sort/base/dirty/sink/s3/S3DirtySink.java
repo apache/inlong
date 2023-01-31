@@ -71,7 +71,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
     private final DataType physicalRowDataType;
     private RowData.FieldGetter[] fieldGetters;
     private RowDataToJsonConverter converter;
-    private long currentTime;
+    private long lastExecutetime;
     private long batchBytes = 0L;
     private int size;
     private transient volatile boolean closed = false;
@@ -125,24 +125,29 @@ public class S3DirtySink<T> implements DirtySink<T> {
                     + "and the dirty data will be throw away in the future"
                     + " because the option 'dirty.side-output.ignore-errors' is 'true'", dirtyData.getIdentifier());
         }
-        if (valid() && !flushing) {
+        if (buffered() && valid() && !flushing) {
             flush();
         }
     }
 
     private boolean valid() {
-        // stash dirty data for at least a minute to avoid flushing too fast
-        if (currentTime == 0) {
-            currentTime = System.currentTimeMillis();
-            return false;
-        }
-        if (System.currentTimeMillis() - currentTime < s3Options.getBatchIntervalMs()) {
-            return false;
-        }
         return (s3Options.getBatchSize() > 0 && (size >= s3Options.getBatchSize()
                 || batchBytes <= s3Options.getMaxBatchBytes()));
     }
 
+
+    private boolean buffered() {
+        // stash dirty data for at least a minute to avoid flushing too fast
+        if (lastExecutetime == 0) {
+            lastExecutetime = System.currentTimeMillis();
+            return false;
+        }
+        if (System.currentTimeMillis() - lastExecutetime < s3Options.getBatchIntervalMs()) {
+            return false;
+        }
+        return true;
+    }
+    
     private void addBatch(DirtyData<T> dirtyData) throws IOException {
         readInNum.incrementAndGet();
         String value;
@@ -227,7 +232,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
      */
     public synchronized void flush() {
         flushing = true;
-        currentTime = System.currentTimeMillis();
+        lastExecutetime = System.currentTimeMillis();
         if (!hasRecords()) {
             flushing = false;
             return;
