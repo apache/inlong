@@ -640,6 +640,10 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                     if (!flushFlag && null != tableException) {
                         LOG.info("Put tableIdentifier:{} exception:{}",
                                 tableIdentifier, tableException.getMessage());
+                        if (dirtySinkHelper.getDirtySink() == null) {
+                            outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
+                                    1L, true);
+                        }
                         tableExceptionMap.put(tableIdentifier, tableException);
                         if (stopWritingWhenTableException) {
                             LOG.info("Stop write table:{} because occur exception",
