@@ -135,7 +135,6 @@ public class S3DirtySink<T> implements DirtySink<T> {
                 || batchBytes >= s3Options.getMaxBatchBytes();
     }
 
-
     private boolean buffered() {
         // stash dirty data for at least a minute to avoid flushing too fast
         if (lastExecutetime == 0) {
@@ -147,7 +146,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
         }
         return true;
     }
-    
+
     private void addBatch(DirtyData<T> dirtyData) throws IOException {
         readInNum.incrementAndGet();
         String value;
