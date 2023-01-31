@@ -42,6 +42,7 @@ import org.apache.flink.table.runtime.typeutils.InternalTypeInfo;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
@@ -89,6 +90,7 @@ import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.SEPARATOR;
 
 /**
  * A JDBC multi-table outputFormat that supports batching records before writing records to databases.
@@ -566,7 +568,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                 1L, true);
                         if (!schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.THROW_WITH_STOP)) {
-                            dirtySinkHelper.invokeMultiple(tableIdentifier + "%#%#%#" + record.toString(),
+                            dirtySinkHelper.invokeMultiple(tableIdentifier + SEPARATOR + record.toString(),
                                     DirtyType.RETRY_LOAD_ERROR, tableException,
                                     sinkMultipleFormat);
                         }

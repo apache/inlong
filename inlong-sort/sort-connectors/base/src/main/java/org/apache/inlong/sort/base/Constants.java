@@ -135,6 +135,8 @@ public final class Constants {
 
     public static final String AUTO_DESERIALIZE_FALSE = "autoDeserialize=false";
 
+    public static final String SEPARATOR = "%#%#%#";
+
     public static final ConfigOption<String> INLONG_METRIC =
             ConfigOptions.key("inlong.metric.labels")
                     .stringType()

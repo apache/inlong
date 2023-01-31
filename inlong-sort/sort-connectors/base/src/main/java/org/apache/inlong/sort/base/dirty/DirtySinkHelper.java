@@ -40,6 +40,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.inlong.sort.base.Constants.SEPARATOR;
+
 /**
  * Dirty sink helper, it helps dirty data sink for {@link DirtySink}
  * @param <T>
@@ -121,7 +123,6 @@ public class DirtySinkHelper<T> implements Serializable {
 
         JsonDynamicSchemaFormat jsonDynamicSchemaFormat =
                 (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
-        final String SEPARATOR = "%#%#%#";
         JsonNode rootNode = null;
         List<String> actualIdentifier = new ArrayList<>();
 

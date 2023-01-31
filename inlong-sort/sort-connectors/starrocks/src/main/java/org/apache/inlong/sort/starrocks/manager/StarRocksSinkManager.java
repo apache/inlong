@@ -60,6 +60,8 @@ import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.inlong.sort.base.Constants.SEPARATOR;
+
 /**
  * StarRocks sink manager which caches and flushes data.
  */
@@ -452,7 +454,7 @@ public class StarRocksSinkManager implements Serializable {
         if (StarRocksSinkOptions.StreamLoadFormat.CSV.equals(sinkOptions.getStreamLoadFormat())) {
             for (byte[] row : flushData.getBuffer()) {
                 dirtySinkHelper.invokeMultiple(
-                        flushData.getDatabase() + "." + flushData.getTable() + "%#%#%#"
+                        flushData.getDatabase() + "." + flushData.getTable() + SEPARATOR
                                 + new String(row, StandardCharsets.UTF_8),
                         DirtyType.BATCH_LOAD_ERROR, e,
                         sinkMultipleFormat);
@@ -460,7 +462,7 @@ public class StarRocksSinkManager implements Serializable {
         } else if (StarRocksSinkOptions.StreamLoadFormat.JSON.equals(sinkOptions.getStreamLoadFormat())) {
             for (byte[] row : flushData.getBuffer()) {
                 dirtySinkHelper.invokeMultiple(
-                        flushData.getDatabase() + "." + flushData.getTable() + "%#%#%#"
+                        flushData.getDatabase() + "." + flushData.getTable() + SEPARATOR
                                 + OBJECT_MAPPER.readTree(new String(row, StandardCharsets.UTF_8)).toString(),
                         DirtyType.BATCH_LOAD_ERROR, e, sinkMultipleFormat);
             }
