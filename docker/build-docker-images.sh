@@ -127,9 +127,7 @@ cp ${agent_tarball} ${agent_dockerfile_path}/target/${agent_tarball_name}
 cp ${audit_tarball} ${audit_dockerfile_path}/target/${audit_tarball_name}
 cp ${dataproxy_tarball} ${dataproxy_dockerfile_path}/target/${dataproxy_tarball_name}
 cp ${tubemq_manager_tarball} ${tubemq_manager_dockerfile_path}/target/${tubemq_manager_tarball_name}
-if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
-  cp ${tubemq_all_tarball} ${tubemq_all_dockerfile_path}/target/${tubemq_all_tarball_name}
-fi
+cp ${tubemq_all_tarball} ${tubemq_all_dockerfile_path}/target/${tubemq_all_tarball_name}
 
 echo "=== Start to build ============"
 echo "=== Build docker tag:${tag} ==="
@@ -140,8 +138,8 @@ docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/audit:${tag}       
 docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-manager:${tag} inlong-tubemq/tubemq-docker/tubemq-manager/ --build-arg TUBEMQ_MANAGER_TARBALL=${TUBEMQ_MANAGER_TARBALL}
 docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/dashboard:${tag}      inlong-dashboard/                   --build-arg DASHBOARD_FILE=${DASHBOARD_FILE}
 docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/agent:${tag}          inlong-agent/agent-docker/          --build-arg AGENT_TARBALL=${AGENT_TARBALL}
+docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-all:${tag}    inlong-tubemq/tubemq-docker/tubemq-all/ --build-arg TUBEMQ_TARBALL=${TUBEMQ_TARBALL}
 if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
-  docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-all:${tag}    inlong-tubemq/tubemq-docker/tubemq-all/ --build-arg TUBEMQ_TARBALL=${TUBEMQ_TARBALL}
   docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-cpp:${tag}    inlong-tubemq/tubemq-docker/tubemq-cpp/
   docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-build:${tag}  inlong-tubemq/tubemq-docker/tubemq-build/
 fi
@@ -152,17 +150,16 @@ echo "=== End build ================="
 
 echo "=== Start to tag =============="
 echo "=== Tag postfix:${POSTFIX} ===="
-
 docker tag inlong/manager:${tag}         inlong/manager:latest${POSTFIX}
 docker tag inlong/dataproxy:${tag}       inlong/dataproxy:latest${POSTFIX}
 docker tag inlong/audit:${tag}           inlong/audit:latest${POSTFIX}
 docker tag inlong/tubemq-manager:${tag}  inlong/tubemq-manager:latest${POSTFIX}
 docker tag inlong/dashboard:${tag}       inlong/dashboard:latest${POSTFIX}
 docker tag inlong/agent:${tag}           inlong/agent:latest${POSTFIX}
+docker tag inlong/tubemq-all:${tag}   inlong/tubemq-all:latest${POSTFIX}
 if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
   docker tag inlong/tubemq-cpp:${tag}   inlong/tubemq-cpp:latest${POSTFIX}
   docker tag inlong/tubemq-build:${tag} inlong/tubemq-build:latest${POSTFIX}
-  docker tag inlong/tubemq-all:${tag}   inlong/tubemq-all:latest${POSTFIX}
 fi
 
 echo "=== Tag images result ========="
