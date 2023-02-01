@@ -29,18 +29,15 @@
 [![Twitter](https://img.shields.io/twitter/url?label=Follow%20ApacheInlong&style=social&url=https%3A%2F%2Ftwitter.com%2FApacheInlong)](https://twitter.com/ApacheInlong)
 [![Slack](https://img.shields.io/badge/%20Slack-InLong%20Channel-blueviolet)](https://the-asf.slack.com/archives/C01QAG6U00L)
 
-- [A one-stop integration framework for massive data](#a-one-stop-integration-framework-for-massive-data)
 - [What is Apache InLong?](#what-is-apache-inlong)
-  - [Features](#features)
-  - [When should I use InLong?](#when-should-i-use-inlong)
-  - [Supported Data Nodes (Updating)](#supported-data-nodes-updating)
-  - [Build InLong](#build-inlong)
-  - [Deploy InLong](#deploy-inlong)
-  - [Develop InLong](#develop-inlong)
-  - [Contribute to InLong](#contribute-to-inlong)
-  - [Contact Us](#contact-us)
-  - [Documentation](#documentation)
-  - [License](#license)
+- [Features](#features)
+- [When should I use InLong?](#when-should-i-use-inlong)
+- [Build InLong](#build-inlong)
+- [Deploy InLong](#deploy-inlong)
+- [Contribute to InLong](#contribute-to-inlong)
+- [Contact Us](#contact-us)
+- [Documentation](#documentation)
+- [License](#license)
 
 # What is Apache InLong?
 |                                       **Stargazers Over Time**                                        |                                                                                                **Contributors Over Time**                                                                                                |
