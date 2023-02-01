@@ -102,6 +102,7 @@ You can use InLong in the following ways：
 |              | TDSQL-PostgreSQL  | 10.17                        | Lightweight, Standard |
 |              | Doris             | >= 0.13                      | Lightweight, Standard |
 |              | StarRocks         | >= 2.0                       | Lightweight, Standard |
+|              | Kudu              | >= 1.12.0                    | Lightweight, Standard |
 
 ## Build InLong
 More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/next/quick_start/how_to_build) section in the documentation.
