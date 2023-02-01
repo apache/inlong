@@ -146,7 +146,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Integer saveTag(ClusterTagRequest request, UserInfo opInfo) {
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
                     "Current user does not have permission to add cluster tag");
         }
@@ -189,7 +189,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String.format("inlong cluster tag not found by id=%s", id));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -220,7 +220,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (CollectionUtils.isNotEmpty(clusterTagEntities)) {
             for (InlongClusterTagEntity tagEntity : clusterTagEntities) {
                 // only the person in charges can query
-                if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+                if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
                     List<String> inCharges = Arrays.asList(tagEntity.getInCharges().split(InlongConstants.COMMA));
                     if (!inCharges.contains(opInfo.getName())) {
                         continue;
@@ -312,7 +312,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String.format("inlong cluster tag was not exist for id=%s", request.getId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(exist.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -410,7 +410,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             return true;
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(exist.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -468,7 +468,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Integer save(ClusterRequest request, UserInfo opInfo) {
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
                     "Current user does not have permission to add cluster");
         }
@@ -509,7 +509,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String.format("inlong cluster not found by id=%s", id));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -546,7 +546,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         List<InlongClusterEntity> filterResult = new ArrayList<>();
         for (InlongClusterEntity entity : clusterEntities) {
             // only the person in charges can query
-            if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
                 List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
                 if (!inCharges.contains(opInfo.getName())) {
                     continue;
@@ -633,7 +633,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String.format("inlong cluster not found by id=%s", request.getId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -722,7 +722,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public Boolean bindTag(BindTagRequest request, UserInfo opInfo) {
         InlongClusterTagEntity exist = clusterTagMapper.selectByTag(request.getClusterTag());
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(exist.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -833,7 +833,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             return true;
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -882,7 +882,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String.format("inlong cluster not found by id=%s, or was already deleted", request.getParentId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -924,7 +924,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
         InlongClusterEntity cluster = clusterMapper.selectById(entity.getParentId());
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(cluster.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -967,7 +967,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             }
             InlongClusterEntity cluster = clusterMapper.selectById(request.getParentId());
             // only the person in charges can query
-            if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
                 List<String> inCharges = Arrays.asList(cluster.getInCharges().split(InlongConstants.COMMA));
                 if (!inCharges.contains(opInfo.getName())) {
                     throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -982,7 +982,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     clusterMapper.selectByKey(request.getClusterTag(), request.getName(), request.getType());
             for (InlongClusterEntity cluster : clusterList) {
                 // only the person in charges can query
-                if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+                if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
                     List<String> inCharges = Arrays.asList(cluster.getInCharges().split(InlongConstants.COMMA));
                     if (!inCharges.contains(opInfo.getName())) {
                         continue;
@@ -1023,7 +1023,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String.format("inlong group not exists for groupId=%s", groupId));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -1153,7 +1153,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                             request.getParentId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(cluster.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
@@ -1197,7 +1197,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
         InlongClusterEntity cluster = clusterMapper.selectById(entity.getParentId());
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(cluster.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED,
