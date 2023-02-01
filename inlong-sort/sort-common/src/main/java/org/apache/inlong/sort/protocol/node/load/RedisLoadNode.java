@@ -36,7 +36,6 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,10 +78,6 @@ public class RedisLoadNode extends LoadNode implements InlongMetric, Serializabl
     public static final String CONNECTOR_KEY = "connector";
     public static final String CONNECTOR_REDIS_INLONG = "redis-inlong";
     private Format format;
-
-    @JsonProperty("extList")
-    private List<HashMap<String, String>> extList;
-
     private String clusterMode;
     private String dataType;
     private String schemaMapMode;
@@ -116,7 +111,6 @@ public class RedisLoadNode extends LoadNode implements InlongMetric, Serializabl
             @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
             @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
-            @JsonProperty("extList") List<HashMap<String, String>> extList,
             @JsonProperty("clusterMode") String clusterMode,
             @JsonProperty("dataType") String dataType,
             @JsonProperty("schemaMapMode") String schemaMapMode,
@@ -137,7 +131,6 @@ public class RedisLoadNode extends LoadNode implements InlongMetric, Serializabl
             @Nullable @JsonProperty("maxRetries") Integer maxRetries) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
 
-        this.extList = extList;
         this.clusterMode = clusterMode;
         this.dataType = dataType;
         this.schemaMapMode = schemaMapMode;
@@ -215,12 +208,11 @@ public class RedisLoadNode extends LoadNode implements InlongMetric, Serializabl
 
         // If the extend attributes starts with .ddl,
         // it will be passed to the ddl statement of the table
-        if (extList != null) {
-            extList.forEach(ext -> {
-                String keyName = ext.get(EXTEND_ATTR_KEY_NAME);
+        Map<String, String> properties = getProperties();
+        if (properties != null) {
+            properties.forEach((keyName, ddlValue) -> {
                 if (StringUtils.isNoneBlank(keyName) && keyName.startsWith(DDL_ATTR_PREFIX)) {
                     String ddlKeyName = keyName.substring(DDL_ATTR_PREFIX.length());
-                    String ddlValue = ext.get(EXTEND_ATTR_VALUE_NAME);
                     options.put(ddlKeyName, ddlValue);
                 }
             });

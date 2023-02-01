@@ -98,7 +98,6 @@ public class RedisNodeSqlParserTest extends AbstractTestBase {
                 null,
                 null,
                 null,
-                null,
                 "standalone",
                 "HASH",
                 "STATIC_PREFIX_MATCH",
