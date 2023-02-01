@@ -403,7 +403,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 return;
             }
 
-            GenericRowData record = null;
+            GenericRowData record;
             try {
                 RowType rowType = jsonDynamicSchemaFormat.extractSchema(rootNode);
                 if (rowType != null) {
