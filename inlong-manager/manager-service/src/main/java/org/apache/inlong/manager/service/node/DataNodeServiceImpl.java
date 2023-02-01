@@ -78,7 +78,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     public Integer save(DataNodeRequest request, UserInfo opInfo) {
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED);
         }
         // check if data node already exist
@@ -112,7 +112,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     public DataNodeInfo get(Integer id, UserInfo opInfo) {
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED);
         }
         DataNodeEntity entity = dataNodeMapper.selectById(id);
@@ -158,7 +158,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     public List<DataNodeInfo> list(DataNodePageRequest request, UserInfo opInfo) {
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED);
         }
         // query result
@@ -207,7 +207,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(DataNodeRequest request, UserInfo opInfo) {
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED);
         }
         // check the record existed
@@ -271,7 +271,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     public Boolean delete(Integer id, UserInfo opInfo) {
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED);
         }
         DataNodeEntity entity = dataNodeMapper.selectById(id);

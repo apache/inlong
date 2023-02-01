@@ -107,7 +107,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -179,7 +179,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -252,7 +252,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -322,7 +322,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
