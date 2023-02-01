@@ -126,13 +126,12 @@ public class RedisSinkOperator extends AbstractSinkOperator {
     }
 
     private void checkClusterNodes(String clusterNodes) {
-
-        expectTrue(clusterNodes != null && !clusterNodes.isEmpty(), "the nodes of Redis cluster must not null");
+        expectNotBlank(clusterNodes, "the nodes of Redis cluster must not null");
         String[] nodeArray = clusterNodes.split(",");
         expectNotEmpty(nodeArray, "the nodes of Redis cluster must not null");
 
         for (String node : nodeArray) {
-            expectTrue(node != null && !node.isEmpty(), "Redis server host must not null!");
+            expectNotBlank(node, "Redis server host must not null!");
             String[] ipPort = node.split(":");
             expectTrue(ipPort.length == 2, "The ip and port of Redis server must be in form: ip:port");
             expectNotBlank(ipPort[0], IP_EMPTY);

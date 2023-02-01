@@ -135,6 +135,11 @@ public class Preconditions {
             throw new IllegalArgumentException(errMsg);
         }
     }
+    public static void expectNotBlank(String obj, String errMsg) {
+        if (StringUtils.isBlank(obj)) {
+            throw new IllegalArgumentException(errMsg);
+        }
+    }
 
     public static void expectNotBlank(String obj, ErrorCodeEnum errorCodeEnum) {
         if (StringUtils.isBlank(obj)) {
