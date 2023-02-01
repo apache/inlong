@@ -28,7 +28,6 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -127,20 +126,4 @@ public class RedisSinkDTO {
         }
     }
 
-    /**
-     * Get Redis table info
-     *
-     * @param sinkDTO    Redis sink dto,{@link RedisSinkDTO}
-     * @param columnList Redis column info list,{@link RedisColumnInfo}
-     * @return {@link RedisTableInfo}
-     */
-    public static RedisTableInfo getTableInfo(RedisSinkDTO sinkDTO, List<RedisColumnInfo> columnList) {
-        RedisTableInfo redisTableInfo = CommonBeanUtils.copyProperties(sinkDTO, RedisTableInfo::new);
-        redisTableInfo.setColumns(columnList);
-        return redisTableInfo;
-    }
-
-    public void setClusterInfo() {
-
-    }
 }
