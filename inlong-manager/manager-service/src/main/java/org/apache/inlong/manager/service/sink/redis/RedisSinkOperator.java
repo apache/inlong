@@ -105,7 +105,7 @@ public class RedisSinkOperator extends AbstractSinkOperator {
 
                 expectNotEmpty(host, "Redis server host must not null!");
                 expectTrue(
-                        port == null || port < 1 || port > PORT_MAX_VALUE,
+                        port != null && port > 1 && port < PORT_MAX_VALUE,
                         "The port of the redis server must be greater than 0 and less than 65535!");
                 break;
         }
