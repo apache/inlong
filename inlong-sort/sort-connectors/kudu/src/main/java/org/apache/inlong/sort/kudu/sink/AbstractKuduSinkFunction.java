@@ -31,7 +31,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.slf4j.Logger;
@@ -97,8 +96,6 @@ public abstract class AbstractKuduSinkFunction
 
     private final String inLongMetric;
 
-    private SourceMetricData sourceMetricData;
-
     public AbstractKuduSinkFunction(
             KuduTableInfo kuduTableInfo,
             Configuration configuration,
@@ -148,8 +145,8 @@ public abstract class AbstractKuduSinkFunction
 
     @Override
     public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
-        if (sourceMetricData != null && metricStateListState != null) {
-            MetricStateUtils.snapshotMetricStateForSourceMetricData(metricStateListState, sourceMetricData,
+        if (sinkMetricData != null && metricStateListState != null) {
+            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, sinkMetricData,
                     getRuntimeContext().getIndexOfThisSubtask());
         }
         checkError();
