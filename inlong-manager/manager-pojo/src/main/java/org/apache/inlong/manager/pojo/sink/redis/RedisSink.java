@@ -30,9 +30,6 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-import java.util.HashMap;
-import java.util.List;
-
 /**
  * Redis sink info
  */
@@ -114,8 +111,6 @@ public class RedisSink extends StreamSink {
 
     @ApiModelProperty("The data separator of Redis STATIC_PREFIX_MATCH data-type")
     private String formatDataSeparator;
-    @ApiModelProperty("Extended properties")
-    private List<HashMap<String, String>> extList;
 
     public RedisSink() {
         this.setSinkType(SinkType.REDIS);
