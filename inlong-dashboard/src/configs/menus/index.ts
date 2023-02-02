@@ -18,15 +18,33 @@
  */
 
 import i18n from '@/i18n';
+import { treeToArray } from '@/utils';
 
 export interface MenuItemType {
   name: string;
+  key?: string; // auto generate
+  deepKey?: string; // auto generate
   children?: MenuItemType[];
   path?: string;
   isAdmin?: boolean;
 }
 
-const menus: MenuItemType[] = [
+const genMenuKey = (array: Omit<MenuItemType, 'key'>[], parentKey = ''): MenuItemType[] => {
+  return array.map((item, index) => {
+    let obj = { ...item };
+    const num = index + 1 < 10 ? `0${index + 1}` : (index + 1).toString();
+    const currentKey = `${parentKey}${num}`;
+    if (obj.children) {
+      obj.children = genMenuKey(obj.children, currentKey);
+    }
+    return {
+      ...obj,
+      key: currentKey,
+    };
+  });
+};
+
+const menusTree: MenuItemType[] = genMenuKey([
   {
     path: '/group',
     name: i18n.t('configs.menus.Groups'),
@@ -70,6 +88,8 @@ const menus: MenuItemType[] = [
       },
     ],
   },
-];
+]);
 
-export default menus;
+export const menuArrays: Omit<MenuItemType, 'children'>[] = treeToArray(menusTree, 'key', 'pKey');
+
+export default menusTree;
