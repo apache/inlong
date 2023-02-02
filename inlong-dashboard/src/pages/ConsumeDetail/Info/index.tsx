@@ -18,7 +18,7 @@
  */
 
 import React, { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
-import { Button, message, Space } from 'antd';
+import { Button, message, Space, Table } from 'antd';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useBoolean, useRequest } from '@/hooks';
 import request from '@/utils/request';
@@ -37,6 +37,8 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
 
   const [mqType, setMqType] = useState(defaultValue);
 
+  const [clusterInfos, setClusterInfos] = useState([]);
+
   const [form] = useForm();
 
   const isUpdate = useMemo(() => {
@@ -54,6 +56,7 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
     onSuccess: data => {
       form.setFieldsValue(data);
       setMqType(data.mqType);
+      setClusterInfos(data.clusterInfos);
     },
   });
 
@@ -109,6 +112,21 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
         onValuesChange={(c, values) => setMqType(values.mqType)}
         useMaxWidth={800}
       />
+      {!isCreate && <label>{t('pages.ConsumeDetail.ClusterInfo')}</label>}
+      {!isCreate && (
+        <Table
+          size="small"
+          columns={[
+            { title: 'name', dataIndex: 'name' },
+            { title: 'type', dataIndex: 'type' },
+            { title: 'serviceUrl', dataIndex: 'url' },
+            { title: 'adminUrl', dataIndex: 'adminUrl' },
+          ]}
+          style={{ marginTop: 20 }}
+          dataSource={clusterInfos}
+          rowKey="name"
+        ></Table>
+      )}
 
       {!isCreate && !readonly && (
         <div style={{ position: 'absolute', top: 0, right: 0 }}>

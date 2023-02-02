@@ -80,7 +80,8 @@ public class HudiSourceDTO {
         try {
             return JsonUtils.parseObject(extParams, HudiSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("parse extParams of HudiSource failure: %s", e.getMessage()));
         }
     }
 }

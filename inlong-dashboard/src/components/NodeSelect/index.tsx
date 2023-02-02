@@ -51,7 +51,11 @@ const NodeSelect: React.FC<NodeSelectProps> = _props => {
           })),
       },
     },
-    addonAfter: <Link to="/node">{i18n.t('components.NodeSelect.Create')}</Link>,
+    addonAfter: (
+      <Link to="/node" target="_blank">
+        {i18n.t('components.NodeSelect.Create')}
+      </Link>
+    ),
   };
   return <HighSelect {...props} />;
 };

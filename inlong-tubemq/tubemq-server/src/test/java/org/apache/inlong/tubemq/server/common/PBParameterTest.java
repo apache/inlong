@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.paramcheck.PBParameterUtils;
-import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,52 +31,54 @@ public class PBParameterTest {
 
     @Test
     public void checkProducerTopicTest() {
-        ParamCheckResult result = PBParameterUtils.checkProducerTopicList(null, null);
-        Assert.assertEquals(result.errCode, TErrCodeConstants.BAD_REQUEST);
+        ProcessResult result = new ProcessResult();
+        StringBuilder strBuff = new StringBuilder(128);
+        Assert.assertFalse(PBParameterUtils.checkProducerTopicList(null, strBuff, result));
+        Assert.assertEquals(result.getErrCode(), TErrCodeConstants.BAD_REQUEST);
         final List<String> topicList = new ArrayList<>();
         topicList.add("test1");
-        result = PBParameterUtils.checkProducerTopicList(topicList, new StringBuilder(128));
-        Assert.assertEquals(result.errCode, TErrCodeConstants.SUCCESS);
+        Assert.assertTrue(PBParameterUtils.checkProducerTopicList(topicList, strBuff, result));
+        Assert.assertEquals(result.getErrCode(), TErrCodeConstants.SUCCESS);
         for (int i = 0; i < 1025; i++) {
             topicList.add("test" + i);
         }
-        result = PBParameterUtils.checkProducerTopicList(topicList, new StringBuilder(128));
-        Assert.assertEquals(result.errCode, TErrCodeConstants.BAD_REQUEST);
+        Assert.assertFalse(PBParameterUtils.checkProducerTopicList(topicList, strBuff, result));
+        Assert.assertEquals(result.getErrCode(), TErrCodeConstants.BAD_REQUEST);
     }
 
     @Test
     public void checkConsumerTopicTest() {
         ProcessResult result = new ProcessResult();
-        PBParameterUtils.checkConsumerTopicList(null, null, result, null);
+        StringBuilder strBuff = new StringBuilder(128);
+        PBParameterUtils.checkConsumerTopicList(null, null, strBuff, result);
         Assert.assertEquals(result.getErrCode(), TErrCodeConstants.BAD_REQUEST);
         final Set<String> depTopicList = new HashSet<>();
         final List<String> reqTopicList = new ArrayList<>();
         depTopicList.add("test1");
         reqTopicList.add("test1");
-        PBParameterUtils.checkConsumerTopicList(depTopicList,
-                reqTopicList, result, new StringBuilder(128));
+        PBParameterUtils.checkConsumerTopicList(depTopicList, reqTopicList, strBuff, result);
         Assert.assertEquals(result.getErrCode(), TErrCodeConstants.SUCCESS);
         reqTopicList.add("test2");
-        PBParameterUtils.checkConsumerTopicList(depTopicList,
-                reqTopicList, result, new StringBuilder(128));
+        PBParameterUtils.checkConsumerTopicList(depTopicList, reqTopicList, strBuff, result);
         Assert.assertEquals(result.getErrCode(), TErrCodeConstants.TOPIC_NOT_DEPLOYED);
         for (int i = 0; i < 1025; i++) {
             reqTopicList.add("test" + i);
         }
-        PBParameterUtils.checkConsumerTopicList(depTopicList,
-                reqTopicList, result, new StringBuilder(128));
+        PBParameterUtils.checkConsumerTopicList(depTopicList, reqTopicList, strBuff, result);
         Assert.assertEquals(result.getErrCode(), TErrCodeConstants.BAD_REQUEST);
     }
 
     @Test
     public void checkIdTest() {
-        ParamCheckResult result = PBParameterUtils.checkClientId("100", new StringBuilder(128));
-        Assert.assertEquals(result.errCode, TErrCodeConstants.SUCCESS);
-        result = PBParameterUtils.checkClientId("", new StringBuilder(128));
-        Assert.assertEquals(result.errCode, TErrCodeConstants.BAD_REQUEST);
-        result = PBParameterUtils.checkBrokerId("100", new StringBuilder(128));
-        Assert.assertEquals(result.errCode, TErrCodeConstants.SUCCESS);
-        result = PBParameterUtils.checkBrokerId("", new StringBuilder(128));
-        Assert.assertEquals(result.errCode, TErrCodeConstants.BAD_REQUEST);
+        ProcessResult result = new ProcessResult();
+        StringBuilder strBuff = new StringBuilder(128);
+        Assert.assertTrue(PBParameterUtils.checkClientId("100", strBuff, result));
+        Assert.assertEquals(result.getErrCode(), TErrCodeConstants.SUCCESS);
+        Assert.assertFalse(PBParameterUtils.checkClientId("", strBuff, result));
+        Assert.assertEquals(result.getErrCode(), TErrCodeConstants.BAD_REQUEST);
+        Assert.assertTrue(PBParameterUtils.checkBrokerId("100", strBuff, result));
+        Assert.assertEquals(result.getErrCode(), TErrCodeConstants.SUCCESS);
+        Assert.assertFalse(PBParameterUtils.checkBrokerId("", strBuff, result));
+        Assert.assertEquals(result.getErrCode(), TErrCodeConstants.BAD_REQUEST);
     }
 }

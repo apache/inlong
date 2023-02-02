@@ -18,13 +18,11 @@
 package org.apache.inlong.manager.service.group;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
@@ -88,37 +86,47 @@ public class InlongGroupOperator4Pulsar extends AbstractGroupOperator {
     @Override
     protected void setTargetEntity(InlongGroupRequest request, InlongGroupEntity targetEntity) {
         InlongPulsarRequest pulsarRequest = (InlongPulsarRequest) request;
-
         // Pulsar params must meet: ackQuorum <= writeQuorum <= ensemble
         Integer ackQuorum = pulsarRequest.getAckQuorum();
         Integer writeQuorum = pulsarRequest.getWriteQuorum();
-        Preconditions.checkNotNull(ackQuorum, "Pulsar ackQuorum cannot be empty");
-        Preconditions.checkNotNull(writeQuorum, "Pulsar writeQuorum cannot be empty");
+        if (ackQuorum == null) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "Pulsar ackQuorum cannot be empty");
+        }
+        if (writeQuorum == null) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "Pulsar writeQuorum cannot be empty");
+        }
+        if (ackQuorum < 0 || writeQuorum < 0) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "Pulsar ackQuorum or writeQuorum must greater than or equal to 0");
+        }
         if (!(ackQuorum <= writeQuorum)) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED,
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
                     "Pulsar params must meet: ackQuorum <= writeQuorum");
         }
         // The default value of ensemble is writeQuorum
         pulsarRequest.setEnsemble(writeQuorum);
-
         CommonBeanUtils.copyProperties(pulsarRequest, targetEntity, true);
         try {
             InlongPulsarDTO dto = InlongPulsarDTO.getFromRequest(pulsarRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("serialize extParams of Pulsar failure: %s", e.getMessage()));
         }
-        LOGGER.info("success set entity for inlong group with Pulsar");
     }
 
     @Override
     public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(
                 groupInfo.getInlongClusterTag(), null, ClusterType.PULSAR);
-        String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
-                ? InlongConstants.DEFAULT_PULSAR_TENANT
-                : pulsarCluster.getTenant();
 
+        // First get the tenant from the InlongGroup, and then get it from the PulsarCluster.
+        String tenant = ((InlongPulsarInfo) groupInfo).getTenant();
+        if (StringUtils.isBlank(tenant)) {
+            tenant = pulsarCluster.getTenant();
+        }
         InlongPulsarTopicInfo topicInfo = new InlongPulsarTopicInfo();
         topicInfo.setTenant(tenant);
         topicInfo.setNamespace(groupInfo.getMqResource());

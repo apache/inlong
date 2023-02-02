@@ -93,13 +93,12 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
         InlongGroupEntity entity = CommonBeanUtils.copyProperties(request, InlongGroupEntity::new);
         // set the ext params
         setTargetEntity(request, entity);
-
         entity.setModifier(operator);
         int rowCount = groupMapper.updateByIdentifierSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
-                    request.getInlongGroupId(), request.getVersion());
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format("record has already updated with group id=%s, curVersion=%d",
+                            request.getInlongGroupId(), request.getVersion()));
         }
     }
 

@@ -53,8 +53,8 @@ public class WebAuthorizingRealm extends AuthorizingRealm {
         UsernamePasswordToken upToken = (UsernamePasswordToken) token;
         String username = upToken.getUsername();
         UserInfo userInfo = userService.getByName(username);
-        Preconditions.checkNotNull(userInfo, "User not exist with name=" + username);
-        Preconditions.checkTrue(userInfo.getDueDate().after(new Date()), "User " + username + " was expired");
+        Preconditions.expectNotNull(userInfo, "User not exist with name=" + username);
+        Preconditions.expectTrue(userInfo.getDueDate().after(new Date()), "User " + username + " was expired");
         userInfo.setRoles(Sets.newHashSet(userInfo.getAccountType() == 0
                 ? UserTypeEnum.ADMIN.name()
                 : UserTypeEnum.OPERATOR.name()));

@@ -31,7 +31,7 @@
         <result column="uuid" jdbcType="VARCHAR" property="uuid"/>
         <result column="data_node_name" jdbcType="VARCHAR" property="dataNodeName"/>
         <result column="inlong_cluster_name" jdbcType="VARCHAR" property="inlongClusterName"/>
-        <result column="inlong_cluster_node_tag" jdbcType="VARCHAR" property="inlongClusterNodeTag"/>
+        <result column="inlong_cluster_node_group" jdbcType="VARCHAR" property="inlongClusterNodeGroup"/>
         <result column="serialization_type" jdbcType="VARCHAR" property="serializationType"/>
         <result column="snapshot" jdbcType="LONGVARCHAR" property="snapshot"/>
         <result column="report_time" jdbcType="TIMESTAMP" property="reportTime"/>
@@ -47,7 +47,7 @@
     </resultMap>
     <sql id="Base_Column_List">
         id, inlong_group_id, inlong_stream_id, source_type, source_name, template_id, agent_ip, uuid,
-        data_node_name, inlong_cluster_name, inlong_cluster_node_tag, serialization_type, snapshot, report_time,
+        data_node_name, inlong_cluster_name, inlong_cluster_node_group, serialization_type, snapshot, report_time,
         ext_params, version, status, previous_status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
 
@@ -55,14 +55,14 @@
             parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         insert into stream_source (inlong_group_id, inlong_stream_id,
                                    source_type, source_name, template_id, agent_ip,
-                                   uuid, data_node_name, inlong_cluster_name, inlong_cluster_node_tag,
+                                   uuid, data_node_name, inlong_cluster_name, inlong_cluster_node_group,
                                    serialization_type, snapshot,
                                    report_time, ext_params, status,
                                    previous_status, creator, modifier)
         values (#{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{templateId,jdbcType=INTEGER},
                 #{agentIp,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR}, #{dataNodeName,jdbcType=VARCHAR},
-                #{inlongClusterName,jdbcType=VARCHAR}, #{inlongClusterNodeTag,jdbcType=VARCHAR},
+                #{inlongClusterName,jdbcType=VARCHAR}, #{inlongClusterNodeGroup,jdbcType=VARCHAR},
                 #{serializationType,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
                 #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
                 #{previousStatus,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
@@ -337,8 +337,8 @@
             <if test="inlongClusterName != null">
                 inlong_cluster_name = #{inlongClusterName,jdbcType=INTEGER},
             </if>
-            <if test="inlongClusterNodeTag != null">
-                inlong_cluster_node_tag = #{inlongClusterNodeTag,jdbcType=INTEGER},
+            <if test="inlongClusterNodeGroup != null">
+                inlong_cluster_node_group = #{inlongClusterNodeGroup,jdbcType=INTEGER},
             </if>
             <if test="serializationType != null">
                 serialization_type = #{serializationType,jdbcType=VARCHAR},
@@ -382,7 +382,7 @@
             uuid                = #{uuid,jdbcType=VARCHAR},
             data_node_name      = #{dataNodeName,jdbcType=VARCHAR},
             inlong_cluster_name = #{inlongClusterName,jdbcType=VARCHAR},
-            inlong_cluster_node_tag = #{inlongClusterNodeTag,jdbcType=VARCHAR},
+            inlong_cluster_node_group = #{inlongClusterNodeGroup,jdbcType=VARCHAR},
             serialization_type  = #{serializationType,jdbcType=VARCHAR},
             snapshot            = #{snapshot,jdbcType=LONGVARCHAR},
             report_time         = #{reportTime,jdbcType=TIMESTAMP},

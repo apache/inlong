@@ -30,5 +30,6 @@ public class DataNodeType {
     public static final String ELASTICSEARCH = "ELASTICSEARCH";
     public static final String MYSQL = "MYSQL";
     public static final String STARROCKS = "STARROCKS";
+    public static final String REDIS = "REDIS";
 
 }

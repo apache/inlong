@@ -33,6 +33,8 @@ public class Config {
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
     private String localIP = "";
     private String dockerId = "";
+    private static final int CGROUP_FILE_LENGTH = 50;
+    private static final int DOCKERID_LENGTH = 10;
 
     public void init() {
         initIP();
@@ -78,15 +80,12 @@ public class Config {
         }
         try (BufferedReader in = new BufferedReader(new FileReader("/proc/self/cgroup"))) {
             String dockerID = in.readLine();
-            if (dockerID != null) {
-                int n = dockerID.indexOf("/");
-                String dockerID2 = dockerID.substring(n + 1, (dockerID.length() - n - 1));
-                n = dockerID2.indexOf("/");
-                if (dockerID2.length() > 12) {
-                    dockerId = dockerID2.substring(n + 1, 12);
-                }
+            if (dockerID == null || dockerID.length() < CGROUP_FILE_LENGTH) {
                 in.close();
+                return;
             }
+            dockerId = dockerID.substring(dockerID.length() - DOCKERID_LENGTH);
+            in.close();
         } catch (Exception ex) {
             logger.error(ex.toString());
         }

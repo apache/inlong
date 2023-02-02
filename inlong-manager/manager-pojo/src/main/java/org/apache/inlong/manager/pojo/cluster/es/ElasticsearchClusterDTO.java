@@ -51,7 +51,8 @@ public class ElasticsearchClusterDTO {
         try {
             return JsonUtils.parseObject(extParams, ElasticsearchClusterDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    String.format("parse extParams of Elasticsearch Cluster failure: %s", e.getMessage()));
         }
     }
 }

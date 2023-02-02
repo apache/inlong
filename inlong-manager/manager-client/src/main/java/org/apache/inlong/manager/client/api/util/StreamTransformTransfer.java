@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -45,11 +46,12 @@ public class StreamTransformTransfer {
     public static TransformRequest createTransformRequest(StreamTransform streamTransform,
             InlongStreamInfo streamInfo) {
         TransformRequest transformRequest = new TransformRequest();
-        Preconditions.checkNotEmpty(streamTransform.getTransformName(), "TransformName should not be null");
+        Preconditions.expectNotBlank(streamTransform.getTransformName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "TransformName should not be null");
         transformRequest.setTransformName(streamTransform.getTransformName());
         transformRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         transformRequest.setInlongStreamId(streamInfo.getInlongStreamId());
-        Preconditions.checkNotNull(streamTransform.getTransformDefinition(), "TransformDefinition should not be null");
+        Preconditions.expectNotNull(streamTransform.getTransformDefinition(), "TransformDefinition should not be null");
         TransformDefinition transformDefinition = streamTransform.getTransformDefinition();
         transformRequest.setTransformType(transformDefinition.getTransformType().getType());
         transformRequest.setVersion(InlongConstants.INITIAL_VERSION);

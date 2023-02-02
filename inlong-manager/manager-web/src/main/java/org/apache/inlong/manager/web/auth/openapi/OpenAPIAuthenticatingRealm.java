@@ -55,8 +55,8 @@ public class OpenAPIAuthenticatingRealm extends AuthenticatingRealm {
         SecretToken upToken = (SecretToken) authenticationToken;
         String username = upToken.getSecretId();
         UserInfo userInfo = userService.getByName(username);
-        Preconditions.checkNotNull(userInfo, "User doesn't exist");
-        Preconditions.checkTrue(userInfo.getDueDate().after(new Date()), "user has expired");
+        Preconditions.expectNotNull(userInfo, "User doesn't exist");
+        Preconditions.expectTrue(userInfo.getDueDate().after(new Date()), "user has expired");
         try {
             String secretKey = new String(
                     AESUtils.decryptAsString(userInfo.getSecretKey(), userInfo.getEncryptVersion()));

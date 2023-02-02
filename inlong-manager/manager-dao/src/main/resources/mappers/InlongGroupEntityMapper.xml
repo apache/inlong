@@ -166,7 +166,8 @@
     </select>
     <select id="selectBriefList" parameterType="org.apache.inlong.manager.pojo.group.InlongGroupPageRequest"
             resultType="org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo">
-        select id, inlong_group_id, name, mq_type, mq_resource, inlong_cluster_tag, modify_time
+        select id, inlong_group_id, name, mq_type, mq_resource, inlong_cluster_tag, ext_params,
+               in_charges, status, creator, modifier, create_time, modify_time
         from inlong_group
         <where>
             is_deleted = 0
@@ -189,10 +190,8 @@
                 </foreach>
             </if>
         </where>
-        order by modify_time desc
-        limit 100
     </select>
-    <select id="selectByTopicRequest" resultType="org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest">
+    <select id="selectByTopicRequest" resultType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         select
         <include refid="Base_Column_List"/>
         from inlong_group

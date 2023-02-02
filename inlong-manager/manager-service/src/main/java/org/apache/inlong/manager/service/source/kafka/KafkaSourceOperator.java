@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.source.kafka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
@@ -76,7 +77,8 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
             KafkaSourceDTO dto = KafkaSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("serialize extParams of Kafka SourceDTO failure: %s", e.getMessage()));
         }
     }
 
@@ -118,7 +120,10 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
                 if (!Objects.equals(streamId, sourceInfo.getInlongStreamId())) {
                     continue;
                 }
-                kafkaSource.setSerializationType(sourceInfo.getSerializationType());
+                if (StringUtils.isEmpty(kafkaSource.getSerializationType()) && StringUtils.isNotEmpty(
+                        sourceInfo.getSerializationType())) {
+                    kafkaSource.setSerializationType(sourceInfo.getSerializationType());
+                }
             }
 
             kafkaSource.setWrapWithInlongMsg(streamInfo.getWrapWithInlongMsg());

@@ -100,12 +100,6 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public Integer save(TransformRequest request, UserInfo opInfo) {
-        // check request and parameters
-        this.checkRequestParams(request);
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         // Check if it can be added
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getInlongGroupId());
         if (groupEntity == null) {
@@ -113,7 +107,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -122,7 +116,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         // check inlong group status
         GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(status)) {
-            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
+            throw new BusinessException(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS,
+                    String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
         }
         // Check if the record to be added exists
         List<StreamTransformEntity> transformEntities =
@@ -145,8 +140,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
 
     @Override
     public List<TransformResponse> listTransform(String groupId, String streamId) {
-        LOGGER.info("begin to fetch transform info by groupId={} and streamId={} ", groupId, streamId);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        LOGGER.debug("begin to fetch transform info by groupId={} and streamId={} ", groupId, streamId);
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
@@ -177,14 +172,6 @@ public class StreamTransformServiceImpl implements StreamTransformService {
 
     @Override
     public List<TransformResponse> listTransform(String groupId, String streamId, UserInfo opInfo) {
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
-        // check group id
-        if (StringUtils.isBlank(groupId)) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        }
         // Check if it can be added
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         if (groupEntity == null) {
@@ -192,7 +179,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -231,28 +218,21 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public Boolean update(TransformRequest request, String operator) {
         LOGGER.info("begin to update transform info: {}", request);
-        this.checkParams(request);
+        // check request and parameters
+        this.chkUnmodifiableParams(request);
         // Check whether the transform can be modified
         String groupId = request.getInlongGroupId();
         groupCheckService.checkGroupStatus(groupId, operator);
-        Preconditions.checkNotNull(request.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
-        StreamTransformEntity exist = transformMapper.selectById(request.getId());
-        if (exist == null) {
-            LOGGER.error("transform not found by id={}", request.getId());
-            throw new BusinessException(ErrorCodeEnum.TRANSFORM_NOT_FOUND);
-        }
-        String msg = String.format("transform has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
-                request.getInlongGroupId(), request.getInlongStreamId(),
-                request.getTransformName(), request.getVersion());
-        if (!exist.getVersion().equals(request.getVersion())) {
-            LOGGER.error(msg);
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-        }
+        Preconditions.expectNotNull(request.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
         StreamTransformEntity transformEntity = CommonBeanUtils.copyProperties(request,
                 StreamTransformEntity::new);
         transformEntity.setModifier(operator);
         int rowCount = transformMapper.updateByIdSelective(transformEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            String msg =
+                    String.format("transform has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
+                            request.getInlongGroupId(), request.getInlongStreamId(),
+                            request.getTransformName(), request.getVersion());
             LOGGER.error(msg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
@@ -264,15 +244,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public Boolean update(TransformRequest request, UserInfo opInfo) {
         // check request and parameters
-        this.checkRequestParams(request);
-        // check record id
-        if (request.getId() == null) {
-            throw new BusinessException(ErrorCodeEnum.ID_IS_EMPTY);
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
+        this.chkUnmodifiableParams(request);
         // Check if it can be added
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getInlongGroupId());
         if (groupEntity == null) {
@@ -280,7 +252,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -289,17 +261,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         // check inlong group status
         GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(status)) {
-            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
-        }
-        StreamTransformEntity exist = transformMapper.selectById(request.getId());
-        if (exist == null) {
-            throw new BusinessException(ErrorCodeEnum.TRANSFORM_NOT_FOUND);
-        }
-        if (!exist.getVersion().equals(request.getVersion())) {
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
-                    String.format("transform has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
-                            request.getInlongGroupId(), request.getInlongStreamId(),
-                            request.getTransformName(), request.getVersion()));
+            throw new BusinessException(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS,
+                    String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
         }
         // update record
         StreamTransformEntity transformEntity =
@@ -320,12 +283,12 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public Boolean delete(DeleteTransformRequest request, String operator) {
         LOGGER.info("begin to logic delete transform for request={}", request);
-        Preconditions.checkNotNull(request, "delete request of transform cannot be null");
+        Preconditions.expectNotNull(request, "delete request of transform cannot be null");
 
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         groupCheckService.checkGroupStatus(groupId, operator);
 
         List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId,
@@ -352,22 +315,6 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public Boolean delete(DeleteTransformRequest request, UserInfo opInfo) {
-        // check request parameter
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.REQUEST_IS_EMPTY);
-        }
-        // check group id
-        if (StringUtils.isBlank(request.getInlongGroupId())) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        }
-        // check stream id
-        if (StringUtils.isBlank(request.getInlongStreamId())) {
-            throw new BusinessException(ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         // Check if it can be added
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getInlongGroupId());
         if (groupEntity == null) {
@@ -375,7 +322,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -384,7 +331,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         // check inlong group status
         GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(status)) {
-            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
+            throw new BusinessException(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS,
+                    String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
         }
         // query records
         List<StreamTransformEntity> entityList =
@@ -410,38 +358,55 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     }
 
     private void checkParams(TransformRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String groupId = request.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         String transformType = request.getTransformType();
-        Preconditions.checkNotNull(transformType, ErrorCodeEnum.TRANSFORM_TYPE_IS_NULL.getMessage());
+        Preconditions.expectNotBlank(transformType, ErrorCodeEnum.TRANSFORM_TYPE_IS_NULL);
         String transformName = request.getTransformName();
-        Preconditions.checkNotNull(transformName, ErrorCodeEnum.TRANSFORM_NAME_IS_NULL.getMessage());
+        Preconditions.expectNotBlank(transformName, ErrorCodeEnum.TRANSFORM_NAME_IS_NULL);
     }
 
-    private void checkRequestParams(TransformRequest request) {
-        // check request parameter
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.REQUEST_IS_EMPTY);
+    private void chkUnmodifiableParams(TransformRequest request) {
+        StreamTransformEntity entity = transformMapper.selectById(request.getId());
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.TRANSFORM_NOT_FOUND);
         }
+        // check record version
+        Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
+                ErrorCodeEnum.CONFIG_EXPIRED,
+                String.format("record has expired with record version=%d, request version=%d",
+                        entity.getVersion(), request.getVersion()));
         // check group id
-        if (StringUtils.isBlank(request.getInlongGroupId())) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        if (StringUtils.isNotBlank(request.getInlongGroupId())
+                && !entity.getInlongGroupId().equals(request.getInlongGroupId())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "inlongGroupId not allowed modify");
         }
         // check stream id
-        if (StringUtils.isBlank(request.getInlongStreamId())) {
-            throw new BusinessException(ErrorCodeEnum.STREAM_ID_IS_EMPTY);
+        if (StringUtils.isNotBlank(request.getInlongStreamId())
+                && !entity.getInlongStreamId().equals(request.getInlongStreamId())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "inlongStreamId not allowed modify");
         }
         // check transform type
-        if (StringUtils.isBlank(request.getTransformType())) {
-            throw new BusinessException(ErrorCodeEnum.TRANSFORM_TYPE_IS_NULL);
+        if (StringUtils.isNotBlank(request.getTransformType())
+                && !entity.getTransformType().equals(request.getTransformType())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "transformType not allowed modify");
         }
         // check transform name
-        if (StringUtils.isBlank(request.getTransformName())) {
-            throw new BusinessException(ErrorCodeEnum.TRANSFORM_NAME_IS_NULL);
+        if (StringUtils.isNotBlank(request.getTransformName())
+                && !entity.getTransformName().equals(request.getTransformName())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "transformName not allowed modify");
         }
+        request.setInlongGroupId(entity.getInlongGroupId());
+        request.setInlongStreamId(entity.getInlongStreamId());
+        request.setTransformType(entity.getTransformType());
+        request.setTransformName(entity.getTransformName());
     }
 
     private void updateFieldOpt(StreamTransformEntity entity, List<StreamField> fieldList) {
@@ -455,11 +420,11 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         // Then batch save the source fields
         this.saveFieldOpt(entity, fieldList);
 
-        LOGGER.info("success to update transform field");
+        LOGGER.debug("success to update transform field");
     }
 
     private void saveFieldOpt(StreamTransformEntity entity, List<StreamField> fieldList) {
-        LOGGER.info("begin to save transform field={}", fieldList);
+        LOGGER.debug("begin to save transform field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
         }
@@ -488,6 +453,6 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         }
 
         transformFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save transform fields");
+        LOGGER.debug("success to save transform fields");
     }
 }

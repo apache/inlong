@@ -22,6 +22,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.Scheduler;
+import com.google.common.base.Joiner;
+import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -41,20 +44,26 @@ import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
     private static final String AUTO_REGISTERED = "auto registered";
+    private static final Gson GSON = new Gson();
 
     @Getter
     private Cache<ComponentHeartbeat, HeartbeatMsg> heartbeatCache;
@@ -66,6 +75,21 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
+
+    /**
+     * Check whether the configuration information carried in the heartbeat has been updated
+     *
+     * @param oldHB last heartbeat msg
+     * @param newHB current heartbeat msg
+     * @return
+     */
+    private static boolean heartbeatConfigModified(HeartbeatMsg oldHB, HeartbeatMsg newHB) {
+        // todo: only support dynamic renew node tag. Support clusterName/port/ip... later
+        if (oldHB == null) {
+            return true;
+        }
+        return oldHB.getNodeGroup() != newHB.getNodeGroup() || oldHB.getLoad() != newHB.getLoad();
+    }
 
     @PostConstruct
     public void init() {
@@ -211,19 +235,30 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setPort(Integer.valueOf(heartbeat.getPort()));
         clusterNode.setProtocolType(heartbeat.getProtocolType());
         clusterNode.setNodeLoad(heartbeat.getLoad());
-        clusterNode.setNodeTags(heartbeat.getNodeTag());
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
         clusterNode.setCreator(creator);
         clusterNode.setModifier(creator);
         clusterNode.setDescription(AUTO_REGISTERED);
+        insertOrUpdateNodeGroup(clusterNode, heartbeat);
         return clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
     }
 
     private int updateClusterNode(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
         clusterNode.setNodeLoad(heartbeat.getLoad());
-        clusterNode.setNodeTags(heartbeat.getNodeTag());
+        insertOrUpdateNodeGroup(clusterNode, heartbeat);
         return clusterNodeMapper.updateById(clusterNode);
+    }
+
+    private void insertOrUpdateNodeGroup(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
+        Set<String> groupSet = StringUtils.isBlank(heartbeat.getNodeGroup()) ? new HashSet<>()
+                : Arrays.stream(heartbeat.getNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
+        AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
+        if (StringUtils.isNotBlank(clusterNode.getExtParams())) {
+            agentClusterNodeDTO = AgentClusterNodeDTO.getFromJson(clusterNode.getExtParams());
+            agentClusterNodeDTO.setAgentGroup(Joiner.on(InlongConstants.COMMA).join(groupSet));
+        }
+        clusterNode.setExtParams(GSON.toJson(agentClusterNodeDTO));
     }
 
     private int deleteClusterNode(InlongClusterNodeEntity clusterNode) {
@@ -235,9 +270,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         final String type = componentHeartbeat.getComponentType();
         final String clusterTag = componentHeartbeat.getClusterTag();
         final String extTag = componentHeartbeat.getExtTag();
-        Preconditions.checkNotNull(clusterTag, "cluster tag cannot be null");
-        Preconditions.checkNotNull(type, "cluster type cannot be null");
-        Preconditions.checkNotNull(clusterName, "cluster name cannot be null");
+        Preconditions.expectNotBlank(clusterTag, ErrorCodeEnum.INVALID_PARAMETER, "cluster tag cannot be null");
+        Preconditions.expectNotBlank(type, ErrorCodeEnum.INVALID_PARAMETER, "cluster type cannot be null");
+        Preconditions.expectNotBlank(clusterName, ErrorCodeEnum.INVALID_PARAMETER, "cluster name cannot be null");
         InlongClusterEntity entity = clusterMapper.selectByNameAndType(clusterName, type);
         if (null != entity) {
             // TODO Load balancing needs to be considered.
@@ -267,20 +302,5 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
         log.debug("success to fetch cluster for heartbeat: {}", componentHeartbeat);
         return clusterInfo;
-    }
-
-    /**
-     * Check whether the configuration information carried in the heartbeat has been updated
-     *
-     * @param oldHB last heartbeat msg
-     * @param newHB current heartbeat msg
-     * @return
-     */
-    private static boolean heartbeatConfigModified(HeartbeatMsg oldHB, HeartbeatMsg newHB) {
-        // todo: only support dynamic renew node tag. Support clusterName/port/ip... later
-        if (oldHB == null) {
-            return true;
-        }
-        return oldHB.getNodeTag() != newHB.getNodeTag() || oldHB.getLoad() != newHB.getLoad();
     }
 }

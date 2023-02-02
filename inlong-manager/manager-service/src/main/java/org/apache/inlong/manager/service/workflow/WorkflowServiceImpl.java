@@ -22,6 +22,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -180,12 +181,12 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     @Override
     public PageResult<WorkflowExecuteLog> listTaskLogs(TaskLogRequest query) {
-        Preconditions.checkNotNull(query, "task execute log query params cannot be null");
+        Preconditions.expectNotNull(query, "task execute log query params cannot be null");
 
         String groupId = query.getInlongGroupId();
         List<String> processNameList = query.getProcessNames();
-        Preconditions.checkNotEmpty(groupId, "inlong group id cannot be null");
-        Preconditions.checkNotEmpty(processNameList, "process name list cannot be null");
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotEmpty(processNameList, "process name list cannot be null");
 
         ProcessRequest processRequest = new ProcessRequest();
         processRequest.setInlongGroupId(groupId);

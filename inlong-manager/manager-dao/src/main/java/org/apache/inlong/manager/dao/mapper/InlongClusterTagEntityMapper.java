@@ -35,7 +35,7 @@ public interface InlongClusterTagEntityMapper {
 
     List<InlongClusterTagEntity> selectByCondition(ClusterTagPageRequest request);
 
-    int updateById(InlongClusterTagEntity record);
+    int updateByIdSelective(InlongClusterTagEntity record);
 
     int deleteByPrimaryKey(Integer id);
 

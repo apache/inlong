@@ -82,8 +82,8 @@ public class UserServiceImpl implements UserService {
         String username = request.getName();
         UserEntity userExists = userMapper.selectByName(username);
         String password = request.getPassword();
-        Preconditions.checkNull(userExists, "username [" + username + "] already exists");
-        Preconditions.checkTrue(StringUtils.isNotBlank(password), "password cannot be blank");
+        Preconditions.expectNull(userExists, "username [" + username + "] already exists");
+        Preconditions.expectTrue(StringUtils.isNotBlank(password), "password cannot be blank");
 
         UserEntity entity = new UserEntity();
         entity.setName(username);
@@ -109,19 +109,19 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(errMsg);
         }
 
-        Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");
+        Preconditions.expectTrue(userMapper.insert(entity) > 0, "Create user failed");
         LOGGER.debug("success to create user info={}", request);
         return entity.getId();
     }
 
     @Override
     public UserInfo getById(Integer userId, String currentUser) {
-        Preconditions.checkNotNull(userId, "User id cannot be null");
+        Preconditions.expectNotNull(userId, "User id cannot be null");
         UserEntity entity = userMapper.selectById(userId);
-        Preconditions.checkNotNull(entity, "User not exists with id " + userId);
+        Preconditions.expectNotNull(entity, "User not exists with id " + userId);
 
         UserEntity curUser = userMapper.selectByName(currentUser);
-        Preconditions.checkTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
+        Preconditions.expectTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
                 || Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to get other users' info");
 
@@ -154,7 +154,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfo getByName(String name) {
-        Preconditions.checkNotNull(name, "User name cannot be null");
+        Preconditions.expectNotBlank(name, ErrorCodeEnum.INVALID_PARAMETER, "User name cannot be null");
         UserEntity entity = userMapper.selectByName(name);
         if (entity == null) {
             return null;
@@ -183,46 +183,47 @@ public class UserServiceImpl implements UserService {
     @Override
     public Integer update(UserRequest request, String currentUser) {
         LOGGER.debug("begin to update user info={} by {}", request, currentUser);
-        Preconditions.checkNotNull(request, "Userinfo cannot be null");
-        Preconditions.checkNotNull(request.getId(), "User id cannot be null");
+        Preconditions.expectNotNull(request, "Userinfo cannot be null");
+        Preconditions.expectNotNull(request.getId(), "User id cannot be null");
 
         // Whether the current user is a manager
         UserEntity currentUserEntity = userMapper.selectByName(currentUser);
         String updateName = request.getName();
         boolean isAdmin = Objects.equals(UserTypeEnum.ADMIN.getCode(), currentUserEntity.getAccountType());
-        Preconditions.checkTrue(isAdmin || Objects.equals(updateName, currentUser),
+        Preconditions.expectTrue(isAdmin || Objects.equals(updateName, currentUser),
                 "You are not a manager and do not have permission to update other users");
 
         // manager cannot set himself as an ordinary
         boolean managerToOrdinary = isAdmin
                 && Objects.equals(UserTypeEnum.OPERATOR.getCode(), request.getAccountType())
                 && Objects.equals(currentUser, updateName);
-        Preconditions.checkFalse(managerToOrdinary, "You are a manager and you cannot change to an ordinary user");
+        Preconditions.expectFalse(managerToOrdinary, "You are a manager and you cannot change to an ordinary user");
 
         // target username must not exist
         UserEntity updateUserEntity = userMapper.selectById(request.getId());
-        Preconditions.checkNotNull(updateUserEntity, "User not exists with id=" + request.getId());
-        String errMsg = String.format("user has already updated with username=%s, curVersion=%s",
-                updateName, request.getVersion());
+        Preconditions.expectNotNull(updateUserEntity, "User not exists with id=" + request.getId());
+        String errMsg = String.format("user has already updated with username=%s, reqVersion=%s, storedVersion=%s",
+                updateName, request.getVersion(), updateUserEntity.getVersion());
         if (!Objects.equals(updateUserEntity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
 
         UserEntity targetUserEntity = userMapper.selectByName(updateName);
-        Preconditions.checkTrue(Objects.isNull(targetUserEntity)
-                || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
+        Preconditions.expectTrue(
+                Objects.isNull(targetUserEntity)
+                        || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
                 "Username [" + updateName + "] already exists");
 
         // if the current user is not a manager, needs to check the password before updating user info
         if (!isAdmin) {
             String oldPassword = request.getPassword();
             String oldPasswordHash = SHAUtils.encrypt(oldPassword);
-            Preconditions.checkTrue(oldPasswordHash.equals(updateUserEntity.getPassword()), "Old password is wrong");
+            Preconditions.expectTrue(oldPasswordHash.equals(updateUserEntity.getPassword()), "Old password is wrong");
             Integer validDays = DateUtils.getValidDays(updateUserEntity.getCreateTime(), updateUserEntity.getDueDate());
-            Preconditions.checkTrue((request.getValidDays() <= validDays),
+            Preconditions.expectTrue((request.getValidDays() <= validDays),
                     "Ordinary users are not allowed to add valid days");
-            Preconditions.checkTrue(Objects.equals(updateUserEntity.getAccountType(), request.getAccountType()),
+            Preconditions.expectTrue(Objects.equals(updateUserEntity.getAccountType(), request.getAccountType()),
                     "Ordinary users are not allowed to update account type");
         }
 
@@ -247,14 +248,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Boolean delete(Integer userId, String currentUser) {
-        Preconditions.checkNotNull(userId, "User id should not be empty");
+        Preconditions.expectNotNull(userId, "User id should not be empty");
 
         // Whether the current user is an administrator
         UserEntity curUser = userMapper.selectByName(currentUser);
         UserEntity entity = userMapper.selectById(userId);
-        Preconditions.checkTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        Preconditions.expectTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user is not a manager and does not have permission to delete users");
-        Preconditions.checkTrue(!Objects.equals(entity.getName(), currentUser),
+        Preconditions.expectTrue(!Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to delete himself");
         userMapper.deleteById(userId);
 

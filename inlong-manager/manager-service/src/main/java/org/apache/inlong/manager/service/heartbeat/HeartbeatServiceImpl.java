@@ -93,10 +93,10 @@ public class HeartbeatServiceImpl implements HeartbeatService {
 
     @Override
     public ComponentHeartbeatResponse getComponentHeartbeat(HeartbeatQueryRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
-        Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
+        Preconditions.expectNotBlank(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
+        Preconditions.expectNotBlank(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY);
 
         ComponentTypeEnum componentType = ComponentTypeEnum.forType(component);
         switch (componentType) {
@@ -114,11 +114,11 @@ public class HeartbeatServiceImpl implements HeartbeatService {
 
     @Override
     public GroupHeartbeatResponse getGroupHeartbeat(HeartbeatQueryRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
-        Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
+        Preconditions.expectNotBlank(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY);
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
 
         ComponentTypeEnum componentType = ComponentTypeEnum.forType(component);
         switch (componentType) {
@@ -137,12 +137,12 @@ public class HeartbeatServiceImpl implements HeartbeatService {
 
     @Override
     public StreamHeartbeatResponse getStreamHeartbeat(HeartbeatQueryRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
-        Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
+        Preconditions.expectNotBlank(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY);
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(request.getInlongStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
         ComponentTypeEnum componentType = ComponentTypeEnum.forType(component);
         switch (componentType) {
@@ -161,9 +161,9 @@ public class HeartbeatServiceImpl implements HeartbeatService {
 
     @Override
     public PageResult<ComponentHeartbeatResponse> listComponentHeartbeat(HeartbeatPageRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
-        Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
+        Preconditions.expectNotBlank(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
 
         ComponentTypeEnum componentType = ComponentTypeEnum.forType(component);
         switch (componentType) {
@@ -180,9 +180,9 @@ public class HeartbeatServiceImpl implements HeartbeatService {
 
     @Override
     public PageResult<GroupHeartbeatResponse> listGroupHeartbeat(HeartbeatPageRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
-        Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
+        Preconditions.expectNotBlank(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
 
         ComponentTypeEnum componentType = ComponentTypeEnum.forType(component);
         switch (componentType) {
@@ -199,10 +199,10 @@ public class HeartbeatServiceImpl implements HeartbeatService {
 
     @Override
     public PageResult<StreamHeartbeatResponse> listStreamHeartbeat(HeartbeatPageRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String component = request.getComponent();
-        Preconditions.checkNotEmpty(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(component, ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
 
         ComponentTypeEnum componentType = ComponentTypeEnum.forType(component);
         switch (componentType) {

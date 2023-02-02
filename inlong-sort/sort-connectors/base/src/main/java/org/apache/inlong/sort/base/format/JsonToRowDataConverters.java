@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.base.format;
 
+import java.sql.Timestamp;
+import java.time.ZoneId;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -49,7 +51,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalQueries;
@@ -253,7 +254,7 @@ public class JsonToRowDataConverters implements Serializable {
         LocalTime localTime = parsedTimestamp.query(TemporalQueries.localTime());
         LocalDate localDate = parsedTimestamp.query(TemporalQueries.localDate());
 
-        return TimestampData.fromLocalDateTime(LocalDateTime.of(localDate, localTime));
+        return TimestampData.fromEpochMillis(Timestamp.valueOf(LocalDateTime.of(localDate, localTime)).getTime());
     }
 
     private TimestampData convertToTimestampWithLocalZone(JsonNode jsonNode) {
@@ -277,7 +278,7 @@ public class JsonToRowDataConverters implements Serializable {
         LocalDate localDate = parsedTimestampWithLocalZone.query(TemporalQueries.localDate());
 
         return TimestampData.fromInstant(
-                LocalDateTime.of(localDate, localTime).toInstant(ZoneOffset.UTC));
+                LocalDateTime.of(localDate, localTime).atZone(ZoneId.systemDefault()).toInstant());
     }
 
     private StringData convertToString(JsonNode jsonNode) {

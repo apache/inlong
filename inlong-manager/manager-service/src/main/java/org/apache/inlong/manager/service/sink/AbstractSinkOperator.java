@@ -26,7 +26,6 @@ import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
@@ -116,13 +115,14 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     @Override
     public void updateOpt(SinkRequest request, SinkStatus nextStatus, String operator) {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-
-        String errMsg = String.format("sink has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
-                request.getInlongGroupId(), request.getInlongStreamId(), request.getSinkName(), request.getVersion());
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
+        }
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            LOGGER.error(errMsg);
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format("sink has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
+                            request.getInlongGroupId(), request.getInlongStreamId(), request.getSinkName(),
+                            request.getVersion()));
         }
         CommonBeanUtils.copyProperties(request, entity, true);
         setTargetEntity(request, entity);
@@ -133,8 +133,10 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         entity.setModifier(operator);
         int rowCount = sinkMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error(errMsg);
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format("sink has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
+                            request.getInlongGroupId(), request.getInlongStreamId(), request.getSinkName(),
+                            request.getVersion()));
         }
 
         boolean onlyAdd = SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
@@ -171,7 +173,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     @Override
     public void saveFieldOpt(SinkRequest request) {
         List<SinkField> fieldList = request.getSinkFieldList();
-        LOGGER.info("begin to save sink fields={}", fieldList);
+        LOGGER.debug("begin to save sink fields={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
         }
@@ -197,7 +199,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         }
 
         sinkFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save sink fields");
+        LOGGER.debug("success to save sink fields");
     }
 
     @Override
@@ -208,9 +210,10 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         entity.setModifier(operator);
         int rowCount = sinkMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
-                    entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(), entity.getVersion());
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format("sink has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
+                            entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(),
+                            entity.getVersion()));
         }
         sinkFieldMapper.logicDeleteAll(entity.getId());
     }

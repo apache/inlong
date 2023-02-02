@@ -27,6 +27,11 @@ export const allDefaultConsumes: MetaExportWithBackendList<ConsumeMetaType> = [
     LoadEntity: () => import('../common/ConsumeInfo').then(r => ({ default: r.ConsumeInfo })),
   },
   {
+    label: 'Kafka',
+    value: 'KAFKA',
+    LoadEntity: () => import('./Kafka'),
+  },
+  {
     label: 'Pulsar',
     value: 'PULSAR',
     LoadEntity: () => import('./Pulsar'),

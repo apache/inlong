@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.workflow.core.impl;
 
 import com.google.common.collect.Maps;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionRepository;
@@ -49,7 +50,7 @@ public class MemoryProcessDefinitionRepository implements ProcessDefinitionRepos
 
     @Override
     public void add(WorkflowProcess process) {
-        Preconditions.checkNotEmpty(process.getName(), "process name cannot be null");
+        Preconditions.expectNotBlank(process.getName(), ErrorCodeEnum.INVALID_PARAMETER, "process name cannot be null");
         if (PROCESS_BY_NAME_MAP.containsKey(process.getName())) {
             throw new WorkflowException("process already exist with the same name " + process.getName());
         }

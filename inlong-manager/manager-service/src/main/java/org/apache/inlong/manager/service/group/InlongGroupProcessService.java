@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.group;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
@@ -233,21 +232,12 @@ public class InlongGroupProcessService {
      * Delete InlongGroup logically and delete related resource in a synchronous way.
      */
     public Boolean deleteProcess(String groupId, UserInfo opInfo) {
-        // check groupId parameter
-        if (StringUtils.isBlank(groupId)) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "inlong group id in request cannot be blank");
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             return true;
         }
         // only the person in charges can delete
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -278,7 +268,7 @@ public class InlongGroupProcessService {
         LOGGER.info("begin to reset group status by operator={} for request={}", operator, request);
         final String groupId = request.getInlongGroupId();
         InlongGroupInfo groupInfo = groupService.get(groupId);
-        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
 
         GroupStatus status = GroupStatus.forCode(groupInfo.getStatus());
         boolean result;

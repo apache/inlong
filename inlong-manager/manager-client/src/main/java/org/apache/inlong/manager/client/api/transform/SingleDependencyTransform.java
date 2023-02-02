@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.transform;
 
 import io.swagger.annotations.ApiModel;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
@@ -39,11 +40,11 @@ public class SingleDependencyTransform extends StreamTransform {
      *         if pre streamNode is streamTransform, preNode is transformName
      */
     public SingleDependencyTransform(String transformName, TransformDefinition transformDefinition, String preNode) {
-        Preconditions.checkNotNull(transformDefinition, "transform definition cannot be null");
+        Preconditions.expectNotNull(transformDefinition, "transform definition cannot be null");
         this.transformDefinition = transformDefinition;
-        Preconditions.checkNotNull(transformName, "transform name cannot be null");
+        Preconditions.expectNotBlank(transformName, ErrorCodeEnum.INVALID_PARAMETER, "transform name cannot be null");
         this.transformName = transformName;
-        Preconditions.checkNotNull(preNode, "pre nodes cannot be null");
+        Preconditions.expectNotBlank(preNode, ErrorCodeEnum.INVALID_PARAMETER, "pre nodes cannot be null");
         this.addPre(preNode);
     }
 

@@ -37,7 +37,7 @@ public class ConsumeApproveForm extends BaseTaskForm {
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotEmpty(consumerGroup, "Consumer group cannot be empty");
+        Preconditions.expectNotEmpty(consumerGroup, "Consumer group cannot be empty");
     }
 
     @Override

@@ -34,6 +34,7 @@ import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamTransformClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -167,7 +168,8 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public InlongStream addSource(StreamSource source) {
-        Preconditions.checkNotNull(source.getSourceName(), "source name cannot be null");
+        Preconditions.expectNotBlank(source.getSourceName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "source name cannot be null");
         String sourceName = source.getSourceName();
         if (streamSources.get(sourceName) != null) {
             throw new IllegalArgumentException(String.format("source name=%s has already be set", source));
@@ -178,7 +180,8 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public InlongStream addSink(StreamSink streamSink) {
-        Preconditions.checkNotNull(streamSink.getSinkName(), "sink name cannot be null");
+        Preconditions.expectNotBlank(streamSink.getSinkName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "sink name cannot be null");
         String sinkName = streamSink.getSinkName();
         if (streamSinks.get(sinkName) != null) {
             throw new IllegalArgumentException(String.format("sink name=%s has already be set", streamSink));
@@ -189,7 +192,8 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public InlongStream addTransform(StreamTransform transform) {
-        Preconditions.checkNotNull(transform.getTransformName(), "transform name should not be empty");
+        Preconditions.expectNotBlank(transform.getTransformName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "transform name should not be empty");
         String transformName = transform.getTransformName();
         if (streamTransforms.get(transformName) != null) {
             throw new IllegalArgumentException(String.format("transform name=%s has already be set", transform));
@@ -218,21 +222,24 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public InlongStream updateSource(StreamSource source) {
-        Preconditions.checkNotNull(source.getSourceName(), "source name cannot be null");
+        Preconditions.expectNotBlank(source.getSourceName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "source name cannot be null");
         streamSources.put(source.getSourceName(), source);
         return this;
     }
 
     @Override
     public InlongStream updateSink(StreamSink streamSink) {
-        Preconditions.checkNotNull(streamSink.getSinkName(), "sink name cannot be null");
+        Preconditions.expectNotBlank(streamSink.getSinkName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "sink name cannot be null");
         streamSinks.put(streamSink.getSinkName(), streamSink);
         return this;
     }
 
     @Override
     public InlongStream updateTransform(StreamTransform transform) {
-        Preconditions.checkNotNull(transform.getTransformName(), "transform name cannot be null");
+        Preconditions.expectNotBlank(transform.getTransformName(), ErrorCodeEnum.INVALID_PARAMETER,
+                "transform name cannot be null");
         streamTransforms.put(transform.getTransformName(), transform);
         return this;
     }
@@ -446,7 +453,7 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public StreamSink getSinkInfoById(Integer sinkId) {
-        Preconditions.checkNotNull(sinkId, "sinkId cannot be null");
+        Preconditions.expectNotNull(sinkId, "sinkId cannot be null");
         // Get from cache firstly
         return this.streamSinks.values()
                 .stream()
@@ -458,13 +465,13 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public StreamSink getSinkInfoByName(String sinkName) {
-        Preconditions.checkNotEmpty(sinkName, "sinkName cannot be empty");
+        Preconditions.expectNotBlank(sinkName, ErrorCodeEnum.INVALID_PARAMETER, "sinkName cannot be empty");
         return this.streamSinks.get(sinkName);
     }
 
     @Override
     public StreamSource getSourceById(int sourceId) {
-        Preconditions.checkNotNull(sourceId, "sinkId cannot be null");
+        Preconditions.expectNotNull(sourceId, "sinkId cannot be null");
         return this.streamSources.values()
                 .stream()
                 .filter(streamSource -> streamSource.getId().equals(sourceId))

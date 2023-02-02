@@ -61,7 +61,8 @@ public class StarRocksColumnInfo extends SinkField {
         try {
             return JsonUtils.parseObject(extParams, StarRocksColumnInfo.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("Failed to parse extParams for StarRocks ColumnInfo: %s", e.getMessage()));
         }
     }
 }

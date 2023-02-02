@@ -188,7 +188,8 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecord, MySqlSpli
         if (isDataChangeRecord(sourceRecord)) {
             TableId tableId = getTableId(sourceRecord);
             BinlogOffset position = getBinlogPosition(sourceRecord);
-            if (hasEnterPureBinlogPhase(tableId, position)) {
+            // source record has no primary need no comparing for binlog position
+            if (hasEnterPureBinlogPhase(tableId, position) || sourceRecord.key() == null) {
                 return true;
             }
             // only the table who captured snapshot splits need to filter

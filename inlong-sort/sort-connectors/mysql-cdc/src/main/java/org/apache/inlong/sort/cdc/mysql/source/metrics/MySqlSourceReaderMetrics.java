@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
@@ -136,5 +137,14 @@ public class MySqlSourceReaderMetrics {
 
     public SourceTableMetricData getSourceMetricData() {
         return sourceTableMetricData;
+    }
+
+    /**
+     * output read phase metric
+     *
+     * @param readPhase the readPhase of record
+     */
+    public void outputReadPhaseMetrics(ReadPhase readPhase) {
+        sourceTableMetricData.outputReadPhaseMetrics(readPhase);
     }
 }

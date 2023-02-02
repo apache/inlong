@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongConsumeApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -52,9 +53,11 @@ public class InlongConsumeClient {
      * @return inlong consume id after saving
      */
     public Integer save(InlongConsumeRequest request) {
-        Preconditions.checkNotNull(request, "inlong consume request cannot be null");
-        Preconditions.checkNotNull(request.getTopic(), "inlong consume topic cannot be null");
-        Preconditions.checkNotNull(request.getConsumerGroup(), "inlong consume topic cannot be null");
+        Preconditions.expectNotNull(request, "inlong consume request cannot be null");
+        Preconditions.expectNotBlank(request.getTopic(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong consume topic cannot be null");
+        Preconditions.expectNotBlank(request.getConsumerGroup(), ErrorCodeEnum.INVALID_PARAMETER,
+                "inlong consume topic cannot be null");
 
         Response<Integer> response = ClientUtils.executeHttpCall(inlongConsumeApi.save(request));
         ClientUtils.assertRespSuccess(response);
@@ -68,7 +71,7 @@ public class InlongConsumeClient {
      * @return detail of inlong group
      */
     public InlongConsumeInfo get(Integer id) {
-        Preconditions.checkNotNull(id, "inlong consume id cannot be null");
+        Preconditions.expectNotNull(id, "inlong consume id cannot be null");
 
         Response<InlongConsumeInfo> response = ClientUtils.executeHttpCall(inlongConsumeApi.get(id));
         ClientUtils.assertRespSuccess(response);
@@ -110,7 +113,7 @@ public class InlongConsumeClient {
      * @return inlong consume id after saving
      */
     public Integer update(InlongConsumeRequest request) {
-        Preconditions.checkNotNull(request, "inlong consume request cannot be null");
+        Preconditions.expectNotNull(request, "inlong consume request cannot be null");
 
         Response<Integer> response = ClientUtils.executeHttpCall(inlongConsumeApi.update(request));
         ClientUtils.assertRespSuccess(response);
@@ -124,7 +127,7 @@ public class InlongConsumeClient {
      * @return whether succeed
      */
     public Boolean delete(Integer id) {
-        Preconditions.checkNotNull(id, "inlong consume id cannot be null");
+        Preconditions.expectNotNull(id, "inlong consume id cannot be null");
 
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongConsumeApi.delete(id));
         ClientUtils.assertRespSuccess(response);
@@ -138,7 +141,7 @@ public class InlongConsumeClient {
      * @return workflow result
      */
     public WorkflowResult startProcess(Integer id) {
-        Preconditions.checkNotNull(id, "inlong consume id cannot be null");
+        Preconditions.expectNotNull(id, "inlong consume id cannot be null");
 
         Response<WorkflowResult> response = ClientUtils.executeHttpCall(inlongConsumeApi.startProcess(id));
         ClientUtils.assertRespSuccess(response);

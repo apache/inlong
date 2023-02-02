@@ -107,7 +107,7 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
             actionContext = context.getActionContext();
         }
         WorkflowTaskEntity taskEntity = actionContext.getTaskEntity();
-        Preconditions.checkTrue(ALLOW_COMPLETE_STATE.contains(TaskStatus.valueOf(taskEntity.getStatus())),
+        Preconditions.expectTrue(ALLOW_COMPLETE_STATE.contains(TaskStatus.valueOf(taskEntity.getStatus())),
                 String.format("task status %s not allowed to complete", taskEntity.getStatus()));
 
         try {
@@ -172,7 +172,7 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
         taskEntity.setStartTime(new Date());
 
         taskEntityMapper.insert(taskEntity);
-        Preconditions.checkNotNull(taskEntity.getId(), "task saved failed");
+        Preconditions.expectNotNull(taskEntity.getId(), "task saved failed");
         return taskEntity;
     }
 

@@ -62,7 +62,8 @@ public class PostgreSQLSourceOperator extends AbstractSourceOperator {
             PostgreSQLSourceDTO dto = PostgreSQLSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("serialize extParams of PostgreSQL SourceDTO failure: %s", e.getMessage()));
         }
     }
 

@@ -55,7 +55,7 @@ public class PluginService implements InitializingBean {
 
     @Setter
     @Getter
-    @Value("${plugin.location?:}")
+    @Value("${plugin.location:plugins}")
     private String pluginLocation;
 
     @Getter

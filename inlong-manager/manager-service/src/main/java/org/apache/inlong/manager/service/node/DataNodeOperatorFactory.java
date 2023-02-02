@@ -41,6 +41,7 @@ public class DataNodeOperatorFactory {
                 .filter(inst -> inst.accept(type))
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(
+                        ErrorCodeEnum.DATA_NODE_TYPE_NOT_SUPPORTED,
                         String.format(ErrorCodeEnum.DATA_NODE_TYPE_NOT_SUPPORTED.getMessage(), type)));
     }
 }

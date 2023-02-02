@@ -59,7 +59,8 @@ public class AutoPushSourceDTO {
         try {
             return JsonUtils.parseObject(extParams, AutoPushSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("parse extParams of AutoPushSource failure: %s", e.getMessage()));
         }
     }
 }

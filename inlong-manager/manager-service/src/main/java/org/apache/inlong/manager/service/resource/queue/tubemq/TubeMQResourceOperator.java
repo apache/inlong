@@ -21,6 +21,7 @@ import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -54,8 +55,8 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
 
     @Override
     public void createQueueForGroup(InlongGroupInfo groupInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
-        Preconditions.checkNotNull(operator, "operator cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotBlank(operator, ErrorCodeEnum.INVALID_PARAMETER, "operator cannot be null");
 
         String groupId = groupInfo.getInlongGroupId();
         log.info("begin to create pulsar resource for groupId={}", groupId);

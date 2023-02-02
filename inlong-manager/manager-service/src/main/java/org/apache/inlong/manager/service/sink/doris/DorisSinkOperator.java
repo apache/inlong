@@ -20,11 +20,12 @@ package org.apache.inlong.manager.service.sink.doris;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -61,15 +62,17 @@ public class DorisSinkOperator extends AbstractSinkOperator {
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
-        Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
-                ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        if (!this.getSinkType().equals(request.getSinkType())) {
+            throw new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
+                    ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        }
         DorisSinkRequest sinkRequest = (DorisSinkRequest) request;
         try {
             DorisSinkDTO dto = DorisSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            LOGGER.error("parsing json string to sink info failed", e);
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
+                    String.format("serialize extParams of Doris SinkDTO failure: %s", e.getMessage()));
         }
     }
 
@@ -81,7 +84,10 @@ public class DorisSinkOperator extends AbstractSinkOperator {
         }
 
         DorisSinkDTO dto = DorisSinkDTO.getFromJson(entity.getExtParams());
-        Preconditions.checkNotEmpty(dto.getFeNodes(), "doris fe nodes is empty");
+        if (StringUtils.isBlank(dto.getFeNodes())) {
+            throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
+                    "doris fe nodes is blank");
+        }
         CommonBeanUtils.copyProperties(entity, sink, true);
         CommonBeanUtils.copyProperties(dto, sink, true);
         List<SinkField> sinkFields = super.getSinkFields(entity.getId());

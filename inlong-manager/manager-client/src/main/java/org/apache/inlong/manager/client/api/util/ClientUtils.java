@@ -68,8 +68,8 @@ public class ClientUtils {
         int port = configuration.getBindPort();
 
         Authentication authentication = configuration.getAuthentication();
-        Preconditions.checkNotNull(authentication, "inlong should be authenticated");
-        Preconditions.checkTrue(authentication instanceof DefaultAuthentication,
+        Preconditions.expectNotNull(authentication, "inlong should be authenticated");
+        Preconditions.expectTrue(authentication instanceof DefaultAuthentication,
                 "inlong only support default authentication");
         DefaultAuthentication defaultAuthentication = (DefaultAuthentication) authentication;
 
@@ -101,7 +101,7 @@ public class ClientUtils {
         String url = request.url().encodedPath();
         try {
             retrofit2.Response<T> response = call.execute();
-            Preconditions.checkTrue(response.isSuccessful(),
+            Preconditions.expectTrue(response.isSuccessful(),
                     String.format(REQUEST_FAILED_MSG, url, response.message()));
             return response.body();
         } catch (IOException e) {
@@ -116,6 +116,6 @@ public class ClientUtils {
      * @param response response
      */
     public static void assertRespSuccess(Response<?> response) {
-        Preconditions.checkTrue(response.isSuccess(), String.format(REQUEST_FAILED_MSG, response.getErrMsg(), null));
+        Preconditions.expectTrue(response.isSuccess(), String.format(REQUEST_FAILED_MSG, response.getErrMsg(), null));
     }
 }

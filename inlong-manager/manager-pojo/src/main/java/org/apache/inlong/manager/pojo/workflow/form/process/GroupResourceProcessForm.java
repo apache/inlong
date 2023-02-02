@@ -46,7 +46,7 @@ public class GroupResourceProcessForm extends BaseProcessForm {
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(groupInfo, "InlongGroupInfo cannot be null");
+        Preconditions.expectNotNull(groupInfo, "InlongGroupInfo cannot be null");
     }
 
     @Override

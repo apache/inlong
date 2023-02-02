@@ -85,7 +85,7 @@ public class FilterFunctionUtils {
      */
     public static List<FilterFunction> createFilterFunctions(FilterDefinition filterDefinition, String transformName) {
         FilterMode filterMode = filterDefinition.getFilterMode();
-        Preconditions.checkFalse(filterMode == FilterMode.SCRIPT,
+        Preconditions.expectFalse(filterMode == FilterMode.SCRIPT,
                 String.format("Unsupported filterMode=%s for inlong", filterMode));
         List<FilterRule> filterRules = filterDefinition.getFilterRules();
         List<FilterFunction> filterFunctions = filterRules.stream()

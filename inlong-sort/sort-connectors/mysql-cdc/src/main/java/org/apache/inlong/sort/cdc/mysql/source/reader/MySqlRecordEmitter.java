@@ -28,6 +28,7 @@ import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.flink.api.connector.source.SourceOutput;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
 import org.apache.flink.util.Collector;
+import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
 import org.apache.inlong.sort.cdc.mysql.source.metrics.MySqlSourceReaderMetrics;
@@ -171,6 +172,10 @@ public final class MySqlRecordEmitter<T>
 
     private void updateStartingOffsetForSplit(MySqlSplitState splitState, SourceRecord element) {
         if (splitState.isBinlogSplitState()) {
+            // record the time metric to enter the incremental phase
+            if (sourceReaderMetrics != null) {
+                sourceReaderMetrics.outputReadPhaseMetrics(ReadPhase.INCREASE_PHASE);
+            }
             BinlogOffset position = getBinlogPosition(element);
             splitState.asBinlogSplitState().setStartingOffset(position);
         }

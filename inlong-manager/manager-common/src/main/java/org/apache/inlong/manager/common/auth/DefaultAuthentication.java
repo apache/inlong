@@ -56,7 +56,7 @@ public class DefaultAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        Preconditions.checkNotEmpty(properties, "Properties cannot be empty when init DefaultAuthentication");
+        Preconditions.expectNotEmpty(properties, "Properties cannot be empty when init DefaultAuthentication");
         this.username = properties.get(USERNAME);
         this.password = properties.get(PASSWORD);
     }

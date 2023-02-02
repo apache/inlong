@@ -25,7 +25,6 @@ import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.pojo.node.starrocks.StarRocksDataNodeInfo;
@@ -69,15 +68,17 @@ public class StarRocksSinkOperator extends AbstractSinkOperator {
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
-        Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
-                ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        if (!this.getSinkType().equals(request.getSinkType())) {
+            throw new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
+                    ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        }
         StarRocksSinkRequest sinkRequest = (StarRocksSinkRequest) request;
         try {
             StarRocksSinkDTO dto = StarRocksSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            LOGGER.error("parsing json string to sink info failed", e);
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
+                    String.format("serialize extParams of StarRocks SinkDTO failure: %s", e.getMessage()));
         }
     }
 
@@ -90,16 +91,24 @@ public class StarRocksSinkOperator extends AbstractSinkOperator {
 
         StarRocksSinkDTO dto = StarRocksSinkDTO.getFromJson(entity.getExtParams());
         if (StringUtils.isBlank(dto.getJdbcUrl())) {
-            Preconditions.checkNotEmpty(entity.getDataNodeName(),
-                    "starRocks jdbc url unspecified and data node is empty");
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                        "starRocks jdbc url unspecified and data node is blank");
+            }
             StarRocksDataNodeInfo dataNodeInfo = (StarRocksDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     entity.getDataNodeName(), entity.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
             dto.setJdbcUrl(dataNodeInfo.getUrl());
             dto.setPassword(dataNodeInfo.getToken());
         }
-        Preconditions.checkNotEmpty(dto.getLoadUrl(), "StarRocks load url is empty");
-        Preconditions.checkNotEmpty(dto.getJdbcUrl(), "StarRocks jdbc url is empty");
+        if (StringUtils.isBlank(dto.getLoadUrl())) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    "StarRocks load url is blank");
+        }
+        if (StringUtils.isBlank(dto.getJdbcUrl())) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    "StarRocks jdbc url is blank");
+        }
         CommonBeanUtils.copyProperties(entity, sink, true);
         CommonBeanUtils.copyProperties(dto, sink, true);
         List<SinkField> sinkFields = super.getSinkFields(entity.getId());
@@ -110,7 +119,7 @@ public class StarRocksSinkOperator extends AbstractSinkOperator {
     @Override
     public void saveFieldOpt(SinkRequest request) {
         List<SinkField> fieldList = request.getSinkFieldList();
-        LOGGER.info("begin to save es sink fields={}", fieldList);
+        LOGGER.debug("begin to save es sink fields={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
         }
@@ -131,8 +140,8 @@ public class StarRocksSinkOperator extends AbstractSinkOperator {
                 StarRocksColumnInfo dto = StarRocksColumnInfo.getFromRequest(fieldInfo);
                 fieldEntity.setExtParams(objectMapper.writeValueAsString(dto));
             } catch (Exception e) {
-                LOGGER.error("parsing json string to sink field info failed", e);
-                throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
+                throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
+                        String.format("serialize extParams of StarRocks ColumnInfo failure: %s", e.getMessage()));
             }
             fieldEntity.setInlongGroupId(groupId);
             fieldEntity.setInlongStreamId(streamId);
@@ -143,7 +152,7 @@ public class StarRocksSinkOperator extends AbstractSinkOperator {
         }
 
         sinkFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save starRock sink fields");
+        LOGGER.debug("success to save starRock sink fields");
     }
 
     @Override

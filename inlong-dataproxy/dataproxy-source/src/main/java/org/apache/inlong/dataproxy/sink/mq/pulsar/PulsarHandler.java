@@ -82,11 +82,12 @@ public class PulsarHandler implements MessageQueueHandler {
     public static final String KEY_CONNECTIONSPERBROKER = "connectionsPerBroker";
 
     private CacheClusterConfig config;
+    private String clusterName;
     private MessageQueueZoneSinkContext sinkContext;
 
     private String tenant;
     private String namespace;
-    private EventHandler handler;
+    private ThreadLocal<EventHandler> handlerLocal = new ThreadLocal<>();
 
     /**
      * pulsar client
@@ -94,7 +95,7 @@ public class PulsarHandler implements MessageQueueHandler {
     private PulsarClient client;
     private ProducerBuilder<byte[]> baseBuilder;
 
-    private Map<String, Producer<byte[]>> producerMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Producer<byte[]>> producerMap = new ConcurrentHashMap<>();
 
     /**
      * init
@@ -103,10 +104,10 @@ public class PulsarHandler implements MessageQueueHandler {
      */
     public void init(CacheClusterConfig config, MessageQueueZoneSinkContext sinkContext) {
         this.config = config;
+        this.clusterName = config.getClusterName();
         this.sinkContext = sinkContext;
         this.tenant = config.getParams().get(KEY_TENANT);
         this.namespace = config.getParams().get(KEY_NAMESPACE);
-        this.handler = this.sinkContext.createEventHandler();
     }
 
     /**
@@ -190,26 +191,24 @@ public class PulsarHandler implements MessageQueueHandler {
             // idConfig
             IdTopicConfig idConfig = sinkContext.getIdTopicHolder().getIdConfig(event.getUid());
             if (idConfig == null) {
-                sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+                sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 return false;
             }
             String baseTopic = idConfig.getTopicName();
             if (baseTopic == null) {
-                sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+                sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 return false;
             }
             // topic
             String producerTopic = this.getProducerTopic(baseTopic, idConfig);
             if (producerTopic == null) {
-                sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+                sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.fail();
                 return false;
             }
-            // metric
-            sinkContext.addSendMetric(event, producerTopic);
             // get producer
             Producer<byte[]> producer = this.producerMap.get(producerTopic);
             if (producer == null) {
@@ -234,7 +233,7 @@ public class PulsarHandler implements MessageQueueHandler {
             }
             // create producer failed
             if (producer == null) {
-                sinkContext.processSendFail(event, producerTopic, 0);
+                sinkContext.processSendFail(event, clusterName, producerTopic, 0);
                 return false;
             }
             // send
@@ -248,7 +247,7 @@ public class PulsarHandler implements MessageQueueHandler {
             return true;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            sinkContext.processSendFail(event, event.getUid(), 0);
+            sinkContext.processSendFail(event, clusterName, event.getUid(), 0);
             return false;
         }
     }
@@ -301,11 +300,18 @@ public class PulsarHandler implements MessageQueueHandler {
      */
     private void sendProfileV1(BatchPackProfile event, IdTopicConfig idConfig, Producer<byte[]> producer,
             String producerTopic) throws Exception {
+        EventHandler handler = handlerLocal.get();
+        if (handler == null) {
+            handler = this.sinkContext.createEventHandler();
+            handlerLocal.set(handler);
+        }
         // headers
-        Map<String, String> headers = this.handler.parseHeader(idConfig, event, sinkContext.getNodeId(),
+        Map<String, String> headers = handler.parseHeader(idConfig, event, sinkContext.getNodeId(),
                 sinkContext.getCompressType());
         // compress
-        byte[] bodyBytes = this.handler.parseBody(idConfig, event, sinkContext.getCompressType());
+        byte[] bodyBytes = handler.parseBody(idConfig, event, sinkContext.getCompressType());
+        // metric
+        sinkContext.addSendMetric(event, clusterName, producerTopic, bodyBytes.length);
         // sendAsync
         long sendTime = System.currentTimeMillis();
         CompletableFuture<MessageId> future = producer.newMessage().properties(headers)
@@ -315,9 +321,9 @@ public class PulsarHandler implements MessageQueueHandler {
             if (ex != null) {
                 LOG.error("Send fail:{}", ex.getMessage());
                 LOG.error(ex.getMessage(), ex);
-                sinkContext.processSendFail(event, producerTopic, sendTime);
+                sinkContext.processSendFail(event, clusterName, producerTopic, sendTime);
             } else {
-                sinkContext.addSendResultMetric(event, producerTopic, true, sendTime);
+                sinkContext.addSendResultMetric(event, clusterName, producerTopic, true, sendTime);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
             }
@@ -337,6 +343,8 @@ public class PulsarHandler implements MessageQueueHandler {
         }
         // body
         byte[] bodyBytes = event.getSimpleProfile().getBody();
+        // metric
+        sinkContext.addSendMetric(event, clusterName, producerTopic, bodyBytes.length);
         // sendAsync
         long sendTime = System.currentTimeMillis();
         CompletableFuture<MessageId> future = producer.newMessage().properties(headers)
@@ -346,9 +354,9 @@ public class PulsarHandler implements MessageQueueHandler {
             if (ex != null) {
                 LOG.error("Send fail:{}", ex.getMessage());
                 LOG.error(ex.getMessage(), ex);
-                sinkContext.processSendFail(event, producerTopic, sendTime);
+                sinkContext.processSendFail(event, clusterName, producerTopic, sendTime);
             } else {
-                sinkContext.addSendResultMetric(event, producerTopic, true, sendTime);
+                sinkContext.addSendResultMetric(event, clusterName, producerTopic, true, sendTime);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
             }
@@ -364,6 +372,8 @@ public class PulsarHandler implements MessageQueueHandler {
         Map<String, String> headers = event.getOrderProfile().getHeaders();
         // compress
         byte[] bodyBytes = event.getOrderProfile().getBody();
+        // metric
+        sinkContext.addSendMetric(event, clusterName, producerTopic, bodyBytes.length);
         // sendAsync
         long sendTime = System.currentTimeMillis();
         CompletableFuture<MessageId> future = producer.newMessage().properties(headers)
@@ -373,9 +383,9 @@ public class PulsarHandler implements MessageQueueHandler {
             if (ex != null) {
                 LOG.error("Send fail:{}", ex.getMessage());
                 LOG.error(ex.getMessage(), ex);
-                sinkContext.processSendFail(event, producerTopic, sendTime);
+                sinkContext.processSendFail(event, clusterName, producerTopic, sendTime);
             } else {
-                sinkContext.addSendResultMetric(event, producerTopic, true, sendTime);
+                sinkContext.addSendResultMetric(event, clusterName, producerTopic, true, sendTime);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
                 event.ackOrder();

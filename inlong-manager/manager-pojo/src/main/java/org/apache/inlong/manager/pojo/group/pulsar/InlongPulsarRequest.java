@@ -36,6 +36,13 @@ import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 @JsonTypeDefine(value = MQType.PULSAR)
 public class InlongPulsarRequest extends InlongGroupRequest {
 
+    /**
+     * TODO Add default value InlongConstants.DEFAULT_PULSAR_TENANT when you remove the 'tenant'
+     *  from {@link org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest}
+     */
+    @ApiModelProperty(value = "Pulsar tenant")
+    private String tenant;
+
     @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
             + "serial: single partition, low throughput, and orderly messages")
     private String queueModule = "PARALLEL";

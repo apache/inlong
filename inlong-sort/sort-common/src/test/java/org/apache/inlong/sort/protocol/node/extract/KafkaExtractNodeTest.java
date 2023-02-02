@@ -26,6 +26,7 @@ import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
+import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.junit.Assert;
 import org.junit.Test;
@@ -111,5 +112,26 @@ public class KafkaExtractNodeTest extends SerializeBaseTest<KafkaExtractNode> {
             }
         }
         Assert.assertTrue(formatEquals);
+    }
+
+    @Test
+    public void testInLongFormat() {
+        List<FieldInfo> fields = Arrays.asList(
+                new FieldInfo("name", new StringFormatInfo()),
+                new FieldInfo("age", new IntFormatInfo()));
+
+        KafkaExtractNode kafkaNode = getTestObject();
+        InLongMsgFormat inLongMsgFormat = new InLongMsgFormat(new CsvFormat(), false);
+        kafkaNode.setFormat(inLongMsgFormat);
+
+        Map<String, String> options = kafkaNode.tableOptions();
+        assertEquals("inlong-msg", options.get("format"));
+        assertEquals("csv", options.get("inlong-msg.inner.format"));
+        assertEquals("true", options.get("inlong-msg.csv.ignore-parse-errors"));
+
+        kafkaNode.setFormat(new CsvFormat());
+        Map<String, String> csvOptions = kafkaNode.tableOptions();
+        assertEquals("csv", csvOptions.get("format"));
+        assertEquals("true", csvOptions.get("csv.ignore-parse-errors"));
     }
 }

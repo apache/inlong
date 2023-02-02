@@ -38,7 +38,7 @@ public abstract class AbstractNextableElementProcessor<T extends NextableElement
     public List<Element> next(T element, WorkflowContext context) {
         WorkflowContext.ActionContext actionContext = context.getActionContext();
         List<Element> nextElements = element.getNextList(actionContext.getAction(), context);
-        Preconditions.checkNotEmpty(nextElements, "not found next element ");
+        Preconditions.expectNotEmpty(nextElements, "not found next element ");
 
         Element endEvent = nextElements
                 .stream()

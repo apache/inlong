@@ -69,8 +69,6 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
             HiveDataNodeDTO dto = HiveDataNodeDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, hiveDataNodeInfo);
         }
-
-        LOGGER.debug("success to get hive data node from entity");
         return hiveDataNodeInfo;
     }
 
@@ -81,10 +79,9 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
         try {
             HiveDataNodeDTO dto = HiveDataNodeDTO.getFromRequest(hiveDataNodeRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            LOGGER.debug("success to set entity for hive data node");
         } catch (Exception e) {
-            LOGGER.error("failed to set entity for hive data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("Failed to build extParams for Hive node: %s", e.getMessage()));
         }
     }
 
@@ -93,7 +90,7 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
         String url = request.getUrl();
         String username = request.getUsername();
         String password = request.getToken();
-        Preconditions.checkNotNull(url, "connection url cannot be empty");
+        Preconditions.expectNotBlank(url, ErrorCodeEnum.INVALID_PARAMETER, "connection url cannot be empty");
         try (Connection ignored = HiveJdbcUtils.getConnection(url, username, password)) {
             LOGGER.info("hive connection not null - connection success for url={}, username={}, password={}", url,
                     username, password);

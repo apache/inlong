@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.listener.consume.apply;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -35,6 +35,7 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumeProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
@@ -87,11 +88,10 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
         String mqType = entity.getMqType();
         if (MQType.TUBEMQ.equals(mqType)) {
             this.createTubeConsumerGroup(entity, context.getOperator());
-            return ListenerResult.success("Create TubeMQ consumer group successful");
         } else if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             this.createPulsarSubscription(entity);
         } else if (MQType.KAFKA.equals(mqType)) {
-            // TODO add Kafka
+            // Kafka consumers do not need to register in advance
         } else {
             throw new WorkflowListenerException("Unsupported MQ type " + mqType);
         }
@@ -122,25 +122,26 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
     private void createPulsarSubscription(InlongConsumeEntity entity) {
         String groupId = entity.getInlongGroupId();
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        Preconditions.checkNotNull(groupEntity, "inlong group not found for groupId=" + groupId);
+        Preconditions.expectNotNull(groupEntity, "inlong group not found for groupId=" + groupId);
         String mqResource = groupEntity.getMqResource();
-        Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
+        Preconditions.expectNotBlank(mqResource, ErrorCodeEnum.INVALID_PARAMETER,
+                "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
         ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.PULSAR);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            PulsarTopicInfo topicMessage = new PulsarTopicInfo();
-            String tenant = pulsarCluster.getTenant();
-            if (StringUtils.isEmpty(tenant)) {
-                tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+            InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
+            String tenant = pulsarDTO.getTenant();
+            if (StringUtils.isBlank(tenant)) {
+                tenant = pulsarCluster.getTenant();
             }
+            PulsarTopicInfo topicMessage = new PulsarTopicInfo();
             topicMessage.setTenant(tenant);
             topicMessage.setNamespace(mqResource);
 
-            String consumerGroup = entity.getConsumerGroup();
             List<String> topics = Arrays.asList(entity.getTopic().split(InlongConstants.COMMA));
-            this.createPulsarSubscription(pulsarAdmin, consumerGroup, topicMessage, topics);
+            this.createPulsarSubscription(pulsarAdmin, entity.getConsumerGroup(), topicMessage, topics);
         } catch (Exception e) {
             log.error("create pulsar topic failed", e);
             throw new WorkflowListenerException("failed to create pulsar topic for groupId=" + groupId + ", reason: "
@@ -164,9 +165,10 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
     private void createTubeConsumerGroup(InlongConsumeEntity entity, String operator) {
         String groupId = entity.getInlongGroupId();
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        Preconditions.checkNotNull(groupEntity, "inlong group not found for groupId=" + groupId);
+        Preconditions.expectNotNull(groupEntity, "inlong group not found for groupId=" + groupId);
         String mqResource = groupEntity.getMqResource();
-        Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
+        Preconditions.expectNotBlank(mqResource, ErrorCodeEnum.INVALID_PARAMETER,
+                "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
         TubeClusterInfo clusterInfo = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);

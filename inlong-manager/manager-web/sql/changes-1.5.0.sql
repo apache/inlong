@@ -32,9 +32,5 @@ ALTER TABLE `inlong_cluster_node`
     ADD COLUMN `node_load` int(11) DEFAULT '-1' COMMENT 'Current load value of the node';
 
 
-ALTER TABLE `inlong_cluster_node`
-    ADD COLUMN `node_tags` varchar(512) DEFAULT NULL COMMENT 'Cluster node tag, separated by commas, only uniquely identified by parent_id and ip';
-
-
 ALTER TABLE `stream_source`
-    ADD COLUMN `inlong_cluster_node_tag` varchar(512) DEFAULT NULL COMMENT 'Cluster node tag';
+    ADD COLUMN `inlong_cluster_node_group` varchar(512) DEFAULT NULL COMMENT 'Cluster node group';

@@ -133,7 +133,6 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_node`
     `port`          int(6)       NULL COMMENT 'Cluster port',
     `protocol_type` varchar(20)           DEFAULT NULL COMMENT 'DATAPROXY Source listen protocol type, such as: TCP/HTTP',
     `node_load`     int(11)               DEFAULT '-1' COMMENT 'Current load value of the node',
-    `node_tags`     varchar(512)          DEFAULT NULL COMMENT 'Cluster node tag, separated by commas, only uniquely identified by parent_id and ip',
     `ext_params`    mediumtext            DEFAULT NULL COMMENT 'Another fields will be saved as JSON string',
     `description`   varchar(256)          DEFAULT '' COMMENT 'Description of cluster node',
     `status`        int(4)                DEFAULT '0' COMMENT 'Cluster status',
@@ -330,7 +329,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `uuid`                varchar(30)           DEFAULT NULL COMMENT 'Mac uuid of the agent running the task',
     `data_node_name`      varchar(128)          DEFAULT NULL COMMENT 'Node name, which links to data_node table',
     `inlong_cluster_name` varchar(128)          DEFAULT NULL COMMENT 'Cluster name of the agent running the task',
-    `inlong_cluster_node_tag` varchar(512)      DEFAULT NULL COMMENT 'Cluster node tag',
+    `inlong_cluster_node_group` varchar(512)      DEFAULT NULL COMMENT 'Cluster node group',
     `serialization_type`  varchar(20)           DEFAULT NULL COMMENT 'Serialization type, support: csv, json, canal, avro, etc',
     `snapshot`            mediumtext            DEFAULT NULL COMMENT 'Snapshot of this source task',
     `report_time`         timestamp    NULL COMMENT 'Snapshot time',
@@ -746,6 +745,47 @@ CREATE TABLE IF NOT EXISTS `stream_heartbeat`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_stream_heartbeat` (`component`, `instance`, `inlong_group_id`, `inlong_stream_id`)
 );
+-- ----------------------------
+-- Table structure for audit_base
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `audit_base`
+(
+    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `name`             varchar(256) NOT NULL COMMENT 'Audit base name',
+    `type`             varchar(20)  NOT NULL COMMENT 'Audit base item type, such as: AGENT, DATAPROXY, etc',
+    `is_sent`          int(4)       NOT NULL DEFAULT '0' COMMENT '0: received, 1: sent',
+    `audit_id`         varchar(11)  NOT NULL COMMENT 'Audit ID mapping of audit name',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_audit_base_type` (`type`, `is_sent`),
+    UNIQUE KEY `unique_audit_base_name` (`name`)
+);
+
+-- ----------------------------
+-- Insert audit_base item
+-- ----------------------------
+INSERT INTO `audit_base`(`name`, `type`, `is_sent`, `audit_id`)
+VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
+       ('audit_sdk_sent', 'SDK', 1, '2'),
+       ('audit_agent_collect', 'AGENT', 0, '3'),
+       ('audit_agent_sent', 'AGENT', 1, '4'),
+       ('audit_dataproxy_received', 'DATAPROXY', 0, '5'),
+       ('audit_dataproxy_sent', 'DATAPROXY', 1, '6'),
+       ('audit_sort_hive_input', 'HIVE', 0, '7'),
+       ('audit_sort_hive_output', 'HIVE', 1, '8'),
+       ('audit_sort_clickhouse_input', 'CLICKHOUSE', 0, '9'),
+       ('audit_sort_clickhouse_output', 'CLICKHOUSE', 1, '10'),
+       ('audit_sort_es_input', 'ELASTICSEARCH', 0, '11'),
+       ('audit_sort_es_output', 'ELASTICSEARCH', 1, '12'),
+       ('audit_sort_starrocks_input', 'STARROCKS', 0, '13'),
+       ('audit_sort_starrocks_output', 'STARROCKS', 1, '14'),
+       ('audit_sort_hudi_input', 'HUDI', 0, '15'),
+       ('audit_sort_hudi_output', 'HUDI', 1, '16'),
+       ('audit_sort_iceberg_input', 'ICEBERG', 0, '17'),
+       ('audit_sort_iceberg_output', 'ICEBERG', 1, '18'),
+       ('audit_sort_hbase_input', 'HBASE', 0, '19'),
+       ('audit_sort_hbase_output', 'HBASE', 1, '20'),
+       ('audit_sort_doris_input', 'DORIS', 0, '21'),
+       ('audit_sort_doris_output', 'DORIS', 1, '22');
 
 -- ----------------------------
 

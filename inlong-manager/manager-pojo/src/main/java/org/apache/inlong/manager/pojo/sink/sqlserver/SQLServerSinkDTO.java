@@ -85,7 +85,8 @@ public class SQLServerSinkDTO {
         try {
             return JsonUtils.parseObject(extParams, SQLServerSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of SQLServer SinkDTO failure: %s", e.getMessage()));
         }
     }
 

@@ -39,7 +39,8 @@ public class PostgreSQLSource extends AbstractSource {
     @Override
     public List<Reader> split(JobProfile conf) {
         super.init(conf);
-        Reader postgreSQLReader = new PostgreSQLReader();
+        PostgreSQLReader postgreSQLReader = new PostgreSQLReader();
+        postgreSQLReader.setReadSource(conf.getInstanceId());
         List<Reader> readerList = new ArrayList<>();
         readerList.add(postgreSQLReader);
         sourceMetric.sourceSuccessCount.incrementAndGet();

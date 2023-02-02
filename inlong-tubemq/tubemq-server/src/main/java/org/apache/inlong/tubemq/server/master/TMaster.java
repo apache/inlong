@@ -90,14 +90,13 @@ import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
 import org.apache.inlong.tubemq.corerpc.service.MasterService;
 import org.apache.inlong.tubemq.server.Stoppable;
 import org.apache.inlong.tubemq.server.common.aaaserver.CertificateMasterHandler;
-import org.apache.inlong.tubemq.server.common.aaaserver.CertifiedResult;
+import org.apache.inlong.tubemq.server.common.aaaserver.CertifiedInfo;
 import org.apache.inlong.tubemq.server.common.aaaserver.SimpleCertificateMasterHandler;
 import org.apache.inlong.tubemq.server.common.exception.HeartbeatException;
 import org.apache.inlong.tubemq.server.common.heartbeat.HeartbeatManager;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutInfo;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutListener;
 import org.apache.inlong.tubemq.server.common.paramcheck.PBParameterUtils;
-import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.apache.inlong.tubemq.server.common.utils.ClientSyncInfo;
 import org.apache.inlong.tubemq.server.common.utils.HasThread;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;
@@ -310,52 +309,45 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     public RegisterResponseM2P producerRegisterP2M(RegisterRequestP2M request,
             final String rmtAddress,
             boolean overtls) throws Exception {
-        final StringBuilder strBuffer = new StringBuilder(512);
+        ProcessResult result = new ProcessResult();
+        final StringBuilder strBuff = new StringBuilder(512);
         RegisterResponseM2P.Builder builder = RegisterResponseM2P.newBuilder();
         builder.setSuccess(false);
         builder.setBrokerCheckSum(-1);
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), true);
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), true, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String producerId = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkHostName(request.getHostName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String producerId = (String) result.getRetData();
+        if (!PBParameterUtils.checkHostName(request.getHostName(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String hostName = (String) paramCheckResult.checkData;
-        paramCheckResult =
-                PBParameterUtils.checkProducerTopicList(request.getTopicListList(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String hostName = (String) result.getRetData();
+        if (!PBParameterUtils.checkProducerTopicList(request.getTopicListList(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final Set<String> transTopicSet = (Set<String>) paramCheckResult.checkData;
+        final Set<String> transTopicSet = (Set<String>) result.getRetData();
         if (!request.hasBrokerCheckSum()) {
             builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
             builder.setErrMsg("Request miss necessary brokerCheckSum field!");
             return builder.build();
         }
-        checkNodeStatus(producerId, strBuffer);
-        CertifiedResult authorizeResult =
-                serverAuthHandler.validProducerAuthorizeInfo(
-                        certResult.userName, transTopicSet, rmtAddress);
-        if (!authorizeResult.result) {
-            builder.setErrCode(authorizeResult.errCode);
-            builder.setErrMsg(authorizeResult.errInfo);
+        checkNodeStatus(producerId, strBuff);
+        if (!serverAuthHandler.validProducerAuthorizeInfo(
+                certifiedInfo.getUserName(), transTopicSet, rmtAddress, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         final String clientJdkVer = request.hasJdkVersion() ? request.getJdkVersion() : "";
@@ -370,13 +362,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         builder.setBrokerCheckSum(brokerStaticInfo.getF0());
         builder.addAllBrokerInfos(brokerStaticInfo.getF1().values());
         builder.setAuthorizedInfo(genAuthorizedInfo(
-                certResult.authorizedToken, false).build());
+                certifiedInfo.getAuthorizedToken(), false).build());
         ClientMaster.ApprovedClientConfig.Builder clientConfigBuilder =
                 buildApprovedClientConfig(request.getAppdConfig(), prodTopicConfigTuple);
         if (clientConfigBuilder != null) {
             builder.setAppdConfig(clientConfigBuilder);
         }
-        logger.info(strBuffer.append("[Producer Register] ").append(producerId)
+        logger.info(strBuff.append("[Producer Register] ").append(producerId)
                 .append(", isOverTLS=").append(overtls)
                 .append(", clientJDKVer=").append(clientJdkVer).toString());
         builder.setSuccess(true);
@@ -398,53 +390,46 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     public HeartResponseM2P producerHeartbeatP2M(HeartRequestP2M request,
             final String rmtAddress,
             boolean overtls) throws Exception {
-        final StringBuilder strBuffer = new StringBuilder(512);
+        ProcessResult result = new ProcessResult();
+        final StringBuilder strBuff = new StringBuilder(512);
         HeartResponseM2P.Builder builder = HeartResponseM2P.newBuilder();
         builder.setSuccess(false);
         builder.setBrokerCheckSum(-1);
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), true);
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), true, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String producerId = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkHostName(request.getHostName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String producerId = (String) result.getRetData();
+        if (!PBParameterUtils.checkHostName(request.getHostName(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String hostName = (String) paramCheckResult.checkData;
-        paramCheckResult =
-                PBParameterUtils.checkProducerTopicList(request.getTopicListList(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String hostName = (String) result.getRetData();
+        if (!PBParameterUtils.checkProducerTopicList(request.getTopicListList(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final Set<String> transTopicSet = (Set<String>) paramCheckResult.checkData;
+        final Set<String> transTopicSet = (Set<String>) result.getRetData();
         if (!request.hasBrokerCheckSum()) {
             builder.setErrCode(TErrCodeConstants.BAD_REQUEST);
             builder.setErrMsg("Request miss necessary brokerCheckSum field!");
             return builder.build();
         }
         final long inBrokerCheckSum = request.getBrokerCheckSum();
-        checkNodeStatus(producerId, strBuffer);
-        CertifiedResult authorizeResult =
-                serverAuthHandler.validProducerAuthorizeInfo(
-                        certResult.userName, transTopicSet, rmtAddress);
-        if (!authorizeResult.result) {
-            builder.setErrCode(authorizeResult.errCode);
-            builder.setErrMsg(authorizeResult.errInfo);
+        checkNodeStatus(producerId, strBuff);
+        if (!serverAuthHandler.validProducerAuthorizeInfo(
+                certifiedInfo.getUserName(), transTopicSet, rmtAddress, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         try {
@@ -463,7 +448,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         final Tuple3<Long, Integer, Map<String, String>> prodTopicConfigTuple =
                 getTopicConfigureInfos(producerId, false);
         builder.setAuthorizedInfo(genAuthorizedInfo(
-                certResult.authorizedToken, false).build());
+                certifiedInfo.getAuthorizedToken(), false).build());
         builder.setBrokerCheckSum(brokerStaticInfo.getF0());
         if (brokerStaticInfo.getF0() != inBrokerCheckSum) {
             builder.addAllBrokerInfos(brokerStaticInfo.getF1().values());
@@ -477,7 +462,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setAppdConfig(clientConfigBuilder);
         }
         if (logger.isDebugEnabled()) {
-            logger.debug(strBuffer.append("[Push Producer's available topic count:]")
+            logger.debug(strBuff.append("[Push Producer's available topic count:]")
                     .append(producerId).append(TokenConstants.LOG_SEG_SEP)
                     .append((prodTopicConfigTuple.getF2() == null)
                             ? 0
@@ -503,28 +488,25 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     public CloseResponseM2P producerCloseClientP2M(CloseRequestP2M request,
             final String rmtAddress,
             boolean overtls) throws Exception {
-        final StringBuilder strBuffer = new StringBuilder(512);
+        ProcessResult result = new ProcessResult();
+        final StringBuilder strBuff = new StringBuilder(512);
         CloseResponseM2P.Builder builder = CloseResponseM2P.newBuilder();
         builder.setSuccess(false);
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), true);
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), true, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String producerId = (String) paramCheckResult.checkData;
-        checkNodeStatus(producerId, strBuffer);
+        final String producerId = (String) result.getRetData();
+        checkNodeStatus(producerId, strBuff);
         new ReleaseProducer().run(producerId, false);
         heartbeatManager.unRegProducerNode(producerId);
-        logger.info(strBuffer.append("[Producer Closed] ")
+        logger.info(strBuff.append("[Producer Closed] ")
                 .append(producerId).append(", isOverTLS=").append(overtls).toString());
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
@@ -547,41 +529,36 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             boolean overtls) throws Exception {
         // #lizard forgives
         ProcessResult result = new ProcessResult();
-        final StringBuilder strBuffer = new StringBuilder(512);
+        final StringBuilder strBuff = new StringBuilder(512);
         RegisterResponseM2C.Builder builder = RegisterResponseM2C.newBuilder();
         builder.setSuccess(false);
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false);
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String consumerId = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkHostName(request.getHostName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String consumerId = (String) result.getRetData();
+        if (!PBParameterUtils.checkHostName(request.getHostName(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        // final String hostName = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        // final String hostName = (String) result.getRetData();
+        if (!PBParameterUtils.checkGroupName(request.getGroupName(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String groupName = (String) paramCheckResult.checkData;
-        checkNodeStatus(consumerId, strBuffer);
+        final String groupName = (String) result.getRetData();
+        checkNodeStatus(consumerId, strBuff);
         if (!PBParameterUtils.checkConsumerTopicList(defMetaDataService.getDeployedTopicSet(),
-                request.getTopicListList(), result, strBuffer)) {
+                request.getTopicListList(), strBuff, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
@@ -594,14 +571,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 ? ConsumeType.CONSUME_BAND
                 : ConsumeType.CONSUME_NORMAL;
         final String clientJdkVer = request.hasJdkVersion() ? request.getJdkVersion() : "";
-        paramCheckResult = PBParameterUtils.checkConsumerOffsetSetInfo(csmType,
-                reqTopicSet, requiredParts, strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkConsumerOffsetSetInfo(
+                csmType, reqTopicSet, requiredParts, strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        Map<String, Long> requiredPartMap = (Map<String, Long>) paramCheckResult.checkData;
+        Map<String, Long> requiredPartMap = (Map<String, Long>) result.getRetData();
         String sessionKey = request.hasSessionKey() ? request.getSessionKey() : "";
         long sessionTime = request.hasSessionTime()
                 ? request.getSessionTime()
@@ -626,29 +602,25 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         reqTopicSet, reqTopicConditions, csmType,
                         sessionKey, sessionTime, sourceCount,
                         isSelectBig, requiredPartMap, rmtAddress);
-        paramCheckResult =
-                PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
-                        masterConfig, defMetaDataService, brokerRunManager, strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
+                masterConfig, defMetaDataService, brokerRunManager, strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ConsumerInfo inConsumerInfo2 = (ConsumerInfo) paramCheckResult.checkData;
-        CertifiedResult authorizeResult =
-                serverAuthHandler.validConsumerAuthorizeInfo(certResult.userName,
-                        groupName, reqTopicSet, reqTopicConditions, rmtAddress);
-        if (!authorizeResult.result) {
-            builder.setErrCode(authorizeResult.errCode);
-            builder.setErrMsg(authorizeResult.errInfo);
+        ConsumerInfo inConsumerInfo2 = (ConsumerInfo) result.getRetData();
+        if (!serverAuthHandler.validConsumerAuthorizeInfo(certifiedInfo.getUserName(),
+                groupName, reqTopicSet, reqTopicConditions, rmtAddress, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         // need removed for authorize center begin
         if (!this.defMetaDataService
                 .isConsumeTargetAuthorized(consumerId, groupName,
-                        reqTopicSet, reqTopicConditions, strBuffer, result)) {
-            if (strBuffer.length() > 0) {
-                logger.warn(strBuffer.toString());
+                        reqTopicSet, reqTopicConditions, strBuff, result)) {
+            if (strBuff.length() > 0) {
+                logger.warn(strBuff.toString());
             }
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
@@ -660,32 +632,32 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         try {
             lid = masterRowLock.getLock(null, StringUtils.getBytesUtf8(consumerId), true);
             if (!consumerHolder.addConsumer(inConsumerInfo2,
-                    isNotAllocated, strBuffer, paramCheckResult)) {
-                builder.setErrCode(paramCheckResult.errCode);
-                builder.setErrMsg(paramCheckResult.errMsg);
+                    isNotAllocated, strBuff, result)) {
+                builder.setErrCode(result.getErrCode());
+                builder.setErrMsg(result.getErrMsg());
                 return builder.build();
             }
-            consumeGroupInfo = (ConsumeGroupInfo) paramCheckResult.checkData;
+            consumeGroupInfo = (ConsumeGroupInfo) result.getRetData();
             topicPSInfoManager.addGroupSubTopicInfo(groupName, reqTopicSet);
             if (CollectionUtils.isNotEmpty(subscribeList)) {
                 int reportCnt = 0;
                 Map<String, Partition> partMap;
                 Map<String, Map<String, Partition>> topicPartSubMap = new HashMap<>();
                 currentSubInfo.put(consumerId, topicPartSubMap);
-                strBuffer.append("[SubInfo Report] client=").append(consumerId)
+                strBuff.append("[SubInfo Report] client=").append(consumerId)
                         .append(", subscribed partitions=[");
                 for (SubscribeInfo info : subscribeList) {
                     partMap = topicPartSubMap.computeIfAbsent(
                             info.getTopic(), k -> new HashMap<>());
                     partMap.put(info.getPartition().getPartitionKey(), info.getPartition());
                     if (reportCnt++ > 0) {
-                        strBuffer.append(",");
+                        strBuff.append(",");
                     }
-                    strBuffer.append(info.getPartitionStr());
+                    strBuff.append(info.getPartitionStr());
                 }
-                strBuffer.append("]");
-                logger.info(strBuffer.toString());
-                strBuffer.delete(0, strBuffer.length());
+                strBuff.append("]");
+                logger.info(strBuff.toString());
+                strBuff.delete(0, strBuff.length());
             }
             heartbeatManager.regConsumerNode(getConsumerKey(groupName, consumerId));
         } catch (IOException e) {
@@ -695,10 +667,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 this.masterRowLock.releaseRowLock(lid);
             }
         }
-        logger.info(strBuffer.append("[Consumer Register] ")
+        logger.info(strBuff.append("[Consumer Register] ")
                 .append(consumerId).append(", isOverTLS=").append(overtls)
                 .append(", clientJDKVer=").append(clientJdkVer).toString());
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         if (request.hasDefFlowCheckId() || request.hasGroupFlowCheckId()) {
             builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
             builder.setDefFlowCheckId(TBaseConstants.META_VALUE_UNDEFINED);
@@ -725,7 +697,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 }
             }
         }
-        builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false));
+        builder.setAuthorizedInfo(genAuthorizedInfo(certifiedInfo.getAuthorizedToken(), false));
         builder.setNotAllocated(consumeGroupInfo.isNotAllocate());
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
@@ -747,49 +719,44 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             final String rmtAddress,
             boolean overtls) throws Throwable {
         // #lizard forgives
-        final StringBuilder strBuffer = new StringBuilder(512);
+        ProcessResult result = new ProcessResult();
+        final StringBuilder strBuff = new StringBuilder(512);
         // response
         HeartResponseM2C.Builder builder = HeartResponseM2C.newBuilder();
         builder.setSuccess(false);
         // identity valid
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false);
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String clientId = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String clientId = (String) result.getRetData();
+        if (!PBParameterUtils.checkGroupName(request.getGroupName(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String groupName = (String) paramCheckResult.checkData;
-        checkNodeStatus(clientId, strBuffer);
+        final String groupName = (String) result.getRetData();
+        checkNodeStatus(clientId, strBuff);
         ConsumeGroupInfo consumeGroupInfo = consumerHolder.getConsumeGroupInfo(groupName);
         if (consumeGroupInfo == null) {
             builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
-            builder.setErrMsg(strBuffer.append("Not found groupName ")
+            builder.setErrMsg(strBuff.append("Not found groupName ")
                     .append(groupName).append(" in holder!").toString());
             return builder.build();
         }
         // authorize check
-        CertifiedResult authorizeResult =
-                serverAuthHandler.validConsumerAuthorizeInfo(certResult.userName,
-                        groupName, consumeGroupInfo.getTopicSet(),
-                        consumeGroupInfo.getTopicConditions(), rmtAddress);
-        if (!authorizeResult.result) {
-            builder.setErrCode(authorizeResult.errCode);
-            builder.setErrMsg(authorizeResult.errInfo);
+        if (!serverAuthHandler.validConsumerAuthorizeInfo(certifiedInfo.getUserName(),
+                groupName, consumeGroupInfo.getTopicSet(),
+                consumeGroupInfo.getTopicConditions(), rmtAddress, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         // heartbeat check
@@ -797,7 +764,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             heartbeatManager.updConsumerNode(getConsumerKey(groupName, clientId));
         } catch (HeartbeatException e) {
             builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
-            builder.setErrMsg(strBuffer
+            builder.setErrMsg(strBuff
                     .append("Update consumer node exception:")
                     .append(e.getMessage()).toString());
             return builder.build();
@@ -834,21 +801,21 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     partMap.put(regPart.getPartitionKey(), regPart);
                 }
                 if (rebalanceId <= 0) {
-                    logger.warn(strBuffer.append("[Consistent Warn]").append(clientId)
+                    logger.warn(strBuff.append("[Consistent Warn]").append(clientId)
                             .append(" sub info is not consistent with master.").toString());
-                    strBuffer.delete(0, strBuffer.length());
+                    strBuff.delete(0, strBuff.length());
                 }
             }
         }
         //
         if (rebalanceId > 0) {
-            logger.info(strBuffer.append("[Event Processed] rebalanceId=")
+            logger.info(strBuff.append("[Event Processed] rebalanceId=")
                     .append(request.getEvent().getRebalanceId())
                     .append(", clientId=").append(clientId).toString());
-            strBuffer.delete(0, strBuffer.length());
+            strBuff.delete(0, strBuff.length());
             try {
                 consumeGroupInfo.settAllocated();
-                consumerEventManager.removeFirst(clientId, strBuffer);
+                consumerEventManager.removeFirst(clientId, strBuff);
             } catch (Throwable e) {
                 logger.warn("Unknown exception for remove first event:", e);
             }
@@ -859,9 +826,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         if (event != null
                 && event.getStatus() != EventStatus.PROCESSING) {
             event.setStatus(EventStatus.PROCESSING);
-            strBuffer.append("[Push Consumer Event]");
-            logger.info(event.toStrBuilder(clientId, strBuffer).toString());
-            strBuffer.delete(0, strBuffer.length());
+            strBuff.append("[Push Consumer Event]");
+            logger.info(event.toStrBuilder(clientId, strBuff).toString());
+            strBuff.delete(0, strBuff.length());
             EventProto.Builder eventProtoBuilder =
                     EventProto.newBuilder();
             eventProtoBuilder.setRebalanceId(event.getRebalanceId());
@@ -898,7 +865,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 }
             }
         }
-        builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false));
+        builder.setAuthorizedInfo(genAuthorizedInfo(certifiedInfo.getAuthorizedToken(), false));
         builder.setNotAllocated(consumeGroupInfo.isNotAllocate());
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
@@ -919,34 +886,30 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     public CloseResponseM2C consumerCloseClientC2M(CloseRequestC2M request,
             final String rmtAddress,
             boolean overtls) throws Exception {
-        StringBuilder strBuffer = new StringBuilder(512);
+        ProcessResult result = new ProcessResult();
+        StringBuilder strBuff = new StringBuilder(512);
         CloseResponseM2C.Builder builder = CloseResponseM2C.newBuilder();
         builder.setSuccess(false);
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false);
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String clientId = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String clientId = (String) result.getRetData();
+        if (!PBParameterUtils.checkGroupName(request.getGroupName(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String groupName = (String) paramCheckResult.checkData;
-        checkNodeStatus(clientId, strBuffer);
+        final String groupName = (String) result.getRetData();
+        checkNodeStatus(clientId, strBuff);
         String nodeId = getConsumerKey(groupName, clientId);
-        logger.info(strBuffer.append("[Consumer Closed]").append(nodeId)
+        logger.info(strBuff.append("[Consumer Closed]").append(nodeId)
                 .append(", isOverTLS=").append(overtls).toString());
         new ReleaseConsumer().run(nodeId, false);
         heartbeatManager.unRegConsumerNode(nodeId);
@@ -970,32 +933,28 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             final String rmtAddress,
             boolean overtls) throws Exception {
         // #lizard forgives
+        ProcessResult result = new ProcessResult();
+        final StringBuilder strBuff = new StringBuilder(512);
         RegisterResponseM2B.Builder builder = RegisterResponseM2B.newBuilder();
         builder.setSuccess(false);
         builder.setStopRead(false);
         builder.setStopWrite(false);
         builder.setTakeConfInfo(false);
         // auth
-        CertifiedResult cfResult =
-                serverAuthHandler.identityValidBrokerInfo(request.getAuthInfo());
-        if (!cfResult.result) {
-            builder.setErrCode(cfResult.errCode);
-            builder.setErrMsg(cfResult.errInfo);
+        if (!serverAuthHandler.identityValidBrokerInfo(request.getAuthInfo(), result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ProcessResult result = new ProcessResult();
-        final StringBuilder strBuffer = new StringBuilder(512);
         // get clientId and check valid
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String clientId = (String) paramCheckResult.checkData;
+        final String clientId = (String) result.getRetData();
         // check authority
-        checkNodeStatus(clientId, strBuffer);
+        checkNodeStatus(clientId, strBuff);
         // get optional filed
         ClusterSettingEntity defSetting =
                 defMetaDataService.getClusterDefSetting(false);
@@ -1016,13 +975,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 request.getCurBrokerConfId(), request.getConfCheckSumId(),
                 true, request.getBrokerDefaultConfInfo(),
                 request.getBrokerTopicSetConfInfoList(), request.getBrokerOnline(),
-                overtls, strBuffer, result)) {
+                overtls, strBuff, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         // print broker register log
-        logger.info(strBuffer.append("[Broker Register] ").append(clientId)
+        logger.info(strBuff.append("[Broker Register] ").append(clientId)
                 .append(" report, configureId=").append(request.getCurBrokerConfId())
                 .append(",readStatusRpt=").append(request.getReadStatusRpt())
                 .append(",writeStatusRpt=").append(request.getWriteStatusRpt())
@@ -1031,7 +990,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 .append(",FlowCtrlId=").append(reFlowCtrlId)
                 .append(",qryPriorityId=").append(qryPriorityId)
                 .append(",checksumId=").append(request.getConfCheckSumId()).toString());
-        strBuffer.delete(0, strBuffer.length());
+        strBuff.delete(0, strBuff.length());
         // response
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
@@ -1047,7 +1006,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         enableInfo.setEnableConsumeAuthenticate(masterConfig.isStartConsumeAuthenticate());
         enableInfo.setEnableConsumeAuthorize(masterConfig.isStartConsumeAuthorize());
         builder.setEnableBrokerInfo(enableInfo);
-        brokerRunManager.setRegisterDownConfInfo(brokerInfo.getBrokerId(), strBuffer, builder);
+        brokerRunManager.setRegisterDownConfInfo(brokerInfo.getBrokerId(), strBuff, builder);
         builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
         ClientMaster.ClusterConfig.Builder clusterConfigBuilder =
                 buildClusterConfig(request.getClsConfig());
@@ -1065,7 +1024,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 }
             }
         }
-        logger.info(strBuffer.append("[Broker Register] ").append(clientId)
+        logger.info(strBuff.append("[Broker Register] ").append(clientId)
                 .append(", isOverTLS=").append(overtls).toString());
         return builder.build();
     }
@@ -1084,6 +1043,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             final String rmtAddress,
             boolean overtls) throws Exception {
         // #lizard forgives
+        ProcessResult result = new ProcessResult();
+        final StringBuilder strBuff = new StringBuilder(512);
         // set response field
         HeartResponseM2B.Builder builder = HeartResponseM2B.newBuilder();
         builder.setSuccess(false);
@@ -1097,43 +1058,37 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         builder.setCurBrokerConfId(TBaseConstants.META_VALUE_UNDEFINED);
         builder.setConfCheckSumId(TBaseConstants.META_VALUE_UNDEFINED);
         // identity broker info
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidBrokerInfo(request.getAuthInfo());
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidBrokerInfo(request.getAuthInfo(), result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ProcessResult result = new ProcessResult();
-        final StringBuilder strBuffer = new StringBuilder(512);
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkBrokerId(request.getBrokerId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkBrokerId(request.getBrokerId(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        int brokerId = (int) paramCheckResult.checkData;
+        int brokerId = (int) result.getRetData();
         long reFlowCtrlId = request.hasFlowCheckId()
                 ? request.getFlowCheckId()
                 : TBaseConstants.META_VALUE_UNDEFINED;
         int qryPriorityId = request.hasQryPriorityId()
                 ? request.getQryPriorityId()
                 : TBaseConstants.META_VALUE_UNDEFINED;
-        checkNodeStatus(String.valueOf(brokerId), strBuffer);
+        checkNodeStatus(String.valueOf(brokerId), strBuff);
         if (!brokerRunManager.brokerHeartBeat2M(brokerId,
                 request.getCurBrokerConfId(), request.getConfCheckSumId(),
                 request.getTakeConfInfo(), request.getBrokerDefaultConfInfo(),
                 request.getBrokerTopicSetConfInfoList(), request.getTakeRemovedTopicInfo(),
                 request.getRemovedTopicsInfoList(), request.getReadStatusRpt(),
                 request.getWriteStatusRpt(), request.getBrokerOnline(),
-                strBuffer, result)) {
+                strBuff, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         if (request.getTakeConfInfo()) {
-            strBuffer.append("[Broker Report] heartbeat report: brokerId=")
+            strBuff.append("[Broker Report] heartbeat report: brokerId=")
                     .append(request.getBrokerId()).append(", configureId=")
                     .append(request.getCurBrokerConfId())
                     .append(",readStatusRpt=").append(request.getReadStatusRpt())
@@ -1145,15 +1100,15 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     .append(",brokerOnline=").append(request.getBrokerOnline())
                     .append(",default broker configure is ").append(request.getBrokerDefaultConfInfo())
                     .append(",broker topic configure is ").append(request.getBrokerTopicSetConfInfoList());
-            strBuffer.delete(0, strBuffer.length());
+            strBuff.delete(0, strBuff.length());
         }
         // create response
-        brokerRunManager.setHeatBeatDownConfInfo(brokerId, strBuffer, builder);
+        brokerRunManager.setHeatBeatDownConfInfo(brokerId, strBuff, builder);
         BrokerConfEntity brokerConfEntity =
                 defMetaDataService.getBrokerConfByBrokerId(brokerId);
         builder.setTakeRemoveTopicInfo(true);
         builder.addAllRemoveTopicConfInfo(defMetaDataService
-                .getBrokerRemovedTopicStrConfigInfo(brokerConfEntity, strBuffer).values());
+                .getBrokerRemovedTopicStrConfigInfo(brokerConfEntity, strBuff).values());
         builder.setSsdStoreId(TBaseConstants.META_VALUE_UNDEFINED);
         if (request.hasFlowCheckId()) {
             ClusterSettingEntity defSetting =
@@ -1197,26 +1152,22 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             final String rmtAddress,
             boolean overtls) throws Throwable {
         ProcessResult result = new ProcessResult();
-        StringBuilder strBuffer = new StringBuilder(512);
+        StringBuilder strBuff = new StringBuilder(512);
         CloseResponseM2B.Builder builder = CloseResponseM2B.newBuilder();
         builder.setSuccess(false);
-        CertifiedResult cfResult =
-                serverAuthHandler.identityValidBrokerInfo(request.getAuthInfo());
-        if (!cfResult.result) {
-            builder.setErrCode(cfResult.errCode);
-            builder.setErrMsg(cfResult.errInfo);
+        if (!serverAuthHandler.identityValidBrokerInfo(request.getAuthInfo(), result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkBrokerId(request.getBrokerId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkBrokerId(request.getBrokerId(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final int brokerId = (int) paramCheckResult.checkData;
-        checkNodeStatus(String.valueOf(brokerId), strBuffer);
-        if (!brokerRunManager.brokerClose2M(brokerId, strBuffer, result)) {
+        final int brokerId = (int) result.getRetData();
+        checkNodeStatus(String.valueOf(brokerId), strBuff);
+        if (!brokerRunManager.brokerClose2M(brokerId, strBuff, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
@@ -1241,41 +1192,36 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             String rmtAddress,
             boolean overtls) throws Throwable {
         ProcessResult result = new ProcessResult();
-        final StringBuilder sBuffer = new StringBuilder(512);
+        final StringBuilder strBuff = new StringBuilder(512);
         RegisterResponseM2CV2.Builder builder = RegisterResponseM2CV2.newBuilder();
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false);
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), sBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String consumerId = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkHostName(request.getHostName(), sBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String consumerId = (String) result.getRetData();
+        if (!PBParameterUtils.checkHostName(request.getHostName(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        // final String hostName = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkGroupName(request.getGroupName(), sBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        // final String hostName = (String) result.getRetData();
+        if (!PBParameterUtils.checkGroupName(request.getGroupName(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String groupName = (String) paramCheckResult.checkData;
+        final String groupName = (String) result.getRetData();
         // check master current status
-        checkNodeStatus(consumerId, sBuffer);
+        checkNodeStatus(consumerId, strBuff);
         if (!PBParameterUtils.checkConsumerTopicList(defMetaDataService.getDeployedTopicSet(),
-                request.getTopicListList(), result, sBuffer)) {
+                request.getTopicListList(), strBuff, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
@@ -1313,9 +1259,9 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         // need removed for authorize center begin
         if (!this.defMetaDataService
                 .isConsumeTargetAuthorized(consumerId, groupName,
-                        reqTopicSet, reqTopicConditions, sBuffer, result)) {
-            if (sBuffer.length() > 0) {
-                logger.warn(sBuffer.toString());
+                        reqTopicSet, reqTopicConditions, strBuff, result)) {
+            if (strBuff.length() > 0) {
+                logger.warn(strBuff.toString());
             }
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
@@ -1323,29 +1269,25 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         // need removed for authorize center end
         // check resource require
-        paramCheckResult =
-                PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
-                        masterConfig, defMetaDataService, brokerRunManager, sBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
+                masterConfig, defMetaDataService, brokerRunManager, strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        CertifiedResult authorizeResult =
-                serverAuthHandler.validConsumerAuthorizeInfo(certResult.userName,
-                        groupName, reqTopicSet, reqTopicConditions, rmtAddress);
-        if (!authorizeResult.result) {
-            builder.setErrCode(authorizeResult.errCode);
-            builder.setErrMsg(authorizeResult.errInfo);
+        if (!serverAuthHandler.validConsumerAuthorizeInfo(certifiedInfo.getUserName(),
+                groupName, reqTopicSet, reqTopicConditions, rmtAddress, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         Integer lid = null;
         try {
             lid = masterRowLock.getLock(null,
                     StringUtils.getBytesUtf8(consumerId), true);
-            if (!consumerHolder.addConsumer(inConsumerInfo, false, sBuffer, paramCheckResult)) {
-                builder.setErrCode(paramCheckResult.errCode);
-                builder.setErrMsg(paramCheckResult.errMsg);
+            if (!consumerHolder.addConsumer(inConsumerInfo, false, strBuff, result)) {
+                builder.setErrCode(result.getErrCode());
+                builder.setErrMsg(result.getErrMsg());
                 return builder.build();
             }
             topicPSInfoManager.addGroupSubTopicInfo(groupName, reqTopicSet);
@@ -1360,21 +1302,21 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         ConsumeGroupInfo consumeGroupInfo =
                 consumerHolder.getConsumeGroupInfo(groupName);
         if (consumeGroupInfo == null) {
-            logger.warn(sBuffer.append("[Illegal Process] ").append(consumerId)
+            logger.warn(strBuff.append("[Illegal Process] ").append(consumerId)
                     .append(" visit consume group(").append(groupName)
                     .append(" info failure, null information").toString());
             builder.setErrCode(TErrCodeConstants.INTERNAL_SERVER_ERROR);
-            builder.setErrMsg(sBuffer.toString());
-            sBuffer.delete(0, sBuffer.length());
+            builder.setErrMsg(strBuff.toString());
+            strBuff.delete(0, strBuff.length());
             return builder.build();
         }
         inConsumerInfo = consumeGroupInfo.getConsumerInfo(consumerId);
         if (inConsumerInfo == null) {
-            logger.warn(sBuffer.append("[Illegal Process] ").append(consumerId)
+            logger.warn(strBuff.append("[Illegal Process] ").append(consumerId)
                     .append(" visit consume info failure, null information").toString());
             builder.setErrCode(TErrCodeConstants.INTERNAL_SERVER_ERROR);
-            builder.setErrMsg(sBuffer.toString());
-            sBuffer.delete(0, sBuffer.length());
+            builder.setErrMsg(strBuff.toString());
+            strBuff.delete(0, strBuff.length());
             return builder.build();
         }
         Map<String, Map<String, Partition>> topicPartSubMap = new HashMap<>();
@@ -1386,12 +1328,12 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         topicPartSubMap.computeIfAbsent(info.getTopic(), k -> new HashMap<>());
                 partMap.put(info.getPartitionKey(), info);
             }
-            printReportInfo(consumerId, null, topicPartSubMap, sBuffer);
+            printReportInfo(consumerId, null, topicPartSubMap, strBuff);
         }
-        logger.info(sBuffer.append("[Consumer Register] ")
+        logger.info(strBuff.append("[Consumer Register] ")
                 .append(consumerId).append(", isOverTLS=").append(overtls)
                 .append(", clientJDKVer=").append(clientJdkVer).toString());
-        sBuffer.delete(0, sBuffer.length());
+        strBuff.delete(0, strBuff.length());
         Tuple2<Long, Map<Integer, String>> brokerStaticInfo =
                 brokerRunManager.getBrokerStaticInfo(overtls);
         builder.setBrokerConfigId(brokerStaticInfo.getF0());
@@ -1399,7 +1341,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.addAllBrokerConfigList(brokerStaticInfo.getF1().values());
         }
         builder.setOpsTaskInfo(buildOpsTaskInfo(consumeGroupInfo, inConsumerInfo, opsTaskInfo));
-        builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false));
+        builder.setAuthorizedInfo(genAuthorizedInfo(certifiedInfo.getAuthorizedToken(), false));
         builder.setErrCode(TErrCodeConstants.SUCCESS);
         builder.setErrMsg("OK!");
         return builder.build();
@@ -1418,38 +1360,35 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     public HeartResponseM2CV2 consumerHeartbeatC2MV2(HeartRequestC2MV2 request,
             String rmtAddress,
             boolean overtls) throws Throwable {
-        final StringBuilder strBuffer = new StringBuilder(512);
+        ProcessResult result = new ProcessResult();
+        final StringBuilder strBuff = new StringBuilder(512);
         // response
         HeartResponseM2CV2.Builder builder = HeartResponseM2CV2.newBuilder();
         // identity valid
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false);
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String clientId = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String clientId = (String) result.getRetData();
+        if (!PBParameterUtils.checkGroupName(request.getGroupName(), strBuff, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final String groupName = (String) paramCheckResult.checkData;
+        final String groupName = (String) result.getRetData();
         OpsSyncInfo opsTaskInfo = new OpsSyncInfo();
         if (request.hasOpsTaskInfo()) {
             opsTaskInfo.updOpsSyncInfo(request.getOpsTaskInfo());
         }
         // check master current status
-        checkNodeStatus(clientId, strBuffer);
+        checkNodeStatus(clientId, strBuff);
         ClientSyncInfo clientSyncInfo = new ClientSyncInfo();
         if (request.hasSubRepInfo()) {
             clientSyncInfo.updSubRepInfo(brokerRunManager, request.getSubRepInfo());
@@ -1457,7 +1396,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         ConsumeGroupInfo consumeGroupInfo = consumerHolder.getConsumeGroupInfo(groupName);
         if (consumeGroupInfo == null) {
             builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
-            builder.setErrMsg(strBuffer.append("Not found groupName ")
+            builder.setErrMsg(strBuff.append("Not found groupName ")
                     .append(groupName).append(" in holder!").toString());
             return builder.build();
         }
@@ -1465,19 +1404,17 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 consumeGroupInfo.getConsumerInfo(clientId);
         if (inConsumerInfo == null) {
             builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
-            builder.setErrMsg(strBuffer.append("Not found client ").append(clientId)
+            builder.setErrMsg(strBuff.append("Not found client ").append(clientId)
                     .append(" in group(").append(groupName).append(")").toString());
-            strBuffer.delete(0, strBuffer.length());
+            strBuff.delete(0, strBuff.length());
             return builder.build();
         }
         // authorize check
-        CertifiedResult authorizeResult =
-                serverAuthHandler.validConsumerAuthorizeInfo(certResult.userName,
-                        groupName, consumeGroupInfo.getTopicSet(),
-                        consumeGroupInfo.getTopicConditions(), rmtAddress);
-        if (!authorizeResult.result) {
-            builder.setErrCode(authorizeResult.errCode);
-            builder.setErrMsg(authorizeResult.errInfo);
+        if (!serverAuthHandler.validConsumerAuthorizeInfo(certifiedInfo.getUserName(),
+                groupName, consumeGroupInfo.getTopicSet(),
+                consumeGroupInfo.getTopicConditions(), rmtAddress, result)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
         // heartbeat check
@@ -1485,7 +1422,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             heartbeatManager.updConsumerNode(getConsumerKey(groupName, clientId));
         } catch (HeartbeatException e) {
             builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
-            builder.setErrMsg(strBuffer
+            builder.setErrMsg(strBuff
                     .append("Update consumer node exception:")
                     .append(e.getMessage()).toString());
             return builder.build();
@@ -1502,7 +1439,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                         newPartSubMap.computeIfAbsent(info.getTopic(), k -> new HashMap<>());
                 partMap.put(info.getPartitionKey(), info);
             }
-            printReportInfo(clientId, curPartSubMap, newPartSubMap, strBuffer);
+            printReportInfo(clientId, curPartSubMap, newPartSubMap, strBuff);
             currentSubInfo.put(clientId, newPartSubMap);
         }
         Tuple2<Long, Map<Integer, String>> brokerStaticInfo =
@@ -1523,7 +1460,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
         }
         builder.setOpsTaskInfo(buildOpsTaskInfo(consumeGroupInfo, inConsumerInfo, opsTaskInfo));
-        builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false));
+        builder.setAuthorizedInfo(genAuthorizedInfo(certifiedInfo.getAuthorizedToken(), false));
         builder.setErrCode(TErrCodeConstants.SUCCESS);
         builder.setErrMsg("OK!");
         return builder.build();
@@ -1542,50 +1479,46 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     public GetPartMetaResponseM2C consumerGetPartMetaInfoC2M(GetPartMetaRequestC2M request,
             String rmtAddress,
             boolean overtls) throws Throwable {
-        StringBuilder strBuffer = new StringBuilder(512);
+        ProcessResult reslut = new ProcessResult();
+        StringBuilder strBuff = new StringBuilder(512);
         GetPartMetaResponseM2C.Builder builder = GetPartMetaResponseM2C.newBuilder();
-        CertifiedResult certResult =
-                serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false);
-        if (!certResult.result) {
-            builder.setErrCode(certResult.errCode);
-            builder.setErrMsg(certResult.errInfo);
+        if (!serverAuthHandler.identityValidUserInfo(request.getAuthInfo(), false, reslut)) {
+            builder.setErrCode(reslut.getErrCode());
+            builder.setErrMsg(reslut.getErrMsg());
             return builder.build();
         }
-        ParamCheckResult paramCheckResult =
-                PBParameterUtils.checkClientId(request.getClientId(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, reslut)) {
+            builder.setErrCode(reslut.getErrCode());
+            builder.setErrMsg(reslut.getErrMsg());
             return builder.build();
         }
-        final String clientId = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkGroupName(request.getGroupName(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        final String clientId = (String) reslut.getRetData();
+        if (!PBParameterUtils.checkGroupName(request.getGroupName(), strBuff, reslut)) {
+            builder.setErrCode(reslut.getErrCode());
+            builder.setErrMsg(reslut.getErrMsg());
             return builder.build();
         }
-        final String groupName = (String) paramCheckResult.checkData;
+        final String groupName = (String) reslut.getRetData();
         final long brokerConfigId = request.getBrokerConfigId();
         final long topicMetaInfoId = request.getTopicMetaInfoId();
-        checkNodeStatus(clientId, strBuffer);
+        checkNodeStatus(clientId, strBuff);
         // get control object
         ConsumeGroupInfo consumeGroupInfo =
                 consumerHolder.getConsumeGroupInfo(groupName);
         if (consumeGroupInfo == null) {
             builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
-            builder.setErrMsg(strBuffer.append("Not found groupName ")
+            builder.setErrMsg(strBuff.append("Not found groupName ")
                     .append(groupName).append(" in holder!").toString());
-            strBuffer.delete(0, strBuffer.length());
+            strBuff.delete(0, strBuff.length());
             return builder.build();
         }
         ConsumerInfo inConsumerInfo =
                 consumeGroupInfo.getConsumerInfo(clientId);
         if (inConsumerInfo == null) {
             builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
-            builder.setErrMsg(strBuffer.append("Not found client ").append(clientId)
+            builder.setErrMsg(strBuff.append("Not found client ").append(clientId)
                     .append(" in group(").append(groupName).append(")").toString());
-            strBuffer.delete(0, strBuffer.length());
+            strBuff.delete(0, strBuff.length());
             return builder.build();
         }
         // heartbeat check
@@ -1593,14 +1526,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             heartbeatManager.updConsumerNode(getConsumerKey(groupName, clientId));
         } catch (HeartbeatException e) {
             builder.setErrCode(TErrCodeConstants.HB_NO_NODE);
-            builder.setErrMsg(strBuffer
+            builder.setErrMsg(strBuff
                     .append("Update consumer node exception:")
                     .append(e.getMessage()).toString());
             return builder.build();
         }
         Tuple2<Long, List<String>> topicMetaInfoTuple = consumeGroupInfo.getTopicMetaInfo();
         if (topicMetaInfoTuple.getF0() == TBaseConstants.META_VALUE_UNDEFINED) {
-            freshTopicMetaInfo(consumeGroupInfo, strBuffer);
+            freshTopicMetaInfo(consumeGroupInfo, strBuff);
             topicMetaInfoTuple = consumeGroupInfo.getTopicMetaInfo();
         }
         builder.setTopicMetaInfoId(topicMetaInfoTuple.getF0());

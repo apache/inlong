@@ -35,7 +35,7 @@ public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
 
     @Override
     public void register(WorkflowProcess process) {
-        Preconditions.checkNotNull(process, "process cannot be null");
+        Preconditions.expectNotNull(process, "process cannot be null");
         process.validate();
         definitionRepository.add(process);
     }

@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class StreamNode {
     protected List<StreamField> fieldList;
 
     public void addPre(String pre) {
-        Preconditions.checkNotEmpty(pre, "Pre node should not be empty");
+        Preconditions.expectNotBlank(pre, ErrorCodeEnum.INVALID_PARAMETER, "Pre node should not be empty");
         if (preNodes == null) {
             preNodes = Sets.newHashSet();
         }
@@ -51,7 +52,7 @@ public class StreamNode {
     }
 
     public void addPost(String post) {
-        Preconditions.checkNotEmpty(post, "Post node should not be empty");
+        Preconditions.expectNotBlank(post, ErrorCodeEnum.INVALID_PARAMETER, "Post node should not be empty");
         if (postNodes == null) {
             postNodes = Sets.newHashSet();
         }

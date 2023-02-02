@@ -89,17 +89,13 @@ public class SuspendSortListener implements SortOperateListener {
         Map<String, String> kvConf = new HashMap<>();
         extList.forEach(groupExtInfo -> kvConf.put(groupExtInfo.getKeyName(), groupExtInfo.getKeyValue()));
         String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
-        if (StringUtils.isEmpty(sortExt)) {
-            String message = String.format("suspend sort failed for groupId [%s], as the sort properties is empty",
-                    groupId);
-            log.error(message);
-            return ListenerResult.fail(message);
+        if (StringUtils.isNotEmpty(sortExt)) {
+            Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(
+                    JsonUtils.OBJECT_MAPPER.readTree(sortExt), new TypeReference<Map<String, String>>() {
+                    });
+            kvConf.putAll(result);
         }
 
-        Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(
-                JsonUtils.OBJECT_MAPPER.readTree(sortExt), new TypeReference<Map<String, String>>() {
-                });
-        kvConf.putAll(result);
         String jobId = kvConf.get(InlongConstants.SORT_JOB_ID);
         if (StringUtils.isBlank(jobId)) {
             String message = String.format("sort job id is empty for groupId [%s]", groupId);

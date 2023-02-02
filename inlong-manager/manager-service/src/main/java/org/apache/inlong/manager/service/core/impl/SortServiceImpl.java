@@ -77,7 +77,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
 
     @Override
     public List<SortStatusInfo> listSortStatus(SortStatusRequest request) {
-        Preconditions.checkNotNull(sortPoller, "sort status poller not initialized, please try later");
+        Preconditions.expectNotNull(sortPoller, "sort status poller not initialized, please try later");
 
         try {
             List<InlongGroupInfo> groupInfoList = request.getInlongGroupIds().stream()

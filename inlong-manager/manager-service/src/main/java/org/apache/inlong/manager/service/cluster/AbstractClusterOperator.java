@@ -71,15 +71,15 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
         entity.setModifier(operator);
         int rowCount = clusterMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("cluster has already updated with name={}, type={}, curVersion={}", request.getName(),
-                    request.getType(), request.getVersion());
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                    String.format("cluster has already updated with name=%s, type=%s, curVersion=%d",
+                            request.getName(), request.getType(), request.getVersion()));
         }
     }
 
     @Override
     public Boolean testConnection(ClusterRequest request) {
-        throw new BusinessException(
+        throw new BusinessException(ErrorCodeEnum.CLUSTER_TYPE_NOT_SUPPORTED,
                 String.format(ErrorCodeEnum.CLUSTER_TYPE_NOT_SUPPORTED.getMessage(), request.getType()));
     }
 

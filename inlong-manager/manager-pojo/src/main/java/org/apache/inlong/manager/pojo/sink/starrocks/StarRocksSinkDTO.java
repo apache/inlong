@@ -32,6 +32,7 @@ import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Sink info of StarRocks
@@ -121,9 +122,11 @@ public class StarRocksSinkDTO {
 
     public static StarRocksSinkDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, StarRocksSinkDTO.class).decryptPassword();
+            return Objects.requireNonNull(JsonUtils.parseObject(
+                    extParams, StarRocksSinkDTO.class)).decryptPassword();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of StarRocks SinkDTO failure: %s", e.getMessage()));
         }
     }
 

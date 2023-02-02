@@ -53,6 +53,10 @@ public class JobProfileDto {
      */
     public static final String KAFKA_SOURCE = "org.apache.inlong.agent.plugin.sources.KafkaSource";
     /**
+     * PostgreSQL source
+     */
+    public static final String POSTGRESQL_SOURCE = "org.apache.inlong.agent.plugin.sources.PostgreSQLSource";
+    /**
      * mongo source
      */
     public static final String MONGO_SOURCE = "org.apache.inlong.agent.plugin.sources.MongoDBSource";
@@ -189,6 +193,26 @@ public class JobProfileDto {
         kafkaJob.setTopic(kafkaJobTaskConfig.getTopic());
 
         return kafkaJob;
+    }
+
+    private static PostgreSQLJob getPostgresJob(DataConfig dataConfigs) {
+        PostgreSQLJob.PostgreSQLJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                PostgreSQLJob.PostgreSQLJobConfig.class);
+        PostgreSQLJob postgreSQLJob = new PostgreSQLJob();
+
+        postgreSQLJob.setUser(config.getUsername());
+        postgreSQLJob.setPassword(config.getPassword());
+        postgreSQLJob.setHostname(config.getHostname());
+        postgreSQLJob.setPort(config.getPort());
+        postgreSQLJob.setDbname(config.getDatabase());
+        postgreSQLJob.setServername(config.getSchema());
+        postgreSQLJob.setPluginname(config.getDecodingPluginName());
+        postgreSQLJob.setTableNameList(config.getTableNameList());
+        postgreSQLJob.setServerTimeZone(config.getServerTimeZone());
+        postgreSQLJob.setScanStartupMode(config.getScanStartupMode());
+        postgreSQLJob.setPrimaryKey(config.getPrimaryKey());
+
+        return postgreSQLJob;
     }
 
     private static MongoJob getMongoJob(DataConfig dataConfigs) {
@@ -392,6 +416,12 @@ public class JobProfileDto {
                 job.setSource(KAFKA_SOURCE);
                 profileDto.setJob(job);
                 break;
+            case POSTGRES:
+                PostgreSQLJob postgreSQLJob = getPostgresJob(dataConfig);
+                job.setPostgreSQLJob(postgreSQLJob);
+                job.setSource(POSTGRESQL_SOURCE);
+                profileDto.setJob(job);
+                break;
             case ORACLE:
                 OracleJob oracleJob = getOracleJob(dataConfig);
                 job.setOracleJob(oracleJob);
@@ -448,6 +478,7 @@ public class JobProfileDto {
         private FileJob fileJob;
         private BinlogJob binlogJob;
         private KafkaJob kafkaJob;
+        private PostgreSQLJob postgreSQLJob;
         private OracleJob oracleJob;
         private MongoJob mongoJob;
         private MqttJob mqttJob;
