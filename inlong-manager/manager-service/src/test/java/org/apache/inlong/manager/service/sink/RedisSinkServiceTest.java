@@ -54,6 +54,7 @@ public class RedisSinkServiceTest extends ServiceBaseTest {
         sinkRequest.setSinkType(SinkType.REDIS);
         sinkRequest.setClusterMode(RedisClusterMode.STANDALONE.name());
         sinkRequest.setHost("demo-host");
+        sinkRequest.setPort(6300);
         sinkRequest.setDataType("HASH");
         sinkRequest.setSchemaMapMode("DYNAMIC");
         sinkRequest.setSinkName(sinkName);
