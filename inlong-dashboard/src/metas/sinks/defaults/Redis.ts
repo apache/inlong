@@ -401,7 +401,6 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
       ],
     }),
   })
-  @ColumnDecorator()
   @I18n('meta.Sinks.Redis.ExtList')
   properties: string;
 
