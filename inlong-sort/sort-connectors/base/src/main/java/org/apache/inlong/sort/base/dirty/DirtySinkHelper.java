@@ -32,15 +32,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.apache.inlong.sort.base.Constants.DIRTY_IDENTIFIER_SEPARATOR;
 
 /**
  * Dirty sink helper, it helps dirty data sink for {@link DirtySink}
@@ -110,7 +105,7 @@ public class DirtySinkHelper<T> implements Serializable {
         }
     }
 
-    public void invokeMultiple(T dirtyData, DirtyType dirtyType, Throwable e,
+    public void invokeMultiple(String tableIdentifier, T dirtyData, DirtyType dirtyType, Throwable e,
             String sinkMultipleFormat) {
         if (!dirtyOptions.ignoreDirty()) {
             RuntimeException ex;
@@ -125,43 +120,37 @@ public class DirtySinkHelper<T> implements Serializable {
         JsonDynamicSchemaFormat jsonDynamicSchemaFormat =
                 (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
         JsonNode rootNode = null;
-        List<String> actualIdentifier = new ArrayList<>();
+        String[] actualIdentifier = tableIdentifier.split("\\.");;
 
         try {
             // for rowdata where identifier is not the first element, append identifier and SEPARATOR before it.
             if (dirtyData instanceof RowData) {
                 rootNode = jsonDynamicSchemaFormat.deserialize(((RowData) dirtyData).getBinary(0));
+                handleDirty(dirtyType, e, null, rootNode, jsonDynamicSchemaFormat, dirtyData);
             } else if (dirtyData instanceof JsonNode) {
                 rootNode = (JsonNode) dirtyData;
+                handleDirty(dirtyType, e, null, rootNode, jsonDynamicSchemaFormat, dirtyData);
             } else if (dirtyData instanceof String) {
-                // parse and remove the added identifier for string cases
-                String rawIdentifier = ((String) dirtyData).split(DIRTY_IDENTIFIER_SEPARATOR)[0];
-                String[] arr = rawIdentifier.split("\\.");
-                actualIdentifier.addAll(Arrays.asList(arr));
-                dirtyData = (T) ((String) dirtyData).split(DIRTY_IDENTIFIER_SEPARATOR)[1];
+                handleDirty(dirtyType, e, actualIdentifier, null, jsonDynamicSchemaFormat, dirtyData);
             } else {
                 throw new Exception("unidentified dirty data " + dirtyData);
             }
         } catch (Exception ex) {
-            LOGGER.warn("parse dirtydata failed:{}", ex.getMessage());
+            LOGGER.warn("parse dirty data {} of class {} failed", dirtyData, dirtyData.getClass());
             invoke(dirtyData, DirtyType.DESERIALIZE_ERROR, e);
-            return;
         }
-
-        handleDirty(dirtyType, e, actualIdentifier, rootNode, jsonDynamicSchemaFormat, dirtyData);
     }
 
     private void handleDirty(DirtyType dirtyType, Throwable e,
-            List<String> actualIdentifier, JsonNode rootNode, JsonDynamicSchemaFormat jsonDynamicSchemaFormat,
+            String[] actualIdentifier, JsonNode rootNode, JsonDynamicSchemaFormat jsonDynamicSchemaFormat,
             T dirtyData) {
         if (dirtySink != null) {
             DirtyData.Builder<T> builder = DirtyData.builder();
             try {
-                String labels = regexReplace(dirtyOptions.getLabels(), dirtyType, e.getMessage(), actualIdentifier);
-                String logTag = regexReplace(dirtyOptions.getLogTag(), dirtyType, e.getMessage(), actualIdentifier);
-                String identifier =
-                        regexReplace(dirtyOptions.getIdentifier(), dirtyType, e.getMessage(), actualIdentifier);
                 if (rootNode != null) {
+                    String labels = regexReplace(dirtyOptions.getLabels(), dirtyType, e.getMessage(), null);
+                    String logTag = regexReplace(dirtyOptions.getLogTag(), dirtyType, e.getMessage(), null);
+                    String identifier = regexReplace(dirtyOptions.getIdentifier(), dirtyType, e.getMessage(), null);
                     builder.setData(dirtyData)
                             .setDirtyType(dirtyType)
                             .setLabels(jsonDynamicSchemaFormat.parse(rootNode, labels))
@@ -169,6 +158,11 @@ public class DirtySinkHelper<T> implements Serializable {
                             .setDirtyMessage(e.getMessage())
                             .setIdentifier(jsonDynamicSchemaFormat.parse(rootNode, identifier));
                 } else {
+                    // for dirty data without proper rootnode, parse completely into string literals
+                    String labels = regexReplace(dirtyOptions.getLabels(), dirtyType, e.getMessage(), actualIdentifier);
+                    String logTag = regexReplace(dirtyOptions.getLogTag(), dirtyType, e.getMessage(), actualIdentifier);
+                    String identifier =
+                            regexReplace(dirtyOptions.getIdentifier(), dirtyType, e.getMessage(), actualIdentifier);
                     builder.setData(dirtyData)
                             .setDirtyType(dirtyType)
                             .setLabels(labels)
@@ -186,8 +180,8 @@ public class DirtySinkHelper<T> implements Serializable {
         }
     }
 
-    private String regexReplace(String pattern, DirtyType dirtyType,
-            String dirtyMessage, List<String> actualIdentifier) throws IOException {
+    public static String regexReplace(String pattern, DirtyType dirtyType,
+            String dirtyMessage, String[] actualIdentifier) throws IOException {
 
         if (pattern == null) {
             return null;
@@ -204,16 +198,20 @@ public class DirtySinkHelper<T> implements Serializable {
         paramMap.put(DIRTY_MESSAGE_KEY, dirtyMessage);
 
         Matcher matcher = REGEX_PATTERN.matcher(pattern);
-        int i = 0;
-        while (matcher.find()) {
-            try {
-                String keyText = matcher.group(1);
-                String s = actualIdentifier.get(i);
-                paramMap.put(keyText, s);
-            } catch (Exception e) {
-                throw new IOException("param map replacement failed");
+
+        // if RootNode is not available, generate a complete paramMap with {database} {table},etc.
+        if (actualIdentifier != null) {
+            int i = 0;
+            while (matcher.find()) {
+                try {
+                    String keyText = matcher.group(1);
+                    int finalI = i;
+                    paramMap.computeIfAbsent(keyText, k -> actualIdentifier[finalI]);
+                } catch (Exception e) {
+                    throw new IOException("param map replacement failed", e);
+                }
+                i++;
             }
-            i++;
         }
 
         matcher = REGEX_PATTERN.matcher(pattern);
