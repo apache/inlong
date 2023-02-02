@@ -423,7 +423,6 @@ public class LoadNodeUtils {
                 null,
                 null,
                 properties,
-                redisSink.getExtList(),
                 clusterMode,
                 dataType,
                 schemaMapMode,
