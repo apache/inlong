@@ -24,6 +24,7 @@ import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.internal.connection.JdbcConnectionProvider;
 import org.apache.flink.connector.jdbc.internal.connection.SimpleJdbcConnectionProvider;
@@ -219,6 +220,11 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                             executionOptions.getBatchIntervalMs(),
                             executionOptions.getBatchIntervalMs(),
                             TimeUnit.MILLISECONDS);
+            try {
+                dirtySinkHelper.open(new Configuration());
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
         }
     }
 
