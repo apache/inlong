@@ -72,6 +72,7 @@ public enum ConnectorJarType {
     HUDI_SINK("hudiLoad", "hudi"),
 
     HDFS_SINK("fileSystemLoad", ""),
+    REDIS_SINK("redisLoad", "redis"),
 
     ;
 

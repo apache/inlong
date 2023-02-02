@@ -90,6 +90,14 @@ public class Preconditions {
         expectTrue(collection != null && !collection.isEmpty(), errMsg);
     }
 
+    public static void expectNotEmpty(String[] collection, String errMsg) {
+        expectTrue(collection != null && collection.length != 0, errMsg);
+    }
+
+    public static void expectNotEmpty(String[] collection, Supplier<String> errMsg) {
+        expectTrue(collection != null && collection.length != 0, errMsg);
+    }
+
     public static void expectNotEmpty(Map<?, ?> map, String errMsg) {
         expectTrue(map != null && !map.isEmpty(), errMsg);
     }
@@ -124,6 +132,11 @@ public class Preconditions {
 
     public static void expectTrue(boolean condition, String errMsg) {
         if (!condition) {
+            throw new IllegalArgumentException(errMsg);
+        }
+    }
+    public static void expectNotBlank(String obj, String errMsg) {
+        if (StringUtils.isBlank(obj)) {
             throw new IllegalArgumentException(errMsg);
         }
     }

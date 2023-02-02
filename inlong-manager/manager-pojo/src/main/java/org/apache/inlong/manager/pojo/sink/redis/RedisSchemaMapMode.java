@@ -15,21 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.consts;
+package org.apache.inlong.manager.pojo.sink.redis;
 
 /**
- * Constants of data node.
+ * The mapMode between SQL column and Redis data-type.
  */
-public class DataNodeType {
-
-    public static final String HIVE = "HIVE";
-    public static final String KAFKA = "KAFKA";
-    public static final String ICEBERG = "ICEBERG";
-    public static final String HUDI = "HUDI";
-    public static final String CLICKHOUSE = "CLICKHOUSE";
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
-    public static final String MYSQL = "MYSQL";
-    public static final String STARROCKS = "STARROCKS";
-    public static final String REDIS = "REDIS";
-
+public enum RedisSchemaMapMode {
+    DYNAMIC,
+    STATIC_PREFIX_MATCH,
+    STATIC_KV_PAIR;
 }
