@@ -18,17 +18,22 @@
 package org.apache.inlong.sort.redis.sink;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.concurrent.GuardedBy;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
@@ -37,6 +42,10 @@ import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.apache.flink.table.data.RowData;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.redis.common.container.InlongRedisCommandsContainer;
 import org.apache.inlong.sort.redis.common.container.RedisCommandsContainerBuilder;
 import org.apache.inlong.sort.redis.common.schema.StateEncoder;
@@ -90,8 +99,6 @@ public abstract class AbstractRedisSinkFunction<OUT>
 
     private final List<OUT> rows;
 
-    private transient ScheduledExecutorService executorService;
-
     /**
      * The container for all available Redis commands.
      */
@@ -104,6 +111,12 @@ public abstract class AbstractRedisSinkFunction<OUT>
     protected transient StopWatch stopWatch;
 
     protected StateEncoder<OUT> stateEncoder;
+    private final String auditHostAndPorts;
+
+    private final String inLongMetric;
+    private transient MetricState metricState;
+    private transient ListState<MetricState> metricStateListState;
+    private SinkMetricData sinkMetricData;
 
     public AbstractRedisSinkFunction(
             TypeInformation<OUT> outputType,
@@ -112,7 +125,9 @@ public abstract class AbstractRedisSinkFunction<OUT>
             long batchSize,
             Duration flushInterval,
             Duration configuration,
-            FlinkJedisConfigBase flinkJedisConfigBase) {
+            FlinkJedisConfigBase flinkJedisConfigBase,
+            String inLongMetric,
+            String auditHostAndPorts) {
         checkNotNull(configuration, "The configuration must not be null.");
 
         this.stateEncoder = stateEncoder;
@@ -124,6 +139,8 @@ public abstract class AbstractRedisSinkFunction<OUT>
         this.forceFlush = false;
         this.rows = new ArrayList<>();
         this.flinkJedisConfigBase = flinkJedisConfigBase;
+        this.inLongMetric = inLongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @Override
@@ -152,11 +169,34 @@ public abstract class AbstractRedisSinkFunction<OUT>
             outputFlusher = Optional.of(new OutputFlusher(threadName, flushIntervalInMillis));
             outputFlusher.get().start();
         }
-
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inLongMetric)
+                .withInlongAudit(auditHostAndPorts)
+                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
+                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
+                .withRegisterMetric(MetricOption.RegisteredMetric.ALL)
+                .build();
+        if (metricOption != null) {
+            sinkMetricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
+        }
     }
 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
+        if (this.inLongMetric != null) {
+            this.metricStateListState = context.getOperatorStateStore().getUnionListState(
+                    new ListStateDescriptor<>(
+                            INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+                            })));
+        }
+
+        if (context.isRestored()) {
+            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
+                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
+        }
+
         final ListStateDescriptor<OUT> stateDescriptor = new ListStateDescriptor<>(
                 "rowState", outputType);
         this.listState = context.getOperatorStateStore().getListState(stateDescriptor);
@@ -174,6 +214,10 @@ public abstract class AbstractRedisSinkFunction<OUT>
             listState.clear();
             listState.addAll(rows);
         }
+        if (sinkMetricData != null && metricStateListState != null) {
+            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, sinkMetricData,
+                    getRuntimeContext().getIndexOfThisSubtask());
+        }
         LOG.info("redis end snapshotState, id: {}", functionSnapshotContext.getCheckpointId());
     }
 
@@ -189,6 +233,7 @@ public abstract class AbstractRedisSinkFunction<OUT>
     public void invoke(RowData in, Context context) {
 
         List<OUT> redisOutputs = serialize(in);
+        sendMetrics(in.toString().getBytes());
         synchronized (lock) {
             rows.addAll(redisOutputs);
             if (forceFlush || rows.size() >= batchSize) {
@@ -201,14 +246,6 @@ public abstract class AbstractRedisSinkFunction<OUT>
     @Override
     public void close() throws Exception {
         closeClient();
-
-        if (executorService != null) {
-            try {
-                executorService.shutdown();
-            } catch (Throwable t) {
-                LOG.warn("Could not properly shut down ScheduledExecutorService.", t);
-            }
-        }
 
         super.close();
 
@@ -287,6 +324,12 @@ public abstract class AbstractRedisSinkFunction<OUT>
             } finally {
                 forceFlush = false;
             }
+        }
+    }
+
+    protected void sendMetrics(byte[] document) {
+        if (sinkMetricData != null) {
+            sinkMetricData.invoke(1, document.length);
         }
     }
 }
