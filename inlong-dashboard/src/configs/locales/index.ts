@@ -20,7 +20,7 @@
 interface LocalesType {
   [key: string]: {
     label: string;
-    antdPath: string;
+    uiComponentPath: string;
     dayjsPath: string;
   };
 }
@@ -28,12 +28,12 @@ interface LocalesType {
 export const localesConfig: LocalesType = {
   cn: {
     label: '简体中文',
-    antdPath: 'zh_CN',
+    uiComponentPath: 'zh_CN',
     dayjsPath: 'zh-cn',
   },
   en: {
     label: 'English',
-    antdPath: 'en_US',
+    uiComponentPath: 'en_US',
     dayjsPath: 'en',
   },
 };

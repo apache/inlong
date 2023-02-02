@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import cloneDeep from 'lodash/cloneDeep';
+
 export function isDevelopEnv() {
   if (process.env.NODE_ENV === 'development') {
     return true;
@@ -205,4 +207,37 @@ export function getStrByteLen(str: string): number {
     }
   }
   return len;
+}
+
+function treeToArrayHelper(
+  tree: any[],
+  id: string,
+  pid: string,
+  children: string,
+  parent: any = null,
+): any[] {
+  let data = cloneDeep(tree);
+  return data.reduce((accumulator, item) => {
+    const { [children]: itemChildren } = item;
+    let result;
+    if (parent && !item[pid]) {
+      item[pid] = parent[id];
+    }
+    if (parent) {
+      item.deepKey = parent.deepKey.concat(item[id]);
+    } else {
+      item.deepKey = [item[id]];
+    }
+    if (itemChildren) {
+      result = accumulator.concat(item, treeToArrayHelper(itemChildren, id, pid, children, item));
+      delete item[children];
+    } else {
+      result = accumulator.concat(item);
+    }
+    return result;
+  }, []);
+}
+
+export function treeToArray(tree: any[], id = 'id', pid = 'pid', children = 'children') {
+  return treeToArrayHelper(tree, id, pid, children);
 }

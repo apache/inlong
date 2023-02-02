@@ -104,7 +104,7 @@ const App = () => {
   const importLocale = useCallback(async locale => {
     if (!localesConfig[locale]) return;
 
-    const { antdPath, dayjsPath } = localesConfig[locale];
+    const { uiComponentPath, dayjsPath } = localesConfig[locale];
     const [messagesDefault, messagesExtends, antdMessages] = await Promise.all([
       import(
         /* webpackChunkName: 'default-locales-[request]' */
@@ -117,7 +117,7 @@ const App = () => {
       import(
         /* webpackInclude: /(zh_CN|en_US)\.js$/ */
         /* webpackChunkName: 'antd-locales-[request]' */
-        `antd/es/locale/${antdPath}.js`
+        `antd/es/locale/${uiComponentPath}.js`
       ),
       import(
         /* webpackInclude: /(zh-cn|en)\.js$/ */
