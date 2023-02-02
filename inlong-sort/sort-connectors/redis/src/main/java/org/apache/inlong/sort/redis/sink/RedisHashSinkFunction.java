@@ -45,7 +45,9 @@ public class RedisHashSinkFunction
             long batchSize,
             Duration flushInterval,
             Duration expireTime,
-            FlinkJedisConfigBase flinkJedisConfigBase) {
+            FlinkJedisConfigBase flinkJedisConfigBase,
+            String inlongMetric,
+            String auditHostAndPorts) {
         super(TypeInformation.of(new TypeHint<Tuple4<Boolean, String, String, String>>() {
         }),
                 serializationSchema,
@@ -53,7 +55,10 @@ public class RedisHashSinkFunction
                 batchSize,
                 flushInterval,
                 expireTime,
-                flinkJedisConfigBase);
+                flinkJedisConfigBase,
+
+                inlongMetric,
+                auditHostAndPorts);
         LOG.info("Creating RedisHashSinkFunction ...");
     }
 

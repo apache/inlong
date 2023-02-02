@@ -128,7 +128,9 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 dataType,
                 schemaMappingMode,
                 config,
-                properties);
+                properties,
+                inlongMetric,
+                auditHostAndPorts);
     }
 
     private RedisLookupOptions getJdbcLookupOptions(ReadableConfig readableConfig) {
