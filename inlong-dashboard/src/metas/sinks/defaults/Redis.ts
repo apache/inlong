@@ -401,9 +401,8 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
       ],
     }),
   })
-  @ColumnDecorator()
   @I18n('meta.Sinks.Redis.ExtList')
-  extList: string;
+  properties: string;
 
   @FieldDecorator({
     type: 'inputnumber',
