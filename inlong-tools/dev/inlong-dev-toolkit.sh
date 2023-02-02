@@ -33,16 +33,16 @@ help_action=(
   'welcome'
 )
 
-manager_action=(
-  'manager'
-  'm'
+manager_plugins_action=(
+  'manager_plugins'
+  'mp'
   'build manager local debugging environment'
-  'manager'
+  'manager_plugins'
 )
 
 actions=(
   help_action
-  manager_action
+  manager_plugins_action
 )
 
 function welcome() {
@@ -68,7 +68,7 @@ function welcome() {
   echo ''
 }
 
-function manager() {
+function manager_plugins() {
   echo '# start build manager local debugging environment ...'
 
   project_version=$(mvn -q \
@@ -82,34 +82,8 @@ function manager() {
   echo 'associate plugins directory: inlong-manager/manager-plugins/target/plugins'
   # plugins -> manager-plugins/target/plugins
   cd "$base_dir"
-  rm -rf plugins
-  ln -s inlong-manager/manager-plugins/target/plugins plugins
-  #
-  echo 'associate sort dist: inlong-sort/sort-dist/target/sort-dist'
-  cd "$base_dir"/inlong-sort
-  rm -rf sort-dist.jar
-  ln -s sort-dist/target/sort-dist-"$project_version".jar sort-dist.jar
-  # inlong-manager:    plugins -> manager-plugins/target/plugins
-  cd "$base_dir"/inlong-manager
-  rm -rf plugins
-  ln -s manager-plugins/target/plugins plugins
-  #   mkdir inlong-sort/connectors
-  sort_connector_dir=$base_dir/inlong-sort/connectors
-  echo 'recreate connector dir: '"$sort_connector_dir"
-  # shellcheck disable=SC2086
-  rm -rf $sort_connector_dir
-  mkdir "$sort_connector_dir"
-  cd "$sort_connector_dir"
-  connector_names=$(grep '<module>' "$base_dir"/inlong-sort/sort-connectors/pom.xml | sed 's/<module>//g' | sed 's/<\/module>//g' | grep -v base)
-
-  echo 'All connector names: '
-  echo $connector_names | tr -d '\n'
-
-  for connector_name in $connector_names; do
-    echo 'associate connector: '"$connector_name"
-    connector_suffix_name=$(echo "$connector_name" | sed 's/elasticsearch-6/elasticsearch6/g' | sed 's/elasticsearch-7/elasticsearch7/g')
-    ln -s ../sort-connectors/"${connector_name}"/target/sort-connector-"${connector_suffix_name}"-"$project_version".jar sort-connector-"${connector_name}".jar
-  done
+  rm -rf dev/plugins
+  ln -s inlong-manager/manager-plugins/target/plugins dev/plugins
 
   echo 'build dev env of manager finished .'
 }
