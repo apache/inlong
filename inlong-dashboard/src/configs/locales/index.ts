@@ -17,7 +17,9 @@
  * under the License.
  */
 
-interface LocalesType {
+import localesConf from './conf';
+
+export interface LocalesType {
   [key: string]: {
     label: string;
     uiComponentPath: string;
@@ -25,18 +27,7 @@ interface LocalesType {
   };
 }
 
-export const localesConfig: LocalesType = {
-  cn: {
-    label: '简体中文',
-    uiComponentPath: 'zh_CN',
-    dayjsPath: 'zh-cn',
-  },
-  en: {
-    label: 'English',
-    uiComponentPath: 'en_US',
-    dayjsPath: 'en',
-  },
-};
+export const localesConfig = localesConf;
 
 export const getCurrentLocale = () => {
   const pathLocale = window.location.hash.split('/')[1];

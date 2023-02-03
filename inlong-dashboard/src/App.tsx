@@ -17,9 +17,7 @@
  * under the License.
  */
 
-import React, { Suspense, lazy, useEffect, useCallback, useState } from 'react';
-import { ConfigProvider, Spin } from 'antd';
-import dayjs from 'dayjs';
+import React, { Suspense, lazy, useEffect, useCallback } from 'react';
 import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import {
   useLocation,
@@ -29,17 +27,16 @@ import {
   useSelector,
   useRequest,
 } from '@/hooks';
-import { PageLoading } from '@ant-design/pro-layout';
 import { Provider } from 'react-redux';
-import Layout from '@/components/Layout';
 import routes, { RouteProps } from '@/configs/routes';
 import { State } from '@/models';
 import request from '@/utils/request';
 import { localesConfig } from '@/configs/locales';
 import store from './models';
-import i18n from './i18n';
-import '@/themes/index.less';
 import Login from '@/pages/Login';
+import { config } from '@/configs/default';
+
+const { AppProvider, AppLoading, AppLayout } = config;
 
 const lazyComponentCache: Record<string, ReturnType<typeof lazy>> = {};
 
@@ -58,7 +55,7 @@ const renderRoutes = function (routes: RouteProps[], parentPath = ''): any[] {
       <Route
         key={compiledPath}
         path={compiledPath}
-        exact={route.exact}
+        exact
         strict={route.strict}
         render={props => {
           const LazyComponent = lazyComponentCache[compiledPath] || lazy(route.component);
@@ -73,14 +70,13 @@ const renderRoutes = function (routes: RouteProps[], parentPath = ''): any[] {
     );
   }, []);
 };
+
 const App = () => {
   const location = useLocation();
   const history = useHistory();
   const dispatch = useDispatch();
 
   const locale = useSelector<State, State['locale']>(state => state.locale);
-
-  const [antdMessages, setAntdMessages] = useState();
 
   useRequest(
     {
@@ -100,43 +96,6 @@ const App = () => {
       },
     },
   );
-
-  const importLocale = useCallback(async locale => {
-    if (!localesConfig[locale]) return;
-
-    const { uiComponentPath, dayjsPath } = localesConfig[locale];
-    const [messagesDefault, messagesExtends, antdMessages] = await Promise.all([
-      import(
-        /* webpackChunkName: 'default-locales-[request]' */
-        `@/locales/${locale}.json`
-      ),
-      import(
-        /* webpackChunkName: 'extends-locales-[request]' */
-        `@/locales/extends/${locale}.json`
-      ),
-      import(
-        /* webpackInclude: /(zh_CN|en_US)\.js$/ */
-        /* webpackChunkName: 'antd-locales-[request]' */
-        `antd/es/locale/${uiComponentPath}.js`
-      ),
-      import(
-        /* webpackInclude: /(zh-cn|en)\.js$/ */
-        /* webpackChunkName: 'dayjs-locales-[request]' */
-        `dayjs/esm/locale/${dayjsPath}.js`
-      ),
-    ]);
-    i18n.changeLanguage(locale);
-    i18n.addResourceBundle(locale, 'translation', {
-      ...messagesDefault.default,
-      ...messagesExtends.default,
-    });
-    dayjs.locale(dayjsPath);
-    setAntdMessages(antdMessages.default);
-  }, []);
-
-  useEffect(() => {
-    importLocale(locale);
-  }, [locale, importLocale]);
 
   const setCurrentMenu = useCallback(
     pathname => {
@@ -161,22 +120,18 @@ const App = () => {
     setCurrentMenu(location.pathname);
   }, [history, location, setCurrentMenu]);
 
-  return antdMessages ? (
-    <ConfigProvider locale={antdMessages} autoInsertSpaceInButton={false}>
-      <Switch>
-        <Route exact path="/login" render={() => <Login />} />
-        <Layout>
-          <Suspense fallback={<PageLoading />}>
-            <Switch>
-              <Route exact path="/" render={() => <Redirect to="/group" />} />
-              {renderRoutes(routes)}
-            </Switch>
-          </Suspense>
-        </Layout>
-      </Switch>
-    </ConfigProvider>
-  ) : (
-    <Spin />
+  return (
+    <Switch>
+      <Route exact path="/login" render={() => <Login />} />
+      <AppLayout>
+        <Suspense fallback={<AppLoading />}>
+          <Switch>
+            <Route exact path="/" render={() => <Redirect to="/group" />} />
+            {renderRoutes(routes)}
+          </Switch>
+        </Suspense>
+      </AppLayout>
+    </Switch>
   );
 };
 
@@ -190,7 +145,9 @@ const Content = () => (
         requestMethod: request,
       }}
     >
-      <App />
+      <AppProvider>
+        <App />
+      </AppProvider>
     </UseRequestProvider>
   </Router>
 );
