@@ -101,7 +101,9 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
         PulsarClusterInfo pulsarInfo = new PulsarClusterInfo();
         CommonBeanUtils.copyProperties(pulsarRequest, pulsarInfo);
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarInfo)) {
+            // test connect for pulsar adminUrl
             pulsarAdmin.tenants().getTenants();
+            // test connect for pulsar ServiceUrl
             final String serviceUrl = pulsarInfo.getUrl();
             Preconditions.expectNotNull(serviceUrl, "Pulsar ServiceUrl is empty");
             Preconditions.expectTrue(serviceUrl.startsWith(SERVICE_URL_PREFIX),
