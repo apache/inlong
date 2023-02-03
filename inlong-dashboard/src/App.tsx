@@ -55,7 +55,7 @@ const renderRoutes = function (routes: RouteProps[], parentPath = ''): any[] {
       <Route
         key={compiledPath}
         path={compiledPath}
-        exact={route.exact}
+        exact
         strict={route.strict}
         render={props => {
           const LazyComponent = lazyComponentCache[compiledPath] || lazy(route.component);

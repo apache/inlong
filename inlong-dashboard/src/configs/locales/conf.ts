@@ -17,8 +17,19 @@
  * under the License.
  */
 
-import paginationConf from './conf';
+import type { LocalesType } from '.';
 
-export const defaultSize = +paginationConf.pageSizeOptions[0];
+const localesConf: LocalesType = {
+  cn: {
+    label: '简体中文',
+    uiComponentPath: 'zh_CN',
+    dayjsPath: 'zh-cn',
+  },
+  en: {
+    label: 'English',
+    uiComponentPath: 'en_US',
+    dayjsPath: 'en',
+  },
+};
 
-export default paginationConf;
+export default localesConf;

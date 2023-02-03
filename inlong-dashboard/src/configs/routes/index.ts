@@ -19,111 +19,12 @@
 
 import { pathToRegexp } from 'path-to-regexp';
 import type { RouteProps as ReactRouteProps } from 'react-router-dom';
+import routes from './conf';
 
 export interface RouteProps extends Omit<ReactRouteProps, 'component'> {
   component?: () => Promise<{ default: any }>;
   childRoutes?: RouteProps[];
 }
-
-const routes: RouteProps[] = [
-  {
-    path: '/login',
-    component: () => import('@/pages/Login'),
-    exact: true,
-  },
-  {
-    path: '/group',
-    component: () => import('@/pages/GroupDashboard'),
-    exact: true,
-    childRoutes: [
-      {
-        path: '/create/:id?',
-        component: () => import('@/pages/GroupDetail'),
-        exact: true,
-      },
-      {
-        path: '/detail/:id',
-        component: () => import('@/pages/GroupDetail'),
-        exact: true,
-      },
-    ],
-  },
-  {
-    path: '/consume',
-    component: () => import('@/pages/ConsumeDashboard'),
-    exact: true,
-    childRoutes: [
-      {
-        path: '/create/:id?',
-        component: () => import('@/pages/ConsumeDetail'),
-        exact: true,
-      },
-      {
-        path: '/detail/:id',
-        component: () => import('@/pages/ConsumeDetail'),
-        exact: true,
-      },
-    ],
-  },
-  {
-    path: '/process',
-    exact: true,
-    childRoutes: [
-      {
-        path: '/:type?',
-        component: () => import('@/pages/Process'),
-        exact: true,
-        childRoutes: [
-          {
-            path: '/:id',
-            component: () => import('@/pages/ProcessDetail'),
-            exact: true,
-          },
-        ],
-      },
-      {
-        path: '/detail/:id',
-        component: () => import('@/pages/ProcessDetail'),
-        exact: true,
-      },
-    ],
-  },
-  {
-    path: '/user',
-    component: () => import('@/pages/UserManagement'),
-    exact: true,
-  },
-  {
-    path: '/approval',
-    component: () => import('@/pages/ProcessManagement'),
-    exact: true,
-  },
-  {
-    path: '/clusters',
-    component: () => import('@/pages/Clusters'),
-    exact: true,
-    childRoutes: [
-      {
-        path: '/node',
-        component: () => import('@/pages/Clusters/NodeManage'),
-        exact: true,
-      },
-    ],
-  },
-  {
-    path: '/clusterTags',
-    component: () => import('@/pages/ClusterTags'),
-    exact: true,
-  },
-  {
-    path: '/node',
-    component: () => import('@/pages/Nodes'),
-    exact: true,
-  },
-  {
-    component: () => import('@/pages/Error/404'),
-  },
-];
 
 /**
  * In a route tree structure array, get all the routing path configuration simple array collection

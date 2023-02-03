@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import i18n from '@/i18n';
 import { treeToArray } from '@/utils';
+import menusTreeConf from './conf';
 
 export interface MenuItemType {
   name: string;
@@ -44,51 +44,7 @@ const genMenuKey = (array: Omit<MenuItemType, 'key'>[], parentKey = ''): MenuIte
   });
 };
 
-const menusTree: MenuItemType[] = genMenuKey([
-  {
-    path: '/group',
-    name: i18n.t('configs.menus.Groups'),
-  },
-  {
-    path: '/consume',
-    name: i18n.t('configs.menus.Subscribe'),
-  },
-  {
-    name: i18n.t('configs.menus.Clusters'),
-    children: [
-      {
-        path: '/clusters',
-        name: i18n.t('configs.menus.Clusters'),
-      },
-      {
-        path: '/clusterTags',
-        name: i18n.t('configs.menus.ClusterTags'),
-      },
-    ],
-  },
-  {
-    path: '/node',
-    name: i18n.t('configs.menus.Nodes'),
-  },
-  {
-    path: '/process',
-    name: i18n.t('configs.menus.Process'),
-  },
-  {
-    name: i18n.t('configs.menus.SystemManagement'),
-    isAdmin: true,
-    children: [
-      {
-        path: '/user',
-        name: i18n.t('configs.menus.UserManagement'),
-      },
-      {
-        path: '/approval',
-        name: i18n.t('configs.menus.ProcessManagement'),
-      },
-    ],
-  },
-]);
+const menusTree: MenuItemType[] = genMenuKey(menusTreeConf);
 
 export const menuArrays: Omit<MenuItemType, 'children'>[] = treeToArray(menusTree, 'key', 'pKey');
 
