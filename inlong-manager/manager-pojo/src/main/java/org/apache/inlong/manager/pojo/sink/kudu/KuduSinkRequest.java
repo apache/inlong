@@ -36,10 +36,7 @@ import org.apache.inlong.manager.pojo.sink.SinkRequest;
 @JsonTypeDefine(value = SinkType.KUDU)
 public class KuduSinkRequest extends SinkRequest {
 
-    /**
-     * A comma separated list of "host:port" pairs into a list of host and port.
-     */
-    @ApiModelProperty("Target masters")
+    @ApiModelProperty("Kudu masters, a comma separated list of 'host:port' pairs")
     private String masters;
 
     @ApiModelProperty("Target table name")
