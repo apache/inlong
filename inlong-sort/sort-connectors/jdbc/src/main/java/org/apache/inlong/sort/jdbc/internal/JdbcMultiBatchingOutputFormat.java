@@ -646,7 +646,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                     if (!flushFlag && null != tableException) {
                         LOG.info("Put tableIdentifier:{} exception:{}",
                                 tableIdentifier, tableException.getMessage());
-                        if (dirtySinkHelper.getDirtySink() == null) {
+                        if (dirtySinkHelper.getDirtySink() == null &&
+                                !schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.THROW_WITH_STOP)) {
                             outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                     1L, true);
                         }
