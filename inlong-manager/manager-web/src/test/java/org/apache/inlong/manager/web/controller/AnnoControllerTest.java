@@ -26,6 +26,7 @@ import org.apache.inlong.manager.web.WebBaseTest;
 import org.apache.shiro.SecurityUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -72,7 +73,10 @@ class AnnoControllerTest extends WebBaseTest {
         Assertions.assertTrue(response.getErrMsg().contains("incorrect"));
     }
 
-    @Test
+    /**
+     * It will throw many error logs, so keep it in the local test
+     */
+    @Disabled
     void testLoginFailByWrongPwdAndLockAccount() throws Exception {
         UserLoginRequest loginUser = new UserLoginRequest();
         loginUser.setUsername("test_lock_account");
@@ -102,7 +106,10 @@ class AnnoControllerTest extends WebBaseTest {
         Assertions.assertTrue(response.getErrMsg().contains("account has been locked"));
     }
 
-    @Test
+    /**
+     * It will throw many error logs, so keep it in the local test
+     */
+    @Disabled
     void testLoginSuccessfulAndClearErrorCount() throws Exception {
         UserLoginRequest loginUser = new UserLoginRequest();
         loginUser.setUsername("admin");

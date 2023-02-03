@@ -45,7 +45,9 @@ public class RedisBitmapSinkFunction
             long batchSize,
             Duration flushInterval,
             Duration configuration,
-            FlinkJedisConfigBase flinkJedisConfigBase) {
+            FlinkJedisConfigBase flinkJedisConfigBase,
+            String inlongMetric,
+            String auditHostAndPorts) {
         super(TypeInformation.of(new TypeHint<Tuple4<Boolean, String, Long, Boolean>>() {
         }),
                 serializationSchema,
@@ -53,7 +55,9 @@ public class RedisBitmapSinkFunction
                 batchSize,
                 flushInterval,
                 configuration,
-                flinkJedisConfigBase);
+                flinkJedisConfigBase,
+                inlongMetric,
+                auditHostAndPorts);
         LOG.info("Creating RedisBitmapStaticKvPairSinkFunction ...");
     }
 

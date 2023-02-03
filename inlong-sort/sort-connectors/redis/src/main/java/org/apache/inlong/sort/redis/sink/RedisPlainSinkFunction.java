@@ -45,7 +45,9 @@ public class RedisPlainSinkFunction
             long batchSize,
             Duration flushInterval,
             Duration configuration,
-            FlinkJedisConfigBase flinkJedisConfigBase) {
+            FlinkJedisConfigBase flinkJedisConfigBase,
+            String inlongMetric,
+            String auditHostAndPorts) {
         super(TypeInformation.of(new TypeHint<Tuple3<Boolean, String, String>>() {
         }),
                 serializationSchema,
@@ -53,7 +55,9 @@ public class RedisPlainSinkFunction
                 batchSize,
                 flushInterval,
                 configuration,
-                flinkJedisConfigBase);
+                flinkJedisConfigBase,
+                inlongMetric,
+                auditHostAndPorts);
         checkNotNull(serializationSchema, "The serialization schema must not be null.");
         ensureSerializable(serializationSchema);
     }

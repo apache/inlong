@@ -19,7 +19,7 @@
 
 import { createStore } from 'redux';
 import { pathToRegexp } from 'path-to-regexp';
-import menus from '@/configs/menus';
+import { menuArrays, MenuItemType } from '@/configs/menus';
 import { getPathnameExist } from '@/configs/routes';
 import { getCurrentLocale } from '@/configs/locales';
 
@@ -28,10 +28,7 @@ export interface State {
   userName: string;
   userId: number;
   roles: string[];
-  currentMenu: null | {
-    name: string;
-    path: string;
-  };
+  currentMenu: null | Omit<MenuItemType, 'children'>;
 }
 
 const state: State = {
@@ -65,7 +62,7 @@ const reducers = {
 
     // Find the selected route
     let currentMenu = null;
-    for (const item of menus) {
+    for (const item of menuArrays) {
       if (
         item.path &&
         // The route in the menu || is not in the menu, but belongs to a sub-route under a menu
