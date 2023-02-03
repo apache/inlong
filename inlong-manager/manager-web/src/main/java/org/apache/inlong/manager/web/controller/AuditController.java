@@ -24,6 +24,7 @@ import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +41,7 @@ import java.util.List;
 @Api(tags = "Audit-API")
 public class AuditController {
 
+    @Lazy
     @Autowired
     private AuditService auditService;
 
