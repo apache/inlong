@@ -110,7 +110,7 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
             String hostPortStr = serviceUrl.replaceAll(SERVICE_URL_PREFIX, "");
             String[] hostPortArr = hostPortStr.split(InlongConstants.COLON);
             Preconditions.expectTrue(hostPortArr.length >= 2,
-                String.format("Pulsar ServiceUrl=%s should has ip and port, such as '127.0.0.1:6650'", serviceUrl));
+                    String.format("Pulsar ServiceUrl=%s should has ip and port, such as '127.0.0.1:6650'", serviceUrl));
 
             String host = hostPortArr[0];
             int port = Integer.parseInt(hostPortArr[1]);
