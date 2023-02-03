@@ -102,23 +102,28 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
         CommonBeanUtils.copyProperties(pulsarRequest, pulsarInfo);
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarInfo)) {
             pulsarAdmin.tenants().getTenants();
-            String serviceUrl = pulsarInfo.getUrl();
-            Preconditions.expectNotNull(serviceUrl, "ServiceUrl is empty");
+            final String serviceUrl = pulsarInfo.getUrl();
+            Preconditions.expectNotNull(serviceUrl, "Pulsar ServiceUrl is empty");
             Preconditions.expectTrue(serviceUrl.startsWith(SERVICE_URL_PREFIX),
-                    String.format("ServiceUrl=%s is incorrect", serviceUrl));
-            serviceUrl = serviceUrl.replaceAll(SERVICE_URL_PREFIX, "");
-            String host = serviceUrl.split(InlongConstants.COLON)[0];
-            int port = Integer.parseInt(serviceUrl.split(":")[1]);
+                    String.format("Pulsar ServiceUrl=%s should starts with %s", serviceUrl, SERVICE_URL_PREFIX));
+
+            String hostPortStr = serviceUrl.replaceAll(SERVICE_URL_PREFIX, "");
+            String[] hostPortArr = hostPortStr.split(InlongConstants.COLON);
+            Preconditions.expectTrue(hostPortArr.length >= 2,
+                String.format("Pulsar ServiceUrl=%s should has ip and port, such as '127.0.0.1:6650'", serviceUrl));
+
+            String host = hostPortArr[0];
+            int port = Integer.parseInt(hostPortArr[1]);
             SocketAddress socketAddress = new InetSocketAddress(host, port);
             Socket socket = new Socket();
             socket.connect(socketAddress, 30000);
             socket.close();
-            LOGGER.debug("pulsar connection not null - connection success for adminUrl={}, ServiceUrl={}",
+            LOGGER.debug("Pulsar connection not null - connection success for AdminUrl={}, ServiceUrl={}",
                     pulsarInfo.getAdminUrl(), pulsarInfo.getUrl());
             return true;
         } catch (Exception e) {
-            String errMsg = String.format("pulsar connection failed for adminUrl=%s, ServiceUrl=%s, password=%s",
-                    pulsarInfo.getAdminUrl(), pulsarInfo.getUrl(), pulsarInfo.getToken());
+            String errMsg = String.format("Pulsar connection failed for AdminUrl=%s, ServiceUrl=%s",
+                    pulsarInfo.getAdminUrl(), pulsarInfo.getUrl());
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
