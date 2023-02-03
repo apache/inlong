@@ -23,6 +23,7 @@ import { RequestOptionsInit } from 'umi-request/types';
 import nprogress from 'nprogress';
 import { config } from '@/configs/default';
 import requestConcurrentMiddleware from './requestConcurrentMiddleware';
+import 'nprogress/nprogress.css';
 
 export interface FetchOptions extends RequestOptionsInit {
   url: string;

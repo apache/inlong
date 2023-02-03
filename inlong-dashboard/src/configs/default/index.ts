@@ -16,10 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { PageLoading } from '@ant-design/pro-layout';
 import i18n from '@/i18n';
+import Provider from '@/components/Provider';
+import Layout from '@/components/Layout';
 
 export const config = {
   title: '',
   logo: '/logo.svg',
   loginUrl: `${window.location.origin}/#/${i18n?.language || ''}/login`,
+  AppProvider: Provider,
+  AppLoading: PageLoading,
+  AppLayout: Layout,
 };
