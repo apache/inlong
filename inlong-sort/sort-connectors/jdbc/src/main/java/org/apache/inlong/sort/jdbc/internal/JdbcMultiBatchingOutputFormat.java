@@ -102,7 +102,7 @@ import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
  */
 public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStatementExecutor<JdbcIn>>
         extends
-        AbstractJdbcOutputFormat<In> {
+            AbstractJdbcOutputFormat<In> {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(JdbcMultiBatchingOutputFormat.class);
@@ -531,7 +531,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
 
         }
         if (context.isRestored()) {
@@ -806,10 +806,9 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
      */
     public interface StatementExecutorFactory<T extends JdbcBatchStatementExecutor<?>>
             extends
-            Function<RuntimeContext, T>,
-            Serializable {
+                Function<RuntimeContext, T>,
+                Serializable {
 
     }
 
 }
-
