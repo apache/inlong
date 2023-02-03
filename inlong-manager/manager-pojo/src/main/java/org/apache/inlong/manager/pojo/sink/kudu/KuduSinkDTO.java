@@ -39,7 +39,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class KuduSinkDTO {
 
-    @ApiModelProperty("Catalog uri, such as hive metastore thrift://ip:port")
+    @ApiModelProperty("Kudu masters, a comma separated list of 'host:port' pairs")
     private String masters;
 
     @ApiModelProperty("Target table name")
