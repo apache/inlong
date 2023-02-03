@@ -59,19 +59,27 @@ public class RedisDynamicTableSink implements DynamicTableSink {
     private final ReadableConfig config;
     private final Map<String, String> properties;
 
+    private final String inlongMetric;
+    private final String auditHostAndPorts;
+
     public RedisDynamicTableSink(
             EncodingFormat<SerializationSchema<RowData>> format,
             ResolvedSchema resolvedSchema,
             RedisDataType dataType,
             SchemaMappingMode schemaMappingMode,
             ReadableConfig config,
-            Map<String, String> properties) {
+            Map<String, String> properties,
+            String inlongMetric,
+            String auditHostAndPorts) {
         this.format = format;
         this.resolvedSchema = resolvedSchema;
         this.dataType = dataType;
         this.mappingMode = schemaMappingMode;
         this.config = config;
         this.properties = properties;
+
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
 
         flinkJedisConfigBase = RedisHandlerServices
                 .findRedisHandler(InlongJedisConfigHandler.class, properties)
@@ -117,7 +125,9 @@ public class RedisDynamicTableSink implements DynamicTableSink {
                         batchSize,
                         flushInterval,
                         expireTime,
-                        flinkJedisConfigBase);
+                        flinkJedisConfigBase,
+                        inlongMetric,
+                        auditHostAndPorts);
                 break;
             case PLAIN:
                 redisSinkFunction = new RedisPlainSinkFunction(
@@ -126,7 +136,9 @@ public class RedisDynamicTableSink implements DynamicTableSink {
                         batchSize,
                         flushInterval,
                         expireTime,
-                        flinkJedisConfigBase);
+                        flinkJedisConfigBase,
+                        inlongMetric,
+                        auditHostAndPorts);
                 break;
             case BITMAP:
                 redisSinkFunction = new RedisBitmapSinkFunction(
@@ -135,7 +147,10 @@ public class RedisDynamicTableSink implements DynamicTableSink {
                         batchSize,
                         flushInterval,
                         expireTime,
-                        flinkJedisConfigBase);
+                        flinkJedisConfigBase,
+
+                        inlongMetric,
+                        auditHostAndPorts);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -178,7 +193,9 @@ public class RedisDynamicTableSink implements DynamicTableSink {
                 dataType,
                 mappingMode,
                 config,
-                properties);
+                properties,
+                inlongMetric,
+                auditHostAndPorts);
     }
 
     @Override
