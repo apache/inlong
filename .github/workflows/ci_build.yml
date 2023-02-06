@@ -69,6 +69,11 @@ jobs:
           java-version: 8
           distribution: adopt
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -88,7 +93,7 @@ jobs:
       - name: Get InLong version
         if: ${{ success() }}
         run: |
-          version=`mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q`
+          version=$(python docker/get-project-version.py)
           echo "VERSION=${version}" >> $GITHUB_ENV
 
       - name: Upload binary package
