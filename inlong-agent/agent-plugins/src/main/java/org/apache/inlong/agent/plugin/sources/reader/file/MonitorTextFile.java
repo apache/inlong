@@ -131,22 +131,54 @@ public final class MonitorTextFile {
             try {
                 attributesAfter = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
                 currentPath = file.getCanonicalPath();
+
+                // Determine whether the inode has changed
+                if (isInodeChanged(attributesAfter.fileKey().toString())) {
+                    resetPosition();
+                }
+                fileReaderOperator.fileKey = attributesAfter.fileKey().toString();
             } catch (Exception e) {
                 // set position 0 when split file
-                fileReaderOperator.position = 0;
+                resetPosition();
                 LOGGER.error(String.format("monitor file %s error, reset position to 0", file.getName()), e);
                 return;
             }
 
             // if change symbolic links
             if (attributesAfter.isSymbolicLink() && !path.equals(currentPath)) {
-                fileReaderOperator.position = 0;
+                resetPosition();
                 path = currentPath;
             }
 
             if (!fileReaderOperator.hasDataRemaining()) {
                 fileReaderOperator.fetchData();
             }
+        }
+
+        /**
+         * reset the position and bytePositionreset the position and bytePosition
+         */
+        private void resetPosition() {
+            LOGGER.info("reset position {}", fileReaderOperator.file.toPath());
+            fileReaderOperator.position = 0;
+            fileReaderOperator.bytePosition = 0;
+        }
+
+        /**
+         * Determine whether the inode has changed
+         *
+         * @param currentFileKey
+         * @return
+         */
+        private boolean isInodeChanged(String currentFileKey) {
+            if (fileReaderOperator.fileKey == null || currentFileKey == null) {
+                return false;
+            }
+
+            if (fileReaderOperator.fileKey.equals(currentFileKey)) {
+                return false;
+            }
+            return true;
         }
     }
 }
