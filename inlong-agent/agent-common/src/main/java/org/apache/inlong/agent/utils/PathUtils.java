@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,8 +68,9 @@ public class PathUtils {
      */
     public static boolean antPathIncluded(String dirStr, String patternStr) {
         // todo:Determines whether a path is a possible prefix of the path expression
-        List<String> dirArr = Stream.of(dirStr.split(File.separator)).collect(Collectors.toList());
-        List<String> patternDirArr = Stream.of(patternStr.split(File.separator)).collect(Collectors.toList());
+        String fileSeparator = Matcher.quoteReplacement(File.separator);
+        List<String> dirArr = Stream.of(dirStr.split(fileSeparator)).collect(Collectors.toList());
+        List<String> patternDirArr = Stream.of(patternStr.split(fileSeparator)).collect(Collectors.toList());
         int everything = patternDirArr.indexOf("**");
         if (everything != -1) {
             return antPathMatch(
