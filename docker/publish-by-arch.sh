@@ -206,14 +206,14 @@ pushImage() {
 
 pushManifest() {
   echo "Start pushing manifest ..."
-  docker manifest create --insecure --amend inlong/manager:latest        inlong/manager:latest-aarch64    inlong/manager:latest-x86
-  docker manifest create --insecure --amend inlong/agent:latest          inlong/agent:latest-aarch64      inlong/agent:latest-x86
-  docker manifest create --insecure --amend inlong/dataproxy:latest      inlong/dataproxy:latest-aarch64  inlong/dataproxy:latest-x86
-  docker manifest create --insecure --amend inlong/dashboard:latest      inlong/dashboard:latest-aarch64  inlong/dashboard:latest-x86
-  docker manifest create --insecure --amend inlong/audit:latest          inlong/audit:latest-aarch64      inlong/audit:latest-x86
+  docker manifest create --insecure --amend inlong/manager:latest        inlong/manager:latest-aarch64        inlong/manager:latest-x86
+  docker manifest create --insecure --amend inlong/agent:latest          inlong/agent:latest-aarch64          inlong/agent:latest-x86
+  docker manifest create --insecure --amend inlong/dataproxy:latest      inlong/dataproxy:latest-aarch64      inlong/dataproxy:latest-x86
+  docker manifest create --insecure --amend inlong/dashboard:latest      inlong/dashboard:latest-aarch64      inlong/dashboard:latest-x86
+  docker manifest create --insecure --amend inlong/audit:latest          inlong/audit:latest-aarch64          inlong/audit:latest-x86
+  docker manifest create --insecure --amend inlong/tubemq-all:latest     inlong/tubemq-all:latest-aarch64     inlong/tubemq-all:latest-x86
+  docker manifest create --insecure --amend inlong/tubemq-manager:latest inlong/tubemq-manager:latest-aarch64 inlong/tubemq-manager:latest-x86
   docker manifest create --insecure --amend inlong/tubemq-cpp:latest     inlong/tubemq-cpp:latest-x86
-  docker manifest create --insecure --amend inlong/tubemq-manager:latest inlong/tubemq-manager:latest-x86
-  docker manifest create --insecure --amend inlong/tubemq-all:latest     inlong/tubemq-all:latest-x86
   docker manifest create --insecure --amend inlong/tubemq-build:latest   inlong/tubemq-build:latest-x86
 
   docker manifest push inlong/manager:latest
@@ -226,13 +226,13 @@ pushManifest() {
   docker manifest push inlong/tubemq-cpp:latest
   docker manifest push inlong/audit:latest
 
-  docker manifest create --insecure --amend inlong/manager:${MVN_VERSION}        inlong/manager:${MVN_VERSION}-aarch64    inlong/manager:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/agent:${MVN_VERSION}          inlong/agent:${MVN_VERSION}-aarch64      inlong/agent:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/dataproxy:${MVN_VERSION}      inlong/dataproxy:${MVN_VERSION}-aarch64  inlong/dataproxy:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/dashboard:${MVN_VERSION}      inlong/dashboard:${MVN_VERSION}-aarch64  inlong/dashboard:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/audit:${MVN_VERSION}          inlong/audit:${MVN_VERSION}-aarch64      inlong/audit:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/tubemq-manager:${MVN_VERSION} inlong/tubemq-manager:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/tubemq-all:${MVN_VERSION}     inlong/tubemq-all:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/manager:${MVN_VERSION}        inlong/manager:${MVN_VERSION}-aarch64        inlong/manager:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/agent:${MVN_VERSION}          inlong/agent:${MVN_VERSION}-aarch64          inlong/agent:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/dataproxy:${MVN_VERSION}      inlong/dataproxy:${MVN_VERSION}-aarch64      inlong/dataproxy:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/dashboard:${MVN_VERSION}      inlong/dashboard:${MVN_VERSION}-aarch64      inlong/dashboard:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/audit:${MVN_VERSION}          inlong/audit:${MVN_VERSION}-aarch64          inlong/audit:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/tubemq-manager:${MVN_VERSION} inlong/tubemq-manager:${MVN_VERSION}-aarch64 inlong/tubemq-manager:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/tubemq-all:${MVN_VERSION}     inlong/tubemq-all:${MVN_VERSION}-aarch64     inlong/tubemq-all:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/tubemq-build:${MVN_VERSION}   inlong/tubemq-build:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/tubemq-cpp:${MVN_VERSION}     inlong/tubemq-cpp:${MVN_VERSION}-x86
 
