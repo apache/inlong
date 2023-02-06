@@ -301,7 +301,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             }
             connectionExecProviderMap.put(tableIdentifier, tableConnectionProvider);
 
-            if (!schemaUpdateExceptionPolicy.equals(SchemaUpdateExceptionPolicy.THROW_WITH_STOP)) {
+            if (!stopWritingWhenTableException && dirtySinkHelper.getDirtySink() != null) {
                 try {
                     JdbcExec newExecutor = enhanceExecutor(jdbcExec);
                     if (newExecutor != null) {
