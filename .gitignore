@@ -73,4 +73,4 @@ inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-cpp/release/bin/
 docker/docker-compose/mysql
 
 # The temp path for local debug
-/dev
+dev/
