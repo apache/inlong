@@ -17,22 +17,18 @@
 
 package org.apache.inlong.manager.service.sink.kudu;
 
-import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.INVALID_PARAMETER;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.kudu.KuduColumnInfo;
 import org.apache.inlong.manager.pojo.sink.kudu.KuduSink;
 import org.apache.inlong.manager.pojo.sink.kudu.KuduSinkDTO;
 import org.apache.inlong.manager.pojo.sink.kudu.KuduSinkRequest;
@@ -120,36 +116,6 @@ public class KuduSinkOperator extends AbstractSinkOperator {
         List<SinkField> sinkFields = super.getSinkFields(entity.getId());
         sink.setSinkFieldList(sinkFields);
         return sink;
-    }
-
-    @Override
-    public List<SinkField> getSinkFields(Integer sinkId) {
-        return super.getSinkFields(sinkId);
-    }
-
-    @Override
-    public void saveFieldOpt(SinkRequest request) {
-        super.saveFieldOpt(request);
-    }
-
-    @Override
-    protected void checkFieldInfo(SinkField field) {
-        if (FieldType.forName(field.getFieldType()) == FieldType.DECIMAL) {
-            KuduColumnInfo info = KuduColumnInfo.getFromJson(field.getExtParams());
-            if (info.getPrecision() == null || info.getScale() == null) {
-                String errorMsg = String.format("precision or scale not specified for decimal field (%s)",
-                        field.getFieldName());
-                LOGGER.error("field info check error: {}", errorMsg);
-                throw new BusinessException(INVALID_PARAMETER, errorMsg);
-            }
-            if (info.getPrecision() < info.getScale()) {
-                String errorMsg = String.format(
-                        "precision (%d) must be greater or equal than scale (%d) for decimal field (%s)",
-                        info.getPrecision(), info.getScale(), field.getFieldName());
-                LOGGER.error("field info check error: {}", errorMsg);
-                throw new BusinessException(INVALID_PARAMETER, errorMsg);
-            }
-        }
     }
 
 }
