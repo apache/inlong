@@ -115,7 +115,7 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
             kafkaSource.setTopic(streamInfo.getMqResource());
             String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
             String topicName = streamInfo.getMqResource();
-            if (topicName.equals(streamId)) {
+            if (topicName == null || topicName.equals(streamId)) {
                 // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
                 topicName = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT,
                         groupInfo.getMqResource(), streamInfo.getMqResource());
@@ -135,12 +135,12 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
             }
 
             // if the SerializationType is still null, set it to the CSV
-            if (StringUtils.isEmpty(kafkaSource.getSerializationType())) {
+            if (StringUtils.isBlank(kafkaSource.getSerializationType())) {
                 kafkaSource.setSerializationType(DataTypeEnum.CSV.getType());
             }
             if (DataTypeEnum.CSV.getType().equalsIgnoreCase(kafkaSource.getSerializationType())) {
                 kafkaSource.setDataSeparator(streamInfo.getDataSeparator());
-                if (StringUtils.isEmpty(kafkaSource.getDataSeparator())) {
+                if (StringUtils.isBlank(kafkaSource.getDataSeparator())) {
                     kafkaSource.setDataSeparator(String.valueOf((int) ','));
                 }
             }

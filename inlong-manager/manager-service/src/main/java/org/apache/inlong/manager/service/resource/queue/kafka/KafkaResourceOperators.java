@@ -135,7 +135,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
         try {
             String topicName = streamInfo.getMqResource();
-            if (topicName.equals(streamId)) {
+            if (topicName == null || topicName.equals(streamId)) {
                 // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
                 topicName = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT,
                         groupInfo.getMqResource(), streamInfo.getMqResource());
