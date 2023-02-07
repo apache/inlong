@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
@@ -135,7 +136,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
         try {
             String topicName = streamInfo.getMqResource();
-            if (topicName == null || topicName.equals(streamId)) {
+            if (StringUtils.isBlank(topicName) || topicName.equals(streamId)) {
                 // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
                 topicName = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT,
                         groupInfo.getMqResource(), streamInfo.getMqResource());
