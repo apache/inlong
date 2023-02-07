@@ -25,6 +25,10 @@ import vitePluginImp from 'vite-plugin-imp';
 import dynamicImport from 'vite-plugin-dynamic-import';
 import svgr from 'vite-plugin-svgr';
 import eslintPlugin from 'vite-plugin-eslint';
+import ResolveEnvPlugin from './scripts/vite-plugin-resolve-env';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export default defineConfig({
   resolve: {
@@ -43,6 +47,9 @@ export default defineConfig({
     },
   },
   plugins: [
+    ResolveEnvPlugin({
+      env: process.env.INLONG_ENV || undefined,
+    }),
     react(),
     tsConfigPaths(),
     vitePluginImp({

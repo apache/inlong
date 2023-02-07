@@ -19,7 +19,7 @@
 
 import type { RouteProps } from '.';
 
-const routes: RouteProps[] = [
+const conf: RouteProps[] = [
   {
     path: '/login',
     component: () => import('@/pages/Login'),
@@ -102,4 +102,4 @@ const routes: RouteProps[] = [
   },
 ];
 
-export default routes;
+export default conf;

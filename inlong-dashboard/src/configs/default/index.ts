@@ -17,4 +17,6 @@
  * under the License.
  */
 
-export { config } from './conf';
+import conf from './conf';
+
+export const config = conf;
