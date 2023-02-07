@@ -19,7 +19,7 @@
 
 import type { LocalesType } from '.';
 
-const localesConf: LocalesType = {
+const conf: LocalesType = {
   cn: {
     label: '简体中文',
     uiComponentPath: 'zh_CN',
@@ -32,4 +32,4 @@ const localesConf: LocalesType = {
   },
 };
 
-export default localesConf;
+export default conf;

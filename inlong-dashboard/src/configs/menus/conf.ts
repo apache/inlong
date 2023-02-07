@@ -20,7 +20,7 @@
 import i18n from '@/i18n';
 import type { MenuItemType } from '.';
 
-const menusTree: MenuItemType[] = [
+const conf: MenuItemType[] = [
   {
     path: '/group',
     name: i18n.t('configs.menus.Groups'),
@@ -66,4 +66,4 @@ const menusTree: MenuItemType[] = [
   },
 ];
 
-export default menusTree;
+export default conf;

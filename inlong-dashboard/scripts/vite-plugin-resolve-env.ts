@@ -17,15 +17,35 @@
  * under the License.
  */
 
-import i18n from '@/i18n';
+import { Plugin } from 'vite';
+import path from 'path';
+import fs from 'fs';
 
-const showTotal = (total: number) => i18n.t('configs.pagination.Total', { total });
-
-const conf = {
-  showQuickJumper: true,
-  showSizeChanger: true,
-  pageSizeOptions: ['10', '20', '50', '100'],
-  showTotal,
+export type PluginOptions = {
+  env?: string;
 };
 
-export default conf;
+const ResolveEnvPlugin = (options?: PluginOptions): Plugin => {
+  const env = options?.env;
+
+  return {
+    name: 'vite-plugin-resolve-env',
+    enforce: 'pre',
+    resolveId(id, importer) {
+      if (importer && env) {
+        const dir = path.dirname(importer);
+        const newId = path.resolve(dir, `${id}.${env}`);
+
+        if (newId.indexOf('/src/configs') === -1) return;
+        try {
+          fs.accessSync(`${newId}.ts`, fs.constants.R_OK);
+          return newId;
+        } catch (err) {
+          return;
+        }
+      }
+    },
+  };
+};
+
+export default ResolveEnvPlugin;

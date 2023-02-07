@@ -21,7 +21,7 @@ import i18n from '@/i18n';
 import Provider from '@/components/Provider';
 import Layout from '@/components/Layout';
 
-export const config = {
+const conf = {
   title: '',
   logo: '/logo.svg',
   loginUrl: `${window.location.origin}/#/${i18n?.language || ''}/login`,
@@ -29,3 +29,5 @@ export const config = {
   AppLoading: PageLoading,
   AppLayout: Layout,
 };
+
+export default conf;
