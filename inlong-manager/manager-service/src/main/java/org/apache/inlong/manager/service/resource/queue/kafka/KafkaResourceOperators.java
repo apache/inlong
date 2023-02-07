@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
@@ -134,7 +135,13 @@ public class KafkaResourceOperators implements QueueResourceOperator {
         log.info("begin to delete kafka resource for groupId={} streamId={}", groupId, streamId);
 
         try {
-            this.deleteKafkaTopic(groupInfo, streamInfo.getMqResource());
+            String topicName = streamInfo.getMqResource();
+            if (StringUtils.isBlank(topicName) || topicName.equals(streamId)) {
+                // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
+                topicName = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT,
+                        groupInfo.getMqResource(), streamInfo.getMqResource());
+            }
+            this.deleteKafkaTopic(groupInfo, topicName);
             log.info("success to delete kafka topic for groupId={}, streamId={}", groupId, streamId);
         } catch (Exception e) {
             String msg = String.format("failed to delete kafka topic for groupId=%s, streamId=%s", groupId, streamId);
