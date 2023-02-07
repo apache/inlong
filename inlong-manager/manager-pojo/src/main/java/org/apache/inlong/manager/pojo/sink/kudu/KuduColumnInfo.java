@@ -23,8 +23,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 /**
@@ -34,6 +36,7 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonTypeDefine(SinkType.KUDU)
 public class KuduColumnInfo {
 
     @ApiModelProperty("Length of fixed type")
@@ -72,7 +75,7 @@ public class KuduColumnInfo {
         try {
             return JsonUtils.parseObject(extParams, KuduColumnInfo.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT, e.getMessage());
         }
     }
 }

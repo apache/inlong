@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.sink.kudu;
 
+import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.INVALID_PARAMETER;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -82,7 +84,7 @@ public class KuduSinkOperator extends AbstractSinkOperator {
         }
 
         String partitionKey = sinkRequest.getPartitionKey();
-        boolean partitionKeyExist = StringUtils.isNotEmpty(partitionKey);
+        boolean partitionKeyExist = StringUtils.isNotBlank(partitionKey);
         if (partitionKeyExist) {
             Set<String> fieldNames = sinkRequest.getSinkFieldList().stream().map(SinkField::getFieldName)
                     .collect(Collectors.toSet());
@@ -121,6 +123,16 @@ public class KuduSinkOperator extends AbstractSinkOperator {
     }
 
     @Override
+    public List<SinkField> getSinkFields(Integer sinkId) {
+        return super.getSinkFields(sinkId);
+    }
+
+    @Override
+    public void saveFieldOpt(SinkRequest request) {
+        super.saveFieldOpt(request);
+    }
+
+    @Override
     protected void checkFieldInfo(SinkField field) {
         if (FieldType.forName(field.getFieldType()) == FieldType.DECIMAL) {
             KuduColumnInfo info = KuduColumnInfo.getFromJson(field.getExtParams());
@@ -128,14 +140,14 @@ public class KuduSinkOperator extends AbstractSinkOperator {
                 String errorMsg = String.format("precision or scale not specified for decimal field (%s)",
                         field.getFieldName());
                 LOGGER.error("field info check error: {}", errorMsg);
-                throw new BusinessException(errorMsg);
+                throw new BusinessException(INVALID_PARAMETER, errorMsg);
             }
             if (info.getPrecision() < info.getScale()) {
                 String errorMsg = String.format(
                         "precision (%d) must be greater or equal than scale (%d) for decimal field (%s)",
                         info.getPrecision(), info.getScale(), field.getFieldName());
                 LOGGER.error("field info check error: {}", errorMsg);
-                throw new BusinessException(errorMsg);
+                throw new BusinessException(INVALID_PARAMETER, errorMsg);
             }
         }
     }
