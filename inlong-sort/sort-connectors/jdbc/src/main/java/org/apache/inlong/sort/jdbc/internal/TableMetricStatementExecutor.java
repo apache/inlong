@@ -115,47 +115,54 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         } catch (SQLException e) {
             // clear the prepared statement first to avoid exceptions
             st.clearParameters();
+            handleError(e);
+        }
+    }
 
-            try {
-                List<Integer> errorPositions = parseError(e);
-                // the data before the first sqlexception are already written, handle those and remove them.
-                int writtenSize = errorPositions.get(0);
-                long writtenBytes = 0L;
-                if (writtenSize > 0) {
-                    writtenBytes = (long) batch.get(0).toString().getBytes(StandardCharsets.UTF_8).length * writtenSize;
-                }
-                if (!multipleSink) {
-                    sinkMetricData.invoke(writtenSize, writtenBytes);
-                } else {
-                    metric[0] += writtenSize;
-                    metric[1] += writtenBytes;
-                }
+    private void handleError(SQLException e) throws SQLException {
+        try {
+            List<Integer> errorPositions = parseError(e);
+            // the data before the first sqlexception are already written, handle those and remove them.
+            int writtenSize = errorPositions.get(0);
+            long writtenBytes = 0L;
+            if (writtenSize > 0) {
+                writtenBytes = (long) batch.get(0).toString().getBytes(StandardCharsets.UTF_8).length * writtenSize;
+            }
+            if (!multipleSink) {
+                sinkMetricData.invoke(writtenSize, writtenBytes);
+            } else {
+                metric[0] += writtenSize;
+                metric[1] += writtenBytes;
+            }
 
-                batch = batch.subList(writtenSize, batch.size());
+            batch = batch.subList(writtenSize, batch.size());
 
-                // for the unwritten data, remove the dirty ones
-                for (int pos : errorPositions) {
-                    pos -= writtenSize;
-                    RowData record = batch.get(pos);
-                    batch.remove(record);
-                    dirtySinkHelper.invoke(record, DirtyType.BATCH_LOAD_ERROR, new SQLException("jdbc dirty record"));
-                    if (!multipleSink) {
-                        sinkMetricData.invokeDirty(1, record.toString().getBytes(StandardCharsets.UTF_8).length);
-                    } else {
-                        metric[2]++;
-                        metric[3] += record.toString().getBytes(StandardCharsets.UTF_8).length;
-                    }
-                }
+            removeDirtyData(errorPositions, writtenSize);
 
-                // try to execute the supposedly clean batch, throw exception on failure
-                for (RowData record : batch) {
-                    addToBatch(record);
-                }
-                st.executeBatch();
-                batch.clear();
-                st.clearParameters();
-            } catch (Exception ex) {
-                retryEntireBatch();
+            // try to execute the supposedly clean batch, throw exception on failure
+            for (RowData record : batch) {
+                addToBatch(record);
+            }
+            st.executeBatch();
+            batch.clear();
+            st.clearParameters();
+        } catch (Exception ex) {
+            retryEntireBatch();
+        }
+    }
+
+    private void removeDirtyData(List<Integer> errorPositions, int writtenSize) {
+        // for the unwritten data, remove the dirty ones
+        for (int pos : errorPositions) {
+            pos -= writtenSize;
+            RowData record = batch.get(pos);
+            batch.remove(record);
+            dirtySinkHelper.invoke(record, DirtyType.BATCH_LOAD_ERROR, new SQLException("jdbc dirty record"));
+            if (!multipleSink) {
+                sinkMetricData.invokeDirty(1, record.toString().getBytes(StandardCharsets.UTF_8).length);
+            } else {
+                metric[2]++;
+                metric[3] += record.toString().getBytes(StandardCharsets.UTF_8).length;
             }
         }
     }

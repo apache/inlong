@@ -211,13 +211,15 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
     private JdbcExec createAndOpenStatementExecutor(
             StatementExecutorFactory<JdbcExec> statementExecutorFactory) throws IOException {
         JdbcExec exec = statementExecutorFactory.apply(getRuntimeContext());
-        try {
-            JdbcExec newExecutor = enhanceExecutor(exec);
-            if (newExecutor != null) {
-                exec = newExecutor;
+        if (dirtySink != null) {
+            try {
+                JdbcExec newExecutor = enhanceExecutor(exec);
+                if (newExecutor != null) {
+                    exec = newExecutor;
+                }
+            } catch (Exception e) {
+                LOG.error("class enhance failed", e);
             }
-        } catch (Exception e) {
-            LOG.debug("class enhance failed {}", e);
         }
         try {
             exec.prepareStatements(connectionProvider.getConnection());
@@ -386,33 +388,32 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         }
         final DirtySinkHelper dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
         // enhance the actual executor to tablemetricstatementexecutor
-        Field f1;
+        Field ExecutorType;
         if (exec instanceof TableBufferReducedStatementExecutor) {
-            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+            ExecutorType = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
         } else if (exec instanceof TableBufferedStatementExecutor) {
-            f1 = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
+            ExecutorType = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
         } else {
             throw new RuntimeException("table enhance failed, can't enhance " + exec.getClass());
         }
-        f1.setAccessible(true);
-        LOG.debug("actual executor type:{}", f1.get(exec).getClass());
-        TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) f1.get(exec);
-        Field f2 = TableSimpleStatementExecutor.class.getDeclaredField("stmtFactory");
-        Field f3 = TableSimpleStatementExecutor.class.getDeclaredField("converter");
-        f2.setAccessible(true);
-        f3.setAccessible(true);
-        final StatementFactory stmtFactory = (StatementFactory) f2.get(executor);
-        final JdbcRowConverter converter = (JdbcRowConverter) f3.get(executor);
+        ExecutorType.setAccessible(true);
+        TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) ExecutorType.get(exec);
+        Field statementFactory = TableSimpleStatementExecutor.class.getDeclaredField("stmtFactory");
+        Field rowConverter = TableSimpleStatementExecutor.class.getDeclaredField("converter");
+        statementFactory.setAccessible(true);
+        rowConverter.setAccessible(true);
+        final StatementFactory stmtFactory = (StatementFactory) statementFactory.get(executor);
+        final JdbcRowConverter converter = (JdbcRowConverter) rowConverter.get(executor);
         TableMetricStatementExecutor newExecutor =
                 new TableMetricStatementExecutor(stmtFactory, converter, dirtySinkHelper, sinkMetricData);
         if (exec instanceof TableBufferedStatementExecutor) {
-            f1 = TableBufferedStatementExecutor.class.getDeclaredField("valueTransform");
-            f1.setAccessible(true);
-            Function<RowData, RowData> valueTransform = (Function<RowData, RowData>) f1.get(exec);
+            Field transform = TableBufferedStatementExecutor.class.getDeclaredField("valueTransform");
+            transform.setAccessible(true);
+            Function<RowData, RowData> valueTransform = (Function<RowData, RowData>) transform.get(exec);
             newExecutor.setValueTransform(valueTransform);
             return (JdbcExec) newExecutor;
         }
-        f1.set(exec, newExecutor);
+        ExecutorType.set(exec, newExecutor);
         return null;
     }
 
