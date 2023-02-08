@@ -91,6 +91,7 @@
                                     <resource>hbase-default.xml</resource>
                                     <file>hbase-default.xml</file>
                                 </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                             </transformers>
                             <shadeTestJar>false</shadeTestJar>
                             <artifactSet>
