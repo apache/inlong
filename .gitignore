@@ -72,5 +72,7 @@ inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-cpp/release/bin/
 # Docker mysql storage
 docker/docker-compose/mysql
 
-# The temp path for local debug
-/dev
+/inlong-sort/connectors
+/plugins
+/inlong-sort/sort-dist.jar
+/inlong-manager/plugins

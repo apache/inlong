@@ -49,7 +49,7 @@ Temporarily named `InLong dev toolkit`, looking forward to adding more features.
 inlong-tools/dev/inlong-dev-toolkit.sh help | h
       :help
 
-inlong-tools/dev/inlong-dev-toolkit.sh manager_plugins | mp
+inlong-tools/dev/inlong-dev-toolkit.sh manager | m
       :build manager local debugging environment
 
 Have a nice day, bye!
@@ -68,12 +68,34 @@ Rely of Manager:
 | `./sort-dist.jar`                                                        | `sort-dist/target/sort-dist-${project.version}.jar`                                                            | `inlong-sort/sort-dist`         |
 
 ```shell
-❯ inlong-tools/dev/inlong-dev-toolkit.sh mp
+❯ inlong-tools/dev/inlong-dev-toolkit.sh m
 Execute action: manager
 # start build manager local debugging environment ...
 current_version: 1.5.0-SNAPSHOT
 associate plugins directory: inlong-manager/manager-plugins/target/plugins
-
+associate sort dist: inlong-sort/sort-dist/target/sort-dist
+recreate connector dir: inlong-sort/connectors
+All connector names: 
+hive mysql-cdc kafka jdbc pulsar iceberg postgres-cdc mongodb-cdc sqlserver-cdc oracle-cdc elasticsearch-6 elasticsearch-7 redis tubemq filesystem doris starrocks hudi
+associate connector: hive
+associate connector: mysql-cdc
+associate connector: kafka
+associate connector: jdbc
+associate connector: pulsar
+associate connector: iceberg
+associate connector: postgres-cdc
+associate connector: mongodb-cdc
+associate connector: sqlserver-cdc
+associate connector: oracle-cdc
+associate connector: elasticsearch-6
+associate connector: elasticsearch-7
+associate connector: redis
+associate connector: tubemq
+associate connector: filesystem
+associate connector: doris
+associate connector: starrocks
+associate connector: hudi
+build dev env of manager finished.
 Have a nice day, bye!
 ```
 
