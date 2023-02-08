@@ -59,7 +59,6 @@ import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 
 /**
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
