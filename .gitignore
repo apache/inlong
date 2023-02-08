@@ -71,3 +71,13 @@ inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-cpp/release/bin/
 
 # Docker mysql storage
 docker/docker-compose/mysql
+
+# Directories for local debugging
+## The connectors for loading to Flink job
+/inlong-sort/connectors
+## The plugins for submitting job to Flink cluster
+/plugins
+## The jar for parsing job info
+/inlong-sort/sort-dist.jar
+## The directory for load plugins by manager
+/inlong-manager/plugins
