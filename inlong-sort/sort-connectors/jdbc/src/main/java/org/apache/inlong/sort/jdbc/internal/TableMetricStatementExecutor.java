@@ -85,23 +85,16 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
 
     @Override
     public void addToBatch(RowData record) throws SQLException {
-        LOG.info("adding {} into batch", record);
         if (valueTransform != null) {
             record = valueTransform.apply(record); // copy or not
         }
         batch.add(record);
-        LOG.info("adding {} into batch 2", record);
         converter.toExternal(record, st);
         st.addBatch();
-        LOG.info("adding {} into batch 3", record);
     }
 
     @Override
     public void executeBatch() throws SQLException {
-        for (RowData record : batch) {
-            LOG.info("print batch:{}", record);
-        }
-
         try {
             st.executeBatch();
 
@@ -114,7 +107,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
             batch.clear();
             if (!multipleSink) {
                 sinkMetricData.invoke(writtenSize, writtenBytes);
-                LOG.info("print {} records invoke clean", writtenSize);
             } else {
                 metric[0] += writtenSize;
                 metric[1] += writtenBytes;
@@ -123,14 +115,9 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         } catch (SQLException e) {
             // clear the prepared statement first to avoid exceptions
             st.clearParameters();
-            LOG.info("record parse start {}, exception cause {}", counter, e);
 
             try {
                 List<Integer> errorPositions = parseError(e);
-
-                for (int pos : errorPositions) {
-                    LOG.info("dirty data detected:{}", batch.get(pos));
-                }
                 // the data before the first sqlexception are already written, handle those and remove them.
                 int writtenSize = errorPositions.get(0);
                 long writtenBytes = 0L;
@@ -139,7 +126,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
                 }
                 if (!multipleSink) {
                     sinkMetricData.invoke(writtenSize, writtenBytes);
-                    LOG.info("print {} records invoke clean", writtenSize);
                 } else {
                     metric[0] += writtenSize;
                     metric[1] += writtenBytes;
@@ -155,7 +141,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
                     dirtySinkHelper.invoke(record, DirtyType.BATCH_LOAD_ERROR, new SQLException("jdbc dirty record"));
                     if (!multipleSink) {
                         sinkMetricData.invokeDirty(1, record.toString().getBytes(StandardCharsets.UTF_8).length);
-                        LOG.info("print record:{} invoke dirty", record);
                     } else {
                         metric[2]++;
                         metric[3] += record.toString().getBytes(StandardCharsets.UTF_8).length;
@@ -184,7 +169,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
                 st.executeBatch();
                 if (!multipleSink) {
                     sinkMetricData.invoke(1, rowData.toString().getBytes().length);
-                    LOG.info("print {} records invoke clean", 1);
                 } else {
                     metric[0] += 1;
                     metric[1] += rowData.toString().getBytes().length;
@@ -195,7 +179,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
                 dirtySinkHelper.invoke(rowData, DirtyType.BATCH_LOAD_ERROR, e);
                 if (!multipleSink) {
                     sinkMetricData.invokeDirty(1, rowData.toString().getBytes().length);
-                    LOG.info("print {} records invoke dirty", 1);
                 } else {
                     metric[2] += 1;
                     metric[3] += rowData.toString().getBytes().length;
@@ -207,7 +190,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
 
     private List<Integer> parseError(SQLException e) throws SQLException {
         List<Integer> errors = new ArrayList<>();
-        LOG.info("error message {}", e.getMessage());
         int pos = getPosFromMessage(e.getMessage());
         if (pos != -1) {
             errors.add(getPosFromMessage(e.getMessage()));
@@ -231,7 +213,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
             }
             return pos;
         }
-        LOG.error("error no2");
         return -1;
     }
 
@@ -246,7 +227,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
                 return i;
             }
         }
-        LOG.error("error no1");
         return -1;
     }
 

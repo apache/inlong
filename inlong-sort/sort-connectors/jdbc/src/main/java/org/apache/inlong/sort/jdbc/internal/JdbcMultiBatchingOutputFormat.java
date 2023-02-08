@@ -308,7 +308,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         jdbcExec = newExecutor;
                     }
                 } catch (Exception e) {
-                    LOG.debug("enhance executor failed : {} ,{} ,{}",
+                    LOG.warn("enhance executor failed : {} ,{} ,{}",
                             e.getMessage(), e.getStackTrace(), jdbcExec.getClass());
                 }
             }
@@ -326,34 +326,33 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             return null;
         }
         // enhance the actual executor to tablemetricstatementexecutor
-        Field f1;
+        Field subExecutor;
         if (exec instanceof TableBufferReducedStatementExecutor) {
-            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+            subExecutor = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
         } else if (exec instanceof TableBufferedStatementExecutor) {
-            f1 = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
+            subExecutor = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
         } else {
             throw new RuntimeException("table enhance failed, can't enhance " + exec.getClass());
         }
-        f1.setAccessible(true);
-        LOG.debug("actual executor type:{}", f1.get(exec).getClass());
-        TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) f1.get(exec);
-        Field f2 = TableSimpleStatementExecutor.class.getDeclaredField("stmtFactory");
-        Field f3 = TableSimpleStatementExecutor.class.getDeclaredField("converter");
-        f2.setAccessible(true);
-        f3.setAccessible(true);
-        final StatementFactory stmtFactory = (StatementFactory) f2.get(executor);
-        final JdbcRowConverter converter = (JdbcRowConverter) f3.get(executor);
+        subExecutor.setAccessible(true);
+        TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) subExecutor.get(exec);
+        Field statementFactory = TableSimpleStatementExecutor.class.getDeclaredField("stmtFactory");
+        Field rowConverter = TableSimpleStatementExecutor.class.getDeclaredField("converter");
+        statementFactory.setAccessible(true);
+        rowConverter.setAccessible(true);
+        final StatementFactory stmtFactory = (StatementFactory) statementFactory.get(executor);
+        final JdbcRowConverter converter = (JdbcRowConverter) rowConverter.get(executor);
         TableMetricStatementExecutor newExecutor =
                 new TableMetricStatementExecutor(stmtFactory, converter, dirtySinkHelper, sinkMetricData);
         newExecutor.setMultipleSink(true);
         if (exec instanceof TableBufferedStatementExecutor) {
-            f1 = TableBufferedStatementExecutor.class.getDeclaredField("valueTransform");
-            f1.setAccessible(true);
-            Function<RowData, RowData> valueTransform = (Function<RowData, RowData>) f1.get(exec);
+            subExecutor = TableBufferedStatementExecutor.class.getDeclaredField("valueTransform");
+            subExecutor.setAccessible(true);
+            Function<RowData, RowData> valueTransform = (Function<RowData, RowData>) subExecutor.get(exec);
             newExecutor.setValueTransform(valueTransform);
             return (JdbcExec) newExecutor;
         }
-        f1.set(exec, newExecutor);
+        subExecutor.set(exec, newExecutor);
         return null;
     }
 
@@ -584,7 +583,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                     try {
                         outputMetrics(tableIdentifier);
                     } catch (Exception e) {
-                        LOG.error("enhance exception:{}", e);
+                        LOG.error("dirty metric calculation exception:{}", e);
                         outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                 totalDataSize, false);
                     }
@@ -693,15 +692,15 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         String[] fieldArray = tableIdentifier.split("\\.");
         // throw an exception if the executor is not enhanced
         JdbcExec executor = jdbcExecMap.get(tableIdentifier);
-        Field f1;
+        Field subExecutor;
         if (executor instanceof TableBufferReducedStatementExecutor) {
-            f1 = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
-            f1.setAccessible(true);
-            executor = (JdbcExec) f1.get(executor);
+            subExecutor = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+            subExecutor.setAccessible(true);
+            executor = (JdbcExec) subExecutor.get(executor);
         } else if (executor instanceof TableBufferedStatementExecutor) {
-            f1 = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
-            f1.setAccessible(true);
-            executor = (JdbcExec) f1.get(executor);
+            subExecutor = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
+            subExecutor.setAccessible(true);
+            executor = (JdbcExec) subExecutor.get(executor);
         }
 
         Field metricField = TableMetricStatementExecutor.class.getDeclaredField("metric");
@@ -710,7 +709,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         long cleanSize = metrics[1];
         long dirtyCount = metrics[2];
         long dirtySize = metrics[3];
-        LOG.info("enhanced counts:{},{}", cleanCount, dirtyCount);
 
         if (fieldArray.length == 3) {
             sinkMetricData.outputDirtyMetrics(fieldArray[0], fieldArray[1], fieldArray[2],
