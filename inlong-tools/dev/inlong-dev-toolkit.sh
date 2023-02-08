@@ -82,14 +82,6 @@ function manager_plugins() {
   echo 'associate plugins directory: inlong-manager/manager-plugins/target/plugins'
   # plugins -> manager-plugins/target/plugins
   cd "$base_dir"
-
- # create dev directory if absent
-  if [ ! -d dev  ];then
-    mkdir dev
-  else
-    echo The directory is exist: dev
-  fi
-  # associate plugins
   rm -rf dev/plugins
   ln -s inlong-manager/manager-plugins/target/plugins dev/plugins
 
