@@ -308,7 +308,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                         jdbcExec = newExecutor;
                     }
                 } catch (Exception e) {
-                    LOG.warn("enhance executor failed for class :"+
+                    LOG.warn("enhance executor failed for class :" +
                             jdbcExec.getClass(), e);
                 }
             }
