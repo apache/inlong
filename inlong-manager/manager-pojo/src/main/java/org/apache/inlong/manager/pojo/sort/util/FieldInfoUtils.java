@@ -148,6 +148,17 @@ public class FieldInfoUtils {
      * @return Sort field format instance
      */
     public static FormatInfo convertFieldFormat(String type) {
+        FieldType fieldType = FieldType.forName(type);
+        switch (fieldType) {
+            case ARRAY:
+                return new ArrayFormatInfo(new StringFormatInfo());
+            case MAP:
+                return new MapFormatInfo(new StringFormatInfo(), new StringFormatInfo());
+            case STRUCT:
+                return new RowFormatInfo(new String[]{}, new FormatInfo[]{});
+            default:
+                break;
+        }
         return convertFieldFormat(type, null);
     }
 
