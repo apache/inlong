@@ -36,7 +36,7 @@ public class RedisSourceServiceTest extends ServiceBaseTest {
     private static final String hostname = "127.0.0.1";
     private static final Integer port = 6379;
     private static final String redisMode = "standalone";
-    private static final String redisCommand = "get";
+    private static final String command = "get";
     private final String sourceName = "stream_source_service_test";
 
     @Autowired
@@ -55,9 +55,9 @@ public class RedisSourceServiceTest extends ServiceBaseTest {
         sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
         sourceInfo.setSourceName(sourceName);
         sourceInfo.setSourceType(SourceType.REDIS);
-        sourceInfo.setHostname(hostname);
+        sourceInfo.setHost(hostname);
         sourceInfo.setPort(port);
-        sourceInfo.setRedisCommand(redisCommand);
+        sourceInfo.setCommand(command);
         sourceInfo.setRedisMode(redisMode);
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }

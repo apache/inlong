@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.source.redis;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,10 +26,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
 
 /**
  * redis source info
@@ -38,108 +38,97 @@ import java.util.Map;
 @AllArgsConstructor
 public class RedisSourceDTO {
 
-    @ApiModelProperty("Username of the redis server")
-    private String username;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Password of the redis server")
-    private String password;
-
-    @ApiModelProperty("Hostname of the redis server")
-    private String hostname;
-
-    @ApiModelProperty("Port of the redis server")
-    private Integer port;
-
-    @ApiModelProperty("Primary key")
+    @ApiModelProperty("Redis primaryKey")
     private String primaryKey;
 
-    @ApiModelProperty("Redis command, supports: hget, get, zscore, zrevrank")
-    private String redisCommand;
+    @ApiModelProperty("Redis host")
+    private String host;
 
-    @ApiModelProperty("Redis deploy mode, supports: standalone, cluster, sentinel")
-    private String redisMode;
+    @ApiModelProperty("Redis port")
+    private Integer port;
 
-    @ApiModelProperty("Cluster node infos only used for redis cluster deploy mode")
-    private String clusterNodes;
+    @ApiModelProperty("Redis username")
+    private String username;
 
-    @ApiModelProperty("Master name only used for redis sentinel deploy mode")
-    private String masterName;
+    @ApiModelProperty("Redis password")
+    private String password;
 
-    @ApiModelProperty("Sentinels info only used for redis sentinel deploy mode")
-    private String sentinelsInfo;
-
-    @ApiModelProperty("Additional key only used for hash/Sorted-set data type")
-    private String additionalKey;
-
-    @ApiModelProperty("Database number connect to redis for redis standalone/sentinel deploy modes")
+    @ApiModelProperty("Redis database")
     private Integer database;
 
-    @ApiModelProperty("Timeout value of connect to redis")
+    @ApiModelProperty("Redis deploy Mode(standalone/cluster/sentinel)")
+    private String redisMode;
+
+    @ApiModelProperty("supportted in Sort-connector-redis(hget/get/zscore/zrevrank)")
+    private String command;
+
+    @ApiModelProperty("The additional key connect to redis only used for [Hash|Sorted-Set] data type")
+    private String additionalKey;
+
+    @ApiModelProperty("The timeout connect to redis")
     private Integer timeout;
 
-    @ApiModelProperty("Timeout value of read data from redis")
+    @ApiModelProperty("The soTimeout connect to redis")
     private Integer soTimeout;
 
-    @ApiModelProperty("Max connection number to redis")
+    @ApiModelProperty("The maxTotal connect to redis")
     private Integer maxTotal;
 
-    @ApiModelProperty("Max free connection number")
+    @ApiModelProperty("The maxIdle connect to redis")
     private Integer maxIdle;
 
-    @ApiModelProperty("Min free connection number")
+    @ApiModelProperty("The minIdle connect to redis")
     private Integer minIdle;
 
-    @ApiModelProperty("Lookup cache max rows")
-    private Long lookupCacheMaxRows;
+    @ApiModelProperty("The lookup options for connector redis")
+    private RedisLookupOptions lookupOptions;
 
-    @ApiModelProperty("Lookup cache ttl")
-    private Long lookupCacheTtl;
+    @ApiModelProperty("The masterName for connector redis")
+    private String masterName;
 
-    @ApiModelProperty("Lookup max retry times")
-    private Integer lookupMaxRetries;
+    @ApiModelProperty("The sentinelsInfo for connector redis")
+    private String sentinelsInfo;
 
-    @ApiModelProperty("Lookup Async")
-    private Boolean lookupAsync;
-
-    @ApiModelProperty("Properties for redis")
-    private Map<String, Object> properties;
+    @ApiModelProperty("The clusterNodes for connector redis")
+    private String clusterNodes;
 
     /**
-     * Get the dto instance from request
+     * Get the dto instance from the request
      */
     public static RedisSourceDTO getFromRequest(RedisSourceRequest request) {
         return RedisSourceDTO.builder()
+                .primaryKey(request.getPrimaryKey())
+                .host(request.getHost())
+                .port(request.getPort())
                 .username(request.getUsername())
                 .password(request.getPassword())
-                .hostname(request.getHostname())
-                .port(request.getPort())
-                .primaryKey(request.getPrimaryKey())
-                .redisCommand(request.getRedisCommand())
-                .redisMode(request.getRedisMode())
-                .clusterNodes(request.getClusterNodes())
-                .masterName(request.getMasterName())
-                .sentinelsInfo(request.getSentinelsInfo())
-                .additionalKey(request.getAdditionalKey())
                 .database(request.getDatabase())
+                .redisMode(request.getRedisMode())
+                .command(request.getCommand())
+                .additionalKey(request.getAdditionalKey())
                 .timeout(request.getTimeout())
                 .soTimeout(request.getSoTimeout())
                 .maxTotal(request.getMaxTotal())
                 .maxIdle(request.getMaxIdle())
                 .minIdle(request.getMinIdle())
-                .lookupCacheMaxRows(request.getLookupCacheMaxRows())
-                .lookupCacheTtl(request.getLookupCacheTtl())
-                .lookupMaxRetries(request.getLookupMaxRetries())
-                .lookupAsync(request.getLookupAsync())
-                .properties(request.getProperties())
+                .lookupOptions(request.getLookupOptions())
+                .masterName(request.getMasterName())
+                .sentinelsInfo(request.getSentinelsInfo())
+                .clusterNodes(request.getClusterNodes())
                 .build();
     }
 
+    /**
+     * Get the dto instance from the JSON string
+     */
     public static RedisSourceDTO getFromJson(@NotNull String extParams) {
         try {
-            return JsonUtils.parseObject(extParams, RedisSourceDTO.class);
+            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return OBJECT_MAPPER.readValue(extParams, RedisSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
-                    String.format("parse extParams of RedisSource failure: %s", e.getMessage()));
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
     }
 

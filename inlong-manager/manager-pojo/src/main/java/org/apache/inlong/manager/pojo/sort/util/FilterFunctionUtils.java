@@ -72,6 +72,9 @@ public class FilterFunctionUtils {
             case DE_DUPLICATION:
             case SPLITTER:
             case JOINER:
+            case LOOKUP_JOINER:
+            case TEMPORAL_JOINER:
+            case INTERVAL_JOINER:
             case STRING_REPLACER:
             case ENCRYPT:
                 return Lists.newArrayList();
@@ -124,6 +127,9 @@ public class FilterFunctionUtils {
             case DE_DUPLICATION:
             case SPLITTER:
             case JOINER:
+            case LOOKUP_JOINER:
+            case TEMPORAL_JOINER:
+            case INTERVAL_JOINER:
             case STRING_REPLACER:
             case ENCRYPT:
                 return null;

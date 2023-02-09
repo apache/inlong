@@ -49,6 +49,21 @@ public enum TransformType {
     JOINER("joiner"),
 
     /**
+     * A lookup join is typically used to enrich a table with data that is queried from an external system
+     */
+    LOOKUP_JOINER("lookup_joiner"),
+
+    /**
+     * Temporal joins allow joining against a versioned table
+     */
+    TEMPORAL_JOINER("temporal_joiner"),
+
+    /**
+     * Returns a simple Cartesian product restricted by the join condition and a time constraint
+     */
+    INTERVAL_JOINER("interval_joiner"),
+
+    /**
      * Encrypt records on given fields
      */
     ENCRYPT("encrypt");
