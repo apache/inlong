@@ -149,7 +149,6 @@ public class FieldInfoUtils {
      */
     public static FormatInfo convertFieldFormat(String type) {
         FieldType fieldType = FieldType.forName(type);
-        FieldType fieldType = FieldType.forName(type);
         FormatInfo formatInfo;
         switch (fieldType) {
             case ARRAY:
