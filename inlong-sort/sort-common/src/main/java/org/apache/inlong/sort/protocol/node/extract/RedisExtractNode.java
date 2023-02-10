@@ -38,6 +38,7 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -442,6 +443,6 @@ public class RedisExtractNode extends ExtractNode implements Metadata, Serializa
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return null;
+        return EnumSet.of(MetaField.PROCESS_TIME);
     }
 }
