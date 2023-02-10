@@ -149,17 +149,22 @@ public class FieldInfoUtils {
      */
     public static FormatInfo convertFieldFormat(String type) {
         FieldType fieldType = FieldType.forName(type);
+        FieldType fieldType = FieldType.forName(type);
+        FormatInfo formatInfo;
         switch (fieldType) {
             case ARRAY:
-                return new ArrayFormatInfo(new StringFormatInfo());
-            case MAP:
-                return new MapFormatInfo(new StringFormatInfo(), new StringFormatInfo());
-            case STRUCT:
-                return new RowFormatInfo(new String[]{}, new FormatInfo[]{});
-            default:
+                formatInfo = new ArrayFormatInfo(new StringFormatInfo());
                 break;
+            case MAP:
+                formatInfo = new MapFormatInfo(new StringFormatInfo(), new StringFormatInfo());
+                break;
+            case STRUCT:
+                formatInfo = new RowFormatInfo(new String[]{}, new FormatInfo[]{});
+                break;
+            default:
+                formatInfo = convertFieldFormat(type, null);
         }
-        return convertFieldFormat(type, null);
+        return formatInfo;
     }
 
     /**
