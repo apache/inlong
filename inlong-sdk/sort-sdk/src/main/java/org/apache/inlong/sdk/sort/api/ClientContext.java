@@ -25,7 +25,6 @@ import org.apache.inlong.sdk.sort.metrics.SortSdkMetricItemSet;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public abstract class ClientContext implements Cleanable {
 
