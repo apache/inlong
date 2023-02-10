@@ -22,6 +22,7 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.metrics.SortSdkMetricItem;
 import org.apache.inlong.sdk.sort.metrics.SortSdkMetricItemSet;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -37,7 +38,7 @@ public abstract class ClientContext implements Cleanable {
     public ClientContext(SortClientConfig config) {
         this.config = config;
         this.sortTaskId = config.getSortTaskId();
-        this.metricItemSet = new SortSdkMetricItemSet(config.getSortTaskId() + new Random().nextInt());
+        this.metricItemSet = new SortSdkMetricItemSet(config.getSortTaskId() + new SecureRandom().nextInt());
         MetricRegister.register(this.metricItemSet);
     }
 
