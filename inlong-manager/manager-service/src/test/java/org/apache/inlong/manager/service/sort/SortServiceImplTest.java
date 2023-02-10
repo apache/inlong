@@ -269,7 +269,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
         request.setUrl("test_hive_url");
         request.setName(taskName);
         request.setExtParams("{\"paramKey1\":\"paramValue1\",\"hdfsUgi\":\"test_hdfsUgi\"}");
-        request.setHdfsPath("testPath");
+        request.setDataPath("testPath");
         request.setHiveConfDir("testDir");
         request.setWarehouse("testWareHouse");
         request.setHdfsUgi("testUgi");
