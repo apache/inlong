@@ -28,7 +28,6 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.PostgreSQLConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
-import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.snapshot.PostgreSQLSnapshotBase;
@@ -73,7 +72,6 @@ public class PostgreSQLReader extends AbstractReader {
     private static final Gson GSON = new Gson();
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLReader.class);
     private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-    protected AgentMetricItem readerMetric;
     private String userName;
     private String password;
     private String hostName;
@@ -196,6 +194,7 @@ public class PostgreSQLReader extends AbstractReader {
         props.setProperty("connector.class", PostgresConnector.class.getCanonicalName());
         props.setProperty("database.server.name", serverName);
         props.setProperty("plugin.name", pluginName);
+        props.setProperty("slot.name", "slot" + instanceId);
         props.setProperty("database.hostname", hostName);
         props.setProperty("database.port", port);
         props.setProperty("database.user", userName);
