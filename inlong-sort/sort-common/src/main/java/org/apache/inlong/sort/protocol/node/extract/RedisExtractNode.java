@@ -25,8 +25,10 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.LookupOptions;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.RedisConstant;
 import org.apache.inlong.sort.protocol.enums.RedisCommand;
 import org.apache.inlong.sort.protocol.enums.RedisMode;
@@ -36,8 +38,10 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Redis extract node for extract data from redis
@@ -46,7 +50,7 @@ import java.util.Map;
 @JsonTypeName("redisExtract")
 @JsonInclude(Include.NON_NULL)
 @Data
-public class RedisExtractNode extends ExtractNode implements Serializable {
+public class RedisExtractNode extends ExtractNode implements Metadata, Serializable {
 
     private static final long serialVersionUID = 1L;
     /**
@@ -430,5 +434,15 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
     @Override
     public String genTableName() {
         return String.format("table_%s", getId());
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return false;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.PROCESS_TIME);
     }
 }
