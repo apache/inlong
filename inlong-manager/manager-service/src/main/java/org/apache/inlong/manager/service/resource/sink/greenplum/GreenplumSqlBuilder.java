@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink.greenplum;
 
-import org.apache.commons.compress.utils.Lists;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumColumnInfo;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumTableInfo;
