@@ -87,6 +87,9 @@ public class FieldRelationUtils {
             case FILTER:
                 return createFieldRelations(fieldList, constantFieldMap);
             case JOINER:
+            case LOOKUP_JOINER:
+            case TEMPORAL_JOINER:
+            case INTERVAL_JOINER:
                 return createJoinerFieldRelations(fieldList, constantFieldMap);
             default:
                 throw new UnsupportedOperationException(
