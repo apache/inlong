@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink.postgresql;
 
-import org.apache.commons.compress.utils.Lists;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLTableInfo;
