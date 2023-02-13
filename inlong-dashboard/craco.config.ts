@@ -23,6 +23,7 @@ import AntdDayjsWebpackPlugin from 'antd-dayjs-webpack-plugin';
 import type { CracoConfig } from 'craco__craco';
 import dotenv from 'dotenv';
 
+dotenv.config({ path: '.env.local' });
 dotenv.config();
 
 const config: CracoConfig = {
