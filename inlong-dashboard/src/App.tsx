@@ -17,16 +17,12 @@
  * under the License.
  */
 
+/**
+ * No UI, No API
+ */
 import React, { Suspense, lazy, useEffect, useCallback } from 'react';
 import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
-import {
-  useLocation,
-  useHistory,
-  useDispatch,
-  UseRequestProvider,
-  useSelector,
-  useRequest,
-} from '@/hooks';
+import { useLocation, useHistory, useDispatch, UseRequestProvider, useSelector } from '@/hooks';
 import { Provider } from 'react-redux';
 import routes, { RouteProps } from '@/configs/routes';
 import { State } from '@/models';
@@ -77,25 +73,6 @@ const App = () => {
   const dispatch = useDispatch();
 
   const locale = useSelector<State, State['locale']>(state => state.locale);
-
-  useRequest(
-    {
-      url: '/user/currentUser',
-      method: 'POST',
-    },
-    {
-      onSuccess: result => {
-        dispatch({
-          type: 'setUserInfo',
-          payload: {
-            userName: result.name,
-            userId: result.userId,
-            roles: result.roles,
-          },
-        });
-      },
-    },
-  );
 
   const setCurrentMenu = useCallback(
     pathname => {
