@@ -160,6 +160,7 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
                     }
                 });
 
-        Preconditions.expectTrue(successConnect, String.format("Pulsar connection failed for ServiceUrl=%s", hostPortStr));
+        Preconditions.expectTrue(successConnect,
+                String.format("Pulsar connection failed for ServiceUrl=%s", hostPortStr));
     }
 }
