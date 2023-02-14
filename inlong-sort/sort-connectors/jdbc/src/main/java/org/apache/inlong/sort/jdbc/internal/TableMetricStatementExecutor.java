@@ -21,6 +21,7 @@ import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatement;
 import org.apache.flink.connector.jdbc.statement.StatementFactory;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
@@ -57,6 +58,9 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
     private final AtomicInteger counter = new AtomicInteger();
     private transient FieldNamedPreparedStatement st;
     private boolean multipleSink;
+    private String label;
+    private String logtag;
+    private String identifier;
     private Function<RowData, RowData> valueTransform = null;
     // counters used for table level metric calculation for multiple sink
     public long[] metric = new long[4];
@@ -70,13 +74,20 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         this.sinkMetricData = sinkMetricData;
     }
 
-    @Override
-    public void prepareStatements(Connection connection) throws SQLException {
-        st = stmtFactory.createStatement(connection);
+    public void setDirtyMetaData(String label, String logtag, String identifier) {
+        LOG.info("setting metadata:{}", label + "," + logtag + "," + identifier);
+        this.label = label;
+        this.logtag = logtag;
+        this.identifier = identifier;
     }
 
     public void setMultipleSink(boolean multipleSink) {
         this.multipleSink = multipleSink;
+    }
+
+    @Override
+    public void prepareStatements(Connection connection) throws SQLException {
+        st = stmtFactory.createStatement(connection);
     }
 
     public void setValueTransform(Function<RowData, RowData> valueTransform) {
@@ -85,16 +96,21 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
 
     @Override
     public void addToBatch(RowData record) throws SQLException {
+        LOG.info("adding {} into batch", record);
         if (valueTransform != null) {
             record = valueTransform.apply(record); // copy or not
         }
         batch.add(record);
         converter.toExternal(record, st);
         st.addBatch();
+        LOG.info("done adding");
     }
 
     @Override
     public void executeBatch() throws SQLException {
+        for (RowData data : batch) {
+            LOG.info("printing batch: {}", data);
+        }
         try {
             st.executeBatch();
 
@@ -107,6 +123,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
             batch.clear();
             if (!multipleSink) {
                 sinkMetricData.invoke(writtenSize, writtenBytes);
+                LOG.info("print {} records invoke clean", writtenSize);
             } else {
                 metric[0] += writtenSize;
                 metric[1] += writtenBytes;
@@ -115,84 +132,96 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         } catch (SQLException e) {
             // clear the prepared statement first to avoid exceptions
             st.clearParameters();
-            handleError(e);
+            LOG.info("record parse start {}, exception cause {}", counter, e);
+
+            try {
+                processErrorPosition(e);
+            } catch (Exception ex) {
+                try {
+                    retryEntireBatch();
+                } catch (JsonProcessingException exc) {
+                    LOG.error("dirty data archive failed");
+                }
+            }
         }
     }
 
-    private void handleError(SQLException e) throws SQLException {
-        try {
-            List<Integer> errorPositions = parseError(e);
-            // the data before the first sqlexception are already written, handle those and remove them.
-            int writtenSize = errorPositions.get(0);
-            long writtenBytes = 0L;
-            if (writtenSize > 0) {
-                writtenBytes = (long) batch.get(0).toString().getBytes(StandardCharsets.UTF_8).length * writtenSize;
-            }
-            if (!multipleSink) {
-                sinkMetricData.invoke(writtenSize, writtenBytes);
-            } else {
-                metric[0] += writtenSize;
-                metric[1] += writtenBytes;
-            }
+    private void processErrorPosition(SQLException e) throws SQLException {
+        List<Integer> errorPositions = parseError(e);
 
-            batch = batch.subList(writtenSize, batch.size());
-
-            removeDirtyData(errorPositions, writtenSize);
-
-            // try to execute the supposedly clean batch, throw exception on failure
-            for (RowData record : batch) {
-                addToBatch(record);
-            }
-            st.executeBatch();
-            batch.clear();
-            st.clearParameters();
-        } catch (Exception ex) {
-            retryEntireBatch();
+        for (int pos : errorPositions) {
+            LOG.info("dirty data detected:{}", batch.get(pos));
         }
-    }
+        // the data before the first sqlexception are already written, handle those and remove them.
+        int writtenSize = errorPositions.get(0);
+        long writtenBytes = 0L;
+        if (writtenSize > 0) {
+            writtenBytes = (long) batch.get(0).toString().getBytes(StandardCharsets.UTF_8).length * writtenSize;
+        }
+        if (!multipleSink) {
+            sinkMetricData.invoke(writtenSize, writtenBytes);
+            LOG.info("print {} records invoke clean", writtenSize);
+        } else {
+            metric[0] += writtenSize;
+            metric[1] += writtenBytes;
+        }
 
-    private void removeDirtyData(List<Integer> errorPositions, int writtenSize) {
+        batch = batch.subList(writtenSize, batch.size());
+
         // for the unwritten data, remove the dirty ones
         for (int pos : errorPositions) {
             pos -= writtenSize;
             RowData record = batch.get(pos);
             batch.remove(record);
-            dirtySinkHelper.invoke(record, DirtyType.BATCH_LOAD_ERROR, new SQLException("jdbc dirty record"));
-            if (!multipleSink) {
-                sinkMetricData.invokeDirty(1, record.toString().getBytes(StandardCharsets.UTF_8).length);
-            } else {
-                metric[2]++;
-                metric[3] += record.toString().getBytes(StandardCharsets.UTF_8).length;
-            }
+            invokeDirty(record, e);
         }
+
+        // try to execute the supposedly clean batch, throw exception on failure
+        for (RowData record : batch) {
+            addToBatch(record);
+        }
+        st.executeBatch();
+        batch.clear();
+        st.clearParameters();
     }
 
-    private void retryEntireBatch() throws SQLException {
+    private void retryEntireBatch() throws SQLException, JsonProcessingException {
+        LOG.info("retrying entire batch");
         // clear parameters to make sure the batch is always clean in the end.
         st.clearParameters();
         for (RowData rowData : batch) {
+            LOG.info("printing batch:{}", rowData.toString());
             try {
-                addToBatch(rowData);
+                converter.toExternal(rowData, st);
+                st.addBatch();
                 st.executeBatch();
+                LOG.info("print {} records invoke clean", rowData);
                 if (!multipleSink) {
                     sinkMetricData.invoke(1, rowData.toString().getBytes().length);
                 } else {
                     metric[0] += 1;
                     metric[1] += rowData.toString().getBytes().length;
                 }
-                st.clearParameters();
             } catch (Exception e) {
                 st.clearParameters();
-                dirtySinkHelper.invoke(rowData, DirtyType.BATCH_LOAD_ERROR, e);
-                if (!multipleSink) {
-                    sinkMetricData.invokeDirty(1, rowData.toString().getBytes().length);
-                } else {
-                    metric[2] += 1;
-                    metric[3] += rowData.toString().getBytes().length;
-                }
+                invokeDirty(rowData, e);
             }
         }
         batch.clear();
+        st.clearParameters();
+    }
+
+    private void invokeDirty(RowData rowData, Exception e) {
+        LOG.info("print 1 record invoke dirty" + e);
+        if (!multipleSink) {
+            dirtySinkHelper.invoke(rowData.toString(), DirtyType.BATCH_LOAD_ERROR, e);
+            sinkMetricData.invokeDirty(1, rowData.toString().getBytes().length);
+        } else {
+            LOG.info("printing {} records invoke dirty, {}{}{}", rowData, label, logtag, identifier);
+            dirtySinkHelper.invoke(rowData.toString(), DirtyType.BATCH_LOAD_ERROR, label, logtag, identifier, e);
+            metric[2] += 1;
+            metric[3] += rowData.toString().getBytes().length;
+        }
     }
 
     private List<Integer> parseError(SQLException e) throws SQLException {
@@ -201,7 +230,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         if (pos != -1) {
             errors.add(getPosFromMessage(e.getMessage()));
         } else {
-            throw e;
+            throw new SQLException(e);
         }
         SQLException next = e.getNextException();
         if (next != null) {
@@ -214,26 +243,13 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         Matcher matcher = pattern.matcher(message);
         if (matcher.find()) {
             int pos = Integer.parseInt(matcher.group(1));
-            // duplicate key is a special case, return the second duplicate instead of the first
+            // duplicate key is a special case，can't just return the first instance
             if (message.contains("duplicate key")) {
-                return getSecondOccurance(pos);
+                return -1;
             }
             return pos;
         }
-        return -1;
-    }
-
-    private int getSecondOccurance(int pos) {
-        RowData record = batch.get(pos);
-        int counter = 0;
-        for (int i = 0; i < batch.size(); i++) {
-            if (batch.get(i).equals(record)) {
-                counter++;
-            }
-            if (counter == 2) {
-                return i;
-            }
-        }
+        LOG.error("The dirty message {} can't be parsed", message);
         return -1;
     }
 

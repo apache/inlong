@@ -71,7 +71,9 @@ public class LogDirtySink<T> implements DirtySink<T> {
         String value;
         Map<String, String> labelMap = LabelUtils.parseLabels(dirtyData.getLabels());
         T data = dirtyData.getData();
+        LOGGER.info("data is : {},{}", data, data.getClass());
         if (data instanceof RowData) {
+            LOGGER.info("rowdata is: {},{},{}", data, dirtyData.getRowType(), labelMap);
             value = format((RowData) data, dirtyData.getRowType(), labelMap);
         } else if (data instanceof JsonNode) {
             value = format((JsonNode) data, labelMap);
@@ -93,6 +95,7 @@ public class LogDirtySink<T> implements DirtySink<T> {
                 } else {
                     return data.toString();
                 }
+                LOGGER.info("csv format:{},{},{},{}", data, getters, labels, fieldDelimiter);
                 value = FormatUtils.csvFormat(data, getters, labels, fieldDelimiter);
                 break;
             case "json":

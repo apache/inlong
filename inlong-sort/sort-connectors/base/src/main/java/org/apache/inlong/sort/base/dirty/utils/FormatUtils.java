@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.base.dirty.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.formats.json.JsonOptions.MapNullKeyMode;
 import org.apache.flink.formats.json.RowDataToJsonConverters;
@@ -27,6 +28,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.LogicalType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -39,6 +42,7 @@ import static org.apache.flink.table.data.RowData.createFieldGetter;
 /**
  * Format utils
  */
+@Slf4j
 public final class FormatUtils {
 
     /**
@@ -51,6 +55,7 @@ public final class FormatUtils {
     private static final String DEFAULT_FIELD_DELIMITER = ",";
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final ObjectNode reuse = MAPPER.createObjectNode();
+    private static final Logger LOG = LoggerFactory.getLogger(FormatUtils.class);
 
     private FormatUtils() {
     }
@@ -90,10 +95,19 @@ public final class FormatUtils {
      */
     public static String csvFormat(RowData data, RowData.FieldGetter[] fieldGetters,
             Map<String, String> labels, String fieldDelimiter) {
+        for (RowData.FieldGetter field : fieldGetters) {
+            LOG.info("fieldgetters:{}", field);
+        }
         StringJoiner result = csvFormatForLabels(labels, fieldDelimiter);
+        for (RowData.FieldGetter field : fieldGetters) {
+            LOG.info("csv result 1:{}", result);
+        }
         for (int i = 0; i < data.getArity(); i++) {
             Object value = fieldGetters[i].getFieldOrNull(data);
             result.add(value != null ? value.toString() : NULL_VALUE);
+        }
+        for (RowData.FieldGetter field : fieldGetters) {
+            LOG.info("csv result 2:{}", result);
         }
         return result.toString();
     }

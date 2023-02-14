@@ -123,7 +123,8 @@ public class S3DirtySink<T> implements DirtySink<T> {
             }
             LOGGER.warn("Add batch to identifier:{} failed "
                     + "and the dirty data will be throw away in the future"
-                    + " because the option 'dirty.side-output.ignore-errors' is 'true'", dirtyData.getIdentifier());
+                    + " because the option 'dirty.side-output.ignore-errors' is 'true'" + e, dirtyData.getIdentifier());
+            LOGGER.warn("invoke fail error", e);
         }
         if (buffered() && valid() && !flushing) {
             flush();
@@ -152,12 +153,13 @@ public class S3DirtySink<T> implements DirtySink<T> {
         String value;
         Map<String, String> labelMap = LabelUtils.parseLabels(dirtyData.getLabels());
         T data = dirtyData.getData();
+        LOGGER.info("add batch type:{},  data:{}", data.getClass(), data);
         if (data instanceof RowData) {
             value = format((RowData) data, dirtyData.getRowType(), labelMap);
         } else if (data instanceof JsonNode) {
             value = format((JsonNode) data, labelMap);
         } else {
-            // Only support csv format when the row is not a 'RowData' and 'JsonNode'
+            // Only support csv format when the row is not 'RowData' and 'JsonNode'
             value = FormatUtils.csvFormat(data, labelMap, s3Options.getFieldDelimiter());
         }
         if (s3Options.enableDirtyLog()) {
