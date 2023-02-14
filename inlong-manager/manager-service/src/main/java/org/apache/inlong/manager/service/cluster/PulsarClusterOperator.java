@@ -102,50 +102,64 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
         PulsarClusterRequest pulsarRequest = (PulsarClusterRequest) request;
         PulsarClusterInfo pulsarInfo = new PulsarClusterInfo();
         CommonBeanUtils.copyProperties(pulsarRequest, pulsarInfo);
+
+        testConnectServiceUrl(pulsarInfo.getUrl());
+        return testConnectAdminUrl(pulsarInfo);
+    }
+
+    /**
+     * Test connect for Pulsar AdminUrl
+     *
+     * @param pulsarInfo pulsar cluster info
+     * @return
+     */
+    private Boolean testConnectAdminUrl(PulsarClusterInfo pulsarInfo) {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarInfo)) {
             // test connect for pulsar adminUrl
             pulsarAdmin.tenants().getTenants();
-            // test connect for pulsar ServiceUrl
-            final String serviceUrl = pulsarInfo.getUrl();
-            Preconditions.expectNotNull(serviceUrl, "Pulsar ServiceUrl is empty");
-            Preconditions.expectTrue(serviceUrl.startsWith(SERVICE_URL_PREFIX),
-                    String.format("Pulsar ServiceUrl=%s should starts with %s", serviceUrl, SERVICE_URL_PREFIX));
-
-            String hostPortStr = serviceUrl.replaceAll(SERVICE_URL_PREFIX, "");
-            boolean successConnect = Arrays.stream(hostPortStr.split(InlongConstants.COMMA))
-                    // If there are multiple addresses, as long as one succeeds, it's considered successful
-                    .anyMatch(hostPort -> {
-                        String[] hostPortArr = hostPort.split(InlongConstants.COLON);
-                        Preconditions.expectTrue(hostPortArr.length >= 2,
-                                String.format("Pulsar ServiceUrl=%s should has ip and port, such as '127.0.0.1:6650'",
-                                        serviceUrl));
-
-                        String host = hostPortArr[0];
-                        int port = Integer.parseInt(hostPortArr[1]);
-
-                        try (Socket socket = new Socket()) {
-                            SocketAddress socketAddress = new InetSocketAddress(host, port);
-                            socket.connect(socketAddress, 30000);
-                            return true;
-                        } catch (IOException e) {
-                            String errMsg = String.format("Pulsar connection failed for AdminUrl=%s, ServiceUrl=%s",
-                                    pulsarInfo.getAdminUrl(), hostPort);
-                            LOGGER.error(errMsg, e);
-                            return false;
-                        }
-                    });
-
-            if (successConnect) {
-                return true;
-            } else {
-                throw new BusinessException("Pulsar connection failed for serviceUrl");
-            }
+            return true;
         } catch (Exception e) {
-            String errMsg = String.format("Pulsar connection failed for AdminUrl=%s, ServiceUrl=%s",
-                    pulsarInfo.getAdminUrl(), pulsarInfo.getUrl());
+            String errMsg = String.format("Pulsar connection failed for AdminUrl=%s", pulsarInfo.getAdminUrl());
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
     }
 
+    /**
+     * Test connect for Pulsar ServiceUrl
+     *
+     * @param serviceUrl Pulsar serviceUrl, such as: pulsar://127.0.0.1:6650,127.0.0.2:6650
+     */
+    private void testConnectServiceUrl(String serviceUrl) {
+        // test connect for Pulsar ServiceUrl
+        Preconditions.expectNotNull(serviceUrl, "Pulsar ServiceUrl is empty");
+        Preconditions.expectTrue(serviceUrl.startsWith(SERVICE_URL_PREFIX),
+                String.format("Pulsar ServiceUrl=%s should starts with %s", serviceUrl, SERVICE_URL_PREFIX));
+
+        String hostPortStr = serviceUrl.replaceAll(SERVICE_URL_PREFIX, "");
+
+        boolean successConnect = Arrays.stream(hostPortStr.split(InlongConstants.COMMA))
+                // Only when all addresses are reachable, it's considered successful
+                .allMatch(hostPort -> {
+                    String[] hostPortArr = hostPort.split(InlongConstants.COLON);
+                    Preconditions.expectTrue(hostPortArr.length >= 2,
+                            String.format("Pulsar ServiceUrl=%s should has ip and port, such as '127.0.0.1:6650'",
+                                    serviceUrl));
+
+                    String host = hostPortArr[0];
+                    int port = Integer.parseInt(hostPortArr[1]);
+
+                    try (Socket socket = new Socket()) {
+                        SocketAddress socketAddress = new InetSocketAddress(host, port);
+                        socket.connect(socketAddress, 30000);
+                        return true;
+                    } catch (IOException e) {
+                        String errMsg = String.format("Pulsar connection failed for ServiceUrl=%s", hostPort);
+                        LOGGER.error(errMsg, e);
+                        return false;
+                    }
+                });
+
+        Preconditions.expectTrue(successConnect, String.format("Pulsar connection failed for ServiceUrl=%s", hostPortStr));
+    }
 }
