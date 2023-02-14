@@ -156,6 +156,7 @@ public class FlinkSink {
         private Table table;
         private TableSchema tableSchema;
         private ActionsProvider actionProvider;
+        private boolean overwrite = false;
         private boolean appendMode = false;
         private Integer writeParallelism = null;
         private List<String> equalityFieldColumns = null;
@@ -249,6 +250,7 @@ public class FlinkSink {
         }
 
         public Builder overwrite(boolean newOverwrite) {
+            this.overwrite = newOverwrite;
             writeOptions.put(FlinkWriteOptions.OVERWRITE_MODE.key(), Boolean.toString(newOverwrite));
             return this;
         }
@@ -525,8 +527,7 @@ public class FlinkSink {
         private SingleOutputStreamOperator<Void> appendMultipleCommitter(
                 SingleOutputStreamOperator<MultipleWriteResult> writerStream) {
             IcebergProcessOperator<MultipleWriteResult, Void> multipleFilesCommiter =
-                    new IcebergProcessOperator<>(new IcebergMultipleFilesCommiter(catalogLoader,
-                            flinkWriteConf.overwriteMode()));
+                    new IcebergProcessOperator<>(new IcebergMultipleFilesCommiter(catalogLoader, overwrite));
             SingleOutputStreamOperator<Void> committerStream = writerStream
                     .transform(operatorName(ICEBERG_MULTIPLE_FILES_COMMITTER_NAME), Types.VOID, multipleFilesCommiter)
                     .setParallelism(1)
