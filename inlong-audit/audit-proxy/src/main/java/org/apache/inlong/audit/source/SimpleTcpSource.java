@@ -181,7 +181,7 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
             }
         } catch (Exception e) {
             logger.error("Simple TCP Source error bind host {} port {},program will exit!", host,
-                    port);
+                    port, e);
             System.exit(-1);
         }
         logger.info("Simple TCP Source started at host {}, port {}", host, port);
