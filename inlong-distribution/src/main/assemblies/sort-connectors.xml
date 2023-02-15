@@ -18,7 +18,7 @@
   -->
 
 <assembly>
-    <id>flink-v${flink.minor.version}</id>
+    <id>sort-connectors-flink-v${flink.minor.version}</id>
 
     <formats>
         <format>dir</format>
