@@ -75,7 +75,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
     }
 
     public void setDirtyMetaData(String label, String logtag, String identifier) {
-        LOG.info("setting metadata:{}", label + "," + logtag + "," + identifier);
         this.label = label;
         this.logtag = logtag;
         this.identifier = identifier;
@@ -96,21 +95,16 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
 
     @Override
     public void addToBatch(RowData record) throws SQLException {
-        LOG.info("adding {} into batch", record);
         if (valueTransform != null) {
             record = valueTransform.apply(record); // copy or not
         }
         batch.add(record);
         converter.toExternal(record, st);
         st.addBatch();
-        LOG.info("done adding");
     }
 
     @Override
     public void executeBatch() throws SQLException {
-        for (RowData data : batch) {
-            LOG.info("printing batch: {}", data);
-        }
         try {
             st.executeBatch();
 
@@ -123,7 +117,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
             batch.clear();
             if (!multipleSink) {
                 sinkMetricData.invoke(writtenSize, writtenBytes);
-                LOG.info("print {} records invoke clean", writtenSize);
             } else {
                 metric[0] += writtenSize;
                 metric[1] += writtenBytes;
@@ -132,8 +125,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         } catch (SQLException e) {
             // clear the prepared statement first to avoid exceptions
             st.clearParameters();
-            LOG.info("record parse start {}, exception cause {}", counter, e);
-
             try {
                 processErrorPosition(e);
             } catch (Exception ex) {
@@ -148,10 +139,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
 
     private void processErrorPosition(SQLException e) throws SQLException {
         List<Integer> errorPositions = parseError(e);
-
-        for (int pos : errorPositions) {
-            LOG.info("dirty data detected:{}", batch.get(pos));
-        }
         // the data before the first sqlexception are already written, handle those and remove them.
         int writtenSize = errorPositions.get(0);
         long writtenBytes = 0L;
@@ -160,7 +147,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         }
         if (!multipleSink) {
             sinkMetricData.invoke(writtenSize, writtenBytes);
-            LOG.info("print {} records invoke clean", writtenSize);
         } else {
             metric[0] += writtenSize;
             metric[1] += writtenBytes;
@@ -186,16 +172,13 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
     }
 
     private void retryEntireBatch() throws SQLException, JsonProcessingException {
-        LOG.info("retrying entire batch");
         // clear parameters to make sure the batch is always clean in the end.
         st.clearParameters();
         for (RowData rowData : batch) {
-            LOG.info("printing batch:{}", rowData.toString());
             try {
                 converter.toExternal(rowData, st);
                 st.addBatch();
                 st.executeBatch();
-                LOG.info("print {} records invoke clean", rowData);
                 if (!multipleSink) {
                     sinkMetricData.invoke(1, rowData.toString().getBytes().length);
                 } else {
@@ -212,12 +195,10 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
     }
 
     private void invokeDirty(RowData rowData, Exception e) {
-        LOG.info("print 1 record invoke dirty" + e);
         if (!multipleSink) {
             dirtySinkHelper.invoke(rowData.toString(), DirtyType.BATCH_LOAD_ERROR, e);
             sinkMetricData.invokeDirty(1, rowData.toString().getBytes().length);
         } else {
-            LOG.info("printing {} records invoke dirty, {}{}{}", rowData, label, logtag, identifier);
             dirtySinkHelper.invoke(rowData.toString(), DirtyType.BATCH_LOAD_ERROR, label, logtag, identifier, e);
             metric[2] += 1;
             metric[3] += rowData.toString().getBytes().length;

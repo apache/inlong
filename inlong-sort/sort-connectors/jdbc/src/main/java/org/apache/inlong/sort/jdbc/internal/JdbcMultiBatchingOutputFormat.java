@@ -469,7 +469,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         }
         TableMetricStatementExecutor executor = null;
         try {
-            LOG.info("starting to fill dirty meta data");
             Field subExecutor;
             if (exec instanceof TableMetricStatementExecutor) {
                 executor = (TableMetricStatementExecutor) exec;
@@ -647,7 +646,6 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                     try {
                         outputMetrics(tableIdentifier);
                     } catch (Exception e) {
-                        LOG.error("dirty metric calculation exception:{}", e);
                         outputMetrics(tableIdentifier, Long.valueOf(tableIdRecordList.size()),
                                 totalDataSize, false);
                     }
@@ -684,7 +682,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                                 try {
                                     outputMetrics(tableIdentifier);
                                 } catch (Exception e) {
-                                    LOG.error("enhance exception" + e);
+                                    LOG.error("JDBC table metric calculation exception" + e);
                                     outputMetrics(tableIdentifier, (long) tableIdRecordList.size(),
                                             totalDataSize, false);
                                 }

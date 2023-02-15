@@ -84,7 +84,6 @@ public class DirtySinkHelper<T> implements Serializable {
      * @param e The cause of dirty data
      */
     public void invoke(T dirtyData, DirtyType dirtyType, String label, String logTag, String identifier, Throwable e) {
-        LOGGER.info("starting dirty invoke");
         if (!dirtyOptions.ignoreDirty()) {
             RuntimeException ex;
             if (e instanceof RuntimeException) {
@@ -92,7 +91,6 @@ public class DirtySinkHelper<T> implements Serializable {
             } else {
                 ex = new RuntimeException(e);
             }
-            LOGGER.info("throwing runtime exception");
             throw ex;
         }
         if (dirtySink != null) {

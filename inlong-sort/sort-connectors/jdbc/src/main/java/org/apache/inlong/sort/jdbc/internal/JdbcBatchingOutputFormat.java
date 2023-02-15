@@ -218,7 +218,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                     exec = newExecutor;
                 }
             } catch (Exception e) {
-                LOG.error("class enhance failed", e);
+                LOG.error("tableStatementExecutor enhance failed", e);
             }
         }
         try {
@@ -320,7 +320,6 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         try {
             jdbcStatementExecutor.addToBatch(extracted);
         } catch (Exception e) {
-            LOG.error(String.format("DataTypeMappingError, data: %s", extracted), e);
             handleDirtyData(extracted, DirtyType.DATA_TYPE_MAPPING_ERROR, e);
         }
     }
