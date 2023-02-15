@@ -43,12 +43,12 @@ export const statusList: StatusProp[] = [
   {
     label: i18n.t('meta.Group.Status.Deleted'),
     value: 40,
-    type: 'warning',
+    type: 'error',
   },
   {
     label: i18n.t('meta.Group.Status.Deleting'),
     value: 41,
-    type: 'error',
+    type: 'warning',
   },
   {
     label: i18n.t('meta.Group.Status.BeSubmitted'),
@@ -100,7 +100,7 @@ export const statusList: StatusProp[] = [
   {
     label: i18n.t('meta.Group.Status.Restarted'),
     value: 150,
-    type: 'error',
+    type: 'default',
   },
   {
     label: i18n.t('meta.Group.Status.Restarting'),
