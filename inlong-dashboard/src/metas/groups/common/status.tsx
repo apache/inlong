@@ -41,6 +41,16 @@ export const statusList: StatusProp[] = [
     type: 'default',
   },
   {
+    label: i18n.t('meta.Group.Status.Deleted'),
+    value: 40,
+    type: 'error',
+  },
+  {
+    label: i18n.t('meta.Group.Status.Deleting'),
+    value: 41,
+    type: 'warning',
+  },
+  {
     label: i18n.t('meta.Group.Status.BeSubmitted'),
     value: 100,
     type: 'primary',
@@ -76,6 +86,26 @@ export const statusList: StatusProp[] = [
     label: i18n.t('meta.Group.Status.ConfigurationSuccess'),
     value: 130,
     type: 'success',
+  },
+  {
+    label: i18n.t('meta.Group.Status.Suspended'),
+    value: 140,
+    type: 'error',
+  },
+  {
+    label: i18n.t('meta.Group.Status.Suspending'),
+    value: 141,
+    type: 'warning',
+  },
+  {
+    label: i18n.t('meta.Group.Status.Restarted'),
+    value: 150,
+    type: 'default',
+  },
+  {
+    label: i18n.t('meta.Group.Status.Restarting'),
+    value: 151,
+    type: 'warning',
   },
 ];
 
