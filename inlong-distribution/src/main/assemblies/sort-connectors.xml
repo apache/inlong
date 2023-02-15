@@ -18,7 +18,7 @@
   -->
 
 <assembly>
-    <id>sort-connectors</id>
+    <id>flink-v${flink.minor.version}</id>
 
     <formats>
         <format>dir</format>
@@ -28,136 +28,155 @@
     <fileSets>
         <!--connector plugin-->
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/hbase/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/hbase/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-hbase-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/hive/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/hive/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-hive-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/iceberg/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/iceberg/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-iceberg-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/jdbc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/jdbc/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-jdbc-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/kafka/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/kafka/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-kafka-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/mongodb-cdc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/mongodb-cdc/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-mongodb-cdc-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/mysql-cdc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/mysql-cdc/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-mysql-cdc-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/postgres-cdc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/postgres-cdc/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-postgres-cdc-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/pulsar/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/pulsar/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-pulsar-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/sqlserver-cdc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/sqlserver-cdc/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-sqlserver-cdc-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/oracle-cdc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/oracle-cdc/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-oracle-cdc-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/elasticsearch-6/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>
+                ../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/elasticsearch-6/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-elasticsearch6-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/elasticsearch-7/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>
+                ../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/elasticsearch-7/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-elasticsearch7-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/tubemq/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/tubemq/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-tubemq-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/filesystem/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/filesystem/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-filesystem-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/doris/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/doris/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-doris-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/starrocks/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/starrocks/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-starrocks-${project.version}.jar</include>
             </includes>
@@ -172,24 +191,27 @@
             <outputDirectory>./</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/hudi/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/hudi/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-hudi-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/kudu/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/kudu/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-kudu-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/redis/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v${flink.minor.version}/sort-connectors/redis/target
+            </directory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-redis-${project.version}.jar</include>
             </includes>

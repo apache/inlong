@@ -20,16 +20,17 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
-        <artifactId>inlong-sort</artifactId>
+        <artifactId>sort-flink</artifactId>
         <version>1.6.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>sort-flink</artifactId>
+    <artifactId>sort-flink-v1.13</artifactId>
     <packaging>pom</packaging>
-    <name>Apache InLong - Sort-Flink</name>
+
+    <name>Apache InLong - Sort-Flink-v1.13</name>
     <modules>
-        <module>sort-flink-v1.13</module>
+        <module>sort-connectors</module>
     </modules>
 
 </project>
