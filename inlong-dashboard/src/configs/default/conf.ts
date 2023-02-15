@@ -20,14 +20,21 @@ import { PageLoading } from '@ant-design/pro-layout';
 import i18n from '@/i18n';
 import Provider from '@/components/Provider';
 import Layout from '@/components/Layout';
+import { message } from 'antd';
 
 const conf = {
   title: '',
   logo: '/logo.svg',
+  useLogin: true,
+  redirectRoutes: {
+    '/': '/group',
+  } as Record<string, string>,
   loginUrl: `${window.location.origin}/#/${i18n?.language || ''}/login`,
   AppProvider: Provider,
   AppLoading: PageLoading,
   AppLayout: Layout,
+  requestPrefix: '/inlong/manager/api',
+  requestErrorAlert: (msg: string) => message.error(msg),
 };
 
 export default conf;

@@ -29,10 +29,9 @@ import { State } from '@/models';
 import request from '@/utils/request';
 import { localesConfig } from '@/configs/locales';
 import store from './models';
-import Login from '@/pages/Login';
 import { config } from '@/configs/default';
 
-const { AppProvider, AppLoading, AppLayout } = config;
+const { AppProvider, AppLoading, AppLayout, useLogin, redirectRoutes } = config;
 
 const lazyComponentCache: Record<string, ReturnType<typeof lazy>> = {};
 
@@ -99,15 +98,26 @@ const App = () => {
 
   return (
     <Switch>
-      <Route exact path="/login" render={() => <Login />} />
-      <AppLayout>
-        <Suspense fallback={<AppLoading />}>
+      <Suspense fallback={<AppLoading />}>
+        {useLogin && (
+          <Route
+            exact
+            path="/login"
+            render={() => {
+              const LazyLogin = lazy(() => import('@/pages/Login'));
+              return <LazyLogin />;
+            }}
+          />
+        )}
+        <AppLayout>
           <Switch>
-            <Route exact path="/" render={() => <Redirect to="/group" />} />
+            {Object.keys(redirectRoutes).map(path => (
+              <Route exact path={path} render={() => <Redirect to={redirectRoutes[path]} />} />
+            ))}
             {renderRoutes(routes)}
           </Switch>
-        </Suspense>
-      </AppLayout>
+        </AppLayout>
+      </Suspense>
     </Switch>
   );
 };
