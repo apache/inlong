@@ -302,8 +302,8 @@ public class MongoDBReader extends AbstractReader {
         Properties props = builder.build().asProperties();
         props.setProperty("offset.storage.file.filename", offsetStoreFileName);
         props.setProperty("connector.class", MongoDbConnector.class.getCanonicalName());
-        props.setProperty("name", "engine" + instanceId);
-        props.setProperty("mongodb.name", "mongodb" + instanceId);
+        props.setProperty("name", "engine-" + instanceId);
+        props.setProperty("mongodb.name", "inlong-mongodb-" + instanceId);
 
         String snapshotMode = props.getOrDefault(JOB_MONGO_SNAPSHOT_MODE, "").toString();
         if (Objects.equals(SnapshotModeConstants.INITIAL, snapshotMode)) {
