@@ -180,8 +180,7 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
                 channelFuture = bootstrap.bind(new InetSocketAddress(host, port)).sync();
             }
         } catch (Exception e) {
-            logger.error("Simple TCP Source error bind host {} port {},program will exit!", host,
-                    port);
+            logger.error("Simple TCP Source bind {}:{} error, program will exit!", host, port, e);
             System.exit(-1);
         }
         logger.info("Simple TCP Source started at host {}, port {}", host, port);
