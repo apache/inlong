@@ -222,7 +222,7 @@ public class JobProfileDto {
         MongoJob mongoJob = new MongoJob();
 
         mongoJob.setHosts(config.getHosts());
-        mongoJob.setUser(config.getUser());
+        mongoJob.setUser(config.getUsername());
         mongoJob.setPassword(config.getPassword());
         mongoJob.setDatabaseIncludeList(config.getDatabaseIncludeList());
         mongoJob.setDatabaseExcludeList(config.getDatabaseExcludeList());

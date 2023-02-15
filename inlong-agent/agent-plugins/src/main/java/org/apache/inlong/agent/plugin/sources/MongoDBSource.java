@@ -36,7 +36,9 @@ public class MongoDBSource extends AbstractSource {
     @Override
     public List<Reader> split(JobProfile conf) {
         super.init(conf);
-        List<Reader> readerList = Collections.singletonList(new MongoDBReader());
+        MongoDBReader mongoDBReader = new MongoDBReader();
+        mongoDBReader.setReadSource(conf.getInstanceId());
+        List<Reader> readerList = Collections.singletonList(mongoDBReader);
         sourceMetric.sourceSuccessCount.incrementAndGet();
         return readerList;
     }
