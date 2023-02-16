@@ -95,7 +95,6 @@ public class MySQLSinkDTO {
      */
     public static MySQLSinkDTO getFromRequest(MySQLSinkRequest request) {
         String url = filterSensitive(request.getJdbcUrl());
-        url = checkJdbcUrl(url);
         return MySQLSinkDTO.builder()
                 .jdbcUrl(url)
                 .username(request.getUsername())
@@ -185,21 +184,31 @@ public class MySQLSinkDTO {
         return database;
     }
 
-    private static String checkJdbcUrl(String jdbcUrl) {
+    public static String setDbNameToUrl(String jdbcUrl, String databaseName) {
         if (StringUtils.isBlank(jdbcUrl)) {
             return jdbcUrl;
         }
-        String pattern = "jdbc:mysql://(?<host>[a-zA-Z0-9-//.]+):(?<port>[0-9]+)?";
+        String pattern = "jdbc:mysql://(?<host>[a-zA-Z0-9-//.]+):(?<port>[0-9]+)?(?<ext>)";
         Pattern namePattern = Pattern.compile(pattern);
         Matcher dateMatcher = namePattern.matcher(jdbcUrl);
+        StringBuilder resultUrl;
         if (dateMatcher.find()) {
             String host = dateMatcher.group("host");
             String port = dateMatcher.group("port");
-            return MYSQL_JDBC_PREFIX + host + ":" + port;
+            resultUrl = new StringBuilder().append(MYSQL_JDBC_PREFIX)
+                    .append(host)
+                    .append(InlongConstants.COLON)
+                    .append(port)
+                    .append(InlongConstants.SLASH)
+                    .append(databaseName);
         } else {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
                     "MySQL JDBC URL was invalid, it should like jdbc:mysql://host:port");
         }
+        if (jdbcUrl.contains("?")) {
+            resultUrl.append(jdbcUrl.substring(jdbcUrl.indexOf("?")));
+        }
+        return resultUrl.toString();
     }
 
     /**

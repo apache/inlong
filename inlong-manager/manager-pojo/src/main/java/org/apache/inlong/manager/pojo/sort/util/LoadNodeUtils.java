@@ -21,7 +21,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
@@ -40,6 +39,7 @@ import org.apache.inlong.manager.pojo.sink.hudi.HudiSink;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSink;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.pojo.sink.redis.RedisSink;
@@ -350,7 +350,7 @@ public class LoadNodeUtils {
         Format format = null;
         if (starRocksSink.getSinkMultipleEnable() != null && starRocksSink.getSinkMultipleEnable()
                 && StringUtils.isNotBlank(
-                        starRocksSink.getSinkMultipleFormat())) {
+                starRocksSink.getSinkMultipleFormat())) {
             DataTypeEnum dataType = DataTypeEnum.forType(starRocksSink.getSinkMultipleFormat());
             switch (dataType) {
                 case CANAL:
@@ -601,7 +601,7 @@ public class LoadNodeUtils {
                 null,
                 null,
                 properties,
-                mysqlSink.getJdbcUrl() + InlongConstants.SLASH + mysqlSink.getDatabaseName(),
+                MySQLSinkDTO.setDbNameToUrl(mysqlSink.getJdbcUrl(), mysqlSink.getDatabaseName()),
                 mysqlSink.getUsername(),
                 mysqlSink.getPassword(),
                 mysqlSink.getTableName(),
