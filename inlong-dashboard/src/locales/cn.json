@@ -216,6 +216,7 @@
   "meta.Sinks.Greenplum.IsMetaField": "是否为元字段",
   "meta.Sinks.Greenplum.FieldFormat": "字段格式",
   "meta.Sinks.Greenplum.FieldDescription": "字段描述",
+  "meta.Sinks.MySQL.DatabaseName": "数据库名",
   "meta.Sinks.MySQL.TableName": "表名称",
   "meta.Sinks.MySQL.PrimaryKey": "主键",
   "meta.Sinks.MySQL.FieldName": "字段名",

@@ -216,6 +216,7 @@
   "meta.Sinks.Greenplum.IsMetaField": "IsMetaField",
   "meta.Sinks.Greenplum.FieldFormat": "FieldFormat",
   "meta.Sinks.Greenplum.FieldDescription": "FieldDescription",
+  "meta.Sinks.MySQL.DatabaseName": "DatabaseName",
   "meta.Sinks.MySQL.TableName": "TableName",
   "meta.Sinks.MySQL.PrimaryKey": "PrimaryKey",
   "meta.Sinks.MySQL.FieldName": "FieldName",

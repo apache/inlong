@@ -72,6 +72,17 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     }),
   })
   @ColumnDecorator()
+  @I18n('meta.Sinks.MySQL.DatabaseName')
+  databaseName: string;
+
+  @FieldDecorator({
+    type: 'input',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @ColumnDecorator()
   @I18n('meta.Sinks.MySQL.TableName')
   tableName: string;
 
