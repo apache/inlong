@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
@@ -349,7 +350,7 @@ public class LoadNodeUtils {
         Format format = null;
         if (starRocksSink.getSinkMultipleEnable() != null && starRocksSink.getSinkMultipleEnable()
                 && StringUtils.isNotBlank(
-                        starRocksSink.getSinkMultipleFormat())) {
+                starRocksSink.getSinkMultipleFormat())) {
             DataTypeEnum dataType = DataTypeEnum.forType(starRocksSink.getSinkMultipleFormat());
             switch (dataType) {
                 case CANAL:
@@ -600,7 +601,7 @@ public class LoadNodeUtils {
                 null,
                 null,
                 properties,
-                mysqlSink.getJdbcUrl(),
+                mysqlSink.getJdbcUrl() + InlongConstants.SLASH + mysqlSink.getDatabaseName(),
                 mysqlSink.getUsername(),
                 mysqlSink.getPassword(),
                 mysqlSink.getTableName(),
@@ -717,9 +718,9 @@ public class LoadNodeUtils {
     /**
      * Parse format
      *
-     * @param formatName        data serialization, support: csv, json, canal, avro, etc
+     * @param formatName data serialization, support: csv, json, canal, avro, etc
      * @param wrapWithInlongMsg whether wrap content with {@link InLongMsgFormat}
-     * @param separatorStr      the separator of data content
+     * @param separatorStr the separator of data content
      * @param ignoreParseErrors whether ignore deserialization error data
      * @return the format for serialized content
      */

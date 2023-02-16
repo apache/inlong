@@ -42,7 +42,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = SinkType.MYSQL)
 public class MySQLSink extends StreamSink {
 
-    @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
+    @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -50,6 +50,9 @@ public class MySQLSink extends StreamSink {
 
     @ApiModelProperty("User password")
     private String password;
+
+    @ApiModelProperty("Target database name")
+    private String databaseName;
 
     @ApiModelProperty("Target table name")
     private String tableName;
