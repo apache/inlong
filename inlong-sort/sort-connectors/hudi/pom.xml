@@ -111,6 +111,7 @@
                                     <include>com.fasterxml.woodstox:*</include>
                                     <include>org.codehaus.woodstox:*</include>
                                     <include>com.google.guava:*</include>
+                                    <include>com.google.protobuf:*</include>
                                 </includes>
                             </artifactSet>
                             <filters>

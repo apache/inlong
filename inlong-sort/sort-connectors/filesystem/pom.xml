@@ -53,6 +53,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.apache.inlong:*</include>
+                                    <include>com.google.protobuf:*</include>
                                 </includes>
                             </artifactSet>
                             <filters>
