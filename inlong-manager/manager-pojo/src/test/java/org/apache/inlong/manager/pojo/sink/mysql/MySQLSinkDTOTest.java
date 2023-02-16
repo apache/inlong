@@ -74,4 +74,18 @@ public class MySQLSinkDTOTest {
                 originUrl);
     }
 
+    @Test
+    public void testSetDbNameToUrl() {
+        String originUrl = MySQLSinkDTO.setDbNameToUrl(
+                "jdbc:mysql://127.0.0.1:3306?autoDeserialize=TRue&allowLoadLocalInfile=TRue&autoReconnect=true&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/",
+                "test_db");
+        Assertions.assertEquals(
+                "jdbc:mysql://127.0.0.1:3306/test_db?autoDeserialize=TRue&allowLoadLocalInfile=TRue&autoReconnect=true&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/",
+                originUrl);
+        originUrl = MySQLSinkDTO.setDbNameToUrl("jdbc:mysql://127.0.0.1:3306", "test_db");
+        Assertions.assertEquals("jdbc:mysql://127.0.0.1:3306/test_db", originUrl);
+        originUrl = MySQLSinkDTO.setDbNameToUrl("jdbc:mysql://127.0.0.1:3306/", "test_db");
+        Assertions.assertEquals("jdbc:mysql://127.0.0.1:3306/test_db", originUrl);
+    }
+
 }
