@@ -37,6 +37,8 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * MySQL sink info
@@ -61,8 +63,9 @@ public class MySQLSinkDTO {
     };
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkDTO.class);
+    private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql://";
 
-    @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
+    @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -70,6 +73,9 @@ public class MySQLSinkDTO {
 
     @ApiModelProperty("User password")
     private String password;
+
+    @ApiModelProperty("Target database name")
+    private String databaseName;
 
     @ApiModelProperty("Target table name")
     private String tableName;
@@ -94,6 +100,7 @@ public class MySQLSinkDTO {
                 .username(request.getUsername())
                 .password(request.getPassword())
                 .primaryKey(request.getPrimaryKey())
+                .databaseName(request.getDatabaseName())
                 .tableName(request.getTableName())
                 .properties(request.getProperties())
                 .build();
@@ -123,8 +130,7 @@ public class MySQLSinkDTO {
      */
     public static MySQLTableInfo getTableInfo(MySQLSinkDTO mySQLSink, List<MySQLColumnInfo> columnList) {
         MySQLTableInfo tableInfo = new MySQLTableInfo();
-        String dbName = getDbNameFromUrl(mySQLSink.getJdbcUrl());
-        tableInfo.setDbName(dbName);
+        tableInfo.setDbName(mySQLSink.getDatabaseName());
         tableInfo.setTableName(mySQLSink.getTableName());
         tableInfo.setPrimaryKey(mySQLSink.getPrimaryKey());
         tableInfo.setColumns(columnList);
@@ -176,6 +182,33 @@ public class MySQLSinkDTO {
             database = database.substring(0, database.indexOf(";"));
         }
         return database;
+    }
+
+    public static String setDbNameToUrl(String jdbcUrl, String databaseName) {
+        if (StringUtils.isBlank(jdbcUrl)) {
+            return jdbcUrl;
+        }
+        String pattern = "jdbc:mysql://(?<host>[a-zA-Z0-9-//.]+):(?<port>[0-9]+)?(?<ext>)";
+        Pattern namePattern = Pattern.compile(pattern);
+        Matcher dateMatcher = namePattern.matcher(jdbcUrl);
+        StringBuilder resultUrl;
+        if (dateMatcher.find()) {
+            String host = dateMatcher.group("host");
+            String port = dateMatcher.group("port");
+            resultUrl = new StringBuilder().append(MYSQL_JDBC_PREFIX)
+                    .append(host)
+                    .append(InlongConstants.COLON)
+                    .append(port)
+                    .append(InlongConstants.SLASH)
+                    .append(databaseName);
+        } else {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    "MySQL JDBC URL was invalid, it should like jdbc:mysql://host:port");
+        }
+        if (jdbcUrl.contains("?")) {
+            resultUrl.append(jdbcUrl.substring(jdbcUrl.indexOf("?")));
+        }
+        return resultUrl.toString();
     }
 
     /**

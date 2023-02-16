@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeDTO;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
@@ -132,7 +133,7 @@ public class MySQLResourceOperator implements SinkResourceOperator {
                     "mysql jdbc url not specified and data node is empty");
             DataNodeInfo dataNodeInfo = dataNodeHelper.getDataNodeInfo(dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, mysqlInfo);
-            mysqlInfo.setJdbcUrl(dataNodeInfo.getUrl());
+            mysqlInfo.setJdbcUrl(MySQLDataNodeDTO.convertToJdbcurl(dataNodeInfo.getUrl()));
             mysqlInfo.setPassword(dataNodeInfo.getToken());
         }
         return mysqlInfo;

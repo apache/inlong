@@ -90,7 +90,7 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     public Boolean testConnection(DataNodeRequest request) {
-        String jdbcUrl = request.getUrl();
+        String jdbcUrl = MySQLDataNodeDTO.convertToJdbcurl(request.getUrl());
         String username = request.getUsername();
         String password = request.getToken();
         Preconditions.expectNotBlank(jdbcUrl, ErrorCodeEnum.INVALID_PARAMETER, "connection jdbcUrl cannot be empty");
