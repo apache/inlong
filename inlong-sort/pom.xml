@@ -35,8 +35,8 @@
         <module>sort-api</module>
         <module>sort-common</module>
         <module>sort-formats</module>
-        <module>sort-connectors</module>
         <module>sort-core</module>
+        <module>sort-flink</module>
         <module>sort-dist</module>
         <module>sort-end-to-end-tests</module>
     </modules>
