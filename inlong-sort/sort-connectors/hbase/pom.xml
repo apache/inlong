@@ -108,6 +108,7 @@
                                     <include>org.apache.commons:commons-crypto</include>
                                     <include>org.apache.commons:commons-lang3</include>
                                     <include>io.netty:netty-all</include>
+                                    <include>com.google.protobuf:*</include>
                                     <include>io.dropwizard.metrics:metrics-core</include>
                                 </includes>
                                 <excludes>
