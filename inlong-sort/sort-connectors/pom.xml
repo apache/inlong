@@ -35,6 +35,7 @@
     <modules>
         <module>base</module>
         <module>cdc-base</module>
+        <module>flink-cdc-base</module>
         <module>hive</module>
         <module>mysql-cdc</module>
         <module>kafka</module>
