@@ -39,7 +39,8 @@ public class SQLServerSource extends AbstractSource {
     @Override
     public List<Reader> split(JobProfile conf) {
         super.init(conf);
-        Reader sqlServerReader = new SQLServerReader();
+        SQLServerReader sqlServerReader = new SQLServerReader();
+        sqlServerReader.setReadSource(conf.getInstanceId());
         List<Reader> readerList = new ArrayList<>();
         readerList.add(sqlServerReader);
         sourceMetric.sourceSuccessCount.incrementAndGet();
