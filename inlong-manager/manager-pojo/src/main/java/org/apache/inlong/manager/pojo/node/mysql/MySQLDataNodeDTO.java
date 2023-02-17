@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -42,6 +43,7 @@ import javax.validation.constraints.NotNull;
 public class MySQLDataNodeDTO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLDataNodeDTO.class);
+    private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql://";
 
     @ApiModelProperty("URL of backup DB server")
     private String backupUrl;
@@ -65,5 +67,16 @@ public class MySQLDataNodeDTO {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
                     String.format("Failed to parse extParams for MySQL node: %s", e.getMessage()));
         }
+    }
+
+    /**
+     * Convert ip:post to jdbcurl.
+     */
+    public static String convertToJdbcurl(String url) {
+        String jdbcUrl = url;
+        if (StringUtils.isNotBlank(jdbcUrl) && !jdbcUrl.startsWith(MYSQL_JDBC_PREFIX)) {
+            jdbcUrl = MYSQL_JDBC_PREFIX + jdbcUrl;
+        }
+        return jdbcUrl;
     }
 }

@@ -84,7 +84,7 @@ public class MongoJob {
     public static class MongoJobTaskConfig {
 
         private String hosts;
-        private String user;
+        private String username;
         private String password;
 
         private String databaseIncludeList;

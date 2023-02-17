@@ -71,7 +71,7 @@ public class JobProfileDto {
     /**
      * sqlserver source
      */
-    public static final String SQLSERVER_SOURCE = "org.apache.inlong.agent.plugin.sources.SqlServerSource";
+    public static final String SQLSERVER_SOURCE = "org.apache.inlong.agent.plugin.sources.SQLServerSource";
 
     private static final Gson GSON = new Gson();
 
@@ -222,7 +222,7 @@ public class JobProfileDto {
         MongoJob mongoJob = new MongoJob();
 
         mongoJob.setHosts(config.getHosts());
-        mongoJob.setUser(config.getUser());
+        mongoJob.setUser(config.getUsername());
         mongoJob.setPassword(config.getPassword());
         mongoJob.setDatabaseIncludeList(config.getDatabaseIncludeList());
         mongoJob.setDatabaseExcludeList(config.getDatabaseExcludeList());
@@ -293,12 +293,12 @@ public class JobProfileDto {
         SqlServerJob.SqlserverJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
                 SqlServerJob.SqlserverJobConfig.class);
         SqlServerJob sqlServerJob = new SqlServerJob();
-        sqlServerJob.setUser(config.getUser());
+        sqlServerJob.setUser(config.getUsername());
         sqlServerJob.setHostname(config.getHostname());
         sqlServerJob.setPassword(config.getPassword());
         sqlServerJob.setPort(config.getPort());
-        sqlServerJob.setServerName(config.getServerName());
-        sqlServerJob.setDbname(config.getDbname());
+        sqlServerJob.setServerName(config.getSchemaName());
+        sqlServerJob.setDbname(config.getDatabase());
 
         SqlServerJob.Offset offset = new SqlServerJob.Offset();
         offset.setFilename(config.getOffsetFilename());

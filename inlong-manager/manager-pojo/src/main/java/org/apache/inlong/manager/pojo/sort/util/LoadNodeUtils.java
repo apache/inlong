@@ -39,6 +39,7 @@ import org.apache.inlong.manager.pojo.sink.hudi.HudiSink;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSink;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.pojo.sink.redis.RedisSink;
@@ -600,7 +601,7 @@ public class LoadNodeUtils {
                 null,
                 null,
                 properties,
-                mysqlSink.getJdbcUrl(),
+                MySQLSinkDTO.setDbNameToUrl(mysqlSink.getJdbcUrl(), mysqlSink.getDatabaseName()),
                 mysqlSink.getUsername(),
                 mysqlSink.getPassword(),
                 mysqlSink.getTableName(),
@@ -717,9 +718,9 @@ public class LoadNodeUtils {
     /**
      * Parse format
      *
-     * @param formatName        data serialization, support: csv, json, canal, avro, etc
+     * @param formatName data serialization, support: csv, json, canal, avro, etc
      * @param wrapWithInlongMsg whether wrap content with {@link InLongMsgFormat}
-     * @param separatorStr      the separator of data content
+     * @param separatorStr the separator of data content
      * @param ignoreParseErrors whether ignore deserialization error data
      * @return the format for serialized content
      */

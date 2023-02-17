@@ -87,6 +87,7 @@
                                     <include>org.apache.iceberg:*</include>
                                     <include>org.apache.hive:hive-exec</include>
                                     <include>org.apache.thrift:libfb303</include>
+                                    <include>com.google.protobuf:*</include>
                                 </includes>
                             </artifactSet>
                             <filters>

@@ -149,6 +149,10 @@ public class MongoDBReader extends AbstractReader {
         return instanceId;
     }
 
+    public void setReadSource(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
     @Override
     public void setReadTimeout(long mills) {
     }
@@ -258,7 +262,7 @@ public class MongoDBReader extends AbstractReader {
     private void handle(boolean success, String message, Throwable error) {
         // jobConf.getInstanceId()
         if (!success) {
-            LOGGER.error("{}, {}", message, error);
+            LOGGER.error("MongoDB job with jobConf {} has error {}", message, error);
         }
     }
 
@@ -298,7 +302,8 @@ public class MongoDBReader extends AbstractReader {
         Properties props = builder.build().asProperties();
         props.setProperty("offset.storage.file.filename", offsetStoreFileName);
         props.setProperty("connector.class", MongoDbConnector.class.getCanonicalName());
-        props.setProperty("name", instanceId);
+        props.setProperty("name", "engine-" + instanceId);
+        props.setProperty("mongodb.name", "inlong-mongodb-" + instanceId);
 
         String snapshotMode = props.getOrDefault(JOB_MONGO_SNAPSHOT_MODE, "").toString();
         if (Objects.equals(SnapshotModeConstants.INITIAL, snapshotMode)) {

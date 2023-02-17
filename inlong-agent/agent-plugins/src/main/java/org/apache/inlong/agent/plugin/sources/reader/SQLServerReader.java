@@ -149,6 +149,10 @@ public class SQLServerReader extends AbstractReader {
         return instanceId;
     }
 
+    public void setReadSource(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
     @Override
     public void setReadTimeout(long mill) {
 
@@ -253,7 +257,7 @@ public class SQLServerReader extends AbstractReader {
 
     private Properties getEngineProps() {
         Properties props = new Properties();
-        props.setProperty("name", "engine" + instanceId);
+        props.setProperty("name", "engine-" + instanceId);
         props.setProperty("connector.class", SqlServerConnector.class.getCanonicalName());
         props.setProperty("database.hostname", hostName);
         props.setProperty("database.port", port);
