@@ -1,11 +1,12 @@
 /*
- * Copyright 2022 Ververica Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,6 +58,7 @@ import static java.math.BigDecimal.ROUND_CEILING;
  * The splitter to split the table into chunks using primary-key (by default) or a given split key.
  */
 public class PostgresChunkSplitter implements JdbcSourceChunkSplitter {
+
     private static final Logger LOG = LoggerFactory.getLogger(PostgresChunkSplitter.class);
 
     private final JdbcSourceConfig sourceConfig;
@@ -348,8 +350,8 @@ public class PostgresChunkSplitter implements JdbcSourceChunkSplitter {
             Object chunkStart,
             Object chunkEnd) {
         // currently, we only support single split column
-        Object[] splitStart = chunkStart == null ? null : new Object[] {chunkStart};
-        Object[] splitEnd = chunkEnd == null ? null : new Object[] {chunkEnd};
+        Object[] splitStart = chunkStart == null ? null : new Object[]{chunkStart};
+        Object[] splitEnd = chunkEnd == null ? null : new Object[]{chunkEnd};
         Map<TableId, TableChange> schema = new HashMap<>();
         schema.put(tableId, dialect.queryTableSchema(jdbc, tableId));
         return new SnapshotSplit(

@@ -179,7 +179,7 @@ public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
         String pluginName = config.get(DECODING_PLUGIN_NAME);
         String slotName = config.get(SLOT_NAME);
         String serverTimeZone = config.get(SERVER_TIME_ZONE);
-        //ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
+        // ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
         final boolean sourceMultipleEnable = config.get(SOURCE_MULTIPLE_ENABLE);
         String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String inlongAudit = config.get(INLONG_AUDIT);

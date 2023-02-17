@@ -1,11 +1,12 @@
 /*
- * Copyright 2022 Ververica Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,6 +47,7 @@ import static com.ververica.cdc.connectors.postgres.source.offset.PostgresOffset
 
 /** A {@link FetchTask} implementation for Postgres to read streaming changes. */
 public class PostgresStreamFetchTask implements FetchTask<SourceSplitBase> {
+
     private static final Logger LOG = LoggerFactory.getLogger(PostgresStreamFetchTask.class);
 
     private final StreamSplit split;
@@ -117,10 +119,9 @@ public class PostgresStreamFetchTask implements FetchTask<SourceSplitBase> {
 
             // only extracting and storing the lsn of the last commit
             Long commitLsn =
-                    (Long)
-                            postgresOffsetContext
-                                    .getOffset()
-                                    .get(PostgresOffsetContext.LAST_COMMIT_LSN_KEY);
+                    (Long) postgresOffsetContext
+                            .getOffset()
+                            .get(PostgresOffsetContext.LAST_COMMIT_LSN_KEY);
             if (commitLsn != null
                     && (lastCommitLsn == null
                             || Lsn.valueOf(commitLsn).compareTo(Lsn.valueOf(lastCommitLsn)) > 0)) {
@@ -138,7 +139,8 @@ public class PostgresStreamFetchTask implements FetchTask<SourceSplitBase> {
     }
 
     private class StreamSplitChangeEventSourceContext
-            implements ChangeEventSource.ChangeEventSourceContext {
+            implements
+                ChangeEventSource.ChangeEventSourceContext {
 
         public void finished() {
             taskRunning = false;
@@ -152,6 +154,7 @@ public class PostgresStreamFetchTask implements FetchTask<SourceSplitBase> {
 
     /** A {@link ChangeEventSource} implementation for Postgres to read streaming changes. */
     public static class StreamSplitReadTask extends PostgresStreamingChangeEventSource {
+
         private static final Logger LOG = LoggerFactory.getLogger(StreamSplitReadTask.class);
         private final StreamSplit streamSplit;
         private final JdbcSourceEventDispatcher dispatcher;

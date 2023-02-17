@@ -1,11 +1,12 @@
 /*
- * Copyright 2022 Ververica Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -124,7 +125,7 @@ public class PostgresScanFetchTask implements FetchTask<SourceSplitBase> {
                         split.getTableSchemas(),
                         0);
 
-        // optimization that skip the WAL read when the low watermark >=  high watermark
+        // optimization that skip the WAL read when the low watermark >= high watermark
         final boolean backfillRequired =
                 backfillSplit.getEndingOffset().isAfter(backfillSplit.getStartingOffset());
         if (!backfillRequired) {
@@ -176,7 +177,8 @@ public class PostgresScanFetchTask implements FetchTask<SourceSplitBase> {
     }
 
     static class SnapshotSplitChangeEventSourceContext
-            implements ChangeEventSource.ChangeEventSourceContext {
+            implements
+                ChangeEventSource.ChangeEventSourceContext {
 
         private PostgresOffset lowWatermark;
         private PostgresOffset highWatermark;
@@ -217,6 +219,7 @@ public class PostgresScanFetchTask implements FetchTask<SourceSplitBase> {
 
     /** A SnapshotChangeEventSource implementation for Postgres to read snapshot split. */
     public static class SnapshotSplitReadTask extends AbstractSnapshotChangeEventSource {
+
         private static final Logger LOG = LoggerFactory.getLogger(SnapshotSplitReadTask.class);
 
         private final PostgresConnection jdbcConnection;
@@ -322,15 +325,15 @@ public class PostgresScanFetchTask implements FetchTask<SourceSplitBase> {
                     selectSql);
 
             try (PreparedStatement selectStatement =
-                            PgQueryUtils.readTableSplitDataStatement(
-                                    jdbcConnection,
-                                    selectSql,
-                                    snapshotSplit.getSplitStart() == null,
-                                    snapshotSplit.getSplitEnd() == null,
-                                    snapshotSplit.getSplitStart(),
-                                    snapshotSplit.getSplitEnd(),
-                                    snapshotSplit.getSplitKeyType().getFieldCount(),
-                                    connectorConfig.getQueryFetchSize());
+                    PgQueryUtils.readTableSplitDataStatement(
+                            jdbcConnection,
+                            selectSql,
+                            snapshotSplit.getSplitStart() == null,
+                            snapshotSplit.getSplitEnd() == null,
+                            snapshotSplit.getSplitStart(),
+                            snapshotSplit.getSplitEnd(),
+                            snapshotSplit.getSplitKeyType().getFieldCount(),
+                            connectorConfig.getQueryFetchSize());
                     ResultSet rs = selectStatement.executeQuery()) {
 
                 ColumnUtils.ColumnArray columnArray = ColumnUtils.toArray(rs, table);
@@ -385,7 +388,8 @@ public class PostgresScanFetchTask implements FetchTask<SourceSplitBase> {
         }
 
         private static class PostgresSnapshotContext
-                extends RelationalSnapshotChangeEventSource.RelationalSnapshotContext {
+                extends
+                    RelationalSnapshotChangeEventSource.RelationalSnapshotContext {
 
             public PostgresSnapshotContext() throws SQLException {
                 super("");

@@ -210,7 +210,7 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                             .decodingPluginName(pluginName)
                             .slotName(slotName)
                             .debeziumProperties(dbzProperties)
-                            //.deserializer(deserializer)
+                            // .deserializer(deserializer)
                             .splitSize(splitSize)
                             .splitMetaGroupSize(splitMetaGroupSize)
                             .distributionFactorUpper(distributionFactorUpper)

@@ -1,11 +1,12 @@
 /*
- * Copyright 2022 Ververica Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,14 +47,17 @@ import java.util.Queue;
 /** Basic class read {@link SourceSplitBase} and return {@link SourceRecord}. */
 @Experimental
 public class IncrementalSourceSplitReader<C extends SourceConfig>
-        implements SplitReader<SourceRecords, SourceSplitBase> {
+        implements
+            SplitReader<SourceRecords, SourceSplitBase> {
 
     private static final Logger LOG = LoggerFactory.getLogger(IncrementalSourceSplitReader.class);
     private final Queue<SourceSplitBase> splits;
     private final int subtaskId;
 
-    @Nullable private Fetcher<SourceRecords, SourceSplitBase> currentFetcher;
-    @Nullable private String currentSplitId;
+    @Nullable
+    private Fetcher<SourceRecords, SourceSplitBase> currentFetcher;
+    @Nullable
+    private String currentSplitId;
     private final DataSourceDialect<C> dataSourceDialect;
     private final C sourceConfig;
 
@@ -94,7 +98,8 @@ public class IncrementalSourceSplitReader<C extends SourceConfig>
     }
 
     @Override
-    public void wakeUp() {}
+    public void wakeUp() {
+    }
 
     @Override
     public void close() throws Exception {

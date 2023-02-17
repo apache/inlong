@@ -1,11 +1,12 @@
 /*
- * Copyright 2022 Ververica Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -54,7 +55,8 @@ import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isSchema
  * emit records rather than emit the records directly.
  */
 public class IncrementalSourceRecordEmitter<T>
-        implements RecordEmitter<SourceRecords, T, SourceSplitState> {
+        implements
+            RecordEmitter<SourceRecords, T, SourceSplitState> {
 
     private static final Logger LOG = LoggerFactory.getLogger(IncrementalSourceRecordEmitter.class);
     private static final FlinkJsonTableChangeSerializer TABLE_CHANGE_SERIALIZER =
@@ -172,6 +174,7 @@ public class IncrementalSourceRecordEmitter<T>
     }
 
     private static class OutputCollector<T> implements Collector<T> {
+
         private SourceOutput<T> output;
 
         @Override

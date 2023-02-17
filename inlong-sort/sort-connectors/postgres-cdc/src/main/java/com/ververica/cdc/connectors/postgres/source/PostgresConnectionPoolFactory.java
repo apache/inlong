@@ -1,11 +1,12 @@
 /*
- * Copyright 2022 Ververica Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 /** A connection pool factory to create pooled Postgres {@link HikariDataSource}. */
 public class PostgresConnectionPoolFactory extends JdbcConnectionPoolFactory {
+
     public static final String JDBC_URL_PATTERN = "jdbc:postgresql://%s:%s/%s";
 
     private static final Logger LOG = LoggerFactory.getLogger(PostgresConnectionPoolFactory.class);
