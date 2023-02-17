@@ -97,8 +97,8 @@ const App = () => {
   }, [history, location, setCurrentMenu]);
 
   return (
-    <Switch>
-      <Suspense fallback={<AppLoading />}>
+    <Suspense fallback={<AppLoading />}>
+      <Switch>
         {useLogin && (
           <Route
             exact
@@ -112,13 +112,18 @@ const App = () => {
         <AppLayout>
           <Switch>
             {Object.keys(redirectRoutes).map(path => (
-              <Route exact path={path} render={() => <Redirect to={redirectRoutes[path]} />} />
+              <Route
+                exact
+                key={path}
+                path={path}
+                render={() => <Redirect to={redirectRoutes[path]} />}
+              />
             ))}
             {renderRoutes(routes)}
           </Switch>
         </AppLayout>
-      </Suspense>
-    </Switch>
+      </Switch>
+    </Suspense>
   );
 };
 
