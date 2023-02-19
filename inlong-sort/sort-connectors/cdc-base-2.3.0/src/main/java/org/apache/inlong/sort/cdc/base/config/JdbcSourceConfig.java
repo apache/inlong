@@ -151,4 +151,12 @@ public abstract class JdbcSourceConfig extends BaseSourceConfig {
     public String getChunkKeyColumn() {
         return chunkKeyColumn;
     }
+
+    public String getInlongMetric() {
+        return inlongMetric;
+    }
+
+    public String getInlongAudit() {
+        return inlongAudit;
+    }
 }

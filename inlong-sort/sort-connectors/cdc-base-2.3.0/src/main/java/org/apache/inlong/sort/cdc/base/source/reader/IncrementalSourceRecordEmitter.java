@@ -25,7 +25,6 @@ import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getMessa
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isDataChangeRecord;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isSchemaChangeEvent;
 
-import com.ververica.cdc.connectors.base.source.metrics.SourceReaderMetrics;
 import com.ververica.cdc.debezium.history.FlinkJsonTableChangeSerializer;
 import io.debezium.document.Array;
 import io.debezium.relational.history.HistoryRecord;
@@ -41,6 +40,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceRecords;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
+import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

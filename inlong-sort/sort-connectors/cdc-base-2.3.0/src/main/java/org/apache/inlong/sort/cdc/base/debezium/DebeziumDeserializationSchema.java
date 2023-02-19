@@ -22,6 +22,8 @@ import java.io.Serializable;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.util.Collector;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
+import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
 import org.apache.kafka.connect.source.SourceRecord;
 
 /**
@@ -48,4 +50,14 @@ public interface DebeziumDeserializationSchema<T> extends Serializable, ResultTy
         deserialize(record, out);
     }
 
+    /**
+     * Deserialize the Debezium record with tableSchema, it is represented in Kafka {@link
+     * SourceRecord}.
+     */
+    default void deserialize(
+            SourceRecord record, Collector<T> out,
+            SourceReaderMetrics sourceReaderMetrics, SourceSplitState sourceSplitState)
+            throws Exception {
+        deserialize(record, out);
+    }
 }

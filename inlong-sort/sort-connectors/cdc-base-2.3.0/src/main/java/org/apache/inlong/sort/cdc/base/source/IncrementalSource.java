@@ -18,7 +18,6 @@
 package org.apache.inlong.sort.cdc.base.source;
 
 import com.ververica.cdc.connectors.base.options.StartupMode;
-import com.ververica.cdc.connectors.base.source.metrics.SourceReaderMetrics;
 import io.debezium.relational.TableId;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -37,6 +36,9 @@ import org.apache.flink.connector.base.source.reader.synchronization.FutureCompl
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.dialect.DataSourceDialect;
@@ -53,6 +55,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SourceRecords;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
+import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
 import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceReader;
 import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceRecordEmitter;
 import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceSplitReader;
@@ -105,6 +108,7 @@ public class IncrementalSource<T, C extends SourceConfig>
             throws Exception {
         // create source config for the given subtask (e.g. unique server id)
         C sourceConfig = configFactory.create(readerContext.getIndexOfSubtask());
+        JdbcSourceConfig jdbcSourceConfig = (JdbcSourceConfig) sourceConfig;
         FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecords>> elementsQueue =
                 new FutureCompletingBlockingQueue<>();
 
@@ -114,7 +118,14 @@ public class IncrementalSource<T, C extends SourceConfig>
         final MetricGroup metricGroup = (MetricGroup) metricGroupMethod.invoke(readerContext);
         final SourceReaderMetrics sourceReaderMetrics = new SourceReaderMetrics(metricGroup);
 
-        sourceReaderMetrics.registerMetrics();
+        // create source config for the given subtask (e.g. unique server id)
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(jdbcSourceConfig.getInlongMetric())
+                .withInlongAudit(jdbcSourceConfig.getInlongAudit())
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .build();
+
+        sourceReaderMetrics.registerMetrics(metricOption);
         Supplier<IncrementalSourceSplitReader<C>> splitReaderSupplier =
                 () -> new IncrementalSourceSplitReader<>(
                         readerContext.getIndexOfSubtask(), dataSourceDialect, sourceConfig);

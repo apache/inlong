@@ -24,10 +24,16 @@ import java.time.Duration;
 import java.util.Properties;
 import javax.annotation.Nullable;
 import org.apache.flink.annotation.Internal;
+import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceRecords;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
+import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
 import org.apache.inlong.sort.cdc.oracle.source.config.OracleSourceConfigFactory;
 import org.apache.inlong.sort.cdc.oracle.source.jdbc.JdbcIncrementalSource;
 import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffsetFactory;
+import org.apache.inlong.sort.cdc.oracle.source.reader.OracleRecordEmitter;
 
 /**
  * The builder class for {@link OracleIncrementalSource} to make it easier for the users to
@@ -246,6 +252,16 @@ public class OracleSourceBuilder<T> {
 
         public static <T> OracleSourceBuilder<T> builder() {
             return new OracleSourceBuilder<>();
+        }
+
+        @Override
+        protected RecordEmitter<SourceRecords, T, SourceSplitState> createRecordEmitter(
+                SourceConfig sourceConfig, SourceReaderMetrics sourceReaderMetrics) {
+            return new OracleRecordEmitter<>(
+                    deserializationSchema,
+                    sourceReaderMetrics,
+                    sourceConfig.isIncludeSchemaChanges(),
+                    offsetFactory);
         }
     }
 }

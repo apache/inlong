@@ -51,11 +51,11 @@
             <artifactId>sort-connector-base</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-connector-cdc-base</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.inlong</groupId>-->
+        <!--            <artifactId>sort-connector-cdc-base</artifactId>-->
+        <!--            <version>${project.version}</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-cdc-base-2.3.0</artifactId>
