@@ -33,6 +33,6 @@ public class RegexReplaceTest {
         identifier[1] = "table2";
         String pattern = "${database}-${table}-${DIRTY_MESSAGE}";
         String answer = DirtySinkHelper.regexReplace(pattern, DirtyType.BATCH_LOAD_ERROR, "mock message");
-        Assert.assertEquals("yizhouyang-table2-mock message", answer);
+        Assert.assertEquals("${database}-${table}-mock message", answer);
     }
 }
