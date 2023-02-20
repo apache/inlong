@@ -40,7 +40,7 @@ public class GenericDorisSinkFunction<T> extends RichSinkFunction<T>
         implements
             CheckpointedFunction {
 
-    private final DorisDynamicSchemaOutputFormat<T> outputFormat;
+    private final DorisOutputFormat outputFormat;
 
     public GenericDorisSinkFunction(@Nonnull DorisDynamicSchemaOutputFormat<T> outputFormat) {
         this.outputFormat = Preconditions.checkNotNull(outputFormat);
