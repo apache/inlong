@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.starrocks.manager;
 
-import com.starrocks.connector.flink.manager.StarRocksSinkBufferEntity;
 import com.starrocks.connector.flink.manager.StarRocksStreamLoadFailedException;
 import com.starrocks.connector.flink.row.sink.StarRocksDelimiterParser;
 import com.starrocks.connector.flink.row.sink.StarRocksSinkOP;
@@ -70,14 +69,15 @@ public class StarRocksStreamLoadVisitor implements Serializable {
     private static final String RESULT_LABEL_ABORTED = "ABORTED";
     private static final String RESULT_LABEL_UNKNOWN = "UNKNOWN";
 
-    public StarRocksStreamLoadVisitor(StarRocksSinkOptions sinkOptions, String[] fieldNames,
+    public StarRocksStreamLoadVisitor(StarRocksSinkOptions sinkOptions,
+            String[] fieldNames,
             boolean opAutoProjectionInJson) {
         this.fieldNames = fieldNames;
         this.sinkOptions = sinkOptions;
         this.opAutoProjectionInJson = opAutoProjectionInJson;
     }
 
-    public Map<String, Object> doStreamLoad(StarRocksSinkBufferEntity bufferEntity) throws IOException {
+    public Map<String, Object> doStreamLoad(SinkBufferEntity bufferEntity) throws IOException {
         String host = getAvailableHost();
         if (null == host) {
             throw new IOException("None of the hosts in `load_url` could be connected.");
