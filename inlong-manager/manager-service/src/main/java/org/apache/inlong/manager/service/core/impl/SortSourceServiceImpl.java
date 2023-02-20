@@ -139,7 +139,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         // if cluster or task are invalid
         if (StringUtils.isBlank(cluster) || StringUtils.isBlank(task)) {
             String errMsg = "blank cluster name or task name, return nothing";
-            LOGGER.error(errMsg);
+            LOGGER.debug(errMsg);
             return SortSourceConfigResponse.builder()
                     .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
                     .msg(errMsg)
@@ -149,7 +149,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         // if there is no config, but still return success
         if (!sortSourceConfigMap.containsKey(cluster) || !sortSourceConfigMap.get(cluster).containsKey(task)) {
             String errMsg = String.format("there is no valid source config of cluster %s, task %s", cluster, task);
-            LOGGER.error(errMsg);
+            LOGGER.debug(errMsg);
             return SortSourceConfigResponse.builder()
                     .code(RESPONSE_CODE_SUCCESS)
                     .msg(errMsg)
@@ -169,7 +169,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         if (sortSourceConfigMap.get(cluster).get(task).getCacheZones().isEmpty()) {
             String errMsg = String.format("find empty cache zones of cluster %s, task %s, "
                     + "please check the manager log", cluster, task);
-            LOGGER.error(errMsg);
+            LOGGER.debug(errMsg);
             return SortSourceConfigResponse.builder()
                     .code(RESPONSE_CODE_FAIL)
                     .msg(errMsg)
