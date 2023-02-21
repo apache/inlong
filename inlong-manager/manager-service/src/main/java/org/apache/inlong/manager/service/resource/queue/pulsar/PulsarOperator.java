@@ -49,6 +49,10 @@ import java.util.Map;
 public class PulsarOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
+    /**
+     * The maximum number of partitions, which is an empirical value,
+     * generally does not exceed 1000 in large clusters.
+     */
     private static final int MAX_PARTITION = 1000;
     private static final int RETRY_TIMES = 3;
     private static final int DELAY_SECONDS = 5;
