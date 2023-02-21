@@ -19,7 +19,7 @@ package org.apache.inlong.sort.cdc.oracle.table;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-import com.ververica.cdc.connectors.oracle.table.StartupOptions;
+import com.ververica.cdc.connectors.base.options.StartupOptions;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

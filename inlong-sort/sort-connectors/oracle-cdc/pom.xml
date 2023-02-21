@@ -30,7 +30,7 @@
     <name>Apache InLong - Sort-connector-oracle-cdc</name>
 
     <properties>
-        <debezium.version>1.7.0.Final</debezium.version>
+        <debezium.version>1.6.4.Final</debezium.version>
     </properties>
 
     <dependencies>
@@ -117,6 +117,7 @@
                                     <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>
                                     <include>com.google.protobuf:*</include>
+                                    <include>com.ververica:flink-cdc-base</include>
                                 </includes>
                             </artifactSet>
                             <filters>
