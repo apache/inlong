@@ -204,7 +204,6 @@ public class DataConverterUtil {
      * @param topicName
      * @param transferedMessageList return a list of @link Message
      */
-    /**
     public static List<Message> convertMessage(final String topicName,
             List<ClientBroker.TransferedMessage> transferedMessageList) {
         if (transferedMessageList == null || transferedMessageList.isEmpty()) {
@@ -252,6 +251,5 @@ public class DataConverterUtil {
         }
         return messageList;
     }
-     **/
 
 }
