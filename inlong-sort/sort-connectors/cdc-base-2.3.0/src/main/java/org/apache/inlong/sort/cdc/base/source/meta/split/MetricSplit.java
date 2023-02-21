@@ -34,19 +34,19 @@ public class MetricSplit extends SourceSplitBase {
     /**
      * The table level metric in a split of mysql metric.
      */
-    private Map<String, MongoTableMetric> tableMetricMap;
+    private Map<String, TableMetric> tableMetricMap;
 
     /**
      * The read phase timestamp metric in a split of mysql metric.
      */
     private Map<String, Long> readPhaseMetricMap;
 
-    public Map<String, MongoTableMetric> getTableMetricMap() {
+    public Map<String, TableMetric> getTableMetricMap() {
         return tableMetricMap;
     }
 
     public void setTableMetricMap(
-            Map<String, MongoTableMetric> tableMetricMap) {
+            Map<String, TableMetric> tableMetricMap) {
         this.tableMetricMap = tableMetricMap;
     }
 
@@ -79,7 +79,7 @@ public class MetricSplit extends SourceSplitBase {
     }
 
     public MetricSplit(Long numBytesIn, Long numRecordsIn, Map<String, Long> readPhaseMetricMap,
-            Map<String, MongoTableMetric> tableMetricMap) {
+            Map<String, TableMetric> tableMetricMap) {
         this("");
         this.numBytesIn = numBytesIn;
         this.numRecordsIn = numRecordsIn;
@@ -99,7 +99,7 @@ public class MetricSplit extends SourceSplitBase {
 
     @Override
     public String toString() {
-        return "MongoMetricSplit{"
+        return "MetricSplit{"
                 + "numRecordsIn=" + numRecordsIn
                 + ", numBytesIn=" + numBytesIn
                 + ", tableMetricMap=" + tableMetricMap
@@ -110,13 +110,13 @@ public class MetricSplit extends SourceSplitBase {
     /**
      * The mongo table level metric in a split of mongo metric.
      */
-    public static class MongoTableMetric implements Serializable {
+    public static class TableMetric implements Serializable {
 
         private Long numRecordsIn;
 
         private Long numBytesIn;
 
-        public MongoTableMetric(Long numRecordsIn, Long numBytesIn) {
+        public TableMetric(Long numRecordsIn, Long numBytesIn) {
             this.numRecordsIn = numRecordsIn;
             this.numBytesIn = numBytesIn;
         }
@@ -139,7 +139,7 @@ public class MetricSplit extends SourceSplitBase {
 
         @Override
         public String toString() {
-            return "MongoTableMetric{"
+            return "TableMetric{"
                     + "numRecordsIn=" + numRecordsIn
                     + ", numBytesIn=" + numBytesIn
                     + '}';

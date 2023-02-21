@@ -38,6 +38,7 @@ import org.apache.flink.table.types.logical.utils.LogicalTypeParser;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetDeserializerSerializer;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
+import org.apache.inlong.sort.cdc.base.source.meta.split.MetricSplit.TableMetric;
 
 /** A serializer for the {@link SourceSplitBase}. */
 public abstract class SourceSplitSerializer
@@ -51,6 +52,7 @@ public abstract class SourceSplitSerializer
 
     private static final int SNAPSHOT_SPLIT_FLAG = 1;
     private static final int STREAM_SPLIT_FLAG = 2;
+    private static final int METRIC_SPLIT_FLAG = 4;
 
     @Override
     public int getVersion() {
@@ -85,7 +87,7 @@ public abstract class SourceSplitSerializer
             // serialization
             snapshotSplit.serializedFormCache = result;
             return result;
-        } else {
+        } else if (split.isStreamSplit()) {
             final StreamSplit streamSplit = split.asStreamSplit();
             // optimization: the splits lazily cache their own serialized form
             if (streamSplit.serializedFormCache != null) {
@@ -105,6 +107,17 @@ public abstract class SourceSplitSerializer
             // optimization: cache the serialized from, so we avoid the byte work during repeated
             // serialization
             streamSplit.serializedFormCache = result;
+            return result;
+        } else {
+            final MetricSplit metricSplit = (MetricSplit) split;
+            final DataOutputSerializer out = SERIALIZER_CACHE.get();
+            out.writeInt(METRIC_SPLIT_FLAG);
+            out.writeLong(metricSplit.getNumBytesIn());
+            out.writeLong(metricSplit.getNumRecordsIn());
+            writeReadPhaseMetric(metricSplit.getReadPhaseMetricMap(), out);
+            writeTableMetrics(metricSplit.getTableMetricMap(), out);
+            final byte[] result = out.getCopyOfBuffer();
+            out.clear();
             return result;
         }
     }
@@ -163,6 +176,16 @@ public abstract class SourceSplitSerializer
                     finishedSplitsInfo,
                     tableChangeMap,
                     totalFinishedSplitSize);
+        } else if (splitKind == METRIC_SPLIT_FLAG) {
+            long numBytesIn = 0L;
+            long numRecordsIn = 0L;
+            if (in.available() > 0) {
+                numBytesIn = in.readLong();
+                numRecordsIn = in.readLong();
+            }
+            Map<String, Long> readPhaseMetricMap = readReadPhaseMetric(in);
+            Map<String, TableMetric> tableMetricMap = readTableMetrics(in);
+            return new MetricSplit(numBytesIn, numRecordsIn, readPhaseMetricMap, tableMetricMap);
         } else {
             throw new IOException("Unknown split kind: " + splitKind);
         }
@@ -241,5 +264,49 @@ public abstract class SourceSplitSerializer
                             tableId, splitId, splitStart, splitEnd, highWatermark, offsetFactory));
         }
         return finishedSplitsInfo;
+    }
+
+    private static void writeReadPhaseMetric(Map<String, Long> readPhaseMetrics, DataOutputSerializer out)
+            throws IOException {
+        final int size = readPhaseMetrics.size();
+        out.writeInt(size);
+        for (Map.Entry<String, Long> entry : readPhaseMetrics.entrySet()) {
+            out.writeUTF(entry.getKey());
+            out.writeLong(entry.getValue());
+        }
+    }
+
+    private static Map<String, Long> readReadPhaseMetric(DataInputDeserializer in) throws IOException {
+        Map<String, Long> readPhaseMetrics = new HashMap<>();
+        if (in.available() > 0) {
+            final int size = in.readInt();
+            for (int i = 0; i < size; i++) {
+                readPhaseMetrics.put(in.readUTF(), in.readLong());
+            }
+        }
+        return readPhaseMetrics;
+    }
+
+    private static void writeTableMetrics(Map<String, TableMetric> tableMetrics, DataOutputSerializer out)
+            throws IOException {
+        final int size = tableMetrics.size();
+        out.writeInt(size);
+        for (Map.Entry<String, TableMetric> entry : tableMetrics.entrySet()) {
+            out.writeUTF(entry.getKey());
+            out.writeLong(entry.getValue().getNumRecordsIn());
+            out.writeLong(entry.getValue().getNumBytesIn());
+        }
+    }
+
+    private static Map<String, TableMetric> readTableMetrics(DataInputDeserializer in) throws IOException {
+        Map<String, TableMetric> tableMetrics = new HashMap<>();
+        if (in.available() > 0) {
+            final int size = in.readInt();
+            for (int i = 0; i < size; i++) {
+                String tableIdentify = in.readUTF();
+                tableMetrics.put(tableIdentify, new TableMetric(in.readLong(), in.readLong()));
+            }
+        }
+        return tableMetrics;
     }
 }

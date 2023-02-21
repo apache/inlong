@@ -19,7 +19,6 @@ package org.apache.inlong.sort.cdc.oracle.debezium.table;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.SpecialValueDecimal;
 import io.debezium.data.VariableScaleDecimal;
@@ -61,8 +60,6 @@ import org.apache.inlong.sort.cdc.base.debezium.table.AppendMetadataCollector;
 import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverter;
 import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverterFactory;
 import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
-import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
 import org.apache.inlong.sort.cdc.base.util.RecordUtils;
 import org.apache.inlong.sort.cdc.base.util.TemporalConversions;
 import org.apache.kafka.connect.data.ConnectSchema;
@@ -821,22 +818,6 @@ public final class RowDataDebeziumDeserializeSchema
             after.setRowKind(RowKind.UPDATE_AFTER);
             emit(record, after, tableSchema, out);
         }
-    }
-
-    @Override
-    public void deserialize(SourceRecord record, Collector<RowData> out,
-            SourceReaderMetrics sourceReaderMetrics, SourceSplitState sourceSplitState)
-            throws Exception {
-        // record metric
-        Struct value = (Struct) record.value();
-        Struct source = value.getStruct(Envelope.FieldName.SOURCE);
-        String dbName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
-        String schemaName = source.getString(AbstractSourceInfo.SCHEMA_NAME_KEY);
-        String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
-        sourceReaderMetrics
-                .outputMetrics(dbName, schemaName, tableName, sourceSplitState.isSnapshotSplitState(), value);
-
-        deserialize(record, out, null);
     }
 
     private GenericRowData extractAfterRow(Struct value, Schema valueSchema,

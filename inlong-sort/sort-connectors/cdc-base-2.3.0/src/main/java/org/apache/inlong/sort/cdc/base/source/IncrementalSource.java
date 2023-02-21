@@ -137,7 +137,8 @@ public class IncrementalSource<T, C extends SourceConfig>
                 readerContext,
                 sourceConfig,
                 sourceSplitSerializer,
-                dataSourceDialect);
+                dataSourceDialect,
+                sourceReaderMetrics);
     }
 
     @Override

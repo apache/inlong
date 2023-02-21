@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.flink.annotation.Experimental;
@@ -44,11 +45,14 @@ import org.apache.flink.connector.base.source.reader.fetcher.SingleThreadFetcher
 import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.dialect.DataSourceDialect;
 import org.apache.inlong.sort.cdc.base.source.meta.events.FinishedSnapshotSplitsReportEvent;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.split.FinishedSnapshotSplitInfo;
+import org.apache.inlong.sort.cdc.base.source.meta.split.MetricSplit;
+import org.apache.inlong.sort.cdc.base.source.meta.split.MetricSplit.TableMetric;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplitState;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceRecords;
@@ -57,6 +61,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
 import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
 import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplitState;
+import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +82,7 @@ public class IncrementalSourceReader<T, C extends SourceConfig>
     private final SourceSplitSerializer sourceSplitSerializer;
     private final C sourceConfig;
     private final DataSourceDialect<C> dialect;
+    private final SourceReaderMetrics sourceReaderMetrics;
 
     public IncrementalSourceReader(
             FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecords>> elementQueue,
@@ -86,7 +92,8 @@ public class IncrementalSourceReader<T, C extends SourceConfig>
             SourceReaderContext context,
             C sourceConfig,
             SourceSplitSerializer sourceSplitSerializer,
-            DataSourceDialect<C> dialect) {
+            DataSourceDialect<C> dialect,
+            SourceReaderMetrics sourceReaderMetrics) {
         super(
                 elementQueue,
                 new SingleThreadFetcherManager<>(elementQueue, splitReaderSupplier::get),
@@ -99,6 +106,7 @@ public class IncrementalSourceReader<T, C extends SourceConfig>
         this.subtaskId = context.getIndexOfSubtask();
         this.sourceSplitSerializer = checkNotNull(sourceSplitSerializer);
         this.dialect = dialect;
+        this.sourceReaderMetrics = sourceReaderMetrics;
     }
 
     @Override
@@ -127,6 +135,21 @@ public class IncrementalSourceReader<T, C extends SourceConfig>
 
         // add stream splits who are uncompleted
         stateSplits.addAll(uncompletedStreamSplits.values());
+
+        SourceTableMetricData sourceMetricData = sourceReaderMetrics.getSourceMetricData();
+        LOG.info("metric-states snapshot sourceMetricData:{}", sourceMetricData);
+        if (sourceMetricData != null) {
+            long countNumBytesIn = sourceMetricData.getNumBytesIn().getCount();
+            long countNumRecordsIn = sourceMetricData.getNumRecordsIn().getCount();
+            Map<String, Long> readPhaseMetricMap = sourceMetricData.getReadPhaseMetricMap().entrySet().stream().collect(
+                    Collectors.toMap(v -> v.getKey().getPhase(), e -> e.getValue().getReadPhase().getCount()));
+            Map<String, TableMetric> tableMetricMap = sourceMetricData.getSubSourceMetricMap().entrySet().stream()
+                    .collect(Collectors.toMap(Entry::getKey,
+                            e -> new TableMetric(e.getValue().getNumRecordsIn().getCount(),
+                                    e.getValue().getNumBytesIn().getCount())));
+            stateSplits
+                    .add(new MetricSplit(countNumBytesIn, countNumRecordsIn, readPhaseMetricMap, tableMetricMap));
+        }
 
         return stateSplits;
     }
