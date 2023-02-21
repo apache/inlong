@@ -49,7 +49,7 @@ import java.util.Map;
 public class PulsarOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
-    private static final int MAX_PARTITION = 100;
+    private static final int MAX_PARTITION = 1000;
     private static final int RETRY_TIMES = 3;
     private static final int DELAY_SECONDS = 5;
 
@@ -164,7 +164,7 @@ public class PulsarOperator {
                 // The number of brokers as the default value of topic partition
                 List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
                 Integer numPartitions = topicInfo.getNumPartitions();
-                if (numPartitions < 0 || numPartitions <= MAX_PARTITION) {
+                if (numPartitions < 0 || numPartitions >= MAX_PARTITION) {
                     List<String> brokers = pulsarAdmin.brokers().getActiveBrokers(clusters.get(0));
                     numPartitions = brokers.size();
                 }
