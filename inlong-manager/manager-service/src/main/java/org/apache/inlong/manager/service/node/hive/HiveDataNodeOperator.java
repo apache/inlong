@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -30,10 +31,13 @@ import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
+import org.apache.inlong.manager.service.resource.sink.hive.HiveJdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.sql.Connection;
 
 @Service
 public class HiveDataNodeOperator extends AbstractDataNodeOperator {
@@ -65,8 +69,6 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
             HiveDataNodeDTO dto = HiveDataNodeDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, hiveDataNodeInfo);
         }
-
-        LOGGER.debug("success to get hive data node from entity");
         return hiveDataNodeInfo;
     }
 
@@ -77,10 +79,27 @@ public class HiveDataNodeOperator extends AbstractDataNodeOperator {
         try {
             HiveDataNodeDTO dto = HiveDataNodeDTO.getFromRequest(hiveDataNodeRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            LOGGER.debug("success to set entity for hive data node");
         } catch (Exception e) {
-            LOGGER.error("failed to set entity for hive data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("Failed to build extParams for Hive node: %s", e.getMessage()));
+        }
+    }
+
+    @Override
+    public Boolean testConnection(DataNodeRequest request) {
+        String url = request.getUrl();
+        String username = request.getUsername();
+        String password = request.getToken();
+        Preconditions.expectNotBlank(url, ErrorCodeEnum.INVALID_PARAMETER, "connection url cannot be empty");
+        try (Connection ignored = HiveJdbcUtils.getConnection(url, username, password)) {
+            LOGGER.info("hive connection not null - connection success for url={}, username={}, password={}", url,
+                    username, password);
+            return true;
+        } catch (Exception e) {
+            String errMsg = String.format("hive connection failed for url=%s, username=%s, password=%s", url,
+                    username, password);
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
         }
     }
 

@@ -18,9 +18,11 @@
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -74,7 +76,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
     @Override
     public void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
 
         String groupId = groupInfo.getInlongGroupId();
         log.info("begin to delete kafka resource for groupId={}", groupId);
@@ -97,9 +99,9 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
     @Override
     public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
-        Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
-        Preconditions.checkNotNull(operator, "operator cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(streamInfo, "inlong stream info cannot be null");
+        Preconditions.expectNotBlank(operator, ErrorCodeEnum.INVALID_PARAMETER, "operator cannot be null");
 
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();
@@ -125,15 +127,21 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
     @Override
     public void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
-        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
-        Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
+        Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.expectNotNull(streamInfo, "inlong stream info cannot be null");
 
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();
         log.info("begin to delete kafka resource for groupId={} streamId={}", groupId, streamId);
 
         try {
-            this.deleteKafkaTopic(groupInfo, streamInfo.getMqResource());
+            String topicName = streamInfo.getMqResource();
+            if (StringUtils.isBlank(topicName) || topicName.equals(streamId)) {
+                // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
+                topicName = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT,
+                        groupInfo.getMqResource(), streamInfo.getMqResource());
+            }
+            this.deleteKafkaTopic(groupInfo, topicName);
             log.info("success to delete kafka topic for groupId={}, streamId={}", groupId, streamId);
         } catch (Exception e) {
             String msg = String.format("failed to delete kafka topic for groupId=%s, streamId=%s", groupId, streamId);

@@ -20,25 +20,72 @@ package org.apache.inlong.manager.pojo.sink.mysql;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.net.URLEncoder;
+
 /**
  * Test for {@link MySQLSinkDTO}
  */
 public class MySQLSinkDTOTest {
 
     @Test
-    public void testFilterSensitive() {
-        // the sensitive params at the first
-        String originUrl = MySQLSinkDTO.filterSensitive("autoDeserialize=TRue&autoReconnect=true");
-        Assertions.assertEquals("autoDeserialize=false&autoReconnect=true", originUrl);
+    public void testFilterSensitive() throws Exception {
+        // the sensitive params no use url code
+        String originUrl = MySQLSinkDTO.filterSensitive(
+                "autoDeserialize=TRue&allowLoadLocalInfile=TRue&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/&autoReconnect=true");
+        Assertions.assertEquals(
+                "autoDeserialize=false&allowLoadLocalInfile=false&allowUrlInLocalInfile=false&allowLoadLocalInfileInPath=&autoReconnect=true",
+                originUrl);
 
-        // the sensitive params at the end
-        originUrl = MySQLSinkDTO.filterSensitive("autoReconnect=true&autoDeserialize=trUE");
-        Assertions.assertEquals("autoReconnect=true&autoDeserialize=false", originUrl);
-
-        // the sensitive params in the middle
         originUrl = MySQLSinkDTO.filterSensitive(
-                "useSSL=false&autoDeserialize=TRUE&autoReconnect=true");
-        Assertions.assertEquals("useSSL=false&autoDeserialize=false&autoReconnect=true", originUrl);
+                "autoReconnect=true&autoDeserialize=TRue&allowLoadLocalInfile=TRue&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/");
+        Assertions.assertEquals(
+                "autoReconnect=true&autoDeserialize=false&allowLoadLocalInfile=false&allowUrlInLocalInfile=false&allowLoadLocalInfileInPath=",
+                originUrl);
+
+        originUrl = MySQLSinkDTO.filterSensitive(
+                "autoDeserialize=TRue&allowLoadLocalInfile=TRue&autoReconnect=true&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/");
+        Assertions.assertEquals(
+                "autoDeserialize=false&allowLoadLocalInfile=false&autoReconnect=true&allowUrlInLocalInfile=false&allowLoadLocalInfileInPath=",
+                originUrl);
+
+        // the sensitive params use url code
+        originUrl = MySQLSinkDTO.filterSensitive(
+                URLEncoder.encode(
+                        "autoDeserialize=TRue&allowLoadLocalInfile=TRue&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/&autoReconnect=true",
+                        "UTF-8"));
+        Assertions.assertEquals(
+                "autoDeserialize=false&allowLoadLocalInfile=false&allowUrlInLocalInfile=false&allowLoadLocalInfileInPath=&autoReconnect=true",
+                originUrl);
+
+        originUrl = MySQLSinkDTO.filterSensitive(
+                URLEncoder.encode(
+                        "autoReconnect=true&autoDeserialize=TRue&allowLoadLocalInfile=TRue&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/",
+                        "UTF-8"));
+        Assertions.assertEquals(
+                "autoReconnect=true&autoDeserialize=false&allowLoadLocalInfile=false&allowUrlInLocalInfile=false&allowLoadLocalInfileInPath=",
+                originUrl);
+
+        originUrl = MySQLSinkDTO.filterSensitive(
+                URLEncoder.encode(
+                        "autoDeserialize=TRue&allowLoadLocalInfile=TRue&autoReconnect=true&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/",
+                        "UTF-8"));
+        Assertions.assertEquals(
+                "autoDeserialize=false&allowLoadLocalInfile=false&autoReconnect=true&allowUrlInLocalInfile=false&allowLoadLocalInfileInPath=",
+                originUrl);
+    }
+
+    @Test
+    public void testSetDbNameToUrl() {
+        String originUrl = MySQLSinkDTO.setDbNameToUrl(
+                "jdbc:mysql://127.0.0.1:3306?autoDeserialize=TRue&allowLoadLocalInfile=TRue&autoReconnect=true&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/",
+                "test_db");
+        Assertions.assertEquals(
+                "jdbc:mysql://127.0.0.1:3306/test_db?autoDeserialize=TRue&allowLoadLocalInfile=TRue&autoReconnect=true&allowUrlInLocalInfile=TRue&allowLoadLocalInfileInPath=/",
+                originUrl);
+        originUrl = MySQLSinkDTO.setDbNameToUrl("jdbc:mysql://127.0.0.1:3306", "test_db");
+        Assertions.assertEquals("jdbc:mysql://127.0.0.1:3306/test_db", originUrl);
+        originUrl = MySQLSinkDTO.setDbNameToUrl("jdbc:mysql://127.0.0.1:3306/", "test_db");
+        Assertions.assertEquals("jdbc:mysql://127.0.0.1:3306/test_db", originUrl);
     }
 
 }

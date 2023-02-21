@@ -17,8 +17,10 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -57,12 +59,16 @@ public class OpenStreamSinkController {
     @ApiOperation(value = "Get stream sink")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<StreamSink> get(@PathVariable Integer id) {
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "sinkId cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sinkService.get(id, LoginUserUtils.getLoginUser()));
     }
 
     @RequestMapping(value = "/sink/list", method = RequestMethod.GET)
     @ApiOperation(value = "List stream sinks by paginating")
     public Response<List<? extends StreamSink>> listByCondition(SinkPageRequest request) {
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sinkService.listByCondition(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -70,13 +76,17 @@ public class OpenStreamSinkController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save stream sink")
     public Response<Integer> save(@Validated @RequestBody SinkRequest request) {
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sinkService.save(request, LoginUserUtils.getLoginUser()));
     }
 
     @RequestMapping(value = "/sink/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream sink")
-    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SinkRequest request) {
+    public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody SinkRequest request) {
+        Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sinkService.update(request, LoginUserUtils.getLoginUser()));
     }
 
@@ -89,6 +99,8 @@ public class OpenStreamSinkController {
     })
     public Response<Boolean> delete(@PathVariable Integer id,
             @RequestParam(required = false, defaultValue = "false") boolean startProcess) {
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "sinkId cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sinkService.delete(id, startProcess, LoginUserUtils.getLoginUser()));
     }
 }

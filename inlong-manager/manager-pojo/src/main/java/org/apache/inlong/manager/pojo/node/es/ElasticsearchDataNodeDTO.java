@@ -85,8 +85,8 @@ public class ElasticsearchDataNodeDTO {
         try {
             return JsonUtils.parseObject(extParams, ElasticsearchDataNodeDTO.class);
         } catch (Exception e) {
-            LOGGER.error("Failed to extract additional parameters for Elasticsearch data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
+                    String.format("Failed to parse extParams for Elasticsearch node: %s", e.getMessage()));
         }
     }
 

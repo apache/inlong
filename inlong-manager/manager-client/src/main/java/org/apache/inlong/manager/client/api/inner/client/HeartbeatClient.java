@@ -48,9 +48,9 @@ public class HeartbeatClient {
      * @return component heartbeat
      */
     public ComponentHeartbeatResponse getComponentHeartbeat(HeartbeatQueryRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
+        Preconditions.expectNotBlank(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY);
 
         Response<ComponentHeartbeatResponse> response = ClientUtils.executeHttpCall(
                 heartbeatApi.getComponentHeartbeat(request));
@@ -65,10 +65,10 @@ public class HeartbeatClient {
      * @return group heartbeat
      */
     public GroupHeartbeatResponse getGroupHeartbeat(HeartbeatQueryRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
+        Preconditions.expectNotBlank(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY);
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
 
         Response<GroupHeartbeatResponse> response = ClientUtils.executeHttpCall(
                 heartbeatApi.getGroupHeartbeat(request));
@@ -83,11 +83,11 @@ public class HeartbeatClient {
      * @return stream heartbeat
      */
     public StreamHeartbeatResponse getStreamHeartbeat(HeartbeatQueryRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
+        Preconditions.expectNotBlank(request.getInstance(), ErrorCodeEnum.REQUEST_INSTANCE_EMPTY);
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(request.getInlongStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
         Response<StreamHeartbeatResponse> response = ClientUtils.executeHttpCall(
                 heartbeatApi.getStreamHeartbeat(request));
@@ -102,8 +102,8 @@ public class HeartbeatClient {
      * @return list of component heartbeat
      */
     public PageResult<ComponentHeartbeatResponse> listComponentHeartbeat(HeartbeatPageRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
 
         Response<PageResult<ComponentHeartbeatResponse>> response = ClientUtils.executeHttpCall(
                 heartbeatApi.listComponentHeartbeat(request));
@@ -118,8 +118,8 @@ public class HeartbeatClient {
      * @return list of group heartbeat
      */
     public PageResult<GroupHeartbeatResponse> listGroupHeartbeat(HeartbeatPageRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
 
         Response<PageResult<GroupHeartbeatResponse>> response = ClientUtils.executeHttpCall(
                 heartbeatApi.listGroupHeartbeat(request));
@@ -134,9 +134,9 @@ public class HeartbeatClient {
      * @return list of stream heartbeat
      */
     public PageResult<StreamHeartbeatResponse> listStreamHeartbeat(HeartbeatPageRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY.getMessage());
-        Preconditions.checkNotEmpty(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getComponent(), ErrorCodeEnum.REQUEST_COMPONENT_EMPTY);
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
 
         Response<PageResult<StreamHeartbeatResponse>> response = ClientUtils.executeHttpCall(
                 heartbeatApi.listStreamHeartbeat(request));

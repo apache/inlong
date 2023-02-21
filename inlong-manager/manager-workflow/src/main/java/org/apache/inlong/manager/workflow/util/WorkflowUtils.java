@@ -168,7 +168,7 @@ public class WorkflowUtils {
      */
     public static <T extends ProcessForm> T parseProcessForm(ObjectMapper objectMapper, String form,
             WorkflowProcess process) {
-        Preconditions.checkNotNull(process, "process cannot be null");
+        Preconditions.expectNotNull(process, "process cannot be null");
         if (StringUtils.isEmpty(form)) {
             return null;
         }
@@ -187,15 +187,15 @@ public class WorkflowUtils {
      */
     public static <T extends TaskForm> T parseTaskForm(ObjectMapper objectMapper, WorkflowTaskEntity taskEntity,
             WorkflowProcess process) {
-        Preconditions.checkNotNull(taskEntity, "taskEntity cannot be null");
-        Preconditions.checkNotNull(process, "process cannot be null");
+        Preconditions.expectNotNull(taskEntity, "taskEntity cannot be null");
+        Preconditions.expectNotNull(process, "process cannot be null");
         if (StringUtils.isEmpty(taskEntity.getFormData())) {
             return null;
         }
 
         WorkflowTask task = process.getTaskByName(taskEntity.getName());
-        Preconditions.checkNotNull(task, "user task not exist " + taskEntity.getName());
-        Preconditions.checkTrue(task instanceof UserTask, "task should be userTask " + taskEntity.getName());
+        Preconditions.expectNotNull(task, "user task not exist " + taskEntity.getName());
+        Preconditions.expectTrue(task instanceof UserTask, "task should be userTask " + taskEntity.getName());
 
         UserTask userTask = (UserTask) task;
         try {

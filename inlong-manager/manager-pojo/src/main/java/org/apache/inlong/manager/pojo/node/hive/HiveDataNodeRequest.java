@@ -43,7 +43,7 @@ public class HiveDataNodeRequest extends DataNodeRequest {
     private String hiveConfDir;
 
     @ApiModelProperty("HDFS default FS, such as: hdfs://127.0.0.1:9000")
-    private String hdfsPath;
+    private String dataPath;
 
     @ApiModelProperty("Hive warehouse path, such as: /user/hive/warehouse/")
     private String warehouse;

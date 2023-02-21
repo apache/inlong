@@ -56,7 +56,7 @@ public enum FieldType {
     KEYWORD;
 
     public static FieldType forName(String name) {
-        Preconditions.checkNotNull(name, "FieldType should not be null");
+        Preconditions.expectNotBlank(name, ErrorCodeEnum.INVALID_PARAMETER, "FieldType should not be null");
         for (FieldType value : values()) {
             if (value.toString().equalsIgnoreCase(name)) {
                 return value;

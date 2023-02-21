@@ -17,14 +17,11 @@
 
 package org.apache.inlong.manager.service.resource.sink.hudi;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -43,6 +40,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Hudi resource operator
@@ -93,7 +95,8 @@ public class HudiResourceOperator implements SinkResourceOperator {
         if (StringUtils.isBlank(hudiInfo.getCatalogUri())
                 && CATALOG_TYPE_HIVE.equals(hudiInfo.getCatalogType())) {
             String dataNodeName = sinkInfo.getDataNodeName();
-            Preconditions.checkNotEmpty(dataNodeName, "Hudi catalog uri not specified and data node is empty");
+            Preconditions.expectNotBlank(dataNodeName, ErrorCodeEnum.INVALID_PARAMETER,
+                    "Hudi catalog uri not specified and data node is empty");
             HudiDataNodeInfo dataNodeInfo = (HudiDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, hudiInfo);

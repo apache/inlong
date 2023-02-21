@@ -21,6 +21,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.StreamTransformApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
@@ -75,9 +76,9 @@ public class StreamTransformClient {
      * Delete conversion function info.
      */
     public boolean deleteTransform(TransformRequest transformRequest) {
-        Preconditions.checkNotEmpty(transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
-        Preconditions.checkNotEmpty(transformRequest.getInlongStreamId(), "inlongStreamId should not be null");
-        Preconditions.checkNotEmpty(transformRequest.getTransformName(), "transformName should not be null");
+        Preconditions.expectNotBlank(transformRequest.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(transformRequest.getInlongStreamId(), ErrorCodeEnum.STREAM_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(transformRequest.getTransformName(), ErrorCodeEnum.TRANSFORM_NAME_IS_NULL);
 
         Response<Boolean> response = ClientUtils.executeHttpCall(
                 streamTransformApi.deleteTransform(transformRequest.getInlongGroupId(),

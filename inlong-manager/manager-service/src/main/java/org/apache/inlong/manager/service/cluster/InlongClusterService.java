@@ -21,7 +21,6 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -387,15 +386,6 @@ public interface InlongClusterService {
     Boolean deleteNode(Integer id, String operator);
 
     /**
-     * Bind or unbind cluster tag node for cluster node.
-     *
-     * @param request cluster info to be modified
-     * @param operator current operator
-     * @return whether succeed
-     */
-    Boolean bindNodeTag(ClusterNodeBindTagRequest request, String operator);
-
-    /**
      * Delete cluster node.
      *
      * @param id cluster node id to be deleted
@@ -428,5 +418,13 @@ public interface InlongClusterService {
      * @return data proxy config
      */
     String getAllConfig(String clusterName, String md5);
+
+    /**
+     * Test whether the connection can be successfully established.
+     *
+     * @param request connection request
+     * @return true or false
+     */
+    Boolean testConnection(ClusterRequest request);
 
 }

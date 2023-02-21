@@ -19,8 +19,9 @@ package org.apache.inlong.manager.service.resource.queue.pulsar;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.AuthenticationFactory;
@@ -41,7 +42,8 @@ public class PulsarUtils {
      * Get pulsar admin info
      */
     public static PulsarAdmin getPulsarAdmin(PulsarClusterInfo pulsarCluster) throws PulsarClientException {
-        Preconditions.checkNotNull(pulsarCluster.getAdminUrl(), "Pulsar adminUrl cannot be empty");
+        Preconditions.expectNotBlank(pulsarCluster.getAdminUrl(), ErrorCodeEnum.INVALID_PARAMETER,
+                "Pulsar adminUrl cannot be empty");
         PulsarAdmin pulsarAdmin;
         if (StringUtils.isEmpty(pulsarCluster.getToken())) {
             pulsarAdmin = getPulsarAdmin(pulsarCluster.getAdminUrl());

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sink.iceberg;
 
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 /**
@@ -38,7 +39,7 @@ public enum IcebergPartition {
      * Get partition type from name
      */
     public static IcebergPartition forName(String name) {
-        Preconditions.checkNotNull(name, "IcebergPartition should not be null");
+        Preconditions.expectNotBlank(name, ErrorCodeEnum.INVALID_PARAMETER, "IcebergPartition should not be null");
         for (IcebergPartition value : values()) {
             if (value.toString().equalsIgnoreCase(name)) {
                 return value;

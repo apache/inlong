@@ -46,7 +46,7 @@ public class ApplyGroupProcessForm extends BaseProcessForm {
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(groupInfo, "inlong group info is empty");
+        Preconditions.expectNotNull(groupInfo, "inlong group info is empty");
     }
 
     @Override

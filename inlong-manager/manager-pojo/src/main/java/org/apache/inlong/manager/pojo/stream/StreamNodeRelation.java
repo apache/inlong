@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.stream;
 
 import com.google.common.collect.Sets;
 import lombok.Data;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Set;
@@ -43,12 +44,12 @@ public class StreamNodeRelation {
     }
 
     public void addInputNode(String inputNode) {
-        Preconditions.checkNotEmpty(inputNode, "Input node should not be empty");
+        Preconditions.expectNotBlank(inputNode, ErrorCodeEnum.INVALID_PARAMETER, "Input node should not be empty");
         inputNodes.add(inputNode);
     }
 
     public void addOutputNode(String outputNode) {
-        Preconditions.checkNotEmpty(outputNode, "Input node should not be empty");
+        Preconditions.expectNotBlank(outputNode, ErrorCodeEnum.INVALID_PARAMETER, "Input node should not be empty");
         outputNodes.add(outputNode);
     }
 }

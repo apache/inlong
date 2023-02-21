@@ -70,7 +70,7 @@ public class AgentClusterOperator extends AbstractClusterOperator {
             CommonBeanUtils.copyProperties(dto, agentInfo);
         }
 
-        LOGGER.info("success to get agent cluster info from entity");
+        LOGGER.debug("success to get agent cluster info from entity");
         return agentInfo;
     }
 
@@ -81,9 +81,10 @@ public class AgentClusterOperator extends AbstractClusterOperator {
         try {
             AgentClusterDTO dto = AgentClusterDTO.getFromRequest(agentRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            LOGGER.info("success to set entity for agent cluster");
+            LOGGER.debug("success to set entity for agent cluster");
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    String.format("serialize extParams of Agent Cluster failure: %s", e.getMessage()));
         }
     }
 

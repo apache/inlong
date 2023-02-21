@@ -51,7 +51,7 @@ public class StreamSinkClient {
      * Delete stream sink info by ID.
      */
     public boolean deleteSink(int id) {
-        Preconditions.checkTrue(id > 0, "sinkId is illegal");
+        Preconditions.expectTrue(id > 0, "sinkId is illegal");
         Response<Boolean> response = ClientUtils.executeHttpCall(streamSinkApi.deleteById(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();

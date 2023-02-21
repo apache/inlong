@@ -16,10 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import i18n from '@/i18n';
 
-export const config = {
-  title: '',
-  logo: '/logo.svg',
-  loginUrl: `${window.location.origin}/#/${i18n?.language || ''}/login`,
-};
+import conf from './conf';
+
+export const config = conf;

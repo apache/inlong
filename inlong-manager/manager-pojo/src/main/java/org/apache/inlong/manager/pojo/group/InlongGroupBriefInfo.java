@@ -54,8 +54,11 @@ public class InlongGroupBriefInfo {
     @ApiModelProperty(value = "MQ resource")
     private String mqResource;
 
-    @ApiModelProperty(value = "Inlong cluster tag")
+    @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
     private String inlongClusterTag;
+
+    @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
+    private String extParams;
 
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;

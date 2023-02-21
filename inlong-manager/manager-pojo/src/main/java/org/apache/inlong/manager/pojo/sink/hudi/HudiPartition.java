@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sink.hudi;
 
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 /**
@@ -38,7 +39,7 @@ public enum HudiPartition {
      * Get partition type from name
      */
     public static HudiPartition forName(String name) {
-        Preconditions.checkNotNull(name, "HudiPartition should not be null");
+        Preconditions.expectNotBlank(name, ErrorCodeEnum.INVALID_PARAMETER, "HudiPartition should not be null");
         for (HudiPartition value : values()) {
             if (value.toString().equalsIgnoreCase(name)) {
                 return value;

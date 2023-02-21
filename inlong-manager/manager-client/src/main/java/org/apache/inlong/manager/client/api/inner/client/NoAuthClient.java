@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.inner.client;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.NoAuthApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserRequest;
@@ -42,10 +43,11 @@ public class NoAuthClient {
      * @return user id after saving
      */
     public Integer register(UserRequest request) {
-        Preconditions.checkNotEmpty(request.getName(), "username cannot be empty");
-        Preconditions.checkNotEmpty(request.getPassword(), "password cannot be empty");
-        Preconditions.checkNotNull(request.getAccountType(), "accountType cannot be null");
-        Preconditions.checkNotNull(request.getValidDays(), "validDays cannot be null");
+        Preconditions.expectNotBlank(request.getName(), ErrorCodeEnum.INVALID_PARAMETER, "username cannot be empty");
+        Preconditions.expectNotBlank(request.getPassword(), ErrorCodeEnum.INVALID_PARAMETER,
+                "password cannot be empty");
+        Preconditions.expectNotNull(request.getAccountType(), "accountType cannot be null");
+        Preconditions.expectNotNull(request.getValidDays(), "validDays cannot be null");
 
         Response<Integer> response = ClientUtils.executeHttpCall(noAuthApi.register(request));
         ClientUtils.assertRespSuccess(response);

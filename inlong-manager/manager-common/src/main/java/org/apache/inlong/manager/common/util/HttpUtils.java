@@ -108,7 +108,7 @@ public class HttpUtils {
         ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, requestEntity, typeReference);
 
         log.debug("success request to {}, status code {}", url, response.getStatusCode());
-        Preconditions.checkTrue(response.getStatusCode().is2xxSuccessful(), "Request failed");
+        Preconditions.expectTrue(response.getStatusCode().is2xxSuccessful(), "Request failed");
         return response.getBody();
     }
 

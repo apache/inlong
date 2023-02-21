@@ -18,9 +18,10 @@
 package org.apache.inlong.manager.web.auth.web;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
@@ -97,8 +98,8 @@ public class AuthenticationFilter implements Filter {
     private UsernamePasswordToken getPasswordToken(ServletRequest servletRequest) {
         String username = servletRequest.getParameter(USERNAME);
         String password = servletRequest.getParameter(PASSWORD);
-        Preconditions.checkNotNull(username, "please input username");
-        Preconditions.checkNotNull(password, "please input password");
+        Preconditions.expectNotBlank(username, ErrorCodeEnum.INVALID_PARAMETER, "please input username");
+        Preconditions.expectNotNull(password, ErrorCodeEnum.INVALID_PARAMETER, "please input password");
         return new UsernamePasswordToken(username, password);
     }
 

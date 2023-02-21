@@ -21,6 +21,10 @@ import CracoLess from 'craco-less';
 import { CracoAliasPlugin } from 'react-app-alias';
 import AntdDayjsWebpackPlugin from 'antd-dayjs-webpack-plugin';
 import type { CracoConfig } from 'craco__craco';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.local' });
+dotenv.config();
 
 const config: CracoConfig = {
   plugins: [
@@ -49,6 +53,13 @@ const config: CracoConfig = {
   webpack: {
     plugins: {
       add: [new AntdDayjsWebpackPlugin()],
+    },
+    configure: webpackConfig => {
+      if (webpackConfig.resolve?.extensions && process.env.INLONG_ENV) {
+        const tsIndex = webpackConfig.resolve.extensions.findIndex(item => item === '.ts');
+        webpackConfig.resolve.extensions.splice(tsIndex, 0, `.${process.env.INLONG_ENV}.ts`);
+      }
+      return webpackConfig;
     },
   },
   babel: {

@@ -27,6 +27,7 @@ public enum ErrorCodeEnum {
     PERMISSION_REQUIRED(2003, "The current user does not have operation authority"),
     AUTHENTICATION_REQUIRED(2004, "Authentication failed"),
     CONFIG_EXPIRED(2005, "The config has expired, please refresh the page or re-fetch the data and try again"),
+    ILLEGAL_RECORD_FIELD_VALUE(2006, "The field value of record is illegal"),
 
     ID_IS_EMPTY(101, "Primary key is empty"),
     GROUP_ID_IS_EMPTY(102, "Inlong group id is empty"),
@@ -39,6 +40,8 @@ public enum ErrorCodeEnum {
     RECORD_NOT_FOUND(109, "The record does not exist"),
     USER_IS_NOT_MANAGER(110, "%s is not the manager, please contact %s"),
     RECORD_IN_USED(111, "The record is in use"),
+    IP_EMPTY(112, "The IP is is empty"),
+    PORT_EMPTY(113, "The PORT is is empty"),
 
     GROUP_NOT_FOUND(1001, "Inlong group does not exist/no operation authority"),
     GROUP_DUPLICATE(1002, "Inlong group already exists"),
@@ -141,6 +144,7 @@ public enum ErrorCodeEnum {
     CONSUME_SAVE_FAILED(3004, "Failed to save/update inlong consume"),
     CONSUME_PERMISSION_DENIED(3005, "No permission to access this inlong consume"),
 
+    AUDIT_ID_TYPE_NOT_SUPPORTED(4001, "Audit id type '%s' not supported"),
     ;
 
     private final int code;

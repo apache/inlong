@@ -54,6 +54,7 @@
         <module>doris</module>
         <module>starrocks</module>
         <module>hudi</module>
+        <module>kudu</module>
     </modules>
 
     <dependencies>

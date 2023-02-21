@@ -42,20 +42,11 @@
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>com.oracle.database.jdbc</groupId>-->
-        <!--            <artifactId>ojdbc8</artifactId>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-base</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.inlong</groupId>-->
-        <!--            <artifactId>sort-connector-cdc-base</artifactId>-->
-        <!--            <version>${project.version}</version>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-cdc-base-2.3.0</artifactId>
@@ -92,12 +83,6 @@
             <artifactId>debezium-core</artifactId>
             <version>${debezium.version}</version>
         </dependency>
-        <!--  Use fixed version 30.1.1-jre-16.0 of flink shaded guava  -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-shaded-guava</artifactId>
-            <version>30.1.1-jre-16.0</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -131,7 +116,7 @@
                                     <include>com.google.guava:*</include>
                                     <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>
-                                    <include>com.ververica:flink-cdc-base</include>
+                                    <include>com.google.protobuf:*</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -159,6 +144,10 @@
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.base</pattern>
                                     <shadedPattern>org.apache.inlong.sort.cdc.oracle.shaded.org.apache.inlong.sort.base</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.cdc.base</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.cdc.oracle.shaded.org.apache.inlong.sort.cdc.base</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>io.debezium</pattern>

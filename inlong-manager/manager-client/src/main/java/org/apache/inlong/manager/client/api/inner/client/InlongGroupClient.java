@@ -23,6 +23,7 @@ import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongGroupApi;
 import org.apache.inlong.manager.client.api.service.InlongSortApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -64,7 +65,7 @@ public class InlongGroupClient {
      * Check whether a group exists based on the group ID.
      */
     public Boolean isGroupExists(String inlongGroupId) {
-        Preconditions.checkNotEmpty(inlongGroupId, "InlongGroupId should not be empty");
+        Preconditions.expectNotBlank(inlongGroupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
 
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongGroupApi.isGroupExists(inlongGroupId));
         ClientUtils.assertRespSuccess(response);
@@ -89,7 +90,7 @@ public class InlongGroupClient {
      */
     @SneakyThrows
     public InlongGroupInfo getGroupInfo(String inlongGroupId) {
-        Preconditions.checkNotEmpty(inlongGroupId, "InlongGroupId should not be empty");
+        Preconditions.expectNotBlank(inlongGroupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
 
         Response<Object> responseBody = ClientUtils.executeHttpCall(inlongGroupApi.getGroupInfo(inlongGroupId));
         if (responseBody.isSuccess()) {

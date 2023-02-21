@@ -42,7 +42,7 @@ public class StreamSourceEntity implements Serializable {
 
     private String dataNodeName;
     private String inlongClusterName;
-    private String inlongClusterNodeTag;
+    private String inlongClusterNodeGroup;
     private String serializationType;
     private String snapshot;
     private Date reportTime;

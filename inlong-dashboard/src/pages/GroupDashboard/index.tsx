@@ -85,6 +85,40 @@ const Comp: React.FC = () => {
     setGroupLogs({ visible: true, inlongGroupId: inlongGroupId });
   };
 
+  const onRestart = ({ inlongGroupId }) => {
+    Modal.confirm({
+      title: i18n.t('pages.GroupDashboard.ConfirmRestart'),
+      onOk: async () => {
+        await request({
+          url: `/group/restartProcess/${inlongGroupId}`,
+          method: 'POST',
+          data: {
+            groupId: inlongGroupId,
+          },
+        });
+        await getList();
+        message.success(i18n.t('pages.GroupDashboard.SuccessfullyRestart'));
+      },
+    });
+  };
+
+  const onStop = ({ inlongGroupId }) => {
+    Modal.confirm({
+      title: i18n.t('pages.GroupDashboard.ConfirmStop'),
+      onOk: async () => {
+        await request({
+          url: `/group/suspendProcess/${inlongGroupId}`,
+          method: 'POST',
+          data: {
+            groupId: inlongGroupId,
+          },
+        });
+        await getList();
+        message.success(i18n.t('pages.GroupDashboard.SuccessfullyStop'));
+      },
+    });
+  };
+
   const onChange = ({ current: pageNum, pageSize }) => {
     setOptions(prev => ({
       ...prev,
@@ -112,7 +146,7 @@ const Comp: React.FC = () => {
     title: summary[item.dataIndex] || 0,
   }));
 
-  const columns = useColumns({ onDelete, openModal });
+  const columns = useColumns({ onDelete, openModal, onRestart, onStop });
 
   const getFilterFormContent = useCallback(
     defaultValues => [

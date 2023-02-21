@@ -71,4 +71,12 @@ public interface DataNodeOperator {
      * @return Sink params
      */
     Map<String, String> parse2SinkParams(DataNodeInfo info);
+
+    /**
+     * Test connection
+     * @param request request of the data node
+     * @return Whether the connection is successful
+     */
+    Boolean testConnection(DataNodeRequest request);
+
 }

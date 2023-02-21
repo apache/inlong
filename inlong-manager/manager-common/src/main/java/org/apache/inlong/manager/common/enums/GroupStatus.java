@@ -20,6 +20,8 @@ package org.apache.inlong.manager.common.enums;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -95,7 +97,8 @@ public enum GroupStatus {
                 return status;
             }
         }
-        throw new IllegalStateException(String.format("Illegal code=%s for GroupStatus", code));
+        throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
+                String.format("Illegal code=%s for GroupStatus", code));
     }
 
     public static boolean notAllowedTransition(GroupStatus pre, GroupStatus now) {

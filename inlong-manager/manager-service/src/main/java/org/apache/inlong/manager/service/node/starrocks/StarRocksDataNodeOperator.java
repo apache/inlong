@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -30,10 +31,13 @@ import org.apache.inlong.manager.pojo.node.starrocks.StarRocksDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.starrocks.StarRocksDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.starrocks.StarRocksDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
+import org.apache.inlong.manager.service.resource.sink.starrocks.StarRocksJdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.sql.Connection;
 
 @Service
 public class StarRocksDataNodeOperator extends AbstractDataNodeOperator {
@@ -65,8 +69,6 @@ public class StarRocksDataNodeOperator extends AbstractDataNodeOperator {
             StarRocksDataNodeDTO dto = StarRocksDataNodeDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, starRocksDataNodeInfo);
         }
-
-        LOGGER.debug("success to get starRocks data node from entity");
         return starRocksDataNodeInfo;
     }
 
@@ -77,10 +79,29 @@ public class StarRocksDataNodeOperator extends AbstractDataNodeOperator {
         try {
             StarRocksDataNodeDTO dto = StarRocksDataNodeDTO.getFromRequest(starRocksDataNodeRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            LOGGER.debug("success to set entity for starRocks data node");
         } catch (Exception e) {
-            LOGGER.error("failed to set entity for starRocks data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("Failed to build extParams for StarRocks node: %s", e.getMessage()));
         }
     }
+
+    @Override
+    public Boolean testConnection(DataNodeRequest request) {
+        String jdbcUrl = request.getUrl();
+        String username = request.getUsername();
+        String password = request.getToken();
+        Preconditions.expectNotBlank(jdbcUrl, ErrorCodeEnum.INVALID_PARAMETER, "connection jdbcUrl cannot be empty");
+        try (Connection ignored = StarRocksJdbcUtils.getConnection(jdbcUrl, username, password)) {
+            LOGGER.info("starRocks connection not null - connection success for jdbcUrl={}, username={}, password={}",
+                    jdbcUrl, username, password);
+            return true;
+        } catch (Exception e) {
+            String errMsg = String.format("starRocks connection failed for jdbcUrl=%s, username=%s, password=%s",
+                    jdbcUrl,
+                    username, password);
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
+        }
+    }
+
 }

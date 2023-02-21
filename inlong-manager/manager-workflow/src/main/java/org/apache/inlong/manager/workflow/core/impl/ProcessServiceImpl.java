@@ -19,13 +19,14 @@ package org.apache.inlong.manager.workflow.core.impl;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
-import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessService;
@@ -53,9 +54,9 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public WorkflowContext start(String name, String applicant, ProcessForm form) {
-        Preconditions.checkNotEmpty(name, "process name cannot be null");
-        Preconditions.checkNotEmpty(applicant, "applicant cannot be null");
-        Preconditions.checkNotNull(form, "form cannot be null");
+        Preconditions.expectNotBlank(name, ErrorCodeEnum.INVALID_PARAMETER, "process name cannot be null");
+        Preconditions.expectNotBlank(applicant, ErrorCodeEnum.INVALID_PARAMETER, "applicant cannot be null");
+        Preconditions.expectNotNull(form, "form cannot be null");
 
         // build context
         WorkflowContext context = workflowContextBuilder.buildContextForProcess(name, applicant, form);
@@ -65,12 +66,12 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public WorkflowContext continueProcess(Integer processId, String operator, String remark) {
-        Preconditions.checkNotEmpty(operator, "operator cannot be null");
-        Preconditions.checkNotNull(processId, "processId cannot be null");
+        Preconditions.expectNotBlank(operator, ErrorCodeEnum.INVALID_PARAMETER, "operator cannot be null");
+        Preconditions.expectNotNull(processId, "processId cannot be null");
         WorkflowContext context = workflowContextBuilder.buildContextForProcess(processId);
         WorkflowProcessEntity processEntity = context.getProcessEntity();
         ProcessStatus processStatus = ProcessStatus.valueOf(processEntity.getStatus());
-        Preconditions.checkTrue(processStatus == ProcessStatus.PROCESSING,
+        Preconditions.expectTrue(processStatus == ProcessStatus.PROCESSING,
                 String.format("processId=%s should be in processing", processId));
         List<WorkflowTaskEntity> startElements = Lists.newArrayList();
         startElements.addAll(taskEntityMapper.selectByProcess(processId, TaskStatus.PENDING));
@@ -91,8 +92,8 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public WorkflowContext cancel(Integer processId, String operator, String remark) {
-        Preconditions.checkNotEmpty(operator, "operator cannot be null");
-        Preconditions.checkNotNull(processId, "processId cannot be null");
+        Preconditions.expectNotBlank(operator, ErrorCodeEnum.INVALID_PARAMETER, "operator cannot be null");
+        Preconditions.expectNotNull(processId, "processId cannot be null");
 
         WorkflowContext context = workflowContextBuilder.buildContextForProcess(processId);
         List<WorkflowTaskEntity> pendingTasks = taskEntityMapper.selectByProcess(processId, TaskStatus.PENDING);

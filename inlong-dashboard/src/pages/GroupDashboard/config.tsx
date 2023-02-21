@@ -47,7 +47,7 @@ export const dashCardList = [
   },
 ];
 
-export const useColumns = ({ onDelete, openModal }) => {
+export const useColumns = ({ onDelete, openModal, onRestart, onStop }) => {
   const { defaultValue } = useDefaultMeta('group');
 
   const { Entity } = useLoadMeta<GroupMetaType>('group', defaultValue);
@@ -86,6 +86,16 @@ export const useColumns = ({ onDelete, openModal }) => {
             <Button type="link" onClick={() => onDelete(record)}>
               {i18n.t('basic.Delete')}
             </Button>
+            {record?.status && record?.status === 140 && (
+              <Button type="link" onClick={() => onRestart(record)}>
+                {i18n.t('pages.GroupDashboard.config.Restart')}
+              </Button>
+            )}
+            {record?.status && record?.status === 130 && (
+              <Button type="link" onClick={() => onStop(record)}>
+                {i18n.t('pages.GroupDashboard.config.Stop')}
+              </Button>
+            )}
             {record?.status && (record?.status === 120 || record?.status === 130) && (
               <Button type="link" onClick={() => openModal(record)}>
                 {i18n.t('pages.GroupDashboard.config.ExecuteLog')}

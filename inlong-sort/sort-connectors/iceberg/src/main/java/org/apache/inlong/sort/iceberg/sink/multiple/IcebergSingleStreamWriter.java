@@ -44,6 +44,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.IOException;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -105,6 +107,8 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
                 .withInlongAudit(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
@@ -138,6 +142,9 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
                             .setRowType(flinkRowType)
                             .setDirtyMessage(e.getMessage());
                     dirtySink.invoke(builder.build());
+                    if (metricData != null) {
+                        metricData.invokeDirtyWithEstimate(value);
+                    }
                 } catch (Exception ex) {
                     if (!dirtyOptions.ignoreSideOutputErrors()) {
                         throw new RuntimeException(ex);
@@ -157,7 +164,8 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         if (this.inlongMetric != null) {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
-                            INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+                            String.format("Iceberg(%s)-" + INLONG_METRIC_STATE_NAME, fullTableName),
+                            TypeInformation.of(new TypeHint<MetricState>() {
                             })));
         }
         if (context.isRestored()) {

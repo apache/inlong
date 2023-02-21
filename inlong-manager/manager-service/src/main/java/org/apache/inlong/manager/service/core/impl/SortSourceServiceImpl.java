@@ -28,6 +28,7 @@ import org.apache.inlong.common.pojo.sdk.Topic;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
@@ -94,6 +95,7 @@ public class SortSourceServiceImpl implements SortSourceService {
      */
     private Map<String, Map<String, CacheZoneConfig>> sortSourceConfigMap = new ConcurrentHashMap<>();
 
+    private Map<String, SortSourceClusterInfo> sortClusters;
     private Map<String, List<SortSourceClusterInfo>> mqClusters;
     private Map<String, SortSourceGroupInfo> groupInfos;
     private Map<String, Map<String, SortSourceStreamInfo>> allStreams;
@@ -137,7 +139,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         // if cluster or task are invalid
         if (StringUtils.isBlank(cluster) || StringUtils.isBlank(task)) {
             String errMsg = "blank cluster name or task name, return nothing";
-            LOGGER.error(errMsg);
+            LOGGER.debug(errMsg);
             return SortSourceConfigResponse.builder()
                     .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
                     .msg(errMsg)
@@ -147,7 +149,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         // if there is no config, but still return success
         if (!sortSourceConfigMap.containsKey(cluster) || !sortSourceConfigMap.get(cluster).containsKey(task)) {
             String errMsg = String.format("there is no valid source config of cluster %s, task %s", cluster, task);
-            LOGGER.error(errMsg);
+            LOGGER.debug(errMsg);
             return SortSourceConfigResponse.builder()
                     .code(RESPONSE_CODE_SUCCESS)
                     .msg(errMsg)
@@ -167,7 +169,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         if (sortSourceConfigMap.get(cluster).get(task).getCacheZones().isEmpty()) {
             String errMsg = String.format("find empty cache zones of cluster %s, task %s, "
                     + "please check the manager log", cluster, task);
-            LOGGER.error(errMsg);
+            LOGGER.debug(errMsg);
             return SortSourceConfigResponse.builder()
                     .code(RESPONSE_CODE_FAIL)
                     .msg(errMsg)
@@ -187,6 +189,8 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // reload mq cluster and sort cluster
         List<SortSourceClusterInfo> allClusters = configLoader.loadAllClusters();
+        sortClusters = allClusters.stream()
+                .collect(Collectors.toMap(SortSourceClusterInfo::getName, v -> v));
 
         // group mq clusters by cluster tag
         mqClusters = allClusters.stream()
@@ -256,7 +260,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                                     .sortTaskId(taskName)
                                     .build();
                     Map<String, CacheZone> cacheZoneMap =
-                            this.parseCacheZones(sinkList);
+                            this.parseCacheZones(sortClusterName, sinkList);
                     cacheZoneConfig.setCacheZones(cacheZoneMap);
 
                     // prepare md5
@@ -275,6 +279,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         });
         sortSourceConfigMap = newConfigMap;
         sortSourceMd5Map = newMd5Map;
+        sortClusters = null;
         mqClusters = null;
         groupInfos = null;
         allStreams = null;
@@ -285,7 +290,11 @@ public class SortSourceServiceImpl implements SortSourceService {
     }
 
     private Map<String, CacheZone> parseCacheZones(
+            String clusterName,
             List<SortSourceStreamSinkInfo> sinkList) {
+
+        Preconditions.expectNotNull(sortClusters.get(clusterName), "sort cluster should not be NULL");
+        String sortClusterTag = sortClusters.get(clusterName).getClusterTags();
 
         // get group infos
         List<SortSourceStreamSinkInfo> sinkInfoList = sinkList.stream()
@@ -296,6 +305,13 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // group them by cluster tag.
         Map<String, List<SortSourceStreamSinkInfo>> tag2SinkInfos = sinkInfoList.stream()
+                .filter(sink -> Objects.nonNull(groupInfos.get(sink.getGroupId())))
+                .filter(sink -> {
+                    if (StringUtils.isBlank(sortClusterTag)) {
+                        return true;
+                    }
+                    return sortClusterTag.equals(groupInfos.get(sink.getGroupId()).getClusterTag());
+                })
                 .collect(Collectors.groupingBy(sink -> {
                     SortSourceGroupInfo groupInfo = groupInfos.get(sink.getGroupId());
                     return groupInfo.getClusterTag();
@@ -303,7 +319,13 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // group them by second cluster tag.
         Map<String, List<SortSourceStreamSinkInfo>> backupTag2SinkInfos = sinkInfoList.stream()
-                .filter(info -> backupClusterTag.containsKey(info.getGroupId()))
+                .filter(sink -> backupClusterTag.containsKey(sink.getGroupId()))
+                .filter(sink -> {
+                    if (StringUtils.isBlank(sortClusterTag)) {
+                        return true;
+                    }
+                    return sortClusterTag.equals(backupClusterTag.get(sink.getGroupId()));
+                })
                 .collect(Collectors.groupingBy(info -> backupClusterTag.get(info.getGroupId())));
 
         List<CacheZone> cacheZones = this.parseCacheZonesByTag(tag2SinkInfos, false);

@@ -17,16 +17,7 @@
  * under the License.
  */
 
-import i18n from '@/i18n';
-
-export const showTotal = (total: number) => i18n.t('configs.pagination.Total', { total });
-
-const paginationConf = {
-  showQuickJumper: true,
-  showSizeChanger: true,
-  pageSizeOptions: ['10', '20', '50', '100'],
-  showTotal,
-};
+import paginationConf from './conf';
 
 export const defaultSize = +paginationConf.pageSizeOptions[0];
 

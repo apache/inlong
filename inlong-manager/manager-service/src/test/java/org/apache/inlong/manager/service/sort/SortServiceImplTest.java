@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.sort;
 
 import org.apache.inlong.common.constant.ClusterSwitch;
+import org.apache.inlong.common.pojo.sdk.CacheZone;
+import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.manager.common.consts.DataNodeType;
@@ -67,8 +69,12 @@ import java.util.Map;
 public class SortServiceImplTest extends ServiceBaseTest {
 
     private static final String TEST_GROUP = "test-group";
-    private static final String TEST_CLUSTER = "test-cluster";
-    private static final String TEST_TASK = "test-task";
+    private static final String TEST_CLUSTER_1 = "test-cluster-1";
+    private static final String TEST_CLUSTER_2 = "test-cluster-2";
+    private static final String TEST_CLUSTER_3 = "test-cluster-3";
+    private static final String TEST_TASK_1 = "test-task-1";
+    private static final String TEST_TASK_2 = "test-task-2";
+    private static final String TEST_TASK_3 = "test-task-3";
     private static final String TEST_STREAM_1 = "1";
     private static final String TEST_STREAM_2 = "2";
     private static final String TEST_TAG = "testTag";
@@ -114,8 +120,8 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @Test
     @Order(2)
     @Transactional
-    public void testSourceCorrectParams() {
-        SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, "");
+    public void testSourceCorrectParamsOfNoTagSortCluster() {
+        SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER_1, TEST_TASK_1, "");
         JSONObject jo = new JSONObject(response);
         System.out.println(jo);
         Assertions.assertEquals(0, response.getCode());
@@ -128,9 +134,9 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @Order(3)
     @Transactional
     public void testSourceSameMd5() {
-        SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, "");
+        SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER_1, TEST_TASK_1, "");
         String md5 = response.getMd5();
-        response = sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, md5);
+        response = sortService.getSourceConfig(TEST_CLUSTER_1, TEST_TASK_1, md5);
         System.out.println(response);
         Assertions.assertEquals(1, response.getCode());
         Assertions.assertEquals(md5, response.getMd5());
@@ -167,7 +173,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @Order(6)
     @Transactional
     public void testClusterCorrectParams() {
-        SortClusterResponse response = sortService.getClusterConfig(TEST_CLUSTER, "");
+        SortClusterResponse response = sortService.getClusterConfig(TEST_CLUSTER_1, "");
         JSONObject jo = new JSONObject(response);
         System.out.println(jo);
         Assertions.assertEquals(0, response.getCode());
@@ -180,9 +186,9 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @Order(7)
     @Transactional
     public void testClusterSameMd5() {
-        SortClusterResponse response = sortService.getClusterConfig(TEST_CLUSTER, "");
+        SortClusterResponse response = sortService.getClusterConfig(TEST_CLUSTER_1, "");
         String md5 = response.getMd5();
-        response = sortService.getClusterConfig(TEST_CLUSTER, md5);
+        response = sortService.getClusterConfig(TEST_CLUSTER_1, md5);
         System.out.println(response);
         Assertions.assertEquals(1, response.getCode());
         Assertions.assertEquals(md5, response.getMd5());
@@ -202,17 +208,60 @@ public class SortServiceImplTest extends ServiceBaseTest {
         Assertions.assertNotNull(response.getMsg());
     }
 
+    @Test
+    @Order(9)
+    @Transactional
+    public void testSourceCorrectParamsOfTaggedSortCluster() {
+        SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER_2, TEST_TASK_2, "");
+        JSONObject jo = new JSONObject(response);
+        System.out.println(jo);
+        Assertions.assertEquals(0, response.getCode());
+        Assertions.assertNotNull(response.getMd5());
+        Assertions.assertNotNull(response.getMsg());
+        CacheZoneConfig config = response.getData();
+        Assertions.assertNotNull(config);
+        Assertions.assertEquals(TEST_CLUSTER_2, config.getSortClusterName());
+        Assertions.assertEquals(TEST_TASK_2, config.getSortTaskId());
+        Assertions.assertEquals(1, config.getCacheZones().size());
+        CacheZone zone = config.getCacheZones().get("testPulsar");
+        Assertions.assertNotNull(zone);
+        Assertions.assertEquals("testPulsar", zone.getZoneName());
+        Assertions.assertEquals(1, zone.getTopics().size());
+
+        response = sortService.getSourceConfig(TEST_CLUSTER_3, TEST_TASK_3, "");
+        jo = new JSONObject(response);
+        System.out.println(jo);
+        Assertions.assertEquals(0, response.getCode());
+        Assertions.assertNotNull(response.getMd5());
+        Assertions.assertNotNull(response.getMsg());
+        config = response.getData();
+        Assertions.assertNotNull(config);
+        Assertions.assertEquals(TEST_CLUSTER_3, config.getSortClusterName());
+        Assertions.assertEquals(TEST_TASK_3, config.getSortTaskId());
+        Assertions.assertEquals(1, config.getCacheZones().size());
+        zone = config.getCacheZones().get("backupPulsar");
+        Assertions.assertNotNull(zone);
+        Assertions.assertEquals("backupPulsar", zone.getZoneName());
+        Assertions.assertEquals(1, zone.getTopics().size());
+    }
+
     @BeforeEach
     private void prepareAll() {
-        this.prepareCluster(TEST_CLUSTER);
+        this.prepareCluster(TEST_CLUSTER_1, null);
+        this.prepareCluster(TEST_CLUSTER_2, TEST_TAG);
+        this.prepareCluster(TEST_CLUSTER_3, BACK_UP_TAG);
         this.preparePulsar("testPulsar", true, TEST_TAG);
         this.preparePulsar("backupPulsar", true, BACK_UP_TAG);
-        this.prepareDataNode(TEST_TASK);
+        this.prepareDataNode(TEST_TASK_1);
+        this.prepareDataNode(TEST_TASK_2);
+        this.prepareDataNode(TEST_TASK_3);
         this.prepareGroupId(TEST_GROUP);
         this.prepareStreamId(TEST_GROUP, TEST_STREAM_1, TEST_TOPIC_1);
         this.prepareStreamId(TEST_GROUP, TEST_STREAM_2, TEST_TOPIC_2);
-        this.prepareTask(TEST_TASK, TEST_GROUP, TEST_CLUSTER, TEST_STREAM_1);
-        this.prepareTask(TEST_TASK, TEST_GROUP, TEST_CLUSTER, TEST_STREAM_2);
+        this.prepareTask(TEST_TASK_1, TEST_GROUP, TEST_CLUSTER_1, TEST_STREAM_1);
+        this.prepareTask(TEST_TASK_1, TEST_GROUP, TEST_CLUSTER_1, TEST_STREAM_2);
+        this.prepareTask(TEST_TASK_2, TEST_GROUP, TEST_CLUSTER_2, TEST_STREAM_1);
+        this.prepareTask(TEST_TASK_3, TEST_GROUP, TEST_CLUSTER_3, TEST_STREAM_2);
     }
 
     private void prepareDataNode(String taskName) {
@@ -220,7 +269,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
         request.setUrl("test_hive_url");
         request.setName(taskName);
         request.setExtParams("{\"paramKey1\":\"paramValue1\",\"hdfsUgi\":\"test_hdfsUgi\"}");
-        request.setHdfsPath("testPath");
+        request.setDataPath("testPath");
         request.setHiveConfDir("testDir");
         request.setWarehouse("testWareHouse");
         request.setHdfsUgi("testUgi");
@@ -277,13 +326,14 @@ public class SortServiceImplTest extends ServiceBaseTest {
         streamService.save(request, "test_operator");
     }
 
-    private void prepareCluster(String clusterName) {
+    private void prepareCluster(String clusterName, String clusterTag) {
         InlongClusterEntity entity = new InlongClusterEntity();
         entity.setName(clusterName);
         entity.setType(DataNodeType.HIVE);
         entity.setExtParams("{}");
         entity.setCreator(TEST_CREATOR);
         entity.setInCharges(TEST_CREATOR);
+        entity.setClusterTags(clusterTag);
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);

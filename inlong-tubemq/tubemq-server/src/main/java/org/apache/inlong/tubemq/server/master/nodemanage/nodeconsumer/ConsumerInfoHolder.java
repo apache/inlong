@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
-import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
@@ -347,12 +347,12 @@ public class ConsumerInfoHolder {
      *
      * @param consumer consumer info
      * @param isNotAllocated whether balanced
-     * @param sBuffer  string buffer
+     * @param strBuff  string buffer
      * @param result   check result
      * @return process result
      */
     public boolean addConsumer(ConsumerInfo consumer, boolean isNotAllocated,
-            StringBuilder sBuffer, ParamCheckResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         ConsumeGroupInfo consumeGroupInfo;
         String group = consumer.getGroupName();
         Integer lid = null;
@@ -388,8 +388,8 @@ public class ConsumerInfoHolder {
                             consumeGroupInfo.isClientBalance());
                 }
             }
-            if (consumeGroupInfo.addConsumer(consumer, sBuffer, result)) {
-                if ((Boolean) result.checkData) {
+            if (consumeGroupInfo.addConsumer(consumer, strBuff, result)) {
+                if ((Boolean) result.getRetData()) {
                     MasterSrvStatsHolder.incConsumerCnt(false,
                             consumeGroupInfo.isClientBalance());
                 }
@@ -397,7 +397,7 @@ public class ConsumerInfoHolder {
                     consumeGroupInfo.settAllocated();
                 }
                 consumerIndexMap.put(consumer.getConsumerId(), group);
-                result.setCheckData(consumeGroupInfo);
+                result.setSuccResult(consumeGroupInfo);
             }
         } catch (IOException e) {
             logger.warn("Failed to lock.", e);
@@ -406,7 +406,7 @@ public class ConsumerInfoHolder {
                 groupRowLock.releaseRowLock(lid);
             }
         }
-        return result.result;
+        return result.isSuccess();
     }
 
     /**

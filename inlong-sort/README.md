@@ -34,9 +34,11 @@ informations and storage informations).
 - HBase
 - ClickHouse
 - Iceberg
+- Hudi 
 - PostgreSQL
 - HDFS
 - TDSQL Postgres
+- Redis 
 
 ## Future Plans
 

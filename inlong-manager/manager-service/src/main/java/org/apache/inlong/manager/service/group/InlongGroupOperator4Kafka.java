@@ -84,9 +84,9 @@ public class InlongGroupOperator4Kafka extends AbstractGroupOperator {
             InlongKafkaDTO dto = InlongKafkaDTO.getFromRequest(kafkaRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("serialize extParams of Kafka failure: %s", e.getMessage()));
         }
-        LOGGER.info("success set entity for inlong group with Kafka");
     }
 
     @Override

@@ -33,8 +33,10 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
@@ -79,6 +81,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
+    private InlongStreamEntityMapper streamMapper;
+    @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
     private StreamSourceFieldEntityMapper sourceFieldMapper;
@@ -119,12 +123,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public Integer save(SourceRequest request, UserInfo opInfo) {
-        // check request and parameters
-        this.checkRequestParams(request);
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         // Check if it can be added
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getInlongGroupId());
         if (groupEntity == null) {
@@ -132,16 +130,19 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
             }
         }
-        // check inlong group status
-        GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
-        if (GroupStatus.notAllowedUpdate(status)) {
-            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
+        // get stream information
+        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
+                request.getInlongGroupId(), request.getInlongStreamId());
+        if (streamEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND,
+                    String.format("InlongStream does not exist with InlongGroupId=%s, InLongStreamId=%s",
+                            request.getInlongGroupId(), request.getInlongStreamId()));
         }
         // Check if the record to be added exists
         List<StreamSourceEntity> existList = sourceMapper.selectByRelatedId(
@@ -150,6 +151,12 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(ErrorCodeEnum.RECORD_DUPLICATE,
                     String.format("source name=%s already exists with groupId=%s streamId=%s",
                             request.getSourceName(), request.getInlongGroupId(), request.getInlongStreamId()));
+        }
+        // check inlong group status
+        GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
+        if (GroupStatus.notAllowedUpdate(status)) {
+            throw new BusinessException(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS,
+                    String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
         }
         // According to the source type, save source information
         StreamSourceOperator sourceOperator = operatorFactory.getInstance(request.getSourceType());
@@ -163,11 +170,13 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public StreamSource get(Integer id) {
-        Preconditions.checkNotNull(id, "source id is empty");
+        if (id == null) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "source id is empty");
+        }
         StreamSourceEntity entity = sourceMapper.selectById(id);
         if (entity == null) {
-            LOGGER.error("source not found by id={}", id);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND,
+                    String.format("source not found by id=%s", id));
         }
         StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
         StreamSource streamSource = sourceOperator.getFromEntity(entity);
@@ -177,14 +186,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public StreamSource get(Integer id, UserInfo opInfo) {
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
-        // check source id
-        if (id == null) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "source id is empty");
-        }
         StreamSourceEntity entity = sourceMapper.selectById(id);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND,
@@ -195,7 +196,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -214,7 +215,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public List<StreamSource> listSource(String groupId, String streamId) {
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
@@ -251,7 +252,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public PageResult<? extends StreamSource> listByCondition(SourcePageRequest request) {
-        Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
@@ -280,23 +281,15 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
     @Override
     public PageResult<? extends StreamSource> listByCondition(SourcePageRequest request, UserInfo opInfo) {
-        // check request parameter
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.REQUEST_IS_EMPTY);
-        }
         if (StringUtils.isBlank(request.getInlongGroupId())) {
             throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
         }
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
         List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
         List<StreamSourceEntity> filteredEntitys = Lists.newArrayList();
-        if (opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             filteredEntitys.addAll(entityList);
         } else {
             Set<String> totalGroupIds = new HashSet<>();
@@ -342,8 +335,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean update(SourceRequest request, String operator) {
         LOGGER.info("begin to update source info: {}", request);
-        this.checkParams(request);
-        Preconditions.checkNotNull(request.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
+        // check request parameter
+        chkUnmodifiableParams(request);
 
         // Check if it can be modified
         String groupId = request.getInlongGroupId();
@@ -364,24 +357,16 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean update(SourceRequest request, UserInfo opInfo) {
-        // check request
-        checkRequestParams(request);
-        // check record id
-        if (request.getId() == null) {
-            throw new BusinessException(ErrorCodeEnum.ID_IS_EMPTY);
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
-        // Check if it can be added
+        // check request parameter
+        chkUnmodifiableParams(request);
+        // Check if it can be update
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(request.getInlongGroupId());
         if (groupEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
+            throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -390,7 +375,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         // check inlong group status
         GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(status)) {
-            throw new BusinessException(String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
+            throw new BusinessException(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS,
+                    String.format(ErrorCodeEnum.OPT_NOT_ALLOWED_BY_STATUS.getMessage(), status));
         }
         StreamSourceOperator sourceOperator = operatorFactory.getInstance(request.getSourceType());
         // Remove id in sourceField when save
@@ -415,10 +401,10 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean delete(Integer id, String operator) {
         LOGGER.info("begin to delete source for id={} by user={}", id, operator);
-        Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
 
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         boolean isTemplateSource = CollectionUtils.isNotEmpty(sourceMapper.selectByTemplateId(id));
 
         SourceStatus curStatus = SourceStatus.forCode(entity.getStatus());
@@ -451,13 +437,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean delete(Integer id, UserInfo opInfo) {
-        if (id == null) {
-            throw new BusinessException(ErrorCodeEnum.ID_IS_EMPTY);
-        }
-        // check opInfo
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         if (entity == null) {
             return true;
@@ -469,7 +448,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", entity.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -509,8 +488,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     public Boolean forceDelete(String groupId, String streamId, String operator) {
         LOGGER.info("begin to force delete source for groupId={} and streamId={} by user={}",
                 groupId, streamId, operator);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
         int sourceCount = sourceMapper.updateByRelatedId(groupId, streamId, SourceStatus.TO_BE_ISSUED_DELETE.getCode());
         int fieldCount = sourceFieldMapper.updateByRelatedId(groupId, streamId);
@@ -524,7 +503,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     public Boolean restart(Integer id, String operator) {
         LOGGER.info("begin to restart source by id={}", id);
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
 
         StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
         SourceRequest sourceRequest = new SourceRequest();
@@ -540,7 +519,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     public Boolean stop(Integer id, String operator) {
         LOGGER.info("begin to stop source by id={}", id);
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
 
         StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
         SourceRequest sourceRequest = new SourceRequest();
@@ -555,7 +534,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean logicDeleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to logic delete all source info by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
 
         // Check if it can be deleted
         Integer nextStatus = SourceStatus.TO_BE_ISSUED_DELETE.getCode();
@@ -585,8 +564,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean deleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to delete all source by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
         // Check if it can be deleted
         groupCheckService.checkGroupStatus(groupId, operator);
@@ -608,37 +587,53 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     private void checkParams(SourceRequest request) {
-        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String groupId = request.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         String sourceType = request.getSourceType();
-        Preconditions.checkNotNull(sourceType, ErrorCodeEnum.SOURCE_TYPE_IS_NULL.getMessage());
+        Preconditions.expectNotBlank(sourceType, ErrorCodeEnum.SOURCE_TYPE_IS_NULL);
         String sourceName = request.getSourceName();
-        Preconditions.checkNotNull(sourceName, ErrorCodeEnum.SOURCE_NAME_IS_NULL.getMessage());
+        Preconditions.expectNotBlank(sourceName, ErrorCodeEnum.SOURCE_NAME_IS_NULL);
     }
 
-    private void checkRequestParams(SourceRequest request) {
-        // check request parameter
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.REQUEST_IS_EMPTY);
+    private void chkUnmodifiableParams(SourceRequest request) {
+        // check record exists
+        StreamSourceEntity entity = sourceMapper.selectById(request.getId());
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND,
+                    String.format("not found source record by id=%d", request.getId()));
         }
-        // check group id
-        if (StringUtils.isBlank(request.getInlongGroupId())) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        // check whether modify sourceType
+        Preconditions.expectEquals(entity.getSourceType(), request.getSourceType(),
+                ErrorCodeEnum.INVALID_PARAMETER, "sourceType not allowed modify");
+        // check record version
+        Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
+                ErrorCodeEnum.CONFIG_EXPIRED,
+                String.format("record has expired with record version=%d, request version=%d",
+                        entity.getVersion(), request.getVersion()));
+        // check whether modify groupId
+        if (StringUtils.isNotBlank(request.getInlongGroupId())
+                && !entity.getInlongGroupId().equals(request.getInlongGroupId())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "InlongGroupId not allowed modify");
         }
-        // check stream id
-        if (StringUtils.isBlank(request.getInlongStreamId())) {
-            throw new BusinessException(ErrorCodeEnum.STREAM_ID_IS_EMPTY);
+        // check whether modify streamId
+        if (StringUtils.isNotBlank(request.getInlongStreamId())
+                && !entity.getInlongStreamId().equals(request.getInlongStreamId())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "InlongStreamId not allowed modify");
         }
-        // check source type
-        if (StringUtils.isBlank(request.getSourceType())) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_TYPE_IS_NULL);
+        // check whether modify sourceName
+        if (StringUtils.isNotBlank(request.getSourceName())
+                && !entity.getSourceName().equals(request.getSourceName())) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "sourceName not allowed modify");
         }
-        // check source name
-        if (StringUtils.isBlank(request.getSourceName())) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_NAME_IS_NULL);
-        }
+        // set primary field value
+        request.setInlongGroupId(entity.getInlongGroupId());
+        request.setInlongStreamId(entity.getInlongStreamId());
+        request.setSourceName(entity.getSourceName());
     }
 }

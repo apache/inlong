@@ -18,15 +18,20 @@
 package org.apache.inlong.manager.service.sink.hudi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.node.hudi.HudiDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -69,17 +74,43 @@ public class HudiSinkOperator extends AbstractSinkOperator {
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
-        Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
-                ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        if (!this.getSinkType().equals(request.getSinkType())) {
+            throw new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
+                    ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        }
         HudiSinkRequest sinkRequest = (HudiSinkRequest) request;
-        List<HashMap<String, String>> extList = sinkRequest.getExtList();
+
+        String partitionKey = sinkRequest.getPartitionKey();
+        String primaryKey = sinkRequest.getPrimaryKey();
+        boolean primaryKeyExist = StringUtils.isNotBlank(primaryKey);
+        boolean partitionKeyExist = StringUtils.isNotBlank(partitionKey);
+        if (primaryKeyExist || partitionKeyExist) {
+            Set<String> fieldNames = sinkRequest.getSinkFieldList().stream().map(SinkField::getFieldName)
+                    .collect(Collectors.toSet());
+            if (partitionKeyExist) {
+                List<String> partitionKeys = Arrays.asList(partitionKey.split(InlongConstants.COMMA));
+                if (!CollectionUtils.isSubCollection(partitionKeys, fieldNames)) {
+                    throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
+                            String.format("The partitionKey(%s) must be included in the sinkFieldList(%s)",
+                                    partitionKey, fieldNames));
+                }
+            }
+            if (primaryKeyExist) {
+                List<String> primaryKeys = Arrays.asList(primaryKey.split(InlongConstants.COMMA));
+                if (!CollectionUtils.isSubCollection(primaryKeys, fieldNames)) {
+                    throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
+                            String.format("The primaryKey(%s) must be included in the sinkFieldList(%s)",
+                                    primaryKey, fieldNames));
+                }
+            }
+        }
 
         try {
             HudiSinkDTO dto = HudiSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            LOGGER.error("parsing json string to sink info failed", e);
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
+                    String.format("serialize extParams of Hudi SinkDTO failure: %s", e.getMessage()));
         }
     }
 
@@ -92,8 +123,10 @@ public class HudiSinkOperator extends AbstractSinkOperator {
 
         HudiSinkDTO dto = HudiSinkDTO.getFromJson(entity.getExtParams());
         if (StringUtils.isBlank(dto.getCatalogUri()) && CATALOG_TYPE_HIVE.equals(dto.getCatalogType())) {
-            Preconditions.checkNotEmpty(entity.getDataNodeName(),
-                    "hudi catalog uri unspecified and data node is empty");
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                        "hudi catalog uri unspecified and data node is blank");
+            }
             HudiDataNodeInfo dataNodeInfo = (HudiDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     entity.getDataNodeName(), entity.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);

@@ -72,6 +72,9 @@ public class FilterFunctionUtils {
             case DE_DUPLICATION:
             case SPLITTER:
             case JOINER:
+            case LOOKUP_JOINER:
+            case TEMPORAL_JOINER:
+            case INTERVAL_JOINER:
             case STRING_REPLACER:
             case ENCRYPT:
                 return Lists.newArrayList();
@@ -85,7 +88,7 @@ public class FilterFunctionUtils {
      */
     public static List<FilterFunction> createFilterFunctions(FilterDefinition filterDefinition, String transformName) {
         FilterMode filterMode = filterDefinition.getFilterMode();
-        Preconditions.checkFalse(filterMode == FilterMode.SCRIPT,
+        Preconditions.expectFalse(filterMode == FilterMode.SCRIPT,
                 String.format("Unsupported filterMode=%s for inlong", filterMode));
         List<FilterRule> filterRules = filterDefinition.getFilterRules();
         List<FilterFunction> filterFunctions = filterRules.stream()
@@ -124,6 +127,9 @@ public class FilterFunctionUtils {
             case DE_DUPLICATION:
             case SPLITTER:
             case JOINER:
+            case LOOKUP_JOINER:
+            case TEMPORAL_JOINER:
+            case INTERVAL_JOINER:
             case STRING_REPLACER:
             case ENCRYPT:
                 return null;

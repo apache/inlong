@@ -45,8 +45,8 @@ public class InlongCollectionUtils {
         if (CollectionUtils.isEmpty(originCollection)) {
             return ImmutableMap.of();
         }
-        Preconditions.checkNotNull(keyTransformFunction, "KeyTransformFunction cannot be null");
-        Preconditions.checkNotNull(valueTransformFunction, "ValueTransformFunction cannot be null");
+        Preconditions.expectNotNull(keyTransformFunction, "KeyTransformFunction cannot be null");
+        Preconditions.expectNotNull(valueTransformFunction, "ValueTransformFunction cannot be null");
 
         ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
         originCollection.forEach(originObject -> builder.put(keyTransformFunction.apply(originObject),

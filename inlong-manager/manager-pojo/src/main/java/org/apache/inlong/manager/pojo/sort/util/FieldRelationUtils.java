@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.sort.util;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -86,6 +87,9 @@ public class FieldRelationUtils {
             case FILTER:
                 return createFieldRelations(fieldList, constantFieldMap);
             case JOINER:
+            case LOOKUP_JOINER:
+            case TEMPORAL_JOINER:
+            case INTERVAL_JOINER:
                 return createJoinerFieldRelations(fieldList, constantFieldMap);
             default:
                 throw new UnsupportedOperationException(
@@ -155,7 +159,8 @@ public class FieldRelationUtils {
             List<StreamField> fieldList, String transformName,
             SplitterDefinition splitterDefinition, String preNodes,
             Map<String, StreamField> constantFieldMap) {
-        Preconditions.checkNotEmpty(preNodes, "PreNodes of splitter should not be null");
+        Preconditions.expectNotBlank(preNodes, ErrorCodeEnum.INVALID_PARAMETER,
+                "PreNodes of splitter should not be null");
         String preNode = preNodes.split(",")[0];
         List<SplitRule> splitRules = splitterDefinition.getSplitRules();
         Set<String> splitFields = Sets.newHashSet();
@@ -177,7 +182,8 @@ public class FieldRelationUtils {
      */
     private static List<FieldRelation> createReplacerFieldRelations(List<StreamField> fieldList, String transformName,
             StringReplacerDefinition replacerDefinition, String preNodes, Map<String, StreamField> constantFieldMap) {
-        Preconditions.checkNotEmpty(preNodes, "PreNodes of splitter should not be null");
+        Preconditions.expectNotBlank(preNodes, ErrorCodeEnum.INVALID_PARAMETER,
+                "PreNodes of splitter should not be null");
         String preNode = preNodes.split(",")[0];
         List<ReplaceRule> replaceRules = replacerDefinition.getReplaceRules();
         Set<String> replaceFields = Sets.newHashSet();
@@ -197,7 +203,8 @@ public class FieldRelationUtils {
      */
     private static List<FieldRelation> createEncryptFieldRelations(List<StreamField> fieldList, String transformName,
             EncryptDefinition encryptDefinition, String preNodes, Map<String, StreamField> constantFieldMap) {
-        Preconditions.checkNotEmpty(preNodes, "PreNodes of encrypt should not be null");
+        Preconditions.expectNotBlank(preNodes, ErrorCodeEnum.INVALID_PARAMETER,
+                "PreNodes of encrypt should not be null");
         String preNode = preNodes.split(",")[0];
         List<EncryptRule> encryptRules = encryptDefinition.getEncryptRules();
         Set<String> encryptFields = Sets.newHashSet();

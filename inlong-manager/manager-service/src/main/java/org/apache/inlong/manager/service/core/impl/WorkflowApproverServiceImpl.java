@@ -64,17 +64,17 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
     public Integer save(ApproverRequest request, String operator) {
         LOGGER.info("begin to save approver: {} by user: {}", request, operator);
         WorkflowProcess process = processDefinitionService.getByName(request.getProcessName());
-        Preconditions.checkNotNull(process, "process not exit with name: " + request.getProcessName());
+        Preconditions.expectNotNull(process, "process not exit with name: " + request.getProcessName());
         WorkflowTask task = process.getTaskByName(request.getTaskName());
-        Preconditions.checkNotNull(task, "task not exit with name: " + request.getTaskName());
-        Preconditions.checkTrue(task instanceof UserTask, "task should be UserTask");
+        Preconditions.expectNotNull(task, "task not exit with name: " + request.getTaskName());
+        Preconditions.expectTrue(task instanceof UserTask, "task should be UserTask");
 
         ApproverPageRequest pageRequest = ApproverPageRequest.builder()
                 .processName(request.getProcessName())
                 .taskName(request.getTaskName())
                 .build();
         List<WorkflowApproverEntity> exist = approverMapper.selectByCondition(pageRequest);
-        Preconditions.checkEmpty(exist, "workflow approver already exits");
+        Preconditions.expectEmpty(exist, "workflow approver already exits");
 
         WorkflowApproverEntity entity = CommonBeanUtils.copyProperties(request, WorkflowApproverEntity::new);
         entity.setCreator(operator);
@@ -87,7 +87,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
     @Override
     public ApproverResponse get(Integer id) {
-        Preconditions.checkNotNull(id, "approver id cannot be null");
+        Preconditions.expectNotNull(id, "approver id cannot be null");
         WorkflowApproverEntity approverEntity = approverMapper.selectById(id);
         if (approverEntity == null) {
             LOGGER.error("workflow approver not found by id={}", id);
@@ -123,12 +123,12 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
     @Override
     public Integer update(ApproverRequest request, String operator) {
-        Preconditions.checkNotNull(request, "approver request cannot be null");
+        Preconditions.expectNotNull(request, "approver request cannot be null");
         Integer id = request.getId();
-        Preconditions.checkNotNull(id, "approver id cannot be null");
+        Preconditions.expectNotNull(id, "approver id cannot be null");
 
         WorkflowApproverEntity entity = approverMapper.selectById(id);
-        Preconditions.checkNotNull(entity, "not exist with id:" + id);
+        Preconditions.expectNotNull(entity, "not exist with id:" + id);
         String errMsg = String.format("approver has already updated with id=%s, process=%s, task=%s, curVersion=%s",
                 id, request.getProcessName(), request.getTaskName(), request.getVersion());
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
@@ -146,9 +146,9 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
     @Override
     public void delete(Integer id, String operator) {
         WorkflowApproverEntity entity = approverMapper.selectById(id);
-        Preconditions.checkNotNull(entity, "not exist with id:" + id);
+        Preconditions.expectNotNull(entity, "not exist with id:" + id);
         int success = this.approverMapper.deleteByPrimaryKey(id, operator);
-        Preconditions.checkTrue(success == 1, "delete failed");
+        Preconditions.expectTrue(success == 1, "delete failed");
     }
 
 }

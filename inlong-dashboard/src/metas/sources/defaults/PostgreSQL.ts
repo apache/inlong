@@ -21,6 +21,7 @@ import { DataWithBackend } from '@/metas/DataWithBackend';
 import { RenderRow } from '@/metas/RenderRow';
 import { RenderList } from '@/metas/RenderList';
 import { SourceInfo } from '../common/SourceInfo';
+import i18n from '@/i18n';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
@@ -99,12 +100,13 @@ export default class PostgreSQLSource
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
+    tooltip: i18n.t('meta.Sources.PostgreSQL.TableNameHelp'),
     props: values => ({
       disabled: values?.status === 101,
     }),
   })
   @I18n('meta.Sources.PostgreSQL.TableName')
-  tableName: Record<string, unknown>;
+  tableNameList: string;
 
   @FieldDecorator({
     type: 'input',
@@ -151,4 +153,18 @@ export default class PostgreSQLSource
   })
   @I18n('meta.Sources.PostgreSQL.decodingPluginName')
   decodingPluginName: string;
+
+  parse(data) {
+    let obj = { ...data };
+    obj.tableNameList = obj.tableNameList.join(',');
+    return obj;
+  }
+
+  stringify(data) {
+    let obj = { ...data };
+    if (typeof obj.tableNameList === 'string') {
+      obj.tableNameList = obj.tableNameList.split(',');
+    }
+    return obj;
+  }
 }

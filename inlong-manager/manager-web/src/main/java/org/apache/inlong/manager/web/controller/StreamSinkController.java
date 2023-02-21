@@ -22,7 +22,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
@@ -75,14 +76,15 @@ public class StreamSinkController {
     @RequestMapping(value = "/sink/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream sink")
-    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SinkRequest request) {
+    public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody SinkRequest request) {
         return Response.success(sinkService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/updateByKey", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream sink by key")
-    public Response<UpdateResult> updateByKey(@RequestBody SinkRequest request) {
+    public Response<UpdateResult> updateByKey(
+            @Validated(UpdateByKeyValidation.class) @RequestBody SinkRequest request) {
         return Response.success(sinkService.updateByKey(request, LoginUserUtils.getLoginUser().getName()));
     }
 

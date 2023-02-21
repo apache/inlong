@@ -33,6 +33,7 @@ import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.pojo.source.oracle.OracleSource;
 import org.apache.inlong.manager.pojo.source.postgresql.PostgreSQLSource;
 import org.apache.inlong.manager.pojo.source.pulsar.PulsarSource;
+import org.apache.inlong.manager.pojo.source.redis.RedisLookupOptions;
 import org.apache.inlong.manager.pojo.source.redis.RedisSource;
 import org.apache.inlong.manager.pojo.source.sqlserver.SQLServerSource;
 import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSource;
@@ -384,33 +385,71 @@ public class ExtractNodeUtils {
     public static RedisExtractNode createExtractNode(RedisSource source) {
         List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
         Map<String, String> properties = parseProperties(source.getProperties());
-        RedisCommand command = RedisCommand.forName(source.getRedisCommand());
-        RedisMode mode = RedisMode.forName(source.getRedisMode());
-        LookupOptions lookupOptions = new LookupOptions(source.getLookupCacheMaxRows(), source.getLookupCacheTtl(),
-                source.getLookupMaxRetries(), source.getLookupAsync());
-        return new RedisExtractNode(
-                source.getSourceName(),
-                source.getSourceName(),
-                fieldInfos,
-                null,
-                properties,
-                source.getPrimaryKey(),
-                mode,
-                command,
-                source.getClusterNodes(),
-                source.getMasterName(),
-                source.getSentinelsInfo(),
-                source.getHostname(),
-                source.getPort(),
-                source.getPassword(),
-                source.getAdditionalKey(),
-                source.getDatabase(),
-                source.getTimeout(),
-                source.getSoTimeout(),
-                source.getMaxTotal(),
-                source.getMaxIdle(),
-                source.getMinIdle(),
-                lookupOptions);
+        RedisMode redisMode = RedisMode.forName(source.getRedisMode());
+        switch (redisMode) {
+            case STANDALONE:
+                return new RedisExtractNode(
+                        source.getSourceName(),
+                        source.getSourceName(),
+                        fieldInfos,
+                        null,
+                        properties,
+                        source.getPrimaryKey(),
+                        RedisCommand.forName(source.getCommand()),
+                        source.getHost(),
+                        source.getPort(),
+                        source.getPassword(),
+                        source.getAdditionalKey(),
+                        source.getDatabase(),
+                        source.getTimeout(),
+                        source.getSoTimeout(),
+                        source.getMaxTotal(),
+                        source.getMaxIdle(),
+                        source.getMinIdle(),
+                        parseLookupOptions(source.getLookupOptions()));
+            case SENTINEL:
+                return new RedisExtractNode(
+                        source.getSourceName(),
+                        source.getSourceName(),
+                        fieldInfos,
+                        null,
+                        properties,
+                        source.getPrimaryKey(),
+                        RedisCommand.forName(source.getCommand()),
+                        source.getMasterName(),
+                        source.getSentinelsInfo(),
+                        source.getPassword(),
+                        source.getAdditionalKey(),
+                        source.getDatabase(),
+                        source.getTimeout(),
+                        source.getSoTimeout(),
+                        source.getMaxTotal(),
+                        source.getMaxIdle(),
+                        source.getMinIdle(),
+                        parseLookupOptions(source.getLookupOptions()));
+            case CLUSTER:
+                return new RedisExtractNode(
+                        source.getSourceName(),
+                        source.getSourceName(),
+                        fieldInfos,
+                        null,
+                        properties,
+                        source.getPrimaryKey(),
+                        RedisCommand.forName(source.getCommand()),
+                        source.getClusterNodes(),
+                        source.getPassword(),
+                        source.getAdditionalKey(),
+                        source.getDatabase(),
+                        source.getTimeout(),
+                        source.getSoTimeout(),
+                        source.getMaxTotal(),
+                        source.getMaxIdle(),
+                        source.getMinIdle(),
+                        parseLookupOptions(source.getLookupOptions()));
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported redis-mode=%s for Inlong", redisMode));
+        }
+
     }
 
     /**
@@ -518,6 +557,20 @@ public class ExtractNodeUtils {
     private static Map<String, String> parseProperties(Map<String, Object> properties) {
         return properties.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+    }
+
+    /**
+     * Parse LookupOptions
+     *
+     * @param options
+     * @return LookupOptions
+     */
+    private static LookupOptions parseLookupOptions(RedisLookupOptions options) {
+        if (options == null) {
+            return null;
+        }
+        return new LookupOptions(options.getLookupCacheMaxRows(), options.getLookupCacheTtl(),
+                options.getLookupMaxRetries(), options.getLookupAsync());
     }
 
 }

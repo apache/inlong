@@ -22,6 +22,7 @@ import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
+import NodeSelect from '@/components/NodeSelect';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
@@ -71,6 +72,17 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     }),
   })
   @ColumnDecorator()
+  @I18n('meta.Sinks.MySQL.DatabaseName')
+  databaseName: string;
+
+  @FieldDecorator({
+    type: 'input',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @ColumnDecorator()
   @I18n('meta.Sinks.MySQL.TableName')
   tableName: string;
 
@@ -108,34 +120,14 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   enableCreateResource: number;
 
   @FieldDecorator({
-    type: 'select',
+    type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
-      showSearch: true,
       disabled: [110, 130].includes(values?.status),
-      options: {
-        requestTrigger: ['onOpen', 'onSearch'],
-        requestService: keyword => ({
-          url: '/node/list',
-          method: 'POST',
-          data: {
-            keyword,
-            type: 'MYSQL',
-            pageNum: 1,
-            pageSize: 20,
-          },
-        }),
-        requestParams: {
-          formatResult: result =>
-            result?.list?.map(item => ({
-              label: item.name,
-              value: item.name,
-            })),
-        },
-      },
+      nodeType: 'MYSQL',
     }),
   })
-  @I18n('meta.Sinks.MySQL.DataNodeName')
+  @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
 
   @FieldDecorator({

@@ -28,7 +28,6 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.PostgreSQLConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
-import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.snapshot.PostgreSQLSnapshotBase;
@@ -60,20 +59,19 @@ public class PostgreSQLReader extends AbstractReader {
     public static final String JOB_DATABASE_PASSWORD = "job.postgreSQLJob.password";
     public static final String JOB_DATABASE_HOSTNAME = "job.postgreSQLJob.hostname";
     public static final String JOB_DATABASE_PORT = "job.postgreSQLJob.port";
-    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.postgreSQLjob.offset.intervalMs";
-    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.postgreSQLjob.history.filename";
-    public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.postgreSQLjob.snapshot.mode";
-    public static final String JOB_DATABASE_QUEUE_SIZE = "job.postgreSQLjob.queueSize";
-    public static final String JOB_DATABASE_OFFSETS = "job.postgreSQLjob.offsets";
-    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE = "job.postgreSQLjob.offset.specificOffsetFile";
-    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS = "job.postgreSQLjob.offset.specificOffsetPos";
-    public static final String JOB_DATABASE_DBNAME = "job.postgreSQLjob.dbname";
-    public static final String JOB_DATABASE_SERVER_NAME = "job.postgreSQLjob.servername";
-    public static final String JOB_DATABASE_PLUGIN_NAME = "job.postgreSQLjob.pluginname";
+    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.postgreSQLJob.offset.intervalMs";
+    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.postgreSQLJob.history.filename";
+    public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.postgreSQLJob.snapshot.mode";
+    public static final String JOB_DATABASE_QUEUE_SIZE = "job.postgreSQLJob.queueSize";
+    public static final String JOB_DATABASE_OFFSETS = "job.postgreSQLJob.offsets";
+    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE = "job.postgreSQLJob.offset.specificOffsetFile";
+    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS = "job.postgreSQLJob.offset.specificOffsetPos";
+    public static final String JOB_DATABASE_DBNAME = "job.postgreSQLJob.dbname";
+    public static final String JOB_DATABASE_SERVER_NAME = "job.postgreSQLJob.servername";
+    public static final String JOB_DATABASE_PLUGIN_NAME = "job.postgreSQLJob.pluginname";
     private static final Gson GSON = new Gson();
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLReader.class);
     private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-    protected AgentMetricItem readerMetric;
     private String userName;
     private String password;
     private String hostName;
@@ -134,7 +132,7 @@ public class PostgreSQLReader extends AbstractReader {
         offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "100000");
         offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
                 tryToInitAndGetHistoryPath()) + "/offset.dat" + instanceId;
-        snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, "");
+        snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, PostgreSQLConstants.INITIAL);
         postgreSQLMessageQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_DATABASE_QUEUE_SIZE, 1000));
         finished = false;
 
@@ -196,6 +194,7 @@ public class PostgreSQLReader extends AbstractReader {
         props.setProperty("connector.class", PostgresConnector.class.getCanonicalName());
         props.setProperty("database.server.name", serverName);
         props.setProperty("plugin.name", pluginName);
+        props.setProperty("slot.name", "slot" + instanceId);
         props.setProperty("database.hostname", hostName);
         props.setProperty("database.port", port);
         props.setProperty("database.user", userName);
@@ -250,6 +249,10 @@ public class PostgreSQLReader extends AbstractReader {
     @Override
     public String getReadSource() {
         return instanceId;
+    }
+
+    public void setReadSource(String instanceId) {
+        this.instanceId = instanceId;
     }
 
     @Override

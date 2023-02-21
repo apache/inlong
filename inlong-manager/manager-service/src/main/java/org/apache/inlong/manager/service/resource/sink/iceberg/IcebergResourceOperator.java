@@ -20,18 +20,19 @@ package org.apache.inlong.manager.service.resource.sink.iceberg;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.node.iceberg.IcebergDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergColumnInfo;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSinkDTO;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergTableInfo;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -94,7 +95,8 @@ public class IcebergResourceOperator implements SinkResourceOperator {
         if (StringUtils.isBlank(icebergInfo.getCatalogUri())
                 && CATALOG_TYPE_HIVE.equals(icebergInfo.getCatalogType())) {
             String dataNodeName = sinkInfo.getDataNodeName();
-            Preconditions.checkNotEmpty(dataNodeName, "iceberg catalog uri not specified and data node is empty");
+            Preconditions.expectNotBlank(dataNodeName, ErrorCodeEnum.INVALID_PARAMETER,
+                    "iceberg catalog uri not specified and data node is empty");
             IcebergDataNodeInfo dataNodeInfo = (IcebergDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, icebergInfo);

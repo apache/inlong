@@ -50,7 +50,7 @@ public class HiveDataNodeDTO {
     private String hiveConfDir;
 
     @ApiModelProperty("HDFS default FS, such as: hdfs://127.0.0.1:9000")
-    private String hdfsPath;
+    private String dataPath;
 
     @ApiModelProperty("Hive warehouse path, such as: /user/hive/warehouse/")
     private String warehouse;
@@ -65,7 +65,7 @@ public class HiveDataNodeDTO {
         return HiveDataNodeDTO.builder()
                 .hiveVersion(request.getHiveVersion())
                 .hiveConfDir(request.getHiveConfDir())
-                .hdfsPath(request.getHdfsPath())
+                .dataPath(request.getDataPath())
                 .warehouse(request.getWarehouse())
                 .hdfsUgi(request.getHdfsUgi())
                 .build();
@@ -78,8 +78,8 @@ public class HiveDataNodeDTO {
         try {
             return JsonUtils.parseObject(extParams, HiveDataNodeDTO.class);
         } catch (Exception e) {
-            LOGGER.error("Failed to extract additional parameters for hive data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
+                    String.format("Failed to parse extParams for Hive node: %s", e.getMessage()));
         }
     }
 

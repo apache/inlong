@@ -44,7 +44,7 @@ public class MockAgent {
     // 2. Regularly report the previously executed tasks to the manager (may be successful or fail)
     public static final String LOCAL_IP = "127.0.0.1";
     public static final String LOCAL_PORT = "8008";
-    public static final String LOCAL_TAG = "default_tag";
+    public static final String LOCAL_GROUP = "default_group";
     public static final String CLUSTER_TAG = "default_cluster_tag";
     public static final String CLUSTER_NAME = "1c59ef9e8e1e43cfb25ee8b744c9c81b_2790";
 
@@ -52,7 +52,7 @@ public class MockAgent {
     private HeartbeatService heartbeatService;
 
     private Queue<CommandEntity> commands = new LinkedList<>();
-    private Set<String> tags = Sets.newHashSet(LOCAL_TAG);
+    private Set<String> groups = Sets.newHashSet(LOCAL_GROUP);
     private int jobLimit;
 
     public MockAgent(AgentService agentService, HeartbeatService heartbeatService, int jobLimit) {
@@ -83,17 +83,17 @@ public class MockAgent {
         heartbeat.setComponentType(ComponentTypeEnum.Agent.getType());
         heartbeat.setClusterName(CLUSTER_NAME);
         heartbeat.setClusterTag(CLUSTER_TAG);
-        heartbeat.setNodeTag(tags.stream().collect(Collectors.joining(InlongConstants.COMMA)));
+        heartbeat.setNodeGroup(groups.stream().collect(Collectors.joining(InlongConstants.COMMA)));
         heartbeat.setInCharges(GLOBAL_OPERATOR);
         heartbeat.setReportTime(System.currentTimeMillis());
         heartbeatService.reportHeartbeat(heartbeat);
     }
 
-    public void bindTag(boolean bind, String tag) {
+    public void bindGroup(boolean bind, String group) {
         if (bind) {
-            tags.add(tag);
+            groups.add(group);
         } else {
-            tags.remove(tag);
+            groups.remove(group);
         }
         sendHeartbeat();
     }

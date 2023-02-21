@@ -48,17 +48,16 @@ public class PBParameterUtils {
      * Check request topic list of producer
      *
      * @param reqTopicLst the topic list to be checked.
-     * @param strBuffer   a string buffer used to construct the result
-     * @return the check result
+     * @param strBuff   a string buffer used to construct the result
+     * @param result    the process result
+     * @return          success or failure
      */
-    public static ParamCheckResult checkProducerTopicList(final List<String> reqTopicLst,
-            final StringBuilder strBuffer) {
-        ParamCheckResult retResult = new ParamCheckResult();
+    public static boolean checkProducerTopicList(List<String> reqTopicLst,
+            StringBuilder strBuff, ProcessResult result) {
         if (reqTopicLst == null) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
+            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     "Request miss necessary topic field info!");
-            return retResult;
+            return result.isSuccess();
         }
         Set<String> transTopicList = new HashSet<>();
         if (!reqTopicLst.isEmpty()) {
@@ -69,27 +68,25 @@ public class PBParameterUtils {
                 topic = topic.trim();
                 // filter system topic OFFSET_HISTORY_NAME
                 if (topic.equals(TServerConstants.OFFSET_HISTORY_NAME)) {
-                    retResult.setCheckResult(false,
-                            TErrCodeConstants.BAD_REQUEST,
-                            strBuffer.append("System Topic ")
+                    result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+                            strBuff.append("System Topic ")
                                     .append(TServerConstants.OFFSET_HISTORY_NAME)
                                     .append(" does not allow client produce data!").toString());
-                    strBuffer.delete(0, strBuffer.length());
-                    return retResult;
+                    strBuff.delete(0, strBuff.length());
+                    return result.isSuccess();
                 }
                 transTopicList.add(topic);
             }
         }
         if (transTopicList.size() > TBaseConstants.META_MAX_BOOKED_TOPIC_COUNT) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
-                    strBuffer.append("Booked topic's count over max value, required max count is ")
+            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+                    strBuff.append("Booked topic's count over max value, required max count is ")
                             .append(TBaseConstants.META_MAX_BOOKED_TOPIC_COUNT).toString());
-            strBuffer.delete(0, strBuffer.length());
-            return retResult;
+            strBuff.delete(0, strBuff.length());
+            return result.isSuccess();
         }
-        retResult.setCheckData(transTopicList);
-        return retResult;
+        result.setSuccResult(transTopicList);
+        return result.isSuccess();
     }
 
     /**
@@ -98,12 +95,11 @@ public class PBParameterUtils {
      * @param depTopicSet  the deployed topic set
      * @param reqTopicLst the topic list to be checked.
      * @param strBuff   a string buffer used to construct the result
+     * @param result    process result
      * @return the check result
      */
     public static boolean checkConsumerTopicList(Set<String> depTopicSet,
-            List<String> reqTopicLst,
-            ProcessResult result,
-            StringBuilder strBuff) {
+            List<String> reqTopicLst, StringBuilder strBuff, ProcessResult result) {
         if ((reqTopicLst == null) || (reqTopicLst.isEmpty())) {
             result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     "Request miss necessary subscribed topicList data!");
@@ -154,61 +150,54 @@ public class PBParameterUtils {
      * @param csmType        the topic list to be checked.
      * @param reqTopicSet    the subscribed topic set
      * @param requiredParts  the specified partitionKey-bootstrap offset map
-     * @param strBuffer      the string buffer used to construct the result
+     * @param strBuff      the string buffer used to construct the result
      * @return the check result
      */
-    public static ParamCheckResult checkConsumerOffsetSetInfo(ConsumeType csmType,
-            final Set<String> reqTopicSet,
-            final String requiredParts,
-            final StringBuilder strBuffer) {
+    public static boolean checkConsumerOffsetSetInfo(ConsumeType csmType, Set<String> reqTopicSet,
+            String requiredParts, StringBuilder strBuff, ProcessResult result) {
         Map<String, Long> requiredPartMap = new HashMap<>();
-        ParamCheckResult retResult = new ParamCheckResult();
         if (csmType != ConsumeType.CONSUME_BAND) {
-            retResult.setCheckData(requiredPartMap);
-            return retResult;
+            result.setSuccResult(requiredPartMap);
+            return result.isSuccess();
         }
         if (TStringUtils.isBlank(requiredParts)) {
-            retResult.setCheckData(requiredPartMap);
-            return retResult;
+            result.setSuccResult(requiredPartMap);
+            return result.isSuccess();
         }
         String[] partOffsetItems = requiredParts.trim().split(TokenConstants.ARRAY_SEP);
         for (String partOffset : partOffsetItems) {
             String[] partKeyVal = partOffset.split(TokenConstants.EQ);
             if (partKeyVal.length == 1) {
-                retResult.setCheckResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
-                        strBuffer.append("[Parameter error] unformatted Partition-Offset value : ")
+                result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+                        strBuff.append("[Parameter error] unformatted Partition-Offset value : ")
                                 .append(partOffset).append(" must be aa:bbb:ccc=val1,ddd:eee:ff=val2").toString());
-                return retResult;
+                return result.isSuccess();
             }
             String[] partKeyItems = partKeyVal[0].trim().split(TokenConstants.ATTR_SEP);
             if (partKeyItems.length != 3) {
-                retResult.setCheckResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
-                        strBuffer.append("[Parameter error] unformatted Partition-Offset value : ")
+                result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+                        strBuff.append("[Parameter error] unformatted Partition-Offset value : ")
                                 .append(partOffset).append(" must be aa:bbb:ccc=val1,ddd:eee:ff=val2").toString());
-                return retResult;
+                return result.isSuccess();
             }
             if (!reqTopicSet.contains(partKeyItems[1].trim())) {
-                retResult.setCheckResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
-                        strBuffer.append("[Parameter error] wrong offset reset for unsubscribed topic: reset item is ")
+                result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+                        strBuff.append("[Parameter error] wrong offset reset for unsubscribed topic: reset item is ")
                                 .append(partOffset).append(", request topicList are ")
-                                .append(reqTopicSet.toString()).toString());
-                return retResult;
+                                .append(reqTopicSet).toString());
+                return result.isSuccess();
             }
             try {
                 requiredPartMap.put(partKeyVal[0].trim(), Long.parseLong(partKeyVal[1].trim()));
             } catch (Throwable ex) {
-                retResult.setCheckResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
-                        strBuffer.append("[Parameter error] required long type value of ")
+                result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+                        strBuff.append("[Parameter error] required long type value of ")
                                 .append(partOffset).append("' Offset!").toString());
-                return retResult;
+                return result.isSuccess();
             }
         }
-        retResult.setCheckData(requiredPartMap);
-        return retResult;
+        result.setSuccResult(requiredPartMap);
+        return result.isSuccess();
     }
 
     /**
@@ -219,43 +208,41 @@ public class PBParameterUtils {
      * @param masterConfig        the master configure
      * @param defMetaDataService  the cluster meta information
      * @param brokerRunManager    the broker running information
-     * @param strBuffer           the string buffer used to construct the result
+     * @param strBuff           the string buffer used to construct the result
+     * @param result  the process result
      * @return the check result
      */
-    public static ParamCheckResult checkConsumerInputInfo(ConsumerInfo inConsumerInfo,
+    public static boolean checkConsumerInputInfo(ConsumerInfo inConsumerInfo,
             MasterConfig masterConfig,
             MetaDataService defMetaDataService,
             BrokerRunManager brokerRunManager,
-            StringBuilder strBuffer) throws Exception {
-        ParamCheckResult retResult = new ParamCheckResult();
+            StringBuilder strBuff,
+            ProcessResult result) throws Exception {
         if (!inConsumerInfo.isRequireBound()) {
-            retResult.setCheckData(inConsumerInfo);
-            return retResult;
+            result.setSuccResult(inConsumerInfo);
+            return result.isSuccess();
         }
         if (TStringUtils.isBlank(inConsumerInfo.getSessionKey())) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
+            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     "[Parameter error] blank value of sessionKey!");
-            return retResult;
+            return result.isSuccess();
         }
         inConsumerInfo.setSessionKey(inConsumerInfo.getSessionKey().trim());
         if (inConsumerInfo.getSourceCount() <= 0) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
+            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     "[Parameter error] totalSourceCount must over zero!");
-            return retResult;
+            return result.isSuccess();
         }
         GroupResCtrlEntity offsetResetGroupEntity =
                 defMetaDataService.getGroupCtrlConf(inConsumerInfo.getGroupName());
         if (masterConfig.isStartOffsetResetCheck()) {
             if (offsetResetGroupEntity == null) {
-                retResult.setCheckResult(false,
-                        TErrCodeConstants.BAD_REQUEST,
-                        strBuffer.append("[unauthorized subscribe] ConsumeGroup must be ")
+                result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+                        strBuff.append("[unauthorized subscribe] ConsumeGroup must be ")
                                 .append("authorized by administrator before using bound subscribe")
                                 .append(", please contact to administrator!").toString());
-                strBuffer.delete(0, strBuffer.length());
-                return retResult;
+                strBuff.delete(0, strBuff.length());
+                return result.isSuccess();
             }
         }
         int allowRate = (offsetResetGroupEntity != null
@@ -270,107 +257,82 @@ public class PBParameterUtils {
             if (maxBrokerCount % allowRate != 0) {
                 minClientCnt += 1;
             }
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
-                    strBuffer.append("[Parameter error] System requires at least ")
+            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+                    strBuff.append("[Parameter error] System requires at least ")
                             .append(minClientCnt).append(" clients to consume data together, ")
                             .append("please add client resources!").toString());
-            return retResult;
+            return result.isSuccess();
         }
-        retResult.setCheckData(inConsumerInfo);
-        return retResult;
+        result.setSuccResult(inConsumerInfo);
+        return result.isSuccess();
     }
 
     /**
      * Check the id of broker
      *
      * @param brokerId  the id of broker to be checked
-     * @param strBuffer the string buffer used to construct check result
+     * @param strBuff the string buffer used to construct check result
+     * @param result  the process result
      * @return the check result
      */
-    public static ParamCheckResult checkBrokerId(final String brokerId,
-            final StringBuilder strBuffer) {
-        ParamCheckResult retResult = new ParamCheckResult();
+    public static boolean checkBrokerId(String brokerId,
+            StringBuilder strBuff, ProcessResult result) {
         if (TStringUtils.isBlank(brokerId)) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
+            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     "Request miss necessary brokerId data");
-            return retResult;
+            return result.isSuccess();
         }
         String tmpValue = brokerId.trim();
         try {
-            retResult.setCheckData(Integer.parseInt(tmpValue));
+            result.setSuccResult(Integer.parseInt(tmpValue));
         } catch (Throwable e) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
-                    strBuffer.append("Parse brokerId to int failure ").append(e.getMessage()).toString());
-            strBuffer.delete(0, strBuffer.length());
-            return retResult;
+            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+                    strBuff.append("Parse brokerId to int failure ").append(e.getMessage()).toString());
+            strBuff.delete(0, strBuff.length());
         }
-        return retResult;
+        return result.isSuccess();
     }
 
     /**
      * Check the clientID.
      *
      * @param clientId  the client id to be checked
-     * @param strBuffer the string used to construct the result
+     * @param strBuff the string used to construct the result
+     * @param result  process result
      * @return the check result
      */
-    public static ParamCheckResult checkClientId(final String clientId, final StringBuilder strBuffer) {
-        return validStringParameter("clientId",
-                clientId, TBaseConstants.META_MAX_CLIENT_ID_LENGTH, strBuffer);
+    public static boolean checkClientId(String clientId,
+            StringBuilder strBuff, ProcessResult result) {
+        return PBParameterUtils.getStringParameter(
+                WebFieldDef.CLIENTID, clientId, strBuff, result);
     }
 
     /**
      * Check the hostname.
      *
      * @param hostName  the hostname to be checked.
-     * @param strBuffer the string used to construct the result
+     * @param strBuff the string used to construct the result
+     * @param result  the process result
      * @return the check result
      */
-    public static ParamCheckResult checkHostName(final String hostName, final StringBuilder strBuffer) {
-        return validStringParameter("hostName",
-                hostName, TBaseConstants.META_MAX_CLIENT_HOSTNAME_LENGTH, strBuffer);
+    public static boolean checkHostName(String hostName,
+            StringBuilder strBuff, ProcessResult result) {
+        return PBParameterUtils.getStringParameter(
+                WebFieldDef.HOSTNAME, hostName, strBuff, result);
     }
 
     /**
      * Check the group name
      *
      * @param groupName the group name to be checked
-     * @param strBuffer the string used to construct the result
+     * @param strBuff the string used to construct the result
+     * @param result   the process result
      * @return the check result
      */
-    public static ParamCheckResult checkGroupName(final String groupName, final StringBuilder strBuffer) {
-        return validStringParameter("groupName",
-                groupName, TBaseConstants.META_MAX_GROUPNAME_LENGTH, strBuffer);
-    }
-
-    private static ParamCheckResult validStringParameter(final String paramName,
-            final String paramValue,
-            int paramMaxLen,
-            final StringBuilder strBuffer) {
-        ParamCheckResult retResult = new ParamCheckResult();
-        if (TStringUtils.isBlank(paramValue)) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
-                    strBuffer.append("Request miss necessary ")
-                            .append(paramName).append(" data!").toString());
-            strBuffer.delete(0, strBuffer.length());
-            return retResult;
-        }
-        String tmpValue = paramValue.trim();
-        if (tmpValue.length() > paramMaxLen) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
-                    strBuffer.append(paramName)
-                            .append("'s length over max value, required max length is ")
-                            .append(paramMaxLen).toString());
-            strBuffer.delete(0, strBuffer.length());
-            return retResult;
-        }
-        retResult.setCheckData(tmpValue);
-        return retResult;
+    public static boolean checkGroupName(String groupName,
+            StringBuilder strBuff, ProcessResult result) {
+        return PBParameterUtils.getStringParameter(
+                WebFieldDef.GROUPNAME, groupName, strBuff, result);
     }
 
     /**
@@ -383,9 +345,7 @@ public class PBParameterUtils {
      * @return result success or failure
      */
     public static boolean getStringParameter(WebFieldDef fieldDef,
-            String paramValue,
-            StringBuilder strBuffer,
-            ProcessResult result) {
+            String paramValue, StringBuilder strBuffer, ProcessResult result) {
         if (TStringUtils.isBlank(paramValue)) {
             result.setFailResult(strBuffer.append("Request miss necessary ")
                     .append(fieldDef.name).append(" data!").toString());
@@ -414,9 +374,7 @@ public class PBParameterUtils {
      * @return the check result
      */
     public static boolean getTopicNameParameter(String topicName,
-            MetadataManager metadataManager,
-            StringBuilder strBuffer,
-            ProcessResult result) {
+            MetadataManager metadataManager, StringBuilder strBuffer, ProcessResult result) {
         if (!getStringParameter(WebFieldDef.TOPICNAME,
                 topicName, strBuffer, result)) {
             return result.isSuccess();

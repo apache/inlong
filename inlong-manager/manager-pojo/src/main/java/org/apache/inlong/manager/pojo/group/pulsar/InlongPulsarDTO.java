@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -38,8 +39,12 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group info for Pulsar")
 public class InlongPulsarDTO extends BaseInlongGroup {
+
+    @ApiModelProperty(value = "Pulsar tenant")
+    private String tenant;
 
     @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
             + "serial: single partition, low throughput, and orderly messages")
@@ -89,7 +94,8 @@ public class InlongPulsarDTO extends BaseInlongGroup {
         try {
             return JsonUtils.parseObject(extParams, InlongPulsarDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
+                    String.format("parse extParams of Pulsar failure: %s", e.getMessage()));
         }
     }
 

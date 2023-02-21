@@ -51,7 +51,7 @@ public class GroupCheckService {
         }
 
         List<String> managers = Arrays.asList(inlongGroupEntity.getInCharges().split(","));
-        Preconditions.checkTrue(managers.contains(operator),
+        Preconditions.expectTrue(managers.contains(operator),
                 String.format(ErrorCodeEnum.USER_IS_NOT_MANAGER.getMessage(), operator, managers));
 
         GroupStatus status = GroupStatus.forCode(inlongGroupEntity.getStatus());

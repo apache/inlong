@@ -182,6 +182,9 @@
         <fileSet>
             <directory>../inlong-manager/manager-web/target/apache-inlong-manager-web-${project.version}-bin/sql</directory>
             <outputDirectory>../docker/docker-compose/sql</outputDirectory>
+            <excludes>
+                <exclude>changes-1.5.0.sql</exclude>
+            </excludes>
         </fileSet>
     </fileSets>
 

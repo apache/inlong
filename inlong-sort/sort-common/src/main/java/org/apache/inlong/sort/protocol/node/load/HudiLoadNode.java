@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Data;
@@ -92,8 +91,8 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
     @JsonProperty("extList")
     private List<HashMap<String, String>> extList;
 
-    @JsonProperty("partitionFields")
-    private List<FieldInfo> partitionFields;
+    @JsonProperty("partitionKey")
+    private String partitionKey;
 
     @JsonCreator
     public HudiLoadNode(
@@ -112,7 +111,7 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
             @JsonProperty("uri") String uri,
             @JsonProperty("warehouse") String warehouse,
             @JsonProperty("extList") List<HashMap<String, String>> extList,
-            @JsonProperty("partitionFields") List<FieldInfo> partitionFields) {
+            @JsonProperty("partitionKey") String partitionKey) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
@@ -121,7 +120,7 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
         this.uri = uri;
         this.warehouse = warehouse;
         this.extList = extList;
-        this.partitionFields = partitionFields;
+        this.partitionKey = partitionKey;
     }
 
     @Override
@@ -137,11 +136,7 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
         options.put(HUDI_OPTION_HIVE_SYNC_METASTORE_URIS, uri);
 
         // partition field
-        if (partitionFields != null && !partitionFields.isEmpty()) {
-            String partitionKey =
-                    partitionFields.stream()
-                            .map(FieldInfo::getName)
-                            .collect(Collectors.joining(","));
+        if (StringUtils.isNoneBlank(partitionKey)) {
             options.put(HUDI_OPTION_PARTITION_PATH_FIELD_NAME, partitionKey);
         }
 

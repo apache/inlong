@@ -154,7 +154,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Transactional(rollbackFor = Throwable.class)
     public String save(InlongGroupRequest request, String operator) {
         LOGGER.debug("begin to save inlong group={} by user={}", request, operator);
-        Preconditions.checkNotNull(request, "inlong group request cannot be empty");
+        Preconditions.expectNotNull(request, "inlong group request cannot be empty");
 
         String groupId = request.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
@@ -177,20 +177,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public String save(InlongGroupRequest request, UserInfo opInfo) {
-        // check parameter
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.REQUEST_IS_EMPTY,
-                    "inlong group request cannot be empty");
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         String groupId = request.getInlongGroupId();
-        if (StringUtils.isBlank(groupId)) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "inlong group id in request cannot be blank");
-        }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity != null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
@@ -205,7 +192,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     public Boolean exist(String groupId) {
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         LOGGER.debug("success to check inlong group {}, exist? {}", groupId, entity != null);
         return entity != null;
@@ -213,7 +200,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     public InlongGroupInfo get(String groupId) {
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
@@ -236,20 +223,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     public InlongGroupInfo get(String groupId, UserInfo opInfo) {
-        // check group id
-        if (StringUtils.isBlank(groupId)) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -376,19 +355,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     public List<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request, UserInfo opInfo) {
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "group query request cannot be empty");
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         // filter records;
         List<InlongGroupEntity> filterGroupEntities = new ArrayList<>();
         for (InlongGroupEntity groupEntity : groupMapper.selectByCondition(request)) {
             // only the person in charges can query
-            if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+            if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
                 List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
                 if (!inCharges.contains(opInfo.getName())) {
                     continue;
@@ -428,11 +399,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            LOGGER.error("inlong group has already updated with groupId={}, curVersion={}",
-                    groupId, request.getVersion());
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-        }
+        chkUnmodifiableParams(entity, request);
         // check whether the current status can be modified
         doUpdateCheck(entity, request, operator);
 
@@ -450,28 +417,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public String update(InlongGroupRequest request, UserInfo opInfo) {
-        if (request == null) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "group query request cannot be empty");
-        }
-        // check operator info
-        if (opInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.LOGIN_USER_EMPTY);
-        }
         String groupId = request.getInlongGroupId();
-        if (StringUtils.isBlank(groupId)) {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "inlong group id in request cannot be blank");
-        }
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
-        }
+        chkUnmodifiableParams(entity, request);
         // only the person in charges can query
-        if (!opInfo.getRoles().contains(UserTypeEnum.ADMIN.name())) {
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
             if (!inCharges.contains(opInfo.getName())) {
                 throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
@@ -501,7 +454,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public Boolean updateStatus(String groupId, Integer status, String operator) {
         LOGGER.info("begin to update group status to [{}] for groupId={} by user={}", status, groupId, operator);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         InlongGroupEntity entity = groupMapper.selectByGroupIdForUpdate(groupId);
         if (entity == null) {
             LOGGER.error("inlong group not found by groupId={}", groupId);
@@ -563,23 +516,21 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> exts) {
-        LOGGER.info("begin to save or update inlong group ext info, groupId={}, ext={}", groupId, exts);
         if (CollectionUtils.isEmpty(exts)) {
             return;
         }
-
-        List<InlongGroupExtEntity> entityList = CommonBeanUtils.copyListProperties(exts, InlongGroupExtEntity::new);
+        List<InlongGroupExtEntity> entityList =
+                CommonBeanUtils.copyListProperties(exts, InlongGroupExtEntity::new);
         for (InlongGroupExtEntity entity : entityList) {
             entity.setInlongGroupId(groupId);
         }
         groupExtMapper.insertOnDuplicateKeyUpdate(entityList);
-        LOGGER.info("success to save or update inlong group ext for groupId={}", groupId);
     }
 
     @Override
     public List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest request) {
         LOGGER.info("start to list group topic infos, request={}", request);
-        Preconditions.checkNotEmpty(request.getClusterTag(), "cluster tag should not be empty");
+        Preconditions.expectNotEmpty(request.getClusterTag(), "cluster tag should not be empty");
         List<InlongGroupEntity> groupEntities = groupMapper.selectByTopicRequest(request);
         List<InlongGroupTopicInfo> topicInfos = new ArrayList<>();
         for (InlongGroupEntity entity : groupEntities) {
@@ -596,16 +547,14 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // only the person in charges can update
         List<String> inCharges = Arrays.asList(groupInfo.getInCharges().split(InlongConstants.COMMA));
         if (!inCharges.contains(operator)) {
-            LOGGER.error("user [{}] has no privilege for the inlong group", operator);
-            throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED,
+                    String.format("user [%s] has no privilege for the inlong group", operator));
         }
-
         // determine whether the current status can be deleted
         GroupStatus curState = GroupStatus.forCode(groupInfo.getStatus());
         if (GroupStatus.notAllowedTransition(curState, GroupStatus.DELETING)) {
-            String errMsg = String.format("current group status=%s was not allowed to delete", curState);
-            LOGGER.error(errMsg);
-            throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED, errMsg);
+            throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED,
+                    String.format("current group status=%s was not allowed to delete", curState));
         }
 
         // If the status not allowed deleting directly, you need to delete the related "inlong_stream" first,
@@ -613,8 +562,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         if (GroupStatus.deleteStreamFirst(curState)) {
             int count = streamService.selectCountByGroupId(groupId);
             if (count >= 1) {
-                LOGGER.error("groupId={} have [{}] inlong streams, deleted failed", groupId, count);
-                throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_HAS_STREAM);
+                throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_HAS_STREAM,
+                        String.format("groupId=%s have [%s] inlong streams, deleted failed", groupId, count));
             }
         }
 
@@ -626,7 +575,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public Boolean delete(String groupId, String operator) {
         LOGGER.info("begin to delete inlong group for groupId={} by user={}", groupId, operator);
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
 
         // before deleting an inlong group, delete all inlong streams, sources, sinks, and other info under it
         if (GroupStatus.allowedDeleteSubInfos(GroupStatus.forCode(entity.getStatus()))) {
@@ -682,7 +631,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         String authenticationType = extMap.get(InlongConstants.SORT_AUTHENTICATION_TYPE);
         if (StringUtils.isNotBlank(authenticationType)) {
             AuthType authType = AuthType.forType(authenticationType);
-            Preconditions.checkTrue(authType == AuthType.SECRET_AND_TOKEN,
+            Preconditions.expectTrue(authType == AuthType.SECRET_AND_TOKEN,
                     "Only support SECRET_AND_TOKEN for flink sort auth");
             String authentication = extMap.get(InlongConstants.SORT_AUTHENTICATION);
             Map<String, String> authProperties = JsonUtils.parseObject(authentication,
@@ -708,5 +657,16 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             sortConf.setProperties(Maps.newHashMap());
         }
         return sortConf;
+    }
+
+    private void chkUnmodifiableParams(InlongGroupEntity entity, InlongGroupRequest request) {
+        // check mqType
+        Preconditions.expectEquals(entity.getMqType(), request.getMqType(),
+                ErrorCodeEnum.INVALID_PARAMETER, "mqType not allowed modify");
+        // check record version
+        Preconditions.expectEquals(entity.getVersion(), request.getVersion(),
+                ErrorCodeEnum.CONFIG_EXPIRED,
+                String.format("record has expired with record version=%d, request version=%d",
+                        entity.getVersion(), request.getVersion()));
     }
 }

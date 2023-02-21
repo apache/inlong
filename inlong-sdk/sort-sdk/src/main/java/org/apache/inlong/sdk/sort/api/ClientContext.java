@@ -22,6 +22,7 @@ import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.metrics.SortSdkMetricItem;
 import org.apache.inlong.sdk.sort.metrics.SortSdkMetricItemSet;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public abstract class ClientContext implements Cleanable {
     public ClientContext(SortClientConfig config) {
         this.config = config;
         this.sortTaskId = config.getSortTaskId();
-        this.metricItemSet = new SortSdkMetricItemSet(config.getSortTaskId());
+        this.metricItemSet = new SortSdkMetricItemSet(config.getSortTaskId() + new SecureRandom().nextInt());
         MetricRegister.register(this.metricItemSet);
     }
 
@@ -144,7 +145,7 @@ public abstract class ClientContext implements Cleanable {
     private SortSdkMetricItem getMetricItem(InLongTopic topic, int partitionId) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(SortSdkMetricItem.KEY_SORT_TASK_ID, sortTaskId);
-        if (topic != null || config.isTopicStaticsEnabled()) {
+        if (topic != null && config.isTopicStaticsEnabled()) {
             dimensions.put(SortSdkMetricItem.KEY_CLUSTER_ID, topic.getInLongCluster().getClusterId());
             dimensions.put(SortSdkMetricItem.KEY_TOPIC_ID, topic.getTopic());
         }

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.cluster.kafka;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,17 +40,25 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Kafka cluster info")
 public class KafkaClusterDTO {
 
+    /**
+     * Repeated save to ext_params field, it is convenient for DataProxy to obtain.
+     */
+    @JsonProperty("bootstrap.servers")
+    @ApiModelProperty(value = "Kafka bootstrap servers' URL, is the 'url' field of the cluster")
+    private String bootstrapServers;
+
+    /**
+     * Saved to ext_params field, it is convenient for DataProxy to obtain.
+     */
     @Builder.Default
     private String messageQueueHandler = "org.apache.inlong.dataproxy.sink.mq.kafka.KafkaHandler";
-
-    @JsonProperty("bootstrap.servers")
-    private String bootstrapServers;
 
     /**
      * Get the dto instance from the request
      */
     public static KafkaClusterDTO getFromRequest(KafkaClusterRequest request) {
         return KafkaClusterDTO.builder()
+                .bootstrapServers(request.getUrl())
                 .build();
     }
 
@@ -60,7 +69,8 @@ public class KafkaClusterDTO {
         try {
             return JsonUtils.parseObject(extParams, KafkaClusterDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    String.format("parse extParams of Kafka Cluster failure: %s", e.getMessage()));
         }
     }
 

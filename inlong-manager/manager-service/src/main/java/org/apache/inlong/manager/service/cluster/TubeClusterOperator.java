@@ -19,21 +19,26 @@ package org.apache.inlong.manager.service.cluster;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.HttpUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterDTO;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.service.group.InlongGroupOperator4NoneMQ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * TubeMQ cluster operator.
@@ -64,9 +69,10 @@ public class TubeClusterOperator extends AbstractClusterOperator {
             TubeClusterDTO dto = objectMapper.convertValue(tubeRequest, TubeClusterDTO.class);
             dto.setMasterIpPortList(request.getUrl());
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-            LOGGER.info("success to set entity for tubemq cluster");
+            LOGGER.debug("success to set entity for tubemq cluster");
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    String.format("serialize extParams of TubeMQ Cluster failure: %s", e.getMessage()));
         }
     }
 
@@ -82,8 +88,28 @@ public class TubeClusterOperator extends AbstractClusterOperator {
             CommonBeanUtils.copyProperties(dto, tubeClusterInfo);
         }
 
-        LOGGER.info("success to get tubemq cluster info from entity");
+        LOGGER.debug("success to get tubemq cluster info from entity");
         return tubeClusterInfo;
+    }
+
+    @Override
+    public Boolean testConnection(ClusterRequest request) {
+        String masterUrl = request.getUrl();
+        int hostBeginIndex = masterUrl.lastIndexOf(InlongConstants.SLASH);
+        int portBeginIndex = masterUrl.lastIndexOf(InlongConstants.COLON);
+        String host = masterUrl.substring(hostBeginIndex + 1, portBeginIndex);
+        int port = Integer.parseInt(masterUrl.substring(portBeginIndex + 1));
+        Preconditions.expectNotBlank(masterUrl, ErrorCodeEnum.INVALID_PARAMETER, "connection url cannot be empty");
+        boolean result;
+        try {
+            result = HttpUtils.checkConnectivity(host, port, 10, TimeUnit.SECONDS);
+            LOGGER.debug("tube connection not null - connection success for masterUrl={}", masterUrl);
+            return result;
+        } catch (Exception e) {
+            String errMsg = String.format("tube connection failed for masterUrl=%s", masterUrl);
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
+        }
     }
 
 }

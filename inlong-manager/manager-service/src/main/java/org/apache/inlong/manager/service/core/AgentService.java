@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.core;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
+import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeBindGroupRequest;
 
 /**
  * The service interface for agent
@@ -49,4 +50,11 @@ public interface AgentService {
      */
     TaskResult getTaskResult(TaskRequest request);
 
+    /**
+     * Divide the agent into different groups, which collect different stream source tasks.
+     *
+     * @param request Request of the bind group.
+     * @return Whether succeed.
+     */
+    Boolean bindGroup(AgentClusterNodeBindGroupRequest request);
 }

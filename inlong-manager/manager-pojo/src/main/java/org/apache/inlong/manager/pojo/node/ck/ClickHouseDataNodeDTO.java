@@ -48,7 +48,8 @@ public class ClickHouseDataNodeDTO {
         try {
             return JsonUtils.parseObject(extParams, ClickHouseDataNodeDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
+                    String.format("Failed to parse extParams for ClickHouse node: %s", e.getMessage()));
         }
     }
 

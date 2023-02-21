@@ -69,8 +69,8 @@ public class AutoPushSourceOperator extends AbstractSourceOperator {
             AutoPushSourceDTO dto = AutoPushSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            LOGGER.error("parsing json string to source info failed", e);
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
+                    String.format("serialize extParams of AutoPush SourceDTO failure: %s", e.getMessage()));
         }
     }
 

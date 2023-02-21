@@ -38,4 +38,5 @@ public class SinkType {
     public static final String TDSQLPOSTGRESQL = "TDSQLPOSTGRESQL";
     public static final String DORIS = "DORIS";
     public static final String STARROCKS = "STARROCKS";
+    public static final String REDIS = "REDIS";
 }

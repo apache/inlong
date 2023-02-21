@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
+import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeBindGroupRequest;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.AgentService;
@@ -68,4 +69,9 @@ public class AgentController {
         return Response.success(agentService.getTaskResult(request));
     }
 
+    @PostMapping("/agent/bindGroup")
+    @ApiOperation(value = "Divide the agent into different groups, which collect different stream source tasks.")
+    public Response<Boolean> bindGroup(@RequestBody AgentClusterNodeBindGroupRequest request) {
+        return Response.success(agentService.bindGroup(request));
+    }
 }

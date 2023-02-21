@@ -58,11 +58,11 @@ public class SqlServerJob {
     public static class SqlserverJobConfig {
 
         private String hostname;
-        private String user;
+        private String username;
         private String password;
         private String port;
-        private String dbname;
-        private String serverName;
+        private String database;
+        private String schemaName;
 
         private String snapshotMode;
         private String intervalMs;

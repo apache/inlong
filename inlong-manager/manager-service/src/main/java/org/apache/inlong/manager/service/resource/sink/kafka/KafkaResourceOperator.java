@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.service.resource.sink.kafka;
 
-import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSinkDTO;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.kafka.clients.admin.Admin;
@@ -64,8 +65,8 @@ public class KafkaResourceOperator implements SinkResourceOperator {
         KafkaSinkDTO kafkaInfo = KafkaSinkDTO.getFromJson(sinkInfo.getExtParams());
         String topicName = kafkaInfo.getTopicName();
         String partitionNum = kafkaInfo.getPartitionNum();
-        Preconditions.checkNotEmpty(topicName, "topic name cannot be empty");
-        Preconditions.checkNotEmpty(partitionNum, "partition cannot be empty");
+        Preconditions.expectNotBlank(topicName, ErrorCodeEnum.INVALID_PARAMETER, "topic name cannot be empty");
+        Preconditions.expectNotBlank(partitionNum, ErrorCodeEnum.INVALID_PARAMETER, "partition cannot be empty");
 
         try (Admin admin = getKafkaAdmin(kafkaInfo.getBootstrapServers())) {
             boolean topicExists = isTopicExists(admin, topicName, partitionNum);

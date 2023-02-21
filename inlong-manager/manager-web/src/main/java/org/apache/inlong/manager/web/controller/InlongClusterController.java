@@ -22,10 +22,12 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.validation.SaveValidation;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.ClusterNodeBindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -70,7 +72,7 @@ public class InlongClusterController {
     @ApiOperation(value = "Save cluster tag")
     @OperationLog(operation = OperationType.CREATE)
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Integer> saveTag(@Validated @RequestBody ClusterTagRequest request) {
+    public Response<Integer> saveTag(@Validated(SaveValidation.class) @RequestBody ClusterTagRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.saveTag(request, currentUser));
     }
@@ -111,7 +113,7 @@ public class InlongClusterController {
     @ApiOperation(value = "Save cluster")
     @OperationLog(operation = OperationType.CREATE)
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Integer> save(@Validated @RequestBody ClusterRequest request) {
+    public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody ClusterRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.save(request, currentUser));
     }
@@ -133,7 +135,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster")
-    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody ClusterRequest request) {
+    public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody ClusterRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.update(request, username));
     }
@@ -141,7 +143,8 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/updateByKey")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster by key")
-    public Response<UpdateResult> updateByKey(@RequestBody ClusterRequest request) {
+    public Response<UpdateResult> updateByKey(
+            @Validated(UpdateByKeyValidation.class) @RequestBody ClusterRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.updateByKey(request, username));
     }
@@ -228,11 +231,9 @@ public class InlongClusterController {
         return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUser().getName()));
     }
 
-    @RequestMapping(value = "/cluster/node/bindTag")
-    @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Bind or unbind cluster node tag")
-    public Response<Boolean> bindNodeTag(@Validated @RequestBody ClusterNodeBindTagRequest request) {
-        String username = LoginUserUtils.getLoginUser().getName();
-        return Response.success(clusterService.bindNodeTag(request, username));
+    @PostMapping("/cluster/testConnection")
+    @ApiOperation(value = "Test connection for inlong cluster")
+    public Response<Boolean> testConnection(@RequestBody ClusterRequest request) {
+        return Response.success(clusterService.testConnection(request));
     }
 }

@@ -58,7 +58,8 @@ public class TubeClusterDTO {
         try {
             return JsonUtils.parseObject(extParams, TubeClusterDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
+                    String.format("parse extParams of TubeMQ Cluster failure: %s", e.getMessage()));
         }
     }
 

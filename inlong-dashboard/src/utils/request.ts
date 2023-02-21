@@ -17,12 +17,12 @@
  * under the License.
  */
 
-import { message as Message } from 'antd';
 import { extend } from 'umi-request';
 import { RequestOptionsInit } from 'umi-request/types';
 import nprogress from 'nprogress';
 import { config } from '@/configs/default';
 import requestConcurrentMiddleware from './requestConcurrentMiddleware';
+import 'nprogress/nprogress.css';
 
 export interface FetchOptions extends RequestOptionsInit {
   url: string;
@@ -34,10 +34,8 @@ export interface RequestOptions extends FetchOptions {
   noGlobalError?: boolean;
 }
 
-export const apiPrefix = '/inlong/manager/api';
-
 const extendRequest = extend({
-  prefix: apiPrefix,
+  prefix: config.requestPrefix,
   timeout: 60 * 1000,
 });
 
@@ -101,7 +99,7 @@ export default function request(_options: RequestOptions | string) {
         msg = message || status;
       }
 
-      if (msg) Message.error(msg);
+      if (msg) config.requestErrorAlert(msg);
       return Promise.reject(new Error(msg));
     })
     .finally(() => {

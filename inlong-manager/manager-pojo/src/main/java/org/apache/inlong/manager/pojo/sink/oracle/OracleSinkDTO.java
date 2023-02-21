@@ -83,8 +83,8 @@ public class OracleSinkDTO {
         try {
             return JsonUtils.parseObject(extParams, OracleSinkDTO.class);
         } catch (Exception e) {
-            LOGGER.error("fetch oracle sink info failed from json params: " + extParams, e);
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("parse extParams of Oracle SinkDTO failure: %s", e.getMessage()));
         }
     }
 

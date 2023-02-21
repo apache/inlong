@@ -21,6 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -144,7 +145,8 @@ public class StarRocksResourceOperator implements SinkResourceOperator {
         // read from data node if not supplied by user
         if (StringUtils.isBlank(starRocksInfo.getJdbcUrl())) {
             String dataNodeName = sinkInfo.getDataNodeName();
-            Preconditions.checkNotEmpty(dataNodeName, "starRocks jdbc url not specified and data node is empty");
+            Preconditions.expectNotBlank(dataNodeName, ErrorCodeEnum.INVALID_PARAMETER,
+                    "starRocks jdbc url not specified and data node is empty");
             StarRocksDataNodeInfo dataNodeInfo = (StarRocksDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, starRocksInfo);

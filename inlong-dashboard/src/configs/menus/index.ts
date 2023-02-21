@@ -17,59 +17,35 @@
  * under the License.
  */
 
-import i18n from '@/i18n';
+import { treeToArray } from '@/utils';
+import menusTreeConf from './conf';
 
 export interface MenuItemType {
   name: string;
+  key?: string; // auto generate
+  deepKey?: string; // auto generate
   children?: MenuItemType[];
   path?: string;
   isAdmin?: boolean;
 }
 
-const menus: MenuItemType[] = [
-  {
-    path: '/group',
-    name: i18n.t('configs.menus.Groups'),
-  },
-  {
-    path: '/consume',
-    name: i18n.t('configs.menus.Subscribe'),
-  },
-  {
-    name: i18n.t('configs.menus.Clusters'),
-    children: [
-      {
-        path: '/clusters',
-        name: i18n.t('configs.menus.Clusters'),
-      },
-      {
-        path: '/clusterTags',
-        name: i18n.t('configs.menus.ClusterTags'),
-      },
-    ],
-  },
-  {
-    path: '/node',
-    name: i18n.t('configs.menus.Nodes'),
-  },
-  {
-    path: '/process',
-    name: i18n.t('configs.menus.Process'),
-  },
-  {
-    name: i18n.t('configs.menus.SystemManagement'),
-    isAdmin: true,
-    children: [
-      {
-        path: '/user',
-        name: i18n.t('configs.menus.UserManagement'),
-      },
-      {
-        path: '/approval',
-        name: i18n.t('configs.menus.ProcessManagement'),
-      },
-    ],
-  },
-];
+const genMenuKey = (array: Omit<MenuItemType, 'key'>[], parentKey = ''): MenuItemType[] => {
+  return array.map((item, index) => {
+    let obj = { ...item };
+    const num = index + 1 < 10 ? `0${index + 1}` : (index + 1).toString();
+    const currentKey = `${parentKey}${num}`;
+    if (obj.children) {
+      obj.children = genMenuKey(obj.children, currentKey);
+    }
+    return {
+      ...obj,
+      key: currentKey,
+    };
+  });
+};
 
-export default menus;
+const menusTree: MenuItemType[] = genMenuKey(menusTreeConf);
+
+export const menuArrays: Omit<MenuItemType, 'children'>[] = treeToArray(menusTree, 'key', 'pKey');
+
+export default menusTree;

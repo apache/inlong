@@ -23,4 +23,12 @@ export abstract class DataWithBackend extends DataStatic {
   abstract parse<T, K>(data: T): K;
 
   abstract stringify<T, K>(data: T): K;
+
+  abstract post?<T, K>(data: T): Promise<K>;
+
+  abstract delete?<T, K>(data: T): Promise<K>;
+
+  abstract put?<T, K>(data: T): Promise<K>;
+
+  abstract get?<T, K>(data: T): Promise<K>;
 }

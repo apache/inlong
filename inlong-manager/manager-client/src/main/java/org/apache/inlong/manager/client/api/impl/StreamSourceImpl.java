@@ -36,8 +36,8 @@ public class StreamSourceImpl implements StreamSource {
 
     @Override
     public Boolean forceDelete(String groupId, String streamId) {
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         return sourceClient.forceDelete(groupId, streamId);
     }
 }

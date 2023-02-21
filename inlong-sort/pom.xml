@@ -75,6 +75,11 @@
                 <artifactId>hbase-client</artifactId>
                 <version>${hbase.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.kudu</groupId>
+                <artifactId>kudu-client</artifactId>
+                <version>${kudu.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

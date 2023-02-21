@@ -53,6 +53,10 @@ public class JobProfileDto {
      */
     public static final String KAFKA_SOURCE = "org.apache.inlong.agent.plugin.sources.KafkaSource";
     /**
+     * PostgreSQL source
+     */
+    public static final String POSTGRESQL_SOURCE = "org.apache.inlong.agent.plugin.sources.PostgreSQLSource";
+    /**
      * mongo source
      */
     public static final String MONGO_SOURCE = "org.apache.inlong.agent.plugin.sources.MongoDBSource";
@@ -67,7 +71,7 @@ public class JobProfileDto {
     /**
      * sqlserver source
      */
-    public static final String SQLSERVER_SOURCE = "org.apache.inlong.agent.plugin.sources.SqlServerSource";
+    public static final String SQLSERVER_SOURCE = "org.apache.inlong.agent.plugin.sources.SQLServerSource";
 
     private static final Gson GSON = new Gson();
 
@@ -191,6 +195,26 @@ public class JobProfileDto {
         return kafkaJob;
     }
 
+    private static PostgreSQLJob getPostgresJob(DataConfig dataConfigs) {
+        PostgreSQLJob.PostgreSQLJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                PostgreSQLJob.PostgreSQLJobConfig.class);
+        PostgreSQLJob postgreSQLJob = new PostgreSQLJob();
+
+        postgreSQLJob.setUser(config.getUsername());
+        postgreSQLJob.setPassword(config.getPassword());
+        postgreSQLJob.setHostname(config.getHostname());
+        postgreSQLJob.setPort(config.getPort());
+        postgreSQLJob.setDbname(config.getDatabase());
+        postgreSQLJob.setServername(config.getSchema());
+        postgreSQLJob.setPluginname(config.getDecodingPluginName());
+        postgreSQLJob.setTableNameList(config.getTableNameList());
+        postgreSQLJob.setServerTimeZone(config.getServerTimeZone());
+        postgreSQLJob.setScanStartupMode(config.getScanStartupMode());
+        postgreSQLJob.setPrimaryKey(config.getPrimaryKey());
+
+        return postgreSQLJob;
+    }
+
     private static MongoJob getMongoJob(DataConfig dataConfigs) {
 
         MongoJob.MongoJobTaskConfig config = GSON.fromJson(dataConfigs.getExtParams(),
@@ -198,7 +222,7 @@ public class JobProfileDto {
         MongoJob mongoJob = new MongoJob();
 
         mongoJob.setHosts(config.getHosts());
-        mongoJob.setUser(config.getUser());
+        mongoJob.setUser(config.getUsername());
         mongoJob.setPassword(config.getPassword());
         mongoJob.setDatabaseIncludeList(config.getDatabaseIncludeList());
         mongoJob.setDatabaseExcludeList(config.getDatabaseExcludeList());
@@ -269,12 +293,12 @@ public class JobProfileDto {
         SqlServerJob.SqlserverJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
                 SqlServerJob.SqlserverJobConfig.class);
         SqlServerJob sqlServerJob = new SqlServerJob();
-        sqlServerJob.setUser(config.getUser());
+        sqlServerJob.setUser(config.getUsername());
         sqlServerJob.setHostname(config.getHostname());
         sqlServerJob.setPassword(config.getPassword());
         sqlServerJob.setPort(config.getPort());
-        sqlServerJob.setServerName(config.getServerName());
-        sqlServerJob.setDbname(config.getDbname());
+        sqlServerJob.setServerName(config.getSchemaName());
+        sqlServerJob.setDbname(config.getDatabase());
 
         SqlServerJob.Offset offset = new SqlServerJob.Offset();
         offset.setFilename(config.getOffsetFilename());
@@ -392,6 +416,12 @@ public class JobProfileDto {
                 job.setSource(KAFKA_SOURCE);
                 profileDto.setJob(job);
                 break;
+            case POSTGRES:
+                PostgreSQLJob postgreSQLJob = getPostgresJob(dataConfig);
+                job.setPostgreSQLJob(postgreSQLJob);
+                job.setSource(POSTGRESQL_SOURCE);
+                profileDto.setJob(job);
+                break;
             case ORACLE:
                 OracleJob oracleJob = getOracleJob(dataConfig);
                 job.setOracleJob(oracleJob);
@@ -448,6 +478,7 @@ public class JobProfileDto {
         private FileJob fileJob;
         private BinlogJob binlogJob;
         private KafkaJob kafkaJob;
+        private PostgreSQLJob postgreSQLJob;
         private OracleJob oracleJob;
         private MongoJob mongoJob;
         private MqttJob mqttJob;

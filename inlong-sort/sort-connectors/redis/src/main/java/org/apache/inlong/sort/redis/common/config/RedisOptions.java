@@ -57,7 +57,7 @@ public class RedisOptions {
             .key("password")
             .stringType()
             .noDefaultValue()
-            .withDescription("Optional password for connect to redis");
+            .withDescription("The password for client connecting to server");
     /**
      * Cluster nodes used to connect redis with cluster mode
      */
@@ -199,6 +199,74 @@ public class RedisOptions {
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("whether to set async lookup.");
+
+    public static final ConfigOption<String> EXPIRE_TIME =
+            ConfigOptions.key("expire-time")
+                    .stringType()
+                    .defaultValue("0s")
+                    .withDescription("The redis record expired time. If value set to " +
+                            "zero or negative, " +
+                            "record in redis will never expired.");
+
+    public static final ConfigOption<Integer> SINK_MAX_RETRIES =
+            ConfigOptions.key("sink.max-retries")
+                    .intType()
+                    .defaultValue(5)
+                    .withDescription("The maximum number of retries when an " +
+                            "exception is caught.");
+
+    public static final ConfigOption<Integer> CLUSTER_MAX_TOTAL =
+            ConfigOptions.key("sink.max-connections")
+                    .intType()
+                    .defaultValue(2)
+                    .withDescription("Set the value for connection instances created " +
+                            "in pool.");
+
+    public static final ConfigOption<Integer> CLUSTER_MAX_IDLE =
+            ConfigOptions.key("sink.max-idle-connections")
+                    .intType()
+                    .defaultValue(1)
+                    .withDescription("Set the value for max idle connection " +
+                            "instances created in pool.");
+
+    public static final ConfigOption<String> CLUSTER_MAX_WAIT =
+            ConfigOptions.key("sink.max-wait-time")
+                    .stringType()
+                    .defaultValue("10s")
+                    .withDescription("Set the value for max waiting time if there is " +
+                            "no connection resource.");
+
+    public static final ConfigOption<String> MAX_CACHE_TIME =
+            ConfigOptions.key("sink.max-cache-time")
+                    .stringType()
+                    .defaultValue("60s")
+                    .withDescription("The maximum live time for cached results in " +
+                            "the lookup source.");
+
+    public static final ConfigOption<Long> SINK_BATCH_SIZE =
+            ConfigOptions.key("sink.batch-size")
+                    .longType()
+                    .defaultValue(100L)
+                    .withDescription("The batch size of the sink operator to send data.");
+
+    public static final ConfigOption<String> SINK_FLUSH_INTERVAL =
+            ConfigOptions.key("sink.flush-interval")
+                    .stringType()
+                    .defaultValue("10s")
+                    .withDescription("The maximum waiting time for batch data sent by the sink operator ");
+
+    public static final ConfigOption<RedisDataType> DATA_TYPE =
+            ConfigOptions.key("data-type")
+                    .enumType(RedisDataType.class)
+                    .defaultValue(RedisDataType.PLAIN)
+                    .withDescription("Defines the redis data type, valid types are: 'PLAIN', 'HASH','BITMAP'");
+
+    public static final ConfigOption<SchemaMappingMode> SCHEMA_MAPPING_MODE =
+            ConfigOptions.key("schema-mapping-mode")
+                    .enumType(SchemaMappingMode.class)
+                    .defaultValue(SchemaMappingMode.STATIC_PREFIX_MATCH)
+                    .withDescription("Defines the mapping mode between SQL schema and redisDataType, " +
+                            "Valid enumerations are [\"STATIC_PREFIX_MATCH\",\"STATIC_KV_PAIR\", \"DYNAMIC\"]");
 
     private RedisOptions() {
     }

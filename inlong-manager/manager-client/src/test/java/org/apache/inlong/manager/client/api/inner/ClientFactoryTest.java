@@ -717,7 +717,6 @@ class ClientFactoryTest {
                 .clusterTags("test_cluster_tag")
                 .type(ClusterType.PULSAR)
                 .adminUrl("http://127.0.0.1:8080")
-                .tenant("public")
                 .build();
 
         stubFor(
