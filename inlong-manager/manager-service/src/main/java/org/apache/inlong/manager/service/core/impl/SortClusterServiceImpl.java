@@ -120,7 +120,7 @@ public class SortClusterServiceImpl implements SortClusterService {
         // check if cluster name is valid or not.
         if (StringUtils.isBlank(clusterName)) {
             String errMsg = "Blank cluster name, return nothing";
-            LOGGER.info(errMsg);
+            LOGGER.debug(errMsg);
             return SortClusterResponse.builder()
                     .msg(errMsg)
                     .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
@@ -138,7 +138,7 @@ public class SortClusterServiceImpl implements SortClusterService {
         // there is no config, but still return success.
         if (sortClusterConfigMap.get(clusterName) == null) {
             String errMsg = "There is not config for cluster " + clusterName;
-            LOGGER.info(errMsg);
+            LOGGER.debug(errMsg);
             return SortClusterResponse.builder()
                     .msg(errMsg)
                     .code(RESPONSE_CODE_SUCCESS)
