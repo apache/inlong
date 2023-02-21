@@ -174,6 +174,16 @@ public class IncrementalSourceReader<T, C extends SourceConfig>
         // restore for finishedUnackedSplits
         List<SourceSplitBase> unfinishedSplits = new ArrayList<>();
         for (SourceSplitBase split : splits) {
+            if (split instanceof MetricSplit) {
+                MetricSplit metricSplit = (MetricSplit) split;
+                LOG.info("inlong-metric-states restore metricSplit:{}", metricSplit);
+                sourceReaderMetrics.initMetrics(metricSplit.getNumRecordsIn(),
+                        metricSplit.getNumBytesIn(), metricSplit.getReadPhaseMetricMap(),
+                        metricSplit.getTableMetricMap());
+                LOG.info("inlong-metric-states restore sourceReaderMetrics:{}",
+                        sourceReaderMetrics.getSourceMetricData());
+                continue;
+            }
             if (split.isSnapshotSplit()) {
                 SnapshotSplit snapshotSplit = split.asSnapshotSplit();
                 if (snapshotSplit.isSnapshotReadFinished()) {

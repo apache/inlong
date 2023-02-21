@@ -31,7 +31,7 @@ import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
-import org.apache.inlong.sort.cdc.base.source.meta.split.MetricSplit;
+import org.apache.inlong.sort.cdc.base.source.meta.split.MetricSplit.TableMetric;
 
 /**
  * A collection class for handling metrics in {@link SourceReaderMetrics}.
@@ -116,7 +116,7 @@ public class SourceReaderMetrics {
     }
 
     public void initMetrics(long rowCountSize, long rowDataSize, Map<String, Long> readPhaseMetricMap,
-            Map<String, MetricSplit> tableMetricMap) {
+            Map<String, TableMetric> tableMetricMap) {
         if (sourceTableMetricData != null) {
             // node level metric data
             sourceTableMetricData.getNumBytesIn().inc(rowDataSize);

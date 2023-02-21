@@ -117,6 +117,7 @@
                                     <!--  Include fixed version 18.0-13.0 of flink shaded guava  -->
                                     <include>org.apache.flink:flink-shaded-guava</include>
                                     <include>com.google.protobuf:*</include>
+                                    <include>com.ververica:flink-cdc-base</include>
                                 </includes>
                             </artifactSet>
                             <filters>
