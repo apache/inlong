@@ -40,6 +40,8 @@
     <modules>
         <module>inlong-common</module>
         <module>inlong-sdk</module>
+        <module>inlong-tubemq</module>
+        <module>inlong-audit</module>
         <module>inlong-dataproxy</module>
         <module>inlong-agent</module>
         <module>inlong-sort</module>
@@ -508,6 +510,7 @@
                 <groupId>com.oracle.database.jdbc</groupId>
                 <artifactId>ojdbc8</artifactId>
                 <version>${oracle.jdbc.version}</version>
+                <scope>provided</scope>
             </dependency>
             <!-- mysql-connector-java is LGPL license, we use it test only -->
             <dependency>
@@ -1030,12 +1033,12 @@
                 <artifactId>flink-connector-oracle-cdc</artifactId>
                 <version>${flink.connector.oracle.cdc.version}</version>
                 <!-- ojdbc8 is FUTC license and needs to be excluded -->
-                <!--                <exclusions>-->
-                <!--                    <exclusion>-->
-                <!--                        <groupId>com.oracle.ojdbc</groupId>-->
-                <!--                        <artifactId>ojdbc8</artifactId>-->
-                <!--                    </exclusion>-->
-                <!--                </exclusions>-->
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.oracle.ojdbc</groupId>
+                        <artifactId>ojdbc8</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
