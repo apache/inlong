@@ -172,7 +172,7 @@ public enum MySqlReadableMetadata {
                             .mysqlType(getMysqlType(tableSchema))
                             .build();
                     DebeziumJson debeziumJson = DebeziumJson.builder().after(field).source(source)
-                            .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getDebeziumOpType(record))
+                            .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getDebeziumOpType(data))
                             .tableChange(tableSchema).build();
 
                     try {
@@ -504,15 +504,20 @@ public enum MySqlReadableMetadata {
         return opType;
     }
 
-    private static String getDebeziumOpType(SourceRecord record) {
+    private static String getDebeziumOpType(GenericRowData record) {
         String opType;
-        final Envelope.Operation op = Envelope.operationFor(record);
-        if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
-            opType = "c";
-        } else if (op == Envelope.Operation.DELETE) {
-            opType = "d";
-        } else {
-            opType = "u";
+        switch (record.getRowKind()) {
+            case DELETE:
+            case UPDATE_BEFORE:
+                opType = "d";
+                break;
+            case INSERT:
+            case UPDATE_AFTER:
+                opType = "c";
+                break;
+            default:
+                throw new IllegalStateException("the record only have states in DELETE, "
+                    + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
         }
         return opType;
     }
