@@ -40,7 +40,8 @@ public class RedisSource extends AbstractSource {
     @Override
     public List<Reader> split(JobProfile conf) {
         super.init(conf);
-        Reader redisReader = new RedisReader();
+        RedisReader redisReader = new RedisReader();
+        redisReader.setReadSource(conf.getInstanceId());
         List<Reader> readerList = new ArrayList<>();
         readerList.add(redisReader);
         sourceMetric.sourceSuccessCount.incrementAndGet();
