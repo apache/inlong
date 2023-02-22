@@ -118,7 +118,9 @@
         from stream_source
         <where>
             is_deleted = 0
-            and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
+            <if test="request.inlongGroupId != null and request.inlongGroupId != ''">
+                and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
+            </if>
             <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
                 and inlong_stream_id = #{request.inlongStreamId, jdbcType=VARCHAR}
             </if>
