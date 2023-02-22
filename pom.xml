@@ -162,7 +162,7 @@
         <flink.pulsar.version>1.13.6.2</flink.pulsar.version>
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
         <flink.connector.mongodb.cdc.version>2.2.1</flink.connector.mongodb.cdc.version>
-        <flink.connector.oracle.cdc.version>2.2.1</flink.connector.oracle.cdc.version>
+        <flink.connector.oracle.cdc.version>2.3.0</flink.connector.oracle.cdc.version>
         <flink.connector.doris.version>1.0.3</flink.connector.doris.version>
         <flink.connector.redis>1.1.0</flink.connector.redis>
 
