@@ -172,7 +172,7 @@ public enum MySqlReadableMetadata {
                             .mysqlType(getMysqlType(tableSchema))
                             .build();
                     DebeziumJson debeziumJson = DebeziumJson.builder().after(field).source(source)
-                            .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getDebeziumOpType(record))
+                            .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getDebeziumOpType(data))
                             .tableChange(tableSchema).build();
 
                     try {
@@ -247,7 +247,7 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    return StringData.fromString(getCanalOpType(record));
+                    return StringData.fromString(getOpType(record));
                 }
             }),
 
@@ -453,7 +453,7 @@ public enum MySqlReadableMetadata {
                 .data(dataList).database(databaseName)
                 .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
                 .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
-                .type(getCanalOpType(record)).sqlType(getSqlType(tableSchema)).build();
+                .type(getCanalOpType(rowData)).sqlType(getSqlType(tableSchema)).build();
 
         try {
             return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
@@ -473,7 +473,7 @@ public enum MySqlReadableMetadata {
         this.converter = converter;
     }
 
-    private static String getCanalOpType(SourceRecord record) {
+    private static String getOpType(SourceRecord record) {
         String opType;
         final Envelope.Operation op = Envelope.operationFor(record);
         if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
@@ -486,15 +486,38 @@ public enum MySqlReadableMetadata {
         return opType;
     }
 
-    private static String getDebeziumOpType(SourceRecord record) {
+    private static String getCanalOpType(GenericRowData record) {
         String opType;
-        final Envelope.Operation op = Envelope.operationFor(record);
-        if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
-            opType = "c";
-        } else if (op == Envelope.Operation.DELETE) {
-            opType = "d";
-        } else {
-            opType = "u";
+        switch (record.getRowKind()) {
+            case DELETE:
+            case UPDATE_BEFORE:
+                opType = "DELETE";
+                break;
+            case INSERT:
+            case UPDATE_AFTER:
+                opType = "INSERT";
+                break;
+            default:
+                throw new IllegalStateException("the record only have states in DELETE, "
+                        + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
+        }
+        return opType;
+    }
+
+    private static String getDebeziumOpType(GenericRowData record) {
+        String opType;
+        switch (record.getRowKind()) {
+            case DELETE:
+            case UPDATE_BEFORE:
+                opType = "d";
+                break;
+            case INSERT:
+            case UPDATE_AFTER:
+                opType = "c";
+                break;
+            default:
+                throw new IllegalStateException("the record only have states in DELETE, "
+                        + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
         }
         return opType;
     }
