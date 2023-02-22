@@ -32,7 +32,8 @@ public class RegexReplaceTest {
         identifier[0] = "yizhouyang";
         identifier[1] = "table2";
         String pattern = "${database}-${table}-${DIRTY_MESSAGE}";
-        String answer = DirtySinkHelper.regexReplace(pattern, DirtyType.BATCH_LOAD_ERROR, "mock message", identifier);
+        String answer = DirtySinkHelper.regexReplace(pattern, DirtyType.BATCH_LOAD_ERROR, "mock message", identifier[0],
+                identifier[1], null);
         Assert.assertEquals("yizhouyang-table2-mock message", answer);
     }
 }
