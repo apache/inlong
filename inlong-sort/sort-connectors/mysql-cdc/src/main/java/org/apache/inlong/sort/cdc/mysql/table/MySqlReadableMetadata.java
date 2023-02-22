@@ -517,7 +517,7 @@ public enum MySqlReadableMetadata {
                 break;
             default:
                 throw new IllegalStateException("the record only have states in DELETE, "
-                    + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
+                        + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
         }
         return opType;
     }
