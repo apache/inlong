@@ -65,6 +65,10 @@ public class JobProfileDto {
      */
     public static final String ORACLE_SOURCE = "org.apache.inlong.agent.plugin.sources.OracleSource";
     /**
+     * redis source
+     */
+    public static final String REDIS_SOURCE = "org.apache.inlong.agent.plugin.sources.RedisSource";
+    /**
      * mqtt source
      */
     public static final String MQTT_SOURCE = "org.apache.inlong.agent.plugin.sources.MqttSource";
@@ -213,6 +217,22 @@ public class JobProfileDto {
         postgreSQLJob.setPrimaryKey(config.getPrimaryKey());
 
         return postgreSQLJob;
+    }
+
+    private static RedisJob getRedisJob(DataConfig dataConfig) {
+        RedisJob.RedisJobConfig config = GSON.fromJson(dataConfig.getExtParams(), RedisJob.RedisJobConfig.class);
+        RedisJob redisJob = new RedisJob();
+
+        redisJob.setAuthUser(config.getUsername());
+        redisJob.setAuthPassword(config.getPassword());
+        redisJob.setHostname(config.getHostname());
+        redisJob.setPort(config.getPort());
+        redisJob.setSsl(config.getSsl());
+        redisJob.setReadTimeout(config.getTimeout());
+        redisJob.setQueueSize(config.getQueueSize());
+        redisJob.setReplId(config.getReplId());
+
+        return redisJob;
     }
 
     private static MongoJob getMongoJob(DataConfig dataConfigs) {
@@ -440,6 +460,12 @@ public class JobProfileDto {
                 job.setSource(MONGO_SOURCE);
                 profileDto.setJob(job);
                 break;
+            case REDIS:
+                RedisJob redisJob = getRedisJob(dataConfig);
+                job.setRedisJob(redisJob);
+                job.setSource(REDIS_SOURCE);
+                profileDto.setJob(job);
+                break;
             case MQTT:
                 MqttJob mqttJob = getMqttJob(dataConfig);
                 job.setMqttJob(mqttJob);
@@ -481,6 +507,7 @@ public class JobProfileDto {
         private PostgreSQLJob postgreSQLJob;
         private OracleJob oracleJob;
         private MongoJob mongoJob;
+        private RedisJob redisJob;
         private MqttJob mqttJob;
         private SqlServerJob sqlserverJob;
     }
