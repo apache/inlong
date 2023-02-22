@@ -118,12 +118,20 @@
         from stream_source
         <where>
             is_deleted = 0
-            and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
+            <if test="request.inlongGroupId != null and request.inlongGroupId != ''">
+                and inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
+            </if>
             <if test="request.inlongStreamId != null and request.inlongStreamId != ''">
                 and inlong_stream_id = #{request.inlongStreamId, jdbcType=VARCHAR}
             </if>
             <if test="request.sourceType != null and request.sourceType != ''">
                 and source_type = #{request.sourceType, jdbcType=VARCHAR}
+            </if>
+            <if test="request.dataNodeName != null and request.dataNodeName != ''">
+                and data_node_name = #{request.dataNodeName, jdbcType=VARCHAR}
+            </if>
+            <if test="request.inlongClusterName != null and request.inlongClusterName != ''">
+                and inlong_cluster_name = #{request.inlongClusterName, jdbcType=VARCHAR}
             </if>
             <if test="request.keyword != null and request.keyword != ''">
                 and (
