@@ -42,7 +42,7 @@ public class GenericDorisSinkFunction<T> extends RichSinkFunction<T>
 
     private final DorisOutputFormat outputFormat;
 
-    public GenericDorisSinkFunction(@Nonnull DorisDynamicSchemaOutputFormat<T> outputFormat) {
+    public GenericDorisSinkFunction(@Nonnull DorisOutputFormat<T> outputFormat) {
         this.outputFormat = Preconditions.checkNotNull(outputFormat);
     }
 

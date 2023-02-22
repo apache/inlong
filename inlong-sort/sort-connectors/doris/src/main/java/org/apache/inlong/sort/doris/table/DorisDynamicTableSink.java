@@ -27,6 +27,7 @@ import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.doris.internal.DorisOutputFormat;
 import org.apache.inlong.sort.doris.internal.GenericDorisSinkFunction;
 
 import javax.annotation.Nullable;
@@ -94,6 +95,17 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     @SuppressWarnings({"unchecked"})
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
+        DorisOutputFormat dorisOutputFormat;
+        if(multipleSink) {
+            dorisOutputFormat = buildMultipleFormat();
+        } else {
+            dorisOutputFormat = buildSingleFormat();
+        }
+        return SinkFunctionProvider.of(
+                new GenericDorisSinkFunction<>(dorisOutputFormat), parallelism);
+    }
+
+    private DorisDynamicSchemaOutputFormat buildMultipleFormat() {
         DorisDynamicSchemaOutputFormat.Builder builder = DorisDynamicSchemaOutputFormat.builder()
                 .setFenodes(options.getFenodes())
                 .setUsername(options.getUsername())
@@ -114,8 +126,27 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                 .setIgnoreSingleTableErrors(ignoreSingleTableErrors)
                 .setDirtyOptions(dirtyOptions)
                 .setDirtySink(dirtySink);
-        return SinkFunctionProvider.of(
-                new GenericDorisSinkFunction<>(builder.build()), parallelism);
+        return builder.build();
+    }
+
+    private DorisSingleOutputFormat buildSingleFormat() {
+        DorisSingleOutputFormat.Builder builder = DorisSingleOutputFormat.builder()
+                .setFenodes(options.getFenodes())
+                .setUsername(options.getUsername())
+                .setPassword(options.getPassword())
+                .setReadOptions(readOptions)
+                .setExecutionOptions(executionOptions)
+                .setInlongMetric(inlongMetric)
+                .setAuditHostAndPorts(auditHostAndPorts)
+                .setTableIdentifier(options.getTableIdentifier())
+                .setFieldDataTypes(tableSchema.getFieldDataTypes())
+                .setFieldNames(tableSchema.getFieldNames())
+                .setInlongMetric(inlongMetric)
+                .setAuditHostAndPorts(auditHostAndPorts)
+                .setIgnoreSingleTableErrors(ignoreSingleTableErrors)
+                .setDirtyOptions(dirtyOptions)
+                .setDirtySink(dirtySink);
+        return builder.build();
     }
 
     @Override

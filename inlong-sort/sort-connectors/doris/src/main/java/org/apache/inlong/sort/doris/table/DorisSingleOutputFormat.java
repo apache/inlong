@@ -17,13 +17,13 @@
 
 package org.apache.inlong.sort.doris.table;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.doris.flink.cfg.DorisExecutionOptions;
 import org.apache.doris.flink.cfg.DorisOptions;
 import org.apache.doris.flink.cfg.DorisReadOptions;
 import org.apache.doris.flink.exception.DorisException;
 import org.apache.doris.flink.rest.RestService;
 import org.apache.doris.flink.rest.models.Schema;
-import org.apache.doris.flink.table.DorisDynamicOutputFormat.Builder;
 import org.apache.doris.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.api.common.state.ListState;
@@ -46,6 +46,8 @@ import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.doris.internal.DorisOutputFormat;
+import org.apache.inlong.sort.doris.model.RespContent;
+import org.apache.inlong.sort.doris.table.DorisDynamicSchemaOutputFormat.Builder;
 import org.apache.inlong.sort.doris.util.DorisParseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,14 +88,6 @@ public class DorisSingleOutputFormat<T> extends RichOutputFormat<T> implements D
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String COLUMNS_KEY = "columns";
     private static final String DORIS_DELETE_SIGN = "__DORIS_DELETE_SIGN__";
-    /**
-     * Mark the record for delete
-     */
-    private static final String DORIS_DELETE_TRUE = "1";
-    /**
-     * Mark the record for not delete
-     */
-    private static final String DORIS_DELETE_FALSE = "0";
     private static final String FIELD_DELIMITER_KEY = "column_separator";
     private static final String FIELD_DELIMITER_DEFAULT = "\t";
     private static final String LINE_DELIMITER_KEY = "line_delimiter";
@@ -133,6 +127,7 @@ public class DorisSingleOutputFormat<T> extends RichOutputFormat<T> implements D
     private volatile RowData.FieldGetter[] fieldGetters;
     private String fieldDelimiter;
     private String lineDelimiter;
+    private final String tableIdentifier;
     private final LogicalType[] logicalTypes;
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
@@ -140,6 +135,7 @@ public class DorisSingleOutputFormat<T> extends RichOutputFormat<T> implements D
     public DorisSingleOutputFormat(DorisOptions option,
             DorisReadOptions readOptions,
             DorisExecutionOptions executionOptions,
+            String tableIdentifier,
             LogicalType[] logicalTypes,
             String[] fieldNames,
             boolean ignoreSingleTableErrors,
@@ -150,6 +146,7 @@ public class DorisSingleOutputFormat<T> extends RichOutputFormat<T> implements D
         this.options = option;
         this.readOptions = readOptions;
         this.executionOptions = executionOptions;
+        this.tableIdentifier = tableIdentifier;
         this.fieldNames = fieldNames;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
@@ -159,23 +156,15 @@ public class DorisSingleOutputFormat<T> extends RichOutputFormat<T> implements D
         this.dirtySink = dirtySink;
     }
 
+    public static DorisSingleOutputFormat.Builder builder() {
+        return new DorisSingleOutputFormat.Builder();
+    }
+
     /**
      * A builder used to set parameters to the output format's configuration in a fluent way.
      *
      * @return builder
      */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    private String parseKeysType() {
-        try {
-            Schema schema = RestService.getSchema(options, readOptions, LOG);
-            return schema.getKeysType();
-        } catch (DorisException e) {
-            throw new RuntimeException("Failed fetch doris table schema: " + options.getTableIdentifier());
-        }
-    }
 
     private void handleStreamLoadProp() {
         Properties props = executionOptions.getStreamLoadProp();
@@ -290,6 +279,84 @@ public class DorisSingleOutputFormat<T> extends RichOutputFormat<T> implements D
                 || batchBytes >= executionOptions.getMaxBatchBytes();
         if (valid && !flushing) {
             flush();
+        }
+    }
+
+    @Override
+    public synchronized void flush() {
+        flushing = true;
+        checkFlushException();
+        if (batch.isEmpty()) {
+            return;
+        }
+        String result = null;
+        if (jsonFormat) {
+            if (batch.get(0) instanceof String) {
+                result = batch.toString();
+            } else {
+                try {
+                    result = OBJECT_MAPPER.writeValueAsString(batch);
+                } catch (Exception e) {
+                    handleDirtyData(batch.toString(), DirtyType.DESERIALIZE_ERROR, e);
+                }
+            }
+        } else {
+            result = String.join(this.lineDelimiter, batch);
+        }
+        RespContent respContent = null;
+        for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
+            try {
+                String[] identifiers = tableIdentifier.split(".");
+                respContent = dorisStreamLoad.load(identifiers[0], identifiers[1], result);
+                try {
+                    if (null != metricData && null != respContent) {
+                        metricData.invoke(respContent.getNumberLoadedRows(), respContent.getLoadBytes());
+                    }
+                } catch (Exception e) {
+                    LOG.warn("metricData invoke get err:", e);
+                }
+                writeOutNum.addAndGet(batch.size());
+                batch.clear();
+                batchBytes = 0;
+                break;
+            } catch (Exception e) {
+                LOG.error(String.format("Flush table: %s error", tableIdentifier), e);
+                handleFlushException(respContent, result, e);
+            }
+        }
+        batchBytes = 0;
+        LOG.info("Doris sink statistics: readInNum: {}, writeOutNum: {}, errorNum: {}, ddlNum: {}",
+                readInNum.get(), writeOutNum.get(), errorNum.get(), ddlNum.get());
+        flushing = false;
+    }
+
+    private void handleFlushException(RespContent respContent, String result, Exception e) {
+        // Makesure it is a dirty data
+        if (respContent == null || StringUtils.isNotBlank(respContent.getErrorURL())) {
+            flushException = e;
+            errorNum.getAndAdd(batch.size());
+            for (Object value : batch) {
+                try {
+                    handleDirtyData(OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsString(value)),
+                            DirtyType.BATCH_LOAD_ERROR, e);
+                } catch (IOException ex) {
+                    if (!dirtyOptions.ignoreSideOutputErrors()) {
+                        throw new RuntimeException(ex);
+                    }
+                    LOG.warn("Dirty sink failed", ex);
+                }
+            }
+            if (!ignoreSingleTableErrors) {
+                throw new RuntimeException(
+                        String.format("Writing records to streamload of tableIdentifier:%s failed, the value: %s.",
+                                tableIdentifier, result),
+                        e);
+            }
+            errorTables.add(tableIdentifier);
+            LOG.warn("The tableIdentifier: {} load failed and the data will be throw away in the future"
+                    + " because the option 'sink.multiple.ignore-single-table-errors' is 'true'", tableIdentifier);
+        } else {
+            throw new RuntimeException(e);
         }
     }
 
@@ -427,6 +494,7 @@ public class DorisSingleOutputFormat<T> extends RichOutputFormat<T> implements D
         private String auditHostAndPorts;
         private DataType[] fieldDataTypes;
         private String[] fieldNames;
+        private String tableIdentifier;
         private DirtyOptions dirtyOptions;
         private DirtySink<Object> dirtySink;
 
@@ -506,8 +574,8 @@ public class DorisSingleOutputFormat<T> extends RichOutputFormat<T> implements D
                     .map(DataType::getLogicalType).toArray(LogicalType[]::new);
 
             return new DorisSingleOutputFormat(
-                    optionsBuilder.setTableIdentifier("").build(), readOptions, executionOptions,
-                    logicalTypes, fieldNames,
+                    optionsBuilder.setTableIdentifier(tableIdentifier).build(), readOptions, executionOptions,
+                    tableIdentifier, logicalTypes, fieldNames,
                     ignoreSingleTableErrors, inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
         }
     }
