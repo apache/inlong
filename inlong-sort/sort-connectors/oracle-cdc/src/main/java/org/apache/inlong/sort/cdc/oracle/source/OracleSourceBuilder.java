@@ -36,6 +36,7 @@ import org.apache.inlong.sort.cdc.base.source.jdbc.JdbcIncrementalSource;
  *
  * <p>Check the Java docs of each individual method to learn more about the settings to build a
  * {@link OracleIncrementalSource}.
+ * Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
  */
 @Internal
 public class OracleSourceBuilder<T> {

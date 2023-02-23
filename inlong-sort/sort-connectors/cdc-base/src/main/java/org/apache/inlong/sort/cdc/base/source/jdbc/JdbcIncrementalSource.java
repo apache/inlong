@@ -28,6 +28,7 @@ import org.apache.inlong.sort.cdc.base.source.IncrementalSource;
  * The basic source of Incremental Snapshot framework for JDBC datasource, it is based on FLIP-27
  * and Watermark Signal Algorithm which supports parallel reading snapshot of table and then
  * continue to capture data change by streaming reading.
+ * Copy from com.ververica:flink-cdc-base:2.3.0
  */
 public class JdbcIncrementalSource<T> extends IncrementalSource<T, JdbcSourceConfig> {
 
