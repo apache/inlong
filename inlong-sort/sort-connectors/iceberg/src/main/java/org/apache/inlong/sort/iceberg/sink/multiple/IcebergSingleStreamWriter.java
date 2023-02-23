@@ -67,7 +67,6 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private transient TaskWriter<T> writer;
     private transient int subTaskId;
     private transient int attemptId;
-    private @Nullable transient SinkMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
     private @Nullable RowType flinkRowType;
@@ -91,6 +90,10 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.dirtySink = dirtySink;
     }
 
+    public RowType getFlinkRowType() {
+        return flinkRowType;
+    }
+
     @Override
     public void open(Configuration parameters) throws Exception {
         this.subTaskId = getRuntimeContext().getIndexOfThisSubtask();
@@ -100,20 +103,6 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.taskWriterFactory.initialize(subTaskId, attemptId);
         // Initialize the task writer.
         this.writer = taskWriterFactory.create();
-
-        // Initialize metric
-        MetricOption metricOption = MetricOption.builder()
-                .withInlongLabels(inlongMetric)
-                .withInlongAudit(auditHostAndPorts)
-                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
-                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
-                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
-                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
-                .withRegisterMetric(RegisteredMetric.ALL)
-                .build();
-        if (metricOption != null) {
-            metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
-        }
     }
 
     @Override
@@ -125,37 +114,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
 
     @Override
     public void processElement(T value) throws Exception {
-        try {
-            writer.write(value);
-        } catch (Exception e) {
-            LOGGER.error(String.format("write error, raw data: %s", value), e);
-            if (!dirtyOptions.ignoreDirty()) {
-                throw e;
-            }
-            if (dirtySink != null) {
-                DirtyData.Builder<Object> builder = DirtyData.builder();
-                try {
-                    builder.setData(value)
-                            .setLabels(dirtyOptions.getLabels())
-                            .setLogTag(dirtyOptions.getLogTag())
-                            .setIdentifier(dirtyOptions.getIdentifier())
-                            .setRowType(flinkRowType)
-                            .setDirtyMessage(e.getMessage());
-                    dirtySink.invoke(builder.build());
-                    if (metricData != null) {
-                        metricData.invokeDirtyWithEstimate(value);
-                    }
-                } catch (Exception ex) {
-                    if (!dirtyOptions.ignoreSideOutputErrors()) {
-                        throw new RuntimeException(ex);
-                    }
-                    LOGGER.warn("Dirty sink failed", ex);
-                }
-            }
-        }
-        if (metricData != null) {
-            metricData.invokeWithEstimate(value == null ? "" : value);
-        }
+        writer.write(value);
     }
 
     @Override
@@ -180,10 +139,6 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
 
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
-        if (metricData != null && metricStateListState != null) {
-            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, metricData,
-                    getRuntimeContext().getIndexOfThisSubtask());
-        }
     }
 
     @Override
