@@ -28,6 +28,7 @@ public class MqttJob {
     private String serverURI;
     private String userName;
     private String password;
+    private String topic;
     private String connectionTimeOut;
     private String keepAliveInterval;
     private String qos;
@@ -41,13 +42,14 @@ public class MqttJob {
     public static class MqttJobConfig {
 
         private String serverURI;
-        private String userName;
+        private String username;
         private String password;
+        private String topic;
         private String connectionTimeOut;
         private String keepAliveInterval;
         private String qos;
         private String cleanSession;
-        private String clientIdPrefix;
+        private String clientId;
         private String queueSize;
         private String automaticReconnect;
         private String mqttVersion;

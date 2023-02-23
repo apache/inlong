@@ -343,13 +343,14 @@ public class JobProfileDto {
         MqttJob mqttJob = new MqttJob();
 
         mqttJob.setServerURI(config.getServerURI());
-        mqttJob.setUserName(config.getUserName());
+        mqttJob.setUserName(config.getUsername());
         mqttJob.setPassword(config.getPassword());
+        mqttJob.setTopic(config.getTopic());
         mqttJob.setConnectionTimeOut(config.getConnectionTimeOut());
         mqttJob.setKeepAliveInterval(config.getKeepAliveInterval());
         mqttJob.setQos(config.getQos());
         mqttJob.setCleanSession(config.getCleanSession());
-        mqttJob.setClientIdPrefix(config.getClientIdPrefix());
+        mqttJob.setClientIdPrefix(config.getClientId());
         mqttJob.setQueueSize(config.getQueueSize());
         mqttJob.setAutomaticReconnect(config.getAutomaticReconnect());
         mqttJob.setMqttVersion(config.getMqttVersion());
