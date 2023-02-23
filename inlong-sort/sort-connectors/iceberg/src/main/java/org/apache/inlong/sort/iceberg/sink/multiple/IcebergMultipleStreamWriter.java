@@ -219,8 +219,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                         .append(DELIMITER)
                         .append(Constants.TABLE_NAME).append("=").append(tableId.name());
                 IcebergSingleStreamWriter<RowData> writer = new IcebergSingleStreamWriter<>(
-                        tableId.toString(), taskWriterFactory, subWriterInlongMetric.toString(),
-                        auditHostAndPorts, flinkRowType, dirtyOptions, dirtySink);
+                        tableId.toString(), taskWriterFactory, flinkRowType);
                 writer.setup(getRuntimeContext(),
                         new CallbackCollector<>(
                                 writeResult -> collector.collect(new MultipleWriteResult(tableId, writeResult))),

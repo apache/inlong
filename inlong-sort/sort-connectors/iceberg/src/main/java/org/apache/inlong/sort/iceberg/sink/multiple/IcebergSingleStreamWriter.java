@@ -54,11 +54,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     public IcebergSingleStreamWriter(
             String fullTableName,
             TaskWriterFactory<T> taskWriterFactory,
-            String inlongMetric,
-            String auditHostAndPorts,
-            @Nullable RowType flinkRowType,
-            DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable RowType flinkRowType) {
         this.fullTableName = fullTableName;
         this.taskWriterFactory = taskWriterFactory;
         this.flinkRowType = flinkRowType;
