@@ -217,6 +217,8 @@ public class UpsertKafkaDynamicTableFactory
         // Build the dirty data side-output
         final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
         final DirtySink<String> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
+        final String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
+        final String auditHostAndPorts = tableOptions.getOptional(INLONG_AUDIT).orElse(null);
         return new KafkaDynamicSource(
                 schema.toPhysicalRowDataType(),
                 keyDecodingFormat,
@@ -231,8 +233,8 @@ public class UpsertKafkaDynamicTableFactory
                 Collections.emptyMap(),
                 0,
                 true,
-                null,
-                null,
+                inlongMetric,
+                auditHostAndPorts,
                 dirtyOptions,
                 dirtySink);
     }
