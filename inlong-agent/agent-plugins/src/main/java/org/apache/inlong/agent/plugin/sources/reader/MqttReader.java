@@ -121,7 +121,7 @@ public class MqttReader extends AbstractReader {
                     public void connectionLost(Throwable cause) {
                         LOGGER.info("the mqtt connection is lost, try to reconnect. jobId:{},serverURI:{},clientId:{}",
                                 instanceId, serverURI, clientId);
-                        LOGGER.error("mqtt connection lost , {}",cause.getMessage());
+                        LOGGER.error("mqtt connection lost , {}", cause.getMessage());
                         reconnect();
                     }
 
