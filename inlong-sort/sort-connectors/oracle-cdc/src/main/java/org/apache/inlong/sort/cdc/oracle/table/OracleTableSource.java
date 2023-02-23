@@ -20,6 +20,7 @@ package org.apache.inlong.sort.cdc.oracle.table;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 import com.ververica.cdc.connectors.base.options.StartupOptions;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +28,14 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.connector.source.ScanTableSource;
 import org.apache.flink.table.connector.source.SourceFunctionProvider;
+import org.apache.flink.table.connector.source.SourceProvider;
 import org.apache.flink.table.connector.source.abilities.SupportsReadingMetadata;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
@@ -40,9 +43,11 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.source.jdbc.JdbcIncrementalSource;
 import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumSourceFunction;
 import org.apache.inlong.sort.cdc.oracle.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.cdc.oracle.OracleSource;
+import org.apache.inlong.sort.cdc.oracle.source.OracleSourceBuilder;
 
 /**
  * A {@link DynamicTableSource} that describes how to create a Oracle binlog from a logical
@@ -63,6 +68,16 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
     private final boolean sourceMultipleEnable;
     private final String inlongMetric;
     private final String inlongAudit;
+    private final boolean enableParallelRead;
+    private final int splitSize;
+    private final int splitMetaGroupSize;
+    private final int fetchSize;
+    private final Duration connectTimeout;
+    private final int connectionPoolSize;
+    private final int connectMaxRetries;
+    private final double distributionFactorUpper;
+    private final double distributionFactorLower;
+    private final String chunkKeyColumn;
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
@@ -87,7 +102,17 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
             StartupOptions startupOptions,
             boolean sourceMultipleEnable,
             String inlongMetric,
-            String inlongAudit) {
+            String inlongAudit,
+            boolean enableParallelRead,
+            int splitSize,
+            int splitMetaGroupSize,
+            int fetchSize,
+            Duration connectTimeout,
+            int connectMaxRetries,
+            int connectionPoolSize,
+            double distributionFactorUpper,
+            double distributionFactorLower,
+            @Nullable String chunkKeyColumn) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -103,6 +128,16 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
         this.sourceMultipleEnable = sourceMultipleEnable;
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
+        this.enableParallelRead = enableParallelRead;
+        this.splitSize = splitSize;
+        this.splitMetaGroupSize = splitMetaGroupSize;
+        this.fetchSize = fetchSize;
+        this.connectTimeout = connectTimeout;
+        this.connectMaxRetries = connectMaxRetries;
+        this.connectionPoolSize = connectionPoolSize;
+        this.distributionFactorUpper = distributionFactorUpper;
+        this.distributionFactorLower = distributionFactorLower;
+        this.chunkKeyColumn = chunkKeyColumn;
     }
 
     @Override
@@ -131,24 +166,50 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                                 OracleDeserializationConverterFactory.instance())
                         .setSourceMultipleEnable(sourceMultipleEnable)
                         .build();
-        OracleSource.Builder<RowData> builder =
-                OracleSource.<RowData>builder()
-                        .hostname(hostname)
-                        .port(port)
-                        .database(database)
-                        .tableList(tableName)
-                        .schemaList(schemaName)
-                        .username(username)
-                        .password(password)
-                        .debeziumProperties(dbzProperties)
-                        .startupOptions(startupOptions)
-                        .deserializer(deserializer)
-                        .inlongMetric(inlongMetric)
-                        .inlongAudit(inlongAudit)
-                        .sourceMultipleEnable(sourceMultipleEnable);
-        DebeziumSourceFunction<RowData> sourceFunction = builder.build();
+        if (enableParallelRead) {
+            JdbcIncrementalSource<RowData> oracleChangeEventSource =
+                    OracleSourceBuilder.OracleIncrementalSource.<RowData>builder()
+                            .hostname(hostname)
+                            .port(port)
+                            .databaseList(database)
+                            .schemaList(schemaName)
+                            .tableList(tableName)
+                            .username(username)
+                            .password(password)
+                            .startupOptions(startupOptions)
+                            .deserializer(deserializer)
+                            .debeziumProperties(dbzProperties)
+                            .splitSize(splitSize)
+                            .splitMetaGroupSize(splitMetaGroupSize)
+                            .fetchSize(fetchSize)
+                            .connectTimeout(connectTimeout)
+                            .connectionPoolSize(connectionPoolSize)
+                            .connectMaxRetries(connectMaxRetries)
+                            .distributionFactorUpper(distributionFactorUpper)
+                            .distributionFactorLower(distributionFactorLower)
+                            .build();
 
-        return SourceFunctionProvider.of(sourceFunction, false);
+            return SourceProvider.of(oracleChangeEventSource);
+        } else {
+            OracleSource.Builder<RowData> builder =
+                    OracleSource.<RowData>builder()
+                            .hostname(hostname)
+                            .port(port)
+                            .database(database)
+                            .tableList(tableName)
+                            .schemaList(schemaName)
+                            .username(username)
+                            .password(password)
+                            .debeziumProperties(dbzProperties)
+                            .startupOptions(startupOptions)
+                            .deserializer(deserializer)
+                            .inlongMetric(inlongMetric)
+                            .inlongAudit(inlongAudit)
+                            .sourceMultipleEnable(sourceMultipleEnable);
+            DebeziumSourceFunction<RowData> sourceFunction = builder.build();
+
+            return SourceFunctionProvider.of(sourceFunction, false);
+        }
     }
 
     private MetadataConverter[] getMetadataConverters() {
@@ -182,7 +243,17 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                         startupOptions,
                         sourceMultipleEnable,
                         inlongMetric,
-                        inlongAudit);
+                        inlongAudit,
+                        enableParallelRead,
+                        splitSize,
+                        splitMetaGroupSize,
+                        fetchSize,
+                        connectTimeout,
+                        connectMaxRetries,
+                        connectionPoolSize,
+                        distributionFactorUpper,
+                        distributionFactorLower,
+                        chunkKeyColumn);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;
@@ -210,7 +281,17 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                 && Objects.equals(producedDataType, that.producedDataType)
                 && Objects.equals(metadataKeys, that.metadataKeys)
                 && Objects.equals(inlongMetric, that.inlongMetric)
-                && Objects.equals(inlongAudit, that.inlongAudit);
+                && Objects.equals(inlongAudit, that.inlongAudit)
+                && Objects.equals(enableParallelRead, that.enableParallelRead)
+                && Objects.equals(splitSize, that.splitSize)
+                && Objects.equals(splitMetaGroupSize, that.splitMetaGroupSize)
+                && Objects.equals(fetchSize, that.fetchSize)
+                && Objects.equals(connectTimeout, that.connectTimeout)
+                && Objects.equals(connectMaxRetries, that.connectMaxRetries)
+                && Objects.equals(connectionPoolSize, that.connectionPoolSize)
+                && Objects.equals(distributionFactorUpper, that.distributionFactorUpper)
+                && Objects.equals(distributionFactorLower, that.distributionFactorLower)
+                && Objects.equals(chunkKeyColumn, that.chunkKeyColumn);
     }
 
     @Override
@@ -229,7 +310,17 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                 producedDataType,
                 metadataKeys,
                 inlongMetric,
-                inlongAudit);
+                inlongAudit,
+                enableParallelRead,
+                splitSize,
+                splitMetaGroupSize,
+                fetchSize,
+                connectTimeout,
+                connectMaxRetries,
+                connectionPoolSize,
+                distributionFactorUpper,
+                distributionFactorLower,
+                chunkKeyColumn);
     }
 
     @Override

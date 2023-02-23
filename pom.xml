@@ -165,6 +165,7 @@
         <flink.connector.oracle.cdc.version>2.3.0</flink.connector.oracle.cdc.version>
         <flink.connector.doris.version>1.0.3</flink.connector.doris.version>
         <flink.connector.redis>1.1.0</flink.connector.redis>
+        <flink.cdc.base.version>2.3.0</flink.cdc.base.version>
 
         <curator.version>2.12.0</curator.version>
 
@@ -1045,6 +1046,12 @@
                 <groupId>com.ververica</groupId>
                 <artifactId>flink-connector-sqlserver-cdc</artifactId>
                 <version>${flink.connector.sqlserver.cdc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ververica</groupId>
+                <artifactId>flink-cdc-base</artifactId>
+                <version>${flink.cdc.base.version}</version>
             </dependency>
 
             <dependency>
