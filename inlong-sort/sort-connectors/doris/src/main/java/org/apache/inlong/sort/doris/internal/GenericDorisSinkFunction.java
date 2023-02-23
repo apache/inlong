@@ -25,7 +25,6 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.doris.table.DorisDynamicSchemaOutputFormat;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;

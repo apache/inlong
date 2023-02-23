@@ -47,7 +47,6 @@ import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.doris.internal.DorisOutputFormat;
 import org.apache.inlong.sort.doris.model.RespContent;
-import org.apache.inlong.sort.doris.table.DorisDynamicSchemaOutputFormat.Builder;
 import org.apache.inlong.sort.doris.util.DorisParseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -306,7 +305,7 @@ public class DorisSingleOutputFormat<T> extends RichOutputFormat<T> implements D
         RespContent respContent = null;
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
-                String[] identifiers = tableIdentifier.split(".");
+                String[] identifiers = tableIdentifier.split("\\.");
                 respContent = dorisStreamLoad.load(identifiers[0], identifiers[1], result);
                 try {
                     if (null != metricData && null != respContent) {
@@ -503,6 +502,7 @@ public class DorisSingleOutputFormat<T> extends RichOutputFormat<T> implements D
         }
 
         public DorisSingleOutputFormat.Builder setTableIdentifier(String tableIdentifier) {
+            this.tableIdentifier = tableIdentifier;
             this.optionsBuilder.setTableIdentifier(tableIdentifier);
             return this;
         }

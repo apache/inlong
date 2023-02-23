@@ -96,7 +96,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
         DorisOutputFormat dorisOutputFormat;
-        if(multipleSink) {
+        if (multipleSink) {
             dorisOutputFormat = buildMultipleFormat();
         } else {
             dorisOutputFormat = buildSingleFormat();
