@@ -248,11 +248,11 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                     if (dirtySink != null) {
                         DirtyData.Builder<Object> builder = DirtyData.builder();
                         try {
-                            builder.setData(data)
-                                    .setLabels(dirtyOptions.getLabels())
+                            builder.setData(data).setLabels(dirtyOptions.getLabels())
                                     .setLogTag(dirtyOptions.getLogTag())
                                     .setIdentifier(dirtyOptions.getIdentifier())
-                                    .setRowType( multipleWriters.get(tableId).getFlinkRowType())
+                                    .setRowType(multipleWriters.get(tableId)
+                                    .getFlinkRowType())
                                     .setDirtyMessage(e.getMessage());
                             dirtySink.invoke(builder.build());
                             if (sinkMetricData != null) {
