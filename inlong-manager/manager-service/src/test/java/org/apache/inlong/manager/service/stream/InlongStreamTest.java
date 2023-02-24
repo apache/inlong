@@ -33,7 +33,6 @@ public class InlongStreamTest extends ServiceBaseTest {
     @Autowired
     protected StreamSinkService streamSinkService;
 
-
     @Test
     public void testParseStreamFields() {
         String streamFieldsJson = "{\"name0\":\"string\",\"name1\":\"string\"}";
