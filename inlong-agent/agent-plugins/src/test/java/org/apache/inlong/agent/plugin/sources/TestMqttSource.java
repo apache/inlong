@@ -92,7 +92,7 @@ public class TestMqttSource {
         when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_STREAM_ID), anyString())).thenReturn("test_stream");
         when(jobProfile.get(eq(MqttSource.JOB_MQTTJOB_TOPICS), eq(StringUtils.EMPTY))).thenReturn(StringUtils.EMPTY,
                 topic1, topic2);
-
+        when(jobProfile.getInstanceId()).thenReturn("job_1");
         final MqttSource source = new MqttSource();
 
         // assert
