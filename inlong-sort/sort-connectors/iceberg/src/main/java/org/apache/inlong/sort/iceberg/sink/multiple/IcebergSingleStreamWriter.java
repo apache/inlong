@@ -166,6 +166,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
                     LOGGER.warn("Dirty sink failed", ex);
                 }
             }
+            return;
         }
         if (metricData != null) {
             metricData.invokeWithEstimate(value == null ? "" : value);
@@ -181,7 +182,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         if (this.inlongMetric != null) {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
-                            String.format("Iceberg(%s)-" + INLONG_METRIC_STATE_NAME, fullTableName),
+                            String.format(INLONG_METRIC_STATE_NAME, fullTableName),
                             TypeInformation.of(new TypeHint<MetricState>() {
                             })));
         }

@@ -282,6 +282,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                             LOG.warn("Dirty sink failed", ex);
                         }
                     }
+                    return;
                 }
 
                 if (sinkMetricData != null) {
