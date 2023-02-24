@@ -316,7 +316,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
 
         }
         if (context.isRestored()) {

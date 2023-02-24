@@ -176,7 +176,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
         // init metric state
-        if(multipleSink){
+        if (multipleSink) {
             return;
         }
         if (this.inlongMetric != null) {
