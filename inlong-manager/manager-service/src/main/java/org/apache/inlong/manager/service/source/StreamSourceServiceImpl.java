@@ -404,7 +404,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.expectNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
 
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
-        Preconditions.expectNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND,
+                ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         boolean isTemplateSource = CollectionUtils.isNotEmpty(sourceMapper.selectByTemplateId(id));
 
         SourceStatus curStatus = SourceStatus.forCode(entity.getStatus());
@@ -438,9 +439,9 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean delete(Integer id, UserInfo opInfo) {
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
-        if (entity == null) {
-            return true;
-        }
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND,
+                ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
+
         // Check if it can be added
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(entity.getInlongGroupId());
         if (groupEntity == null) {

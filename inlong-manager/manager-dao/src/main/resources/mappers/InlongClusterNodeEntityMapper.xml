@@ -77,7 +77,8 @@
         select
         <include refid="Base_Column_List"/>
         from inlong_cluster_node
-        where id = #{id,jdbcType=INTEGER}
+        where is_deleted = 0
+        and id = #{id,jdbcType=INTEGER}
     </select>
     <select id="selectByUniqueKey" parameterType="org.apache.inlong.manager.pojo.cluster.ClusterRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
