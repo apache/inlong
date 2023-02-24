@@ -42,6 +42,8 @@ import org.apache.iceberg.util.PropertyUtil;
 import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.dirty.DirtyData;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
@@ -106,7 +108,6 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
     private transient MetricState metricState;
     private transient ListState<MetricState> metricStateListState;
     private transient RuntimeContext runtimeContext;
-
 
     public IcebergMultipleStreamWriter(
             boolean appendMode,
@@ -219,7 +220,8 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                         .append(DELIMITER)
                         .append(Constants.TABLE_NAME).append("=").append(tableId.name());
                 IcebergSingleStreamWriter<RowData> writer = new IcebergSingleStreamWriter<>(
-                        tableId.toString(), taskWriterFactory, flinkRowType);
+                        tableId.toString(), taskWriterFactory, subWriterInlongMetric.toString(),
+                        auditHostAndPorts, flinkRowType, dirtyOptions, dirtySink, true);
                 writer.setup(getRuntimeContext(),
                         new CallbackCollector<>(
                                 writeResult -> collector.collect(new MultipleWriteResult(tableId, writeResult))),
@@ -247,15 +249,30 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                     if (dirtySink != null) {
                         DirtyData.Builder<Object> builder = DirtyData.builder();
                         try {
-                            builder.setData(data).setLabels(dirtyOptions.getLabels())
-                                    .setLogTag(dirtyOptions.getLogTag())
-                                    .setIdentifier(dirtyOptions.getIdentifier())
-                                    .setRowType(multipleWriters.get(tableId)
-                                    .getFlinkRowType())
+                            String dataBaseName = tableId.namespace().toString();
+                            String tableName = tableId.name();
+                            String dirtyLabel = DirtySinkHelper.regexReplace(dirtyOptions.getLabels(),
+                                    DirtyType.BATCH_LOAD_ERROR, null,
+                                    dataBaseName, tableName, null);
+                            String dirtyLogTag =
+                                    DirtySinkHelper.regexReplace(dirtyOptions.getLogTag(),
+                                            DirtyType.BATCH_LOAD_ERROR, null,
+                                            dataBaseName, tableName, null);
+                            String dirtyIdentifier =
+                                    DirtySinkHelper.regexReplace(dirtyOptions.getIdentifier(),
+                                            DirtyType.BATCH_LOAD_ERROR, null,
+                                            dataBaseName, tableName, null);
+                            builder.setData(data)
+                                    .setLabels(dirtyLabel)
+                                    .setLogTag(dirtyLogTag)
+                                    .setIdentifier(dirtyIdentifier)
+                                    .setRowType(multipleWriters.get(tableId).getFlinkRowType())
                                     .setDirtyMessage(e.getMessage());
                             dirtySink.invoke(builder.build());
                             if (sinkMetricData != null) {
-                                sinkMetricData.invokeDirtyWithEstimate(data);
+                                long size = data.toString().getBytes(StandardCharsets.UTF_8).length;
+                                sinkMetricData.outputDirtyMetricsWithEstimate(dataBaseName,
+                                        tableName, 1, size);
                             }
                         } catch (Exception ex) {
                             if (!dirtyOptions.ignoreSideOutputErrors()) {

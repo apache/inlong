@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import org.apache.flink.api.common.state.ListState;
+import org.apache.flink.api.common.state.ListStateDescriptor;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
@@ -26,13 +30,25 @@ import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.io.TaskWriter;
 import org.apache.iceberg.io.WriteResult;
 import org.apache.iceberg.relocated.com.google.common.base.MoreObjects;
+import org.apache.inlong.sort.base.dirty.DirtyData;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
 public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, WriteResult>
         implements
@@ -44,20 +60,39 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private static final long serialVersionUID = 1L;
 
     private final String fullTableName;
+    private final String inlongMetric;
+    private final String auditHostAndPorts;
     private TaskWriterFactory<T> taskWriterFactory;
 
     private transient TaskWriter<T> writer;
     private transient int subTaskId;
     private transient int attemptId;
+    private @Nullable transient SinkMetricData metricData;
+    private transient ListState<MetricState> metricStateListState;
+    private transient MetricState metricState;
     private @Nullable RowType flinkRowType;
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
+
+    private boolean multipleSink;
 
     public IcebergSingleStreamWriter(
             String fullTableName,
             TaskWriterFactory<T> taskWriterFactory,
-            @Nullable RowType flinkRowType) {
+            String inlongMetric,
+            String auditHostAndPorts,
+            @Nullable RowType flinkRowType,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink,
+            boolean multipleSink) {
         this.fullTableName = fullTableName;
         this.taskWriterFactory = taskWriterFactory;
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
         this.flinkRowType = flinkRowType;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
+        this.multipleSink = multipleSink;
     }
 
     public RowType getFlinkRowType() {
@@ -73,6 +108,22 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.taskWriterFactory.initialize(subTaskId, attemptId);
         // Initialize the task writer.
         this.writer = taskWriterFactory.create();
+
+        // Initialize metric
+        if (!multipleSink) {
+            MetricOption metricOption = MetricOption.builder()
+                    .withInlongLabels(inlongMetric)
+                    .withInlongAudit(auditHostAndPorts)
+                    .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
+                    .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                    .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                    .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
+                    .withRegisterMetric(RegisteredMetric.ALL)
+                    .build();
+            if (metricOption != null) {
+                metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
+            }
+        }
     }
 
     @Override
@@ -84,11 +135,60 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
 
     @Override
     public void processElement(T value) throws Exception {
-        writer.write(value);
+        try {
+            writer.write(value);
+        } catch (Exception e) {
+            if (multipleSink) {
+                throw e;
+            }
+
+            LOGGER.error(String.format("write error, raw data: %s", value), e);
+            if (!dirtyOptions.ignoreDirty()) {
+                throw e;
+            }
+            if (dirtySink != null) {
+                DirtyData.Builder<Object> builder = DirtyData.builder();
+                try {
+                    builder.setData(value)
+                            .setLabels(dirtyOptions.getLabels())
+                            .setLogTag(dirtyOptions.getLogTag())
+                            .setIdentifier(dirtyOptions.getIdentifier())
+                            .setRowType(flinkRowType)
+                            .setDirtyMessage(e.getMessage());
+                    dirtySink.invoke(builder.build());
+                    if (metricData != null) {
+                        metricData.invokeDirtyWithEstimate(value);
+                    }
+                } catch (Exception ex) {
+                    if (!dirtyOptions.ignoreSideOutputErrors()) {
+                        throw new RuntimeException(ex);
+                    }
+                    LOGGER.warn("Dirty sink failed", ex);
+                }
+            }
+        }
+        if (metricData != null) {
+            metricData.invokeWithEstimate(value == null ? "" : value);
+        }
     }
 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
+        // init metric state
+        if(multipleSink){
+            return;
+        }
+        if (this.inlongMetric != null) {
+            this.metricStateListState = context.getOperatorStateStore().getUnionListState(
+                    new ListStateDescriptor<>(
+                            String.format("Iceberg(%s)-" + INLONG_METRIC_STATE_NAME, fullTableName),
+                            TypeInformation.of(new TypeHint<MetricState>() {
+                            })));
+        }
+        if (context.isRestored()) {
+            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
+                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
+        }
     }
 
     public void setFlinkRowType(@Nullable RowType flinkRowType) {
@@ -97,6 +197,10 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
 
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
+        if (metricData != null && metricStateListState != null) {
+            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, metricData,
+                    getRuntimeContext().getIndexOfThisSubtask());
+        }
     }
 
     @Override
