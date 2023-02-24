@@ -218,7 +218,7 @@ public class MySQLSinkDTO {
      * @return str without sensitive param
      */
     @VisibleForTesting
-    protected static String filterSensitive(String url) {
+    public static String filterSensitive(String url) {
         if (StringUtils.isBlank(url)) {
             return url;
         }
