@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +78,6 @@ public class MySQLDataNodeDTO {
         if (StringUtils.isNotBlank(jdbcUrl) && !jdbcUrl.startsWith(MYSQL_JDBC_PREFIX)) {
             jdbcUrl = MYSQL_JDBC_PREFIX + jdbcUrl;
         }
-        return jdbcUrl;
+        return MySQLSinkDTO.filterSensitive(jdbcUrl);
     }
 }
