@@ -312,10 +312,8 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     public Boolean deleteByKey(String name, String type, String operator) {
         DataNodeEntity entity = dataNodeMapper.selectByUniqueKey(name, type);
-        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
-            LOGGER.error("data node not found or was already deleted for name={}", name);
-            return false;
-        }
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.DATA_NODE_NOT_FOUND,
+                ErrorCodeEnum.DATA_NODE_NOT_FOUND.getMessage());
         return delete(entity, operator);
     }
 
