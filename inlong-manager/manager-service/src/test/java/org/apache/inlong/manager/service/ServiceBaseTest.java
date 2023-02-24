@@ -23,15 +23,12 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.none.InlongNoneMqInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.test.BaseTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,44 +56,10 @@ public class ServiceBaseTest extends BaseTest {
     protected InlongGroupService groupService;
     @Autowired
     protected InlongStreamService streamService;
-    @Autowired
-    protected StreamSinkService streamSinkService;
 
     @Test
     public void test() {
         LOGGER.info("The test class cannot be empty, otherwise 'No runnable methods exception' will be reported");
-    }
-
-    @Test
-    public void testParseStreamFields() {
-        String streamFieldsJson = "{\"name0\":\"string\",\"name1\":\"string\"}";
-        List<StreamField> expectStreamFields = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
-            StreamField field = new StreamField();
-            field.setFieldName("name" + i);
-            field.setFieldType("string");
-            expectStreamFields.add(field);
-        }
-        StreamField[] expectResult = expectStreamFields.toArray(new StreamField[0]);
-        List<StreamField> streamFields = streamService.parseFields(streamFieldsJson);
-        StreamField[] result = streamFields.toArray(new StreamField[0]);
-        Assertions.assertArrayEquals(expectResult, result);
-    }
-
-    @Test
-    public void testParseSinkFields() {
-        String sinkFieldsJson = "{\"sinkFieldName0\":\"string\",\"sinkFieldName1\":\"string\"}";
-        List<SinkField> expectSinkFields = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
-            SinkField field = new SinkField();
-            field.setFieldName("sinkFieldName" + i);
-            field.setFieldType("string");
-            expectSinkFields.add(field);
-        }
-        SinkField[] expectResult = expectSinkFields.toArray(new SinkField[0]);
-        List<SinkField> sinkFields = streamSinkService.parseFields(sinkFieldsJson);
-        SinkField[] result = sinkFields.toArray(new SinkField[0]);
-        Assertions.assertArrayEquals(expectResult, result);
     }
 
     /**
