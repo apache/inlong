@@ -174,11 +174,11 @@ public class MySQLSinkDTO {
             throw new IllegalArgumentException("Invalid JDBC URL: " + jdbcUrl);
         }
 
-        if (database.contains("?")) {
-            database = database.substring(0, database.indexOf("?"));
+        if (database.contains(InlongConstants.QUESTION_MARK)) {
+            database = database.substring(0, database.indexOf(InlongConstants.QUESTION_MARK));
         }
-        if (database.contains(";")) {
-            database = database.substring(0, database.indexOf(";"));
+        if (database.contains(InlongConstants.SEMICOLON)) {
+            database = database.substring(0, database.indexOf(InlongConstants.SEMICOLON));
         }
         return database;
     }
@@ -189,11 +189,11 @@ public class MySQLSinkDTO {
         }
         String pattern = "jdbc:mysql://(?<host>[a-zA-Z0-9-//.]+):(?<port>[0-9]+)?(?<ext>)";
         Pattern namePattern = Pattern.compile(pattern);
-        Matcher dateMatcher = namePattern.matcher(jdbcUrl);
+        Matcher dataMatcher = namePattern.matcher(jdbcUrl);
         StringBuilder resultUrl;
-        if (dateMatcher.find()) {
-            String host = dateMatcher.group("host");
-            String port = dateMatcher.group("port");
+        if (dataMatcher.find()) {
+            String host = dataMatcher.group("host");
+            String port = dataMatcher.group("port");
             resultUrl = new StringBuilder().append(MYSQL_JDBC_PREFIX)
                     .append(host)
                     .append(InlongConstants.COLON)
@@ -204,8 +204,8 @@ public class MySQLSinkDTO {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
                     "MySQL JDBC URL was invalid, it should like jdbc:mysql://host:port");
         }
-        if (jdbcUrl.contains("?")) {
-            resultUrl.append(jdbcUrl.substring(jdbcUrl.indexOf("?")));
+        if (jdbcUrl.contains(InlongConstants.QUESTION_MARK)) {
+            resultUrl.append(jdbcUrl.substring(jdbcUrl.indexOf(InlongConstants.QUESTION_MARK)));
         }
         return resultUrl.toString();
     }
