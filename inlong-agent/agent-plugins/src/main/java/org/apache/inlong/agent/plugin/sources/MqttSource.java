@@ -66,7 +66,7 @@ public class MqttSource extends AbstractSource {
     public List<Reader> split(JobProfile conf) {
         super.init(conf);
         String topics = conf.get(JOB_MQTTJOB_TOPICS);
-        List<Reader> readerList = null;
+        List<Reader> readerList = new ArrayList();
         if (StringUtils.isNotEmpty(topics)) {
             readerList = splitSqlJob(topics, conf.getInstanceId());
         }
