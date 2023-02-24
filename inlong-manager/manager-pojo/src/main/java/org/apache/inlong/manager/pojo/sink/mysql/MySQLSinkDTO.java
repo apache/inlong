@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sink.mysql;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -217,8 +216,7 @@ public class MySQLSinkDTO {
      * @param url str may have some sensitive params
      * @return str without sensitive param
      */
-    @VisibleForTesting
-    protected static String filterSensitive(String url) {
+    public static String filterSensitive(String url) {
         if (StringUtils.isBlank(url)) {
             return url;
         }
