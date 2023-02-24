@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sink.mysql;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
