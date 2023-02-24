@@ -62,8 +62,6 @@ public class DynamicPulsarDeserializationSchema implements PulsarDeserialization
     private final TypeInformation<RowData> producedTypeInfo;
     private final boolean upsertMode;
     private SourceMetricData sourceMetricData;
-    private String inlongMetric;
-    private String auditHostAndPorts;
 
     DynamicPulsarDeserializationSchema(
             int physicalArity,
@@ -74,8 +72,7 @@ public class DynamicPulsarDeserializationSchema implements PulsarDeserialization
             boolean hasMetadata,
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> producedTypeInfo,
-            boolean upsertMode,
-            String inlongMetric, String auditHostAndPorts) {
+            boolean upsertMode) {
         if (upsertMode) {
             Preconditions.checkArgument(
                     keyDeserialization != null && keyProjection.length > 0,
@@ -92,8 +89,6 @@ public class DynamicPulsarDeserializationSchema implements PulsarDeserialization
                 upsertMode);
         this.producedTypeInfo = producedTypeInfo;
         this.upsertMode = upsertMode;
-        this.inlongMetric = inlongMetric;
-        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     @Override

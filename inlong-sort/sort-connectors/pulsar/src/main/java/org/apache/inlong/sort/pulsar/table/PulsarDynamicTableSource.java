@@ -136,11 +136,6 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
      */
     protected final PulsarTableOptions.StartupOptions startupOptions;
 
-    /**
-     * The default value when startup timestamp is not used.
-     */
-    private static final long DEFAULT_STARTUP_TIMESTAMP_MILLIS = 0L;
-
     /** Flag to determine source mode. In upsert mode, it will keep the tombstone message. **/
     protected final boolean upsertMode;
 
@@ -269,20 +264,20 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 hasMetadata,
                 metadataConverters,
                 producedTypeInfo,
-                upsertMode,
-                inlongMetric,
-                auditHostAndPorts);
+                upsertMode);
     }
 
     private SourceFunction<RowData> createPulsarSource(
             ClientConfigurationData clientConfigurationData,
             PulsarDeserializationSchema<RowData> deserializationSchema) {
-        org.apache.flink.streaming.connectors.pulsar.FlinkPulsarSource source =
-                new org.apache.flink.streaming.connectors.pulsar.FlinkPulsarSource(
+        org.apache.inlong.sort.pulsar.FlinkPulsarSource source =
+                new org.apache.inlong.sort.pulsar.FlinkPulsarSource(
                         adminUrl,
                         clientConfigurationData,
                         deserializationSchema,
-                        properties);
+                        properties,
+                        inlongMetric,
+                        auditHostAndPorts);
 
         if (watermarkStrategy != null) {
             source.assignTimestampsAndWatermarks(watermarkStrategy);
