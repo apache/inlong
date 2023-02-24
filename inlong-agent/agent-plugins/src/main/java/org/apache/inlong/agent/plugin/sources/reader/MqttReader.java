@@ -119,9 +119,8 @@ public class MqttReader extends AbstractReader {
 
                     @Override
                     public void connectionLost(Throwable cause) {
-                        LOGGER.info("the mqtt connection is lost, try to reconnect. jobId:{},serverURI:{},clientId:{}",
-                                instanceId, serverURI, clientId);
-                        LOGGER.error("mqtt connection lost , {}", cause.getMessage());
+                        LOGGER.error("the mqtt jobId:{}, serverURI:{}, connection lost, {} ", cause.getMessage(),
+                                instanceId, serverURI);
                         reconnect();
                     }
 
@@ -134,7 +133,6 @@ public class MqttReader extends AbstractReader {
                         byte[] recordValue = message.getPayload();
                         mqttMessagesQueue.put(new DefaultMessage(recordValue, headerMap));
 
-                        LOGGER.info("the mqtt receive message: {}", new String(recordValue));
                         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
                                 System.currentTimeMillis(), 1, recordValue.length);
 
