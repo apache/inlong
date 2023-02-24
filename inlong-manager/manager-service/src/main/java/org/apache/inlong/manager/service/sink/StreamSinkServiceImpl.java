@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
@@ -30,6 +32,7 @@ import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.exceptions.JsonException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
@@ -50,6 +53,7 @@ import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
@@ -90,6 +94,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkFieldEntityMapper sinkFieldMapper;
     @Autowired
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     // To avoid circular dependencies, you cannot use @Autowired, it will be injected by AutowireCapableBeanFactory
     private InlongStreamProcessService streamProcessOperation;
@@ -681,6 +687,24 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         LOGGER.info("success to update sink after approve: {}", approveList);
         return true;
+    }
+
+    @Override
+    public List<SinkField> parseFields(String fieldsJson) {
+        try {
+            Map<String, String> fieldsMap = objectMapper.readValue(fieldsJson,
+                    new TypeReference<Map<String, String>>() {
+                    });
+            return fieldsMap.keySet().stream().map(fieldName -> {
+                SinkField field = new SinkField();
+                field.setFieldName(fieldName);
+                field.setFieldType(fieldsMap.get(fieldName));
+                return field;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            LOGGER.error("parse sink fields error", e);
+            throw new JsonException("parse sink fields error");
+        }
     }
 
     private void checkSinkRequestParams(SinkRequest request) {
