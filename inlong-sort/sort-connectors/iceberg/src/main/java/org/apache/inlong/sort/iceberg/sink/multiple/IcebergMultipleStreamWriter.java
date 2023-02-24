@@ -239,6 +239,10 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
 
         if (multipleWriters.get(tableId) != null) {
             for (RowData data : recordWithSchema.getData()) {
+                String dataBaseName = tableId.namespace().toString();
+                String tableName = tableId.name();
+                long size = data == null ? 0 : data.toString().getBytes(StandardCharsets.UTF_8).length;
+
                 try {
                     multipleWriters.get(tableId).processElement(data);
                 } catch (Exception e) {
@@ -249,8 +253,6 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                     if (dirtySink != null) {
                         DirtyData.Builder<Object> builder = DirtyData.builder();
                         try {
-                            String dataBaseName = tableId.namespace().toString();
-                            String tableName = tableId.name();
                             String dirtyLabel = DirtySinkHelper.regexReplace(dirtyOptions.getLabels(),
                                     DirtyType.BATCH_LOAD_ERROR, null,
                                     dataBaseName, tableName, null);
@@ -270,7 +272,6 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                                     .setDirtyMessage(e.getMessage());
                             dirtySink.invoke(builder.build());
                             if (sinkMetricData != null) {
-                                long size = data.toString().getBytes(StandardCharsets.UTF_8).length;
                                 sinkMetricData.outputDirtyMetricsWithEstimate(dataBaseName,
                                         tableName, 1, size);
                             }
@@ -284,9 +285,6 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                 }
 
                 if (sinkMetricData != null) {
-                    String dataBaseName = tableId.namespace().toString();
-                    String tableName = tableId.name();
-                    long size = data.toString().getBytes(StandardCharsets.UTF_8).length;
                     sinkMetricData.outputMetrics(dataBaseName, tableName, 1, size);
                 }
             }
