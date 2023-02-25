@@ -233,6 +233,9 @@ public interface InlongStreamService {
 
     /**
      * Converts a json string to a streamFields
+     *
+     * @param fieldsJson JSON string for the field information
+     * @return list of sink field
      */
     List<StreamField> parseFields(String fieldsJson);
 }

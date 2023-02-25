@@ -247,6 +247,9 @@ public interface StreamSinkService {
 
     /**
      * Converts a json string to a sinkFields
+     *
+     * @param fieldsJson JSON string for the field information
+     * @return list of sink field
      */
     List<SinkField> parseFields(String fieldsJson);
 }
