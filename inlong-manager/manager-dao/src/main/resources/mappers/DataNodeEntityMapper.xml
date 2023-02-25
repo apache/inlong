@@ -59,7 +59,8 @@
         select
         <include refid="Base_Column_List"/>
         from data_node
-        where id = #{id, jdbcType=INTEGER}
+        where is_deleted = 0
+        and id = #{id, jdbcType=INTEGER}
     </select>
     <select id="selectByUniqueKey" resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         select
