@@ -26,7 +26,7 @@
         <version>1.6.0-SNAPSHOT</version>
     </parent>
     <artifactId>audit-common</artifactId>
-    <name>Apache InLong - Audit common</name>
+    <name>Apache InLong - Audit Common</name>
 
     <dependencies>
         <dependency>
