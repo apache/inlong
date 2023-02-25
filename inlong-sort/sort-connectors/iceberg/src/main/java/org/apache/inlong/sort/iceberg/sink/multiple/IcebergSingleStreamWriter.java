@@ -74,6 +74,8 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
 
+    private boolean multipleSink;
+
     public IcebergSingleStreamWriter(
             String fullTableName,
             TaskWriterFactory<T> taskWriterFactory,
@@ -81,7 +83,8 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             String auditHostAndPorts,
             @Nullable RowType flinkRowType,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            boolean multipleSink) {
         this.fullTableName = fullTableName;
         this.taskWriterFactory = taskWriterFactory;
         this.inlongMetric = inlongMetric;
@@ -89,6 +92,11 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.flinkRowType = flinkRowType;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
+        this.multipleSink = multipleSink;
+    }
+
+    public RowType getFlinkRowType() {
+        return flinkRowType;
     }
 
     @Override
@@ -102,17 +110,19 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.writer = taskWriterFactory.create();
 
         // Initialize metric
-        MetricOption metricOption = MetricOption.builder()
-                .withInlongLabels(inlongMetric)
-                .withInlongAudit(auditHostAndPorts)
-                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
-                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
-                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
-                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
-                .withRegisterMetric(RegisteredMetric.ALL)
-                .build();
-        if (metricOption != null) {
-            metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
+        if (!multipleSink) {
+            MetricOption metricOption = MetricOption.builder()
+                    .withInlongLabels(inlongMetric)
+                    .withInlongAudit(auditHostAndPorts)
+                    .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
+                    .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                    .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                    .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
+                    .withRegisterMetric(RegisteredMetric.ALL)
+                    .build();
+            if (metricOption != null) {
+                metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
+            }
         }
     }
 
@@ -128,6 +138,10 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         try {
             writer.write(value);
         } catch (Exception e) {
+            if (multipleSink) {
+                throw e;
+            }
+
             LOGGER.error(String.format("write error, raw data: %s", value), e);
             if (!dirtyOptions.ignoreDirty()) {
                 throw e;
@@ -152,6 +166,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
                     LOGGER.warn("Dirty sink failed", ex);
                 }
             }
+            return;
         }
         if (metricData != null) {
             metricData.invokeWithEstimate(value == null ? "" : value);
@@ -161,10 +176,13 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
         // init metric state
+        if (multipleSink) {
+            return;
+        }
         if (this.inlongMetric != null) {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
-                            String.format("Iceberg(%s)-" + INLONG_METRIC_STATE_NAME, fullTableName),
+                            String.format(INLONG_METRIC_STATE_NAME, fullTableName),
                             TypeInformation.of(new TypeHint<MetricState>() {
                             })));
         }

@@ -716,7 +716,8 @@ public class FlinkSink {
                         appendMode);
 
         return new IcebergProcessOperator<>(new IcebergSingleStreamWriter<>(
-                table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts, null, dirtyOptions, dirtySink));
+                table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts,
+                null, dirtyOptions, dirtySink, false));
     }
 
 }
