@@ -29,7 +29,8 @@ keywords:
 
 # The chart version number should be incremented each time you make changes
 # to the chart and its templates.
-version: 1.6.0.1
+# x.y.z format, x.y keep same with the InLong version
+version: 1.6.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
