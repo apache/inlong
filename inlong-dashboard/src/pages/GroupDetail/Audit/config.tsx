@@ -37,7 +37,7 @@ export const timeStaticsDimList = [
   },
 ];
 
-export const auditList = ['Agent', 'DataProxy', 'Sort'].reduce((acc, item, index) => {
+const auditList = ['Agent', 'DataProxy', 'Sort'].reduce((acc, item, index) => {
   return acc.concat([
     {
       label: `${item} ${i18n.t('pages.GroupDetail.Audit.Receive')}`,
@@ -58,11 +58,18 @@ const auditMap = auditList.reduce(
   {},
 );
 
+function getAuditLabel(auditId: number, nodeType?: string) {
+  const id = +auditId;
+  const item = id >= 9 ? auditMap[id % 2 ? 7 : 8] : auditMap[id];
+  const label = item?.label || id;
+  return nodeType ? `${label}(${nodeType})` : label;
+}
+
 export const toChartData = (source, sourceDataMap) => {
   const xAxisData = Object.keys(sourceDataMap);
   return {
     legend: {
-      data: source.map(item => auditMap[item.auditId]?.label),
+      data: source.map(item => getAuditLabel(item.auditId, item.nodeType)),
     },
     tooltip: {
       trigger: 'axis',
@@ -75,7 +82,7 @@ export const toChartData = (source, sourceDataMap) => {
       type: 'value',
     },
     series: source.map(item => ({
-      name: auditMap[item.auditId]?.label,
+      name: getAuditLabel(item.auditId, item.nodeType),
       type: 'line',
       data: xAxisData.map(logTs => sourceDataMap[logTs]?.[item.auditId] || 0),
     })),
@@ -152,7 +159,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
 
 export const getTableColumns = source => {
   const data = source.map(item => ({
-    title: auditMap[item.auditId]?.label || item.auditId,
+    title: getAuditLabel(item.auditId, item.nodeType),
     dataIndex: item.auditId,
     render: text => text || 0,
   }));

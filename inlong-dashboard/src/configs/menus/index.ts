@@ -27,6 +27,7 @@ export interface MenuItemType {
   children?: MenuItemType[];
   path?: string;
   isAdmin?: boolean;
+  icon?: React.ReactNode;
 }
 
 const genMenuKey = (array: Omit<MenuItemType, 'key'>[], parentKey = ''): MenuItemType[] => {
