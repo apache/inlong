@@ -29,7 +29,6 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.exceptions.JsonException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -739,7 +738,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             }).collect(Collectors.toList());
         } catch (Exception e) {
             LOGGER.error("parse inlong stream fields error", e);
-            throw new JsonException("parse inlong stream fields error");
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    String.format("parse stream fields error : %s", e.getMessage()));
         }
     }
 
