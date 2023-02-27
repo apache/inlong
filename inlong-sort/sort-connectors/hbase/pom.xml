@@ -110,6 +110,12 @@
                                     <include>io.netty:netty-all</include>
                                     <include>com.google.protobuf:*</include>
                                     <include>io.dropwizard.metrics:metrics-core</include>
+                                    <include>com.amazonaws:*</include>
+                                    <include>com.fasterxml.jackson.core:*</include>
+                                    <include>commons-logging:commons-logging</include>
+                                    <include>org.apache.httpcomponents:*</include>
+                                    <include>software.amazon.ion:*</include>
+                                    <include>joda-time:*</include>
                                 </includes>
                                 <excludes>
                                     <exclude>org.apache.hbase:hbase-metrics*</exclude>
@@ -177,6 +183,34 @@
                                     <excludes>
                                         <exclude>org.apache.hadoop.hbase.codec.*</exclude>
                                     </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.amazonaws</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.com.amazonaws</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml.jackson.core</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.com.fasterxml.jackson.core</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.logging</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.apache.commons.logging</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.logging</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.apache.commons.logging</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.http</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.apache.http</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>software.amazon.ion</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.software.amazon.ion</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.joda.time</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.joda.time</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

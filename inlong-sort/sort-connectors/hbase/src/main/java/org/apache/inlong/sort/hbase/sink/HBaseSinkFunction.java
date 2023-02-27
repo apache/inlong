@@ -273,12 +273,16 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                         LOGGER.warn("Dirty sink failed", ex);
                     }
                 }
+                return;
             }
             try {
                 mutator.mutate(mutation);
             } catch (Exception e) {
                 failureThrowable.compareAndSet(null, e);
             }
+        } else {
+            rowSize++;
+            dataSize = dataSize + value.toString().getBytes(StandardCharsets.UTF_8).length;
         }
         // flush when the buffer number of mutations greater than the configured max size.
         if (bufferFlushMaxMutations > 0
