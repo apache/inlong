@@ -27,7 +27,7 @@
 
     <artifactId>audit-sdk</artifactId>
     <packaging>jar</packaging>
-    <name>Apache InLong - Audit Sdk</name>
+    <name>Apache InLong - Audit SDK</name>
 
     <dependencies>
         <dependency>

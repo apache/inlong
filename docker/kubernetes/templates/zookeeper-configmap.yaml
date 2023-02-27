@@ -50,6 +50,5 @@ data:
     export ZOO_MY_ID=$MY_POD_ID
     export ZOO_DATA_DIR="/data/zoo_data/"
     export ZOO_DATA_LOG_DIR="/data/zoo_log/"
-    export SERVER_JVMFLAGS="-Xmx1g -Xms1g"
     /docker-entrypoint.sh zkServer.sh start-foreground
 {{- end }}
