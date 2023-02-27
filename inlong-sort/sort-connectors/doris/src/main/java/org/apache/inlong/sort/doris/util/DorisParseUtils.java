@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.doris.util;
 
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.RowData.FieldGetter;
+import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.types.RowKind;
 
 import java.time.LocalDate;
@@ -47,6 +50,21 @@ public class DorisParseUtils {
         } else {
             throw new RuntimeException("Unrecognized row kind: " + rowKind.toString());
         }
+    }
+
+    public static FieldGetter createFieldGetter(LogicalType type, int pos) {
+        FieldGetter getter;
+        if ("DATE".equalsIgnoreCase(type.toString())) {
+            getter = row -> {
+                if (row.isNullAt(pos)) {
+                    return null;
+                }
+                return DorisParseUtils.epochToDate(row.getInt(pos));
+            };
+        } else {
+            getter = RowData.createFieldGetter(type, pos);
+        }
+        return getter;
     }
 
     /**
