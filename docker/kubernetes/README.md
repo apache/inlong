@@ -4,9 +4,15 @@
 
 - Kubernetes 1.10+
 - Helm 3.0+
+- [Flink 1.13.5](https://nightlies.apache.org/flink/flink-docs-release-1.13/docs/try-flink/local_installation/)
+- [Apache Pulsar 2.8.x](https://pulsar.apache.org/docs/en/2.8.1/standalone/)
 - A dynamic provisioner for the PersistentVolumes(`production environment`)
 
 ## Usage
+
+### Configure
+- configure the `external.pulsar` for Apache Pulsar info in `values.yaml`
+- configure the `external.flink` for Apache Flink info in `values.yaml`
 
 ### Install
 
@@ -98,7 +104,6 @@ The configuration file is [values.yaml](values.yaml), and the following tables l
 |                              `external.mysql.port`                               |      `3306`      |                                                                     External MySQL port                                                                      |
 |                            `external.mysql.username`                             |      `root`      |                                                                   External MySQL username                                                                    |
 |                            `external.mysql.password`                             |    `password`    |                                                                   External MySQL password                                                                    |
-|                            `external.pulsar.enabled`                             |     `false`      |                                        If not exists external Pulsar, InLong will use the internal TubeMQ by default                                         |
 |                           `external.pulsar.serviceUrl`                           | `localhost:6650` |                                                                 External Pulsar service URL                                                                  |
 |                            `external.pulsar.adminUrl`                            | `localhost:8080` |                                                                  External Pulsar admin URL                                                                   |
 

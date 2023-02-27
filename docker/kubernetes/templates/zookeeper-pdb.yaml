@@ -15,7 +15,8 @@
 # limitations under the License.
 #
 
-{{- if .Values.components.zookeeper }}
+# only TubeMQ need zookeeper
+{{ if eq .Values.dataproxy.mqType "tubemq" }}
 {{- if .Values.zookeeper.pdb.usePolicy }}
 {{- if .Capabilities.APIVersions.Has "policy/v1" }}
 apiVersion: policy/v1

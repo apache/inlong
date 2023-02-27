@@ -116,14 +116,24 @@ spec:
                 secretKeyRef:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
                   key: mysql-password
+            {{ if eq .Values.dataproxy.mqType "pulsar" }}
+            - name: MQ_TYPE
+              value: "pulsar"
+            - name: PULSAR_BROKER_LIST
+              value: {{ .Values.external.pulsar.serviceUrl }}
+            - name: PULSAR_AUDIT_TOPIC
+              value: "{{ .Values.external.pulsar.auditTopicName }}"
+            {{- end }}
+            {{ if eq .Values.dataproxy.mqType "tubemq" }}
+            - name: MQ_TYPE
+              value: "tubemq"
+            - name: TUBE_MASTER_LIST
+              value: "{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}"
+            {{- end }}
             - name: MANAGER_OPENAPI_IP
               value: {{ include "inlong.manager.hostname" . | quote }}
             - name: MANAGER_OPENAPI_PORT
               value: {{ .Values.manager.port | quote }}
-            - name: PULSAR_BROKER_LIST
-              value: {{ .Values.external.pulsar.serviceUrl | quote }}
-            - name: TUBE_MASTER_LIST
-              value: "{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}"
             {{- range $key, $value := .Values.audit.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}

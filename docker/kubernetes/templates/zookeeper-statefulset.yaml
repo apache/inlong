@@ -15,7 +15,8 @@
 # limitations under the License.
 #
 
-{{- if .Values.components.zookeeper }}
+# only TubeMQ need zookeeper
+{{ if eq .Values.dataproxy.mqType "tubemq" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:

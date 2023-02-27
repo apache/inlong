@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-{{- if .Values.components.tubemqServer }}
+{{ if eq .Values.dataproxy.mqType "tubemq" }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
