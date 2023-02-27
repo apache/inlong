@@ -120,7 +120,7 @@ public class MqttReader extends AbstractReader {
                     @Override
                     public void connectionLost(Throwable cause) {
                         LOGGER.error("the mqtt jobId:{}, serverURI:{}, connection lost, {} ", instanceId,
-                                serverURI, cause.getMessage());
+                                serverURI, cause);
                         reconnect();
                     }
 
