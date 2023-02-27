@@ -101,9 +101,6 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     // schema cache
     private transient Map<TableIdentifier, Schema> schemaCache;
 
-    // blacklist to filter schema update failed table
-    private transient Set<TableIdentifier> blacklist;
-
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
 
@@ -142,7 +139,6 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
 
         this.recordQueues = new HashMap<>();
         this.schemaCache = new HashMap<>();
-        this.blacklist = new HashSet<>();
 
         // Initialize metric
         MetricOption metricOption = MetricOption.builder()
@@ -186,9 +182,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             handleDirtyData(jsonNode, jsonNode, DirtyType.TABLE_IDENTIFIER_PARSE_ERROR,
                     e, TableIdentifier.of("unknow", "unknow"));
         }
-        if (blacklist.contains(tableId)) {
-            return;
-        }
+
         boolean isDDL = dynamicSchemaFormat.extractDDLFlag(jsonNode);
         if (isDDL) {
             execDDL(jsonNode, tableId);
@@ -242,7 +236,6 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
 
     @Override
     public void onProcessingTime(long timestamp) {
-        LOG.info("Black list table: {} at time {}.", blacklist, timestamp);
         processingTimeService.registerTimer(
                 processingTimeService.getCurrentProcessingTime() + HELPER_DEBUG_INTERVEL, this);
     }
@@ -313,7 +306,6 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                             } catch (Exception e) {
                                 LOG.warn("Ignore table {} schema change, old: {} new: {}.",
                                         tableId, dataSchema, latestSchema, e);
-                                blacklist.add(tableId);
                                 handleDirtyData(jsonNode, jsonNode, DirtyType.EXTRACT_ROWDATA_ERROR, e, tableId);
                             }
                             return Collections.emptyList();
@@ -418,7 +410,6 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                 canHandle = false;
             }
             if (!canHandle) {
-                blacklist.add(tableId);
                 break;
             }
         }
