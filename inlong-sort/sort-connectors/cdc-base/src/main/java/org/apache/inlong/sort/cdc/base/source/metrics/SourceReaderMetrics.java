@@ -23,6 +23,7 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
@@ -70,6 +71,15 @@ public class SourceReaderMetrics {
         if (metricOption != null) {
             sourceTableMetricData = new SourceTableMetricData(metricOption, metricGroup,
                     Arrays.asList(Constants.DATABASE_NAME, Constants.COLLECTION_NAME));
+        }
+        metricGroup.gauge("currentFetchEventTimeLag", (Gauge<Long>) this::getFetchDelay);
+        metricGroup.gauge("currentEmitEventTimeLag", (Gauge<Long>) this::getEmitDelay);
+        metricGroup.gauge("sourceIdleTime", (Gauge<Long>) this::getIdleTime);
+    }
+
+    public void registerMetrics(MetricOption metricOption, List<String> tableMetricLabelList) {
+        if (metricOption != null) {
+            sourceTableMetricData = new SourceTableMetricData(metricOption, metricGroup, tableMetricLabelList);
         }
         metricGroup.gauge("currentFetchEventTimeLag", (Gauge<Long>) this::getFetchDelay);
         metricGroup.gauge("currentEmitEventTimeLag", (Gauge<Long>) this::getEmitDelay);
