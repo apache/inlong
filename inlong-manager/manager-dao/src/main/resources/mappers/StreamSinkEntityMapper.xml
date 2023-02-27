@@ -223,6 +223,12 @@
             <if test="request.status != null and request.status != ''">
                 and status = #{request.status, jdbcType=INTEGER}
             </if>
+            <if test="request.statusList != null and request.statusList.size() > 0">
+                and status in
+                <foreach collection="request.statusList" item="status" index="index" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
+            </if>
             <if test="request.inlongClusterName != null and request.inlongClusterName != ''">
                 and inlong_cluster_name = #{request.inlongClusterName, jdbcType=VARCHAR}
             </if>

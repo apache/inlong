@@ -26,6 +26,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
+import java.util.List;
+
 /**
  * Inlong stream paging query conditions
  */
@@ -45,6 +47,9 @@ public class InlongStreamPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "status")
     private Integer status;
+
+    @ApiModelProperty(value = "Stream status list")
+    private List<Integer> statusList;
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
