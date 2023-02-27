@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 # tubemq depend on zookeeper
-FROM zookeeper:3.5
+FROM zookeeper:3.4
 # install tools for debug
 RUN apt-get update \
     && apt-get install -y net-tools vim curl procps \

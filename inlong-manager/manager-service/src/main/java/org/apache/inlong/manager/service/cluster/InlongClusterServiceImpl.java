@@ -801,10 +801,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public Boolean delete(Integer id, String operator) {
         Preconditions.expectNotNull(id, "cluster id cannot be empty");
         InlongClusterEntity entity = clusterMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
-            LOGGER.error("inlong cluster not found by id={}, or was already deleted", id);
-            return false;
-        }
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.CLUSTER_NOT_FOUND,
+                ErrorCodeEnum.CLUSTER_NOT_FOUND.getMessage());
         String message = "Current user does not have permission to delete cluster info";
         checkUser(entity, operator, message);
 
@@ -829,9 +827,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Boolean delete(Integer id, UserInfo opInfo) {
         InlongClusterEntity entity = clusterMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
-            return true;
-        }
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.CLUSTER_NOT_FOUND,
+                ErrorCodeEnum.CONSUME_NOT_FOUND.getMessage());
+
         // only the person in charges can query
         if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
@@ -877,10 +875,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public Integer saveNode(ClusterNodeRequest request, UserInfo opInfo) {
         // check cluster info
         InlongClusterEntity entity = clusterMapper.selectById(request.getParentId());
-        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND,
-                    String.format("inlong cluster not found by id=%s, or was already deleted", request.getParentId()));
-        }
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.CLUSTER_NOT_FOUND,
+                String.format("inlong cluster not found by id=%s, or was already deleted", request.getParentId()));
         // only the person in charges can query
         if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
@@ -1170,10 +1166,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public Boolean deleteNode(Integer id, String operator) {
         Preconditions.expectNotNull(id, "cluster node id cannot be empty");
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
-            LOGGER.error("inlong cluster node not found by id={}", id);
-            return false;
-        }
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.CLUSTER_NOT_FOUND);
+
         InlongClusterEntity cluster = clusterMapper.selectById(entity.getParentId());
         String message = "Current user does not have permission to delete cluster node";
         checkUser(cluster, operator, message);
@@ -1192,9 +1186,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Boolean deleteNode(Integer id, UserInfo opInfo) {
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
-            return true;
-        }
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.CLUSTER_NOT_FOUND);
         InlongClusterEntity cluster = clusterMapper.selectById(entity.getParentId());
         // only the person in charges can query
         if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {

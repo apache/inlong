@@ -83,7 +83,7 @@ class DataNodeControllerTest extends WebBaseTest {
         Assertions.assertTrue(success);
 
         DataNodeEntity dataNodeEntity = dataNodeMapper.selectById(dataNodeId);
-        Assertions.assertEquals(dataNodeEntity.getId(), dataNodeEntity.getIsDeleted());
+        Assertions.assertNull(dataNodeEntity);
     }
 
     @Test
@@ -110,7 +110,7 @@ class DataNodeControllerTest extends WebBaseTest {
         Assertions.assertTrue(success);
 
         DataNodeEntity dataNodeEntity = dataNodeMapper.selectById(dataNodeId);
-        Assertions.assertEquals(dataNodeEntity.getId(), dataNodeEntity.getIsDeleted());
+        Assertions.assertNull(dataNodeEntity);
     }
 
     @Test

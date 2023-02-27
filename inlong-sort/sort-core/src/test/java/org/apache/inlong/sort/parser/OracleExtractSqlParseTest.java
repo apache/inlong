@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -66,8 +68,10 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
                 new MetaFieldInfo("table_name", MetaField.TABLE_NAME),
                 new MetaFieldInfo("op_ts", MetaField.OP_TS),
                 new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME));
+        Map<String, String> properties = new HashMap<>();
+        properties.put("scan.incremental.snapshot.enabled", "true");
         return new OracleExtractNode("1", "oracle_input", fields,
-                null, null, "ID", "localhost",
+                null, properties, "ID", "localhost",
                 "flinkuser", "flinkpw", "xE",
                 "flinkuser", "table", 1521, null);
     }

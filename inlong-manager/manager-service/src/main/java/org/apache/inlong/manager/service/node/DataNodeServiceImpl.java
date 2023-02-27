@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.node;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -260,11 +259,8 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     public Boolean delete(Integer id, String operator) {
         DataNodeEntity entity = dataNodeMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
-            LOGGER.error("data node not found or was already deleted for id={}", id);
-            return false;
-        }
-
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.DATA_NODE_NOT_FOUND,
+                ErrorCodeEnum.DATA_NODE_NOT_FOUND.getMessage());
         return delete(entity, operator);
     }
 
@@ -275,9 +271,8 @@ public class DataNodeServiceImpl implements DataNodeService {
             throw new BusinessException(ErrorCodeEnum.PERMISSION_REQUIRED);
         }
         DataNodeEntity entity = dataNodeMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
-            return true;
-        }
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.DATA_NODE_NOT_FOUND,
+                ErrorCodeEnum.DATA_NODE_NOT_FOUND.getMessage());
         // delete record
         entity.setIsDeleted(entity.getId());
         entity.setModifier(opInfo.getName());
@@ -317,10 +312,8 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     public Boolean deleteByKey(String name, String type, String operator) {
         DataNodeEntity entity = dataNodeMapper.selectByUniqueKey(name, type);
-        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
-            LOGGER.error("data node not found or was already deleted for name={}", name);
-            return false;
-        }
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.DATA_NODE_NOT_FOUND,
+                ErrorCodeEnum.DATA_NODE_NOT_FOUND.getMessage());
         return delete(entity, operator);
     }
 

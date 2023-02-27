@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.group;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
@@ -233,9 +232,7 @@ public class InlongGroupProcessService {
      */
     public Boolean deleteProcess(String groupId, UserInfo opInfo) {
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity == null) {
-            return true;
-        }
+        Preconditions.expectNotNull(entity, ErrorCodeEnum.GROUP_NOT_FOUND, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         // only the person in charges can delete
         if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
