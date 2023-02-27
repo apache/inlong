@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -29,6 +30,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
@@ -43,6 +45,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * Inlong stream control layer
  */
@@ -50,6 +54,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 @Api(tags = "Inlong-Stream-API")
 public class InlongStreamController {
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private InlongStreamService streamService;
@@ -167,6 +174,13 @@ public class InlongStreamController {
     public Response<Boolean> delete(@RequestParam String groupId, @RequestParam String streamId) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamService.delete(groupId, streamId, username));
+    }
+
+    @RequestMapping(value = "/stream/parseFields", method = RequestMethod.POST)
+    @ApiOperation(value = "Parse inlong stream fields from JSON string")
+    @ApiImplicitParam(name = "fieldsJson", dataTypeClass = String.class, required = true)
+    public Response<List<StreamField>> parseFields(@RequestBody String fieldsJson) {
+        return Response.success(streamService.parseFields(fieldsJson));
     }
 
 }

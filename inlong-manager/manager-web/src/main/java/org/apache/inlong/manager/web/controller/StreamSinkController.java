@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -41,6 +42,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Stream sink control layer
@@ -113,6 +116,13 @@ public class StreamSinkController {
             @RequestParam String groupId, @RequestParam String streamId, @RequestParam String name) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(sinkService.deleteByKey(groupId, streamId, name, startProcess, username));
+    }
+
+    @RequestMapping(value = "/sink/parseFields", method = RequestMethod.POST)
+    @ApiOperation(value = "parse stream sink fields from JSON string")
+    @ApiImplicitParam(name = "fieldsJson", dataTypeClass = String.class, required = true)
+    public Response<List<SinkField>> parseFields(@RequestBody String fieldsJson) {
+        return Response.success(sinkService.parseFields(fieldsJson));
     }
 
 }

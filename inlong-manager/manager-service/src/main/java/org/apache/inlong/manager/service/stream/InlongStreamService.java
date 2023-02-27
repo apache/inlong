@@ -23,6 +23,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
 import java.util.List;
@@ -101,7 +102,7 @@ public interface InlongStreamService {
      * Query inlong stream brief info list
      *
      * @param request query request
-     * @param opInfo  userinfo of operator
+     * @param opInfo userinfo of operator
      * @return inlong stream brief list
      */
     List<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request, UserInfo opInfo);
@@ -230,4 +231,11 @@ public interface InlongStreamService {
      */
     void logicDeleteDlqOrRlq(String bid, String topicName, String operator);
 
+    /**
+     * Converts a json string to a streamFields
+     *
+     * @param fieldsJson JSON string for the field information
+     * @return list of stream field
+     */
+    List<StreamField> parseFields(String fieldsJson);
 }

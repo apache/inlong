@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
@@ -90,6 +92,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkFieldEntityMapper sinkFieldMapper;
     @Autowired
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     // To avoid circular dependencies, you cannot use @Autowired, it will be injected by AutowireCapableBeanFactory
     private InlongStreamProcessService streamProcessOperation;
@@ -681,6 +685,25 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         LOGGER.info("success to update sink after approve: {}", approveList);
         return true;
+    }
+
+    @Override
+    public List<SinkField> parseFields(String fieldsJson) {
+        try {
+            Map<String, String> fieldsMap = objectMapper.readValue(fieldsJson,
+                    new TypeReference<Map<String, String>>() {
+                    });
+            return fieldsMap.keySet().stream().map(fieldName -> {
+                SinkField field = new SinkField();
+                field.setFieldName(fieldName);
+                field.setFieldType(fieldsMap.get(fieldName));
+                return field;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            LOGGER.error("parse sink fields error", e);
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    String.format("parse sink fields error : %s", e.getMessage()));
+        }
     }
 
     private void checkSinkRequestParams(SinkRequest request) {

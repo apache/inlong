@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.stream;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -94,6 +96,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     private StreamSourceService sourceService;
     @Autowired
     private StreamSinkService sinkService;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Transactional(rollbackFor = Throwable.class)
 
@@ -718,6 +722,25 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     public void logicDeleteDlqOrRlq(String groupId, String topicName, String operator) {
         streamMapper.logicDeleteDlqOrRlq(groupId, topicName, operator);
         LOGGER.info("success to logic delete dlq or rlq by groupId={}, topicName={}", groupId, topicName);
+    }
+
+    @Override
+    public List<StreamField> parseFields(String fieldsJson) {
+        try {
+            Map<String, String> fieldsMap = objectMapper.readValue(fieldsJson,
+                    new TypeReference<Map<String, String>>() {
+                    });
+            return fieldsMap.keySet().stream().map(fieldName -> {
+                StreamField field = new StreamField();
+                field.setFieldName(fieldName);
+                field.setFieldType(fieldsMap.get(fieldName));
+                return field;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            LOGGER.error("parse inlong stream fields error", e);
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    String.format("parse stream fields error : %s", e.getMessage()));
+        }
     }
 
     /**
