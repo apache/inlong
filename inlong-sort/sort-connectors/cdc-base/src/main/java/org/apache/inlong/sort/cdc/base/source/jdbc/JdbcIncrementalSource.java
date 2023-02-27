@@ -17,12 +17,12 @@
 
 package org.apache.inlong.sort.cdc.base.source.jdbc;
 
-import com.ververica.cdc.connectors.base.config.JdbcSourceConfig;
-import com.ververica.cdc.connectors.base.config.JdbcSourceConfigFactory;
-import com.ververica.cdc.connectors.base.dialect.JdbcDataSourceDialect;
-import com.ververica.cdc.connectors.base.source.meta.offset.OffsetFactory;
+import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
+import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfigFactory;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.dialect.JdbcDataSourceDialect;
 import org.apache.inlong.sort.cdc.base.source.IncrementalSource;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
 
 /**
  * The basic source of Incremental Snapshot framework for JDBC datasource, it is based on FLIP-27
