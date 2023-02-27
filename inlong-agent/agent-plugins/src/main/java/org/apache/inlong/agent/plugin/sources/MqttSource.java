@@ -41,12 +41,12 @@ public class MqttSource extends AbstractSource {
 
     private static final String JOB_MQTTJOB_CLIENTID = "";
 
-    public static final String JOB_MQTTJOB_TOPICS = "job.mqttJob.topics";
+    public static final String JOB_MQTTJOB_TOPICS = "job.mqttJob.topic";
 
     public MqttSource() {
     }
 
-    private List<Reader> splitSqlJob(String topics) {
+    private List<Reader> splitSqlJob(String topics, String instanceId) {
         if (StringUtils.isEmpty(topics)) {
             return null;
         }
@@ -54,7 +54,9 @@ public class MqttSource extends AbstractSource {
         String[] topicList = topics.split(CommonConstants.COMMA);
         if (Objects.nonNull(topicList)) {
             Arrays.stream(topicList).forEach(topic -> {
-                result.add(new MqttReader(topic));
+                MqttReader mqttReader = new MqttReader(topic);
+                mqttReader.setReadSource(instanceId);
+                result.add(mqttReader);
             });
         }
         return result;
@@ -66,7 +68,7 @@ public class MqttSource extends AbstractSource {
         String topics = conf.get(JOB_MQTTJOB_TOPICS, StringUtils.EMPTY);
         List<Reader> readerList = null;
         if (StringUtils.isNotEmpty(topics)) {
-            readerList = splitSqlJob(topics);
+            readerList = splitSqlJob(topics, conf.getInstanceId());
         }
         if (CollectionUtils.isNotEmpty(readerList)) {
             sourceMetric.sourceSuccessCount.incrementAndGet();

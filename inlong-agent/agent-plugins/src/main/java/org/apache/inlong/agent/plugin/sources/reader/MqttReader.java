@@ -20,6 +20,7 @@ package org.apache.inlong.agent.plugin.sources.reader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -43,6 +44,7 @@ public class MqttReader extends AbstractReader {
     public static final String JOB_MQTT_USERNAME = "job.mqttJob.userName";
     public static final String JOB_MQTT_PASSWORD = "job.mqttJob.password";
     public static final String JOB_MQTT_SERVER_URI = "job.mqttJob.serverURI";
+    public static final String JOB_MQTT_TOPIC = "job.mqttJob.topic";
     public static final String JOB_MQTT_CONNECTION_TIMEOUT = "job.mqttJob.connectionTimeOut";
     public static final String JOB_MQTT_KEEPALIVE_INTERVAL = "job.mqttJob.keepAliveInterval";
     public static final String JOB_MQTT_QOS = "job.mqttJob.qos";
@@ -89,6 +91,7 @@ public class MqttReader extends AbstractReader {
         userName = jobConf.get(JOB_MQTT_USERNAME);
         password = jobConf.get(JOB_MQTT_PASSWORD);
         serverURI = jobConf.get(JOB_MQTT_SERVER_URI);
+        topic = jobConf.get(JOB_MQTT_TOPIC);
         clientId = jobConf.get(JOB_MQTT_CLIENT_ID_PREFIX, "mqtt_client") + "_" + UUID.randomUUID();
         cleanSession = jobConf.getBoolean(JOB_MQTT_CLEAN_SESSION, false);
         automaticReconnect = jobConf.getBoolean(JOB_MQTT_AUTOMATIC_RECONNECT, true);
@@ -116,8 +119,8 @@ public class MqttReader extends AbstractReader {
 
                     @Override
                     public void connectionLost(Throwable cause) {
-                        LOGGER.info("the mqtt connection is lost, try to reconnect. jobId:{},serverURI:{},clientId:{}",
-                                instanceId, serverURI, clientId);
+                        LOGGER.error("the mqtt jobId:{}, serverURI:{}, connection lost, {} ", instanceId,
+                                serverURI, cause);
                         reconnect();
                     }
 
@@ -130,7 +133,8 @@ public class MqttReader extends AbstractReader {
                         byte[] recordValue = message.getPayload();
                         mqttMessagesQueue.put(new DefaultMessage(recordValue, headerMap));
 
-                        LOGGER.debug("the mqtt receive message: {}", new String(recordValue));
+                        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
+                                System.currentTimeMillis(), 1, recordValue.length);
 
                         readerMetric.pluginReadSuccessCount.incrementAndGet();
                         readerMetric.pluginReadCount.incrementAndGet();
@@ -141,7 +145,7 @@ public class MqttReader extends AbstractReader {
                     }
                 });
                 client.connect(options);
-                client.subscribe(topic, 1);
+                client.subscribe(topic, qos);
             }
             LOGGER.info("the mqtt subscribe topic is [{}], qos is [{}]", topic, qos);
         } catch (Exception e) {
@@ -225,6 +229,10 @@ public class MqttReader extends AbstractReader {
             LOGGER.error("disconnect mqtt client error {}. jobId:{},serverURI:{},clientId:{}", e, instanceId, serverURI,
                     clientId);
         }
+    }
+
+    public void setReadSource(String instanceId) {
+        this.instanceId = instanceId;
     }
 
     @Override
