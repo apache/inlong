@@ -23,7 +23,9 @@ import oracle.jdbc.OracleTypes;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.types.DataType;
 
-/** Utilities for converting from oracle types to Flink types. */
+/** Utilities for converting from oracle types to Flink types.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class OracleTypeUtils {
 
     /** Returns a corresponding Flink data type from a debezium {@link Column}. */

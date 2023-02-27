@@ -17,7 +17,9 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.wartermark;
 
-/** The watermark kind. */
+/** The watermark kind.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public enum WatermarkKind {
 
     LOW,

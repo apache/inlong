@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 /**
  * An internal structure describes a chunk range with a chunk start (inclusive) and chunk end
  * (exclusive). Note that {@code null} represents unbounded chunk start/end.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class ChunkRange {
 

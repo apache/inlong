@@ -37,7 +37,9 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer;
 
-/** The {@link SimpleVersionedSerializer Serializer} for the {@link PendingSplitsState}. */
+/** The {@link SimpleVersionedSerializer Serializer} for the {@link PendingSplitsState}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<PendingSplitsState> {
 
     private static final int VERSION = 4;

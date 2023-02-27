@@ -42,6 +42,9 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Inheriting from IncrementalSourceRecordEmitter, and override the processElement method to collect metric of Oracle.
+ */
 public class OracleRecordEmitter<T> extends IncrementalSourceRecordEmitter<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(OracleRecordEmitter.class);

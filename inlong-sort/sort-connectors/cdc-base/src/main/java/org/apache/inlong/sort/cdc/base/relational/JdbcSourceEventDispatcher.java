@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
  *  2. This class override some methods for dispatching {@link HistoryRecord} directly,
  *     this is useful for downstream to deserialize the {@link HistoryRecord} back.
  * </pre>
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
 

@@ -24,7 +24,9 @@ import java.util.Objects;
 import org.apache.flink.annotation.Experimental;
 import org.apache.flink.api.connector.source.SourceSplit;
 
-/** The split of table comes from a Table that splits by primary key. */
+/** The split of table comes from a Table that splits by primary key.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 @Experimental
 public abstract class SourceSplitBase implements SourceSplit {
 

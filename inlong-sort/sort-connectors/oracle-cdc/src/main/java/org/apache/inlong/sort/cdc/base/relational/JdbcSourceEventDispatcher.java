@@ -59,6 +59,7 @@ import org.slf4j.LoggerFactory;
  * This class is a rewrite of JdbcSourceEventDispatcher in cdc-base,
  * because there is a conflict between the io-debezium-core:1.5.4-final depended on in cdc-base
  * and the io-debezium-core:1.6.4-final relied on in this module.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
 

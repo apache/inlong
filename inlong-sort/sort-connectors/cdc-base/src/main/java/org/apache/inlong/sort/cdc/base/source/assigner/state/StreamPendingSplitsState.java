@@ -19,7 +19,9 @@ package org.apache.inlong.sort.cdc.base.source.assigner.state;
 
 import java.util.Objects;
 
-/** A {@link PendingSplitsState} for pending stream splits. */
+/** A {@link PendingSplitsState} for pending stream splits.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class StreamPendingSplitsState extends PendingSplitsState {
 
     private final boolean isStreamSplitAssigned;

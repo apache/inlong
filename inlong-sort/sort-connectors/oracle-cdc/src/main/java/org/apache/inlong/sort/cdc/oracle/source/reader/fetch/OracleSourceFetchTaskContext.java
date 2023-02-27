@@ -59,7 +59,9 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** The context for fetch task that fetching data of snapshot split from Oracle data source. */
+/** The context for fetch task that fetching data of snapshot split from Oracle data source.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class OracleSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(OracleSourceFetchTaskContext.class);

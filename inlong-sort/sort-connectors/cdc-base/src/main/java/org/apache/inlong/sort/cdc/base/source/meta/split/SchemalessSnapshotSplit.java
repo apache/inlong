@@ -27,6 +27,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 /**
  * A kind of {@link SnapshotSplit} without table schema information, it is useful to reduce memory
  * usage in JobManager.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class SchemalessSnapshotSplit extends SnapshotSplit {
 

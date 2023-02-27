@@ -44,7 +44,9 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Assigner for snapshot split. */
+/** Assigner for snapshot split.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class SnapshotSplitAssigner<C extends SourceConfig> implements SplitAssigner {
 
     private static final Logger LOG = LoggerFactory.getLogger(

@@ -24,7 +24,9 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 
-/** A structure describes an offset in a redo log event. */
+/** A structure describes an offset in a redo log event.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class RedoLogOffset extends Offset {
 
     private static final long serialVersionUID = 1L;

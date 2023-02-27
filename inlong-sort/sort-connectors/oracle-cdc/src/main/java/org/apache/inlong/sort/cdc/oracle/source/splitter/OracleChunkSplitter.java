@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The {@code ChunkSplitter} used to split Oracle table into a set of chunks for JDBC data source.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
  */
 public class OracleChunkSplitter implements JdbcSourceChunkSplitter {
 

@@ -21,7 +21,9 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 
-/** A connection pool factory to create pooled DataSource {@link HikariDataSource}. */
+/** A connection pool factory to create pooled DataSource {@link HikariDataSource}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public abstract class JdbcConnectionPoolFactory {
 
     public static final String CONNECTION_POOL_PREFIX = "connection-pool-";

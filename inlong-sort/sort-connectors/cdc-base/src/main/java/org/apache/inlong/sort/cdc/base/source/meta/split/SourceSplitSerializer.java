@@ -40,7 +40,9 @@ import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetDeserializerSeri
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
 import org.apache.inlong.sort.cdc.base.source.meta.split.MetricSplit.TableMetric;
 
-/** A serializer for the {@link SourceSplitBase}. */
+/** A serializer for the {@link SourceSplitBase}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public abstract class SourceSplitSerializer
         implements
             SimpleVersionedSerializer<SourceSplitBase>,

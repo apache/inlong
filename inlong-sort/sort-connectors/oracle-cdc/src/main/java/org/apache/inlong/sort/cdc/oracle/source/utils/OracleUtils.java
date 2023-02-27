@@ -50,7 +50,9 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
 import org.apache.kafka.connect.source.SourceRecord;
 
-/** Utils to prepare Oracle SQL statement. */
+/** Utils to prepare Oracle SQL statement.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class OracleUtils {
 
     private OracleUtils() {

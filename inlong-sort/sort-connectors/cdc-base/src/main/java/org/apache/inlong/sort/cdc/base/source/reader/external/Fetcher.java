@@ -26,6 +26,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
 /**
  * Fetcher to fetch data of a table split, the split is either snapshot split {@link SnapshotSplit}
  * or stream split {@link StreamSplit}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 @Experimental
 public interface Fetcher<T, Split> {

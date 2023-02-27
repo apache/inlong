@@ -20,7 +20,9 @@ package org.apache.inlong.sort.cdc.base.source.meta.offset;
 import java.io.Serializable;
 import java.util.Map;
 
-/** An offset factory class create {@link Offset} instance. */
+/** An offset factory class create {@link Offset} instance.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public abstract class OffsetFactory implements Serializable {
 
     private static final long serialVersionUID = 1L;

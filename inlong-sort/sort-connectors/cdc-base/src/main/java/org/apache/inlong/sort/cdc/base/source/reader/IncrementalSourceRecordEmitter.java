@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>The {@link RecordEmitter} buffers the snapshot records of split and call the stream reader to
  * emit records rather than emit the records directly.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class IncrementalSourceRecordEmitter<T>
         implements

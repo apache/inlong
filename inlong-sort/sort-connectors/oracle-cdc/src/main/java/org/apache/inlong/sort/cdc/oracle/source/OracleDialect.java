@@ -46,7 +46,9 @@ import org.apache.inlong.sort.cdc.oracle.source.splitter.OracleChunkSplitter;
 import org.apache.inlong.sort.cdc.oracle.source.utils.OracleConnectionUtils;
 import org.apache.inlong.sort.cdc.oracle.source.utils.OracleSchema;
 
-/** The {@link JdbcDataSourceDialect} implementation for Oracle datasource. */
+/** The {@link JdbcDataSourceDialect} implementation for Oracle datasource.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 @Experimental
 public class OracleDialect implements JdbcDataSourceDialect {
 

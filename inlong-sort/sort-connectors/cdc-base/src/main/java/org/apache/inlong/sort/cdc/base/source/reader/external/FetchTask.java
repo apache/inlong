@@ -30,7 +30,9 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
-/** The task to fetching data of a Split. */
+/** The task to fetching data of a Split.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 @Experimental
 public interface FetchTask<Split> {
 

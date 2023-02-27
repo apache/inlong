@@ -21,7 +21,9 @@ import com.ververica.cdc.connectors.base.options.StartupOptions;
 import java.io.Serializable;
 import org.apache.flink.annotation.Experimental;
 
-/** The source configuration which offers basic source configuration. */
+/** The source configuration which offers basic source configuration.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 @Experimental
 public interface SourceConfig extends Serializable {
 

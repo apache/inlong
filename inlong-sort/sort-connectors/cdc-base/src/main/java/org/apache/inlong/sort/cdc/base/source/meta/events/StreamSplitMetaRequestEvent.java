@@ -26,6 +26,7 @@ import org.apache.flink.api.connector.source.SourceEvent;
  * The {@link SourceEvent} that {@link IncrementalSourceReader} sends to {@link
  * IncrementalSourceEnumerator} to pull change log metadata, i.e. sending {@link
  * StreamSplitMetaEvent}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class StreamSplitMetaRequestEvent implements SourceEvent {
 

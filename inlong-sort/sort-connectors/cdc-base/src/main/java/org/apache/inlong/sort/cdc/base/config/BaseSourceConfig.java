@@ -22,7 +22,9 @@ import com.ververica.cdc.connectors.base.source.IncrementalSource;
 import io.debezium.config.Configuration;
 import java.util.Properties;
 
-/** A basic Source configuration which is used by {@link IncrementalSource}. */
+/** A basic Source configuration which is used by {@link IncrementalSource}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public abstract class BaseSourceConfig implements SourceConfig {
 
     private static final long serialVersionUID = 1L;

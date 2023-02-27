@@ -31,7 +31,9 @@ import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 
-/** The {@code ChunkSplitter} used to split table into a set of chunks for JDBC data source. */
+/** The {@code ChunkSplitter} used to split table into a set of chunks for JDBC data source.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 @Experimental
 public interface JdbcSourceChunkSplitter extends ChunkSplitter {
 

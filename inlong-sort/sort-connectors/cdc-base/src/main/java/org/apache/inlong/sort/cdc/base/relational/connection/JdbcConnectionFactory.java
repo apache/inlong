@@ -27,7 +27,9 @@ import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** A factory to create JDBC connection. */
+/** A factory to create JDBC connection.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class JdbcConnectionFactory implements JdbcConnection.ConnectionFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcConnectionFactory.class);

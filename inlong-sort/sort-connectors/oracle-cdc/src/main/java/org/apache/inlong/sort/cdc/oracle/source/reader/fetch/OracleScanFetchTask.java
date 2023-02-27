@@ -69,7 +69,9 @@ import org.apache.kafka.connect.errors.ConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** The task to work for fetching data of Oracle table snapshot split. */
+/** The task to work for fetching data of Oracle table snapshot split.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class OracleScanFetchTask implements FetchTask<SourceSplitBase> {
 
     private final SnapshotSplit split;

@@ -35,7 +35,9 @@ import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Oracle connection Utilities. */
+/** Oracle connection Utilities.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class OracleConnectionUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(

@@ -24,6 +24,7 @@ import java.util.Map;
 
 /**
  * The split to describe a split of Mongo metric.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class MetricSplit extends SourceSplitBase {
 

@@ -30,6 +30,7 @@ import org.apache.kafka.connect.errors.ConnectException;
  * contain multiple change events, and each change event may contain multiple rows. When restart
  * from a specific {@link Offset}, we need to skip the processed change events and the processed
  * rows.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 @Experimental
 public abstract class Offset implements Comparable<Offset>, Serializable {

@@ -31,7 +31,9 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.flink.util.FlinkRuntimeException;
 
-/** A component used to get schema by table path. */
+/** A component used to get schema by table path.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class OracleSchema {
 
     private final Map<TableId, TableChange> schemasByTableId;

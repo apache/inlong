@@ -41,7 +41,9 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Basic class read {@link SourceSplitBase} and return {@link SourceRecord}. */
+/** Basic class read {@link SourceSplitBase} and return {@link SourceRecord}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 @Experimental
 public class IncrementalSourceSplitReader<C extends SourceConfig>
         implements

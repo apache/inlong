@@ -27,7 +27,8 @@ import java.util.Properties;
 
 /**
  * A Source configuration which is used by {@link IncrementalSource} which used JDBC data source.
- */
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public abstract class JdbcSourceConfig extends BaseSourceConfig {
 
     protected final String driverClassName;

@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Fetcher to fetch data from table split, the split is the snapshot split {@link SnapshotSplit}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class IncrementalSourceScanFetcher implements Fetcher<SourceRecords, SourceSplitBase> {
 

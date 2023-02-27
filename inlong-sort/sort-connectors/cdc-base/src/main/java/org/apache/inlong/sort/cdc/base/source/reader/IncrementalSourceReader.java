@@ -68,6 +68,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The multi-parallel source reader for table snapshot phase from {@link SnapshotSplit} and then
  * single-parallel source reader for table stream phase from {@link StreamSplit}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 @Experimental
 public class IncrementalSourceReader<T, C extends SourceConfig>

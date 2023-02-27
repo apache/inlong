@@ -33,6 +33,7 @@ import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
  * The dialect of data source.
  *
  * @param <C> The source config of data source.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 @Experimental
 public interface DataSourceDialect<C extends SourceConfig> extends Serializable {

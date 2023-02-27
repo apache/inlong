@@ -22,7 +22,9 @@ import com.ververica.cdc.connectors.oracle.OracleSource;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
-/** Configurations for {@link OracleSource}. */
+/** Configurations for {@link OracleSource}.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class OracleSourceOptions extends JdbcSourceOptions {
 
     public static final ConfigOption<Integer> PORT =

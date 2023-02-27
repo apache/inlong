@@ -25,7 +25,9 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 
-/** The split to describe the change log of database table(s). */
+/** The split to describe the change log of database table(s).
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class StreamSplit extends SourceSplitBase {
 
     private final Offset startingOffset;

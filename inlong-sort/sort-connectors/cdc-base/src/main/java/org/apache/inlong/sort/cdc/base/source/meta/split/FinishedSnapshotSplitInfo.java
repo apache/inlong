@@ -30,7 +30,9 @@ import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetDeserializerSerializer;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
 
-/** The information used to describe a finished snapshot split. */
+/** The information used to describe a finished snapshot split.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class FinishedSnapshotSplitInfo implements OffsetDeserializerSerializer {
 
     private static final ThreadLocal<DataOutputSerializer> SERIALIZER_CACHE =

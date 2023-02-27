@@ -41,7 +41,9 @@ import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** The task to work for fetching data of Oracle table stream split. */
+/** The task to work for fetching data of Oracle table stream split.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class OracleStreamFetchTask implements FetchTask<SourceSplitBase> {
 
     private final StreamSplit split;

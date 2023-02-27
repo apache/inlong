@@ -26,7 +26,9 @@ import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
-/** Utility class to deal Watermark event. */
+/** Utility class to deal Watermark event.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class WatermarkEvent {
 
     public static final String WATERMARK_SIGNAL = "_split_watermark_signal_";

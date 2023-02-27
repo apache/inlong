@@ -22,7 +22,9 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.kafka.connect.source.SourceRecord;
 
-/** Data structure to describe a set of {@link SourceRecord}. */
+/** Data structure to describe a set of {@link SourceRecord}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public final class SourceRecords {
 
     private final List<SourceRecord> sourceRecords;

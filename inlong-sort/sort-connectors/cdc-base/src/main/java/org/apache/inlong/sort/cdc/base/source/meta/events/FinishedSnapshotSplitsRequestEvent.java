@@ -26,6 +26,7 @@ import org.apache.flink.api.connector.source.SourceEvent;
  * The {@link SourceEvent} that {@link IncrementalSourceEnumerator} sends to {@link
  * IncrementalSourceReader} to notify reader should report its finished snapshot splits, i.e.
  * sending {@link FinishedSnapshotSplitsReportEvent}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class FinishedSnapshotSplitsRequestEvent implements SourceEvent {
 

@@ -27,7 +27,9 @@ import java.util.Properties;
 import org.apache.flink.annotation.Internal;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig.Factory;
 
-/** A {@link Factory} to provide {@link com.ververica.cdc.connectors.base.config.SourceConfig} of JDBC data source. */
+/** A {@link Factory} to provide {@link com.ververica.cdc.connectors.base.config.SourceConfig} of JDBC data source.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 @Internal
 public abstract class JdbcSourceConfigFactory implements Factory<JdbcSourceConfig> {
 

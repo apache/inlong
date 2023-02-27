@@ -35,6 +35,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.MetricSplit.TableMetric
 
 /**
  * A collection class for handling metrics in {@link SourceReaderMetrics}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class SourceReaderMetrics {
 

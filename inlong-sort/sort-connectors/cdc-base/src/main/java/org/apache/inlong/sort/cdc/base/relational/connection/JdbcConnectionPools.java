@@ -24,7 +24,9 @@ import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** A Jdbc Connection pools implementation. */
+/** A Jdbc Connection pools implementation.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class JdbcConnectionPools implements ConnectionPools<HikariDataSource, JdbcSourceConfig> {
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbcConnectionPools.class);

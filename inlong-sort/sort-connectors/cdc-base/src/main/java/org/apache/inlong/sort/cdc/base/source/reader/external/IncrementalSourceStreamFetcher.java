@@ -43,7 +43,9 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Fetcher to fetch data from table split, the split is the stream split {@link StreamSplit}. */
+/** Fetcher to fetch data from table split, the split is the stream split {@link StreamSplit}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class IncrementalSourceStreamFetcher implements Fetcher<SourceRecords, SourceSplitBase> {
 
     private static final Logger LOG = LoggerFactory.getLogger(IncrementalSourceStreamFetcher.class);

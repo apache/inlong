@@ -31,6 +31,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 /**
  * The {@code SplitAssigner} is responsible for deciding what split should be processed. It
  * determines split processing order.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 @Experimental
 public interface SplitAssigner {

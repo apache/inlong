@@ -39,7 +39,9 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Assigner for Hybrid split which contains snapshot splits and stream splits. */
+/** Assigner for Hybrid split which contains snapshot splits and stream splits.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class HybridSplitAssigner<C extends SourceConfig> implements SplitAssigner {
 
     private static final Logger LOG = LoggerFactory.getLogger(HybridSplitAssigner.class);

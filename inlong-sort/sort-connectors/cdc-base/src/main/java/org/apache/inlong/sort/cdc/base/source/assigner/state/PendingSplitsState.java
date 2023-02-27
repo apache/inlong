@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 /**
  * A checkpoint of the current state of the containing the currently pending splits that are not yet
  * assigned.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public abstract class PendingSplitsState {
 

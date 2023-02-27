@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Incremental source enumerator that enumerates receive the split request and assign the split to
  * source readers.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 @Experimental
 public class IncrementalSourceEnumerator

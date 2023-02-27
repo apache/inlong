@@ -39,7 +39,9 @@ import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
-/** The context for fetch task that fetching data of snapshot split from JDBC data source. */
+/** The context for fetch task that fetching data of snapshot split from JDBC data source.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public abstract class JdbcSourceFetchTaskContext implements FetchTask.Context {
 
     protected final JdbcSourceConfig sourceConfig;

@@ -17,7 +17,9 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.split;
 
-/** State of the reader, essentially a mutable version of the {@link SourceSplitBase}. */
+/** State of the reader, essentially a mutable version of the {@link SourceSplitBase}.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public abstract class SourceSplitState {
 
     protected final SourceSplitBase split;

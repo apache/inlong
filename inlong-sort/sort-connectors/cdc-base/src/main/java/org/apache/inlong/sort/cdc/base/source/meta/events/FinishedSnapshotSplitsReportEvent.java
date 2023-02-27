@@ -27,6 +27,7 @@ import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceReader;
  * The {@link SourceEvent} that {@link IncrementalSourceReader} sends to {@link
  * IncrementalSourceEnumerator} to notify the snapshot split has read finished with the consistent
  * change log position.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class FinishedSnapshotSplitsReportEvent implements SourceEvent {
 

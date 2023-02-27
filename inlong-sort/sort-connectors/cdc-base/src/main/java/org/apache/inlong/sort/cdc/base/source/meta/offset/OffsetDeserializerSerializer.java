@@ -30,7 +30,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.base.source.meta.split.FinishedSnapshotSplitInfo;
 
-/** read {@link Offset} from input stream and write {@link Offset} to output stream. */
+/** read {@link Offset} from input stream and write {@link Offset} to output stream.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public interface OffsetDeserializerSerializer extends Serializable {
 
     OffsetFactory getOffsetFactory();

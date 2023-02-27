@@ -22,7 +22,9 @@ import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 import org.apache.inlong.sort.cdc.base.relational.connection.JdbcConnectionPoolFactory;
 import org.apache.inlong.sort.cdc.oracle.source.config.OracleSourceConfig;
 
-/** A Oracle datasource factory. */
+/** A Oracle datasource factory.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class OraclePooledDataSourceFactory extends JdbcConnectionPoolFactory {
 
     public static final String JDBC_URL_PATTERN = "jdbc:oracle:thin:@%s:%s:%s";

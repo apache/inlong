@@ -19,7 +19,9 @@ package org.apache.inlong.sort.cdc.base.source.assigner.state;
 
 import java.util.Objects;
 
-/** A {@link PendingSplitsState} for pending hybrid (snapshot & stream) splits. */
+/** A {@link PendingSplitsState} for pending hybrid (snapshot & stream) splits.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class HybridPendingSplitsState extends PendingSplitsState {
 
     private final SnapshotPendingSplitsState snapshotPendingSplits;

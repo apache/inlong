@@ -30,6 +30,7 @@ import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 /**
  * Describes the connection information of the Oracle database and the configuration information for
  * performing snapshotting and streaming reading, such as splitSize.
+ * Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
  */
 public class OracleSourceConfig extends JdbcSourceConfig {
 

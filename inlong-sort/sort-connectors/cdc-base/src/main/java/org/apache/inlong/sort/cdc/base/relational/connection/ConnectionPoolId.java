@@ -20,7 +20,9 @@ package org.apache.inlong.sort.cdc.base.relational.connection;
 import java.io.Serializable;
 import java.util.Objects;
 
-/** The connection pool identifier. */
+/** The connection pool identifier.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class ConnectionPoolId implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -25,6 +25,7 @@ import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
 
 /**
  * An implementation of {@link RecordsWithSplitIds} which contains the records of one table split.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public final class ChangeEventRecords implements RecordsWithSplitIds<SourceRecords> {
 

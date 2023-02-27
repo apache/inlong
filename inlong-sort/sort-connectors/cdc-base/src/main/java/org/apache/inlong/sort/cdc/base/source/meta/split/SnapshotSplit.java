@@ -27,7 +27,9 @@ import javax.annotation.Nullable;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 
-/** The split to describe a split of a database table snapshot. */
+/** The split to describe a split of a database table snapshot.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class SnapshotSplit extends SourceSplitBase {
 
     private final TableId tableId;

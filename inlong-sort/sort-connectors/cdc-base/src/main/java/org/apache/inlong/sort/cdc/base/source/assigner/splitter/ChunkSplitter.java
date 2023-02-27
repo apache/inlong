@@ -22,7 +22,9 @@ import java.util.Collection;
 import org.apache.flink.annotation.Experimental;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 
-/** The splitter used to split collection into a set of chunks. */
+/** The splitter used to split collection into a set of chunks.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 @Experimental
 public interface ChunkSplitter {
 

@@ -32,7 +32,9 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
 import org.apache.inlong.sort.cdc.base.source.reader.external.JdbcSourceFetchTaskContext;
 
-/** The dialect of JDBC data source. */
+/** The dialect of JDBC data source.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 @Experimental
 public interface JdbcDataSourceDialect extends DataSourceDialect<JdbcSourceConfig> {
 

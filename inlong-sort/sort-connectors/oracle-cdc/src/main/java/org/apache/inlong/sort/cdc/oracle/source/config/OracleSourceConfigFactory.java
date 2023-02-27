@@ -29,7 +29,9 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfigFactory;
 
-/** A factory to initialize {@link OracleSourceConfig}. */
+/** A factory to initialize {@link OracleSourceConfig}.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class OracleSourceConfigFactory extends JdbcSourceConfigFactory {
 
     private static final long serialVersionUID = 1L;

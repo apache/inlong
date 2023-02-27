@@ -21,7 +21,9 @@ import java.util.Map;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
 
-/** An offset factory class create {@link RedoLogOffset} instance. */
+/** An offset factory class create {@link RedoLogOffset} instance.
+ *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0
+ */
 public class RedoLogOffsetFactory extends OffsetFactory {
 
     private static final long serialVersionUID = 1L;

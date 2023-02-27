@@ -27,7 +27,9 @@ import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SchemalessSnapshotSplit;
 import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceSplitReader;
 
-/** A {@link PendingSplitsState} for pending snapshot splits. */
+/** A {@link PendingSplitsState} for pending snapshot splits.
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
+ * */
 public class SnapshotPendingSplitsState extends PendingSplitsState {
 
     /** The tables in the checkpoint. */
