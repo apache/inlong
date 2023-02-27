@@ -114,7 +114,7 @@ const Comp: React.FC<DetailModalProps> = ({
         })),
       });
     }
-  }, [Entity, streamDetail, form]);
+  }, [Entity, streamDetail, form, id]);
 
   useUpdateEffect(() => {
     if (modalProps.visible) {
