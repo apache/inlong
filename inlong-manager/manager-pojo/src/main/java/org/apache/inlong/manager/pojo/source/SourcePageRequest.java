@@ -56,7 +56,7 @@ public class SourcePageRequest extends PageRequest {
     @ApiModelProperty(value = "Status")
     private Integer status;
 
-    @ApiModelProperty(value = "Stream status list")
+    @ApiModelProperty(value = "Source status list")
     private List<Integer> statusList;
 
 }
