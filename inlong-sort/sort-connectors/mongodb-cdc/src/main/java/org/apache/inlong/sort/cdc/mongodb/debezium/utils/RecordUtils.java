@@ -17,13 +17,13 @@
 
 package org.apache.inlong.sort.cdc.mongodb.debezium.utils;
 
+import com.google.common.collect.ImmutableMap;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.relational.TableId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
 import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.BigIntType;
 import org.apache.flink.table.types.logical.BinaryType;

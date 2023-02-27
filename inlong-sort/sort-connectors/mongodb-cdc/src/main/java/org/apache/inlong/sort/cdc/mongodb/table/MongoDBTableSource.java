@@ -48,7 +48,7 @@ import java.util.stream.Stream;
 
 import static com.mongodb.MongoNamespace.checkCollectionNameValidity;
 import static com.mongodb.MongoNamespace.checkDatabaseNameValidity;
-import static com.ververica.cdc.connectors.mongodb.utils.CollectionDiscoveryUtils.containsRegexMetaCharacters;
+import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.containsRegexMetaCharacters;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
@@ -64,11 +64,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
     private final String password;
     private final String database;
     private final String collection;
-    private final Boolean errorsLogEnable;
-    private final String errorsTolerance;
     private final Boolean copyExisting;
-    private final String copyExistingPipeline;
-    private final Integer copyExistingMaxThreads;
     private final Integer copyExistingQueueSize;
     private final Integer pollMaxBatchSize;
     private final Integer pollAwaitTimeMillis;
@@ -98,11 +94,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
             @Nullable String database,
             @Nullable String collection,
             @Nullable String connectionOptions,
-            @Nullable String errorsTolerance,
-            @Nullable Boolean errorsLogEnable,
             @Nullable Boolean copyExisting,
-            @Nullable String copyExistingPipeline,
-            @Nullable Integer copyExistingMaxThreads,
             @Nullable Integer copyExistingQueueSize,
             @Nullable Integer pollMaxBatchSize,
             @Nullable Integer pollAwaitTimeMillis,
@@ -119,11 +111,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
         this.database = database;
         this.collection = collection;
         this.connectionOptions = connectionOptions;
-        this.errorsTolerance = errorsTolerance;
-        this.errorsLogEnable = errorsLogEnable;
         this.copyExisting = copyExisting;
-        this.copyExistingPipeline = copyExistingPipeline;
-        this.copyExistingMaxThreads = copyExistingMaxThreads;
         this.copyExistingQueueSize = copyExistingQueueSize;
         this.pollMaxBatchSize = pollMaxBatchSize;
         this.pollAwaitTimeMillis = pollAwaitTimeMillis;
@@ -187,11 +175,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
         Optional.ofNullable(username).ifPresent(builder::username);
         Optional.ofNullable(password).ifPresent(builder::password);
         Optional.ofNullable(connectionOptions).ifPresent(builder::connectionOptions);
-        Optional.ofNullable(errorsLogEnable).ifPresent(builder::errorsLogEnable);
-        Optional.ofNullable(errorsTolerance).ifPresent(builder::errorsTolerance);
         Optional.ofNullable(copyExisting).ifPresent(builder::copyExisting);
-        Optional.ofNullable(copyExistingPipeline).ifPresent(builder::copyExistingPipeline);
-        Optional.ofNullable(copyExistingMaxThreads).ifPresent(builder::copyExistingMaxThreads);
         Optional.ofNullable(copyExistingQueueSize).ifPresent(builder::copyExistingQueueSize);
         Optional.ofNullable(pollMaxBatchSize).ifPresent(builder::pollMaxBatchSize);
         Optional.ofNullable(pollAwaitTimeMillis).ifPresent(builder::pollAwaitTimeMillis);
@@ -245,11 +229,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                         database,
                         collection,
                         connectionOptions,
-                        errorsTolerance,
-                        errorsLogEnable,
                         copyExisting,
-                        copyExistingPipeline,
-                        copyExistingMaxThreads,
                         copyExistingQueueSize,
                         pollMaxBatchSize,
                         pollAwaitTimeMillis,
@@ -280,11 +260,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                 && Objects.equals(database, that.database)
                 && Objects.equals(collection, that.collection)
                 && Objects.equals(connectionOptions, that.connectionOptions)
-                && Objects.equals(errorsTolerance, that.errorsTolerance)
-                && Objects.equals(errorsLogEnable, that.errorsLogEnable)
                 && Objects.equals(copyExisting, that.copyExisting)
-                && Objects.equals(copyExistingPipeline, that.copyExistingPipeline)
-                && Objects.equals(copyExistingMaxThreads, that.copyExistingMaxThreads)
                 && Objects.equals(copyExistingQueueSize, that.copyExistingQueueSize)
                 && Objects.equals(pollMaxBatchSize, that.pollMaxBatchSize)
                 && Objects.equals(pollAwaitTimeMillis, that.pollAwaitTimeMillis)
@@ -306,11 +282,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                 database,
                 collection,
                 connectionOptions,
-                errorsTolerance,
-                errorsLogEnable,
                 copyExisting,
-                copyExistingPipeline,
-                copyExistingMaxThreads,
                 copyExistingQueueSize,
                 pollMaxBatchSize,
                 pollAwaitTimeMillis,
