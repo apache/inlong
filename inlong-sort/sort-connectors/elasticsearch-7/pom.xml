@@ -162,7 +162,6 @@
                                 <excludes>
                                     <!-- These dependencies are not required. -->
                                     <exclude>com.tdunning:t-digest</exclude>
-                                    <exclude>joda-time:joda-time</exclude>
                                     <exclude>net.sf.jopt-simple:jopt-simple</exclude>
                                     <exclude>org.elasticsearch:jna</exclude>
                                     <exclude>org.hdrhistogram:HdrHistogram</exclude>
