@@ -69,7 +69,8 @@ public class KafkaConsume extends BaseConsume {
 
         initConsumer(mqConfig);
 
-        Thread thread = new Thread(new Fetcher(consumer, topic, isAutoCommit, mqConfig.getFetchWaitMs()), "KafkaConsume_Fetcher_Thread");
+        Thread thread = new Thread(new Fetcher(consumer, topic, isAutoCommit, mqConfig.getFetchWaitMs()),
+                "KafkaConsume_Fetcher_Thread");
         thread.start();
     }
 
