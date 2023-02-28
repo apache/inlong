@@ -314,10 +314,14 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                                 LOG.warn("Ignore table {} schema change, old: {} new: {}.",
                                         tableId, dataSchema, latestSchema, e);
                                 blacklist.add(tableId);
-                                List<RowData> rowDataForDataSchemaList = dynamicSchemaFormat.extractRowData(jsonNode,
-                                        FlinkSchemaUtil.convert(dataSchema));
-                                for (RowData rowData : rowDataForDataSchemaList) {
-                                    handleDirtyData(rowData, jsonNode, DirtyType.EXTRACT_ROWDATA_ERROR, e, tableId);
+                                try{
+                                    List<RowData> rowDataForDataSchemaList = dynamicSchemaFormat.extractRowData(jsonNode,
+                                            FlinkSchemaUtil.convert(dataSchema));
+                                    for (RowData rowData : rowDataForDataSchemaList) {
+                                        handleDirtyData(rowData, jsonNode, DirtyType.EXTRACT_ROWDATA_ERROR, e, tableId);
+                                    }
+                                } catch (Exception ee) {
+                                    LOG.error("handleDirtyData {} failed!", jsonNode);
                                 }
                             }
                             return Collections.emptyList();
