@@ -1070,9 +1070,6 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             return;
         }
         // get the history offset in the time range
-        // read history data
-        int totalCnt = 0;
-        // locate start offset
         int maxRetryCnt = 50;
         long requestOffset = msgStore.getStartOffsetByTimeStamp(recStartTime);
         if (!getStoredGroupHisOffsets(groupName, msgStore,
@@ -1099,7 +1096,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // after
         Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> aftGroupOffsetMap =
                 getGroupOffsetInfo(WebFieldDef.COMPSGROUPNAME, groupNameSet, topicSet);
-        Map<String, Map<Integer, GroupOffsetInfo>> aftTopicPartMap =
+        final Map<String, Map<Integer, GroupOffsetInfo>> aftTopicPartMap =
                 aftGroupOffsetMap.get(groupName);
         // build result
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -1142,7 +1139,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             sBuffer.append("],\"partCount\":").append(partCnt).append("}");
         }
         sBuffer.append("]}");
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, 1);
     }
 
     /**

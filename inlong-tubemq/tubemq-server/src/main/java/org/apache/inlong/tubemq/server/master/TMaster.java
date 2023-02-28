@@ -134,8 +134,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private static final Logger logger = LoggerFactory.getLogger(TMaster.class);
     private static final int MAX_BALANCE_DELAY_TIME = 10;
 
-    private final ConcurrentHashMap<String/* consumerId */, Map<String/* topic */, Map<String, Partition>>> currentSubInfo =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* consumerId */,
+            Map<String/* topic */, Map<String, Partition>>> currentSubInfo = new ConcurrentHashMap<>();
     private final RpcServiceFactory rpcServiceFactory = // rpc service factory
             new RpcServiceFactory();
     private final MetaDataService defMetaDataService; // meta data manager
@@ -319,7 +319,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        final CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
         if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
@@ -400,7 +400,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        final CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
         if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
@@ -537,7 +537,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        final CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
         if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
@@ -730,7 +730,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        final CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
         if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
@@ -933,7 +933,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             final String rmtAddress,
             boolean overtls) throws Exception {
         // #lizard forgives
-        ProcessResult result = new ProcessResult();
+        final ProcessResult result = new ProcessResult();
         final StringBuilder strBuff = new StringBuilder(512);
         RegisterResponseM2B.Builder builder = RegisterResponseM2B.newBuilder();
         builder.setSuccess(false);
@@ -1043,7 +1043,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             final String rmtAddress,
             boolean overtls) throws Exception {
         // #lizard forgives
-        ProcessResult result = new ProcessResult();
+        final ProcessResult result = new ProcessResult();
         final StringBuilder strBuff = new StringBuilder(512);
         // set response field
         HeartResponseM2B.Builder builder = HeartResponseM2B.newBuilder();
@@ -1199,7 +1199,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        final CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
         if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());
@@ -1370,7 +1370,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        final CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
         if (!PBParameterUtils.checkClientId(request.getClientId(), strBuff, result)) {
             builder.setErrCode(result.getErrCode());
             builder.setErrMsg(result.getErrMsg());

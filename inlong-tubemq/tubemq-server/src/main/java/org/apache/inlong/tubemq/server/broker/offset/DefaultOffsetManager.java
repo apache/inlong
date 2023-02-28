@@ -50,10 +50,10 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     private static final Logger logger = LoggerFactory.getLogger(DefaultOffsetManager.class);
     private final BrokerConfig brokerConfig;
     private final OffsetStorage zkOffsetStorage;
-    private final ConcurrentHashMap<String/* group */, ConcurrentHashMap<String/* topic - partitionId */, OffsetStorageInfo>> cfmOffsetMap =
-            new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* group */, ConcurrentHashMap<String/* topic - partitionId */, Long>> tmpOffsetMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* group */,
+            ConcurrentHashMap<String/* topic - partitionId */, OffsetStorageInfo>> cfmOffsetMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* group */,
+            ConcurrentHashMap<String/* topic - partitionId */, Long>> tmpOffsetMap = new ConcurrentHashMap<>();
 
     public DefaultOffsetManager(final BrokerConfig brokerConfig) {
         super("[Offset Manager]", brokerConfig.getZkConfig().getZkCommitPeriodMs());

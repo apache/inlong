@@ -133,11 +133,13 @@ func (h *heartbeatManager) consumerHB2Master() {
 		go func() {
 			err := h.consumer.register2Master(!hbNoNode)
 			if err != nil {
-				log.Warnf("[CONSUMER] heartBeat2Master failure to (%s) : %s, client=%s", h.consumer.master.Address, rsp.GetErrMsg(), h.consumer.clientID)
+				log.Warnf("[CONSUMER] heartBeat2Master failure to (%s) : %s, client=%s",
+					h.consumer.master.Address, rsp.GetErrMsg(), h.consumer.clientID)
 				return
 			}
 			h.registerMaster(h.consumer.master.Address)
-			log.Infof("[CONSUMER] heartBeat2Master success to (%s), client=%s", h.consumer.master.Address, h.consumer.clientID)
+			log.Infof("[CONSUMER] heartBeat2Master success to (%s), client=%s",
+				h.consumer.master.Address, h.consumer.clientID)
 		}()
 	}
 }

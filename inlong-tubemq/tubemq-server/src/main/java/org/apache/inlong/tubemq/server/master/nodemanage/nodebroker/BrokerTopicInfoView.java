@@ -39,10 +39,10 @@ import org.apache.inlong.tubemq.server.common.utils.SerialIdUtils;
 public class BrokerTopicInfoView {
 
     public AtomicLong topicChangeId = new AtomicLong(0);
-    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashMap<Integer/* brokerId */, TopicInfo>> topicConfInfoMap =
-            new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String/* topicName */>> brokerIdIndexMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* topicName */,
+            ConcurrentHashMap<Integer/* brokerId */, TopicInfo>> topicConfInfoMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer/* brokerId */,
+            ConcurrentHashSet<String/* topicName */>> brokerIdIndexMap = new ConcurrentHashMap<>();
 
     public BrokerTopicInfoView() {
 
