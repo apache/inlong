@@ -226,13 +226,11 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
 
     @Override
     public ChangelogMode getChangelogMode() {
+        if (!appendSource) {
+            return ChangelogMode.all();
+        }
         final ChangelogMode.Builder builder =
                 ChangelogMode.newBuilder().addContainedKind(RowKind.INSERT);
-        if (!appendSource) {
-            builder.addContainedKind(RowKind.UPDATE_BEFORE)
-                    .addContainedKind(RowKind.UPDATE_AFTER)
-                    .addContainedKind(RowKind.DELETE);
-        }
         return builder.build();
     }
 
