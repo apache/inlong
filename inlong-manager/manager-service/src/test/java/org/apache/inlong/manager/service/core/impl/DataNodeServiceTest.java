@@ -106,7 +106,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(id);
 
         // test get data node
-        DataNodeInfo dataNodeInfo = dataNodeService.get(id);
+        DataNodeInfo dataNodeInfo = dataNodeService.get(id, usename);
         Assertions.assertNotNull(dataNodeInfo);
         Assertions.assertEquals(type, dataNodeInfo.getType());
 
@@ -136,7 +136,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         request.setName("esDataNodeName");
         request.setInCharges(GLOBAL_OPERATOR);
         int id = dataNodeService.save(request, GLOBAL_OPERATOR);
-        DataNodeInfo info = dataNodeService.get(id);
+        DataNodeInfo info = dataNodeService.get(id, GLOBAL_OPERATOR);
         Assertions.assertEquals(DataNodeType.ELASTICSEARCH, info.getType());
         DataNodeOperator operator = dataNodeOperatorFactory.getInstance(info.getType());
         Map<String, String> params = operator.parse2SinkParams(info);

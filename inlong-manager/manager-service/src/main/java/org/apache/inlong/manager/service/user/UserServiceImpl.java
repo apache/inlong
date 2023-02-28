@@ -119,7 +119,6 @@ public class UserServiceImpl implements UserService {
         Preconditions.expectNotNull(userId, "User id cannot be null");
         UserEntity entity = userMapper.selectById(userId);
         Preconditions.expectNotNull(entity, "User not exists with id " + userId);
-
         UserEntity curUser = userMapper.selectByName(currentUser);
         Preconditions.expectTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
                 || Objects.equals(entity.getName(), currentUser),
@@ -306,6 +305,13 @@ public class UserServiceImpl implements UserService {
         // login successfully, clear error count
         userLoginLockStatus.setLoginErrorCount(0);
         loginLockStatusMap.put(username, userLoginLockStatus);
+    }
+
+    public void checkUser(String inCharges, String user, String errMsg) {
+        UserEntity userEntity = userMapper.selectByName(user);
+        boolean isInCharge = Preconditions.inSeparatedString(user, inCharges, InlongConstants.COMMA);
+        Preconditions.expectTrue(isInCharge || UserTypeEnum.ADMIN.getCode().equals(userEntity.getAccountType()),
+                errMsg);
     }
 
 }

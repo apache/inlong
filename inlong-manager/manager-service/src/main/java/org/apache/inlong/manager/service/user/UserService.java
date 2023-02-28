@@ -82,4 +82,13 @@ public interface UserService {
      */
     void login(UserLoginRequest req);
 
+    /**
+     * Check the given user is the admin or is one of the in charges.
+     *
+     * @param inCharges incharge list
+     * @param user current user name
+     * @param errMsg error message
+     */
+    void checkUser(String inCharges, String user, String errMsg);
+
 }

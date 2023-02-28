@@ -17,13 +17,11 @@
 
 package org.apache.inlong.manager.service.group;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.auth.Authentication.AuthType;
@@ -65,6 +63,7 @@ import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
+import org.apache.inlong.manager.service.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,6 +113,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private InlongGroupOperatorFactory groupOperatorFactory;
     @Autowired
     private SourceOperatorFactory sourceOperatorFactory;
+    @Autowired
+    private UserService userService;
 
     /**
      * Check whether modification is supported under the current group status, and which fields can be modified.
@@ -228,12 +229,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
         // only the person in charges can query
-        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+        userService.checkUser(entity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // query mq information
         InlongGroupOperator instance = groupOperatorFactory.getInstance(entity.getMqType());
         InlongGroupInfo groupInfo = instance.getFromEntity(entity);
@@ -424,12 +421,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
         chkUnmodifiableParams(entity, request);
         // only the person in charges can query
-        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+        userService.checkUser(entity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // check whether the current status supports modification
         GroupStatus curStatus = GroupStatus.forCode(entity.getStatus());
         if (GroupStatus.notAllowedUpdate(curStatus)) {
