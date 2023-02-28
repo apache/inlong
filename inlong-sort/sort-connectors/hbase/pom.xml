@@ -197,10 +197,6 @@
                                     <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.apache.commons.logging</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.apache.commons.logging</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.apache.commons.logging</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>org.apache.http</pattern>
                                     <shadedPattern>org.apache.inlong.sort.hbase.shaded.org.apache.http</shadedPattern>
                                 </relocation>
