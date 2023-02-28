@@ -134,8 +134,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     private static final Logger logger = LoggerFactory.getLogger(TMaster.class);
     private static final int MAX_BALANCE_DELAY_TIME = 10;
 
-    private final ConcurrentHashMap<String/* consumerId */,
-            Map<String/* topic */, Map<String, Partition>>> currentSubInfo = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* consumerId */, Map<String/* topic */, Map<String, Partition>>> currentSubInfo =
+            new ConcurrentHashMap<>();
     private final RpcServiceFactory rpcServiceFactory = // rpc service factory
             new RpcServiceFactory();
     private final MetaDataService defMetaDataService; // meta data manager

@@ -70,8 +70,8 @@ public class MessageStoreManager implements StoreService {
     // metadata manager, get metadata from master.
     private final MetadataManager metadataManager;
     // storeId to store on each topic.
-    private final ConcurrentHashMap<String/* topic */,
-            ConcurrentHashMap<Integer/* storeId */, MessageStore>> dataStores = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* topic */, ConcurrentHashMap<Integer/* storeId */, MessageStore>> dataStores =
+            new ConcurrentHashMap<>();
     // store service status
     private final AtomicBoolean stopped = new AtomicBoolean(false);
     // data expire operation scheduler.
