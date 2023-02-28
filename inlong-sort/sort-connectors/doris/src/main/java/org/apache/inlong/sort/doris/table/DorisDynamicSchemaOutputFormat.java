@@ -243,7 +243,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             try {
                 schema = RestService.getSchema(options, readOptions, LOG);
             } catch (DorisException e) {
-                LOG.error("failed to get Doris schema" + e);
+                throw new RuntimeException(e);
             }
         }
 

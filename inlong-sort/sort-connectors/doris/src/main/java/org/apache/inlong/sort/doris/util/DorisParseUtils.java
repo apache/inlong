@@ -52,9 +52,16 @@ public class DorisParseUtils {
         }
     }
 
+    /**
+     * A utility function used to handle special fieldGetters for specific
+     *
+     * @param type the logical type of the field getter array
+     * @param pos the index of the corresponding row
+     * @return the fieldGetter created
+     */
     public static FieldGetter createFieldGetter(LogicalType type, int pos) {
         FieldGetter getter;
-        if ("DATE".equalsIgnoreCase(type.toString())) {
+        if (type.toString().equalsIgnoreCase(LogicalTypeEnum.DATE.getType())) {
             getter = row -> {
                 if (row.isNullAt(pos)) {
                     return null;
@@ -105,5 +112,21 @@ public class DorisParseUtils {
         }
         throw new IllegalArgumentException(
                 "Convert to LocalDate failed from unexpected value '" + obj + "' of type " + obj.getClass().getName());
+    }
+
+
+
+    private enum LogicalTypeEnum {
+        DATE("DATE");
+
+        private final String logicalType;
+
+        LogicalTypeEnum(String logicalType) {
+            this.logicalType = logicalType;
+        }
+
+        public String getType() {
+            return logicalType;
+        }
     }
 }
