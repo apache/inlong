@@ -115,6 +115,7 @@ public class DorisParseUtils {
     }
 
     private enum LogicalTypeEnum {
+
         DATE("DATE");
 
         private final String logicalType;
