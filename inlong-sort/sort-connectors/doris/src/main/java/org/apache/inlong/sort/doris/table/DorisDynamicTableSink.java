@@ -84,11 +84,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
 
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode changelogMode) {
-        return ChangelogMode.newBuilder()
-                .addContainedKind(RowKind.INSERT)
-                .addContainedKind(RowKind.DELETE)
-                .addContainedKind(RowKind.UPDATE_AFTER)
-                .build();
+        return ChangelogMode.all();
     }
 
     @SuppressWarnings({"unchecked"})
