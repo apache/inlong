@@ -24,6 +24,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
  * Paging query request for Source
@@ -54,5 +55,8 @@ public class SourcePageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Status")
     private Integer status;
+
+    @ApiModelProperty(value = "Source status list")
+    private List<Integer> statusList;
 
 }

@@ -24,6 +24,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
  * Paging query request for Sink
@@ -48,6 +49,9 @@ public class SinkPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Status")
     private Integer status;
+
+    @ApiModelProperty(value = "Sink status list")
+    private List<Integer> statusList;
 
     @ApiModelProperty("Inlong cluster name")
     private String inlongClusterName;

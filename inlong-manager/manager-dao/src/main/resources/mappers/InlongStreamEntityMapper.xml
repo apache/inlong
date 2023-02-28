@@ -261,6 +261,12 @@
             <if test="request.status != null and request.status != ''">
                 and stream.status = #{request.status, jdbcType=INTEGER}
             </if>
+            <if test="request.statusList != null and request.statusList.size() > 0">
+                and stream.status in
+                <foreach collection="request.statusList" item="status" index="index" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
+            </if>
         </where>
         <choose>
             <when test="request.orderField != null and request.orderField != '' and request.orderType != null and request.orderType != ''">
