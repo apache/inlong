@@ -73,6 +73,7 @@
                                     <include>org.apache.httpcomponents:*</include>
                                     <include>software.amazon.ion:*</include>
                                     <include>joda-time:*</include>
+                                    <include>org.apache.commons:commons-lang3</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -128,6 +129,10 @@
                                 <relocation>
                                     <pattern>org.joda.time</pattern>
                                     <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.joda.time</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.commons</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
