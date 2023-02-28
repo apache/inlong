@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity curUser = userMapper.selectByName(currentUser);
         Preconditions.expectTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
-                || Objects.equals(entity.getName(), currentUser),
+                        || Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to get other users' info");
 
         UserInfo result = new UserInfo();
@@ -306,6 +306,13 @@ public class UserServiceImpl implements UserService {
         // login successfully, clear error count
         userLoginLockStatus.setLoginErrorCount(0);
         loginLockStatusMap.put(username, userLoginLockStatus);
+    }
+
+    public void checkUser(String inCharges, String user, String errMsg) {
+        UserEntity userEntity = userMapper.selectByName(user);
+        boolean isInCharge = Preconditions.inSeparatedString(user, inCharges, InlongConstants.COMMA);
+        Preconditions.expectTrue(isInCharge || UserTypeEnum.ADMIN.getCode().equals(userEntity.getAccountType()),
+                errMsg);
     }
 
 }

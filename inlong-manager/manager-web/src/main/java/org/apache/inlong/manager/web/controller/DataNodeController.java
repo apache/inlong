@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
@@ -71,12 +72,15 @@ public class DataNodeController {
     @ApiOperation(value = "Get node by id")
     @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
     public Response<DataNodeInfo> get(@PathVariable Integer id) {
-        return Response.success(dataNodeService.get(id));
+        String currentUser = LoginUserUtils.getLoginUser().getName();
+        return Response.success(dataNodeService.get(id, currentUser));
     }
 
     @PostMapping(value = "/node/list")
     @ApiOperation(value = "List data node")
     public Response<PageResult<DataNodeInfo>> list(@RequestBody DataNodePageRequest request) {
+        request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
+        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
         return Response.success(dataNodeService.list(request));
     }
 

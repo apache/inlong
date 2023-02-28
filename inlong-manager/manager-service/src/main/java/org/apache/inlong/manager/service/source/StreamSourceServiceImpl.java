@@ -50,6 +50,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
+import org.apache.inlong.manager.service.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +89,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private StreamSourceFieldEntityMapper sourceFieldMapper;
     @Autowired
     private GroupCheckService groupCheckService;
+    @Autowired
+    private UserService userService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
@@ -130,12 +133,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // get stream information
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
                 request.getInlongGroupId(), request.getInlongStreamId());
@@ -196,12 +195,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
         // only the person in charges can query
-        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         StreamSourceOperator sourceOperator = operatorFactory.getInstance(entity.getSourceType());
         return sourceOperator.getFromEntity(entity);
     }
@@ -366,12 +361,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // check inlong group status
         GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(status)) {
@@ -449,12 +440,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", entity.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // check record status
         boolean isTemplateSource = CollectionUtils.isNotEmpty(sourceMapper.selectByTemplateId(id));
         SourceStatus curStatus = SourceStatus.forCode(entity.getStatus());

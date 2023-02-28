@@ -159,6 +159,11 @@
                 or ext_tag like CONCAT('%', #{keyword}, '%')
                 )
             </if>
+            <if test="isAdminRole == false">
+                and (
+                creator = #{currentUser, jdbcType=VARCHAR} or find_in_set(#{currentUser, jdbcType=VARCHAR}, in_charges)
+                )
+            </if>
             <if test="status != null and status != ''">
                 and status = #{status, jdbcType=INTEGER}
             </if>

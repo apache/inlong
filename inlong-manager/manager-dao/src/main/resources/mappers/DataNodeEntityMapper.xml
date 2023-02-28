@@ -39,7 +39,8 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, url, username, token, ext_params, description, in_charges, status, is_deleted,
+        id
+        , name, type, url, username, token, ext_params, description, in_charges, status, is_deleted,
         creator, modifier, create_time, modify_time, version
     </sql>
 
@@ -89,6 +90,11 @@
                 name like CONCAT('%', #{keyword}, '%')
                 or type like CONCAT('%', #{keyword}, '%')
                 or url like CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="isAdminRole == false">
+                and (
+                creator = #{currentUser, jdbcType=VARCHAR} or find_in_set(#{currentUser, jdbcType=VARCHAR}, in_charges)
                 )
             </if>
             <if test="status != null and status != ''">
