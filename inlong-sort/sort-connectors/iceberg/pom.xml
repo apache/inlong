@@ -88,6 +88,8 @@
                                     <include>org.apache.hive:hive-exec</include>
                                     <include>org.apache.thrift:libfb303</include>
                                     <include>com.google.protobuf:*</include>
+                                    <include>com.amazonaws:*</include>
+                                    <include>com.fasterxml.jackson.core:jackson-databind</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -103,6 +105,14 @@
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.base</pattern>
                                     <shadedPattern>org.apache.inlong.sort.iceberg.shaded.org.apache.inlong.sort.base</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml.jackson.databind</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.com.fasterxml.jackson.databind</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.amazonaws</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.com.amazonaws</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
