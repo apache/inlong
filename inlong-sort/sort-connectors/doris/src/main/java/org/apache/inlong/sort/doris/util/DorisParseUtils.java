@@ -114,8 +114,6 @@ public class DorisParseUtils {
                 "Convert to LocalDate failed from unexpected value '" + obj + "' of type " + obj.getClass().getName());
     }
 
-
-
     private enum LogicalTypeEnum {
         DATE("DATE");
 
@@ -129,4 +127,5 @@ public class DorisParseUtils {
             return logicalType;
         }
     }
+
 }
