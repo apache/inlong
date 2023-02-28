@@ -93,7 +93,8 @@ bool BaseProducer::Start(string& err_info, const ProducerConfig& config) {
     status_.CompareAndSet(tb_config::kMasterRegistering, tb_config::kMasterUnRegistered);
     return false;
   }
-  status_.CompareAndSet(tb_config::kMasterRegistering, tb_config::kMasterRegistered);  // register2Master done, change status_ to `2`
+  // register2Master done, change status_ to `2`
+  status_.CompareAndSet(tb_config::kMasterRegistering, tb_config::kMasterRegistered);
 
   // set heartbeat timer
   heart_beat_timer_ = TubeMQService::Instance()->CreateTimer();
@@ -678,7 +679,7 @@ bool BaseProducer::processHBResponseM2P(int32_t& error_code, string& err_info,
     error_code = rsp_protocol->code_;
     err_info = rsp_protocol->error_msg_;
     return false;
-  };
+  }
 
   HeartResponseM2P rsp_m2p;
   bool result = rsp_m2p.ParseFromArray(rsp_protocol->rsp_body_.data().c_str(),

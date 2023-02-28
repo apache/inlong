@@ -56,7 +56,7 @@ func (m *Metadata) SetSubscribeInfo(sub *SubscribeInfo) {
 	m.subscribeInfo = sub
 }
 
-// ReadStatus sets the status.
+// SetReadStatus sets the status.
 func (m *Metadata) SetReadStatus(status int32) {
 	m.readStatus = status
 }

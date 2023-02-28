@@ -80,7 +80,7 @@ type Error struct {
 	Msg  string
 }
 
-// Error() implements the Error interface.
+// Error implements the Error interface.
 func (e *Error) Error() string {
 	return fmt.Sprintf("code: %d, msg:%s", e.Code, e.Msg)
 }
