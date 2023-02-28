@@ -31,6 +31,7 @@ kSuccessCounter = 0
 kFailCounter = 0
 counter_lock = Lock()
 
+
 # Reference: java producer: MixedUtils.buildTestData, only for demo
 def build_test_data(msg_data_size):
     transmit_data = "This is a test data!"
@@ -40,6 +41,7 @@ def build_test_data(msg_data_size):
     if len(data) < msg_data_size:
         data += transmit_data[:msg_data_size - len(data)]
     return data
+
 
 def send_callback(error_code):
     global counter_lock
