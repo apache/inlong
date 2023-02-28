@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-{{- if .Values.components.tubemqManager }}
+{{ if eq .Values.dataproxy.mqType "tubemq" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:

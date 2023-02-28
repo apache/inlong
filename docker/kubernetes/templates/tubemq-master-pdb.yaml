@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-{{- if .Values.components.tubemqServer }}
+{{ if eq .Values.dataproxy.mqType "tubemq" }}
 {{- if .Values.tubemqMaster.pdb.usePolicy }}
 {{- if .Capabilities.APIVersions.Has "policy/v1" }}
 apiVersion: policy/v1
