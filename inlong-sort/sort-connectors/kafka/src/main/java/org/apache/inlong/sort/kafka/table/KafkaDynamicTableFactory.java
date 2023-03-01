@@ -326,10 +326,13 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat =
                 getValueDecodingFormat(helper);
 
-        helper.validateExcept(PROPERTIES_PREFIX, DIRTY_PREFIX);
+        final String valueFormatPrefix = tableOptions.getOptional(FORMAT)
+                .orElse(tableOptions.get(VALUE_FORMAT));
 
+        // Validate the option data type.
+        helper.validateExcept(PROPERTIES_PREFIX, DIRTY_PREFIX, valueFormatPrefix);
+        // Validate the option values.
         validateTableSourceOptions(tableOptions);
-
         validatePKConstraints(
                 context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
 
