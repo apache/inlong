@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.cdc.postgres.table;
 
-import com.ververica.cdc.connectors.base.options.StartupOptions;
+import org.apache.inlong.flink.cdc.connectors.base.options.StartupOptions;
 import com.ververica.cdc.debezium.table.DebeziumChangelogMode;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
@@ -41,24 +41,24 @@ import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.base.Constants.SOURCE_MULTIPLE_ENABLE;
 
-import static com.ververica.cdc.connectors.base.utils.ObjectUtils.doubleCompare;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.CHANGELOG_MODE;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.CHUNK_META_GROUP_SIZE;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.CONNECTION_POOL_SIZE;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.CONNECT_MAX_RETRIES;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.CONNECT_TIMEOUT;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.HEARTBEAT_INTERVAL;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_CHUNK_KEY_COLUMN;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_ENABLED;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.SCAN_SNAPSHOT_FETCH_SIZE;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.SCAN_STARTUP_MODE;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND;
-import static com.ververica.cdc.connectors.postgres.source.config.PostgresSourceOptions.SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND;
+import static org.apache.inlong.flink.cdc.connectors.base.utils.ObjectUtils.doubleCompare;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.CHANGELOG_MODE;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.CHUNK_META_GROUP_SIZE;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.CONNECTION_POOL_SIZE;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.CONNECT_MAX_RETRIES;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.CONNECT_TIMEOUT;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.HEARTBEAT_INTERVAL;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_CHUNK_KEY_COLUMN;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_ENABLED;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.SCAN_SNAPSHOT_FETCH_SIZE;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.SCAN_STARTUP_MODE;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND;
+import static org.apache.inlong.sort.cdc.postgres.source.config.PostgresSourceOptions.SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND;
 
 /**
  * Factory for creating configured instance of
- * {@link com.ververica.cdc.connectors.postgres.table.PostgreSQLTableSource}.
+ * {@link org.apache.inlong.sort.cdc.postgres.table.PostgreSQLTableSource}.
  */
 public class PostgreSQLTableFactory implements DynamicTableSourceFactory {
 

@@ -20,8 +20,8 @@ package org.apache.inlong.sort.cdc.postgres.table;
 import java.time.Duration;
 import java.time.ZoneId;
 
-import com.ververica.cdc.connectors.base.options.StartupOptions;
-import com.ververica.cdc.connectors.postgres.source.PostgresSourceBuilder;
+import org.apache.inlong.flink.cdc.connectors.base.options.StartupOptions;
+import org.apache.inlong.sort.cdc.postgres.source.PostgresSourceBuilder;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -48,6 +48,8 @@ import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserialize
 import org.apache.inlong.sort.base.filter.RowKindValidator;
 import org.apache.inlong.sort.cdc.postgres.PostgreSQLSource;
 import org.apache.inlong.sort.cdc.postgres.DebeziumSourceFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
@@ -58,6 +60,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * description.
  */
 public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMetadata {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSQLTableSource.class);
 
     private final ResolvedSchema physicalSchema;
     private final int port;
@@ -198,19 +202,20 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                         .build();
 
         if (enableParallelRead) {
+            LOGGER.info("in  PostgreSQLTableSource, enableParallelRead is true");
             PostgresSourceBuilder.PostgresIncrementalSource<RowData> parallelSource =
                     new PostgresSourceBuilder<RowData>()
                             .hostname(hostname)
                             .port(port)
                             .database(database)
-                            .schemaList(schemaName)
-                            .tableList(schemaName + "." + tableName)
+                            .schemaList(schemaName.split(","))
+                            .tableList(tableName)
                             .username(username)
                             .password(password)
                             .decodingPluginName(pluginName)
                             .slotName(slotName)
                             .debeziumProperties(dbzProperties)
-                            // .deserializer(deserializer)
+                            .deserializer(deserializer)
                             .splitSize(splitSize)
                             .splitMetaGroupSize(splitMetaGroupSize)
                             .distributionFactorUpper(distributionFactorUpper)
@@ -225,6 +230,7 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                             .build();
             return SourceProvider.of(parallelSource);
         } else {
+            LOGGER.info("in  PostgreSQLTableSource, enableParallelRead is false");
             DebeziumSourceFunction<RowData> sourceFunction =
                     PostgreSQLSource.<RowData>builder()
                             .hostname(hostname)

@@ -17,10 +17,10 @@
 
 package io.debezium.connector.postgresql;
 
-import com.ververica.cdc.connectors.postgres.source.offset.PostgresOffset;
 import io.debezium.connector.postgresql.connection.Lsn;
 import io.debezium.connector.postgresql.connection.PostgresConnection;
 import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.sort.cdc.postgres.source.offset.PostgresOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
