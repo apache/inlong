@@ -94,7 +94,11 @@ abstract class BaseDeltaTaskWriter extends BaseTaskWriter<RowData> {
                 writer.delete(row);
                 break;
             case DELETE:
-                writer.delete(row);
+                if (upsert) { // https://github.com/apache/iceberg/pull/6753/files
+                    writer.deleteKey(keyProjection.wrap(row));
+                } else {
+                    writer.delete(row);
+                }
                 break;
 
             default:
