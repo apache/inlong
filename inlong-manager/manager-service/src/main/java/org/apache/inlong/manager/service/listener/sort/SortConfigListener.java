@@ -26,8 +26,10 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.resource.sort.SortConfigOperator;
 import org.apache.inlong.manager.service.resource.sort.SortConfigOperatorFactory;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -49,6 +51,10 @@ public class SortConfigListener implements SortOperateListener {
 
     @Autowired
     private SortConfigOperatorFactory operatorFactory;
+    @Autowired
+    private InlongGroupService groupService;
+    @Autowired
+    private InlongStreamService streamService;
 
     @Override
     public TaskEvent event() {
@@ -80,8 +86,16 @@ public class SortConfigListener implements SortOperateListener {
             LOGGER.info("no need to build sort config for groupId={} as the operate type is {}", groupId, operateType);
             return ListenerResult.success();
         }
-
-        InlongGroupInfo groupInfo = form.getGroupInfo();
+        // ensure the inlong group exists
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        if (groupInfo == null) {
+            String msg = "inlong group not found with groupId=" + groupId;
+            LOGGER.error(msg);
+            throw new WorkflowListenerException(msg);
+        }
+        // Read the current information
+        form.setGroupInfo(groupInfo);
+        form.setStreamInfos(streamService.list(groupId));
         List<InlongStreamInfo> streamInfos = form.getStreamInfos();
         if (CollectionUtils.isEmpty(streamInfos)) {
             LOGGER.warn("no need to build sort config for groupId={}, as not found any stream", groupId);

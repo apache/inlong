@@ -26,8 +26,10 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.resource.sort.SortConfigOperator;
 import org.apache.inlong.manager.service.resource.sort.SortConfigOperatorFactory;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -50,6 +52,10 @@ public class StreamSortConfigListener implements SortOperateListener {
 
     @Autowired
     private SortConfigOperatorFactory operatorFactory;
+    @Autowired
+    private InlongGroupService groupService;
+    @Autowired
+    private InlongStreamService streamService;
 
     @Override
     public TaskEvent event() {
@@ -85,12 +91,15 @@ public class StreamSortConfigListener implements SortOperateListener {
             return ListenerResult.success();
         }
 
-        InlongGroupInfo groupInfo = form.getGroupInfo();
+        InlongGroupInfo groupInfo = groupService.get(groupId);
         List<StreamSink> streamSinks = streamInfo.getSinkList();
         if (CollectionUtils.isEmpty(streamSinks)) {
             LOGGER.warn("not build sort config for groupId={}, streamId={}, as not found any sinks", groupId, streamId);
             return ListenerResult.success();
         }
+        // Read the current information
+        form.setGroupInfo(groupInfo);
+        form.setStreamInfo(streamService.get(groupId, streamId));
 
         List<InlongStreamInfo> streamInfos = Collections.singletonList(streamInfo);
         try {
