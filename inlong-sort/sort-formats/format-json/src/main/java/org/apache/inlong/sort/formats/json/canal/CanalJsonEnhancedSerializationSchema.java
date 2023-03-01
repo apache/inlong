@@ -65,6 +65,10 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
      */
     private final RowType jsonRowType;
     private transient GenericRowData reuse;
+    /**
+     * The index in writeableMetadata of {@link WriteableMetadata#TYPE}
+     */
+    private final int typeIndex;
 
     /**
      * Constructor of CanalJsonEnhancedSerializationSchema.
@@ -78,6 +82,7 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
             boolean encodeDecimalAsPlainNumber) {
         final List<LogicalType> physicalChildren = physicalDataType.getLogicalType().getChildren();
         this.jsonRowType = createJsonRowType(physicalDataType, writeableMetadata);
+        typeIndex = writeableMetadata.indexOf(WriteableMetadata.TYPE);
         this.physicalFieldGetter = IntStream.range(0, physicalChildren.size())
                 .mapToObj(targetField -> RowData.createFieldGetter(physicalChildren.get(targetField), targetField))
                 .toArray(RowData.FieldGetter[]::new);
@@ -122,9 +127,16 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
 
     @Override
     public void open(InitializationContext context) {
-        reuse = new GenericRowData(2 + wirteableMetadataFieldGetter.length);
+        int size = 2 + wirteableMetadataFieldGetter.length;
+        if (typeIndex != -1) {
+            size--;
+        }
+        reuse = new GenericRowData(size);
     }
 
+    /**
+     * Serialize the row with ignore the {@link WriteableMetadata#TYPE}
+     */
     @Override
     public byte[] serialize(RowData row) {
         try {
@@ -140,8 +152,13 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
             StringData opType = rowKind2String(row.getRowKind());
             reuse.setField(1, opType);
             IntStream.range(0, wirteableMetadataFieldGetter.length)
-                    .forEach(targetField -> reuse.setField(2 + targetField,
-                            wirteableMetadataFieldGetter[targetField].getFieldOrNull(row)));
+                    .forEach(metaIndex -> {
+                        if (metaIndex < typeIndex) {
+                            reuse.setField(metaIndex + 2, wirteableMetadataFieldGetter[metaIndex].getFieldOrNull(row));
+                        } else if (metaIndex > typeIndex) {
+                            reuse.setField(metaIndex + 1, wirteableMetadataFieldGetter[metaIndex].getFieldOrNull(row));
+                        }
+                    });
             return jsonSerializer.serialize(reuse);
         } catch (Throwable t) {
             throw new RuntimeException("Could not serialize row '" + row + "'.", t);
