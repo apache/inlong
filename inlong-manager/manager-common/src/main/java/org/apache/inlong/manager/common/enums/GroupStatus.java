@@ -19,7 +19,6 @@ package org.apache.inlong.manager.common.enums;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import java.util.Locale;
@@ -67,7 +66,7 @@ public enum GroupStatus {
 
         GROUP_STATE_AUTOMATON.put(CONFIG_ING, Sets.newHashSet(CONFIG_ING, CONFIG_FAILED, CONFIG_SUCCESSFUL));
         GROUP_STATE_AUTOMATON.put(CONFIG_FAILED,
-                Sets.newHashSet(CONFIG_FAILED, CONFIG_SUCCESSFUL, TO_BE_APPROVAL, DELETING));
+                Sets.newHashSet(CONFIG_FAILED, CONFIG_ING, CONFIG_SUCCESSFUL, TO_BE_APPROVAL, DELETING));
         GROUP_STATE_AUTOMATON.put(CONFIG_SUCCESSFUL,
                 Sets.newHashSet(CONFIG_SUCCESSFUL, TO_BE_APPROVAL, CONFIG_ING, SUSPENDING, DELETING, FINISH));
 

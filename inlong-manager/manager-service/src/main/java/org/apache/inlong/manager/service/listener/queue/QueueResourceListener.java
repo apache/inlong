@@ -21,6 +21,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -103,6 +104,7 @@ public class QueueResourceListener implements QueueOperateListener {
         GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) context.getProcessForm();
         final String groupId = groupProcessForm.getInlongGroupId();
         // ensure the inlong group exists
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
         InlongGroupInfo groupInfo = groupService.get(groupId);
         if (groupInfo == null) {
             String msg = "inlong group not found with groupId=" + groupId;
