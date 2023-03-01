@@ -64,11 +64,11 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
      * row schema that json serializer can parse output row to json format
      */
     private final RowType jsonRowType;
-    private transient GenericRowData reuse;
     /**
      * The index in writeableMetadata of {@link WriteableMetadata#TYPE}
      */
     private final int typeIndex;
+    private transient GenericRowData reuse;
 
     /**
      * Constructor of CanalJsonEnhancedSerializationSchema.
@@ -151,14 +151,22 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
             // mete data injection
             StringData opType = rowKind2String(row.getRowKind());
             reuse.setField(1, opType);
-            IntStream.range(0, wirteableMetadataFieldGetter.length)
-                    .forEach(metaIndex -> {
-                        if (metaIndex < typeIndex) {
-                            reuse.setField(metaIndex + 2, wirteableMetadataFieldGetter[metaIndex].getFieldOrNull(row));
-                        } else if (metaIndex > typeIndex) {
-                            reuse.setField(metaIndex + 1, wirteableMetadataFieldGetter[metaIndex].getFieldOrNull(row));
-                        }
-                    });
+            if (typeIndex != -1) {
+                IntStream.range(0, wirteableMetadataFieldGetter.length)
+                        .forEach(metaIndex -> {
+                            if (metaIndex < typeIndex) {
+                                reuse.setField(metaIndex + 2,
+                                        wirteableMetadataFieldGetter[metaIndex].getFieldOrNull(row));
+                            } else if (metaIndex > typeIndex) {
+                                reuse.setField(metaIndex + 1,
+                                        wirteableMetadataFieldGetter[metaIndex].getFieldOrNull(row));
+                            }
+                        });
+            } else {
+                IntStream.range(0, wirteableMetadataFieldGetter.length)
+                        .forEach(metaIndex -> reuse
+                                .setField(metaIndex + 2, wirteableMetadataFieldGetter[metaIndex].getFieldOrNull(row)));
+            }
             return jsonSerializer.serialize(reuse);
         } catch (Throwable t) {
             throw new RuntimeException("Could not serialize row '" + row + "'.", t);
