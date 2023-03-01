@@ -102,8 +102,8 @@
                                     <shadedPattern>org.apache.inlong.sort.filesystem.shaded.org.joda.time</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.apache.commons</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.filesystem.shaded.org.apache.commons</shadedPattern>
+                                    <pattern>org.apache.commons.lang3</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.filesystem.shaded.org.apache.commons.lang3</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
