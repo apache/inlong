@@ -216,6 +216,11 @@
                 <version>${flume.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>8.5.63</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.flume</groupId>
                 <artifactId>flume-ng-node</artifactId>
                 <version>${flume.version}</version>
