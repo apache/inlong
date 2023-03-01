@@ -121,6 +121,7 @@ TUBEMQ_TARBALL="target/${tubemq_all_tarball_name}"
 cp ${manager_tarball} ${manager_dockerfile_path}/target/${manager_target_tarball_name}
 cp inlong-sort/sort-dist/target/sort-dist-${version}.jar ${manager_dockerfile_path}/target/
 cp inlong-sort/sort-connectors/pulsar/target/sort-connector-pulsar-${version}.jar ${manager_dockerfile_path}/target/
+cp inlong-sort/sort-connectors/kafka/target/sort-connector-kafka-${version}.jar ${manager_dockerfile_path}/target/
 cp inlong-sort/sort-connectors/jdbc/target/sort-connector-jdbc-${version}.jar ${manager_dockerfile_path}/target/
 cp inlong-sort/sort-connectors/hive/target/sort-connector-hive-${version}.jar ${manager_dockerfile_path}/target/
 cp ${agent_tarball} ${agent_dockerfile_path}/target/${agent_tarball_name}

@@ -54,6 +54,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-kafka</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-jdbc</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -115,7 +120,7 @@
                                 <configuration>
                                     <outputDirectory>target/</outputDirectory>
                                     <includeArtifactIds>manager-web,
-                                        sort-dist,sort-connector-pulsar,
+                                        sort-dist,sort-connector-pulsar,sort-connector-kafka,
                                         sort-connector-jdbc,sort-connector-hive</includeArtifactIds>
                                     <excludeTransitive>true</excludeTransitive>
                                 </configuration>
