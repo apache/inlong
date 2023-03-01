@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.doris.util;
 
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.RowData.FieldGetter;
+import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.types.RowKind;
 
 import java.time.LocalDate;
@@ -47,6 +50,28 @@ public class DorisParseUtils {
         } else {
             throw new RuntimeException("Unrecognized row kind: " + rowKind.toString());
         }
+    }
+
+    /**
+     * A utility function used to handle special fieldGetters for specific
+     *
+     * @param type the logical type of the field getter array
+     * @param pos the index of the corresponding row
+     * @return the fieldGetter created
+     */
+    public static FieldGetter createFieldGetter(LogicalType type, int pos) {
+        FieldGetter getter;
+        if (type.toString().equalsIgnoreCase(LogicalTypeEnum.DATE.getType())) {
+            getter = row -> {
+                if (row.isNullAt(pos)) {
+                    return null;
+                }
+                return DorisParseUtils.epochToDate(row.getInt(pos));
+            };
+        } else {
+            getter = RowData.createFieldGetter(type, pos);
+        }
+        return getter;
     }
 
     /**
@@ -88,4 +113,20 @@ public class DorisParseUtils {
         throw new IllegalArgumentException(
                 "Convert to LocalDate failed from unexpected value '" + obj + "' of type " + obj.getClass().getName());
     }
+
+    private enum LogicalTypeEnum {
+
+        DATE("DATE");
+
+        private final String logicalType;
+
+        LogicalTypeEnum(String logicalType) {
+            this.logicalType = logicalType;
+        }
+
+        public String getType() {
+            return logicalType;
+        }
+    }
+
 }
