@@ -216,12 +216,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(bindSet)) {
             bindSet.stream().flatMap(clusterNode -> {
-                        ClusterPageRequest pageRequest = new ClusterPageRequest();
-                        pageRequest.setParentId(cluster.getId());
-                        pageRequest.setType(ClusterType.AGENT);
-                        pageRequest.setKeyword(clusterNode);
-                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
-                    }).filter(Objects::nonNull)
+                ClusterPageRequest pageRequest = new ClusterPageRequest();
+                pageRequest.setParentId(cluster.getId());
+                pageRequest.setType(ClusterType.AGENT);
+                pageRequest.setKeyword(clusterNode);
+                return clusterNodeMapper.selectByCondition(pageRequest).stream();
+            }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -240,12 +240,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(unbindSet)) {
             unbindSet.stream().flatMap(clusterNode -> {
-                        ClusterPageRequest pageRequest = new ClusterPageRequest();
-                        pageRequest.setParentId(cluster.getId());
-                        pageRequest.setType(ClusterType.AGENT);
-                        pageRequest.setKeyword(clusterNode);
-                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
-                    }).filter(Objects::nonNull)
+                ClusterPageRequest pageRequest = new ClusterPageRequest();
+                pageRequest.setParentId(cluster.getId());
+                pageRequest.setType(ClusterType.AGENT);
+                pageRequest.setKeyword(clusterNode);
+                return clusterNodeMapper.selectByCondition(pageRequest).stream();
+            }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -396,7 +396,7 @@ public class AgentServiceImpl implements AgentService {
             if (!matchGroup(sourceEntity, clusterNodeEntity)
                     && !exceptedUnmatchedStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))) {
                 LOGGER.info("Transform task({}) from {} to {} because tag mismatch "
-                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                         sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(),
                         agentIp, agentClusterName);
                 sourceMapper.updateStatus(
@@ -416,7 +416,7 @@ public class AgentServiceImpl implements AgentService {
                     && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
                     && !exceptedMatchedStreamStatus.contains(StreamStatus.forCode(streamEntity.getStatus()))) {
                 LOGGER.info("Transform task({}) from {} to {} because tag rematch "
-                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                         sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(),
                         agentIp, agentClusterName);
                 sourceMapper.updateStatus(
