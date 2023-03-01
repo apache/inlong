@@ -54,6 +54,13 @@
                                 <includes>
                                     <include>org.apache.inlong:*</include>
                                     <include>com.google.protobuf:*</include>
+                                    <include>com.amazonaws:*</include>
+                                    <include>com.fasterxml.jackson.core:*</include>
+                                    <include>commons-logging:commons-logging</include>
+                                    <include>org.apache.httpcomponents:*</include>
+                                    <include>software.amazon.ion:*</include>
+                                    <include>joda-time:*</include>
+                                    <include>org.apache.commons:commons-lang3</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -69,6 +76,34 @@
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.base</pattern>
                                     <shadedPattern>org.apache.inlong.sort.filesystem.shaded.org.apache.inlong.sort.base</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.amazonaws</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.filesystem.shaded.com.amazonaws</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.fasterxml.jackson.core</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.filesystem.shaded.com.fasterxml.jackson.core</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons.logging</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.filesystem.shaded.org.apache.commons.logging</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.http</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.filesystem.shaded.org.apache.http</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>software.amazon.ion</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.filesystem.shaded.software.amazon.ion</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.joda.time</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.filesystem.shaded.org.joda.time</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.commons</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.filesystem.shaded.org.apache.commons</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
