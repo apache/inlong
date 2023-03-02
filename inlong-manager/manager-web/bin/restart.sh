@@ -39,4 +39,4 @@ echo "restart in" ${BIN_PATH}
 bash +x "$BIN_PATH"/shutdown.sh
 
 # Start service
-bash +x"$BIN_PATH"/startup.sh
+bash +x "$BIN_PATH"/startup.sh
