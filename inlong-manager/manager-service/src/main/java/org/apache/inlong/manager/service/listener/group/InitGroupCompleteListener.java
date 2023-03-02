@@ -85,10 +85,10 @@ public class InitGroupCompleteListener implements ProcessEventListener {
             InlongGroupRequest updateGroupRequest = groupInfo.genRequest();
             updateGroupRequest.setVersion(existGroup.getVersion());
             groupService.update(updateGroupRequest, operator);
+            streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
 
             // update status of other related configs
             if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(groupInfo.getEnableCreateResource())) {
-                streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
                 if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
                     sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
                 } else {
