@@ -42,6 +42,11 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     LoadEntity: () => import('./Hive'),
   },
   {
+    label: 'Hudi',
+    value: 'HUDI',
+    LoadEntity: () => import('./Hudi'),
+  },
+  {
     label: 'Iceberg',
     value: 'ICEBERG',
     LoadEntity: () => import('./Iceberg'),
