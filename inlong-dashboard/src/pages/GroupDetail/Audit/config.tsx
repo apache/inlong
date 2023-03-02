@@ -64,8 +64,7 @@ function getAuditLabel(auditId: number, nodeType?: string) {
   const item = id >= 9 ? auditMap[id % 2 ? 7 : 8] : auditMap[id];
   const label = item?.label || id;
   const sinkLabel = sinks.find(c => c.value === nodeType)?.label;
-  // return nodeType ? `${label}(${sinkLabel})` : label;
-  return nodeType ? `${label}(${nodeType})` : label;
+  return nodeType ? `${label}(${sinkLabel})` : label;
 }
 
 export const toChartData = (source, sourceDataMap) => {
