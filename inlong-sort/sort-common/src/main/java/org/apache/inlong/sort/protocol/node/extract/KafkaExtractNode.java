@@ -172,7 +172,7 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
     /**
      * true is upsert kafka connector
      * false is kafka connector
-     * @return connector option is
+     * @return Boolean variable that decides connector option
      */
     private boolean isUpsertKafkaConnector(Format format, boolean hasPrimaryKey) {
         if (format instanceof JsonFormat && hasPrimaryKey) {
