@@ -99,7 +99,7 @@ public class KuduLoadNode extends LoadNode implements InlongMetric, Serializable
         Map<String, String> properties = getProperties();
         if (properties != null) {
             properties.forEach((keyName, ddlValue) -> {
-                if (StringUtils.isNoneBlank(keyName) &&
+                if (StringUtils.isNotBlank(keyName) &&
                         keyName.startsWith(DDL_ATTR_PREFIX)) {
                     String ddlKeyName = keyName.substring(DDL_ATTR_PREFIX.length());
                     options.put(ddlKeyName, ddlValue);

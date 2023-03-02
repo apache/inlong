@@ -66,10 +66,6 @@ public class KuduSinkOperator extends AbstractSinkOperator {
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
-        if (!this.getSinkType().equals(request.getSinkType())) {
-            throw new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
-                    ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
-        }
         KuduSinkRequest sinkRequest = (KuduSinkRequest) request;
         String masters = sinkRequest.getMasters();
         if (StringUtils.isBlank(masters)) {
