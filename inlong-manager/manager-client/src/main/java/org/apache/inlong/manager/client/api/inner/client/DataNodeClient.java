@@ -26,6 +26,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
 /**
@@ -75,9 +76,9 @@ public class DataNodeClient {
      * @param request page request conditions
      * @return node list
      */
-    public PageResult<DataNodeInfo> list(DataNodeRequest request) {
-        Preconditions.expectNotNull(request, "request cannot be null");
-        Response<PageResult<DataNodeInfo>> response = ClientUtils.executeHttpCall(dataNodeApi.list(request));
+    public PageResult<DataNodeInfo> list(DataNodePageRequest pageRequest) {
+        Preconditions.expectNotNull(pageRequest, "request cannot be null");
+        Response<PageResult<DataNodeInfo>> response = ClientUtils.executeHttpCall(dataNodeApi.list(pageRequest));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

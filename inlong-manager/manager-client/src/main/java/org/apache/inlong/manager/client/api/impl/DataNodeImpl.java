@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
 public class DataNodeImpl implements DataNode {
@@ -54,9 +55,9 @@ public class DataNodeImpl implements DataNode {
     }
 
     @Override
-    public PageResult<DataNodeInfo> list(DataNodeRequest request) {
-        Preconditions.expectNotNull(request, "request cannot be null");
-        return dataNodeClient.list(request);
+    public PageResult<DataNodeInfo> list(DataNodePageRequest pageRequest) {
+        Preconditions.expectNotNull(pageRequest, "request cannot be null");
+        return dataNodeClient.list(pageRequest);
     }
 
     @Override
