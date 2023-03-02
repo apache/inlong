@@ -95,9 +95,8 @@ public class StarRocksStreamLoadVisitor implements Serializable {
                             + "2.Wrong column_separator or row_delimiter. "
                             + "3.Column count exceeded the limitation.");
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Stream Load response: \n%s\n", JSON.toJSONString(loadResult)));
-        }
+        LOG.info(String.format("Stream Load response: \n%s\n", JSON.toJSONString(loadResult)));
+
         if (RESULT_FAILED.equals(loadResult.get(keyStatus))) {
             Map<String, String> logMap = new HashMap<>();
             if (loadResult.containsKey("ErrorURL")) {

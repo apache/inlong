@@ -58,6 +58,7 @@ import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.binary.NestedRowData;
 import org.apache.flink.types.RowKind;
+import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.InstantiationUtil;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
@@ -252,12 +253,31 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
             String tableName = jsonDynamicSchemaFormat.parse(rootNode, tablePattern);
 
             DirtyOptions dirtyOptions = dirtySinkHelper.getDirtyOptions();
-            String dirtyLabel = jsonDynamicSchemaFormat.parse(rootNode,
-                    DirtySinkHelper.regexReplace(dirtyOptions.getLabels(), DirtyType.BATCH_LOAD_ERROR, null));
-            String dirtyLogTag = jsonDynamicSchemaFormat.parse(rootNode,
-                    DirtySinkHelper.regexReplace(dirtyOptions.getLogTag(), DirtyType.BATCH_LOAD_ERROR, null));
-            String dirtyIdentify = jsonDynamicSchemaFormat.parse(rootNode,
-                    DirtySinkHelper.regexReplace(dirtyOptions.getIdentifier(), DirtyType.BATCH_LOAD_ERROR, null));
+
+            String dirtyLabel = null;
+            String dirtyLogTag = null;
+            String dirtyIdentify = null;
+            try {
+                if (dirtyOptions.ignoreDirty()) {
+                    if (dirtyOptions.getLabels() != null) {
+                        dirtyLabel = jsonDynamicSchemaFormat.parse(rootNode,
+                                DirtySinkHelper.regexReplace(dirtyOptions.getLabels(), DirtyType.BATCH_LOAD_ERROR,
+                                        null));
+                    }
+                    if (dirtyOptions.getLogTag() != null) {
+                        dirtyLogTag = jsonDynamicSchemaFormat.parse(rootNode,
+                                DirtySinkHelper.regexReplace(dirtyOptions.getLogTag(), DirtyType.BATCH_LOAD_ERROR,
+                                        null));
+                    }
+                    if (dirtyOptions.getIdentifier() != null) {
+                        dirtyIdentify = jsonDynamicSchemaFormat.parse(rootNode,
+                                DirtySinkHelper.regexReplace(dirtyOptions.getIdentifier(), DirtyType.BATCH_LOAD_ERROR,
+                                        null));
+                    }
+                }
+            } catch (Exception e) {
+                LOG.warn("Parse dirty options failed. {}", ExceptionUtils.stringifyException(e));
+            }
 
             List<RowKind> rowKinds = jsonDynamicSchemaFormat.opType2RowKind(
                     jsonDynamicSchemaFormat.getOpType(rootNode));
@@ -291,7 +311,9 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
                         default:
                             throw new RuntimeException("Unrecognized row kind:" + rowKind);
                     }
-                    records.add(record);
+                    if (record != null) {
+                        records.add(record);
+                    }
                 }
             }
             sinkManager.writeRecords(databaseName, tableName, records, dirtyLogTag, dirtyIdentify, dirtyLabel);
