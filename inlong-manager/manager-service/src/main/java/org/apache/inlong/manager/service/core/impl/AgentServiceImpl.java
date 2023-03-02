@@ -531,7 +531,6 @@ public class AgentServiceImpl implements AgentService {
                     dataConfig.setTopicInfo(topicConfig);
                 }
             } else {
-                dataConfig.setSyncSend(0);
                 LOGGER.warn("set syncSend=[0] as the stream not exists for groupId={}, streamId={}", groupId, streamId);
             }
         }
