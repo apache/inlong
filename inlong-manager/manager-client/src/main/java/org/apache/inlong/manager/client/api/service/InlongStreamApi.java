@@ -69,6 +69,4 @@ public interface InlongStreamApi {
     @DELETE("stream/delete")
     Call<Response<Boolean>> delete(@Query("groupId") String groupId, @Query("streamId") String streamId);
 
-    @POST("stream/parseFields")
-    Call<Response<List<StreamField>>> parseFields(@Body String fieldsJson);
 }
