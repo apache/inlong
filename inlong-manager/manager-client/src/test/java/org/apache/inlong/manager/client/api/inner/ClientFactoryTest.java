@@ -662,7 +662,7 @@ class ClientFactoryTest {
                         .build());
 
         stubFor(
-                get(urlMatching("/inlong/manager/api/sink/list.*"))
+                post(urlMatching("/inlong/manager/api/sink/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(new PageResult<>(Lists.newArrayList(sinkList)))))));
@@ -674,7 +674,7 @@ class ClientFactoryTest {
     @Test
     void testListSink4AllTypeShouldThrowException() {
         stubFor(
-                get(urlMatching("/inlong/manager/api/sink/list.*"))
+                post(urlMatching("/inlong/manager/api/sink/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.fail("groupId should not empty")))));

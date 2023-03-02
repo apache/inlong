@@ -62,9 +62,9 @@ public class OpenStreamSourceController {
         return Response.success(sourceService.get(id, LoginUserUtils.getLoginUser()));
     }
 
-    @RequestMapping(value = "/source/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/source/list", method = RequestMethod.POST)
     @ApiOperation(value = "List stream sources by paginating")
-    public Response<PageResult<? extends StreamSource>> listByCondition(SourcePageRequest request) {
+    public Response<PageResult<? extends StreamSource>> listByCondition(@RequestBody SourcePageRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sourceService.listByCondition(request, LoginUserUtils.getLoginUser()));

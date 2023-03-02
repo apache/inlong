@@ -17,6 +17,10 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -39,11 +43,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
 /**
  * Open InLong Stream Sink controller
  */
@@ -64,9 +63,9 @@ public class OpenStreamSinkController {
         return Response.success(sinkService.get(id, LoginUserUtils.getLoginUser()));
     }
 
-    @RequestMapping(value = "/sink/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/sink/list", method = RequestMethod.POST)
     @ApiOperation(value = "List stream sinks by paginating")
-    public Response<List<? extends StreamSink>> listByCondition(SinkPageRequest request) {
+    public Response<List<? extends StreamSink>> listByCondition(@RequestBody SinkPageRequest request) {
         Preconditions.expectNotNull(request, ErrorCodeEnum.INVALID_PARAMETER, "request cannot be null");
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sinkService.listByCondition(request, LoginUserUtils.getLoginUser()));

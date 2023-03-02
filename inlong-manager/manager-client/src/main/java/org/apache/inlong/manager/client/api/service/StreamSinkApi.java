@@ -55,7 +55,7 @@ public interface StreamSinkApi {
     @GET("sink/get/{id}")
     Call<Response<StreamSink>> get(@Path("id") Integer sinkId);
 
-    @GET("sink/list")
+    @POST("sink/list")
     Call<Response<PageResult<StreamSink>>> list(@Body SinkPageRequest request);
 
     @POST("sink/parseFields")

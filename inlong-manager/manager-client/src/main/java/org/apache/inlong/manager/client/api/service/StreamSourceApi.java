@@ -38,7 +38,7 @@ public interface StreamSourceApi {
     @POST("source/update")
     Call<Response<Boolean>> updateSource(@Body SourceRequest request);
 
-    @GET("source/list")
+    @POST("source/list")
     Call<Response<PageResult<StreamSource>>> listSources(@Body SourcePageRequest pageRequest);
 
     @DELETE("source/delete/{id}")
