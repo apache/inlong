@@ -125,6 +125,17 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
         return (RowType) DataTypeUtils.appendRowFields(root, metadataFields).getLogicalType();
     }
 
+    /**
+     * Init for this serialization
+     * In this method, it initializes {@link this#reuse}, the size of the {@link this#reuse} will be
+     * length of physicalFields add the length of metadata fields.Here we put the physical field into a array whose key
+     * is 'data', and put it in the zeroth element of the {@link this#reuse}, and put the {@link WriteableMetadata#TYPE}
+     * in the first element of the {@link this#reuse},so when the metadata field does not contain
+     * {@link WriteableMetadata#TYPE}, it's size is two + the number of metadata fields, when included, it's size is
+     * one + the number of metadata fields
+     *
+     * @param context The context used for initialization
+     */
     @Override
     public void open(InitializationContext context) {
         int size = 2 + wirteableMetadataFieldGetter.length;
