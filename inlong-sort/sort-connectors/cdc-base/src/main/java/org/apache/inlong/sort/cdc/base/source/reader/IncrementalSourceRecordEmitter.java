@@ -25,12 +25,6 @@ import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getMessa
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isDataChangeRecord;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isSchemaChangeEvent;
 
-import com.ververica.cdc.connectors.base.source.meta.offset.Offset;
-import com.ververica.cdc.connectors.base.source.meta.offset.OffsetFactory;
-import com.ververica.cdc.connectors.base.source.meta.split.SourceRecords;
-import com.ververica.cdc.connectors.base.source.meta.split.SourceSplitState;
-import com.ververica.cdc.connectors.base.source.metrics.SourceReaderMetrics;
-import com.ververica.cdc.connectors.base.source.reader.IncrementalSourceReader;
 import io.debezium.document.Array;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.TableChanges;
@@ -42,6 +36,11 @@ import org.apache.flink.connector.base.source.reader.RecordEmitter;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceRecords;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
+import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>The {@link RecordEmitter} buffers the snapshot records of split and call the stream reader to
  * emit records rather than emit the records directly.
- * Copy from com.ververica:flink-cdc-base:2.3.0
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class IncrementalSourceRecordEmitter<T>
         implements

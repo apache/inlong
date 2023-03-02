@@ -20,6 +20,7 @@ package org.apache.inlong.sort.cdc.base.source;
 import com.ververica.cdc.connectors.base.options.StartupMode;
 import io.debezium.relational.TableId;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 import org.apache.flink.annotation.Experimental;
@@ -36,6 +37,7 @@ import org.apache.flink.connector.base.source.reader.synchronization.FutureCompl
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
@@ -126,7 +128,8 @@ public class IncrementalSource<T, C extends SourceConfig>
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
 
-        sourceReaderMetrics.registerMetrics(metricOption);
+        sourceReaderMetrics.registerMetrics(metricOption,
+                Arrays.asList(Constants.DATABASE_NAME, Constants.SCHEMA_NAME, Constants.TABLE_NAME));
         Supplier<IncrementalSourceSplitReader<C>> splitReaderSupplier =
                 () -> new IncrementalSourceSplitReader<>(
                         readerContext.getIndexOfSubtask(), dataSourceDialect, sourceConfig);

@@ -20,15 +20,20 @@ package org.apache.inlong.sort.cdc.oracle.source;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 import com.ververica.cdc.connectors.base.options.StartupOptions;
-import com.ververica.cdc.connectors.oracle.source.OracleDialect;
-import com.ververica.cdc.connectors.oracle.source.config.OracleSourceConfigFactory;
-import com.ververica.cdc.connectors.oracle.source.meta.offset.RedoLogOffsetFactory;
 import java.time.Duration;
 import java.util.Properties;
 import javax.annotation.Nullable;
 import org.apache.flink.annotation.Internal;
+import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.source.jdbc.JdbcIncrementalSource;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceRecords;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
+import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
+import org.apache.inlong.sort.cdc.oracle.source.config.OracleSourceConfigFactory;
+import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffsetFactory;
+import org.apache.inlong.sort.cdc.oracle.source.reader.OracleRecordEmitter;
 
 /**
  * The builder class for {@link OracleIncrementalSource} to make it easier for the users to
@@ -150,6 +155,16 @@ public class OracleSourceBuilder<T> {
         return this;
     }
 
+    public OracleSourceBuilder<T> inlongAudit(String inlongAudit) {
+        this.configFactory.inlongAudit(inlongAudit);
+        return this;
+    }
+
+    public OracleSourceBuilder<T> inlongMetric(String inlongMetric) {
+        this.configFactory.inlongMetric(inlongMetric);
+        return this;
+    }
+
     /** The maximum fetch size for per poll when read table snapshot. */
     public OracleSourceBuilder<T> fetchSize(int fetchSize) {
         this.configFactory.fetchSize(fetchSize);
@@ -240,5 +255,14 @@ public class OracleSourceBuilder<T> {
             return new OracleSourceBuilder<>();
         }
 
+        @Override
+        protected RecordEmitter<SourceRecords, T, SourceSplitState> createRecordEmitter(
+                SourceConfig sourceConfig, SourceReaderMetrics sourceReaderMetrics) {
+            return new OracleRecordEmitter<>(
+                    deserializationSchema,
+                    sourceReaderMetrics,
+                    sourceConfig.isIncludeSchemaChanges(),
+                    offsetFactory);
+        }
     }
 }
