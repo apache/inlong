@@ -203,7 +203,7 @@ public class PostgresStreamFetchTask implements FetchTask<SourceSplitBase> {
             super.execute(context, offsetContext);
             if (isBoundedRead()) {
 
-                LOG.debug("StreamSplit is bounded read: {}", streamSplit);
+                LOG.info("StreamSplit is bounded read: {}", streamSplit);
                 final PostgresOffset currentOffset = PostgresOffset.of(offsetContext.getOffset());
 
                 if (currentOffset.isAtOrAfter(streamSplit.getEndingOffset())) {

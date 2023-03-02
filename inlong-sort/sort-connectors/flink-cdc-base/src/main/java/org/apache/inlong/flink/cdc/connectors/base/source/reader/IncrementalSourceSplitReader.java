@@ -140,6 +140,7 @@ public class IncrementalSourceSplitReader<C extends SourceConfig>
                 currentFetcher = new IncrementalSourceStreamFetcher(taskContext, subtaskId);
                 LOG.info("Stream fetcher is created.");
             }
+            LOG.info("in checkSplitOrStartNext submitTask.");
             currentFetcher.submitTask(dataSourceDialect.createFetchTask(nextSplit));
         }
     }

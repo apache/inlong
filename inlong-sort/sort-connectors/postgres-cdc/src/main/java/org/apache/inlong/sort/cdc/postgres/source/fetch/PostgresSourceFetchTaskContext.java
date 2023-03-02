@@ -116,7 +116,7 @@ public class PostgresSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
 
     @Override
     public void configure(SourceSplitBase sourceSplitBase) {
-        LOG.debug("Configuring PostgresSourceFetchTaskContext for split: {}", sourceSplitBase);
+        LOG.info("Configuring PostgresSourceFetchTaskContext for split: {}", sourceSplitBase);
         PostgresConnectorConfig dbzConfig = getDbzConnectorConfig();
 
         PostgresConnectorConfig.SnapshotMode snapshotMode =
