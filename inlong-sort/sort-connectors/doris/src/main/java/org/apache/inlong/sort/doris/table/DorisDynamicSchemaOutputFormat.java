@@ -149,6 +149,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final LogicalType[] logicalTypes;
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
+    private transient Schema schema;
 
     public DorisDynamicSchemaOutputFormat(DorisOptions option,
             DorisReadOptions readOptions,
@@ -191,15 +192,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         return new DorisDynamicSchemaOutputFormat.Builder();
     }
 
-    private String parseKeysType() {
-        try {
-            Schema schema = RestService.getSchema(options, readOptions, LOG);
-            return schema.getKeysType();
-        } catch (DorisException e) {
-            throw new RuntimeException("Failed fetch doris table schema: " + options.getTableIdentifier());
-        }
-    }
-
     private void handleStreamLoadProp() {
         Properties props = executionOptions.getStreamLoadProp();
         boolean ifEscape = Boolean.parseBoolean(props.getProperty(ESCAPE_DELIMITERS_KEY, ESCAPE_DELIMITERS_DEFAULT));
@@ -230,12 +222,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         if (multipleSink) {
             return executionOptions.getEnableDelete();
         }
-        try {
-            Schema schema = RestService.getSchema(options, readOptions, LOG);
-            return executionOptions.getEnableDelete() || UNIQUE_KEYS_TYPE.equals(schema.getKeysType());
-        } catch (DorisException e) {
-            throw new RuntimeException("Failed fetch doris single table schema: " + options.getTableIdentifier(), e);
-        }
+        return executionOptions.getEnableDelete() || UNIQUE_KEYS_TYPE.equals(schema.getKeysType());
     }
 
     @Override
@@ -251,16 +238,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             handleStreamLoadProp();
             this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
             for (int i = 0; i < logicalTypes.length; i++) {
-                fieldGetters[i] = RowData.createFieldGetter(logicalTypes[i], i);
-                if ("DATE".equalsIgnoreCase(logicalTypes[i].toString())) {
-                    int finalI = i;
-                    fieldGetters[i] = row -> {
-                        if (row.isNullAt(finalI)) {
-                            return null;
-                        }
-                        return DorisParseUtils.epochToDate(row.getInt(finalI));
-                    };
-                }
+                fieldGetters[i] = DorisParseUtils.createFieldGetter(logicalTypes[i], i);
+            }
+            try {
+                schema = RestService.getSchema(options, readOptions, LOG);
+            } catch (DorisException e) {
+                throw new RuntimeException(e);
             }
         }
 

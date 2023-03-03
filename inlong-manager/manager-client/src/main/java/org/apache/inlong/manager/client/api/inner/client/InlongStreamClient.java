@@ -28,6 +28,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 
 import java.util.List;
 
@@ -210,6 +211,18 @@ public class InlongStreamClient {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongStreamApi.delete(groupId, streamId));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Converts a json string to a streamFields
+     *
+     * @param fieldsJson JSON string for the field information
+     * @return list of stream field
+     */
+    public List<StreamField> parseFields(String fieldsJson) {
+        Response<List<StreamField>> response = ClientUtils.executeHttpCall(inlongStreamApi.parseFields(fieldsJson));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

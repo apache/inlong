@@ -118,7 +118,7 @@ enum RegisterMasterStatus {
   kMasterUnRegistered = 0,
   kMasterRegistering = 1,
   kMasterRegistered = 2
-}; 
+};
 
 // enum MasterHBStatus
 enum MasterHBStatus {

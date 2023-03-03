@@ -35,6 +35,7 @@ import { useDefaultMeta, useLoadMeta, SinkMetaType } from '@/metas';
 import request from '@/utils/request';
 import { pickObjectArray } from '@/utils';
 import { CommonInterface } from '../common';
+import { sinks } from '@/metas/sinks';
 
 interface Props extends CommonInterface {
   inlongStreamId?: string;
@@ -225,7 +226,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
               >
                 <span>
                   <span style={{ marginRight: 10 }}>{item.sinkName}</span>
-                  <Tag>{item.sinkType}</Tag>
+                  <Tag>{sinks.find(c => c.value === item.sinkType)?.label}</Tag>
                 </span>
               </List.Item>
             )}

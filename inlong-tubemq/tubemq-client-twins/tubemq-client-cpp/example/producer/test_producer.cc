@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  while (MessageSentCallback::kTotalCounter.Get() < (long)msg_count) {
+  while (MessageSentCallback::kTotalCounter.Get() < (int64)msg_count) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   auto stop = std::chrono::steady_clock::now();

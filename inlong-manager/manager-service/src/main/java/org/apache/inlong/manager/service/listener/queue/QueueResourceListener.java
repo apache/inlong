@@ -33,6 +33,7 @@ import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProces
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperatorFactory;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -77,6 +78,8 @@ public class QueueResourceListener implements QueueOperateListener {
     @Autowired
     private InlongGroupService groupService;
     @Autowired
+    private InlongStreamService streamService;
+    @Autowired
     private WorkflowService workflowService;
     @Autowired
     private QueueResourceOperatorFactory queueOperatorFactory;
@@ -106,6 +109,9 @@ public class QueueResourceListener implements QueueOperateListener {
             log.error(msg);
             throw new WorkflowListenerException(msg);
         }
+        // Read the current information
+        groupProcessForm.setGroupInfo(groupInfo);
+        groupProcessForm.setStreamInfos(streamService.list(groupId));
 
         if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(groupInfo.getEnableCreateResource())) {
             log.warn("skip to execute QueueResourceListener as disable create resource for groupId={}", groupId);

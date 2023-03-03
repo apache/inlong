@@ -17,18 +17,18 @@
 
 package org.apache.inlong.sort.cdc.base.source.jdbc;
 
-import com.ververica.cdc.connectors.base.config.JdbcSourceConfig;
-import com.ververica.cdc.connectors.base.config.JdbcSourceConfigFactory;
-import com.ververica.cdc.connectors.base.dialect.JdbcDataSourceDialect;
-import com.ververica.cdc.connectors.base.source.meta.offset.OffsetFactory;
+import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
+import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfigFactory;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.dialect.JdbcDataSourceDialect;
 import org.apache.inlong.sort.cdc.base.source.IncrementalSource;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
 
 /**
  * The basic source of Incremental Snapshot framework for JDBC datasource, it is based on FLIP-27
  * and Watermark Signal Algorithm which supports parallel reading snapshot of table and then
  * continue to capture data change by streaming reading.
- * Copy from com.ververica:flink-cdc-base:2.3.0
+ * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 public class JdbcIncrementalSource<T> extends IncrementalSource<T, JdbcSourceConfig> {
 

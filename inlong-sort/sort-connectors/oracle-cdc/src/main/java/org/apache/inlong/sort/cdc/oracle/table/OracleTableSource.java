@@ -187,6 +187,8 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                             .connectMaxRetries(connectMaxRetries)
                             .distributionFactorUpper(distributionFactorUpper)
                             .distributionFactorLower(distributionFactorLower)
+                            .inlongMetric(inlongMetric)
+                            .inlongAudit(inlongAudit)
                             .build();
 
             return SourceProvider.of(oracleChangeEventSource);

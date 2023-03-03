@@ -21,6 +21,7 @@ import React from 'react';
 import { Button } from 'antd';
 import dayjs from 'dayjs';
 import i18n from '@/i18n';
+import { sinks } from '@/metas/sinks';
 
 export const timeStaticsDimList = [
   {
@@ -62,7 +63,8 @@ function getAuditLabel(auditId: number, nodeType?: string) {
   const id = +auditId;
   const item = id >= 9 ? auditMap[id % 2 ? 7 : 8] : auditMap[id];
   const label = item?.label || id;
-  return nodeType ? `${label}(${nodeType})` : label;
+  const sinkLabel = sinks.find(c => c.value === nodeType)?.label;
+  return nodeType ? `${label}(${sinkLabel})` : label;
 }
 
 export const toChartData = (source, sourceDataMap) => {

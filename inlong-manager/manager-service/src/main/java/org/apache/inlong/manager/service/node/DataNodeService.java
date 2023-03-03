@@ -53,9 +53,10 @@ public interface DataNodeService {
      * Get data node by id.
      *
      * @param id node id
+     * @param currentUser current user
      * @return node info
      */
-    DataNodeInfo get(Integer id);
+    DataNodeInfo get(Integer id, String currentUser);
 
     /**
      * Get data node by id.

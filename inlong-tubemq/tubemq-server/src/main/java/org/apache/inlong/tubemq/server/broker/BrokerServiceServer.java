@@ -612,7 +612,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        final CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
         // get and check clientId field
         if (!PBParameterUtils.checkClientId(request.getClientId(), strBuffer, result)) {
             builder.setErrCode(result.getErrCode());
@@ -808,7 +808,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
     public RegisterResponseB2C consumerRegisterC2B(RegisterRequestC2B request,
             final String rmtAddress,
             boolean overtls) throws Throwable {
-        ProcessResult result = new ProcessResult();
+        final ProcessResult result = new ProcessResult();
         RegisterResponseB2C.Builder builder = RegisterResponseB2C.newBuilder();
         builder.setSuccess(false);
         builder.setCurrOffset(-1);
@@ -822,7 +822,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
+        final CertifiedInfo certifiedInfo = (CertifiedInfo) result.getRetData();
         final StringBuilder strBuffer = new StringBuilder(512);
         // get and check clientId field
         if (!PBParameterUtils.checkClientId(request.getClientId(), strBuffer, result)) {

@@ -27,6 +27,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperatorFactory;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
@@ -48,6 +49,8 @@ public class SinkResourceListener implements SinkOperateListener {
     @Autowired
     private StreamSinkEntityMapper sinkMapper;
     @Autowired
+    private InlongStreamService streamService;
+    @Autowired
     private SinkResourceOperatorFactory sinkOperatorFactory;
 
     @Override
@@ -62,7 +65,7 @@ public class SinkResourceListener implements SinkOperateListener {
         log.info("begin to create sink resources for groupId={}", groupId);
 
         List<String> streamIdList = new ArrayList<>();
-        List<InlongStreamInfo> streamList = form.getStreamInfos();
+        List<InlongStreamInfo> streamList = streamService.list(groupId);
         if (CollectionUtils.isNotEmpty(streamList)) {
             streamIdList = streamList.stream().map(InlongStreamInfo::getInlongStreamId).collect(Collectors.toList());
         }

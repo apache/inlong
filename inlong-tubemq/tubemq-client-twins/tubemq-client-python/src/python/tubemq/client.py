@@ -86,7 +86,8 @@ class Producer(tubemq_client.TubeMQProducer):
         if not result:
             print("StopTubeMQService failure, reason is:" + err_info)
             exit(1)
-    
+
+
 class Consumer(tubemq_client.TubeMQConsumer):
     def __init__(self,
                  master_addr,

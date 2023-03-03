@@ -18,8 +18,6 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
-import java.util.HashMap;
-import java.util.Map.Entry;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -36,13 +34,9 @@ import org.apache.inlong.sort.protocol.constant.KafkaConstant;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
-import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
-import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
-import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
-import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import javax.annotation.Nonnull;
@@ -155,40 +149,19 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
         Map<String, String> options = super.tableOptions();
         options.put(KafkaConstant.TOPIC, topic);
         options.put(KafkaConstant.PROPERTIES_BOOTSTRAP_SERVERS, bootstrapServers);
-
-        boolean wrapWithInlongMsg = format instanceof InLongMsgFormat;
-        Format realFormat = wrapWithInlongMsg ? ((InLongMsgFormat) format).getInnerFormat() : format;
-        if (realFormat instanceof JsonFormat
-                || realFormat instanceof AvroFormat
-                || realFormat instanceof CsvFormat) {
-            if (StringUtils.isEmpty(this.primaryKey)) {
-                options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
-                options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
-                if (StringUtils.isNotEmpty(scanSpecificOffsets)) {
-                    options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
-                }
-                if (StringUtils.isNotBlank(scanTimestampMillis)) {
-                    options.put(KafkaConstant.SCAN_STARTUP_TIMESTAMP_MILLIS, scanTimestampMillis);
-                }
-                options.putAll(delegateInlongFormat(realFormat.generateOptions(false), wrapWithInlongMsg));
-            } else {
-                options.put(KafkaConstant.CONNECTOR, KafkaConstant.UPSERT_KAFKA);
-                options.putAll(delegateInlongFormat(realFormat.generateOptions(true), wrapWithInlongMsg));
-            }
-        } else if (realFormat instanceof CanalJsonFormat
-                || realFormat instanceof DebeziumJsonFormat
-                || realFormat instanceof RawFormat) {
-            options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
-            options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
-            if (StringUtils.isNotEmpty(scanSpecificOffsets)) {
-                options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
-            }
-            if (StringUtils.isNotBlank(scanTimestampMillis)) {
-                options.put(KafkaConstant.SCAN_STARTUP_TIMESTAMP_MILLIS, scanTimestampMillis);
-            }
-            options.putAll(delegateInlongFormat(realFormat.generateOptions(false), wrapWithInlongMsg));
+        options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
+        if (isUpsertKafkaConnector(format, !StringUtils.isEmpty(this.primaryKey))) {
+            options.put(KafkaConstant.CONNECTOR, KafkaConstant.UPSERT_KAFKA);
+            options.putAll(format.generateOptions(true));
         } else {
-            throw new IllegalArgumentException("kafka extract node format is IllegalArgument");
+            options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
+            options.putAll(format.generateOptions(false));
+        }
+        if (StringUtils.isNotEmpty(scanSpecificOffsets)) {
+            options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
+        }
+        if (StringUtils.isNotBlank(scanTimestampMillis)) {
+            options.put(KafkaConstant.SCAN_STARTUP_TIMESTAMP_MILLIS, scanTimestampMillis);
         }
         if (StringUtils.isNotEmpty(groupId)) {
             options.put(KafkaConstant.PROPERTIES_GROUP_ID, groupId);
@@ -196,24 +169,19 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
         return options;
     }
 
-    private Map<String, String> delegateInlongFormat(
-            Map<String, String> realOptions,
-            boolean wrapWithInlongMsg) {
-        if (!wrapWithInlongMsg) {
-            return realOptions;
+    /**
+     * true is upsert kafka connector
+     * false is kafka connector
+     * @return Boolean variable that decides connector option
+     */
+    private boolean isUpsertKafkaConnector(Format format, boolean hasPrimaryKey) {
+        if (format instanceof JsonFormat && hasPrimaryKey) {
+            return true;
+        } else if (format instanceof CsvFormat && hasPrimaryKey) {
+            return true;
+        } else {
+            return format instanceof AvroFormat && hasPrimaryKey;
         }
-        Map<String, String> options = new HashMap<>();
-        for (Entry<String, String> entry : realOptions.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if ("format".equals(key)) {
-                options.put("format", "inlong-msg");
-                options.put("inlong-msg.inner.format", value);
-            } else {
-                options.put("inlong-msg." + key, value);
-            }
-        }
-        return options;
     }
 
     @Override

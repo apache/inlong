@@ -64,6 +64,10 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
      * row schema that json serializer can parse output row to json format
      */
     private final RowType jsonRowType;
+    /**
+     * The index in writeableMetadata of {@link WriteableMetadata#TYPE}
+     */
+    private final int typeIndex;
     private transient GenericRowData reuse;
 
     /**
@@ -78,6 +82,7 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
             boolean encodeDecimalAsPlainNumber) {
         final List<LogicalType> physicalChildren = physicalDataType.getLogicalType().getChildren();
         this.jsonRowType = createJsonRowType(physicalDataType, writeableMetadata);
+        typeIndex = writeableMetadata.indexOf(WriteableMetadata.TYPE);
         this.physicalFieldGetter = IntStream.range(0, physicalChildren.size())
                 .mapToObj(targetField -> RowData.createFieldGetter(physicalChildren.get(targetField), targetField))
                 .toArray(RowData.FieldGetter[]::new);
@@ -120,11 +125,29 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
         return (RowType) DataTypeUtils.appendRowFields(root, metadataFields).getLogicalType();
     }
 
+    /**
+     * Init for this serialization
+     * In this method, it initializes {@link this#reuse}, the size of the {@link this#reuse} will be
+     * length of physicalFields add the length of metadata fields.Here we put the physical field into a array whose key
+     * is 'data', and put it in the zeroth element of the {@link this#reuse}, and put the {@link WriteableMetadata#TYPE}
+     * in the first element of the {@link this#reuse},so when the metadata field does not contain
+     * {@link WriteableMetadata#TYPE}, it's size is two + the number of metadata fields, when included, it's size is
+     * one + the number of metadata fields
+     *
+     * @param context The context used for initialization
+     */
     @Override
     public void open(InitializationContext context) {
-        reuse = new GenericRowData(2 + wirteableMetadataFieldGetter.length);
+        int size = 2 + wirteableMetadataFieldGetter.length;
+        if (typeIndex != -1) {
+            size--;
+        }
+        reuse = new GenericRowData(size);
     }
 
+    /**
+     * Serialize the row with ignore the {@link WriteableMetadata#TYPE}
+     */
     @Override
     public byte[] serialize(RowData row) {
         try {
@@ -139,9 +162,22 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
             // mete data injection
             StringData opType = rowKind2String(row.getRowKind());
             reuse.setField(1, opType);
-            IntStream.range(0, wirteableMetadataFieldGetter.length)
-                    .forEach(targetField -> reuse.setField(2 + targetField,
-                            wirteableMetadataFieldGetter[targetField].getFieldOrNull(row)));
+            if (typeIndex != -1) {
+                IntStream.range(0, wirteableMetadataFieldGetter.length)
+                        .forEach(metaIndex -> {
+                            if (metaIndex < typeIndex) {
+                                reuse.setField(metaIndex + 2,
+                                        wirteableMetadataFieldGetter[metaIndex].getFieldOrNull(row));
+                            } else if (metaIndex > typeIndex) {
+                                reuse.setField(metaIndex + 1,
+                                        wirteableMetadataFieldGetter[metaIndex].getFieldOrNull(row));
+                            }
+                        });
+            } else {
+                IntStream.range(0, wirteableMetadataFieldGetter.length)
+                        .forEach(metaIndex -> reuse
+                                .setField(metaIndex + 2, wirteableMetadataFieldGetter[metaIndex].getFieldOrNull(row)));
+            }
             return jsonSerializer.serialize(reuse);
         } catch (Throwable t) {
             throw new RuntimeException("Could not serialize row '" + row + "'.", t);

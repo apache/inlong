@@ -24,6 +24,7 @@ import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
+import NodeSelect from '@/components/NodeSelect';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
@@ -151,28 +152,15 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
   enableCreateResource: number;
 
   @FieldDecorator({
-    type: 'input',
+    type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      placeholder: 'thrift://127.0.0.1:9083',
+      nodeType: 'HUDI',
     }),
   })
-  @ColumnDecorator()
-  @I18n('Catalog URI')
-  catalogUri: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      placeholder: 'hdfs://127.0.0.1:9000/user/hudi/warehouse',
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Hudi.Warehouse')
-  warehouse: string;
+  @I18n('meta.Sinks.DataNodeName')
+  dataNodeName: string;
 
   @FieldDecorator({
     type: 'select',
