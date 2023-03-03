@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
+import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -78,8 +79,20 @@ public class StreamSinkClient {
      * List stream sinks by the specified sink type.
      */
     public List<StreamSink> listSinks(String groupId, String streamId, String sinkType) {
-        Response<PageResult<StreamSink>> response = ClientUtils.executeHttpCall(
-                streamSinkApi.list(groupId, streamId, sinkType));
+        SinkPageRequest pageRequest = new SinkPageRequest();
+        pageRequest.setInlongGroupId(groupId);
+        pageRequest.setInlongStreamId(streamId);
+        pageRequest.setSinkType(sinkType);
+        Response<PageResult<StreamSink>> response = ClientUtils.executeHttpCall(streamSinkApi.list(pageRequest));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData().getList();
+    }
+
+    /**
+     * Paging query stream sink info based on conditions.
+     */
+    public List<StreamSink> listSinks(SinkPageRequest pageRequest) {
+        Response<PageResult<StreamSink>> response = ClientUtils.executeHttpCall(streamSinkApi.list(pageRequest));
         ClientUtils.assertRespSuccess(response);
         return response.getData().getList();
     }

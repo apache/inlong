@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
@@ -61,8 +62,22 @@ public class StreamSourceClient {
      * List stream sources by the specified source type.
      */
     public List<StreamSource> listSources(String groupId, String streamId, String sourceType) {
+        SourcePageRequest pageRequest = new SourcePageRequest();
+        pageRequest.setInlongGroupId(groupId);
+        pageRequest.setInlongStreamId(streamId);
+        pageRequest.setSourceType(sourceType);
         Response<PageResult<StreamSource>> response = ClientUtils.executeHttpCall(
-                streamSourceApi.listSources(groupId, streamId, sourceType));
+                streamSourceApi.listSources(pageRequest));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData().getList();
+    }
+
+    /**
+     * Paging query stream source info based on conditions.
+     */
+    public List<StreamSource> listSources(SourcePageRequest pageRequest) {
+        Response<PageResult<StreamSource>> response = ClientUtils.executeHttpCall(
+                streamSourceApi.listSources(pageRequest));
         ClientUtils.assertRespSuccess(response);
         return response.getData().getList();
     }

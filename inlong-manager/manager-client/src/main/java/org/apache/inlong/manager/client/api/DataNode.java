@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
 public interface DataNode {
@@ -42,10 +43,10 @@ public interface DataNode {
     /**
      * Paging query nodes according to conditions.
      *
-     * @param request page request conditions
+     * @param pageRequest page request conditions
      * @return node list
      */
-    PageResult<DataNodeInfo> list(DataNodeRequest request);
+    PageResult<DataNodeInfo> list(DataNodePageRequest pageRequest);
 
     /**
      * Update data node.

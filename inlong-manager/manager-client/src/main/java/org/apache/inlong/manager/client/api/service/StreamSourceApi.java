@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.service;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import retrofit2.Call;
@@ -37,9 +38,8 @@ public interface StreamSourceApi {
     @POST("source/update")
     Call<Response<Boolean>> updateSource(@Body SourceRequest request);
 
-    @GET("source/list")
-    Call<Response<PageResult<StreamSource>>> listSources(@Query("inlongGroupId") String groupId,
-            @Query("inlongStreamId") String streamId, @Query("sourceType") String sourceType);
+    @POST("source/list")
+    Call<Response<PageResult<StreamSource>>> listSources(@Body SourcePageRequest pageRequest);
 
     @DELETE("source/delete/{id}")
     Call<Response<Boolean>> deleteSource(@Path("id") Integer sourceId);

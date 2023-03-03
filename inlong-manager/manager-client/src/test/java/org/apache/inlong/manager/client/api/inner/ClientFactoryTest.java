@@ -65,6 +65,7 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarTopicInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -661,7 +662,7 @@ class ClientFactoryTest {
                         .build());
 
         stubFor(
-                get(urlMatching("/inlong/manager/api/sink/list.*"))
+                post(urlMatching("/inlong/manager/api/sink/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(new PageResult<>(Lists.newArrayList(sinkList)))))));
@@ -673,7 +674,7 @@ class ClientFactoryTest {
     @Test
     void testListSink4AllTypeShouldThrowException() {
         stubFor(
-                get(urlMatching("/inlong/manager/api/sink/list.*"))
+                post(urlMatching("/inlong/manager/api/sink/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.fail("groupId should not empty")))));
@@ -922,7 +923,6 @@ class ClientFactoryTest {
         List<DataNodeInfo> nodeResponses = Lists.newArrayList(
                 HiveDataNodeInfo.builder()
                         .id(1)
-                        .name("test_node")
                         .type(DataNodeType.HIVE)
                         .build());
 
@@ -931,9 +931,8 @@ class ClientFactoryTest {
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(nodeResponses))))));
 
-        HiveDataNodeRequest request = new HiveDataNodeRequest();
-        request.setName("test_hive_node");
-        PageResult<DataNodeInfo> pageInfo = dataNodeClient.list(request);
+        DataNodePageRequest pageRequest = new DataNodePageRequest();
+        PageResult<DataNodeInfo> pageInfo = dataNodeClient.list(pageRequest);
         Assertions.assertEquals(JsonUtils.toJsonString(pageInfo.getList()), JsonUtils.toJsonString(nodeResponses));
     }
 

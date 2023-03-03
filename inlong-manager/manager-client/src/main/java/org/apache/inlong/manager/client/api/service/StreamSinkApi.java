@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.service;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
+import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -54,9 +55,8 @@ public interface StreamSinkApi {
     @GET("sink/get/{id}")
     Call<Response<StreamSink>> get(@Path("id") Integer sinkId);
 
-    @GET("sink/list")
-    Call<Response<PageResult<StreamSink>>> list(@Query("inlongGroupId") String groupId,
-            @Query("inlongStreamId") String streamId, @Query("sinkType") String sinkType);
+    @POST("sink/list")
+    Call<Response<PageResult<StreamSink>>> list(@Body SinkPageRequest request);
 
     @POST("sink/parseFields")
     Call<Response<List<SinkField>>> parseFields(@Body String fieldsJson);
