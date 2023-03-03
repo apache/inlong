@@ -24,6 +24,7 @@ import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
+import NodeSelect from '@/components/NodeSelect';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
@@ -95,34 +96,15 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
   clusterMode: string;
 
   @FieldDecorator({
-    type: 'input',
-    initialValue: '127.0.0.1',
-    rules: [{ required: false }],
+    type: NodeSelect,
+    rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      placeholder: '127.0.0.1',
+      nodeType: 'Redis',
     }),
-    visible: values => values!.clusterMode == 'standalone',
   })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Redis.Host')
-  host: String;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    rules: [{ required: false }],
-    initialValue: 6379,
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      min: 1,
-      max: 65535,
-      placeholder: i18n.t('meta.Sinks.Redis.PortHelper'),
-    }),
-    visible: values => values!.clusterMode == 'standalone',
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Redis.Port')
-  port: number;
+  @I18n('meta.Sinks.DataNodeName')
+  dataNodeName: string;
 
   @FieldDecorator({
     type: 'input',
@@ -136,34 +118,6 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
   @ColumnDecorator()
   @I18n('meta.Sinks.Redis.SentinelMasterName')
   sentinelMasterName: String;
-
-  @FieldDecorator({
-    type: 'input',
-    initialValue: '',
-    rules: [{ required: false }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      placeholder: '127.0.0.1:6379,127.0.0.1:6378',
-    }),
-    visible: values => values!.clusterMode == 'sentinel',
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Redis.SentinelsInfo')
-  sentinelsInfo: String;
-
-  @FieldDecorator({
-    type: 'input',
-    initialValue: '',
-    rules: [{ required: false }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      placeholder: '127.0.0.1:6379,127.0.0.1:6378',
-    }),
-    visible: values => values!.clusterMode == 'cluster',
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Redis.ClusterNodes')
-  clusterNodes: String;
 
   @FieldDecorator({
     type: 'select',
@@ -341,18 +295,6 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
   @ColumnDecorator()
   @I18n('meta.Sinks.Redis.Database')
   database: number;
-
-  @FieldDecorator({
-    type: 'password',
-    rules: [{ required: false }],
-    initialValue: '',
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Redis.Password')
-  password: string;
 
   @FieldDecorator({
     type: 'inputnumber',
