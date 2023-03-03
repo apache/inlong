@@ -58,6 +58,7 @@ import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.binary.NestedRowData;
 import org.apache.flink.types.RowKind;
+import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.InstantiationUtil;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
@@ -225,7 +226,7 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
             }
         }
         if (value instanceof RowData) {
-            if (RowKind.UPDATE_BEFORE.equals(((RowData) value).getRowKind())) {
+            if (!multipleSink && RowKind.UPDATE_BEFORE.equals(((RowData) value).getRowKind())) {
                 // do not need update_before, cauz an update action happened on the primary keys will be separated into
                 // `delete` and `create`
                 return;
@@ -252,47 +253,51 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
             String tableName = jsonDynamicSchemaFormat.parse(rootNode, tablePattern);
 
             DirtyOptions dirtyOptions = dirtySinkHelper.getDirtyOptions();
-            String dirtyLabel = jsonDynamicSchemaFormat.parse(rootNode,
-                    DirtySinkHelper.regexReplace(dirtyOptions.getLabels(), DirtyType.BATCH_LOAD_ERROR, null));
-            String dirtyLogTag = jsonDynamicSchemaFormat.parse(rootNode,
-                    DirtySinkHelper.regexReplace(dirtyOptions.getLogTag(), DirtyType.BATCH_LOAD_ERROR, null));
-            String dirtyIdentify = jsonDynamicSchemaFormat.parse(rootNode,
-                    DirtySinkHelper.regexReplace(dirtyOptions.getIdentifier(), DirtyType.BATCH_LOAD_ERROR, null));
 
-            List<RowKind> rowKinds = jsonDynamicSchemaFormat.opType2RowKind(
-                    jsonDynamicSchemaFormat.getOpType(rootNode));
+            String dirtyLabel = null;
+            String dirtyLogTag = null;
+            String dirtyIdentify = null;
+            try {
+                if (dirtyOptions.ignoreDirty()) {
+                    if (dirtyOptions.getLabels() != null) {
+                        dirtyLabel = jsonDynamicSchemaFormat.parse(rootNode,
+                                DirtySinkHelper.regexReplace(dirtyOptions.getLabels(), DirtyType.BATCH_LOAD_ERROR,
+                                        null));
+                    }
+                    if (dirtyOptions.getLogTag() != null) {
+                        dirtyLogTag = jsonDynamicSchemaFormat.parse(rootNode,
+                                DirtySinkHelper.regexReplace(dirtyOptions.getLogTag(), DirtyType.BATCH_LOAD_ERROR,
+                                        null));
+                    }
+                    if (dirtyOptions.getIdentifier() != null) {
+                        dirtyIdentify = jsonDynamicSchemaFormat.parse(rootNode,
+                                DirtySinkHelper.regexReplace(dirtyOptions.getIdentifier(), DirtyType.BATCH_LOAD_ERROR,
+                                        null));
+                    }
+                }
+            } catch (Exception e) {
+                LOG.warn("Parse dirty options failed. {}", ExceptionUtils.stringifyException(e));
+            }
+
+            RowKind rowKind = rowData.getRowKind();
             List<Map<String, String>> physicalDataList = jsonDynamicSchemaFormat.jsonNode2Map(
                     jsonDynamicSchemaFormat.getPhysicalData(rootNode));
-            JsonNode updateBeforeNode = jsonDynamicSchemaFormat.getUpdateBefore(rootNode);
-            List<Map<String, String>> updateBeforeList = null;
-            if (updateBeforeNode != null) {
-                updateBeforeList = jsonDynamicSchemaFormat.jsonNode2Map(updateBeforeNode);
-            }
             List<Map<String, String>> records = new ArrayList<>();
             for (int i = 0; i < physicalDataList.size(); i++) {
-                for (RowKind rowKind : rowKinds) {
-                    Map<String, String> record = null;
-                    switch (rowKind) {
-                        case INSERT:
-                        case UPDATE_AFTER:
-                            record = physicalDataList.get(i);
-                            record.put("__op", String.valueOf(StarRocksSinkOP.UPSERT.ordinal()));
-                            break;
-                        case DELETE:
-                            record = physicalDataList.get(i);
-                            record.put("__op", String.valueOf(StarRocksSinkOP.DELETE.ordinal()));
-                            break;
-                        case UPDATE_BEFORE:
-                            if (updateBeforeList != null && updateBeforeList.size() > i) {
-                                record = updateBeforeList.get(i);
-                                record.put("__op", String.valueOf(StarRocksSinkOP.DELETE.ordinal()));
-                            }
-                            break;
-                        default:
-                            throw new RuntimeException("Unrecognized row kind:" + rowKind);
-                    }
-                    records.add(record);
+                Map<String, String> record = physicalDataList.get(i);
+                switch (rowKind) {
+                    case INSERT:
+                    case UPDATE_AFTER:
+                        record.put("__op", String.valueOf(StarRocksSinkOP.UPSERT.ordinal()));
+                        break;
+                    case DELETE:
+                    case UPDATE_BEFORE:
+                        record.put("__op", String.valueOf(StarRocksSinkOP.DELETE.ordinal()));
+                        break;
+                    default:
+                        throw new RuntimeException("Unrecognized row kind:" + rowKind);
                 }
+                records.add(record);
             }
             sinkManager.writeRecords(databaseName, tableName, records, dirtyLogTag, dirtyIdentify, dirtyLabel);
         } else {
