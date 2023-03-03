@@ -226,7 +226,7 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
             }
         }
         if (value instanceof RowData) {
-            if (RowKind.UPDATE_BEFORE.equals(((RowData) value).getRowKind())) {
+            if (!multipleSink && RowKind.UPDATE_BEFORE.equals(((RowData) value).getRowKind())) {
                 // do not need update_before, cauz an update action happened on the primary keys will be separated into
                 // `delete` and `create`
                 return;
