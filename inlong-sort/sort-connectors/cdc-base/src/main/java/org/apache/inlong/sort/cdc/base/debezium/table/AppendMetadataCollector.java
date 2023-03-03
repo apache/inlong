@@ -46,14 +46,14 @@ public final class AppendMetadataCollector implements Collector<RowData>, Serial
     }
 
     public void collect(RowData physicalRow, TableChange tableSchema) {
-        GenericRowData metaRow = new GenericRowData(metadataConverters.length);
+        GenericRowData metaRow = new GenericRowData(physicalRow.getRowKind(), metadataConverters.length);
         for (int i = 0; i < metadataConverters.length; i++) {
             Object meta = metadataConverters[i].read(inputRecord, tableSchema, physicalRow);
             metaRow.setField(i, meta);
         }
         if (migrateAll) {
             // all data are put into meta row, set physicalRow to empty
-            physicalRow = new GenericRowData(0);
+            physicalRow = new GenericRowData(physicalRow.getRowKind(), 0);
         }
         RowData outRow = new JoinedRowData(physicalRow.getRowKind(), physicalRow, metaRow);
         outputCollector.collect(outRow);
