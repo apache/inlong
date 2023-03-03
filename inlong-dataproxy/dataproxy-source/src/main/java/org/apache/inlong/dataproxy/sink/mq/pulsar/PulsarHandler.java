@@ -282,8 +282,6 @@ public class PulsarHandler implements MessageQueueHandler {
         switch (type) {
             case "LZ4":
                 return CompressionType.LZ4;
-            case "NONE":
-                return CompressionType.NONE;
             case "ZLIB":
                 return CompressionType.ZLIB;
             case "ZSTD":
