@@ -471,70 +471,67 @@ public class AgentServiceImpl implements AgentService {
         dataConfig.setInlongStreamId(streamId);
 
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        if (groupEntity == null) {
-            throw new BusinessException(String.format("inlong group not found for groupId=%s", groupId));
-        }
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-        if (streamEntity == null) {
-            throw new BusinessException(
-                    String.format("inlong stream not found for groupId=%s streamId=%s", groupId, streamId));
-        }
-
-        String extParams = entity.getExtParams();
-        dataConfig.setSyncSend(streamEntity.getSyncSend());
-        if (SourceType.FILE.equalsIgnoreCase(streamEntity.getDataType())) {
-            String dataSeparator = streamEntity.getDataSeparator();
-            extParams = (null != dataSeparator ? getExtParams(extParams, dataSeparator) : extParams);
-        }
-        dataConfig.setExtParams(extParams);
-
-        int dataReportType = groupEntity.getDataReportType();
-        dataConfig.setDataReportType(dataReportType);
-        if (InlongConstants.REPORT_TO_MQ_RECEIVED == dataReportType) {
-            // add mq cluster setting
-            List<MQClusterInfo> mqSet = new ArrayList<>();
-            List<String> clusterTagList = Collections.singletonList(groupEntity.getInlongClusterTag());
-            List<String> typeList = Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR);
-            ClusterPageRequest pageRequest = ClusterPageRequest.builder()
-                    .typeList(typeList)
-                    .clusterTagList(clusterTagList)
-                    .build();
-            List<InlongClusterEntity> mqClusterList = clusterMapper.selectByCondition(pageRequest);
-            for (InlongClusterEntity cluster : mqClusterList) {
-                MQClusterInfo clusterInfo = new MQClusterInfo();
-                clusterInfo.setUrl(cluster.getUrl());
-                clusterInfo.setToken(cluster.getToken());
-                clusterInfo.setMqType(cluster.getType());
-                clusterInfo.setParams(JsonUtils.parseObject(cluster.getExtParams(), HashMap.class));
-                mqSet.add(clusterInfo);
+        if (groupEntity != null && streamEntity != null) {
+            String extParams = entity.getExtParams();
+            dataConfig.setSyncSend(streamEntity.getSyncSend());
+            if (SourceType.FILE.equalsIgnoreCase(streamEntity.getDataType())) {
+                String dataSeparator = streamEntity.getDataSeparator();
+                extParams = (null != dataSeparator ? getExtParams(extParams, dataSeparator) : extParams);
             }
-            dataConfig.setMqClusters(mqSet);
+            dataConfig.setExtParams(extParams);
 
-            // add topic setting
-            String mqResource = groupEntity.getMqResource();
-            String mqType = groupEntity.getMqType();
-            if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
-                // first get the tenant from the InlongGroup, and then get it from the PulsarCluster.
-                InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
-                String tenant = pulsarDTO.getTenant();
-                if (StringUtils.isBlank(tenant)) {
-                    // If there are multiple Pulsar clusters, take the first one.
-                    // Note that the tenants in multiple Pulsar clusters must be identical.
-                    PulsarClusterDTO pulsarCluster = PulsarClusterDTO.getFromJson(mqClusterList.get(0).getExtParams());
-                    tenant = pulsarCluster.getTenant();
+            int dataReportType = groupEntity.getDataReportType();
+            dataConfig.setDataReportType(dataReportType);
+            if (InlongConstants.REPORT_TO_MQ_RECEIVED == dataReportType) {
+                // add mq cluster setting
+                List<MQClusterInfo> mqSet = new ArrayList<>();
+                List<String> clusterTagList = Collections.singletonList(groupEntity.getInlongClusterTag());
+                List<String> typeList = Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR);
+                ClusterPageRequest pageRequest = ClusterPageRequest.builder()
+                        .typeList(typeList)
+                        .clusterTagList(clusterTagList)
+                        .build();
+                List<InlongClusterEntity> mqClusterList = clusterMapper.selectByCondition(pageRequest);
+                for (InlongClusterEntity cluster : mqClusterList) {
+                    MQClusterInfo clusterInfo = new MQClusterInfo();
+                    clusterInfo.setUrl(cluster.getUrl());
+                    clusterInfo.setToken(cluster.getToken());
+                    clusterInfo.setMqType(cluster.getType());
+                    clusterInfo.setParams(JsonUtils.parseObject(cluster.getExtParams(), HashMap.class));
+                    mqSet.add(clusterInfo);
                 }
+                dataConfig.setMqClusters(mqSet);
 
-                String topic = String.format(InlongConstants.PULSAR_TOPIC_FORMAT,
-                        tenant, mqResource, streamEntity.getMqResource());
-                DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
-                topicConfig.setInlongGroupId(groupId + "/" + streamId);
-                topicConfig.setTopic(topic);
-                dataConfig.setTopicInfo(topicConfig);
-            } else if (MQType.TUBEMQ.equals(mqType)) {
-                DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
-                topicConfig.setInlongGroupId(groupId);
-                topicConfig.setTopic(mqResource);
-                dataConfig.setTopicInfo(topicConfig);
+                // add topic setting
+                String mqResource = groupEntity.getMqResource();
+                String mqType = groupEntity.getMqType();
+                if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
+                    // first get the tenant from the InlongGroup, and then get it from the PulsarCluster.
+                    InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
+                    String tenant = pulsarDTO.getTenant();
+                    if (StringUtils.isBlank(tenant)) {
+                        // If there are multiple Pulsar clusters, take the first one.
+                        // Note that the tenants in multiple Pulsar clusters must be identical.
+                        PulsarClusterDTO pulsarCluster = PulsarClusterDTO.getFromJson(
+                                mqClusterList.get(0).getExtParams());
+                        tenant = pulsarCluster.getTenant();
+                    }
+
+                    String topic = String.format(InlongConstants.PULSAR_TOPIC_FORMAT,
+                            tenant, mqResource, streamEntity.getMqResource());
+                    DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
+                    topicConfig.setInlongGroupId(groupId + "/" + streamId);
+                    topicConfig.setTopic(topic);
+                    dataConfig.setTopicInfo(topicConfig);
+                } else if (MQType.TUBEMQ.equals(mqType)) {
+                    DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
+                    topicConfig.setInlongGroupId(groupId);
+                    topicConfig.setTopic(mqResource);
+                    dataConfig.setTopicInfo(topicConfig);
+                }
+            } else {
+                LOGGER.warn("set syncSend=[0] as the stream not exists for groupId={}, streamId={}", groupId, streamId);
             }
         }
         return dataConfig;
@@ -564,6 +561,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     // todo:delete it, source cmd is useless
+
     /**
      * Get the agent command config by the agent ip.
      *

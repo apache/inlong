@@ -33,7 +33,10 @@ import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.KafkaConstant;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
+import org.apache.inlong.sort.protocol.node.format.AvroFormat;
+import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
+import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import javax.annotation.Nonnull;
@@ -147,12 +150,12 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
         options.put(KafkaConstant.TOPIC, topic);
         options.put(KafkaConstant.PROPERTIES_BOOTSTRAP_SERVERS, bootstrapServers);
         options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
-        if (StringUtils.isEmpty(this.primaryKey)) {
-            options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
-            options.putAll(format.generateOptions(false));
-        } else {
+        if (isUpsertKafkaConnector(format, !StringUtils.isEmpty(this.primaryKey))) {
             options.put(KafkaConstant.CONNECTOR, KafkaConstant.UPSERT_KAFKA);
             options.putAll(format.generateOptions(true));
+        } else {
+            options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
+            options.putAll(format.generateOptions(false));
         }
         if (StringUtils.isNotEmpty(scanSpecificOffsets)) {
             options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
@@ -164,6 +167,21 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
             options.put(KafkaConstant.PROPERTIES_GROUP_ID, groupId);
         }
         return options;
+    }
+
+    /**
+     * true is upsert kafka connector
+     * false is kafka connector
+     * @return Boolean variable that decides connector option
+     */
+    private boolean isUpsertKafkaConnector(Format format, boolean hasPrimaryKey) {
+        if (format instanceof JsonFormat && hasPrimaryKey) {
+            return true;
+        } else if (format instanceof CsvFormat && hasPrimaryKey) {
+            return true;
+        } else {
+            return format instanceof AvroFormat && hasPrimaryKey;
+        }
     }
 
     @Override

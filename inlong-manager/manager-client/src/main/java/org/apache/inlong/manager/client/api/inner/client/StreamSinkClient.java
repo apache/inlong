@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
@@ -116,6 +117,18 @@ public class StreamSinkClient {
      */
     public StreamSink getSinkInfo(Integer sinkId) {
         Response<StreamSink> response = ClientUtils.executeHttpCall(streamSinkApi.get(sinkId));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Converts a json string to a sinkFields
+     *
+     * @param fieldsJson JSON string for the field information
+     * @return list of sink field
+     */
+    public List<SinkField> parseFields(String fieldsJson) {
+        Response<List<SinkField>> response = ClientUtils.executeHttpCall(streamSinkApi.parseFields(fieldsJson));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
