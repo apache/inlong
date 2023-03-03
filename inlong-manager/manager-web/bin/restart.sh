@@ -38,5 +38,8 @@ echo "restart in" ${BIN_PATH}
 # Stop service
 bash +x "$BIN_PATH"/shutdown.sh
 
+sleep 1s
+echo "begin to execute the startup command..."
+
 # Start service
 bash +x "$BIN_PATH"/startup.sh
