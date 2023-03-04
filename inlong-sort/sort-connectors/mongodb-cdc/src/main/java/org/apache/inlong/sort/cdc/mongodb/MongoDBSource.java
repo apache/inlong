@@ -20,7 +20,6 @@ package org.apache.inlong.sort.cdc.mongodb;
 import com.mongodb.ConnectionString;
 import com.mongodb.client.model.changestream.FullDocument;
 import com.mongodb.kafka.connect.source.MongoSourceConfig;
-import com.mongodb.kafka.connect.source.MongoSourceConfig.ErrorTolerance;
 import com.mongodb.kafka.connect.source.MongoSourceConfig.OutputFormat;
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceConnector;
 import com.ververica.cdc.debezium.Validator;
@@ -40,6 +39,13 @@ import java.util.Properties;
 
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.COLLECTION_INCLUDE_LIST;
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.DATABASE_INCLUDE_LIST;
+import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.HEARTBEAT_TOPIC_NAME;
+import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.OUTPUT_SCHEMA;
+import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.BATCH_SIZE;
+import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.COPY_EXISTING;
+import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.HEARTBEAT_INTERVAL_MILLIS;
+import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.POLL_AWAIT_TIME_MILLIS;
+import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.POLL_MAX_BATCH_SIZE;
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
@@ -52,59 +58,10 @@ public class MongoDBSource {
 
     public static final String MONGODB_SCHEME = "mongodb";
 
-    public static final String ERROR_TOLERANCE_NONE = ErrorTolerance.NONE.value();
-
-    public static final String ERROR_TOLERANCE_ALL = ErrorTolerance.ALL.value();
-
     public static final String FULL_DOCUMENT_UPDATE_LOOKUP = FullDocument.UPDATE_LOOKUP.getValue();
-
-    public static final int POLL_MAX_BATCH_SIZE_DEFAULT = 1000;
-
-    public static final int POLL_AWAIT_TIME_MILLIS_DEFAULT = 1500;
-
-    public static final String HEARTBEAT_TOPIC_NAME_DEFAULT = "__mongodb_heartbeats";
 
     public static final String OUTPUT_FORMAT_SCHEMA =
             OutputFormat.SCHEMA.name().toLowerCase(Locale.ROOT);
-
-    // Add "source" field to adapt to debezium SourceRecord
-    public static final String OUTPUT_SCHEMA_VALUE_DEFAULT =
-            "{"
-                    + "  \"name\": \"ChangeStream\","
-                    + "  \"type\": \"record\","
-                    + "  \"fields\": ["
-                    + "    { \"name\": \"_id\", \"type\": \"string\" },"
-                    + "    { \"name\": \"operationType\", \"type\": [\"string\", \"null\"] },"
-                    + "    { \"name\": \"fullDocument\", \"type\": [\"string\", \"null\"] },"
-                    + "    { \"name\": \"source\","
-                    + "      \"type\": [{\"name\": \"source\", \"type\": \"record\", \"fields\": ["
-                    + "                {\"name\": \"ts_ms\", \"type\": \"long\"},"
-                    + "                {\"name\": \"snapshot\", \"type\": [\"string\", \"null\"] } ]"
-                    + "               }, \"null\" ] },"
-                    + "    { \"name\": \"ns\","
-                    + "      \"type\": [{\"name\": \"ns\", \"type\": \"record\", \"fields\": ["
-                    + "                {\"name\": \"db\", \"type\": \"string\"},"
-                    + "                {\"name\": \"coll\", \"type\": [\"string\", \"null\"] } ]"
-                    + "               }, \"null\" ] },"
-                    + "    { \"name\": \"to\","
-                    + "      \"type\": [{\"name\": \"to\", \"type\": \"record\",  \"fields\": ["
-                    + "                {\"name\": \"db\", \"type\": \"string\"},"
-                    + "                {\"name\": \"coll\", \"type\": [\"string\", \"null\"] } ]"
-                    + "               }, \"null\" ] },"
-                    + "    { \"name\": \"documentKey\", \"type\": [\"string\", \"null\"] },"
-                    + "    { \"name\": \"updateDescription\","
-                    + "      \"type\": [{\"name\": \"updateDescription\",  \"type\": \"record\", \"fields\": ["
-                    + "                 {\"name\": \"updatedFields\", \"type\": [\"string\", \"null\"]},"
-                    + "                 {\"name\": \"removedFields\","
-                    + "                  \"type\": [{\"type\": \"array\", \"items\": \"string\"}, \"null\"]"
-                    + "                  }] }, \"null\"] },"
-                    + "    { \"name\": \"clusterTime\", \"type\": [\"string\", \"null\"] },"
-                    + "    { \"name\": \"txnNumber\", \"type\": [\"long\", \"null\"]},"
-                    + "    { \"name\": \"lsid\", \"type\": [{\"name\": \"lsid\", \"type\": \"record\","
-                    + "               \"fields\": [ {\"name\": \"id\", \"type\": \"string\"},"
-                    + "                             {\"name\": \"uid\", \"type\": \"string\"}] }, \"null\"] }"
-                    + "  ]"
-                    + "}";
 
     public static <T> Builder<T> builder() {
         return new Builder<>();
@@ -127,16 +84,17 @@ public class MongoDBSource {
         private List<String> databaseList;
         private List<String> collectionList;
         private String connectionOptions;
-        private Integer batchSize;
-        private Integer pollAwaitTimeMillis = POLL_AWAIT_TIME_MILLIS_DEFAULT;
-        private Integer pollMaxBatchSize = POLL_MAX_BATCH_SIZE_DEFAULT;
-        private Boolean copyExisting = true;
+        private Integer batchSize = BATCH_SIZE.defaultValue();
+        private Integer pollAwaitTimeMillis = POLL_AWAIT_TIME_MILLIS.defaultValue();
+        private Integer pollMaxBatchSize = POLL_MAX_BATCH_SIZE.defaultValue();
+        private Boolean updateLookup = true;
+        private Boolean copyExisting = COPY_EXISTING.defaultValue();
         private Integer copyExistingMaxThreads;
         private Integer copyExistingQueueSize;
         private String copyExistingPipeline;
         private Boolean errorsLogEnable;
         private String errorsTolerance;
-        private Integer heartbeatIntervalMillis;
+        private Integer heartbeatIntervalMillis = HEARTBEAT_INTERVAL_MILLIS.defaultValue();
         private DebeziumDeserializationSchema<T> deserializer;
         private String inlongMetric;
         private String inlongAudit;
@@ -188,7 +146,11 @@ public class MongoDBSource {
         /**
          * batch.size
          *
-         * <p>The cursor batch size. Default: 0
+         * <p>The cursor batch size. Default: 1024
+         *
+         * <p>The change stream cursor batch size. Specifies the maximum number of change events to
+         * return in each batch of the response from the MongoDB cluster. The default is 0 meaning
+         * it uses the server's default value. Default: 0
          */
         public Builder<T> batchSize(int batchSize) {
             checkArgument(batchSize >= 0);
@@ -200,7 +162,7 @@ public class MongoDBSource {
          * poll.await.time.ms
          *
          * <p>The amount of time to wait before checking for new results on the change stream.
-         * Default: 3000
+         * Default: 1000
          */
         public Builder<T> pollAwaitTimeMillis(int pollAwaitTimeMillis) {
             checkArgument(pollAwaitTimeMillis > 0);
@@ -213,11 +175,24 @@ public class MongoDBSource {
          *
          * <p>Maximum number of change stream documents to include in a single batch when polling
          * for new data. This setting can be used to limit the amount of data buffered internally in
-         * the connector. Default: 1000
+         * the connector. Default: 1024
          */
         public Builder<T> pollMaxBatchSize(int pollMaxBatchSize) {
             checkArgument(pollMaxBatchSize > 0);
             this.pollMaxBatchSize = pollMaxBatchSize;
+            return this;
+        }
+
+        /**
+         * change.stream.full.document
+         *
+         * <p>Determines what to return for update operations when using a Change Stream. When set
+         * to true, the change stream for partial updates will include both a delta describing the
+         * changes to the document and a copy of the entire document that was changed from some time
+         * after the change occurred. Default: true
+         */
+        public Builder<T> updateLookup(boolean updateLookup) {
+            this.updateLookup = updateLookup;
             return this;
         }
 
@@ -248,7 +223,7 @@ public class MongoDBSource {
         /**
          * copy.existing.queue.size
          *
-         * <p>The max size of the queue to use when copying data. Default: 16000
+         * <p>The max size of the queue to use when copying data. Default: 10240
          */
         public Builder<T> copyExistingQueueSize(int copyExistingQueueSize) {
             checkArgument(copyExistingQueueSize > 0);
@@ -363,7 +338,7 @@ public class MongoDBSource {
 
             props.setProperty(
                     "connector.class", MongoDBConnectorSourceConnector.class.getCanonicalName());
-            props.setProperty("name", "mongodb_binlog_source");
+            props.setProperty("name", "mongodb_cdc_source");
 
             ConnectionString connectionString = buildConnectionUri();
             props.setProperty(
@@ -377,7 +352,10 @@ public class MongoDBSource {
                 props.setProperty(COLLECTION_INCLUDE_LIST, String.join(",", collectionList));
             }
 
-            props.setProperty(MongoSourceConfig.FULL_DOCUMENT_CONFIG, FULL_DOCUMENT_UPDATE_LOOKUP);
+            if (updateLookup) {
+                props.setProperty(
+                        MongoSourceConfig.FULL_DOCUMENT_CONFIG, FULL_DOCUMENT_UPDATE_LOOKUP);
+            }
             props.setProperty(
                     MongoSourceConfig.PUBLISH_FULL_DOCUMENT_ONLY_CONFIG,
                     String.valueOf(Boolean.FALSE));
@@ -388,7 +366,7 @@ public class MongoDBSource {
                     MongoSourceConfig.OUTPUT_SCHEMA_INFER_VALUE_CONFIG,
                     String.valueOf(Boolean.FALSE));
             props.setProperty(
-                    MongoSourceConfig.OUTPUT_SCHEMA_VALUE_CONFIG, OUTPUT_SCHEMA_VALUE_DEFAULT);
+                    MongoSourceConfig.OUTPUT_SCHEMA_VALUE_CONFIG, OUTPUT_SCHEMA);
 
             if (batchSize != null) {
                 props.setProperty(MongoSourceConfig.BATCH_SIZE_CONFIG, String.valueOf(batchSize));
@@ -445,11 +423,11 @@ public class MongoDBSource {
             }
 
             props.setProperty(
-                    MongoSourceConfig.HEARTBEAT_TOPIC_NAME_CONFIG, HEARTBEAT_TOPIC_NAME_DEFAULT);
+                    MongoSourceConfig.HEARTBEAT_TOPIC_NAME_CONFIG, HEARTBEAT_TOPIC_NAME);
 
             // Let DebeziumChangeFetcher recognize heartbeat record
             props.setProperty(
-                    Heartbeat.HEARTBEAT_TOPICS_PREFIX.name(), HEARTBEAT_TOPIC_NAME_DEFAULT);
+                    Heartbeat.HEARTBEAT_TOPICS_PREFIX.name(), HEARTBEAT_TOPIC_NAME);
 
             return new DebeziumSourceFunction<>(
                     deserializer, props, null, Validator.getDefaultValidator(),
