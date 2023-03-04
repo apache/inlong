@@ -36,10 +36,10 @@ BIN_PATH=$(
 echo "restart in" ${BIN_PATH}
 
 # Stop service
-sh "$BIN_PATH"/shutdown.sh
+bash +x "$BIN_PATH"/shutdown.sh
 
 sleep 1s
-echo ""
+echo "begin to execute the startup command..."
 
 # Start service
-sh "$BIN_PATH"/startup.sh
+bash +x "$BIN_PATH"/startup.sh

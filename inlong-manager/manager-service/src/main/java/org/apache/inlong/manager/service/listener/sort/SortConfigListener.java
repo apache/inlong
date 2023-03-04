@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.listener.sort;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -87,6 +88,7 @@ public class SortConfigListener implements SortOperateListener {
             return ListenerResult.success();
         }
         // ensure the inlong group exists
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
         InlongGroupInfo groupInfo = groupService.get(groupId);
         if (groupInfo == null) {
             String msg = "inlong group not found with groupId=" + groupId;

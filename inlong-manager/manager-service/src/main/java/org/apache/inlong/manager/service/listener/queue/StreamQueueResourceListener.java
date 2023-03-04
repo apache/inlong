@@ -20,8 +20,10 @@ package org.apache.inlong.manager.service.listener.queue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
@@ -83,6 +85,9 @@ public class StreamQueueResourceListener implements QueueOperateListener {
             log.error(msg);
             throw new WorkflowListenerException(msg);
         }
+        GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
+        Preconditions.expectTrue(GroupStatus.CONFIG_FAILED != groupStatus,
+                String.format("group status=%s not support start stream for groupId=%s", groupStatus, groupId));
         final String streamId = streamInfo.getInlongStreamId();
         // Read the current information
         streamProcessForm.setGroupInfo(groupInfo);

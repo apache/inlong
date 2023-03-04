@@ -21,12 +21,16 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperatorFactory;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -49,6 +53,8 @@ public class StreamSinkResourceListener implements SinkOperateListener {
     @Autowired
     private StreamSinkEntityMapper sinkEntityMapper;
     @Autowired
+    private InlongGroupService groupService;
+    @Autowired
     private SinkResourceOperatorFactory resourceOperatorFactory;
 
     @Override
@@ -69,7 +75,10 @@ public class StreamSinkResourceListener implements SinkOperateListener {
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
         log.info("begin to create sink resource for groupId={}, streamId={}", groupId, streamId);
-
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
+        Preconditions.expectTrue(GroupStatus.CONFIG_FAILED != groupStatus,
+                String.format("group status=%s not support start stream for groupId=%s", groupStatus, groupId));
         List<SinkInfo> sinkInfos = sinkEntityMapper.selectAllConfig(groupId, Lists.newArrayList(streamId));
         List<SinkInfo> needCreateResources = sinkInfos.stream()
                 .filter(sinkInfo -> InlongConstants.ENABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource()))
