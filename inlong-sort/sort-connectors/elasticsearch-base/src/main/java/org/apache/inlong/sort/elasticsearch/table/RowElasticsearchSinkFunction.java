@@ -164,6 +164,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                 }
                 break;
             case UPDATE_BEFORE:
+                sendMetrics(document);
                 break;
             default:
                 LOGGER.error(String.format("The type of element should be 'RowData' only, raw data: %s", element));
