@@ -422,6 +422,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         String clusterTag = request.getClusterTags();
         String name = request.getName();
         String type = request.getType();
+        InlongClusterTagEntity clusterTagEntity = clusterTagMapper.selectByTag(clusterTag);
+        Preconditions.expectNotNull(clusterTagEntity, ErrorCodeEnum.CLUSTER_TAG_NOT_FOUND,
+                ErrorCodeEnum.CLUSTER_TAG_NOT_FOUND.getMessage());
         List<InlongClusterEntity> exist = clusterMapper.selectByKey(clusterTag, name, type);
         if (CollectionUtils.isNotEmpty(exist)) {
             String errMsg = String.format("inlong cluster already exist for cluster tag=%s name=%s type=%s",
@@ -438,6 +441,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public Integer save(ClusterRequest request, UserInfo opInfo) {
+        InlongClusterTagEntity clusterTagEntity = clusterTagMapper.selectByTag(request.getClusterTags());
+        Preconditions.expectNotNull(clusterTagEntity, ErrorCodeEnum.CLUSTER_TAG_NOT_FOUND,
+                ErrorCodeEnum.CLUSTER_TAG_NOT_FOUND.getMessage());
         // check if the cluster already exist
         List<InlongClusterEntity> exist = clusterMapper.selectByKey(
                 request.getClusterTags(), request.getName(), request.getType());
