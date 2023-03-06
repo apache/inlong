@@ -288,7 +288,8 @@ public class PulsarHandler implements MessageQueueHandler {
                 return CompressionType.ZSTD;
             case "SNAPPY":
                 return CompressionType.SNAPPY;
-            default:
+            case "NONE":
+                default:
                 return CompressionType.NONE;
         }
     }
