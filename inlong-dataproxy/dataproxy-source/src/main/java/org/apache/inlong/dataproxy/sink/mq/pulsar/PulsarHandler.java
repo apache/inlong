@@ -289,7 +289,7 @@ public class PulsarHandler implements MessageQueueHandler {
             case "SNAPPY":
                 return CompressionType.SNAPPY;
             case "NONE":
-                default:
+            default:
                 return CompressionType.NONE;
         }
     }
