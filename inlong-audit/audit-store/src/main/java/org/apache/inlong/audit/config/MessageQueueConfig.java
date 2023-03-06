@@ -75,6 +75,9 @@ public class MessageQueueConfig {
     @Value("${audit.kafka.consumer.name:}")
     private String kafkaConsumerName;
 
+    @Value("${audit.kafka.group.id:audit-consumer-group}")
+    private String kafkaGroupId;
+
     @Value("${audit.kafka.enable.auto.commit:true}")
     private String enableAutoCommit;
 

@@ -26,22 +26,21 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.pulsar.client.api.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class KafkaConsume extends BaseConsume {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaConsume.class);
-    private final ConcurrentHashMap<String, List<Consumer<byte[]>>> topicConsumerMap = new ConcurrentHashMap<>();
-    private KafkaConsumer<String, String> consumer;
+    private KafkaConsumer<String, byte[]> consumer;
     private String serverUrl;
     private String topic;
 
@@ -79,23 +78,24 @@ public class KafkaConsume extends BaseConsume {
 
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, serverUrl);
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, mqConfig.getKafkaGroupId());
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, mqConfig.getEnableAutoCommit());
         properties.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, mqConfig.getAutoCommitIntervalMs());
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, mqConfig.getAutoOffsetReset());
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
         consumer = new KafkaConsumer<>(properties);
         consumer.subscribe(Collections.singleton(topic));
     }
 
     public class Fetcher implements Runnable {
 
-        private final KafkaConsumer<String, String> consumer;
+        private final KafkaConsumer<String, byte[]> consumer;
         private final String topic;
         private final boolean isAutoCommit;
         private final long fetchWaitMs;
 
-        public Fetcher(KafkaConsumer<String, String> consumer, String topic, boolean isAutoCommit, long fetchWaitMs) {
+        public Fetcher(KafkaConsumer<String, byte[]> consumer, String topic, boolean isAutoCommit, long fetchWaitMs) {
             this.consumer = consumer;
             this.topic = topic;
             this.isAutoCommit = isAutoCommit;
@@ -107,11 +107,12 @@ public class KafkaConsume extends BaseConsume {
             while (true) {
                 try {
                     // Set the waiting time of the consumer to 100ms
-                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(fetchWaitMs));
+                    ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(fetchWaitMs));
                     if (records != null && !records.isEmpty()) {
-                        for (ConsumerRecord<String, String> record : records) {
+                        for (ConsumerRecord<String, byte[]> record : records) {
                             if (StringUtils.equals(record.topic(), topic)) {
-                                handleMessage(record.value());
+                                String body = new String(record.value(), StandardCharsets.UTF_8);
+                                handleMessage(body);
                             }
                         }
 
