@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.cdc.mongodb;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
 import com.ververica.cdc.debezium.Validator;
 import io.debezium.connector.SnapshotRecord;
@@ -43,7 +44,6 @@ import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
-import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.util.Collector;
