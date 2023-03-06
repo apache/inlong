@@ -54,6 +54,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     },
     {
       ready: Boolean(query.inlongStreamId),
+      formatResult: result => result.sort((a, b) => (a.auditId - b.auditId > 0 ? 1 : -1)),
     },
   );
 
