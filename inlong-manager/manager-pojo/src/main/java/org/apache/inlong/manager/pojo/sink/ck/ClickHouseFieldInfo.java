@@ -32,13 +32,13 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import javax.validation.constraints.NotNull;
 
 /**
- * ClickHouse column info.
+ * ClickHouse field info.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonTypeDefine(value = SinkType.CLICKHOUSE)
-public class ClickHouseColumnInfo extends SinkField {
+public class ClickHouseFieldInfo extends SinkField {
 
     private String defaultType;
     private String defaultExpr;
@@ -50,19 +50,19 @@ public class ClickHouseColumnInfo extends SinkField {
     /**
      * Get the dto instance from the request
      */
-    public static ClickHouseColumnInfo getFromRequest(SinkField sinkField) {
-        return CommonBeanUtils.copyProperties(sinkField, ClickHouseColumnInfo::new, true);
+    public static ClickHouseFieldInfo getFromRequest(SinkField sinkField) {
+        return CommonBeanUtils.copyProperties(sinkField, ClickHouseFieldInfo::new, true);
     }
 
     /**
      * Get the extra param from the Json
      */
-    public static ClickHouseColumnInfo getFromJson(@NotNull String extParams) {
+    public static ClickHouseFieldInfo getFromJson(@NotNull String extParams) {
         if (StringUtils.isEmpty(extParams)) {
-            return new ClickHouseColumnInfo();
+            return new ClickHouseFieldInfo();
         }
         try {
-            return JsonUtils.parseObject(extParams, ClickHouseColumnInfo.class);
+            return JsonUtils.parseObject(extParams, ClickHouseFieldInfo.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
                     String.format("Failed to parse extParams for ClickHouse fieldInfo: %s", e.getMessage()));

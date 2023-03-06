@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.resource.sink.ck;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.pojo.sink.ck.ClickHouseColumnInfo;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseFieldInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,14 +56,14 @@ public class ClickHouseSqlBuilder {
 
         // add ttl columns
         if (table.getTtl() != null && StringUtils.isNotBlank(table.getTtlUnit())) {
-            ClickHouseColumnInfo clickHouseColumnInfo = new ClickHouseColumnInfo();
-            clickHouseColumnInfo.setFieldName("inlong_ttl_date_time");
-            clickHouseColumnInfo.setFieldType("DateTime");
-            clickHouseColumnInfo.setFieldComment("inlong ttl date time");
-            table.getColumns().add(clickHouseColumnInfo);
+            ClickHouseFieldInfo clickHouseFieldInfo = new ClickHouseFieldInfo();
+            clickHouseFieldInfo.setFieldName("inlong_ttl_date_time");
+            clickHouseFieldInfo.setFieldType("DateTime");
+            clickHouseFieldInfo.setFieldComment("inlong ttl date time");
+            table.getFieldInfoList().add(clickHouseFieldInfo);
         }
         // Construct columns and partition columns
-        sql.append(buildCreateColumnsSql(table.getColumns()));
+        sql.append(buildCreateColumnsSql(table.getFieldInfoList()));
         if (StringUtils.isNotEmpty(table.getEngine())) {
             sql.append(" ENGINE = ").append(table.getEngine());
         } else {
@@ -72,7 +72,7 @@ public class ClickHouseSqlBuilder {
         if (StringUtils.isNotEmpty(table.getOrderBy())) {
             sql.append(" ORDER BY ").append(table.getOrderBy());
         } else if (StringUtils.isEmpty(table.getEngine())) {
-            sql.append(" ORDER BY ").append(table.getColumns()
+            sql.append(" ORDER BY ").append(table.getFieldInfoList()
                     .get(FIRST_COLUMN_INDEX).getFieldName());
         }
         if (table.getTtl() != null && StringUtils.isNotBlank(table.getTtlUnit())) {
@@ -97,7 +97,7 @@ public class ClickHouseSqlBuilder {
      * Build add column SQL
      */
     public static List<String> buildAddColumnsSql(String dbName, String tableName,
-            List<ClickHouseColumnInfo> columnList) {
+            List<ClickHouseFieldInfo> columnList) {
         String dbTableName = dbName + "." + tableName;
         List<String> columnInfoList = getColumnsInfo(columnList);
         List<String> resultList = new ArrayList<>();
@@ -112,7 +112,7 @@ public class ClickHouseSqlBuilder {
     /**
      * Build create column SQL
      */
-    private static String buildCreateColumnsSql(List<ClickHouseColumnInfo> columns) {
+    private static String buildCreateColumnsSql(List<ClickHouseFieldInfo> columns) {
         List<String> columnList = getColumnsInfo(columns);
         StringBuilder result = new StringBuilder().append(" (")
                 .append(StringUtils.join(columnList, ",")).append(") ");
@@ -122,9 +122,9 @@ public class ClickHouseSqlBuilder {
     /**
      * Build column info
      */
-    private static List<String> getColumnsInfo(List<ClickHouseColumnInfo> columns) {
+    private static List<String> getColumnsInfo(List<ClickHouseFieldInfo> columns) {
         List<String> columnList = new ArrayList<>();
-        for (ClickHouseColumnInfo columnInfo : columns) {
+        for (ClickHouseFieldInfo columnInfo : columns) {
             // Construct columns and partition columns
             StringBuilder columnStr = new StringBuilder().append(columnInfo.getFieldName())
                     .append(" ").append(columnInfo.getFieldType());

@@ -39,5 +39,5 @@ public class ClickHouseTableInfo {
     private Integer ttl;
     private String ttlUnit;
 
-    private List<ClickHouseColumnInfo> columns;
+    private List<ClickHouseFieldInfo> fieldInfoList;
 }

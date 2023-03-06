@@ -32,7 +32,7 @@ import org.apache.inlong.manager.pojo.node.ck.ClickHouseDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.ck.ClickHouseColumnInfo;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseFieldInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSinkDTO;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSinkRequest;
@@ -129,7 +129,7 @@ public class ClickHouseSinkOperator extends AbstractSinkOperator {
                 fieldEntity.setFieldComment(fieldEntity.getFieldName());
             }
             try {
-                ClickHouseColumnInfo dto = ClickHouseColumnInfo.getFromRequest(fieldInfo);
+                ClickHouseFieldInfo dto = ClickHouseFieldInfo.getFromRequest(fieldInfo);
                 fieldEntity.setExtParams(objectMapper.writeValueAsString(dto));
             } catch (Exception e) {
                 throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED,
@@ -157,10 +157,10 @@ public class ClickHouseSinkOperator extends AbstractSinkOperator {
         sinkFieldEntities.forEach(field -> {
             SinkField sinkField = new SinkField();
             if (StringUtils.isNotBlank(field.getExtParams())) {
-                ClickHouseColumnInfo clickHouseColumnInfo = ClickHouseColumnInfo.getFromJson(
+                ClickHouseFieldInfo clickHouseFieldInfo = ClickHouseFieldInfo.getFromJson(
                         field.getExtParams());
-                CommonBeanUtils.copyProperties(field, clickHouseColumnInfo, true);
-                fieldList.add(clickHouseColumnInfo);
+                CommonBeanUtils.copyProperties(field, clickHouseFieldInfo, true);
+                fieldList.add(clickHouseFieldInfo);
             } else {
                 CommonBeanUtils.copyProperties(field, sinkField, true);
                 fieldList.add(sinkField);

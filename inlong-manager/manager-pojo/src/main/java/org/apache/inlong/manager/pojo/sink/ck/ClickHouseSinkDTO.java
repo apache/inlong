@@ -148,7 +148,7 @@ public class ClickHouseSinkDTO {
     }
 
     public static ClickHouseTableInfo getClickHouseTableInfo(ClickHouseSinkDTO ckInfo,
-            List<ClickHouseColumnInfo> columnList) {
+            List<ClickHouseFieldInfo> fieldInfoList) {
         ClickHouseTableInfo tableInfo = new ClickHouseTableInfo();
         tableInfo.setDbName(ckInfo.getDbName());
         tableInfo.setTableName(ckInfo.getTableName());
@@ -158,7 +158,7 @@ public class ClickHouseSinkDTO {
         tableInfo.setPrimaryKey(ckInfo.getPrimaryKey());
         tableInfo.setTtl(ckInfo.getTtl());
         tableInfo.setTtlUnit(ckInfo.getTtlUnit());
-        tableInfo.setColumns(columnList);
+        tableInfo.setFieldInfoList(fieldInfoList);
 
         return tableInfo;
     }

@@ -31,7 +31,7 @@ import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.node.ck.ClickHouseDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.ck.ClickHouseDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
-import org.apache.inlong.manager.pojo.sink.ck.ClickHouseColumnInfo;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseFieldInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSinkDTO;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
 import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
@@ -110,11 +110,11 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
         }
 
         // set columns
-        List<ClickHouseColumnInfo> columnList = getSClickHouseColumnInfoFromSink(fieldList);
+        List<ClickHouseFieldInfo> fieldInfoList = getSClickHouseColumnInfoFromSink(fieldList);
 
         try {
             ClickHouseSinkDTO ckInfo = getClickHouseInfo(sinkInfo);
-            ClickHouseTableInfo tableInfo = ClickHouseSinkDTO.getClickHouseTableInfo(ckInfo, columnList);
+            ClickHouseTableInfo tableInfo = ClickHouseSinkDTO.getClickHouseTableInfo(ckInfo, fieldInfoList);
             String url = ckInfo.getJdbcUrl();
             String user = ckInfo.getUsername();
             String password = ckInfo.getPassword();
@@ -134,9 +134,9 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
                 ClickHouseJdbcUtils.createTable(url, user, password, tableInfo);
             } else {
                 // 4. table exists, add columns - skip the exists columns
-                List<ClickHouseColumnInfo> existColumns = ClickHouseJdbcUtils.getColumns(url,
+                List<ClickHouseFieldInfo> existColumns = ClickHouseJdbcUtils.getFields(url,
                         user, password, dbName, tableName);
-                List<ClickHouseColumnInfo> needAddColumns = tableInfo.getColumns().stream()
+                List<ClickHouseFieldInfo> needAddColumns = tableInfo.getFieldInfoList().stream()
                         .skip(existColumns.size()).collect(toList());
                 if (CollectionUtils.isNotEmpty(needAddColumns)) {
                     ClickHouseJdbcUtils.addColumns(url, user, password, dbName, tableName, needAddColumns);
@@ -157,18 +157,18 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
         LOGGER.info("success create ClickHouse table for sink id [" + sinkInfo.getId() + "]");
     }
 
-    public List<ClickHouseColumnInfo> getSClickHouseColumnInfoFromSink(List<StreamSinkFieldEntity> sinkList) {
-        List<ClickHouseColumnInfo> columnInfoList = new ArrayList<>();
+    public List<ClickHouseFieldInfo> getSClickHouseColumnInfoFromSink(List<StreamSinkFieldEntity> sinkList) {
+        List<ClickHouseFieldInfo> columnInfoList = new ArrayList<>();
         for (StreamSinkFieldEntity fieldEntity : sinkList) {
             if (StringUtils.isNotBlank(fieldEntity.getExtParams())) {
-                ClickHouseColumnInfo clickHouseColumnInfo = ClickHouseColumnInfo.getFromJson(
+                ClickHouseFieldInfo clickHouseFieldInfo = ClickHouseFieldInfo.getFromJson(
                         fieldEntity.getExtParams());
-                CommonBeanUtils.copyProperties(fieldEntity, clickHouseColumnInfo, true);
-                columnInfoList.add(clickHouseColumnInfo);
+                CommonBeanUtils.copyProperties(fieldEntity, clickHouseFieldInfo, true);
+                columnInfoList.add(clickHouseFieldInfo);
             } else {
-                ClickHouseColumnInfo clickHouseColumnInfo = new ClickHouseColumnInfo();
-                CommonBeanUtils.copyProperties(fieldEntity, clickHouseColumnInfo, true);
-                columnInfoList.add(clickHouseColumnInfo);
+                ClickHouseFieldInfo clickHouseFieldInfo = new ClickHouseFieldInfo();
+                CommonBeanUtils.copyProperties(fieldEntity, clickHouseFieldInfo, true);
+                columnInfoList.add(clickHouseFieldInfo);
             }
         }
         return columnInfoList;
