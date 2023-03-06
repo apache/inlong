@@ -82,9 +82,8 @@ public class InlongStreamRequest extends BaseInlongStream {
     @Length(max = 8, message = "length must be less than or equal to 8")
     private String dataEscapeChar;
 
-    @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes", notes =
-            "Each task under this stream sends data synchronously, "
-                    + "which will affect the throughput of data collection, please choose carefully")
+    @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes", notes = "Each task under this stream sends data synchronously, "
+            + "which will affect the throughput of data collection, please choose carefully")
     @Range(min = 0, max = 1, message = "default is 0, only supports [0: no, 1: yes]")
     private Integer syncSend = 0;
 
