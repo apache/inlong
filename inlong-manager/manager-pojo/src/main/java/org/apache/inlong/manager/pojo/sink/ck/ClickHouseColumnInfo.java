@@ -17,21 +17,55 @@
 
 package org.apache.inlong.manager.pojo.sink.ck;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * ClickHouse column info.
  */
 @Data
-public class ClickHouseColumnInfo {
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonTypeDefine(value = SinkType.CLICKHOUSE)
+public class ClickHouseColumnInfo extends SinkField {
 
-    private String name;
-    private String type;
-    private String desc;
     private String defaultType;
     private String defaultExpr;
 
     private String compressionCode;
 
     private String ttlExpr;
+
+    /**
+     * Get the dto instance from the request
+     */
+    public static ClickHouseColumnInfo getFromRequest(SinkField sinkField) {
+        return CommonBeanUtils.copyProperties(sinkField, ClickHouseColumnInfo::new, true);
+    }
+
+    /**
+     * Get the extra param from the Json
+     */
+    public static ClickHouseColumnInfo getFromJson(@NotNull String extParams) {
+        if (StringUtils.isEmpty(extParams)) {
+            return new ClickHouseColumnInfo();
+        }
+        try {
+            return JsonUtils.parseObject(extParams, ClickHouseColumnInfo.class);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT,
+                    String.format("Failed to parse extParams for ClickHouse fieldInfo: %s", e.getMessage()));
+        }
+    }
 }

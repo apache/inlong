@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.node.ck.ClickHouseDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.ck.ClickHouseDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseColumnInfo;
@@ -94,7 +95,7 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
             ClickHouseDataNodeInfo dataNodeInfo = (ClickHouseDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, ckInfo);
-            ckInfo.setJdbcUrl(dataNodeInfo.getUrl());
+            ckInfo.setJdbcUrl(ClickHouseDataNodeDTO.convertToJdbcurl(dataNodeInfo.getUrl()));
             ckInfo.setPassword(dataNodeInfo.getToken());
         }
         return ckInfo;
@@ -109,14 +110,7 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
         }
 
         // set columns
-        List<ClickHouseColumnInfo> columnList = new ArrayList<>();
-        for (StreamSinkFieldEntity field : fieldList) {
-            ClickHouseColumnInfo columnInfo = new ClickHouseColumnInfo();
-            columnInfo.setName(field.getFieldName());
-            columnInfo.setType(field.getFieldType());
-            columnInfo.setDesc(field.getFieldComment());
-            columnList.add(columnInfo);
-        }
+        List<ClickHouseColumnInfo> columnList = getSClickHouseColumnInfoFromSink(fieldList);
 
         try {
             ClickHouseSinkDTO ckInfo = getClickHouseInfo(sinkInfo);
@@ -161,6 +155,23 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
         }
 
         LOGGER.info("success create ClickHouse table for sink id [" + sinkInfo.getId() + "]");
+    }
+
+    public List<ClickHouseColumnInfo> getSClickHouseColumnInfoFromSink(List<StreamSinkFieldEntity> sinkList) {
+        List<ClickHouseColumnInfo> columnInfoList = new ArrayList<>();
+        for (StreamSinkFieldEntity fieldEntity : sinkList) {
+            if (StringUtils.isNotBlank(fieldEntity.getExtParams())) {
+                ClickHouseColumnInfo clickHouseColumnInfo = ClickHouseColumnInfo.getFromJson(
+                        fieldEntity.getExtParams());
+                CommonBeanUtils.copyProperties(fieldEntity, clickHouseColumnInfo, true);
+                columnInfoList.add(clickHouseColumnInfo);
+            } else {
+                ClickHouseColumnInfo clickHouseColumnInfo = new ClickHouseColumnInfo();
+                CommonBeanUtils.copyProperties(fieldEntity, clickHouseColumnInfo, true);
+                columnInfoList.add(clickHouseColumnInfo);
+            }
+        }
+        return columnInfoList;
     }
 
 }

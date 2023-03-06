@@ -54,6 +54,14 @@ public class ClickHouseSqlBuilder {
         String dbTableName = table.getDbName() + "." + table.getTableName();
         sql.append("CREATE TABLE ").append(dbTableName);
 
+        // add ttl columns
+        if (table.getTtl() != null && StringUtils.isNotBlank(table.getTtlUnit())) {
+            ClickHouseColumnInfo clickHouseColumnInfo = new ClickHouseColumnInfo();
+            clickHouseColumnInfo.setFieldName("inlong_ttl_date_time");
+            clickHouseColumnInfo.setFieldType("DateTime");
+            clickHouseColumnInfo.setFieldComment("inlong ttl date time");
+            table.getColumns().add(clickHouseColumnInfo);
+        }
         // Construct columns and partition columns
         sql.append(buildCreateColumnsSql(table.getColumns()));
         if (StringUtils.isNotEmpty(table.getEngine())) {
@@ -65,7 +73,11 @@ public class ClickHouseSqlBuilder {
             sql.append(" ORDER BY ").append(table.getOrderBy());
         } else if (StringUtils.isEmpty(table.getEngine())) {
             sql.append(" ORDER BY ").append(table.getColumns()
-                    .get(FIRST_COLUMN_INDEX).getName());
+                    .get(FIRST_COLUMN_INDEX).getFieldName());
+        }
+        if (table.getTtl() != null && StringUtils.isNotBlank(table.getTtlUnit())) {
+            sql.append(" TTL ").append("inlong_ttl_date_time").append(" + INTERVAL ").append(table.getTtl()).append(" ")
+                    .append(table.getTtlUnit());
         }
         if (StringUtils.isNotEmpty(table.getPartitionBy())) {
             sql.append(" PARTITION BY ").append(table.getPartitionBy());
@@ -114,20 +126,20 @@ public class ClickHouseSqlBuilder {
         List<String> columnList = new ArrayList<>();
         for (ClickHouseColumnInfo columnInfo : columns) {
             // Construct columns and partition columns
-            StringBuilder columnStr = new StringBuilder().append(columnInfo.getName())
-                    .append(" ").append(columnInfo.getType());
+            StringBuilder columnStr = new StringBuilder().append(columnInfo.getFieldName())
+                    .append(" ").append(columnInfo.getFieldType());
             if (StringUtils.isNotEmpty(columnInfo.getDefaultType())) {
                 columnStr.append(" ").append(columnInfo.getDefaultType())
                         .append(" ").append(columnInfo.getDefaultExpr());
             }
             if (StringUtils.isNotEmpty(columnInfo.getCompressionCode())) {
-                columnStr.append(" CODEC(").append(columnInfo.getDesc()).append(")");
+                columnStr.append(" CODEC(").append(columnInfo.getCompressionCode()).append(")");
             }
             if (StringUtils.isNotEmpty(columnInfo.getTtlExpr())) {
                 columnStr.append(" TTL ").append(columnInfo.getTtlExpr());
             }
-            if (StringUtils.isNotEmpty(columnInfo.getDesc())) {
-                columnStr.append(" COMMENT '").append(columnInfo.getDesc()).append("'");
+            if (StringUtils.isNotEmpty(columnInfo.getFieldComment())) {
+                columnStr.append(" COMMENT '").append(columnInfo.getFieldComment()).append("'");
             }
             columnList.add(columnStr.toString());
         }

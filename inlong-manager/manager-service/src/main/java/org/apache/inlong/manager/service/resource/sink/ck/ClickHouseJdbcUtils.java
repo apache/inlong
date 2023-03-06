@@ -30,6 +30,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Utils for ClickHouse JDBC.
@@ -140,11 +141,14 @@ public class ClickHouseJdbcUtils {
             List<ClickHouseColumnInfo> columnList = new ArrayList<>();
             while (rs.next()) {
                 ClickHouseColumnInfo columnInfo = new ClickHouseColumnInfo();
-                columnInfo.setName(rs.getString(1));
-                columnInfo.setType(rs.getString(2));
+                if (Objects.equals(rs.getString(1), "inlong_ttl_date_time")) {
+                    continue;
+                }
+                columnInfo.setFieldName(rs.getString(1));
+                columnInfo.setFieldType(rs.getString(2));
                 columnInfo.setDefaultType(rs.getString(3));
                 columnInfo.setDefaultExpr(rs.getString(4));
-                columnInfo.setDesc(rs.getString(5));
+                columnInfo.setFieldComment(rs.getString(5));
                 columnInfo.setCompressionCode(rs.getString(6));
                 columnInfo.setTtlExpr(rs.getString(7));
                 columnList.add(columnInfo);
