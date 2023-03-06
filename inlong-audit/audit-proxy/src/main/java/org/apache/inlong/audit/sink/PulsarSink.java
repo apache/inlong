@@ -20,11 +20,6 @@ package org.apache.inlong.audit.sink;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.RateLimiter;
 import io.netty.handler.codec.TooLongFrameException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -45,6 +40,12 @@ import org.apache.pulsar.client.api.PulsarClientException.ProducerQueueIsFullErr
 import org.apache.pulsar.client.api.PulsarClientException.TopicTerminatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * pulsar sink
