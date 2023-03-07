@@ -66,6 +66,30 @@ public class MessageQueueConfig {
     @Value("${audit.tube.consumer.thread.num:4}")
     private int tubeThreadNum;
 
+    @Value("${audit.kafka.server.url:}")
+    private String kafkaServerUrl;
+
+    @Value("${audit.kafka.topic:}")
+    private String kafkaTopic;
+
+    @Value("${audit.kafka.consumer.name:}")
+    private String kafkaConsumerName;
+
+    @Value("${audit.kafka.group.id:audit-consumer-group}")
+    private String kafkaGroupId;
+
+    @Value("${audit.kafka.enable.auto.commit:true}")
+    private String enableAutoCommit;
+
+    @Value("${audit.kafka.auto.commit.interval.ms:1000}")
+    private String autoCommitIntervalMs;
+
+    @Value("${audit.kafka.fetch.wait.ms:100}")
+    private long fetchWaitMs = 100;
+
+    @Value("${audit.kafka.auto.offset.reset:earliest}")
+    private String autoOffsetReset;
+
     @Value("${audit.config.proxy.type:pulsar}")
     private String mqType;
 
@@ -75,6 +99,10 @@ public class MessageQueueConfig {
 
     public boolean isTube() {
         return mqType.trim().equalsIgnoreCase("tube");
+    }
+
+    public boolean isKafka() {
+        return mqType.trim().equalsIgnoreCase("kafka");
     }
 
 }
