@@ -113,7 +113,10 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
             kafkaSource.setSourceName(streamId);
             kafkaSource.setBootstrapServers(bootstrapServers);
             kafkaSource.setTopic(streamInfo.getMqResource());
-            String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
+            if (StringUtils.isNotBlank(streamInfo.getDataType())) {
+                String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
+                kafkaSource.setSerializationType(serializationType);
+            }
             String topicName = streamInfo.getMqResource();
             if (StringUtils.isBlank(topicName) || topicName.equals(streamId)) {
                 // the default mq resource (stream id) is not sufficient to discriminate different kafka topics
@@ -121,7 +124,7 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
                         groupInfo.getMqResource(), streamInfo.getMqResource());
             }
             kafkaSource.setTopic(topicName);
-            kafkaSource.setSerializationType(serializationType);
+
             kafkaSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
 
             for (StreamSource sourceInfo : streamSources) {
