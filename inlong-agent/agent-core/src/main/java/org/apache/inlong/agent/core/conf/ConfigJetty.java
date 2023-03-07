@@ -62,10 +62,11 @@ public class ConfigJetty implements Closeable {
     }
 
     private void initJetty() throws Exception {
-        ServerConnector connector = new ServerConnector(this.server);
-        connector.setPort(conf.getInt(
-                AgentConstants.AGENT_HTTP_PORT, AgentConstants.DEFAULT_AGENT_HTTP_PORT));
-        server.setConnectors(new Connector[]{connector});
+        try (ServerConnector connector = new ServerConnector(this.server)) {
+            connector.setPort(conf.getInt(
+                    AgentConstants.AGENT_HTTP_PORT, AgentConstants.DEFAULT_AGENT_HTTP_PORT));
+            server.setConnectors(new Connector[]{connector});
+        }
 
         ServletHandler servletHandler = new ServletHandler();
         ServletHolder holder = new ServletHolder(new ConfigServlet(this));
