@@ -279,25 +279,42 @@ public class StarRocksDynamicSinkFunction<T> extends RichSinkFunction<T> impleme
                 LOG.warn("Parse dirty options failed. {}", ExceptionUtils.stringifyException(e));
             }
 
-            RowKind rowKind = rowData.getRowKind();
+            List<RowKind> rowKinds = jsonDynamicSchemaFormat.opType2RowKind(
+                    jsonDynamicSchemaFormat.getOpType(rootNode));
             List<Map<String, String>> physicalDataList = jsonDynamicSchemaFormat.jsonNode2Map(
                     jsonDynamicSchemaFormat.getPhysicalData(rootNode));
+            JsonNode updateBeforeNode = jsonDynamicSchemaFormat.getUpdateBefore(rootNode);
+            List<Map<String, String>> updateBeforeList = null;
+            if (updateBeforeNode != null) {
+                updateBeforeList = jsonDynamicSchemaFormat.jsonNode2Map(updateBeforeNode);
+            }
             List<Map<String, String>> records = new ArrayList<>();
             for (int i = 0; i < physicalDataList.size(); i++) {
-                Map<String, String> record = physicalDataList.get(i);
-                switch (rowKind) {
-                    case INSERT:
-                    case UPDATE_AFTER:
-                        record.put("__op", String.valueOf(StarRocksSinkOP.UPSERT.ordinal()));
-                        break;
-                    case DELETE:
-                    case UPDATE_BEFORE:
-                        record.put("__op", String.valueOf(StarRocksSinkOP.DELETE.ordinal()));
-                        break;
-                    default:
-                        throw new RuntimeException("Unrecognized row kind:" + rowKind);
+                for (RowKind rowKind : rowKinds) {
+                    Map<String, String> record = null;
+                    switch (rowKind) {
+                        case INSERT:
+                        case UPDATE_AFTER:
+                            record = physicalDataList.get(i);
+                            record.put("__op", String.valueOf(StarRocksSinkOP.UPSERT.ordinal()));
+                            break;
+                        case DELETE:
+                            record = physicalDataList.get(i);
+                            record.put("__op", String.valueOf(StarRocksSinkOP.DELETE.ordinal()));
+                            break;
+                        case UPDATE_BEFORE:
+                            if (updateBeforeList != null && updateBeforeList.size() > i) {
+                                record = updateBeforeList.get(i);
+                                record.put("__op", String.valueOf(StarRocksSinkOP.DELETE.ordinal()));
+                            }
+                            break;
+                        default:
+                            throw new RuntimeException("Unrecognized row kind:" + rowKind);
+                    }
+                    if (record != null) {
+                        records.add(record);
+                    }
                 }
-                records.add(record);
             }
             sinkManager.writeRecords(databaseName, tableName, records, dirtyLogTag, dirtyIdentify, dirtyLabel);
         } else {
