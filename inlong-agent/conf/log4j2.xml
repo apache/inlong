@@ -23,8 +23,8 @@
         <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p ${PID:-} [%30.30t] %-30.30C{1.}:%L %m%n</property>
         <property name="every_file_date">1</property>
         <property name="every_file_size">1G</property>
-        <property name="output_log_level">DEBUG</property>
-        <property name="rolling_max">50</property>
+        <property name="output_log_level">INFO</property>
+        <property name="rolling_max">15</property>
         <property name="debug_fileName">${basePath}/debug.log</property>
         <property name="debug_filePattern">${basePath}/debug-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="debug_max">10</property>
@@ -37,7 +37,7 @@
         <property name="error_fileName">${basePath}/error.log</property>
         <property name="error_filePattern">${basePath}/error-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="error_max">10</property>
-        <property name="console_print_level">DEBUG</property>
+        <property name="console_print_level">INFO</property>
         <property name="index_max">10</property>
         <property name="index_fileName">${basePath}/index.log</property>
         <property name="index_filePattern">${basePath}/index-%d{yyyy-MM-dd}-%i.log.gz</property>
