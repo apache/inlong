@@ -110,7 +110,7 @@ public class KafkaSink extends AbstractSink implements Configurable {
 
     static {
         // stat kafka performance
-        System.out.println("kafkaPerformanceTask!!!!!!");
+        logger.info("kafkaPerformanceTask!!!!!!");
         scheduledExecutorService.scheduleWithFixedDelay(kafkaPerformanceTask, 0L,
                 PRINT_INTERVAL, TimeUnit.SECONDS);
     }
@@ -142,7 +142,7 @@ public class KafkaSink extends AbstractSink implements Configurable {
 
     @Override
     public synchronized void stop() {
-        logger.info("kafka sink stopping");
+        logger.info("kafka sink stopping...");
         // stop connection
         this.canTake = false;
         int waitCount = 0;
@@ -174,7 +174,7 @@ public class KafkaSink extends AbstractSink implements Configurable {
 
     @Override
     public Status process() {
-        logger.debug("process......");
+        logger.info("kafka sink processing...");
         if (!this.canTake) {
             return Status.BACKOFF;
         }

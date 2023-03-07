@@ -209,7 +209,7 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     @Override
     public Status process() throws EventDeliveryException {
-        logger.debug("process......");
+        logger.info("tube sink processing...");
         if (!this.canTake) {
             return Status.BACKOFF;
         }

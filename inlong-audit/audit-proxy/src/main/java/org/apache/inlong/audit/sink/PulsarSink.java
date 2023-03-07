@@ -152,7 +152,7 @@ public class PulsarSink extends AbstractSink
         /*
          * stat pulsar performance
          */
-        System.out.println("pulsarPerformanceTask!!!!!!");
+        logger.info("pulsarPerformanceTask!!!!!!");
         scheduledExecutorService.scheduleWithFixedDelay(pulsarPerformanceTask, 0L,
                 PRINT_INTERVAL, TimeUnit.SECONDS);
     }
@@ -262,7 +262,7 @@ public class PulsarSink extends AbstractSink
 
     @Override
     public Status process() throws EventDeliveryException {
-        logger.debug("process......");
+        logger.info("pulsar sink processing...");
         if (!this.canTake) {
             return Status.BACKOFF;
         }
