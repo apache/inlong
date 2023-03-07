@@ -95,7 +95,7 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
             ClickHouseDataNodeInfo dataNodeInfo = (ClickHouseDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, ckInfo);
-            ckInfo.setJdbcUrl(ClickHouseDataNodeDTO.convertToJdbcurl(dataNodeInfo.getUrl()));
+            ckInfo.setJdbcUrl(ClickHouseDataNodeDTO.convertToJdbcUrl(dataNodeInfo.getUrl()));
             ckInfo.setPassword(dataNodeInfo.getToken());
         }
         return ckInfo;

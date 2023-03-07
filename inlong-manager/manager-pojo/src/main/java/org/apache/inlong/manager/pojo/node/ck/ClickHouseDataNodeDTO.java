@@ -57,9 +57,9 @@ public class ClickHouseDataNodeDTO {
     }
 
     /**
-     * Convert ip:post to jdbcurl.
+     * Convert ip:post to jdbcUrl.
      */
-    public static String convertToJdbcurl(String url) {
+    public static String convertToJdbcUrl(String url) {
         String jdbcUrl = url;
         if (StringUtils.isNotBlank(jdbcUrl) && !jdbcUrl.startsWith(CLICKHOUSE_JDBC_PREFIX)) {
             jdbcUrl = CLICKHOUSE_JDBC_PREFIX + jdbcUrl;

@@ -99,7 +99,7 @@ public class ClickHouseSinkOperator extends AbstractSinkOperator {
             ClickHouseDataNodeInfo dataNodeInfo = (ClickHouseDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     entity.getDataNodeName(), entity.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
-            dto.setJdbcUrl(ClickHouseDataNodeDTO.convertToJdbcurl(dataNodeInfo.getUrl()));
+            dto.setJdbcUrl(ClickHouseDataNodeDTO.convertToJdbcUrl(dataNodeInfo.getUrl()));
             dto.setPassword(dataNodeInfo.getToken());
         }
         CommonBeanUtils.copyProperties(entity, sink, true);
