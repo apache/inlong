@@ -88,6 +88,12 @@ public class ClickHouseSinkDTO {
     @ApiModelProperty("Table order information")
     private String orderBy;
 
+    @ApiModelProperty(value = "Message time-to-live duration")
+    private Integer ttl;
+
+    @ApiModelProperty(value = "The unit of message's time-to-live duration")
+    private String ttlUnit;
+
     @ApiModelProperty("Table primary key")
     private String primaryKey;
 
@@ -122,6 +128,8 @@ public class ClickHouseSinkDTO {
                 .keyFieldNames(request.getKeyFieldNames())
                 .engine(request.getEngine())
                 .partitionBy(request.getPartitionBy())
+                .ttl(request.getTtl())
+                .ttlUnit(request.getTtlUnit())
                 .primaryKey(request.getPrimaryKey())
                 .orderBy(request.getOrderBy())
                 .encryptVersion(encryptVersion)
@@ -140,7 +148,7 @@ public class ClickHouseSinkDTO {
     }
 
     public static ClickHouseTableInfo getClickHouseTableInfo(ClickHouseSinkDTO ckInfo,
-            List<ClickHouseColumnInfo> columnList) {
+            List<ClickHouseFieldInfo> fieldInfoList) {
         ClickHouseTableInfo tableInfo = new ClickHouseTableInfo();
         tableInfo.setDbName(ckInfo.getDbName());
         tableInfo.setTableName(ckInfo.getTableName());
@@ -148,7 +156,9 @@ public class ClickHouseSinkDTO {
         tableInfo.setOrderBy(ckInfo.getOrderBy());
         tableInfo.setPartitionBy(ckInfo.getPartitionBy());
         tableInfo.setPrimaryKey(ckInfo.getPrimaryKey());
-        tableInfo.setColumns(columnList);
+        tableInfo.setTtl(ckInfo.getTtl());
+        tableInfo.setTtlUnit(ckInfo.getTtlUnit());
+        tableInfo.setFieldInfoList(fieldInfoList);
 
         return tableInfo;
     }

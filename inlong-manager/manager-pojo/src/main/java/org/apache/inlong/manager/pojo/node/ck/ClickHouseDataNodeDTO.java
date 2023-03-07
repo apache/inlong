@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.node.ck;
 import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -33,6 +34,8 @@ import javax.validation.constraints.NotNull;
 @Builder
 @ApiModel("ClickHouse data node info")
 public class ClickHouseDataNodeDTO {
+
+    private static final String CLICKHOUSE_JDBC_PREFIX = "jdbc:clickhouse://";
 
     /**
      * Get the dto instance from the request
@@ -51,6 +54,17 @@ public class ClickHouseDataNodeDTO {
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT,
                     String.format("Failed to parse extParams for ClickHouse node: %s", e.getMessage()));
         }
+    }
+
+    /**
+     * Convert ip:post to jdbcUrl.
+     */
+    public static String convertToJdbcUrl(String url) {
+        String jdbcUrl = url;
+        if (StringUtils.isNotBlank(jdbcUrl) && !jdbcUrl.startsWith(CLICKHOUSE_JDBC_PREFIX)) {
+            jdbcUrl = CLICKHOUSE_JDBC_PREFIX + jdbcUrl;
+        }
+        return jdbcUrl;
     }
 
 }

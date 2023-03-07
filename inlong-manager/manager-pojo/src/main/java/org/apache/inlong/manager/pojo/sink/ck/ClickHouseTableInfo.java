@@ -36,6 +36,8 @@ public class ClickHouseTableInfo {
     private String partitionBy;
     private String orderBy;
     private String primaryKey;
+    private Integer ttl;
+    private String ttlUnit;
 
-    private List<ClickHouseColumnInfo> columns;
+    private List<ClickHouseFieldInfo> fieldInfoList;
 }

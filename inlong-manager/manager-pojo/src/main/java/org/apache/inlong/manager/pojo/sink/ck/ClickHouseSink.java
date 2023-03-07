@@ -87,6 +87,12 @@ public class ClickHouseSink extends StreamSink {
     @ApiModelProperty("Table order information")
     private String orderBy;
 
+    @ApiModelProperty(value = "Message time-to-live duration")
+    private Integer ttl;
+
+    @ApiModelProperty(value = "The unit of message's time-to-live duration")
+    private String ttlUnit;
+
     @ApiModelProperty("Table primary key")
     private String primaryKey;
 

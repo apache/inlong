@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.resource.sink.ck;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.pojo.sink.ck.ClickHouseColumnInfo;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseFieldInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +30,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Utils for ClickHouse JDBC.
@@ -128,28 +129,31 @@ public class ClickHouseJdbcUtils {
     }
 
     /**
-     * Query ClickHouse columns
+     * Query ClickHouse field
      */
-    public static List<ClickHouseColumnInfo> getColumns(String url, String user, String password, String dbName,
+    public static List<ClickHouseFieldInfo> getFields(String url, String user, String password, String dbName,
             String tableName) throws Exception {
 
         String querySql = ClickHouseSqlBuilder.buildDescTableSql(dbName, tableName);
         try (Connection conn = getConnection(url, user, password);
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(querySql)) {
-            List<ClickHouseColumnInfo> columnList = new ArrayList<>();
+            List<ClickHouseFieldInfo> fieldList = new ArrayList<>();
             while (rs.next()) {
-                ClickHouseColumnInfo columnInfo = new ClickHouseColumnInfo();
-                columnInfo.setName(rs.getString(1));
-                columnInfo.setType(rs.getString(2));
-                columnInfo.setDefaultType(rs.getString(3));
-                columnInfo.setDefaultExpr(rs.getString(4));
-                columnInfo.setDesc(rs.getString(5));
-                columnInfo.setCompressionCode(rs.getString(6));
-                columnInfo.setTtlExpr(rs.getString(7));
-                columnList.add(columnInfo);
+                ClickHouseFieldInfo fieldInfo = new ClickHouseFieldInfo();
+                if (Objects.equals(rs.getString(1), "inlong_ttl_date_time")) {
+                    continue;
+                }
+                fieldInfo.setFieldName(rs.getString(1));
+                fieldInfo.setFieldType(rs.getString(2));
+                fieldInfo.setDefaultType(rs.getString(3));
+                fieldInfo.setDefaultExpr(rs.getString(4));
+                fieldInfo.setFieldComment(rs.getString(5));
+                fieldInfo.setCompressionCode(rs.getString(6));
+                fieldInfo.setTtlExpr(rs.getString(7));
+                fieldList.add(fieldInfo);
             }
-            return columnList;
+            return fieldList;
         }
     }
 
@@ -157,7 +161,7 @@ public class ClickHouseJdbcUtils {
      * Add columns for ClickHouse table
      */
     public static void addColumns(String url, String user, String password, String dbName, String tableName,
-            List<ClickHouseColumnInfo> columnList) throws Exception {
+            List<ClickHouseFieldInfo> columnList) throws Exception {
         List<String> addColumnSql = ClickHouseSqlBuilder.buildAddColumnsSql(dbName, tableName, columnList);
         ClickHouseJdbcUtils.executeSqlBatch(addColumnSql, url, user, password);
     }

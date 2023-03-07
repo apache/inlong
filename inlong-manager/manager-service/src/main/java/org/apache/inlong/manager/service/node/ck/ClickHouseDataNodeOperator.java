@@ -88,7 +88,7 @@ public class ClickHouseDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     public Boolean testConnection(DataNodeRequest request) {
-        String url = request.getUrl();
+        String url = ClickHouseDataNodeDTO.convertToJdbcUrl(request.getUrl());
         String username = request.getUsername();
         String password = request.getToken();
         Preconditions.expectNotBlank(url, ErrorCodeEnum.INVALID_PARAMETER, "connection url cannot be empty");
