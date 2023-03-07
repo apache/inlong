@@ -354,6 +354,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public List<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request, UserInfo opInfo) {
         // filter records;
         List<InlongGroupEntity> filterGroupEntities = new ArrayList<>();
+        OrderFieldEnum.checkOrderField(request);
+        OrderTypeEnum.checkOrderType(request);
         for (InlongGroupEntity groupEntity : groupMapper.selectByCondition(request)) {
             // only the person in charges can query
             if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {

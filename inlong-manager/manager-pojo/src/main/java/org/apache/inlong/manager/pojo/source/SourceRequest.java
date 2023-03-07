@@ -50,13 +50,13 @@ public class SourceRequest {
     @ApiModelProperty("Inlong group id")
     @NotBlank(groups = SaveValidation.class, message = "inlongGroupId cannot be blank")
     @Length(min = 4, max = 100, message = "length must be between 4 and 100")
-    @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "only supports lowercase letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[a-z0-9_.-]{4,100}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
 
     @ApiModelProperty("Inlong stream id")
     @NotBlank(groups = SaveValidation.class, message = "inlongStreamId cannot be blank")
     @Length(min = 1, max = 100, message = "inlongStreamId length must be between 1 and 100")
-    @Pattern(regexp = "^[a-z0-9_-]{1,100}$", message = "inlongStreamId only supports lowercase letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[a-z0-9_.-]{1,100}$", message = "inlongStreamId only supports lowercase letters, numbers, '-', or '_'")
     private String inlongStreamId;
 
     @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")

@@ -318,6 +318,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     public List<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request, UserInfo opInfo) {
         request.setCurrentUser(opInfo.getName());
         request.setIsAdminRole(opInfo.getRoles().contains(UserRoleCode.ADMIN));
+        OrderFieldEnum.checkOrderField(request);
+        OrderTypeEnum.checkOrderType(request);
         return CommonBeanUtils.copyListProperties(streamMapper.selectByCondition(request), InlongStreamBriefInfo::new);
     }
 
