@@ -165,7 +165,7 @@ public enum PostgreSQLReadableMetaData {
                     .name(sourceStruct.getString(AbstractSourceInfo.SERVER_NAME_KEY)).sqlType(getSqlType(tableSchema))
                     .pkNames(getPkNames(tableSchema)).build();
             DebeziumJson debeziumJson = DebeziumJson.builder().after(field).source(source)
-                    .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getDebeziumOpType(record))
+                    .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getDebeziumOpType(data))
                     .tableChange(tableSchema).build();
 
             try {
@@ -398,9 +398,18 @@ public enum PostgreSQLReadableMetaData {
         List<Map<String, Object>> dataList = new ArrayList<>();
         dataList.add(field);
 
-        CanalJson canalJson = CanalJson.builder().data(dataList).database(databaseName).schema(schemaName).sql("")
-                .es(opTs).isDdl(false).pkNames(getPkNames(tableSchema)).table(tableName).ts(ts).type(getOpType(record))
-                .sqlType(getSqlType(tableSchema)).build();
+        CanalJson canalJson = CanalJson.builder()
+                .data(dataList)
+                .database(databaseName)
+                .schema(schemaName)
+                .sql("")
+                .es(opTs).isDdl(false)
+                .pkNames(getPkNames(tableSchema))
+                .table(tableName)
+                .ts(ts)
+                .type(getCanalOpType(rowData))
+                .sqlType(getSqlType(tableSchema))
+                .build();
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             return StringData.fromString(objectMapper.writeValueAsString(canalJson));
@@ -474,20 +483,49 @@ public enum PostgreSQLReadableMetaData {
     }
 
     /**
+     * convert canal operation to canal-json operation type
+     *
+     * @param record
+     * @return
+     */
+    private static String getCanalOpType(GenericRowData record) {
+        String opType;
+        switch (record.getRowKind()) {
+            case DELETE:
+            case UPDATE_BEFORE:
+                opType = "DELETE";
+                break;
+            case INSERT:
+            case UPDATE_AFTER:
+                opType = "INSERT";
+                break;
+            default:
+                throw new IllegalStateException("the record only have states in DELETE, "
+                        + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
+        }
+        return opType;
+    }
+
+    /**
      * convert debezium operation to debezium-json operation type
      *
      * @param record
      * @return
      */
-    private static String getDebeziumOpType(SourceRecord record) {
+    private static String getDebeziumOpType(GenericRowData record) {
         String opType;
-        final Envelope.Operation op = Envelope.operationFor(record);
-        if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
-            opType = "c";
-        } else if (op == Envelope.Operation.DELETE) {
-            opType = "d";
-        } else {
-            opType = "u";
+        switch (record.getRowKind()) {
+            case DELETE:
+            case UPDATE_BEFORE:
+                opType = "d";
+                break;
+            case INSERT:
+            case UPDATE_AFTER:
+                opType = "c";
+                break;
+            default:
+                throw new IllegalStateException("the record only have states in DELETE, "
+                        + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
         }
         return opType;
     }
