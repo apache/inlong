@@ -131,8 +131,10 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             pulsarSource.setAdminUrl(adminUrl);
             pulsarSource.setServiceUrl(serviceUrl);
             pulsarSource.setInlongComponent(true);
-            String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
-            pulsarSource.setSerializationType(serializationType);
+            if (StringUtils.isNotBlank(streamInfo.getDataType())) {
+                String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
+                pulsarSource.setSerializationType(serializationType);
+            }
             pulsarSource.setWrapWithInlongMsg(streamInfo.getWrapWithInlongMsg());
             pulsarSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
 
