@@ -240,6 +240,58 @@ export default class ClickHouseSink
   primaryKey: string;
 
   @FieldDecorator({
+    type: 'inputnumber',
+    suffix: {
+      type: 'select',
+      name: 'ttlUnit',
+      props: values => ({
+        disabled: [110, 130].includes(values?.status),
+        options: [
+          {
+            label: 'Second',
+            value: 'second',
+          },
+          {
+            label: 'Minute',
+            value: 'minute',
+          },
+          {
+            label: 'Hour',
+            value: 'hour',
+          },
+          {
+            label: 'Day',
+            value: 'day',
+          },
+          {
+            label: 'Week',
+            value: 'week',
+          },
+          {
+            label: 'Month',
+            value: 'month',
+          },
+          {
+            label: 'Quarter',
+            value: 'quarter',
+          },
+          {
+            label: 'Year',
+            value: 'year',
+          },
+        ],
+      }),
+    },
+    props: values => ({
+      min: 1,
+      precision: 0,
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @I18n('Time To Live')
+  ttl: number;
+
+  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',
