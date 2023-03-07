@@ -190,8 +190,8 @@ public class KafkaSink extends AbstractSink implements Configurable {
                     diskRateLimiter.acquire(event.getBody().length);
                 }
                 if (!eventQueue.offer(event, 3 * 1000, TimeUnit.MILLISECONDS)) {
-                    logger.info("[{}] Channel --> Queue(has no enough space,current code point) "
-                            + "--> Kafka,Check if Kafka server or network is ok.(if this situation "
+                    logger.info("[{}] Channel --> Queue(not enough space, current code point) "
+                            + "--> Kafka, check if Kafka server or network is ok. (If this situation "
                             + "last long time it will cause memoryChannel full and fileChannel write.)", getName());
                     tx.rollback();
                 } else {
@@ -288,11 +288,11 @@ public class KafkaSink extends AbstractSink implements Configurable {
         public void run() {
             try {
                 if (totalKafkaSuccSendSize.get() != 0) {
-                    logger.info("Total tube performance tps :"
+                    logger.info("Total kafka performance tps: "
                             + totalKafkaSuccSendCnt.get() / PRINT_INTERVAL
-                            + "/s, avg msg size:"
+                            + "/s, avg msg size: "
                             + totalKafkaSuccSendSize.get() / totalKafkaSuccSendCnt.get()
-                            + ",print every " + PRINT_INTERVAL + " seconds");
+                            + ", print every " + PRINT_INTERVAL + " seconds");
 
                     // totalKafkaSuccSendCnt represents the number of packets
                     totalKafkaSuccSendSize.set(0);
@@ -363,12 +363,8 @@ public class KafkaSink extends AbstractSink implements Configurable {
                         sinkCounter.incrementEventDrainAttemptCount();
                     }
 
-                    if (event == null) {
-                        continue;
-                    }
-
-                    if (topic == null || topic.equals("")) {
-                        logger.warn("no topic specified in event header, just skip this event");
+                    if (event == null || StringUtils.isBlank(topic)) {
+                        logger.warn("event is null or no topic specified in event header, just skip");
                         continue;
                     }
 
