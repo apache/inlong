@@ -152,7 +152,7 @@ public class PulsarSink extends AbstractSink
         /*
          * stat pulsar performance
          */
-        logger.info("pulsarPerformanceTask!!!!!!");
+        logger.info("init pulsarPerformanceTask");
         scheduledExecutorService.scheduleWithFixedDelay(pulsarPerformanceTask, 0L,
                 PRINT_INTERVAL, TimeUnit.SECONDS);
     }
@@ -206,7 +206,7 @@ public class PulsarSink extends AbstractSink
 
     @Override
     public void start() {
-        logger.info("pulsar sink starting...");
+        logger.info("pulsar sink starting");
         sinkCounter.start();
         pulsarClientService.initCreateConnection(this);
 
@@ -262,7 +262,7 @@ public class PulsarSink extends AbstractSink
 
     @Override
     public Status process() throws EventDeliveryException {
-        logger.info("pulsar sink processing...");
+        logger.info("pulsar sink processing");
         if (!this.canTake) {
             return Status.BACKOFF;
         }
@@ -407,7 +407,6 @@ public class PulsarSink extends AbstractSink
         public void run() {
             logger.info("Sink task {} started.", Thread.currentThread().getName());
             while (canSend) {
-                logger.debug("SinkTask process......");
                 boolean decrementFlag = false;
                 Event event = null;
                 EventStat eventStat = null;
