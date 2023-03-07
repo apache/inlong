@@ -20,11 +20,6 @@ package org.apache.inlong.audit.sink;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.RateLimiter;
 import io.netty.handler.codec.TooLongFrameException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -45,6 +40,12 @@ import org.apache.pulsar.client.api.PulsarClientException.ProducerQueueIsFullErr
 import org.apache.pulsar.client.api.PulsarClientException.TopicTerminatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * pulsar sink
@@ -151,7 +152,7 @@ public class PulsarSink extends AbstractSink
         /*
          * stat pulsar performance
          */
-        System.out.println("pulsarPerformanceTask!!!!!!");
+        logger.info("init pulsarPerformanceTask");
         scheduledExecutorService.scheduleWithFixedDelay(pulsarPerformanceTask, 0L,
                 PRINT_INTERVAL, TimeUnit.SECONDS);
     }
@@ -205,7 +206,7 @@ public class PulsarSink extends AbstractSink
 
     @Override
     public void start() {
-        logger.info("pulsar sink starting...");
+        logger.info("pulsar sink starting");
         sinkCounter.start();
         pulsarClientService.initCreateConnection(this);
 
@@ -261,7 +262,7 @@ public class PulsarSink extends AbstractSink
 
     @Override
     public Status process() throws EventDeliveryException {
-        logger.debug("process......");
+        logger.info("pulsar sink processing");
         if (!this.canTake) {
             return Status.BACKOFF;
         }
@@ -406,7 +407,6 @@ public class PulsarSink extends AbstractSink
         public void run() {
             logger.info("Sink task {} started.", Thread.currentThread().getName());
             while (canSend) {
-                logger.debug("SinkTask process......");
                 boolean decrementFlag = false;
                 Event event = null;
                 EventStat eventStat = null;

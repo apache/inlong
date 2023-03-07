@@ -100,7 +100,7 @@ public class TubeSink extends AbstractSink implements Configurable {
         /*
          * stat tube performance
          */
-        logger.info("tubePerformanceTask!!!!!!");
+        logger.info("init tubePerformanceTask");
         scheduledExecutorService.scheduleWithFixedDelay(tubePerformanceTask, 0L,
                 PRINT_INTERVAL, TimeUnit.SECONDS);
     }
@@ -144,7 +144,7 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     @Override
     public synchronized void start() {
-        logger.info("tube sink starting...");
+        logger.info("tube sink starting");
         try {
             createConnection();
         } catch (FlumeException e) {
@@ -176,7 +176,7 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     @Override
     public synchronized void stop() {
-        logger.info("tubesink stopping");
+        logger.info("tube sink stopping");
         destroyConnection();
         this.canTake = false;
         int waitCount = 0;
@@ -209,7 +209,7 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     @Override
     public Status process() throws EventDeliveryException {
-        logger.debug("process......");
+        logger.info("tube sink processing");
         if (!this.canTake) {
             return Status.BACKOFF;
         }
