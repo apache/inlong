@@ -248,35 +248,35 @@ export default class ClickHouseSink
         disabled: [110, 130].includes(values?.status),
         options: [
           {
-            label: 'S',
+            label: 'Second',
             value: 'second',
           },
           {
-            label: 'M',
+            label: 'Minute',
             value: 'minute',
           },
           {
-            label: 'H',
+            label: 'Hour',
             value: 'hour',
           },
           {
-            label: 'D',
+            label: 'Day',
             value: 'day',
           },
           {
-            label: 'W',
+            label: 'Week',
             value: 'week',
           },
           {
-            label: 'M',
+            label: 'Month',
             value: 'month',
           },
           {
-            label: ' Q',
+            label: 'Quarter',
             value: 'quarter',
           },
           {
-            label: 'Y',
+            label: 'Year',
             value: 'year',
           },
         ],
