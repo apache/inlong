@@ -161,7 +161,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
             value = FormatUtils.csvFormat(data, labelMap, s3Options.getFieldDelimiter());
         }
         if (s3Options.enableDirtyLog()) {
-            LOGGER.info("[{}] {}", dirtyData.getLogTag(), value);
+            LOGGER.debug("[{}] {}", dirtyData.getLogTag(), value);
         }
         batchBytes += value.getBytes(UTF_8).length;
         size++;
