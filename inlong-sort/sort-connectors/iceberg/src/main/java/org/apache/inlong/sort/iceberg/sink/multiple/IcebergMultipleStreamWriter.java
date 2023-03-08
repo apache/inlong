@@ -147,6 +147,14 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             sinkMetricData = new SinkTableMetricData(metricOption, runtimeContext.getMetricGroup());
             sinkMetricData.registerSubMetricsGroup(metricState);
         }
+
+        if (dirtySink != null) {
+            try {
+                dirtySink.open(new Configuration());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override
