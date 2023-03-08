@@ -27,7 +27,6 @@ import { SourceInfo } from '../common/SourceInfo';
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
 const { ColumnDecorator } = RenderList;
-let testId = 0;
 
 export default class PulsarSource
   extends SourceInfo
@@ -60,13 +59,22 @@ export default class PulsarSource
         },
       },
       onChange: (value, option) => {
-        return (testId = option.id);
+        return {
+          clusterId: option.id,
+        };
       },
     }),
   })
   @ColumnDecorator()
   @I18n('meta.Sources.File.ClusterName')
   inlongClusterName: string;
+
+  @FieldDecorator({
+    type: 'text',
+    hidden: true,
+  })
+  @I18n('clusterId')
+  clusterId: number;
 
   @FieldDecorator({
     type: 'select',
@@ -85,7 +93,7 @@ export default class PulsarSource
           url: '/cluster/node/list',
           method: 'POST',
           data: {
-            parentId: testId,
+            parentId: values.clusterId,
             pageNum: 1,
             pageSize: 10,
           },
