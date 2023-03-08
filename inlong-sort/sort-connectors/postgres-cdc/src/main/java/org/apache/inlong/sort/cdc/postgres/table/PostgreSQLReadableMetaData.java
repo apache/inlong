@@ -373,9 +373,9 @@ public enum PostgreSQLReadableMetaData {
     /**
      * Generate a canal json message
      *
-     * @param record
-     * @param tableSchema
-     * @param rowData
+     * @param record source record
+     * @param tableSchema table schema
+     * @param rowData row data with canal json or debezium json
      * @return
      */
     private static StringData getCanalData(SourceRecord record, TableChange tableSchema, GenericRowData rowData) {
@@ -435,8 +435,8 @@ public enum PostgreSQLReadableMetaData {
     /**
      * convert debezium operation to canal-json operation type
      *
-     * @param record: source record
-     * @return: source table DML operation type
+     * @param record source record
+     * @return source table DML operation type
      */
     private static String getOpType(SourceRecord record) {
         String opType;
@@ -454,7 +454,7 @@ public enum PostgreSQLReadableMetaData {
     /**
      * get primary key names
      *
-     * @param tableSchema: table schema
+     * @param tableSchema table schema
      * @return: primary key column names
      */
     private static List<String> getPkNames(@Nullable TableChange tableSchema) {
@@ -467,7 +467,7 @@ public enum PostgreSQLReadableMetaData {
     /**
      * get a map about column name and type
      *
-     * @param tableSchema: table schema
+     * @param tableSchema table schema
      * @return: map of field name and field type
      */
     public static Map<String, Integer> getSqlType(@Nullable TableChange tableSchema) {
@@ -485,7 +485,7 @@ public enum PostgreSQLReadableMetaData {
     /**
      * convert canal operation to canal-json operation type
      *
-     * @param record: raw data with canal json format
+     * @param record raw data with canal json format
      * @return source table DML operation type
      */
     private static String getCanalOpType(GenericRowData record) {
@@ -509,7 +509,7 @@ public enum PostgreSQLReadableMetaData {
     /**
      * convert debezium operation to debezium-json operation type
      *
-     * @param record: raw data with debezium json format
+     * @param record raw data with debezium json format
      * @return source table DML operation type
      */
     private static String getDebeziumOpType(GenericRowData record) {
@@ -533,8 +533,8 @@ public enum PostgreSQLReadableMetaData {
     /**
      * get meta info from debezium-json data stream
      *
-     * @param record: source record
-     * @param tableNameKey: key in the source record
+     * @param record source record
+     * @param tableNameKey key in the source record
      * @return value of the key in the source record
      */
     private static String getMetaData(SourceRecord record, String tableNameKey) {
