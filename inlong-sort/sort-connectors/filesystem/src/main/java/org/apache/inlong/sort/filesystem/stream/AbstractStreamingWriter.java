@@ -136,7 +136,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
         super.open();
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
-                .withInlongAudit(inlongAudit)
+                .withAuditAddress(inlongAudit)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
                 .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)

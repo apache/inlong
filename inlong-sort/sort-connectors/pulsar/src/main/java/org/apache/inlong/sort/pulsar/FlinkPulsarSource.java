@@ -244,13 +244,16 @@ public class FlinkPulsarSource<T>
 
     protected String auditHostAndPorts;
 
+    protected String auditKeys;
+
     public FlinkPulsarSource(
             String adminUrl,
             ClientConfigurationData clientConf,
             PulsarDeserializationSchema<T> deserializer,
             Properties properties,
             String inlongMetric,
-            String inlongAudit) {
+            String inlongAudit,
+            String auditKeys) {
         this.adminUrl = checkNotNull(adminUrl);
         this.clientConfigurationData = checkNotNull(clientConf);
         this.deserializer = deserializer;
@@ -276,6 +279,7 @@ public class FlinkPulsarSource<T>
         this.oldStateVersion = SourceSinkUtils.getOldStateVersion(caseInsensitiveParams, oldStateVersion);
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = inlongAudit;
+        this.auditKeys = auditKeys;
     }
 
     // ------------------------------------------------------------------------
@@ -446,7 +450,8 @@ public class FlinkPulsarSource<T>
 
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
-                .withInlongAudit(auditHostAndPorts)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_IN) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_IN) : 0L)

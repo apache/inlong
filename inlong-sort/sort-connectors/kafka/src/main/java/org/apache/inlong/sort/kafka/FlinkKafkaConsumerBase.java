@@ -829,7 +829,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
     public void run(SourceContext<T> sourceContext) throws Exception {
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
-                .withInlongAudit(inlongAudit)
+                .withAuditAddress(inlongAudit)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_IN) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_IN) : 0L)

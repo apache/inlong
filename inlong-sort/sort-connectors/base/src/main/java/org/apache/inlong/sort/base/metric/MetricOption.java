@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.base.metric;
 
+import java.util.List;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
 
@@ -26,25 +27,24 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.apache.inlong.sort.util.AuditUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import static org.apache.inlong.sort.base.Constants.AUDIT_SORT_INPUT;
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.GROUP_ID;
 import static org.apache.inlong.sort.base.Constants.STREAM_ID;
 
 public class MetricOption implements Serializable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MetricOption.class);
+
     private static final long serialVersionUID = 1L;
-    private static final String IP_OR_HOST_PORT = "^(.*):([0-9]|[1-9]\\d|[1-9]\\d{"
-            + "2}|[1-9]\\d{"
-            + "3}|[1-5]\\d{"
-            + "4}|6[0-4]\\d{"
-            + "3}|65[0-4]\\d{"
-            + "2}|655[0-2]\\d|6553[0-5])$";
 
     private Map<String, String> labels;
-    private final HashSet<String> ipPortList;
+    private HashSet<String> ipPortList;
     private String ipPorts;
     private RegisteredMetric registeredMetric;
     private long initRecords;
@@ -52,6 +52,7 @@ public class MetricOption implements Serializable {
     private long initDirtyRecords;
     private long initDirtyBytes;
     private long readPhase;
+    private List<Integer> inlongAuditKeys;
 
     private MetricOption(
             String inlongLabels,
@@ -61,7 +62,8 @@ public class MetricOption implements Serializable {
             long initBytes,
             Long initDirtyRecords,
             Long initDirtyBytes,
-            Long readPhase) {
+            Long readPhase,
+            String inlongAuditKeys) {
         Preconditions.checkArgument(!StringUtils.isNullOrWhitespaceOnly(inlongLabels),
                 "Inlong labels must be set for register metric.");
 
@@ -80,17 +82,22 @@ public class MetricOption implements Serializable {
             labels.put(key, value);
         });
 
-        this.ipPortList = new HashSet<>();
         this.ipPorts = inlongAudit;
+
         if (ipPorts != null) {
+
             Preconditions.checkArgument(labels.containsKey(GROUP_ID) && labels.containsKey(STREAM_ID),
                     "groupId and streamId must be set when enable inlong audit collect.");
-            String[] ipPortStrs = inlongAudit.split(DELIMITER);
-            for (String ipPort : ipPortStrs) {
-                Preconditions.checkArgument(Pattern.matches(IP_OR_HOST_PORT, ipPort),
-                        "Error inLong audit format: " + inlongAudit);
-                this.ipPortList.add(ipPort);
+
+            if (inlongAuditKeys == null) {
+                LOG.warn("should set inlongAuditKeys when enable inlong audit collect, "
+                        + "fallback to use id {} as audit key", AUDIT_SORT_INPUT);
+                inlongAuditKeys = AUDIT_SORT_INPUT;
             }
+
+            this.inlongAuditKeys = AuditUtils.extractAuditKeys(inlongAuditKeys);
+            this.ipPortList = AuditUtils.extractAuditIpPorts(ipPorts);
+
         }
 
         if (registeredMetric != null) {
@@ -138,6 +145,10 @@ public class MetricOption implements Serializable {
         this.initDirtyRecords = initDirtyRecords;
     }
 
+    public List<Integer> getInlongAuditKeys() {
+        return inlongAuditKeys;
+    }
+
     public long getInitDirtyBytes() {
         return initDirtyBytes;
     }
@@ -168,6 +179,7 @@ public class MetricOption implements Serializable {
 
         private String inlongLabels;
         private String inlongAudit;
+        private String inlongAuditKeys;
         private RegisteredMetric registeredMetric = RegisteredMetric.ALL;
         private long initRecords = 0L;
         private long initBytes = 0L;
@@ -183,8 +195,13 @@ public class MetricOption implements Serializable {
             return this;
         }
 
-        public MetricOption.Builder withInlongAudit(String inlongAudit) {
+        public MetricOption.Builder withAuditAddress(String inlongAudit) {
             this.inlongAudit = inlongAudit;
+            return this;
+        }
+
+        public MetricOption.Builder withAuditKeys(String inlongAuditIds) {
+            this.inlongAuditKeys = inlongAuditIds;
             return this;
         }
 
@@ -223,7 +240,7 @@ public class MetricOption implements Serializable {
                 return null;
             }
             return new MetricOption(inlongLabels, inlongAudit, registeredMetric, initRecords, initBytes,
-                    initDirtyRecords, initDirtyBytes, initReadPhase);
+                    initDirtyRecords, initDirtyBytes, initReadPhase, inlongAuditKeys);
         }
     }
 }

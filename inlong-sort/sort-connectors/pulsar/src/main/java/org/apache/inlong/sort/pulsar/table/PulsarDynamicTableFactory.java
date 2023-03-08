@@ -76,6 +76,7 @@ import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOpti
 import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.validateTableSourceOptions;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
@@ -275,6 +276,8 @@ public class PulsarDynamicTableFactory
 
         String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
 
+        String auditKeys = tableOptions.get(AUDIT_KEYS);
+
         return createPulsarTableSource(
                 physicalDataType,
                 keyDecodingFormat.orElse(null),
@@ -289,7 +292,7 @@ public class PulsarDynamicTableFactory
                 properties,
                 startupOptions,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts, auditKeys);
     }
 
     @Override
@@ -329,6 +332,7 @@ public class PulsarDynamicTableFactory
         options.add(PROPERTIES);
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
+        options.add(AUDIT_KEYS);
 
         return options;
     }
@@ -361,7 +365,8 @@ public class PulsarDynamicTableFactory
             Properties properties,
             PulsarTableOptions.StartupOptions startupOptions,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            String auditKeys) {
         return new PulsarDynamicTableSource(
                 physicalDataType,
                 keyDecodingFormat,
@@ -377,6 +382,7 @@ public class PulsarDynamicTableFactory
                 startupOptions,
                 false,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                auditKeys);
     }
 }

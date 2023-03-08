@@ -55,6 +55,7 @@ import static org.apache.doris.flink.cfg.ConfigurationOptions.DORIS_REQUEST_QUER
 import static org.apache.doris.flink.cfg.ConfigurationOptions.DORIS_REQUEST_READ_TIMEOUT_MS_DEFAULT;
 import static org.apache.doris.flink.cfg.ConfigurationOptions.DORIS_REQUEST_RETRIES_DEFAULT;
 import static org.apache.doris.flink.cfg.ConfigurationOptions.DORIS_TABLET_SIZE_DEFAULT;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
@@ -217,6 +218,7 @@ public final class DorisDynamicTableFactory implements DynamicTableSourceFactory
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
         options.add(FactoryUtil.SINK_PARALLELISM);
+        options.add(AUDIT_KEYS);
         return options;
     }
 

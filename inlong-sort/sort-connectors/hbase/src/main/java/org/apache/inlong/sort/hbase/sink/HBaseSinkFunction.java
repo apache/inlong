@@ -155,7 +155,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             this.runtimeContext = getRuntimeContext();
             MetricOption metricOption = MetricOption.builder()
                     .withInlongLabels(inlongMetric)
-                    .withInlongAudit(inlongAudit)
+                    .withAuditAddress(inlongAudit)
                     .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                     .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
                     .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)

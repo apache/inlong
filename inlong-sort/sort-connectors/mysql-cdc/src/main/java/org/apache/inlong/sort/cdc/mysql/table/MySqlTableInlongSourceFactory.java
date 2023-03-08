@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.cdc.base.debezium.table.DebeziumOptions.getDebeziumProperties;
@@ -235,6 +236,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
         options.add(ROW_KINDS_FILTERED);
+        options.add(AUDIT_KEYS);
         return options;
     }
 

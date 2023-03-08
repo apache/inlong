@@ -76,6 +76,11 @@ public final class Constants {
      * Node id used in inlong metric
      */
     public static final String NODE_ID = "nodeId";
+    // sort received successfully
+    public static final String AUDIT_SORT_INPUT = "7";
+
+    // sort send successfully
+    public static final Integer AUDIT_SORT_OUTPUT = 8;
     /**
      * Database Name used in inlong metric
      */
@@ -117,12 +122,6 @@ public final class Constants {
      */
     public static final String KEY_VALUE_DELIMITER = "=";
 
-    // sort received successfully
-    public static final Integer AUDIT_SORT_INPUT = 7;
-
-    // sort send successfully
-    public static final Integer AUDIT_SORT_OUTPUT = 8;
-
     public static final String INLONG_METRIC_STATE_NAME = "inlong-metric-states";
 
     /**
@@ -148,6 +147,12 @@ public final class Constants {
                     .noDefaultValue()
                     .withDescription("Audit proxy host address for reporting audit metrics. \n"
                             + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
+
+    public static final ConfigOption<String> AUDIT_KEYS =
+            ConfigOptions.key("metrics.audit.key")
+                    .stringType()
+                    .defaultValue("")
+                    .withDescription("Audit keys for metrics collecting");
 
     public static final ConfigOption<Boolean> IGNORE_ALL_CHANGELOG =
             ConfigOptions.key("sink.ignore.changelog")

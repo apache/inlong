@@ -144,7 +144,7 @@ public class MySqlSource<T>
                 configFactory.createConfig(readerContext.getIndexOfSubtask());
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(sourceConfig.getInlongMetric())
-                .withInlongAudit(sourceConfig.getInlongAudit())
+                .withAuditAddress(sourceConfig.getInlongAudit())
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         sourceReaderMetrics.registerMetrics(metricOption);

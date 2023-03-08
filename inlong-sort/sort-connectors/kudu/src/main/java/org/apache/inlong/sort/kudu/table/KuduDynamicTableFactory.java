@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.CONNECTOR_MASTERS;
@@ -177,6 +178,7 @@ public class KuduDynamicTableFactory
 
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
+        options.add(AUDIT_KEYS);
         return options;
     }
 }

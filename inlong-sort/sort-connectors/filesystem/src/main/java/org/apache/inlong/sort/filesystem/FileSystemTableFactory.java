@@ -50,6 +50,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.time.ZoneId.SHORT_IDS;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
@@ -133,6 +134,7 @@ public class FileSystemTableFactory implements DynamicTableSourceFactory, Dynami
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
         options.add(IGNORE_ALL_CHANGELOG);
+        options.add(AUDIT_KEYS);
         return options;
     }
 

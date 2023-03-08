@@ -171,7 +171,7 @@ public abstract class AbstractRedisSinkFunction<OUT>
         }
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inLongMetric)
-                .withInlongAudit(auditHostAndPorts)
+                .withAuditAddress(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
                 .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)

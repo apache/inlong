@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.redis.table;
 
 import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.redis.common.config.RedisOptions.DATA_TYPE;
@@ -210,6 +211,7 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         options.add(RedisOptions.SENTINELS_INFO);
         options.add(RedisOptions.SOCKET_TIMEOUT);
         options.add(RedisOptions.TIMEOUT);
+        options.add(AUDIT_KEYS);
         return options;
     }
 
