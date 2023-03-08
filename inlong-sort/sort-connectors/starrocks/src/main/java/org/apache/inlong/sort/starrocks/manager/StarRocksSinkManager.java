@@ -522,41 +522,6 @@ public class StarRocksSinkManager implements Serializable {
     }
 
     private void handleDirtyData(SinkBufferEntity flushData, Exception e) throws JsonProcessingException {
-        // archive dirty data
-        if (dirtySinkHelper.getDirtyOptions().ignoreDirty()) {
-            if (StarRocksSinkOptions.StreamLoadFormat.CSV.equals(sinkOptions.getStreamLoadFormat())) {
-                String columnSeparator = StarRocksDelimiterParser.parse(
-                        sinkOptions.getSinkStreamLoadProperties().get("column_separator"), "\t");
-                String[] col = flushData.getColumns().split(",");
-                int len = col.length;
-                for (byte[] row : flushData.getBuffer()) {
-                    Map<String, String> jsonData = new LinkedHashMap<>(16);
-                    // convert csv to json
-                    String[] values = new String(row, StandardCharsets.UTF_8).split(columnSeparator);
-                    for (int i = 0; i < len && i < values.length; i++) {
-                        jsonData.put(col[i], values[i]);
-                    }
-                    dirtySinkHelper.invoke(
-                            OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsString(jsonData)),
-                            DirtyType.BATCH_LOAD_ERROR,
-                            flushData.getDirtyLabel(),
-                            flushData.getDirtyLogTag(),
-                            flushData.getDirtyIdentify(),
-                            e);
-                }
-            } else if (StarRocksSinkOptions.StreamLoadFormat.JSON.equals(sinkOptions.getStreamLoadFormat())) {
-                for (byte[] row : flushData.getBuffer()) {
-                    dirtySinkHelper.invoke(
-                            OBJECT_MAPPER.readTree(new String(row, StandardCharsets.UTF_8)),
-                            DirtyType.BATCH_LOAD_ERROR,
-                            flushData.getDirtyLabel(),
-                            flushData.getDirtyLogTag(),
-                            flushData.getDirtyIdentify(),
-                            e);
-                }
-            }
-        }
-
         // upload metrics for dirty data
         if (null != metricData) {
             if (multipleSink) {
@@ -564,6 +529,43 @@ public class StarRocksSinkManager implements Serializable {
                         flushData.getBatchCount(), flushData.getBatchSize());
             } else {
                 metricData.invokeDirty(flushData.getBatchCount(), flushData.getBatchSize());
+            }
+        }
+
+        if (!dirtySinkHelper.getDirtyOptions().ignoreDirty()) {
+            return;
+        }
+
+        // archive dirty data
+        if (StarRocksSinkOptions.StreamLoadFormat.CSV.equals(sinkOptions.getStreamLoadFormat())) {
+            String columnSeparator = StarRocksDelimiterParser.parse(
+                    sinkOptions.getSinkStreamLoadProperties().get("column_separator"), "\t");
+            String[] col = flushData.getColumns().split(",");
+            int len = col.length;
+            for (byte[] row : flushData.getBuffer()) {
+                Map<String, String> jsonData = new LinkedHashMap<>(16);
+                // convert csv to json
+                String[] values = new String(row, StandardCharsets.UTF_8).split(columnSeparator);
+                for (int i = 0; i < len && i < values.length; i++) {
+                    jsonData.put(col[i], values[i]);
+                }
+                dirtySinkHelper.invoke(
+                        OBJECT_MAPPER.readTree(OBJECT_MAPPER.writeValueAsString(jsonData)),
+                        DirtyType.BATCH_LOAD_ERROR,
+                        flushData.getDirtyLabel(),
+                        flushData.getDirtyLogTag(),
+                        flushData.getDirtyIdentify(),
+                        e);
+            }
+        } else if (StarRocksSinkOptions.StreamLoadFormat.JSON.equals(sinkOptions.getStreamLoadFormat())) {
+            for (byte[] row : flushData.getBuffer()) {
+                dirtySinkHelper.invoke(
+                        OBJECT_MAPPER.readTree(new String(row, StandardCharsets.UTF_8)),
+                        DirtyType.BATCH_LOAD_ERROR,
+                        flushData.getDirtyLabel(),
+                        flushData.getDirtyLogTag(),
+                        flushData.getDirtyIdentify(),
+                        e);
             }
         }
     }
