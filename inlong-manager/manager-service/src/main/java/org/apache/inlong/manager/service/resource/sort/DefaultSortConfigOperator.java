@@ -31,6 +31,7 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.transform.StreamTransformService;
@@ -67,6 +68,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     private StreamTransformService transformService;
     @Autowired
     private StreamSinkService sinkService;
+    @Autowired
+    private AuditService auditService;
 
     @Override
     public Boolean accept(Integer enableZk) {
@@ -121,6 +124,15 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             // build a stream info from the nodes and relations
             List<StreamSource> sources = sourceMap.get(streamId);
             List<StreamSink> sinks = sinkMap.get(streamId);
+            // get audit list by sink type
+            List<String> auditIds = new ArrayList<>();
+            for (StreamSink sink : sinks) {
+                auditIds.add(auditService.getAuditId(sink.getSinkType(), false));
+            }
+            for (StreamSource source : sources) {
+                Map<String, Object> properties = source.getProperties();
+                properties.putIfAbsent("metrics.audit.key", String.join("&", auditIds));
+            }
             List<NodeRelation> relations;
 
             if (InlongConstants.STANDARD_MODE.equals(groupInfo.getLightweight())) {

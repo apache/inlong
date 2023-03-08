@@ -31,10 +31,12 @@ import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -42,6 +44,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class KafkaExtractNodeTest extends SerializeBaseTest<KafkaExtractNode> {
 
+    public static final String AUDIT_ID_SORT_INPUT = "7";
+    public static final String AUDIT_ID_SORT_OUTPUT = "8";
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -49,7 +53,12 @@ public class KafkaExtractNodeTest extends SerializeBaseTest<KafkaExtractNode> {
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()));
-        return new KafkaExtractNode("1", "kafka_input", fields, null, null, "workerCsv",
+        Map<String, String> properties = new HashMap<>();
+        List<String> auditIds = new ArrayList<>();
+        auditIds.add(AUDIT_ID_SORT_INPUT);
+        auditIds.add(AUDIT_ID_SORT_OUTPUT);
+        properties.putIfAbsent("metrics.audit.key", String.join("&", auditIds));
+        return new KafkaExtractNode("1", "kafka_input", fields, null, properties, "workerCsv",
                 "localhost:9092", new CsvFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null, "groupId", null, null);
     }
 
@@ -128,6 +137,7 @@ public class KafkaExtractNodeTest extends SerializeBaseTest<KafkaExtractNode> {
         assertEquals("inlong-msg", options.get("format"));
         assertEquals("csv", options.get("inlong-msg.inner.format"));
         assertEquals("true", options.get("inlong-msg.csv.ignore-parse-errors"));
+        assertEquals("7&8", options.get("metrics.audit.key"));
 
         kafkaNode.setFormat(new CsvFormat());
         Map<String, String> csvOptions = kafkaNode.tableOptions();
