@@ -123,6 +123,14 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             if (metricOption != null) {
                 metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
             }
+
+            if (dirtySink != null) {
+                try {
+                    dirtySink.open(new Configuration());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
