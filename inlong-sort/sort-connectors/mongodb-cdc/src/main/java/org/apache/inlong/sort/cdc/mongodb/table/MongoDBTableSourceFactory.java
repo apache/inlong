@@ -31,6 +31,8 @@ import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.ververica.cdc.connectors.base.options.SourceOptions.CHUNK_META_GROUP_SIZE;
+import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.BATCH_SIZE;
 import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.COLLECTION;
 import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.CONNECTION_OPTIONS;
 import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.COPY_EXISTING;
@@ -41,6 +43,8 @@ import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOp
 import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.PASSWORD;
 import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.POLL_AWAIT_TIME_MILLIS;
 import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.POLL_MAX_BATCH_SIZE;
+import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE_MB;
+import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_ENABLED;
 import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.USERNAME;
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
@@ -86,11 +90,11 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
         final String database = config.getOptional(DATABASE).orElse(null);
         final String collection = config.getOptional(COLLECTION).orElse(null);
 
+        Integer batchSize = config.get(BATCH_SIZE);
         final Integer pollMaxBatchSize = config.get(POLL_MAX_BATCH_SIZE);
         final Integer pollAwaitTimeMillis = config.get(POLL_AWAIT_TIME_MILLIS);
 
-        final Integer heartbeatIntervalMillis =
-                config.getOptional(HEARTBEAT_INTERVAL_MILLIS).orElse(null);
+        final Integer heartbeatIntervalMillis = config.get(HEARTBEAT_INTERVAL_MILLIS);
 
         final Boolean copyExisting = config.get(COPY_EXISTING);
         final Integer copyExistingQueueSize = config.getOptional(COPY_EXISTING_QUEUE_SIZE).orElse(null);
@@ -100,6 +104,12 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
                 TableConfigOptions.LOCAL_TIME_ZONE.defaultValue().equals(zoneId)
                         ? ZoneId.systemDefault()
                         : ZoneId.of(zoneId);
+
+        boolean enableParallelRead = config.get(SCAN_INCREMENTAL_SNAPSHOT_ENABLED);
+
+        int splitSizeMB = config.get(SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE_MB);
+        int splitMetaGroupSize = config.get(CHUNK_META_GROUP_SIZE);
+
         final String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         final String inlongAudit = config.get(INLONG_AUDIT);
         final Boolean sourceMultipleEnable = config.get(SOURCE_MULTIPLE_ENABLE);
@@ -122,10 +132,14 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
                 connectionOptions,
                 copyExisting,
                 copyExistingQueueSize,
+                batchSize,
                 pollMaxBatchSize,
                 pollAwaitTimeMillis,
                 heartbeatIntervalMillis,
                 localTimeZone,
+                enableParallelRead,
+                splitMetaGroupSize,
+                splitSizeMB,
                 inlongMetric,
                 inlongAudit,
                 rowKindFiltered,
@@ -160,6 +174,7 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
         options.add(COLLECTION);
         options.add(COPY_EXISTING);
         options.add(COPY_EXISTING_QUEUE_SIZE);
+        options.add(BATCH_SIZE);
         options.add(POLL_MAX_BATCH_SIZE);
         options.add(POLL_AWAIT_TIME_MILLIS);
         options.add(HEARTBEAT_INTERVAL_MILLIS);
@@ -168,6 +183,9 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
         options.add(AUDIT_KEYS);
+        options.add(SCAN_INCREMENTAL_SNAPSHOT_ENABLED);
+        options.add(SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE_MB);
+        options.add(CHUNK_META_GROUP_SIZE);
         return options;
     }
 }
