@@ -455,7 +455,7 @@ public enum PostgreSQLReadableMetaData {
      * get primary key names
      *
      * @param tableSchema table schema
-     * @return: primary key column names
+     * @return primary key column names
      */
     private static List<String> getPkNames(@Nullable TableChange tableSchema) {
         if (tableSchema == null) {
@@ -468,7 +468,7 @@ public enum PostgreSQLReadableMetaData {
      * get a map about column name and type
      *
      * @param tableSchema table schema
-     * @return: map of field name and field type
+     * @return map of field name and field type
      */
     public static Map<String, Integer> getSqlType(@Nullable TableChange tableSchema) {
         if (tableSchema == null) {
