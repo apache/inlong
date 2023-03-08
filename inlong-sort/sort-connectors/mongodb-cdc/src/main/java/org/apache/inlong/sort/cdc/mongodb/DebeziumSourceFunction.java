@@ -59,7 +59,7 @@ import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumChangeConsumer;
 import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumChangeFetcher;
 import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumOffset;

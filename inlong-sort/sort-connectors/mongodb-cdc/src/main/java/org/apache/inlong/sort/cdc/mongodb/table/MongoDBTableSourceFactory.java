@@ -90,12 +90,11 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
         final String database = config.getOptional(DATABASE).orElse(null);
         final String collection = config.getOptional(COLLECTION).orElse(null);
 
-        final Integer batchSize = config.get(BATCH_SIZE);
+        Integer batchSize = config.get(BATCH_SIZE);
         final Integer pollMaxBatchSize = config.get(POLL_MAX_BATCH_SIZE);
         final Integer pollAwaitTimeMillis = config.get(POLL_AWAIT_TIME_MILLIS);
 
-        final Integer heartbeatIntervalMillis =
-                config.getOptional(HEARTBEAT_INTERVAL_MILLIS).orElse(null);
+        final Integer heartbeatIntervalMillis = config.get(HEARTBEAT_INTERVAL_MILLIS);
 
         final Boolean copyExisting = config.get(COPY_EXISTING);
         final Integer copyExistingQueueSize = config.getOptional(COPY_EXISTING_QUEUE_SIZE).orElse(null);
@@ -106,10 +105,10 @@ public class MongoDBTableSourceFactory implements DynamicTableSourceFactory {
                         ? ZoneId.systemDefault()
                         : ZoneId.of(zoneId);
 
-        final boolean enableParallelRead = config.get(SCAN_INCREMENTAL_SNAPSHOT_ENABLED);
+        boolean enableParallelRead = config.get(SCAN_INCREMENTAL_SNAPSHOT_ENABLED);
 
-        final int splitSizeMB = config.get(SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE_MB);
-        final int splitMetaGroupSize = config.get(CHUNK_META_GROUP_SIZE);
+        int splitSizeMB = config.get(SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE_MB);
+        int splitMetaGroupSize = config.get(CHUNK_META_GROUP_SIZE);
 
         final String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         final String inlongAudit = config.get(INLONG_AUDIT);

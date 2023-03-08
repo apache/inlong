@@ -25,16 +25,17 @@ import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.isDataChangeRecord;
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.isHeartbeatEvent;
 
-import com.ververica.cdc.connectors.base.source.meta.offset.Offset;
-import com.ververica.cdc.connectors.base.source.meta.offset.OffsetFactory;
-import com.ververica.cdc.connectors.base.source.meta.split.SourceSplitState;
-import com.ververica.cdc.connectors.base.source.meta.split.StreamSplitState;
-import com.ververica.cdc.connectors.base.source.metrics.SourceReaderMetrics;
-import com.ververica.cdc.connectors.base.source.reader.IncrementalSourceReader;
-import com.ververica.cdc.connectors.mongodb.source.offset.ChangeStreamOffset;
 import org.apache.flink.api.connector.source.SourceOutput;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
-import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
+import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplitState;
+import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
+import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceReader;
+import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceRecordEmitter;
+import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffset;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.bson.BsonDocument;
 import org.slf4j.Logger;
@@ -45,11 +46,11 @@ import org.slf4j.LoggerFactory;
  *
  * <p>The {@link RecordEmitter} buffers the snapshot records of split and call the stream reader to
  * emit records rather than emit the records directly.
- * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
  */
 public final class MongoDBRecordEmitter<T> extends IncrementalSourceRecordEmitter<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MongoDBRecordEmitter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(
+            com.ververica.cdc.connectors.mongodb.source.reader.MongoDBRecordEmitter.class);
 
     public MongoDBRecordEmitter(
             DebeziumDeserializationSchema<T> deserializationSchema,
