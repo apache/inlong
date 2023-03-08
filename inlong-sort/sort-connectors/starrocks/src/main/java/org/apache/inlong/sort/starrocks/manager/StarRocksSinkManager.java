@@ -522,6 +522,20 @@ public class StarRocksSinkManager implements Serializable {
     }
 
     private void handleDirtyData(SinkBufferEntity flushData, Exception e) throws JsonProcessingException {
+        // upload metrics for dirty data
+        if (null != metricData) {
+            if (multipleSink) {
+                metricData.outputDirtyMetrics(flushData.getDatabase(), flushData.getTable(),
+                        flushData.getBatchCount(), flushData.getBatchSize());
+            } else {
+                metricData.invokeDirty(flushData.getBatchCount(), flushData.getBatchSize());
+            }
+        }
+
+        if (!dirtySinkHelper.getDirtyOptions().ignoreDirty()) {
+            return;
+        }
+
         // archive dirty data
         if (StarRocksSinkOptions.StreamLoadFormat.CSV.equals(sinkOptions.getStreamLoadFormat())) {
             String columnSeparator = StarRocksDelimiterParser.parse(
@@ -552,16 +566,6 @@ public class StarRocksSinkManager implements Serializable {
                         flushData.getDirtyLogTag(),
                         flushData.getDirtyIdentify(),
                         e);
-            }
-        }
-
-        // upload metrics for dirty data
-        if (null != metricData) {
-            if (multipleSink) {
-                metricData.outputDirtyMetrics(flushData.getDatabase(), flushData.getTable(),
-                        flushData.getBatchCount(), flushData.getBatchSize());
-            } else {
-                metricData.invokeDirty(flushData.getBatchCount(), flushData.getBatchSize());
             }
         }
     }
