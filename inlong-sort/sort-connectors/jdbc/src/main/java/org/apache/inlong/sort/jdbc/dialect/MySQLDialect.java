@@ -156,10 +156,9 @@ public class MySQLDialect extends AbstractJdbcDialect {
 
     @Override
     public PreparedStatement setQueryPrimaryKeySql(Connection conn, String tableIdentifier) throws SQLException {
-        try (PreparedStatement st = conn.prepareStatement(QUERY_PRIMARY_KEY_SQL)) {
-            st.setString(1, JdbcMultiBatchingComm.getDatabaseNameFromIdentifier(tableIdentifier));
-            st.setString(2, JdbcMultiBatchingComm.getTableNameFromIdentifier(tableIdentifier));
-            return st;
-        }
+        PreparedStatement st = conn.prepareStatement(QUERY_PRIMARY_KEY_SQL);
+        st.setString(1, JdbcMultiBatchingComm.getDatabaseNameFromIdentifier(tableIdentifier));
+        st.setString(2, JdbcMultiBatchingComm.getTableNameFromIdentifier(tableIdentifier));
+        return st;
     }
 }
