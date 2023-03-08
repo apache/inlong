@@ -34,7 +34,6 @@ export default class PulsarSource
 {
   @FieldDecorator({
     type: 'select',
-    tooltip: i18n.t('meta.Sources.File.FilePathHelp'),
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
