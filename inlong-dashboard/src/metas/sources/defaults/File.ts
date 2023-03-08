@@ -33,7 +33,50 @@ export default class PulsarSource
   implements DataWithBackend, RenderRow, RenderList
 {
   @FieldDecorator({
-    type: 'input',
+    type: 'select',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: values?.status === 101,
+      options: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: keyword => ({
+          url: '/cluster/list',
+          method: 'POST',
+          data: {
+            keyword,
+            pageNum: 1,
+            pageSize: 10,
+          },
+        }),
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              ...item,
+              label: item.name,
+              value: item.name,
+            })),
+        },
+      },
+      onChange: (value, option) => {
+        return {
+          clusterId: option.id,
+        };
+      },
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sources.File.ClusterName')
+  inlongClusterName: string;
+
+  @FieldDecorator({
+    type: 'text',
+    hidden: true,
+  })
+  @I18n('clusterId')
+  clusterId: number;
+
+  @FieldDecorator({
+    type: 'select',
     rules: [
       {
         pattern: rulesPattern.ip,
@@ -43,6 +86,26 @@ export default class PulsarSource
     ],
     props: values => ({
       disabled: values?.status === 101,
+      options: {
+        requestTrigger: ['onOpen', 'onSearch'],
+        requestService: {
+          url: '/cluster/node/list',
+          method: 'POST',
+          data: {
+            parentId: values.clusterId,
+            pageNum: 1,
+            pageSize: 10,
+          },
+        },
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              ...item,
+              label: item.ip,
+              value: item.ip,
+            })),
+        },
+      },
     }),
   })
   @ColumnDecorator()

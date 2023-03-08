@@ -19,6 +19,7 @@
   "meta.Sources.Type": "Type",
   "meta.Sources.File.SerializationType": "File type",
   "meta.Sources.File.DataSourceIP": "Data source IP",
+  "meta.Sources.File.ClusterName": "Cluster Name",
   "meta.Sources.File.FilePath": "File path",
   "meta.Sources.File.FilePathHelp": "Must be an absolute path and support regular expressions, such as: /data/.*log",
   "meta.Sources.File.IpRule": "Please enter the IP address correctly",
