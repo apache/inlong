@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.resource.sink.kudu;
 
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -64,6 +66,7 @@ public class KuduResourceOperator implements SinkResourceOperator {
     /**
      * Create Kudu table according to the sink config
      */
+    @Override
     public void createSinkResource(SinkInfo sinkInfo) {
         if (sinkInfo == null) {
             LOGGER.warn("sink info was null, skip to create resource");
@@ -82,8 +85,7 @@ public class KuduResourceOperator implements SinkResourceOperator {
     }
 
     private KuduSinkDTO getKuduInfo(SinkInfo sinkInfo) {
-        KuduSinkDTO kuduInfo = KuduSinkDTO.getFromJson(sinkInfo.getExtParams());
-        return kuduInfo;
+        return KuduSinkDTO.getFromJson(sinkInfo.getExtParams());
     }
 
     private void createTableIfAbsent(SinkInfo sinkInfo) {
@@ -102,23 +104,26 @@ public class KuduResourceOperator implements SinkResourceOperator {
 
         KuduResourceClient client = null;
         try {
-            client = new KuduResourceClient(masters, tableName);
-            client.open();
+            // 1. create client
+            client = new KuduResourceClient(masters);
 
             // 2. check if the table exists
             boolean tableExists = client.tableExist(tableName);
 
             if (!tableExists) {
                 // 3. create table
-                client.createTable(tableName, tableInfo, true);
+                client.createTable(tableName, tableInfo);
             } else {
                 // 4. or update table columns
                 List<KuduColumnInfo> existColumns = client.getColumns(tableName);
-                List<KuduColumnInfo> needAddColumns = tableInfo.getColumns().stream().skip(existColumns.size())
-                        .collect(toList());
+                Set<String> existColumnNameSet = existColumns.stream().map(columnInfo -> columnInfo.getName())
+                        .collect(Collectors.toSet());
+                // Get columns need added according to column name.
+                List<KuduColumnInfo> needAddColumns = tableInfo.getColumns().stream()
+                        .filter(columnInfo -> !existColumnNameSet.contains(columnInfo.getName())).collect(toList());
                 if (CollectionUtils.isNotEmpty(needAddColumns)) {
                     client.addColumns(tableName, needAddColumns);
-                    LOGGER.info("{} columns added for table {}", needAddColumns.size(), tableName);
+                    LOGGER.info("{} columns added for kudu table {}", needAddColumns.size(), tableName);
                 }
             }
             String info = "success to create Kudu resource";

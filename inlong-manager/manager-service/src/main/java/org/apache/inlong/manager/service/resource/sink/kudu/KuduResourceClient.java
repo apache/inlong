@@ -17,38 +17,133 @@
 
 package org.apache.inlong.manager.service.resource.sink.kudu;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.inlong.manager.pojo.sink.kudu.KuduColumnInfo;
 import org.apache.inlong.manager.pojo.sink.kudu.KuduTableInfo;
+import org.apache.inlong.manager.pojo.sink.kudu.KuduType;
+import org.apache.kudu.ColumnSchema;
+import org.apache.kudu.ColumnSchema.ColumnSchemaBuilder;
+import org.apache.kudu.Schema;
+import org.apache.kudu.Type;
+import org.apache.kudu.client.AlterTableOptions;
+import org.apache.kudu.client.CreateTableOptions;
+import org.apache.kudu.client.KuduClient;
+import org.apache.kudu.client.KuduException;
+import org.apache.kudu.client.KuduTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
+/**
+ * The resourceClient for Kudu.
+ */
 public class KuduResourceClient {
 
-    public KuduResourceClient(String metastoreUri, String dbName) {
+    private static final Logger LOG = LoggerFactory.getLogger(KuduResourceClient.class);
 
-    }
+    private final KuduClient client;
 
-    public void open() {
-
+    public KuduResourceClient(String kuduMaster) {
+        this.client = new KuduClient.KuduClientBuilder(kuduMaster).build();
     }
 
     public boolean tableExist(String tableName) {
+        try {
+            return client.tableExists(tableName);
+        } catch (KuduException e) {
+            LOG.error("Can not properly query kudu!", e);
+        }
         return false;
     }
 
-    public void createTable(String tableName, KuduTableInfo tableInfo, boolean b) {
+    /**
+     * Create table with given tableName and tableInfo.
+     */
+    public void createTable(String tableName, KuduTableInfo tableInfo) throws KuduException {
+        // Parse column from tableInfo.
+        List<KuduColumnInfo> columns = tableInfo.getColumns();
+        List<ColumnSchema> kuduColumns = columns.stream()
+                .map(columnInfo -> {
+                    String name = columnInfo.getName();
+                    String type = columnInfo.getType();
+                    String desc = columnInfo.getDesc();
 
+                    String kuduType = KuduType.forType(type).kuduType();
+                    Type typeForName = Type.getTypeForName(kuduType);
+
+                    ColumnSchema columnSchema = new ColumnSchemaBuilder(name, typeForName)
+                            .comment(desc)
+                            .nullable(true)
+                            .build();
+                    return columnSchema;
+                })
+                .collect(Collectors.toList());
+
+        // Build schema.
+        Schema schema = new Schema(kuduColumns);
+        // Create table options.
+        CreateTableOptions options = new CreateTableOptions();
+        // Create table by KuduClient.
+        client.createTable(tableName, schema, options);
     }
 
-    public List<KuduColumnInfo> getColumns(String dbName) {
-        return null;
+    public List<KuduColumnInfo> getColumns(String tableName) throws KuduException {
+        // Open table and get column information.
+        KuduTable kuduTable = client.openTable(tableName);
+        List<ColumnSchema> columns = kuduTable.getSchema().getColumns();
+        return columns
+                .stream()
+                .map(columnSchema -> {
+                    String comment = columnSchema.getComment();
+                    Type type = columnSchema.getType();
+                    String name = columnSchema.getName();
+
+                    String javaType = KuduType.forKuduType(type.getName()).getType();
+
+                    return KuduColumnInfo.builder()
+                            .name(name)
+                            .type(javaType)
+                            .desc(comment)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
-    public void addColumns(String tableName, List<KuduColumnInfo> needAddColumns) {
+    public void addColumns(String tableName,
+            List<KuduColumnInfo> needAddColumns)
+            throws KuduException {
+        // Create Kudu client and open table
+        KuduTable table = client.openTable(tableName);
 
+        // Add new column to table
+        AlterTableOptions alterOptions = new AlterTableOptions();
+        for (KuduColumnInfo columnInfo : needAddColumns) {
+            String name = columnInfo.getName();
+            String type = columnInfo.getType();
+            String desc = columnInfo.getDesc();
+
+            String kuduType = KuduType.forType(type).kuduType();
+            Type typeForName = Type.getTypeForName(kuduType);
+
+            ColumnSchema columnSchema = new ColumnSchemaBuilder(name, typeForName)
+                    .comment(desc)
+                    .nullable(true)
+                    .build();
+
+            alterOptions.addColumn(columnSchema);
+        }
+        alterOptions.addColumn("new_column_name", Type.STRING, "default_value");
+        client.alterTable(table.getName(), alterOptions);
     }
 
+    /**
+     * Close KuduClient bundled this instance.
+     */
     public void close() {
-
+        try {
+            client.close();
+        } catch (KuduException e) {
+            LOG.error("Can not properly close kuduClient.", e);
+        }
     }
 }

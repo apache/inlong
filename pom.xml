@@ -1114,6 +1114,13 @@
                 <version>${hudi.version}</version>
             </dependency>
 
+            <!-- kudu -->
+            <dependency>
+                <groupId>org.apache.kudu</groupId>
+                <artifactId>kudu-client</artifactId>
+                <version>${kudu.version}</version>
+            </dependency>
+
             <!-- lombok -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
