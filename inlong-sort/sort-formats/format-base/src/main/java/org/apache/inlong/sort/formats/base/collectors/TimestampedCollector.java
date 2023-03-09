@@ -23,7 +23,7 @@ import org.apache.flink.util.Collector;
  * Collector that support timestamp collection.
  * @param <T>
  */
-public interface TimeStampedCollector<T> extends Collector<T> {
+public interface TimestampedCollector<T> extends Collector<T> {
 
     void resetTimestamp(long timestampMillis);
 

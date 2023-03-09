@@ -19,13 +19,13 @@ package org.apache.inlong.sort.pulsar.withoutadmin;
 
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.formats.base.collectors.TimeStampedCollector;
+import org.apache.inlong.sort.formats.base.collectors.TimestampedCollector;
 
 /**
  * sending metrics each time a record is collected.
  * @param <T>
  */
-public class MetricsCollector<T> implements TimeStampedCollector<T> {
+public class MetricsCollector<T> implements TimestampedCollector<T> {
 
     private Collector<T> collector;
 

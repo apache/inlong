@@ -25,7 +25,7 @@ import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.common.msg.InLongMsg;
-import org.apache.inlong.sort.formats.base.collectors.TimeStampedCollector;
+import org.apache.inlong.sort.formats.base.collectors.TimestampedCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,8 +107,8 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
                     continue;
                 }
 
-                if (out instanceof TimeStampedCollector) {
-                    ((TimeStampedCollector<RowData>) out).resetTimestamp(head.getTime().getTime());
+                if (out instanceof TimestampedCollector) {
+                    ((TimestampedCollector<RowData>) out).resetTimestamp(head.getTime().getTime());
                 }
 
                 List<RowData> list = new ArrayList<>();
