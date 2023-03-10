@@ -182,6 +182,7 @@ public class PostgresScanFetchTask implements FetchTask<SourceSplitBase> {
 
         private PostgresOffset lowWatermark;
         private PostgresOffset highWatermark;
+        private PostgresOffset endWatermark;
 
         public PostgresOffset getLowWatermark() {
             return lowWatermark;
@@ -197,6 +198,13 @@ public class PostgresScanFetchTask implements FetchTask<SourceSplitBase> {
 
         public void setHighWatermark(PostgresOffset highWatermark) {
             this.highWatermark = highWatermark;
+        }
+
+        public PostgresOffset getEndWatermark() {
+            return endWatermark;
+        }
+        public void setEndWatermark(PostgresOffset endWatermark) {
+            this.endWatermark = endWatermark;
         }
 
         @Override
@@ -282,7 +290,35 @@ public class PostgresScanFetchTask implements FetchTask<SourceSplitBase> {
             ((SnapshotSplitChangeEventSourceContext) (context)).setHighWatermark(highWatermark);
             dispatcher.dispatchWatermarkEvent(
                     offsetContext.getPartition(), snapshotSplit, highWatermark, WatermarkKind.HIGH);
+
+            LOG.info(
+                    "Snapshot step 4 - Back fill endWatermark:{} for snapshot split {}",
+                    highWatermark, snapshotSplit);
+            final StreamSplit backfillStreamSplit =
+                    createBackfillStreamSplit(lowWatermark, highWatermark);
+            // optimization that skip the stream read when the low watermark equals high watermark
+            final boolean streamBackfillRequired = backfillStreamSplit.getEndingOffset()
+                    .isAfter(backfillStreamSplit.getStartingOffset());
+            LOG.info("backfillStreamSplit.getEndingOffset={}", backfillStreamSplit.getEndingOffset());
+            LOG.info("backfillStreamSplit.getStartingOffset={}", backfillStreamSplit.getStartingOffset());
+            LOG.info("streamBackfillRequired is {}", streamBackfillRequired);
+            if (!streamBackfillRequired) {
+                ((SnapshotSplitChangeEventSourceContext) (context)).setEndWatermark(highWatermark);
+                dispatcher.dispatchWatermarkEvent(
+                        offsetContext.getPartition(), snapshotSplit, highWatermark, WatermarkKind.END);
+            }
             return SnapshotResult.completed(ctx.offset);
+        }
+
+        private StreamSplit createBackfillStreamSplit(
+                PostgresOffset lowWatermark, PostgresOffset highWatermark) {
+            return new StreamSplit(
+                    snapshotSplit.splitId(),
+                    lowWatermark,
+                    highWatermark,
+                    new ArrayList<>(),
+                    snapshotSplit.getTableSchemas(),
+                    0);
         }
 
         private void createDataEvents(

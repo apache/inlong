@@ -125,9 +125,11 @@ public class IncrementalSourceScanFetcher implements Fetcher<SourceRecords, Sour
             SourceRecord lowWatermark = null;
             SourceRecord highWatermark = null;
             Map<Struct, SourceRecord> outputBuffer = new HashMap<>();
+            LOG.info("pollSplitRecords scan");
             while (!reachChangeLogEnd) {
                 checkReadException();
                 List<DataChangeEvent> batch = queue.poll();
+                LOG.info("pollSplitRecords after poll, batch size is {}", batch.size());
                 for (DataChangeEvent event : batch) {
                     SourceRecord record = event.getRecord();
                     if (lowWatermark == null) {
@@ -148,7 +150,6 @@ public class IncrementalSourceScanFetcher implements Fetcher<SourceRecords, Sour
                         reachChangeLogEnd = true;
                         break;
                     }
-
                     if (!reachChangeLogStart) {
                         outputBuffer.put((Struct) record.key(), record);
                     } else {
@@ -161,7 +162,7 @@ public class IncrementalSourceScanFetcher implements Fetcher<SourceRecords, Sour
             }
             // snapshot split return its data once
             hasNextElement.set(false);
-
+            LOG.info("pollSplitRecords get outputBuffer:{}", outputBuffer);
             final List<SourceRecord> normalizedRecords = new ArrayList<>();
             normalizedRecords.add(lowWatermark);
             normalizedRecords.addAll(taskContext.formatMessageTimestamp(outputBuffer.values()));

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.cdc.postgres.source.fetch;
 
+import io.debezium.connector.postgresql.PostgresStreamingChangeEventSource;
 import org.apache.flink.util.FlinkRuntimeException;
 
 import org.apache.inlong.flink.cdc.connectors.base.relational.JdbcSourceEventDispatcher;
@@ -28,7 +29,6 @@ import org.apache.inlong.sort.cdc.postgres.source.offset.PostgresOffset;
 import io.debezium.connector.postgresql.PostgresConnectorConfig;
 import io.debezium.connector.postgresql.PostgresOffsetContext;
 import io.debezium.connector.postgresql.PostgresSchema;
-import io.debezium.connector.postgresql.PostgresStreamingChangeEventSource;
 import io.debezium.connector.postgresql.PostgresTaskContext;
 import io.debezium.connector.postgresql.connection.Lsn;
 import io.debezium.connector.postgresql.connection.PostgresConnection;
