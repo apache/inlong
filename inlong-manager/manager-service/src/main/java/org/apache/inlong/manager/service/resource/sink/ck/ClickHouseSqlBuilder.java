@@ -60,6 +60,8 @@ public class ClickHouseSqlBuilder {
             clickHouseFieldInfo.setFieldName("inlong_ttl_date_time");
             clickHouseFieldInfo.setFieldType("DateTime");
             clickHouseFieldInfo.setFieldComment("inlong ttl date time");
+            clickHouseFieldInfo.setDefaultType("DEFAULT");
+            clickHouseFieldInfo.setDefaultExpr("now()");
             table.getFieldInfoList().add(clickHouseFieldInfo);
         }
         // Construct columns and partition columns
