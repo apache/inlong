@@ -124,7 +124,7 @@ public class IncrementalSource<T, C extends SourceConfig>
         // create source config for the given subtask (e.g. unique server id)
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(jdbcSourceConfig.getInlongMetric())
-                .withInlongAudit(jdbcSourceConfig.getInlongAudit())
+                .withAuditAddress(jdbcSourceConfig.getInlongAudit())
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
 

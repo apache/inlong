@@ -66,6 +66,7 @@ import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOpti
 import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.createValueFormatProjection;
 import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.getPulsarProperties;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
@@ -188,6 +189,7 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
         String topicPattern = tableOptions.get(TOPIC_PATTERN);
         String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = tableOptions.get(INLONG_AUDIT);
+        String auditKeys = tableOptions.get(AUDIT_KEYS);
 
         return new PulsarDynamicTableSource(
                 schema.toPhysicalRowDataType(),
@@ -204,7 +206,7 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
                 startupOptions,
                 true,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts, auditKeys);
     }
 
     @Override

@@ -17,15 +17,17 @@
 
 package org.apache.inlong.sort.base.metric;
 
+import java.util.List;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
 import org.apache.inlong.audit.AuditOperator;
-import org.apache.inlong.sort.base.Constants;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_FOR_METER;
@@ -39,6 +41,7 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
  */
 public class SourceMetricData implements MetricData {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SourceMetricData.class);
     private final MetricGroup metricGroup;
     private final Map<String, String> labels;
     private Counter numRecordsIn;
@@ -48,6 +51,7 @@ public class SourceMetricData implements MetricData {
     private Meter numRecordsInPerSecond;
     private Meter numBytesInPerSecond;
     private AuditOperator auditOperator;
+    private List<Integer> auditKeys;
 
     public SourceMetricData(MetricOption option, MetricGroup metricGroup) {
         this.metricGroup = metricGroup;
@@ -71,6 +75,7 @@ public class SourceMetricData implements MetricData {
         if (option.getIpPorts().isPresent()) {
             AuditOperator.getInstance().setAuditProxy(option.getIpPortList());
             this.auditOperator = AuditOperator.getInstance();
+            this.auditKeys = option.getInlongAuditKeys();
         }
     }
 
@@ -193,7 +198,45 @@ public class SourceMetricData implements MetricData {
         outputMetrics(1, size);
     }
 
+    public void outputMetricsWithEstimate(Object data, long dataTime) {
+        long size = data.toString().getBytes(StandardCharsets.UTF_8).length;
+        outputMetrics(1, size, dataTime);
+    }
+
     public void outputMetrics(long rowCountSize, long rowDataSize) {
+        outputDefaultMetrics(rowCountSize, rowDataSize);
+
+        if (auditOperator != null) {
+            for (Integer key : auditKeys) {
+                auditOperator.add(
+                        key,
+                        getGroupId(),
+                        getStreamId(),
+                        System.currentTimeMillis(),
+                        rowCountSize,
+                        rowDataSize);
+            }
+
+        }
+    }
+
+    public void outputMetrics(long rowCountSize, long rowDataSize, long dataTime) {
+        outputDefaultMetrics(rowCountSize, rowDataSize);
+
+        if (auditOperator != null) {
+            for (Integer key : auditKeys) {
+                auditOperator.add(
+                        key,
+                        getGroupId(),
+                        getStreamId(),
+                        dataTime,
+                        rowCountSize,
+                        rowDataSize);
+            }
+        }
+    }
+
+    private void outputDefaultMetrics(long rowCountSize, long rowDataSize) {
         if (numRecordsIn != null) {
             this.numRecordsIn.inc(rowCountSize);
         }
@@ -208,16 +251,6 @@ public class SourceMetricData implements MetricData {
 
         if (numBytesInForMeter != null) {
             this.numBytesInForMeter.inc(rowDataSize);
-        }
-
-        if (auditOperator != null) {
-            auditOperator.add(
-                    Constants.AUDIT_SORT_INPUT,
-                    getGroupId(),
-                    getStreamId(),
-                    System.currentTimeMillis(),
-                    rowCountSize,
-                    rowDataSize);
         }
     }
 

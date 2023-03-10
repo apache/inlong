@@ -30,7 +30,7 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.pulsar.withoutadmin.CallbackCollector;
+import org.apache.inlong.sort.pulsar.withoutadmin.MetricsCollector;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.Schema;
 
@@ -120,12 +120,8 @@ public class DynamicPulsarDeserializationSchema implements PulsarDeserialization
         // shortcut in case no output projection is required,
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
-            valueDeserialization.deserialize(message.getData(), new CallbackCollector<>(inputRow -> {
-                if (sourceMetricData != null) {
-                    sourceMetricData.outputMetricsWithEstimate(inputRow);
-                }
-                collector.collect(inputRow);
-            }));
+            valueDeserialization.deserialize(message.getData(),
+                    new MetricsCollector<>(collector, sourceMetricData));
             return;
         }
         BufferingCollector keyCollector = new BufferingCollector();
@@ -143,10 +139,8 @@ public class DynamicPulsarDeserializationSchema implements PulsarDeserialization
             // collect tombstone messages in upsert mode by hand
             outputCollector.collect(null);
         } else {
-            valueDeserialization.deserialize(message.getData(), new CallbackCollector<>(inputRow -> {
-                sourceMetricData.outputMetricsWithEstimate(inputRow);
-                outputCollector.collect(inputRow);
-            }));
+            valueDeserialization.deserialize(message.getData(), new MetricsCollector<>(
+                    outputCollector, sourceMetricData));
         }
 
         keyCollector.buffer.clear();

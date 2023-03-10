@@ -50,6 +50,7 @@ import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import java.util.Map;
 import java.util.Set;
 
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
@@ -264,6 +265,7 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         options.add(IGNORE_ALL_CHANGELOG);
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
+        options.add(AUDIT_KEYS);
 
         options.add(SINK_MULTIPLE_ENABLE);
         options.add(SINK_MULTIPLE_FORMAT);

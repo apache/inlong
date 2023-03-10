@@ -141,6 +141,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
 
     protected String inlongMetric;
 
+    protected String auditKeys;
     protected String auditHostAndPorts;
 
     public PulsarDynamicTableSource(
@@ -158,7 +159,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
             PulsarTableOptions.StartupOptions startupOptions,
             boolean upsertMode,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            String auditKeys) {
         this.producedDataType = physicalDataType;
         setTopicInfo(properties, topics, topicPattern);
 
@@ -187,6 +189,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
         this.upsertMode = upsertMode;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.auditKeys = auditKeys;
     }
 
     private void setTopicInfo(Properties properties, List<String> topics, String topicPattern) {
@@ -277,7 +280,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                         deserializationSchema,
                         properties,
                         inlongMetric,
-                        auditHostAndPorts);
+                        auditHostAndPorts,
+                        auditKeys);
 
         if (watermarkStrategy != null) {
             source.assignTimestampsAndWatermarks(watermarkStrategy);
@@ -312,7 +316,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 deserializationSchema,
                 properties,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                auditKeys);
 
         if (watermarkStrategy != null) {
             source.assignTimestampsAndWatermarks(watermarkStrategy);
@@ -349,7 +354,8 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 startupOptions,
                 false,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                auditKeys);
         copy.producedDataType = producedDataType;
         copy.metadataKeys = metadataKeys;
         copy.watermarkStrategy = watermarkStrategy;

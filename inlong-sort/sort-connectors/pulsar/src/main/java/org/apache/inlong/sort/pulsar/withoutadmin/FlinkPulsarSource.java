@@ -243,6 +243,8 @@ public class FlinkPulsarSource<T>
      */
     private String inlongAudit;
 
+    private String inlongAuditKeys;
+
     private SourceMetricData sourceMetricData;
 
     private transient ListState<MetricState> metricStateListState;
@@ -253,7 +255,8 @@ public class FlinkPulsarSource<T>
             PulsarDeserializationSchema<T> deserializer,
             Properties properties,
             String inlongMetric,
-            String inlongAudit) {
+            String inlongAudit,
+            String inlongAuditKeys) {
         this.inlongAudit = inlongAudit;
         this.inlongMetric = inlongMetric;
         this.serverUrl = checkNotNull(serverUrl);
@@ -272,6 +275,7 @@ public class FlinkPulsarSource<T>
                 SourceSinkUtils.getCommitMaxRetries(caseInsensitiveParams);
         this.useMetrics =
                 SourceSinkUtils.getUseMetrics(caseInsensitiveParams);
+        this.inlongAuditKeys = inlongAuditKeys;
 
         CachedPulsarClient.setCacheSize(SourceSinkUtils.getClientCacheSize(caseInsensitiveParams));
 
@@ -431,7 +435,8 @@ public class FlinkPulsarSource<T>
 
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
-                .withInlongAudit(inlongAudit)
+                .withAuditAddress(inlongAudit)
+                .withAuditKeys(inlongAuditKeys)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_IN) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_IN) : 0L)

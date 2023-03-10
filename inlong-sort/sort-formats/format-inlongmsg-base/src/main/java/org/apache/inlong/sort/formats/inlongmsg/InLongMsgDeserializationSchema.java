@@ -25,6 +25,7 @@ import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.sort.formats.base.collectors.TimestampedCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,7 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
     }
 
     @Override
-    public RowData deserialize(byte[] bytes) throws IOException {
+    public RowData deserialize(byte[] bytes) {
         throw new RuntimeException(
                 "Please invoke DeserializationSchema#deserialize(byte[], Collector<RowData>) instead.");
     }
@@ -106,10 +107,14 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
                     continue;
                 }
 
+                if (out instanceof TimestampedCollector) {
+                    ((TimestampedCollector<RowData>) out).resetTimestamp(head.getTime().getTime());
+                }
+
                 List<RowData> list = new ArrayList<>();
                 ListCollector<RowData> collector = new ListCollector<>(list);
                 deserializationSchema.deserialize(bodyBytes, collector);
-                list.stream().forEach(rowdata -> emitRow(head, (GenericRowData) rowdata, out));
+                list.forEach(rowdata -> emitRow(head, (GenericRowData) rowdata, out));
             }
         }
 
@@ -153,12 +158,15 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
 
     /** add metadata column */
     private void emitRow(InLongMsgHead head, GenericRowData physicalRow, Collector<RowData> out) {
+
         if (metadataConverters.length == 0) {
             out.collect(physicalRow);
             return;
         }
-        final int physicalArity = physicalRow.getArity();
+
         final int metadataArity = metadataConverters.length;
+        final int physicalArity = physicalRow.getArity();
+
         final GenericRowData producedRow =
                 new GenericRowData(physicalRow.getRowKind(), physicalArity + metadataArity);
         for (int physicalPos = 0; physicalPos < physicalArity; physicalPos++) {
