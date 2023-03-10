@@ -99,6 +99,25 @@ const Comp: React.FC = () => {
   };
 
   const onSubmit = async () => {
+    const sourceData = await request({
+      url: `/source/list`,
+      method: 'POST',
+      data: {
+        inlongGroupId: id,
+      },
+    });
+    const sinkData = await request({
+      url: `/sink/list`,
+      method: 'POST',
+      data: {
+        inlongGroupId: id,
+      },
+    });
+
+    if (sourceData.total < 1 && sinkData.total < 1) {
+      message.warn(t('pages.GroupDetail.Info.SubmittedWarn'));
+      return;
+    }
     await request({
       url: `/group/startProcess/${id}`,
       method: 'POST',
