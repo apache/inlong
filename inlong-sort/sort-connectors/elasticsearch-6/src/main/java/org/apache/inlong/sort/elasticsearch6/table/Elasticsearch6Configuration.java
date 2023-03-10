@@ -89,7 +89,7 @@ final class Elasticsearch6Configuration extends ElasticsearchConfiguration {
     public ActionRequestFailureHandler<DocWriteRequest<?>> getFailureHandler() {
         final ActionRequestFailureHandler<DocWriteRequest<?>> failureHandler;
         String value = config.get(FAILURE_HANDLER_OPTION);
-        switch (value) {
+        switch (value.toUpperCase()) {
             case "FAIL":
                 failureHandler = new NoOpFailureHandler<>();
                 break;
