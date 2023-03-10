@@ -17,32 +17,18 @@
 
 package org.apache.inlong.sort.elasticsearch;
 
-import org.apache.flink.annotation.Internal;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.io.Serializable;
 
 /**
- * Implementation of a {@link RequestIndexer} that buffers {@link Request request}
- * before re-sending them to the Elasticsearch cluster upon request.
+ * An implementation of {@link ActionRequestFailureHandler} is provided by the user to define how failed ActionRequests
+ * should be handled, e.g. dropping them, reprocessing malformed documents,
+ * or simply requesting them to be sent to Elasticsearch again if the failure is only temporary.
+ * Copies from {@link org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler}
+ *
+ * @param <ActionRequest>
  */
-@Internal
-class BufferingNoOpRequestIndexer<Request> implements RequestIndexer<Request> {
+public interface ActionRequestFailureHandler<ActionRequest> extends Serializable {
 
-    private final ConcurrentLinkedQueue<Request> bufferedRequests;
-
-    BufferingNoOpRequestIndexer() {
-        this.bufferedRequests = new ConcurrentLinkedQueue<>();
-    }
-
-    @Override
-    public void add(Request request) {
-        bufferedRequests.add(request);
-    }
-
-    void processBufferedRequests(RequestIndexer<Request> actualIndexer) {
-        for (Request request : bufferedRequests) {
-            actualIndexer.add(request);
-        }
-        bufferedRequests.clear();
-    }
+    void onFailure(ActionRequest actionRequest, Throwable failure, int restStatusCode,
+            RequestIndexer<ActionRequest> indexer) throws Throwable;
 }

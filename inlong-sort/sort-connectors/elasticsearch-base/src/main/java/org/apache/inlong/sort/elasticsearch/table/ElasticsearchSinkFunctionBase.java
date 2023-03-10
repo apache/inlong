@@ -21,51 +21,48 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
-import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
-import org.apache.inlong.sort.base.dirty.DirtyType;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
-import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
+import org.apache.inlong.sort.elasticsearch.RequestIndexer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Function;
 
-/** Sink function for converting upserts into Elasticsearch {@link ActionRequest}s. */
-public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<RowData> {
+/**
+ * Sink function for converting upserts into Elasticsearch ActionRequests.
+ */
+public abstract class ElasticsearchSinkFunctionBase<Request, ContentType>
+        implements
+            ElasticsearchSinkFunction<RowData, Request> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RowElasticsearchSinkFunction.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchSinkFunctionBase.class);
 
     private final IndexGenerator indexGenerator;
     private final String docType;
     private final SerializationSchema<RowData> serializationSchema;
-    private final XContentType contentType;
-    private final RequestFactory requestFactory;
+    private final ContentType contentType;
+    private final RequestFactory<Request, ContentType> requestFactory;
     private final Function<RowData, String> createKey;
     private final Function<RowData, String> createRouting;
-    private SinkMetricData sinkMetricData;
     private final DirtySinkHelper<Object> dirtySinkHelper;
+    private SinkMetricData sinkMetricData;
 
-    public RowElasticsearchSinkFunction(
+    public ElasticsearchSinkFunctionBase(
             IndexGenerator indexGenerator,
             @Nullable String docType, // this is deprecated in es 7+
             SerializationSchema<RowData> serializationSchema,
-            XContentType contentType,
-            RequestFactory requestFactory,
+            ContentType contentType,
+            RequestFactory<Request, ContentType> requestFactory,
             Function<RowData, String> createKey,
             @Nullable Function<RowData, String> createRouting,
             DirtySinkHelper<Object> dirtySinkHelper) {
@@ -100,7 +97,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     }
 
     @Override
-    public void process(RowData element, RuntimeContext ctx, RequestIndexer indexer) {
+    public void process(RowData element, RuntimeContext ctx, RequestIndexer<Request> indexer) {
         final byte[] document;
         try {
             document = serializationSchema.serialize(element);
@@ -137,21 +134,23 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         addDocument(element, key, index, document, indexer);
     }
 
-    private void addDocument(RowData element, String key, String index, byte[] document, RequestIndexer indexer) {
-        DocWriteRequest<?> request;
+    @SuppressWarnings("unchecked")
+    private void addDocument(RowData element, String key, String index, byte[] document,
+            RequestIndexer<Request> indexer) {
+        Request request;
         switch (element.getRowKind()) {
             case INSERT:
             case UPDATE_AFTER:
                 if (key != null) {
                     request = requestFactory.createUpdateRequest(index, docType, key, contentType, document);
                     if (addRouting(request, element, document)) {
-                        indexer.add((UpdateRequest) request);
+                        indexer.add(request);
                         sendMetrics(document);
                     }
                 } else {
                     request = requestFactory.createIndexRequest(index, docType, key, contentType, document);
                     if (addRouting(request, element, document)) {
-                        indexer.add((IndexRequest) request);
+                        indexer.add(request);
                         sendMetrics(document);
                     }
                 }
@@ -159,7 +158,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             case DELETE:
                 request = requestFactory.createDeleteRequest(index, docType, key);
                 if (addRouting(request, element, document)) {
-                    indexer.add((DeleteRequest) request);
+                    indexer.add(request);
                     sendMetrics(document);
                 }
                 break;
@@ -176,11 +175,11 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         }
     }
 
-    private boolean addRouting(DocWriteRequest<?> request, RowData row, byte[] document) {
+    private boolean addRouting(Request request, RowData row, byte[] document) {
         if (null != createRouting) {
             try {
                 String routing = createRouting.apply(row);
-                request.routing(routing);
+                handleRouting(request, routing);
             } catch (Exception e) {
                 LOGGER.error(String.format("Routing error, raw data: %s", row), e);
                 dirtySinkHelper.invoke(row, DirtyType.INDEX_ROUTING_ERROR, e);
@@ -193,6 +192,8 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         return true;
     }
 
+    public abstract void handleRouting(Request request, String routing);
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -201,7 +202,9 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        RowElasticsearchSinkFunction that = (RowElasticsearchSinkFunction) o;
+        @SuppressWarnings("unchecked")
+        ElasticsearchSinkFunctionBase<Request, ContentType> that =
+                (ElasticsearchSinkFunctionBase<Request, ContentType>) o;
         return Objects.equals(indexGenerator, that.indexGenerator)
                 && Objects.equals(docType, that.docType)
                 && Objects.equals(serializationSchema, that.serializationSchema)

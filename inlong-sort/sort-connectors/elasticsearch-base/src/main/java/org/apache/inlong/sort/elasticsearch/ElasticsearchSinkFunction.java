@@ -22,22 +22,19 @@ import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
-import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.elasticsearch.action.ActionRequest;
 
 import java.io.Serializable;
 
 /**
- * Creates multiple {@link ActionRequest ActionRequests} from an element in a stream.
+ * Creates multiple ActionRequests from an element in a stream.
  *
  * This is used by sinks to prepare elements for sending them to Elasticsearch.
- *
  *
  * @param <T> The type of the element handled by this {@code ElasticsearchSinkFunction}
  */
 @PublicEvolving
-public interface ElasticsearchSinkFunction<T> extends Serializable, Function {
+public interface ElasticsearchSinkFunction<T, Request> extends Serializable, Function {
 
     /**
      * Initialization method for the function. It is called once before the actual working process
@@ -53,14 +50,14 @@ public interface ElasticsearchSinkFunction<T> extends Serializable, Function {
     }
 
     /**
-     * Process the incoming element to produce multiple {@link ActionRequest ActionsRequests}. The
+     * Process the incoming element to produce multiple ActionsRequests. The
      * produced requests should be added to the provided {@link RequestIndexer}.
      *
      * @param element incoming element to process
      * @param ctx runtime context containing information about the sink instance
      * @param indexer request indexer that {@code ActionRequest} should be added to
      */
-    void process(T element, RuntimeContext ctx, RequestIndexer indexer);
+    void process(T element, RuntimeContext ctx, RequestIndexer<Request> indexer);
 
     default void initializeState(FunctionInitializationContext context) {
         // no initialization needed

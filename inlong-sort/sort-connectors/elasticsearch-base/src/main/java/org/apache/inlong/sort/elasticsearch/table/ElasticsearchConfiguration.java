@@ -18,23 +18,15 @@
 package org.apache.inlong.sort.elasticsearch.table;
 
 import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
-import org.apache.flink.streaming.connectors.elasticsearch.util.IgnoringFailureHandler;
-import org.apache.flink.streaming.connectors.elasticsearch.util.NoOpFailureHandler;
-import org.apache.flink.streaming.connectors.elasticsearch.util.RetryRejectedExecutionFailureHandler;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.util.InstantiationUtil;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
 
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
-
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_DELAY_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_TYPE_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_INTERVAL_OPTION;
-import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.FAILURE_HANDLER_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.PASSWORD_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.USERNAME_OPTION;
 
@@ -51,31 +43,12 @@ public class ElasticsearchConfiguration {
         this.classLoader = classLoader;
     }
 
-    public ActionRequestFailureHandler getFailureHandler() {
-        final ActionRequestFailureHandler failureHandler;
-        String value = config.get(FAILURE_HANDLER_OPTION);
-        switch (value.toUpperCase()) {
-            case "FAIL":
-                failureHandler = new NoOpFailureHandler();
-                break;
-            case "IGNORE":
-                failureHandler = new IgnoringFailureHandler();
-                break;
-            case "RETRY-REJECTED":
-                failureHandler = new RetryRejectedExecutionFailureHandler();
-                break;
-            default:
-                try {
-                    Class<?> failureHandlerClass = Class.forName(value, false, classLoader);
-                    failureHandler =
-                            (ActionRequestFailureHandler) InstantiationUtil.instantiate(failureHandlerClass);
-                } catch (ClassNotFoundException e) {
-                    throw new ValidationException(
-                            "Could not instantiate the failure handler class: " + value, e);
-                }
-                break;
-        }
-        return failureHandler;
+    public ReadableConfig getConfig() {
+        return config;
+    }
+
+    public ClassLoader getClassLoader() {
+        return classLoader;
     }
 
     public String getDocumentType() {
