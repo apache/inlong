@@ -17,29 +17,21 @@
 
 package org.apache.inlong.manager.pojo.sink.kudu;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.sink.SinkRequest;
+
+import java.util.List;
+import java.util.Map;
 
 /**
- * Kudu sink request.
+ * Kudu table info
  */
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Kudu sink request")
-@JsonTypeDefine(value = SinkType.KUDU)
-public class KuduSinkRequest extends SinkRequest {
+public class KuduTableInfo {
 
-    @ApiModelProperty("Kudu masters, a comma separated list of 'host:port' pairs")
     private String masters;
-
-    @ApiModelProperty("Target table name")
     private String tableName;
+    private String tableDesc;
+    private Map<String, Object> tblProperties;
+    private List<KuduColumnInfo> columns;
 
 }

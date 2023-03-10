@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,7 +58,6 @@ public class KuduSinkDTO {
         return KuduSinkDTO.builder()
                 .tableName(request.getTableName())
                 .masters(request.getMasters())
-                .partitionKey(request.getPartitionKey())
                 .properties(request.getProperties())
                 .build();
     }
@@ -70,4 +70,17 @@ public class KuduSinkDTO {
                     String.format("parse extParams of Kudu SinkDTO failure: %s", e.getMessage()));
         }
     }
+
+    /**
+     * Get Kudu table info
+     */
+    public static KuduTableInfo getKuduTableInfo(KuduSinkDTO kuduInfo, List<KuduColumnInfo> columnList) {
+        KuduTableInfo tableInfo = new KuduTableInfo();
+        tableInfo.setTableName(kuduInfo.getTableName());
+        tableInfo.setMasters(kuduInfo.getMasters());
+        tableInfo.setColumns(columnList);
+        tableInfo.setTblProperties(kuduInfo.getProperties());
+        return tableInfo;
+    }
+
 }
