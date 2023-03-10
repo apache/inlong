@@ -58,8 +58,9 @@ public class AESUtils {
     private static Properties getApplicationProperties() throws IOException {
         Properties properties = new Properties();
         String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
-        InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)));
-        properties.load(inputStream);
+        try (InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)))) {
+            properties.load(inputStream);
+        }
         return properties;
     }
 

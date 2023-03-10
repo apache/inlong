@@ -62,6 +62,7 @@ public class ConfigJetty implements Closeable {
     }
 
     private void initJetty() throws Exception {
+        // not using resource try to avoid AutoClosable's close() on the given stream
         ServerConnector connector = new ServerConnector(this.server);
         connector.setPort(conf.getInt(
                 AgentConstants.AGENT_HTTP_PORT, AgentConstants.DEFAULT_AGENT_HTTP_PORT));
