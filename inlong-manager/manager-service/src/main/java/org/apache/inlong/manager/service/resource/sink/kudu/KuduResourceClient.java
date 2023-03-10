@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink.kudu;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.inlong.manager.pojo.sink.kudu.KuduColumnInfo;
 import org.apache.inlong.manager.pojo.sink.kudu.KuduTableInfo;
 import org.apache.inlong.manager.pojo.sink.kudu.KuduType;
@@ -34,12 +32,19 @@ import org.apache.kudu.client.KuduTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * The resourceClient for Kudu.
  */
 public class KuduResourceClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(KuduResourceClient.class);
+
+    private static final String PARTITION_STRATEGY_HASH = "HASH";
+    private static final String PARTITION_STRATEGY_PRIMARY_KEY = "PrimaryKey";
 
     private final KuduClient client;
 
@@ -63,28 +68,55 @@ public class KuduResourceClient {
         // Parse column from tableInfo.
         List<KuduColumnInfo> columns = tableInfo.getColumns();
         List<ColumnSchema> kuduColumns = columns.stream()
-                .map(columnInfo -> {
-                    String name = columnInfo.getName();
-                    String type = columnInfo.getType();
-                    String desc = columnInfo.getDesc();
-
-                    String kuduType = KuduType.forType(type).kuduType();
-                    Type typeForName = Type.getTypeForName(kuduType);
-
-                    ColumnSchema columnSchema = new ColumnSchemaBuilder(name, typeForName)
-                            .comment(desc)
-                            .nullable(true)
-                            .build();
-                    return columnSchema;
-                })
+                .sorted(Comparator.comparing(KuduColumnInfo::getPartitionStrategy))
+                .map(this::buildColumnSchema)
                 .collect(Collectors.toList());
 
         // Build schema.
         Schema schema = new Schema(kuduColumns);
-        // Create table options.
+        // Create table options: like partitions
         CreateTableOptions options = new CreateTableOptions();
+        List<String> parCols = columns.stream()
+                .filter(column -> PARTITION_STRATEGY_HASH.equalsIgnoreCase(column.getPartitionStrategy()))
+                .map(KuduColumnInfo::getFieldName).collect(Collectors.toList());
+        if (!parCols.isEmpty()) {
+            options.addHashPartitions(parCols, 6);
+        }
+
         // Create table by KuduClient.
         client.createTable(tableName, schema, options);
+    }
+
+    private ColumnSchema buildColumnSchema(KuduColumnInfo columnInfo) {
+        String name = columnInfo.getFieldName();
+        String type = columnInfo.getFieldType();
+        String desc = columnInfo.getFieldComment();
+
+        String kuduType = KuduType.forType(type).kuduType();
+        Type typeForName = Type.getTypeForName(kuduType);
+
+        String partitionStrategy = columnInfo.getPartitionStrategy();
+
+        ColumnSchemaBuilder builder = new ColumnSchemaBuilder(name, typeForName)
+                .comment(desc);
+        if (PARTITION_STRATEGY_HASH.equalsIgnoreCase(partitionStrategy)
+                || PARTITION_STRATEGY_PRIMARY_KEY.equalsIgnoreCase(partitionStrategy)) {
+            builder.key(true);
+        } else {
+            builder.nullable(true);
+        }
+        return builder.build();
+    }
+
+    private ColumnSchema buildColumnSchema(
+            String name,
+            String desc,
+            Type typeForName) {
+
+        ColumnSchemaBuilder builder = new ColumnSchemaBuilder(name, typeForName)
+                .comment(desc)
+                .nullable(true);
+        return builder.build();
     }
 
     public List<KuduColumnInfo> getColumns(String tableName) throws KuduException {
@@ -100,11 +132,12 @@ public class KuduResourceClient {
 
                     String javaType = KuduType.forKuduType(type.getName()).getType();
 
-                    return KuduColumnInfo.builder()
-                            .name(name)
-                            .type(javaType)
-                            .desc(comment)
-                            .build();
+                    KuduColumnInfo columnInfo = new KuduColumnInfo();
+                    columnInfo.setFieldName(name);
+                    columnInfo.setFieldType(javaType);
+                    columnInfo.setFieldComment(comment);
+
+                    return columnInfo;
                 })
                 .collect(Collectors.toList());
     }
@@ -118,17 +151,14 @@ public class KuduResourceClient {
         // Add new column to table
         AlterTableOptions alterOptions = new AlterTableOptions();
         for (KuduColumnInfo columnInfo : needAddColumns) {
-            String name = columnInfo.getName();
-            String type = columnInfo.getType();
-            String desc = columnInfo.getDesc();
+            String name = columnInfo.getFieldName();
+            String type = columnInfo.getFieldType();
+            String desc = columnInfo.getFieldComment();
 
             String kuduType = KuduType.forType(type).kuduType();
             Type typeForName = Type.getTypeForName(kuduType);
 
-            ColumnSchema columnSchema = new ColumnSchemaBuilder(name, typeForName)
-                    .comment(desc)
-                    .nullable(true)
-                    .build();
+            ColumnSchema columnSchema = buildColumnSchema(name, desc, typeForName);
 
             alterOptions.addColumn(columnSchema);
         }

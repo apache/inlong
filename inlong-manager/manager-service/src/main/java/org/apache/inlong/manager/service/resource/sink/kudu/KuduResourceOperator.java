@@ -20,12 +20,15 @@ package org.apache.inlong.manager.service.resource.sink.kudu;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.kudu.KuduColumnInfo;
 import org.apache.inlong.manager.pojo.sink.kudu.KuduSinkDTO;
@@ -116,11 +119,12 @@ public class KuduResourceOperator implements SinkResourceOperator {
             } else {
                 // 4. or update table columns
                 List<KuduColumnInfo> existColumns = client.getColumns(tableName);
-                Set<String> existColumnNameSet = existColumns.stream().map(columnInfo -> columnInfo.getName())
+                Set<String> existColumnNameSet = existColumns.stream().map(SinkField::getFieldName)
                         .collect(Collectors.toSet());
                 // Get columns need added according to column name.
                 List<KuduColumnInfo> needAddColumns = tableInfo.getColumns().stream()
-                        .filter(columnInfo -> !existColumnNameSet.contains(columnInfo.getName())).collect(toList());
+                        .filter(columnInfo -> !existColumnNameSet.contains(columnInfo.getFieldName()))
+                        .collect(toList());
                 if (CollectionUtils.isNotEmpty(needAddColumns)) {
                     client.addColumns(tableName, needAddColumns);
                     LOGGER.info("{} columns added for kudu table {}", needAddColumns.size(), tableName);
@@ -147,12 +151,15 @@ public class KuduResourceOperator implements SinkResourceOperator {
         // set columns
         List<KuduColumnInfo> columnList = new ArrayList<>();
         for (StreamSinkFieldEntity field : fieldList) {
-            KuduColumnInfo column = KuduColumnInfo.getFromJson(field.getExtParams());
-            column.setName(field.getFieldName());
-            column.setType(field.getFieldType());
-            column.setDesc(field.getFieldComment());
-            column.setRequired(field.getIsRequired() != null && field.getIsRequired() > 0);
-            columnList.add(column);
+            if (StringUtils.isNotBlank(field.getExtParams())) {
+                KuduColumnInfo kuduColumnInfo = KuduColumnInfo.getFromJson(field.getExtParams());
+                CommonBeanUtils.copyProperties(field, kuduColumnInfo, true);
+                columnList.add(kuduColumnInfo);
+            } else {
+                KuduColumnInfo kuduColumnInfo = new KuduColumnInfo();
+                CommonBeanUtils.copyProperties(field, kuduColumnInfo, true);
+                columnList.add(kuduColumnInfo);
+            }
         }
 
         return columnList;
