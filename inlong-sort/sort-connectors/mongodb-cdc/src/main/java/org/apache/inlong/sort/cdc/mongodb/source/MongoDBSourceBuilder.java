@@ -168,6 +168,16 @@ public class MongoDBSourceBuilder<T> {
         return this;
     }
 
+    public MongoDBSourceBuilder<T> inlongMetric(String inlongMetric) {
+        this.configFactory.inlongMetric(inlongMetric);
+        return this;
+    }
+
+    public MongoDBSourceBuilder<T> inlongAudit(String inlongAudit) {
+        this.configFactory.inlongAudit(inlongAudit);
+        return this;
+    }
+
     /**
      * The group size of split meta, if the meta size exceeds the group size, the meta will be
      * divided into multiple groups.

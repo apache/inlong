@@ -25,7 +25,7 @@ import java.util.Properties;
 /** A basic Source configuration which is used by {@link IncrementalSource}.
  * Copy from com.ververica:flink-cdc-base:2.3.0.
  * */
-public abstract class BaseSourceConfig implements SourceConfig {
+public abstract class BaseSourceConfig implements SourceConfig, MetricConfig {
 
     private static final long serialVersionUID = 1L;
 
@@ -42,6 +42,12 @@ public abstract class BaseSourceConfig implements SourceConfig {
     protected final Properties dbzProperties;
     protected transient Configuration dbzConfiguration;
 
+    // --------------------------------------------------------------------------------------------
+    // Metric Configurations
+    // --------------------------------------------------------------------------------------------
+    protected final String inlongMetric;
+    protected final String inlongAudit;
+
     public BaseSourceConfig(
             StartupOptions startupOptions,
             int splitSize,
@@ -50,7 +56,9 @@ public abstract class BaseSourceConfig implements SourceConfig {
             double distributionFactorLower,
             boolean includeSchemaChanges,
             Properties dbzProperties,
-            Configuration dbzConfiguration) {
+            Configuration dbzConfiguration,
+            String inlongMetric,
+            String inlongAudit) {
         this.startupOptions = startupOptions;
         this.splitSize = splitSize;
         this.splitMetaGroupSize = splitMetaGroupSize;
@@ -59,6 +67,8 @@ public abstract class BaseSourceConfig implements SourceConfig {
         this.includeSchemaChanges = includeSchemaChanges;
         this.dbzProperties = dbzProperties;
         this.dbzConfiguration = dbzConfiguration;
+        this.inlongMetric = inlongMetric;
+        this.inlongAudit = inlongAudit;
     }
 
     @Override
@@ -96,4 +106,15 @@ public abstract class BaseSourceConfig implements SourceConfig {
     public Configuration getDbzConfiguration() {
         return Configuration.from(dbzProperties);
     }
+
+    @Override
+    public String getInlongMetric() {
+        return inlongMetric;
+    }
+
+    @Override
+    public String getInlongAudit() {
+        return inlongAudit;
+    }
+
 }

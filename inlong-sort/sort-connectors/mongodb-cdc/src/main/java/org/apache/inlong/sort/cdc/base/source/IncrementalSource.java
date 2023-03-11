@@ -41,7 +41,6 @@ import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.cdc.base.config.BaseSourceConfig;
-import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.dialect.DataSourceDialect;
@@ -130,7 +129,7 @@ public class IncrementalSource<T, C extends SourceConfig>
                 .build();
 
         sourceReaderMetrics.registerMetrics(metricOption,
-                Arrays.asList(Constants.DATABASE_NAME, Constants.SCHEMA_NAME, Constants.TABLE_NAME));
+                Arrays.asList(Constants.DATABASE_NAME, Constants.COLLECTION_NAME));
         Supplier<IncrementalSourceSplitReader<C>> splitReaderSupplier =
                 () -> new IncrementalSourceSplitReader<>(
                         readerContext.getIndexOfSubtask(), dataSourceDialect, sourceConfig);

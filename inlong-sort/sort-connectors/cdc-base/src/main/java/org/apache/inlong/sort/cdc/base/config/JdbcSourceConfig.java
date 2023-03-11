@@ -45,9 +45,6 @@ public abstract class JdbcSourceConfig extends BaseSourceConfig {
     protected final int connectionPoolSize;
     protected final String chunkKeyColumn;
 
-    protected final String inlongMetric;
-    protected final String inlongAudit;
-
     public JdbcSourceConfig(
             StartupOptions startupOptions,
             List<String> databaseList,
@@ -80,7 +77,9 @@ public abstract class JdbcSourceConfig extends BaseSourceConfig {
                 distributionFactorLower,
                 includeSchemaChanges,
                 dbzProperties,
-                dbzConfiguration);
+                dbzConfiguration,
+                inlongMetric,
+                inlongAudit);
         this.driverClassName = driverClassName;
         this.hostname = hostname;
         this.port = port;
@@ -94,9 +93,6 @@ public abstract class JdbcSourceConfig extends BaseSourceConfig {
         this.connectMaxRetries = connectMaxRetries;
         this.connectionPoolSize = connectionPoolSize;
         this.chunkKeyColumn = chunkKeyColumn;
-
-        this.inlongMetric = inlongMetric;
-        this.inlongAudit = inlongAudit;
     }
 
     public abstract RelationalDatabaseConnectorConfig getDbzConnectorConfig();
@@ -153,11 +149,4 @@ public abstract class JdbcSourceConfig extends BaseSourceConfig {
         return chunkKeyColumn;
     }
 
-    public String getInlongMetric() {
-        return inlongMetric;
-    }
-
-    public String getInlongAudit() {
-        return inlongAudit;
-    }
 }
