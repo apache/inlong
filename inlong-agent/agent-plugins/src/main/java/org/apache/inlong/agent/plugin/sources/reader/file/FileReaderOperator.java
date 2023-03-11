@@ -101,7 +101,7 @@ public class FileReaderOperator extends AbstractReader {
     private long timeout;
     private long waitTimeout;
     private long lastTime = 0;
-    private List<Validator> validators = new ArrayList<>();
+    private final List<Validator> validators = new ArrayList<>();
 
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
     private final StringBuffer sb = new StringBuffer();
