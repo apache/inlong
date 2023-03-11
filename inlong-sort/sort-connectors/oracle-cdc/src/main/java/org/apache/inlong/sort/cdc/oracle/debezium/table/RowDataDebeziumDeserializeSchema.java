@@ -293,11 +293,11 @@ public final class RowDataDebeziumDeserializeSchema
                 if (dbzObj instanceof Long) {
                     // Because Oracle CDC has been shaded, the schema will have the prefix
                     // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
-                    // so we need to use `schemaName.contains()` to determine the Schema type.
+                    // so we need to use `schemaName.endsWith()` to determine the Schema type.
                     String schemaName = schema.name();
-                    if (schemaName.contains(MicroTime.SCHEMA_NAME)) {
+                    if (schemaName.endsWith(MicroTime.SCHEMA_NAME)) {
                         return (int) ((long) dbzObj / 1000);
-                    } else if (schemaName.contains(NanoTime.SCHEMA_NAME)) {
+                    } else if (schemaName.endsWith(NanoTime.SCHEMA_NAME)) {
                         return (int) ((long) dbzObj / 1000_000);
                     }
                 } else if (dbzObj instanceof Integer) {
@@ -328,15 +328,15 @@ public final class RowDataDebeziumDeserializeSchema
                 if (dbzObj instanceof Long) {
                     // Because Oracle CDC has been shaded, the schema will have the prefix
                     // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
-                    // so we need to use `schemaName.contains()` to determine the Schema type.
+                    // so we need to use `schemaName.endsWith()` to determine the Schema type.
                     String schemaName = schema.name();
-                    if (schemaName.contains(Timestamp.SCHEMA_NAME)) {
+                    if (schemaName.endsWith(Timestamp.SCHEMA_NAME)) {
                         return TimestampData.fromEpochMillis((Long) dbzObj);
-                    } else if (schemaName.contains(MicroTimestamp.SCHEMA_NAME)) {
+                    } else if (schemaName.endsWith(MicroTimestamp.SCHEMA_NAME)) {
                         long micro = (long) dbzObj;
                         return TimestampData.fromEpochMillis(
                                 micro / 1000, (int) (micro % 1000 * 1000));
-                    } else if (schemaName.contains(NanoTimestamp.SCHEMA_NAME)) {
+                    } else if (schemaName.endsWith(NanoTimestamp.SCHEMA_NAME)) {
                         long nano = (long) dbzObj;
                         return TimestampData.fromEpochMillis(
                                 nano / 1000_000, (int) (nano % 1000_000));
@@ -459,8 +459,8 @@ public final class RowDataDebeziumDeserializeSchema
                 } else {
                     // Because Oracle CDC has been shaded, the schema will have the prefix
                     // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
-                    // so we need to use `schemaName.contains()` to determine the Schema type.
-                    if (schema.name().contains(VariableScaleDecimal.LOGICAL_NAME)) {
+                    // so we need to use `schemaName.endsWith()` to determine the Schema type.
+                    if (schema.name().endsWith(VariableScaleDecimal.LOGICAL_NAME)) {
                         SpecialValueDecimal decimal =
                                 VariableScaleDecimal.toLogical((Struct) dbzObj);
                         bigDecimal = decimal.getDecimalValue().orElse(BigDecimal.ZERO);
@@ -771,20 +771,20 @@ public final class RowDataDebeziumDeserializeSchema
         }
         // Because Oracle CDC has been shaded, the schema will have the prefix
         // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
-        // so we need to use `schemaName.contains()` to determine the Schema type.
-        if (schemaName.contains(MicroTime.SCHEMA_NAME)) {
+        // so we need to use `schemaName.endsWith()` to determine the Schema type.
+        if (schemaName.endsWith(MicroTime.SCHEMA_NAME)) {
             Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
             fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant, ZONE_UTC));
-        } else if (schemaName.contains(Date.SCHEMA_NAME)) {
+        } else if (schemaName.endsWith(Date.SCHEMA_NAME)) {
             fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
-        } else if (schemaName.contains(ZonedTimestamp.SCHEMA_NAME)) {
+        } else if (schemaName.endsWith(ZonedTimestamp.SCHEMA_NAME)) {
             ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
             fieldValue = zonedDateTime.withZoneSameInstant(serverTimeZone).toLocalDateTime()
                     .atZone(ZONE_UTC).format(DateTimeFormatter.ISO_INSTANT);
-        } else if (schemaName.contains(Timestamp.SCHEMA_NAME)) {
+        } else if (schemaName.endsWith(Timestamp.SCHEMA_NAME)) {
             Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
             fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
-        } else if (schemaName.contains(MicroTimestamp.SCHEMA_NAME)) {
+        } else if (schemaName.endsWith(MicroTimestamp.SCHEMA_NAME)) {
             Instant instantTime = Instant.ofEpochMilli((Long) fieldValue / 1000);
             fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
         }
