@@ -25,7 +25,7 @@ import java.util.Properties;
 /** A basic Source configuration which is used by {@link IncrementalSource}.
  * Copy from com.ververica:flink-cdc-base:2.3.0.
  * */
-public abstract class BaseSourceConfig implements SourceConfig {
+public abstract class BaseSourceConfig implements SourceConfig, MetricConfig {
 
     private static final long serialVersionUID = 1L;
 
@@ -107,10 +107,12 @@ public abstract class BaseSourceConfig implements SourceConfig {
         return Configuration.from(dbzProperties);
     }
 
+    @Override
     public String getInlongMetric() {
         return inlongMetric;
     }
 
+    @Override
     public String getInlongAudit() {
         return inlongAudit;
     }
