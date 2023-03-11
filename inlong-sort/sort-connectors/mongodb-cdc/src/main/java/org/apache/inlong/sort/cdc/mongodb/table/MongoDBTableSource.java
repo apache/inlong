@@ -203,6 +203,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                     .ifPresent(builder::heartbeatIntervalMillis);
             Optional.ofNullable(splitMetaGroupSize).ifPresent(builder::splitMetaGroupSize);
             Optional.ofNullable(splitSizeMB).ifPresent(builder::splitSizeMB);
+            Optional.ofNullable(inlongMetric).ifPresent(builder::inlongMetric);
+            Optional.ofNullable(inlongAudit).ifPresent(builder::inlongAudit);
 
             return SourceProvider.of(builder.build());
         } else {

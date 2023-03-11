@@ -52,6 +52,8 @@ public class MongoDBSourceConfigFactory implements Factory<MongoDBSourceConfig> 
     private Integer heartbeatIntervalMillis = HEARTBEAT_INTERVAL_MILLIS.defaultValue();
     private Integer splitMetaGroupSize = CHUNK_META_GROUP_SIZE.defaultValue();
     private Integer splitSizeMB = SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE_MB.defaultValue();
+    private String inlongMetric;
+    private String inlongAudit;
 
     /** The comma-separated list of hostname and port pairs of mongodb servers. */
     public MongoDBSourceConfigFactory hosts(String hosts) {
@@ -177,6 +179,16 @@ public class MongoDBSourceConfigFactory implements Factory<MongoDBSourceConfig> 
         return this;
     }
 
+    public MongoDBSourceConfigFactory inlongMetric(String inlongMetric) {
+        this.inlongMetric = inlongMetric;
+        return this;
+    }
+
+    public MongoDBSourceConfigFactory inlongAudit(String inlongAudit) {
+        this.inlongAudit = inlongAudit;
+        return this;
+    }
+
     /**
      * The group size of split meta, if the meta size exceeds the group size, the meta will be
      * divided into multiple groups.
@@ -208,6 +220,8 @@ public class MongoDBSourceConfigFactory implements Factory<MongoDBSourceConfig> 
                 startupOptions,
                 heartbeatIntervalMillis,
                 splitMetaGroupSize,
-                splitSizeMB);
+                splitSizeMB,
+                inlongMetric,
+                inlongAudit);
     }
 }
