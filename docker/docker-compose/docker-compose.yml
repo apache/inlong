@@ -83,6 +83,7 @@ services:
       - MANAGER_OPENAPI_IP=manager
       - MANAGER_OPENAPI_PORT=8083
       - AUDIT_PROXY_URL=audit:10081
+      # pulsar or kafka
       - MQ_TYPE=pulsar
       - ETH_NAME=eth0
 
@@ -113,8 +114,11 @@ services:
       - JDBC_URL=mysql:3306
       - USERNAME=root
       - PASSWORD=inlong
-      - PULSAR_BROKER_LIST=pulsar:6650
+      # pulsar or kafka
       - MQ_TYPE=pulsar
+      - PULSAR_BROKER_LIST=pulsar:6650
+      # for kafka
+      # - KAFKA_SERVER_LIST=kafka:9092
     ports:
       - "10081:10081"
 

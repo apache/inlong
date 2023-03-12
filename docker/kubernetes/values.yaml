@@ -670,6 +670,9 @@ external:
     serviceUrl: "localhost:6650"
     adminUrl: "localhost:8080"
     auditTopicName: "persistent://public/default/inlong-audit"
+  # If choose Kafka as an MQ service for DataProxy, you need to configure the cluster address.
+  kafka:
+    bootstrap_server_url: "localhost:9092"
   # the REST server address for Flink
   flink:
     hostname: "127.0.0.1"
