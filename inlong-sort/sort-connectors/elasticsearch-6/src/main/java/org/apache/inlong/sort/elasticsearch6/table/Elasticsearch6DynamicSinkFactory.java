@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
@@ -89,7 +90,8 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
                     PASSWORD_OPTION,
                     USERNAME_OPTION,
                     INLONG_METRIC,
-                    INLONG_AUDIT)
+                    INLONG_AUDIT,
+                    AUDIT_KEYS)
                     .collect(Collectors.toSet());
 
     private static void validate(boolean condition, Supplier<String> message) {
