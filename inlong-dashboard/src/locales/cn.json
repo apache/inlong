@@ -356,6 +356,7 @@
   "meta.Sinks.Kudu.FieldName": "字段名",
   "meta.Sinks.Kudu.FieldNameRule": "以英文字母或下划线开头，只能包含英文字母、数字、下划线",
   "meta.Sinks.Kudu.FieldType": "类型",
+  "meta.Sinks.Kudu.PartitionStrategy": "分区策略",
   "meta.Sinks.Kudu.FieldDescription": "描述",
   "meta.Group.InlongGroupId": "数据流组 ID",
   "meta.Group.InlongGroupIdRules": "只能包含小写字母、数字、中划线、下划线",

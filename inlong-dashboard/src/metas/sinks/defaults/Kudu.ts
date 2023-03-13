@@ -49,6 +49,28 @@ const kuduFieldTypes = [
   value: item,
 }));
 
+const matchPartitionStrategies = fieldType => {
+  const data = [
+    {
+      label: 'None',
+      value: 'None',
+      disabled: false,
+    },
+    {
+      label: 'Hash',
+      value: 'Hash',
+      disabled: false,
+    },
+    {
+      label: 'PrimaryKey',
+      value: 'PrimaryKey',
+      disabled: false,
+    },
+  ];
+
+  return data.filter(item => !item.disabled);
+};
+
 export default class KuduSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
   @FieldDecorator({
     type: 'input',
@@ -157,18 +179,6 @@ export default class KuduSink extends SinkInfo implements DataWithBackend, Rende
     }),
   })
   sinkFieldList: Record<string, unknown>[];
-
-  @FieldDecorator({
-    type: 'input',
-    tooltip: i18n.t('meta.Sinks.Kudu.PartitionKeyHelper'),
-    rules: [{ required: false }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Kudu.PartitionKey')
-  partitionKey: string;
 }
 
 const getFieldListColumns = sinkValues => {
@@ -233,6 +243,16 @@ const getFieldListColumns = sinkValues => {
       initialValue: 1,
       rules: [{ type: 'number', required: true }],
       visible: (text, record) => record.fieldType === 'decimal',
+    },
+    {
+      title: i18n.t('meta.Sinks.Kudu.PartitionStrategy'),
+      dataIndex: 'partitionStrategy',
+      type: 'select',
+      initialValue: 'None',
+      rules: [{ required: true }],
+      props: (text, record) => ({
+        options: matchPartitionStrategies(record.fieldType),
+      }),
     },
     {
       title: i18n.t('meta.Sinks.Kudu.FieldDescription'),

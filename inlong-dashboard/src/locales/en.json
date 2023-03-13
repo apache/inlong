@@ -356,6 +356,7 @@
   "meta.Sinks.Kudu.FieldName": "FieldName",
   "meta.Sinks.Kudu.FieldNameRule": "At the beginning of English letters, only English letters, numbers, and underscores",
   "meta.Sinks.Kudu.FieldType": "FieldType",
+  "meta.Sinks.Kudu.PartitionStrategy": "PartitionStrategy",
   "meta.Sinks.Kudu.FieldDescription": "FieldDescription",
   "meta.Group.InlongGroupId": "Inlong Group ID",
   "meta.Group.InlongGroupIdRules": "Only lowercase letters, numbers, minus, and underscores",
