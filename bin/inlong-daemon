@@ -80,6 +80,9 @@ start_inlong_audit() {
   if [ "${mq_type}" = "tubemq" ]; then
     bash +x ./bin/proxy-start.sh tube
   fi
+  if [ "${mq_type}" = "kafka" ]; then
+    bash +x ./bin/proxy-start.sh kafka
+  fi
   echo "start audit store"
   bash +x ./bin/store-start.sh
   # wait to start

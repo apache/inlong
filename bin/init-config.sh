@@ -55,6 +55,7 @@ init_inlong_agent() {
   $SED_COMMAND 's/agent.http.port=.*/'''agent.http.port=${agent_port}'''/g' agent.properties
   $SED_COMMAND 's/agent.manager.vip.http.host=.*/'''agent.manager.vip.http.host=${manager_server_hostname}'''/g' agent.properties
   $SED_COMMAND 's/agent.manager.vip.http.port=.*/'''agent.manager.vip.http.port=${manager_server_port}'''/g' agent.properties
+  $SED_COMMAND "s/audit.enable=.*$/audit.enable=true/g" agent.properties
   $SED_COMMAND 's/audit.proxys=.*/'''audit.proxys=${audit_proxys_ip}:${audit_proxys_port}'''/g' agent.properties
 }
 
@@ -65,13 +66,21 @@ init_inlong_audit() {
   $SED_COMMAND 's/spring.datasource.druid.username=.*/'''spring.datasource.druid.username=${spring_datasource_username}'''/g' application.properties
   $SED_COMMAND 's/spring.datasource.druid.password=.*/'''spring.datasource.druid.password=${spring_datasource_password}'''/g' application.properties
   if [ $mq_type == "pulsar" ]; then
+    $SED_COMMAND 's/audit.config.proxy.type=.*/'''audit.config.proxy.type=pulsar'''/g' application.properties
     $SED_COMMAND 's#pulsar://.*#'''${pulsar_service_url}'''#g' audit-proxy-pulsar.conf
     $SED_COMMAND 's#pulsar://.*#'''${pulsar_service_url}'''#g' application.properties
   fi
+  if [ $mq_type == "kafka" ]; then
+    $SED_COMMAND 's/audit.config.proxy.type=.*/'''audit.config.proxy.type=kafka'''/g' application.properties
+    $SED_COMMAND 's/audit.kafka.server.url=.*/'''audit.kafka.server.url=${bootstrap_server_url}'''/g' application.properties
+    $SED_COMMAND 's/agent1.sinks.kafka-sink-msg1.bootstrap_servers.*/'''agent1.sinks.kafka-sink-msg1.bootstrap_servers=${bootstrap_server_url}'''/g' audit-proxy-kafka.conf
+    $SED_COMMAND 's/agent1.sinks.kafka-sink-msg2.bootstrap_servers.*/'''agent1.sinks.kafka-sink-msg2.bootstrap_servers=${bootstrap_server_url}'''/g' audit-proxy-kafka.conf
+  fi
   if [ $mq_type == "tubemq" ]; then
+    $SED_COMMAND 's/audit.config.proxy.type=.*/'''audit.config.proxy.type=tube'''/g' application.properties
+    $SED_COMMAND 's/audit.tube.masterlist=.*/'''audit.tube.masterlist=${tube_master_url}'''/g' application.properties
     $SED_COMMAND 's/agent1.sinks.tube-sink-msg1.master-host-port-list=.*/'''agent1.sinks.tube-sink-msg1.master-host-port-list=${tube_master_url}'''/g' audit-proxy-tube.conf
     $SED_COMMAND 's/agent1.sinks.tube-sink-msg2.master-host-port-list=.*/'''agent1.sinks.tube-sink-msg2.master-host-port-list=${tube_master_url}'''/g' audit-proxy-tube.conf
-    $SED_COMMAND 's/audit.tube.masterlist=.*/'''audit.tube.masterlist=${tube_master_url}'''/g' application.properties
   fi
 }
 
@@ -80,7 +89,7 @@ init_inlong_dataproxy() {
   cd $INLONG_HOME/inlong-dataproxy/conf
   $SED_COMMAND 's/manager.hosts=.*/'''manager.hosts=${manager_server_hostname}:${manager_server_port}'''/g' common.properties
   $SED_COMMAND 's/audit.proxys=.*/'''audit.proxys=${audit_proxys_ip}:${audit_proxys_port}'''/g' common.properties
-  $SED_COMMAND 's/localhost.*/'''${local_ip}'''/g' dataproxy-${mq_type}.conf
+  $SED_COMMAND "s/audit.enable=.*$/audit.enable=true/g" common.properties
 }
 
 init_inlong_manager() {
