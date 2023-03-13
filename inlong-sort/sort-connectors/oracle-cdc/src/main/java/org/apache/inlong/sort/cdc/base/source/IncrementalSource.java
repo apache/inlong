@@ -40,7 +40,7 @@ import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
+import org.apache.inlong.sort.cdc.base.config.MetricConfig;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.dialect.DataSourceDialect;
@@ -111,7 +111,7 @@ public class IncrementalSource<T, C extends SourceConfig>
             throws Exception {
         // create source config for the given subtask (e.g. unique server id)
         C sourceConfig = configFactory.create(readerContext.getIndexOfSubtask());
-        JdbcSourceConfig jdbcSourceConfig = (JdbcSourceConfig) sourceConfig;
+        MetricConfig metricConfig = (MetricConfig) sourceConfig;
         FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecords>> elementsQueue =
                 new FutureCompletingBlockingQueue<>();
 
@@ -123,8 +123,8 @@ public class IncrementalSource<T, C extends SourceConfig>
 
         // create source config for the given subtask (e.g. unique server id)
         MetricOption metricOption = MetricOption.builder()
-                .withInlongLabels(jdbcSourceConfig.getInlongMetric())
-                .withAuditAddress(jdbcSourceConfig.getInlongAudit())
+                .withInlongLabels(metricConfig.getInlongMetric())
+                .withAuditAddress(metricConfig.getInlongAudit())
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
 
