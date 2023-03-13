@@ -90,6 +90,8 @@ public class LogDirtySink<T> implements DirtySink<T> {
                 RowData.FieldGetter[] getters = fieldGetters;
                 if (rowType != null) {
                     getters = FormatUtils.parseFieldGetters(rowType);
+                } else {
+                    return data.toString();
                 }
                 value = FormatUtils.csvFormat(data, getters, labels, fieldDelimiter);
                 break;
