@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.db.CommandEntity;
@@ -81,7 +80,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -167,9 +165,7 @@ public class AgentServiceImpl implements AgentService {
             nextStatus = SourceStatus.SOURCE_FAILED.getCode();
         } else if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
             // Change the status from 30x to normal / disable / frozen
-            if (SourceStatus.TEMP_TO_NORMAL.contains(previousStatus)) {
-                nextStatus = SourceStatus.SOURCE_NORMAL.getCode();
-            } else if (SourceStatus.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
+            if (SourceStatus.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
                 nextStatus = SourceStatus.SOURCE_DISABLE.getCode();
             } else if (SourceStatus.BEEN_ISSUED_FROZEN.getCode() == previousStatus) {
                 nextStatus = SourceStatus.SOURCE_FROZEN.getCode();
@@ -338,31 +334,25 @@ public class AgentServiceImpl implements AgentService {
         // find those node whose tag match stream_source tag and agent ip match stream_source agent ip
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectTemplateSourceByCluster(needCopiedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentClusterName);
-        sourceEntities.stream()
-                .filter(sourceEntity -> sourceEntity.getTemplateId() == null) // only apply template task
-                .map(sourceEntity -> {
-                    List<StreamSourceEntity> subSources = sourceMapper.selectByTemplateId(sourceEntity.getId());
-                    Optional<StreamSourceEntity> optionalSource = subSources.stream()
-                            .filter(subSource -> subSource.getAgentIp().equals(agentIp))
-                            .findAny();
-                    return Pair.<StreamSourceEntity, Optional>of(sourceEntity, optionalSource);
-                }).filter(parAndSonEntity -> !parAndSonEntity.getValue().isPresent()) // haven't cloned subtask
-                .forEach(parAndSonEntity -> {
-                    // if not, clone a subtask for this Agent.
-                    // note: a new source name with random suffix is generated to adhere to the unique constraint
-                    StreamSourceEntity sourceEntity = parAndSonEntity.getKey();
-                    StreamSourceEntity fileEntity =
-                            CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
-                    fileEntity.setSourceName(fileEntity.getSourceName() + "-"
-                            + RandomStringUtils.randomAlphanumeric(10).toLowerCase(Locale.ROOT));
-                    fileEntity.setTemplateId(sourceEntity.getId());
-                    fileEntity.setAgentIp(agentIp);
-                    fileEntity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
-                    // create new sub source task
-                    sourceMapper.insert(fileEntity);
-                    LOGGER.info("Transform new template task({}) for agent({}) in cluster({}).",
-                            fileEntity.getId(), taskRequest.getAgentIp(), taskRequest.getClusterName());
-                });
+        sourceEntities.forEach(sourceEntity -> {
+            StreamSourceEntity subSource = sourceMapper.selectOneByTemplatedIdAndAgentIp(sourceEntity.getId(),
+                    agentIp);
+            if (subSource == null) {
+                // if not, clone a subtask for this Agent.
+                // note: a new source name with random suffix is generated to adhere to the unique constraint
+                StreamSourceEntity fileEntity =
+                        CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
+                fileEntity.setSourceName(fileEntity.getSourceName() + "-"
+                        + RandomStringUtils.randomAlphanumeric(10).toLowerCase(Locale.ROOT));
+                fileEntity.setTemplateId(sourceEntity.getId());
+                fileEntity.setAgentIp(agentIp);
+                fileEntity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
+                // create new sub source task
+                sourceMapper.insert(fileEntity);
+                LOGGER.info("Transform new template task({}) for agent({}) in cluster({}).",
+                        fileEntity.getId(), taskRequest.getAgentIp(), taskRequest.getClusterName());
+            }
+        });
     }
 
     /**
@@ -410,8 +400,7 @@ public class AgentServiceImpl implements AgentService {
                     SourceStatus.SOURCE_NORMAL,
                     SourceStatus.TO_BE_ISSUED_ADD,
                     SourceStatus.TO_BE_ISSUED_ACTIVE);
-            Set<StreamStatus> exceptedMatchedStreamStatus = Sets.newHashSet(
-                    StreamStatus.SUSPENDED, StreamStatus.SUSPENDED);
+            Set<StreamStatus> exceptedMatchedStreamStatus = Sets.newHashSet(StreamStatus.SUSPENDED);
             if (matchGroup(sourceEntity, clusterNodeEntity)
                     && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
                     && !exceptedMatchedStreamStatus.contains(StreamStatus.forCode(streamEntity.getStatus()))) {
