@@ -196,12 +196,12 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
 
     private void invokeDirty(RowData rowData, Exception e) {
         if (!multipleSink) {
-            if(dirtySinkHelper != null){
+            if (dirtySinkHelper != null) {
                 dirtySinkHelper.invoke(rowData.toString(), DirtyType.BATCH_LOAD_ERROR, e);
             }
             sinkMetricData.invokeDirty(1, rowData.toString().getBytes().length);
         } else {
-            if(dirtySinkHelper != null){
+            if (dirtySinkHelper != null) {
                 dirtySinkHelper.invoke(rowData.toString(), DirtyType.BATCH_LOAD_ERROR, label, logtag, identifier, e);
             }
             metric[2] += 1;
