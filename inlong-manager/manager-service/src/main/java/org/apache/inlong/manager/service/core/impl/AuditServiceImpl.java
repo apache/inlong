@@ -25,7 +25,6 @@ import org.apache.inlong.manager.common.enums.AuditQuerySource;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.AuditBaseEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -64,7 +63,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -160,9 +158,16 @@ public class AuditServiceImpl implements AuditService {
             return null;
         }
         AuditBaseEntity auditBaseEntity = isSent ? auditSentItemMap.get(type) : auditReceivedItemMap.get(type);
-        if (auditBaseEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
-                    String.format(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED.getMessage(), type));
+        if (auditBaseEntity != null) {
+            return auditBaseEntity.getAuditId();
+        }
+        auditBaseEntity = auditBaseMapper.selectByTypeAndIsSent(type, isSent ? 1 : 0);
+        Preconditions.expectNotNull(auditBaseEntity, ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED,
+                String.format(ErrorCodeEnum.AUDIT_ID_TYPE_NOT_SUPPORTED.getMessage(), type));
+        if (isSent) {
+            auditSentItemMap.put(type, auditBaseEntity);
+        } else {
+            auditReceivedItemMap.put(type, auditBaseEntity);
         }
         return auditBaseEntity.getAuditId();
     }

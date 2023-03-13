@@ -34,4 +34,6 @@ public interface AuditBaseEntityMapper {
 
     AuditBaseEntity selectByType(@Param("type") String type);
 
+    AuditBaseEntity selectByTypeAndIsSent(@Param("type") String type, @Param("isSent") Integer isSent);
+
 }
