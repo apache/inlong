@@ -22,8 +22,18 @@ import java.io.Serializable;
 /** The mertic configuration which offers basic metric configuration. **/
 public interface MetricConfig extends Serializable {
 
+    /**
+     * getInlongMetric
+     *
+     * @return a label of inlong metric
+     */
     String getInlongMetric();
 
+    /**
+     * getInlongAudit
+     *
+     * @return an address of inlong audit
+     */
     String getInlongAudit();
 
 }
