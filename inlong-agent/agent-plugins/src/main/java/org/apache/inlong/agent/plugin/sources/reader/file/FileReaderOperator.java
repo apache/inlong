@@ -89,7 +89,7 @@ public class FileReaderOperator extends AbstractReader {
 
     public File file;
     public int position = 0;
-    private int bytePosition = 0;
+    public int bytePosition = 0;
     private long readEndpoint = Long.MAX_VALUE;
     public String md5;
     public Map<String, String> metadata;
@@ -97,10 +97,11 @@ public class FileReaderOperator extends AbstractReader {
     public boolean inited = false;
     public volatile boolean finished = false;
     public String instanceId;
+    public String fileKey = null;
     private long timeout;
     private long waitTimeout;
     private long lastTime = 0;
-    private List<Validator> validators = new ArrayList<>();
+    private final List<Validator> validators = new ArrayList<>();
 
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
     private final StringBuffer sb = new StringBuffer();

@@ -41,7 +41,9 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_INT
 public final class MonitorTextFile {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MonitorTextFile.class);
-    // monitor thread pool
+    /**
+     * monitor thread pool
+      */
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
             60L, TimeUnit.SECONDS,
@@ -131,22 +133,51 @@ public final class MonitorTextFile {
             try {
                 attributesAfter = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
                 currentPath = file.getCanonicalPath();
+
+                // Determine whether the inode has changed
+                if (isInodeChanged(attributesAfter.fileKey().toString())) {
+                    resetPosition();
+                }
+                fileReaderOperator.fileKey = attributesAfter.fileKey().toString();
             } catch (Exception e) {
                 // set position 0 when split file
-                fileReaderOperator.position = 0;
+                resetPosition();
                 LOGGER.error(String.format("monitor file %s error, reset position to 0", file.getName()), e);
                 return;
             }
 
             // if change symbolic links
             if (attributesAfter.isSymbolicLink() && !path.equals(currentPath)) {
-                fileReaderOperator.position = 0;
+                resetPosition();
                 path = currentPath;
             }
 
             if (!fileReaderOperator.hasDataRemaining()) {
                 fileReaderOperator.fetchData();
             }
+        }
+
+        /**
+         * Reset the position and bytePosition
+         */
+        private void resetPosition() {
+            LOGGER.info("reset position {}", fileReaderOperator.file.toPath());
+            fileReaderOperator.position = 0;
+            fileReaderOperator.bytePosition = 0;
+        }
+
+        /**
+         * Determine whether the inode has changed
+         *
+         * @param currentFileKey current file key
+         * @return true if the inode changed, otherwise false
+         */
+        private boolean isInodeChanged(String currentFileKey) {
+            if (fileReaderOperator.fileKey == null || currentFileKey == null) {
+                return false;
+            }
+
+            return !fileReaderOperator.fileKey.equals(currentFileKey);
         }
     }
 }
