@@ -291,13 +291,14 @@ public final class RowDataDebeziumDeserializeSchema
             @Override
             public Object convert(Object dbzObj, Schema schema) {
                 if (dbzObj instanceof Long) {
-                    switch (schema.name()) {
-                        case MicroTime.SCHEMA_NAME:
-                            return (int) ((long) dbzObj / 1000);
-                        case NanoTime.SCHEMA_NAME:
-                            return (int) ((long) dbzObj / 1000_000);
-                        default:
-                            break;
+                    // Because Oracle CDC has been shaded, the schema will have the prefix
+                    // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
+                    // so we need to use `schemaName.endsWith()` to determine the Schema type.
+                    String schemaName = schema.name();
+                    if (schemaName.endsWith(MicroTime.SCHEMA_NAME)) {
+                        return (int) ((long) dbzObj / 1000);
+                    } else if (schemaName.endsWith(NanoTime.SCHEMA_NAME)) {
+                        return (int) ((long) dbzObj / 1000_000);
                     }
                 } else if (dbzObj instanceof Integer) {
                     return dbzObj;
@@ -325,19 +326,20 @@ public final class RowDataDebeziumDeserializeSchema
             @Override
             public Object convert(Object dbzObj, Schema schema) {
                 if (dbzObj instanceof Long) {
-                    switch (schema.name()) {
-                        case Timestamp.SCHEMA_NAME:
-                            return TimestampData.fromEpochMillis((Long) dbzObj);
-                        case MicroTimestamp.SCHEMA_NAME:
-                            long micro = (long) dbzObj;
-                            return TimestampData.fromEpochMillis(
-                                    micro / 1000, (int) (micro % 1000 * 1000));
-                        case NanoTimestamp.SCHEMA_NAME:
-                            long nano = (long) dbzObj;
-                            return TimestampData.fromEpochMillis(
-                                    nano / 1000_000, (int) (nano % 1000_000));
-                        default:
-                            break;
+                    // Because Oracle CDC has been shaded, the schema will have the prefix
+                    // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
+                    // so we need to use `schemaName.endsWith()` to determine the Schema type.
+                    String schemaName = schema.name();
+                    if (schemaName.endsWith(Timestamp.SCHEMA_NAME)) {
+                        return TimestampData.fromEpochMillis((Long) dbzObj);
+                    } else if (schemaName.endsWith(MicroTimestamp.SCHEMA_NAME)) {
+                        long micro = (long) dbzObj;
+                        return TimestampData.fromEpochMillis(
+                                micro / 1000, (int) (micro % 1000 * 1000));
+                    } else if (schemaName.endsWith(NanoTimestamp.SCHEMA_NAME)) {
+                        long nano = (long) dbzObj;
+                        return TimestampData.fromEpochMillis(
+                                nano / 1000_000, (int) (nano % 1000_000));
                     }
                 }
                 LocalDateTime localDateTime =
@@ -455,7 +457,10 @@ public final class RowDataDebeziumDeserializeSchema
                     // decimal.handling.mode=double
                     bigDecimal = BigDecimal.valueOf((Double) dbzObj);
                 } else {
-                    if (VariableScaleDecimal.LOGICAL_NAME.equals(schema.name())) {
+                    // Because Oracle CDC has been shaded, the schema will have the prefix
+                    // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
+                    // so we need to use `schemaName.endsWith()` to determine the Schema type.
+                    if (schema.name().endsWith(VariableScaleDecimal.LOGICAL_NAME)) {
                         SpecialValueDecimal decimal =
                                 VariableScaleDecimal.toLogical((Struct) dbzObj);
                         bigDecimal = decimal.getDecimalValue().orElse(BigDecimal.ZERO);
@@ -764,19 +769,22 @@ public final class RowDataDebeziumDeserializeSchema
         if (fieldValue == null) {
             return null;
         }
-        if (MicroTime.SCHEMA_NAME.equals(schemaName)) {
+        // Because Oracle CDC has been shaded, the schema will have the prefix
+        // 'org.apache.inlong.sort.cdc.oracle.shaded' added,
+        // so we need to use `schemaName.endsWith()` to determine the Schema type.
+        if (schemaName.endsWith(MicroTime.SCHEMA_NAME)) {
             Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
             fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant, ZONE_UTC));
-        } else if (Date.SCHEMA_NAME.equals(schemaName)) {
+        } else if (schemaName.endsWith(Date.SCHEMA_NAME)) {
             fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
-        } else if (ZonedTimestamp.SCHEMA_NAME.equals(schemaName)) {
+        } else if (schemaName.endsWith(ZonedTimestamp.SCHEMA_NAME)) {
             ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
             fieldValue = zonedDateTime.withZoneSameInstant(serverTimeZone).toLocalDateTime()
                     .atZone(ZONE_UTC).format(DateTimeFormatter.ISO_INSTANT);
-        } else if (Timestamp.SCHEMA_NAME.equals(schemaName)) {
+        } else if (schemaName.endsWith(Timestamp.SCHEMA_NAME)) {
             Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
             fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
-        } else if (MicroTimestamp.SCHEMA_NAME.equals(schemaName)) {
+        } else if (schemaName.endsWith(MicroTimestamp.SCHEMA_NAME)) {
             Instant instantTime = Instant.ofEpochMilli((Long) fieldValue / 1000);
             fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
         }
