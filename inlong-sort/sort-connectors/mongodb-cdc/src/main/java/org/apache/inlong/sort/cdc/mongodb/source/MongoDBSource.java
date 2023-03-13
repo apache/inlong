@@ -57,6 +57,7 @@ import org.apache.inlong.sort.cdc.mongodb.source.reader.MongoDBRecordEmitter;
  * <p>See {@link MongoDBSourceBuilder} for more details.
  *
  * @param <T> the output type of the source.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
  */
 @Internal
 @Experimental

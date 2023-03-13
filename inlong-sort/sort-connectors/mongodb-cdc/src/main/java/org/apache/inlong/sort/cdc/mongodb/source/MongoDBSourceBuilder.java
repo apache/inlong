@@ -43,7 +43,8 @@ import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema
  * }</pre>
  *
  * <p>Check the Java docs of each individual method to learn more about the settings to build a
- * {@link com.ververica.cdc.connectors.mongodb.source.MongoDBSource}.
+ * {@link MongoDBSource}.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
  */
 @Experimental
 @PublicEvolving
