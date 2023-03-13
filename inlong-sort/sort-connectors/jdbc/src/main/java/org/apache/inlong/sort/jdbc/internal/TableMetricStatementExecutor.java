@@ -45,6 +45,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 /**
  * A {@link JdbcBatchStatementExecutor} that simply adds the records into batches of {@link
  * java.sql.PreparedStatement} and doesn't buffer records in memory. Only used in Table/SQL API.
+ * Supported executors:TableBufferedStatementExecutor, TableBufferReducedStatementExecutor, TableSimpleStatementExecutor
  */
 public final class TableMetricStatementExecutor implements JdbcBatchStatementExecutor<RowData> {
 
