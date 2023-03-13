@@ -29,9 +29,16 @@ export interface FetchOptions extends RequestOptionsInit {
   fetchType?: 'FETCH' | 'JSONP';
 }
 
+export interface SuccessResponse {
+  success: boolean;
+  data: any;
+  errMsg: string;
+}
+
 export interface RequestOptions extends FetchOptions {
   // Do not use global request error prompt (http request is successful, but the returned result has a backend error)
   noGlobalError?: boolean;
+  responseParse?: (res: any) => SuccessResponse;
 }
 
 const extendRequest = extend({
@@ -68,15 +75,22 @@ const fetch = (options: FetchOptions) => {
 };
 
 export default function request(_options: RequestOptions | string) {
-  const options = typeof _options === 'string' ? { url: _options } : _options;
+  const opts = typeof _options === 'string' ? { url: _options } : _options;
+  const { noGlobalError, responseParse, ...options } = opts;
   nprogress.start();
   return fetch(options)
     .then((response: any) => {
-      const { success, data, errMsg: message } = response;
+      const {
+        success,
+        data,
+        errMsg: message,
+      } = responseParse
+        ? responseParse(response)
+        : config.responseParse?.(response) || (response as SuccessResponse);
 
       // Request 200, but the result is wrong
       if (!success) {
-        if (options.noGlobalError) {
+        if (noGlobalError) {
           return Promise.resolve(response);
         }
 

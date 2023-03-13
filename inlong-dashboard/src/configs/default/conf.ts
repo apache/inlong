@@ -21,6 +21,7 @@ import i18n from '@/i18n';
 import Provider from '@/components/Provider';
 import Layout from '@/components/Layout';
 import { message } from 'antd';
+import type { SuccessResponse } from '@/utils/request';
 
 const conf = {
   title: '',
@@ -35,6 +36,7 @@ const conf = {
   AppLayout: Layout,
   requestPrefix: '/inlong/manager/api',
   requestErrorAlert: (msg: string) => message.error(msg),
+  responseParse: (res: any): SuccessResponse => res,
 };
 
 export default conf;
