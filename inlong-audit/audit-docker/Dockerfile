@@ -24,7 +24,7 @@ RUN apt-get update \
 ARG AUDIT_TARBALL
 ADD ${AUDIT_TARBALL} /opt/inlong-audit
 EXPOSE 10081
-# pulsar or tubemq
+# pulsar or tubemq or kafka
 ENV MQ_TYPE=pulsar
 ENV PULSAR_BROKER_LIST="127.0.0.1:6650"
 ENV PULSAR_AUDIT_TOPIC="persistent:\/\/public\/default\/inlong-audit"

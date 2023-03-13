@@ -124,6 +124,12 @@ spec:
             - name: PULSAR_AUDIT_TOPIC
               value: "{{ .Values.external.pulsar.auditTopicName }}"
             {{- end }}
+            {{ if eq .Values.dataproxy.mqType "kafka" }}
+            - name: MQ_TYPE
+              value: "kafka"
+            - name: KAFKA_SERVER_LIST
+              value: {{ .Values.external.kafka.bootstrap_server_url }}
+            {{- end }}
             {{ if eq .Values.dataproxy.mqType "tubemq" }}
             - name: MQ_TYPE
               value: "tubemq"

@@ -26,6 +26,7 @@ sql_ck_file="${file_path}"/sql/apache_inlong_audit_clickhouse.sql
 
 # replace the configuration for audit proxy
 if [ "${MQ_TYPE}" = "pulsar" ]; then
+  sed -i "s/audit.config.proxy.type=.*$/audit.config.proxy.type=pulsar"/g "${store_conf_file}"
   sed -i "s/audit.pulsar.server.url=.*$/audit.pulsar.server.url=pulsar:\/\/${PULSAR_BROKER_LIST}/g" "${store_conf_file}"
   sed -i "s/audit.pulsar.topic = .*$/audit.pulsar.topic = ${PULSAR_AUDIT_TOPIC}/g" "${store_conf_file}"
   sed -i "s/agent1.sinks.pulsar-sink-msg1.pulsar_server_url = .*$/agent1.sinks.pulsar-sink-msg1.pulsar_server_url = pulsar:\/\/${PULSAR_BROKER_LIST}/g" "${proxy_conf_file}"
@@ -33,7 +34,14 @@ if [ "${MQ_TYPE}" = "pulsar" ]; then
   sed -i "s/agent1.sinks.pulsar-sink-msg1.topic = .*$/agent1.sinks.pulsar-sink-msg1.topic = ${PULSAR_AUDIT_TOPIC}/g" "${proxy_conf_file}"
   sed -i "s/agent1.sinks.pulsar-sink-msg2.topic = .*$/agent1.sinks.pulsar-sink-msg2.topic = ${PULSAR_AUDIT_TOPIC}/g" "${proxy_conf_file}"
 fi
+if [ "${MQ_TYPE}" = "kafka" ]; then
+  sed -i "s/audit.config.proxy.type=.*$/audit.config.proxy.type=kafka"/g "${store_conf_file}"
+  sed -i "s/audit.kafka.server.url=.*$/audit.kafka.server.url=${KAFKA_SERVER_LIST}"/g "${store_conf_file}"
+  sed -i "s/agent1.sinks.kafka-sink-msg1.bootstrap_servers = .*$/agent1.sinks.kafka-sink-msg1.bootstrap_servers = ${KAFKA_SERVER_LIST}/g" "${proxy_conf_file}"
+  sed -i "s/agent1.sinks.kafka-sink-msg2.bootstrap_servers = .*$/agent1.sinks.kafka-sink-msg2.bootstrap_servers = ${KAFKA_SERVER_LIST}/g" "${proxy_conf_file}"
+fi
 if [ "${MQ_TYPE}" = "tubemq" ]; then
+  sed -i "s/audit.config.proxy.type=.*$/audit.config.proxy.type=tube"/g "${store_conf_file}"
   sed -i "s/audit.tube.masterlist=.*$/audit.tube.masterlist=${TUBE_MASTER_LIST}/g" "${store_conf_file}"
   sed -i "s/audit.tube.topic = .*$/audit.tube.topic = ${TUBE_AUDIT_TOPIC}/g" "${store_conf_file}"
   sed -i "s/agent1.sinks.tube-sink-msg1.master-host-port-list = .*$/agent1.sinks.tube-sink-msg1.master-host-port-list = ${TUBE_MASTER_LIST}/g" "${proxy_conf_file}"
@@ -83,6 +91,9 @@ cd "${file_path}/"
 if [ "${START_MODE}" = "all" ] || [ "${START_MODE}" = "proxy" ]; then
   if [ "${MQ_TYPE}" = "pulsar" ]; then
     bash +x ./bin/proxy-start.sh pulsar
+  fi
+  if [ "${MQ_TYPE}" = "kafka" ]; then
+    bash +x ./bin/proxy-start.sh kafka
   fi
   if [ "${MQ_TYPE}" = "tubemq" ]; then
     bash +x ./bin/proxy-start.sh tubemq
