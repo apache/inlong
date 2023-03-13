@@ -26,6 +26,7 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.doris.internal.GenericDorisSinkFunction;
 
 import javax.annotation.Nullable;
@@ -45,6 +46,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     private final String databasePattern;
     private final String tablePattern;
     private final boolean ignoreSingleTableErrors;
+    private final SchemaUpdateExceptionPolicy schemaUpdatePolicy;
     private final String inlongMetric;
     private final String auditHostAndPorts;
     private final Integer parallelism;
@@ -60,6 +62,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
             String databasePattern,
             String tablePattern,
             boolean ignoreSingleTableErrors,
+            SchemaUpdateExceptionPolicy schemaUpdatePolicy,
             String inlongMetric,
             String auditHostAndPorts,
             Integer parallelism,
@@ -74,6 +77,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
         this.ignoreSingleTableErrors = ignoreSingleTableErrors;
+        this.schemaUpdatePolicy = schemaUpdatePolicy;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.parallelism = parallelism;
@@ -107,6 +111,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                 .setTablePattern(tablePattern)
                 .setDynamicSchemaFormat(sinkMultipleFormat)
                 .setIgnoreSingleTableErrors(ignoreSingleTableErrors)
+                .setSchemaUpdatePolicy(schemaUpdatePolicy)
                 .setDirtyOptions(dirtyOptions)
                 .setDirtySink(dirtySink);
         return SinkFunctionProvider.of(
@@ -115,9 +120,21 @@ public class DorisDynamicTableSink implements DynamicTableSink {
 
     @Override
     public DynamicTableSink copy() {
-        return new DorisDynamicTableSink(options, readOptions, executionOptions, tableSchema,
-                multipleSink, sinkMultipleFormat, databasePattern, tablePattern, ignoreSingleTableErrors,
-                inlongMetric, auditHostAndPorts, parallelism, dirtyOptions, dirtySink);
+        return new DorisDynamicTableSink(options,
+                readOptions,
+                executionOptions,
+                tableSchema,
+                multipleSink,
+                sinkMultipleFormat,
+                databasePattern,
+                tablePattern,
+                ignoreSingleTableErrors,
+                schemaUpdatePolicy,
+                inlongMetric,
+                auditHostAndPorts,
+                parallelism,
+                dirtyOptions,
+                dirtySink);
     }
 
     @Override
