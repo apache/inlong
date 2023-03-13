@@ -335,7 +335,7 @@ public class AgentServiceImpl implements AgentService {
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectTemplateSourceByCluster(needCopiedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentClusterName);
         sourceEntities.forEach(sourceEntity -> {
-            StreamSourceEntity subSource = sourceMapper.selectExistsByTemplateIdAndIp(sourceEntity.getId(),
+            StreamSourceEntity subSource = sourceMapper.selectOneByTemplatedIdAndAgentIp(sourceEntity.getId(),
                     agentIp);
             if (subSource == null) {
                 // if not, clone a subtask for this Agent.

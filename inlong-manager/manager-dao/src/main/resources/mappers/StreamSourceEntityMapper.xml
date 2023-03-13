@@ -97,7 +97,7 @@
         where id = #{id,jdbcType=INTEGER}
         for update
     </select>
-    <select id="selectExistsByTemplateIdAndIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectOneByTemplatedIdAndAgentIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source

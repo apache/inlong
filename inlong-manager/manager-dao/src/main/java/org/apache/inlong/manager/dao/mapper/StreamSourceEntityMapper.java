@@ -41,7 +41,14 @@ public interface StreamSourceEntityMapper {
      */
     StreamSourceEntity selectForAgentTask(Integer id);
 
-    StreamSourceEntity selectExistsByTemplateIdAndIp(@Param("templateId") Integer templateId,
+    /**
+     * Select one sub source by template id and agent ip.
+     *
+     * @param templateId template id
+     * @param agentIp agent ip
+     * @return stream source info
+     */
+    StreamSourceEntity selectOneByTemplatedIdAndAgentIp(@Param("templateId") Integer templateId,
             @Param("agentIp") String agentIp);
 
     /**
