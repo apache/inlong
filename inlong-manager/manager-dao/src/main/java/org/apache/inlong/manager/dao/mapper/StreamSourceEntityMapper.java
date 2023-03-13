@@ -41,6 +41,9 @@ public interface StreamSourceEntityMapper {
      */
     StreamSourceEntity selectForAgentTask(Integer id);
 
+    StreamSourceEntity selectExistsByTemplateIdAndIp(@Param("templateId") Integer templateId,
+            @Param("agentIp") String agentIp);
+
     /**
      * Query un-deleted sources by the given agentIp.
      */

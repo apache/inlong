@@ -97,6 +97,15 @@
         where id = #{id,jdbcType=INTEGER}
         for update
     </select>
+    <select id="selectExistsByTemplateIdAndIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        where template_id = #{templateId,jdbcType=INTEGER}
+        and agent_ip = #{agentIp, jdbcType=VARCHAR}
+        and is_deleted = 0
+        limit 1
+    </select>
     <select id="selectCount" resultType="java.lang.Integer">
         select count(1)
         from stream_source
