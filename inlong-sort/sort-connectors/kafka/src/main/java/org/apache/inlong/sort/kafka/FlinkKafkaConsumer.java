@@ -111,8 +111,8 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
      */
     public FlinkKafkaConsumer(
             String topic, DeserializationSchema<T> valueDeserializer, Properties props, String inlongMetric,
-            String auditHostAndPorts) {
-        this(Collections.singletonList(topic), valueDeserializer, props, inlongMetric, auditHostAndPorts);
+            String auditHostAndPorts, String auditKeys) {
+        this(Collections.singletonList(topic), valueDeserializer, props, inlongMetric, auditHostAndPorts, auditKeys);
     }
 
     /**
@@ -128,8 +128,8 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
      */
     public FlinkKafkaConsumer(
             String topic, KafkaDeserializationSchema<T> deserializer, Properties props, String inlongMetric,
-            String auditHostAndPorts) {
-        this(Collections.singletonList(topic), deserializer, props, inlongMetric, auditHostAndPorts);
+            String auditHostAndPorts, String auditKeys) {
+        this(Collections.singletonList(topic), deserializer, props, inlongMetric, auditHostAndPorts, auditKeys);
     }
 
     /**
@@ -144,8 +144,9 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
      */
     public FlinkKafkaConsumer(
             List<String> topics, DeserializationSchema<T> deserializer, Properties props, String inlongMetric,
-            String auditHostAndPorts) {
-        this(topics, new KafkaDeserializationSchemaWrapper<>(deserializer), props, inlongMetric, auditHostAndPorts);
+            String auditHostAndPorts, String auditKeys) {
+        this(topics, new KafkaDeserializationSchemaWrapper<>(deserializer), props,
+                inlongMetric, auditHostAndPorts, auditKeys);
     }
 
     /**
@@ -160,8 +161,8 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
      */
     public FlinkKafkaConsumer(
             List<String> topics, KafkaDeserializationSchema<T> deserializer, Properties props, String inlongMetric,
-            String auditHostAndPorts) {
-        this(topics, null, deserializer, props, inlongMetric, auditHostAndPorts);
+            String auditHostAndPorts, String auditKeys) {
+        this(topics, null, deserializer, props, inlongMetric, auditHostAndPorts, auditKeys);
     }
 
     /**
@@ -180,12 +181,12 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
      */
     public FlinkKafkaConsumer(
             Pattern subscriptionPattern, DeserializationSchema<T> valueDeserializer,
-            Properties props, String inlongMetric, String auditHostAndPorts) {
+            Properties props, String inlongMetric, String auditHostAndPorts, String auditKeys) {
         this(
                 null,
                 subscriptionPattern,
                 new KafkaDeserializationSchemaWrapper<>(valueDeserializer),
-                props, inlongMetric, auditHostAndPorts);
+                props, inlongMetric, auditHostAndPorts, auditKeys);
     }
 
     /**
@@ -208,8 +209,8 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
     public FlinkKafkaConsumer(
             Pattern subscriptionPattern,
             KafkaDeserializationSchema<T> deserializer,
-            Properties props, String inlongMetric, String auditHostAndPorts) {
-        this(null, subscriptionPattern, deserializer, props, inlongMetric, auditHostAndPorts);
+            Properties props, String inlongMetric, String auditHostAndPorts, String auditKeys) {
+        this(null, subscriptionPattern, deserializer, props, inlongMetric, auditHostAndPorts, auditKeys);
     }
 
     private FlinkKafkaConsumer(
@@ -217,7 +218,7 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
             Pattern subscriptionPattern,
             KafkaDeserializationSchema<T> deserializer,
             Properties props, String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts, String auditKeys) {
 
         super(
                 topics,
@@ -227,7 +228,8 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
                         checkNotNull(props, "props"),
                         KEY_PARTITION_DISCOVERY_INTERVAL_MILLIS,
                         PARTITION_DISCOVERY_DISABLED),
-                !getBoolean(props, KEY_DISABLE_METRICS, false), inlongMetric, auditHostAndPorts);
+                !getBoolean(props, KEY_DISABLE_METRICS, false),
+                inlongMetric, auditHostAndPorts, auditKeys);
 
         this.properties = props;
         setDeserializer(this.properties);
