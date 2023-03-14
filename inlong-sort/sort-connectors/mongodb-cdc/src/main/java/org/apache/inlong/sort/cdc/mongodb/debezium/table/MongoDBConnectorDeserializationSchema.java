@@ -222,13 +222,6 @@ public class MongoDBConnectorDeserializationSchema
         }
     }
 
-    /**
-     * Deserialize the Debezium record, it is represented in Kafka {@link SourceRecord}.
-     *
-     * @param record
-     * @param out
-     * @param isStreamingPhase
-     */
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out, Boolean isStreamingPhase) throws Exception {
         this.deserialize(record, out);
