@@ -99,10 +99,13 @@ public class KuduResourceClient {
 
         ColumnSchemaBuilder builder = new ColumnSchemaBuilder(name, typeForName)
                 .comment(desc);
+
+        // Build schema: the hash key and partition key must be primary key.
         if (PARTITION_STRATEGY_HASH.equalsIgnoreCase(partitionStrategy)
                 || PARTITION_STRATEGY_PRIMARY_KEY.equalsIgnoreCase(partitionStrategy)) {
             builder.key(true);
         } else {
+            // The primary key must not null.
             builder.nullable(true);
         }
         return builder.build();
@@ -162,7 +165,6 @@ public class KuduResourceClient {
 
             alterOptions.addColumn(columnSchema);
         }
-        alterOptions.addColumn("new_column_name", Type.STRING, "default_value");
         client.alterTable(table.getName(), alterOptions);
     }
 
