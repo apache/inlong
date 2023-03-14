@@ -42,7 +42,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 @JsonTypeDefine(value = SinkType.KUDU)
 public class KuduSink extends StreamSink {
 
-    @ApiModelProperty("Target masters")
+    @ApiModelProperty("Kudu masters, a comma separated list of 'host:port' pairs")
     private String masters;
 
     @ApiModelProperty("Target table name")
