@@ -22,7 +22,6 @@
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-tubemq</artifactId>
         <version>1.7.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>tubemq-manager</artifactId>
     <name>Apache InLong - TubeMQ Manager</name>

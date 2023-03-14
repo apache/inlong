@@ -43,10 +43,13 @@
     <properties>
         <debezium.version>1.5.4.Final</debezium.version>
         <kafka.clients.version>2.7.0</kafka.clients.version>
-        <rat.basedir>${basedir}</rat.basedir>
         <hbase.version>2.2.3</hbase.version>
-        <iceberg.hive.version>2.3.7</iceberg.hive.version>
         <hudi.hive.version>2.3.7</hudi.hive.version>
+        <iceberg.hive.version>2.3.7</iceberg.hive.version>
+        <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
+        <log4j.configurationfile>log4j2-test.properties</log4j.configurationfile>
+        <oracle.jdbc.version>19.3.0.0</oracle.jdbc.version>
+        <rat.basedir>${basedir}</rat.basedir>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -80,6 +83,17 @@
                 <artifactId>kudu-client</artifactId>
                 <version>${kudu.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-shaded-jackson</artifactId>
+                <version>${flink.jackson.version}</version>
+            </dependency>
+            <!--ojdbc8 is FUTC license, we use it test only-->
+            <dependency>
+                <groupId>com.oracle.database.jdbc</groupId>
+                <artifactId>ojdbc8</artifactId>
+                <version>${oracle.jdbc.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -89,18 +103,6 @@
             <artifactId>junit</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <type>jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-test-utils-junit</artifactId>

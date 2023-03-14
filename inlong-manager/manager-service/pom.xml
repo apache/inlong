@@ -558,6 +558,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.hudi</groupId>
+            <artifactId>hudi-flink1.13-bundle</artifactId>
+            <version>${hudi.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.kudu</groupId>
             <artifactId>kudu-client</artifactId>
         </dependency>
