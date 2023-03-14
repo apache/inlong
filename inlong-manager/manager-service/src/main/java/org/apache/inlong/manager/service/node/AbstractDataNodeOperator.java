@@ -72,6 +72,7 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
         DataNodeEntity entity = CommonBeanUtils.copyProperties(request, DataNodeEntity::new);
         // set the ext params
         this.setTargetEntity(request, entity);
+        this.updateRelatedStreamSource(request);
         entity.setModifier(operator);
         int rowCount = dataNodeEntityMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
@@ -91,5 +92,10 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
     public Boolean testConnection(DataNodeRequest request) {
         throw new BusinessException(
                 String.format(ErrorCodeEnum.DATA_NODE_TYPE_NOT_SUPPORTED.getMessage(), request.getType()));
+    }
+
+    @Override
+    public void updateRelatedStreamSource(DataNodeRequest request) {
+        LOGGER.info("do nothing for the data node type ={}", request.getType());
     }
 }
