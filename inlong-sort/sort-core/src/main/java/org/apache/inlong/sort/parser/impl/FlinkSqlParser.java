@@ -226,13 +226,13 @@ public class FlinkSqlParser implements Parser {
                 "relation must have at least one output node");
         relation.getOutputs().forEach(s -> {
             Preconditions.checkNotNull(s, "node id in outputs is null");
-            Node node = nodeMap.get(s);
-            Preconditions.checkNotNull(node, "can not find any node by node id " + s);
+            Node outputNode = nodeMap.get(s);
+            Preconditions.checkNotNull(outputNode, "can not find any node by node id " + s);
             parseInputNodes(relation, nodeMap, relationMap);
-            parseSingleNode(node, relation, nodeMap);
+            parseSingleNode(outputNode, relation, nodeMap);
             // for Load node we need to generate insert sql
-            if (node instanceof LoadNode) {
-                insertSqls.add(genLoadNodeInsertSql((LoadNode) node, relation, nodeMap));
+            if (outputNode instanceof LoadNode) {
+                insertSqls.add(genLoadNodeInsertSql((LoadNode) outputNode, relation, nodeMap));
             }
         });
         log.info("parse node relation success, relation:{}", relation);
