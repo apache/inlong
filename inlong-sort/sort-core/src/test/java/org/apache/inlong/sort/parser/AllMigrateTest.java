@@ -149,7 +149,7 @@ public class AllMigrateTest {
         Node inputNode = buildAllMigrateExtractNode();
         Node outputNode = buildAllMigrateKafkaNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
-                        Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
+                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
@@ -165,10 +165,10 @@ public class AllMigrateTest {
     @Test
     public void testAllMigrateMultiRelations() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
-            .newInstance()
-            .useBlinkPlanner()
-            .inStreamingMode()
-            .build();
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
@@ -177,9 +177,10 @@ public class AllMigrateTest {
         Node inputNode2 = buildAllMigrateExtractNode2();
         Node outputNode = buildAllMigrateKafkaNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, inputNode2, outputNode),
-            Arrays.asList(buildNodeRelation(Collections.singletonList(inputNode),
-                Collections.singletonList(outputNode)),
-                buildNodeRelation(Collections.singletonList(inputNode2), Collections.singletonList(outputNode))));
+                Arrays.asList(buildNodeRelation(Collections.singletonList(inputNode),
+                        Collections.singletonList(outputNode)),
+                        buildNodeRelation(Collections.singletonList(inputNode2),
+                                Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

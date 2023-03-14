@@ -245,12 +245,12 @@ public class FlinkSqlParser implements Parser {
      * @param relationMap Store the mapping relation between node id and relation
      */
     private void parseInputNodes(NodeRelation relation, Map<String, Node> nodeMap,
-        Map<String, NodeRelation> relationMap) {
+            Map<String, NodeRelation> relationMap) {
         for (String upstreamNodeId : relation.getInputs()) {
             if (!hasParsedSet.contains(upstreamNodeId)) {
                 Node upstreamNode = nodeMap.get(upstreamNodeId);
                 Preconditions.checkNotNull(upstreamNode,
-                    "can not find any node by node id " + upstreamNodeId);
+                        "can not find any node by node id " + upstreamNodeId);
                 parseSingleNode(upstreamNode, relationMap.get(upstreamNodeId), nodeMap);
             }
         }
