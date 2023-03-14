@@ -118,7 +118,7 @@ public class AllMigrateTest {
                         new FieldInfo("data", new StringFormatInfo())));
         CsvFormat csvFormat = new CsvFormat();
         csvFormat.setDisableQuoteCharacter(true);
-        return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
+        return new KafkaLoadNode("3", "kafka_output", fields, relations, null, null,
                 "topic", "localhost:9092",
                 csvFormat, null,
                 null, null);
