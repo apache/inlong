@@ -42,7 +42,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 @JsonTypeDefine(value = SinkType.KUDU)
 public class KuduSink extends StreamSink {
 
-    @ApiModelProperty("Target database name")
+    @ApiModelProperty("Target masters")
     private String masters;
 
     @ApiModelProperty("Target table name")
