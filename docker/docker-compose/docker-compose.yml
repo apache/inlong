@@ -107,6 +107,7 @@ services:
   audit:
     image: inlong/audit:${VERSION_TAG}
     container_name: audit
+    privileged: true
     depends_on:
       mysql:
         condition: service_healthy
