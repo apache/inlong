@@ -502,12 +502,6 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         sourceContext,
                         new DebeziumDeserializationSchema<T>() {
 
-                            /**
-                             * Deserialize the Debezium record, it is represented in Kafka {@link SourceRecord}.
-                             *
-                             * @param record
-                             * @param out
-                             */
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
                                 // do nothing
