@@ -113,6 +113,12 @@ Requirements:
 - Maven 3.6.1+
 - [Docker](https://docs.docker.com/engine/install/) 19.03.1+
 
+CodeStyle:
+
+```
+mvn spotless:apply
+```
+
 Compile and install:
 ```
 mvn clean install -DskipTests
