@@ -72,7 +72,7 @@ public class SinkResourceListener implements SinkOperateListener {
         String operator = context.getOperator();
         switch (operateType) {
             case INIT:
-                groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
+                groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), operator);
                 break;
             case SUSPEND:
                 groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), operator);
