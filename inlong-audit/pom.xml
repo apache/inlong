@@ -23,9 +23,8 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
-    <groupId>org.apache.inlong</groupId>
     <artifactId>inlong-audit</artifactId>
     <packaging>pom</packaging>
     <name>Apache InLong - Audit</name>
@@ -64,10 +63,6 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 

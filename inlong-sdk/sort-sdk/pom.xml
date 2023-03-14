@@ -23,10 +23,10 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sdk</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <artifactId>sort-sdk</artifactId>
-    <version>1.6.0-SNAPSHOT</version>
+    <version>${revision}</version>
 
     <name>Apache InLong - Sort SDK</name>
 
@@ -57,10 +57,6 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.xerial.snappy</groupId>
-            <artifactId>snappy-java</artifactId>
         </dependency>
     </dependencies>
 
