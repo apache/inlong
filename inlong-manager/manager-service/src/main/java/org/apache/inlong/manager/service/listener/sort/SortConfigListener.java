@@ -88,7 +88,14 @@ public class SortConfigListener implements SortOperateListener {
             return ListenerResult.success();
         }
         // ensure the inlong group exists
-        groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
+        switch (operateType) {
+            case INIT:
+                groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
+                break;
+            case RESTART:
+                groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), context.getOperator());
+                break;
+        }
         InlongGroupInfo groupInfo = groupService.get(groupId);
         if (groupInfo == null) {
             String msg = "inlong group not found with groupId=" + groupId;

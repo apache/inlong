@@ -104,7 +104,6 @@ public class QueueResourceListener implements QueueOperateListener {
         GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) context.getProcessForm();
         final String groupId = groupProcessForm.getInlongGroupId();
         // ensure the inlong group exists
-        groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
         InlongGroupInfo groupInfo = groupService.get(groupId);
         if (groupInfo == null) {
             String msg = "inlong group not found with groupId=" + groupId;
@@ -125,12 +124,14 @@ public class QueueResourceListener implements QueueOperateListener {
         String operator = context.getOperator();
         switch (operateType) {
             case INIT:
+                groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), operator);
                 // create queue resource for inlong group
                 queueOperator.createQueueForGroup(groupInfo, operator);
                 // create queue resource for all inlong streams under the inlong group
                 this.createQueueForStreams(groupInfo, groupProcessForm.getStreamInfos(), operator);
                 break;
             case DELETE:
+                groupService.updateStatus(groupId, GroupStatus.DELETING.getCode(), operator);
                 queueOperator.deleteQueueForGroup(groupInfo, operator);
                 break;
             default:
