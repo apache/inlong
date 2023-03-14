@@ -38,6 +38,7 @@ import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.pojo.sink.hudi.HudiSink;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.pojo.sink.kudu.KuduSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSink;
@@ -70,6 +71,7 @@ import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HudiLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
+import org.apache.inlong.sort.protocol.node.load.KuduLoadNode;
 import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
@@ -149,6 +151,8 @@ public class LoadNodeUtils {
                 return createLoadNode((DorisSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.STARROCKS:
                 return createLoadNode((StarRocksSink) streamSink, fieldInfos, fieldRelations, properties);
+            case SinkType.KUDU:
+                return createLoadNode((KuduSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.REDIS:
                 return createLoadNode((RedisSink) streamSink, fieldInfos, fieldRelations, properties);
             default:
@@ -384,6 +388,28 @@ public class LoadNodeUtils {
                 format,
                 starRocksSink.getDatabasePattern(),
                 starRocksSink.getTablePattern());
+    }
+
+    /**
+     * Create load node of Kudu.
+     */
+    public static KuduLoadNode createLoadNode(
+            KuduSink kuduSink,
+            List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
+        return new KuduLoadNode(
+                kuduSink.getSinkName(),
+                kuduSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                kuduSink.getMasters(),
+                kuduSink.getTableName(),
+                kuduSink.getPartitionKey());
     }
 
     private static LoadNode createLoadNode(

@@ -35,7 +35,6 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,9 +65,6 @@ public class KuduLoadNode extends LoadNode implements InlongMetric, Serializable
     @Nonnull
     private String tableName;
 
-    @JsonProperty("extList")
-    private List<HashMap<String, String>> extList;
-
     @JsonProperty("partitionKey")
     private String partitionKey;
 
@@ -84,12 +80,10 @@ public class KuduLoadNode extends LoadNode implements InlongMetric, Serializable
             @JsonProperty("properties") Map<String, String> properties,
             @Nonnull @JsonProperty("masters") String masters,
             @Nonnull @JsonProperty("tableName") String tableName,
-            @JsonProperty("partitionKey") String partitionKey,
-            @JsonProperty("extList") List<HashMap<String, String>> extList) {
+            @JsonProperty("partitionKey") String partitionKey) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.masters = Preconditions.checkNotNull(masters, "masters is null");
-        this.extList = extList;
         this.partitionKey = partitionKey;
     }
 
@@ -102,15 +96,16 @@ public class KuduLoadNode extends LoadNode implements InlongMetric, Serializable
 
         // If the extend attributes starts with .ddl,
         // it will be passed to the ddl statement of the table
-        extList.forEach(ext -> {
-            String keyName = ext.get(EXTEND_ATTR_KEY_NAME);
-            if (StringUtils.isNoneBlank(keyName) &&
-                    keyName.startsWith(DDL_ATTR_PREFIX)) {
-                String ddlKeyName = keyName.substring(DDL_ATTR_PREFIX.length());
-                String ddlValue = ext.get(EXTEND_ATTR_VALUE_NAME);
-                options.put(ddlKeyName, ddlValue);
-            }
-        });
+        Map<String, String> properties = getProperties();
+        if (properties != null) {
+            properties.forEach((keyName, ddlValue) -> {
+                if (StringUtils.isNotBlank(keyName) &&
+                        keyName.startsWith(DDL_ATTR_PREFIX)) {
+                    String ddlKeyName = keyName.substring(DDL_ATTR_PREFIX.length());
+                    options.put(ddlKeyName, ddlValue);
+                }
+            });
+        }
 
         options.put("connector", "kudu-inlong");
 
