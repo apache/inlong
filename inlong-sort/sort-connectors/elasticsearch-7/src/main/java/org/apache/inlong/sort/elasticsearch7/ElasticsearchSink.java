@@ -18,17 +18,24 @@
 package org.apache.inlong.sort.elasticsearch7;
 
 import org.apache.flink.annotation.PublicEvolving;
-import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
-import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
-import org.apache.flink.streaming.connectors.elasticsearch.util.NoOpFailureHandler;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.connectors.elasticsearch7.RestClientFactory;
 import org.apache.flink.util.Preconditions;
-
 import org.apache.http.HttpHost;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.elasticsearch.ActionRequestFailureHandler;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
+import org.apache.inlong.sort.elasticsearch.utils.NoOpFailureHandler;
+import org.apache.inlong.sort.elasticsearch7.utils.DirtySinkFailureHandler;
 import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkProcessor.Builder;
+import org.elasticsearch.action.bulk.BulkProcessor.Listener;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 
 import java.util.HashMap;
@@ -62,28 +69,48 @@ import java.util.Objects;
  * @param <T> Type of the elements handled by this sink
  */
 @PublicEvolving
-public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevelClient> {
+public class ElasticsearchSink<T>
+        extends
+            ElasticsearchSinkBase<T, DocWriteRequest<?>, Builder, Listener, BulkItemResponse, BulkProcessor, RestHighLevelClient> {
 
     private static final long serialVersionUID = 1L;
 
     private ElasticsearchSink(
             Map<String, String> bulkRequestsConfig,
             List<HttpHost> httpHosts,
-            ElasticsearchSinkFunction<T> elasticsearchSinkFunction,
-            ActionRequestFailureHandler failureHandler,
+            ElasticsearchSinkFunction<T, DocWriteRequest<?>> elasticsearchSinkFunction,
+            ActionRequestFailureHandler<DocWriteRequest<?>> failureHandler,
             RestClientFactory restClientFactory,
             String inlongMetric,
             DirtySinkHelper<Object> dirtySinkHelper,
             String auditHostAndPorts) {
-
-        super(
-                new Elasticsearch7ApiCallBridge(httpHosts, restClientFactory),
+        super(new Elasticsearch7ApiCallBridge(httpHosts, restClientFactory),
                 bulkRequestsConfig,
                 elasticsearchSinkFunction,
                 failureHandler,
                 inlongMetric,
                 dirtySinkHelper,
                 auditHostAndPorts);
+    }
+
+    @Override
+    public void open(Configuration parameters) throws Exception {
+        super.open(parameters);
+        ActionRequestFailureHandler<?> failureHandler = getFailureHandler();
+        if (failureHandler instanceof DirtySinkFailureHandler) {
+            ((DirtySinkFailureHandler) failureHandler).setSinkMetricData(getSinkMetricData());
+            ((DirtySinkFailureHandler) failureHandler).setDirtySinkHelper(getDirtySinkHelper());
+        }
+    }
+
+    @Override
+    public Listener createListener() {
+        return new SimpleProcessorListener();
+    }
+
+    @Override
+    public void flush(BulkProcessor bulkProcessor) {
+        bulkProcessor.flush();
     }
 
     /**
@@ -95,10 +122,10 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
     public static class Builder<T> {
 
         private final List<HttpHost> httpHosts;
-        private final ElasticsearchSinkFunction<T> elasticsearchSinkFunction;
+        private final ElasticsearchSinkFunction<T, DocWriteRequest<?>> elasticsearchSinkFunction;
 
-        private Map<String, String> bulkRequestsConfig = new HashMap<>();
-        private ActionRequestFailureHandler failureHandler = new NoOpFailureHandler();
+        private final Map<String, String> bulkRequestsConfig = new HashMap<>();
+        private ActionRequestFailureHandler<DocWriteRequest<?>> failureHandler = new NoOpFailureHandler<>();
         private RestClientFactory restClientFactory = restClientBuilder -> {
         };
         private String inlongMetric = null;
@@ -110,18 +137,19 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
          * RestHighLevelClient}.
          *
          * @param httpHosts The list of {@link HttpHost} to which the {@link RestHighLevelClient}
-         *     connects to.
+         *         connects to.
          * @param elasticsearchSinkFunction This is used to generate multiple {@link ActionRequest}
-         *     from the incoming element.
+         *         from the incoming element.
          */
         public Builder(
-                List<HttpHost> httpHosts, ElasticsearchSinkFunction<T> elasticsearchSinkFunction) {
+                List<HttpHost> httpHosts, ElasticsearchSinkFunction<T, DocWriteRequest<?>> elasticsearchSinkFunction) {
             this.httpHosts = Preconditions.checkNotNull(httpHosts);
             this.elasticsearchSinkFunction = Preconditions.checkNotNull(elasticsearchSinkFunction);
         }
 
         /**
          * set InLongMetric for reporting metrics
+         *
          * @param inlongMetric
          */
         public void setInLongMetric(String inlongMetric) {
@@ -130,6 +158,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
 
         /**
          * Set dirty sink helper
+         *
          * @param dirtySinkHelper The dirty sink helper
          */
         public void setDirtySinkHelper(DirtySinkHelper<Object> dirtySinkHelper) {
@@ -138,6 +167,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
 
         /**
          * Set audit hosts and ports
+         *
          * @param auditHostAndPorts
          */
         public void setAuditHostAndPorts(String auditHostAndPorts) {
@@ -213,7 +243,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
          * Sets the maximum number of retries for a backoff attempt when flushing bulk requests.
          *
          * @param maxRetries the maximum number of retries for a backoff attempt when flushing bulk
-         *     requests
+         *         requests
          */
         public void setBulkFlushBackoffRetries(int maxRetries) {
             Preconditions.checkArgument(
@@ -228,7 +258,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
          * milliseconds.
          *
          * @param delayMillis the amount of delay between each backoff attempt when flushing bulk
-         *     requests, in milliseconds.
+         *         requests, in milliseconds.
          */
         public void setBulkFlushBackoffDelay(long delayMillis) {
             Preconditions.checkArgument(
@@ -243,7 +273,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
          *
          * @param failureHandler This is used to handle failed {@link ActionRequest}.
          */
-        public void setFailureHandler(ActionRequestFailureHandler failureHandler) {
+        public void setFailureHandler(ActionRequestFailureHandler<DocWriteRequest<?>> failureHandler) {
             this.failureHandler = Preconditions.checkNotNull(failureHandler);
         }
 
@@ -258,10 +288,14 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
 
         /**
          * Creates the Elasticsearch sink.
+         * Use {@link DirtySinkFailureHandler} when need sink dirty data
          *
          * @return the created Elasticsearch sink.
          */
         public ElasticsearchSink<T> build() {
+            if (dirtySinkHelper.getDirtySink() != null) {
+                failureHandler = new DirtySinkFailureHandler();
+            }
             return new ElasticsearchSink<>(
                     bulkRequestsConfig,
                     httpHosts,
@@ -299,6 +333,58 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                     failureHandler,
                     restClientFactory,
                     inlongMetric);
+        }
+    }
+
+    private class SimpleProcessorListener implements BulkProcessor.Listener {
+
+        @Override
+        public void beforeBulk(long executionId, BulkRequest request) {
+
+        }
+
+        @Override
+        public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+            if (response.hasFailures()) {
+                BulkItemResponse itemResponse;
+                Throwable failure;
+                int restStatus;
+                try {
+                    for (int i = 0; i < response.getItems().length; i++) {
+                        itemResponse = response.getItems()[i];
+                        failure = getCallBridge().extractFailureCauseFromBulkItemResponse(itemResponse);
+                        if (failure != null) {
+                            restStatus = itemResponse.getFailure().getStatus() != null ? itemResponse.getFailure()
+                                    .getStatus().getStatus() : -1;
+                            getFailureHandler().onFailure(request.requests().get(i),
+                                    failure, restStatus, getFailureRequestIndexer());
+                        }
+                    }
+                } catch (Throwable t) {
+                    // fail the sink and skip the rest of the items
+                    // if the failure handler decides to throw an exception
+                    getFailureThrowable().compareAndSet(null, t);
+                }
+            }
+            if (flushOnCheckpoint()) {
+                getPendingRequests().getAndAdd(-request.numberOfActions());
+            }
+        }
+
+        @Override
+        public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+            try {
+                for (DocWriteRequest<?> writeRequest : request.requests()) {
+                    getFailureHandler().onFailure(writeRequest, failure, -1, getFailureRequestIndexer());
+                }
+            } catch (Throwable t) {
+                // fail the sink and skip the rest of the items
+                // if the failure handler decides to throw an exception
+                getFailureThrowable().compareAndSet(null, t);
+            }
+            if (flushOnCheckpoint()) {
+                getPendingRequests().getAndAdd(-request.numberOfActions());
+            }
         }
     }
 }

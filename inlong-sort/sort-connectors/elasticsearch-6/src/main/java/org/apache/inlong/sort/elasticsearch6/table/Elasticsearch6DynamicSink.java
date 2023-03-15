@@ -38,8 +38,9 @@ import org.apache.inlong.sort.elasticsearch.table.IndexGeneratorFactory;
 import org.apache.inlong.sort.elasticsearch.table.KeyExtractor;
 import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
 import org.apache.inlong.sort.elasticsearch.table.RoutingExtractor;
-import org.apache.inlong.sort.elasticsearch.table.RowElasticsearchSinkFunction;
 import org.apache.inlong.sort.elasticsearch6.ElasticsearchSink;
+import org.apache.inlong.sort.elasticsearch6.RowElasticsearchSinkFunction;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -58,7 +59,7 @@ import java.util.Objects;
 final class Elasticsearch6DynamicSink implements DynamicTableSink {
 
     @VisibleForTesting
-    static final Elasticsearch6RequestFactory REQUEST_FACTORY = new Elasticsearch6RequestFactory();
+    private final static Elasticsearch6RequestFactory REQUEST_FACTORY = new Elasticsearch6RequestFactory();
 
     private final EncodingFormat<SerializationSchema<RowData>> format;
     private final TableSchema schema;
@@ -135,7 +136,6 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
 
             final ElasticsearchSink.Builder<RowData> builder =
                     builderProvider.createBuilder(config.getHosts(), upsertFunction);
-
             builder.setFailureHandler(config.getFailureHandler());
             builder.setBulkFlushMaxActions(config.getBulkFlushMaxActions());
             builder.setBulkFlushMaxSizeMb((int) (config.getBulkFlushMaxByteSize() >> 20));
@@ -147,7 +147,6 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             config.getBulkFlushBackoffType().ifPresent(builder::setBulkFlushBackoffType);
             config.getBulkFlushBackoffRetries().ifPresent(builder::setBulkFlushBackoffRetries);
             config.getBulkFlushBackoffDelay().ifPresent(builder::setBulkFlushBackoffDelay);
-
             // we must overwrite the default factory which is defined with a lambda because of a bug
             // in shading lambda serialization shading see FLINK-18006
             if (config.getUsername().isPresent()
@@ -163,13 +162,10 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
                 builder.setRestClientFactory(
                         new DefaultRestClientFactory(config.getPathPrefix().orElse(null)));
             }
-
             final ElasticsearchSink<RowData> sink = builder.build();
-
             if (config.isDisableFlushOnCheckpoint()) {
                 sink.disableFlushOnCheckpoint();
             }
-
             return sink;
         };
     }
@@ -306,33 +302,27 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
      * Version-specific creation of {@link org.elasticsearch.action.ActionRequest}s used by the
      * sink.
      */
-    private static class Elasticsearch6RequestFactory implements RequestFactory {
+    private static class Elasticsearch6RequestFactory implements RequestFactory<DocWriteRequest<?>, XContentType> {
+
+        private static final long serialVersionUID = 1L;
 
         @Override
-        public UpdateRequest createUpdateRequest(
-                String index,
-                String docType,
-                String key,
-                XContentType contentType,
-                byte[] document) {
+        public DocWriteRequest<?> createDeleteRequest(String index, String docType, String key) {
+            return new DeleteRequest(index, docType, key);
+        }
+
+        @Override
+        public DocWriteRequest<?> createUpdateRequest(String index, String docType, String key,
+                XContentType contentType, byte[] document) {
             return new UpdateRequest(index, docType, key)
                     .doc(document, contentType)
                     .upsert(document, contentType);
         }
 
         @Override
-        public IndexRequest createIndexRequest(
-                String index,
-                String docType,
-                String key,
-                XContentType contentType,
-                byte[] document) {
+        public DocWriteRequest<?> createIndexRequest(String index, String docType, String key,
+                XContentType contentType, byte[] document) {
             return new IndexRequest(index, docType, key).source(document, contentType);
-        }
-
-        @Override
-        public DeleteRequest createDeleteRequest(String index, String docType, String key) {
-            return new DeleteRequest(index, docType, key);
         }
     }
 }

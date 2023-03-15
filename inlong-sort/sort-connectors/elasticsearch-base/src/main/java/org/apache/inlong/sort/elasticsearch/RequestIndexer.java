@@ -17,32 +17,19 @@
 
 package org.apache.inlong.sort.elasticsearch;
 
-import org.apache.flink.annotation.Internal;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 /**
- * Implementation of a {@link RequestIndexer} that buffers {@link Request request}
- * before re-sending them to the Elasticsearch cluster upon request.
+ * The base interface for access elasticsearch
+ * Copies from {@link org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer} and restructure
+ *
+ * @param <Request>
  */
-@Internal
-class BufferingNoOpRequestIndexer<Request> implements RequestIndexer<Request> {
+public interface RequestIndexer<Request> {
 
-    private final ConcurrentLinkedQueue<Request> bufferedRequests;
+    /**
+     * Add request for access elasticsearch
+     *
+     * @param request The request of access elasticsearch
+     */
+    void add(Request request);
 
-    BufferingNoOpRequestIndexer() {
-        this.bufferedRequests = new ConcurrentLinkedQueue<>();
-    }
-
-    @Override
-    public void add(Request request) {
-        bufferedRequests.add(request);
-    }
-
-    void processBufferedRequests(RequestIndexer<Request> actualIndexer) {
-        for (Request request : bufferedRequests) {
-            actualIndexer.add(request);
-        }
-        bufferedRequests.clear();
-    }
 }
