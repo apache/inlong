@@ -65,14 +65,8 @@
         select
         <include refid="Base_Column_List"/>
         from audit_base
-        <where>
-            <if test="type != null and type != ''">
-                and type = #{type, jdbcType=VARCHAR}
-            </if>
-            <if test="isSent != null and isSent != ''">
-                and is_sent = #{isSent,jdbcType=INTEGER}
-            </if>
-        </where>
+        where type = #{type, jdbcType=VARCHAR}
+        and is_sent = #{isSent, jdbcType=INTEGER}
     </select>
 
 </mapper>
