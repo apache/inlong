@@ -47,7 +47,6 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-format-base</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
