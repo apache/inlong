@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.listener.sink;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
@@ -68,22 +67,7 @@ public class SinkResourceListener implements SinkOperateListener {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         log.info("begin to create sink resources for groupId={}", groupId);
-        GroupOperateType operateType = form.getGroupOperateType();
-        String operator = context.getOperator();
-        switch (operateType) {
-            case INIT:
-                groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), operator);
-                break;
-            case SUSPEND:
-                groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), operator);
-                break;
-            case RESTART:
-                groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), operator);
-                break;
-            case DELETE:
-                groupService.updateStatus(groupId, GroupStatus.DELETING.getCode(), operator);
-                break;
-        }
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
         List<String> streamIdList = new ArrayList<>();
         List<InlongStreamInfo> streamList = streamService.list(groupId);
         if (CollectionUtils.isNotEmpty(streamList)) {
