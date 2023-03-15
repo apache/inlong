@@ -66,6 +66,23 @@ public class AllMigrateTest {
                 ExtractMode.CDC, null, null);
     }
 
+    private MySqlExtractNode buildAllMigrateExtractNode2() {
+
+        Map<String, String> option = new HashMap<>();
+        option.put("append-mode", "false");
+        option.put("migrate-all", "true");
+        List<String> tables = new ArrayList(10);
+        tables.add("test.*");
+        List<FieldInfo> fields = Collections.singletonList(
+                new MetaFieldInfo("data", MetaField.DATA));
+
+        return new MySqlExtractNode("2", "mysql_input", fields,
+                null, option, null,
+                tables, "localhost", "root", "inlong",
+                "test", null, null, true, null,
+                ExtractMode.CDC, null, null);
+    }
+
     private MySqlExtractNode buildAllMigrateExtractNodeWithBytesFormat() {
         List<FieldInfo> fields = Collections.singletonList(
                 new MetaFieldInfo("data", MetaField.DATA_BYTES_DEBEZIUM));
@@ -101,7 +118,7 @@ public class AllMigrateTest {
                         new FieldInfo("data", new StringFormatInfo())));
         CsvFormat csvFormat = new CsvFormat();
         csvFormat.setDisableQuoteCharacter(true);
-        return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
+        return new KafkaLoadNode("3", "kafka_output", fields, relations, null, null,
                 "topic", "localhost:9092",
                 csvFormat, null,
                 null, null);
@@ -134,6 +151,36 @@ public class AllMigrateTest {
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));
+        GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
+        ParseResult result = parser.parse();
+        Assert.assertTrue(result.tryExecute());
+    }
+
+    /**
+     * Test all migrate with two input nodes and one output node (two relations)
+     *
+     * @throws Exception The exception may throws when execute the case
+     */
+    @Test
+    public void testAllMigrateMultiRelations() throws Exception {
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        env.enableCheckpointing(10000);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        Node inputNode = buildAllMigrateExtractNode();
+        Node inputNode2 = buildAllMigrateExtractNode2();
+        Node outputNode = buildAllMigrateKafkaNode();
+        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, inputNode2, outputNode),
+                Arrays.asList(buildNodeRelation(Collections.singletonList(inputNode),
+                        Collections.singletonList(outputNode)),
+                        buildNodeRelation(Collections.singletonList(inputNode2),
+                                Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
