@@ -539,6 +539,7 @@
   "pages.GroupDetail.Info.DataStreams": "Data streams",
   "pages.GroupDetail.Info.Submit": "Submit",
   "pages.GroupDetail.Info.SubmittedSuccessfully": "Submitted successfully",
+  "pages.GroupDetail.Info.SubmittedWarn": "Please create data source and sink first",
   "pages.GroupDetail.Info.CheckMsg": "Please check the form",
   "pages.GroupDetail.Info.Previous": "Previous",
   "pages.GroupDetail.Info.Create": "Create",

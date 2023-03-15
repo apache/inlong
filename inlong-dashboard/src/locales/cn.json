@@ -539,6 +539,7 @@
   "pages.GroupDetail.Info.DataStreams": "数据流",
   "pages.GroupDetail.Info.Submit": "提交审批",
   "pages.GroupDetail.Info.SubmittedSuccessfully": "提交成功",
+  "pages.GroupDetail.Info.SubmittedWarn": "请先创建数据来源和数据目标",
   "pages.GroupDetail.Info.CheckMsg": "请检查表单",
   "pages.GroupDetail.Info.Previous": "上一步",
   "pages.GroupDetail.Info.Create": "新建数据流组",
