@@ -129,6 +129,32 @@ export const getFormContent = ({
             },
           },
         },
+        {
+          type: 'select',
+          label: i18n.t('pages.ApprovalDetail.GroupConfig.DataReportType'),
+          initialValue: 0,
+          name: ['dataReportType'],
+          rules: [{ required: true }],
+          props: {
+            disabled: isFinished,
+            options: [
+              {
+                label: i18n.t(
+                  'pages.ApprovalDetail.GroupConfig.DataReportType.DataProxyWithSource',
+                ),
+                value: 0,
+              },
+              {
+                label: i18n.t('pages.ApprovalDetail.GroupConfig.DataReportType.DataProxyWithSink'),
+                value: 1,
+              },
+              {
+                label: i18n.t('pages.ApprovalDetail.GroupConfig.DataReportType.MQ'),
+                value: 2,
+              },
+            ],
+          },
+        },
       ];
 
   return isViwer

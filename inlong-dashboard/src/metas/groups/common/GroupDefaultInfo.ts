@@ -86,30 +86,6 @@ export class GroupDefaultInfo implements DataWithBackend, RenderRow, RenderList 
   description: string;
 
   @FieldDecorator({
-    type: 'select',
-    initialValue: 0,
-    rules: [{ required: true }],
-    props: {
-      options: [
-        {
-          label: i18n.t('meta.Group.DataReportType.DataProxyWithSource'),
-          value: 0,
-        },
-        {
-          label: i18n.t('meta.Group.DataReportType.DataProxyWithSink'),
-          value: 1,
-        },
-        {
-          label: i18n.t('meta.Group.DataReportType.MQ'),
-          value: 2,
-        },
-      ],
-    },
-  })
-  @I18n('meta.Group.DataReportType')
-  dataReportType: string;
-
-  @FieldDecorator({
     type: 'radio',
     initialValue: defaultValue,
     rules: [{ required: true }],
