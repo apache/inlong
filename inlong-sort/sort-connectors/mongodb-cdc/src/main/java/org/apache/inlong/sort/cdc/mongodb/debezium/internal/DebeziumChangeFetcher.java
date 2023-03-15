@@ -21,10 +21,6 @@ import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -35,6 +31,11 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * A Handler that convert change messages from {@link DebeziumEngine} to data in Flink. Considering
@@ -150,9 +151,9 @@ public class DebeziumChangeFetcher<T> {
                 synchronized (checkpointLock) {
                     LOG.info(
                             "Database snapshot phase can't perform checkpoint, acquired Checkpoint lock.");
-                    handleBatch(events);
+                    handleBatch(events, false);
                     while (isRunning && isInDbSnapshotPhase) {
-                        handleBatch(handover.pollNext());
+                        handleBatch(handover.pollNext(), false);
                     }
                 }
                 LOG.info("Received record from streaming binlog phase, released checkpoint lock.");
@@ -162,7 +163,7 @@ public class DebeziumChangeFetcher<T> {
             while (isRunning) {
                 // If the handover is closed or has errors, exit.
                 // If there is no streaming phase, the handover will be closed by the engine.
-                handleBatch(handover.pollNext());
+                handleBatch(handover.pollNext(), true);
             }
         } catch (Handover.ClosedException e) {
             // ignore
@@ -206,7 +207,7 @@ public class DebeziumChangeFetcher<T> {
     // Helper
     // ---------------------------------------------------------------------------------------
 
-    private void handleBatch(List<ChangeEvent<SourceRecord, SourceRecord>> changeEvents)
+    private void handleBatch(List<ChangeEvent<SourceRecord, SourceRecord>> changeEvents, boolean isStreamingPhase)
             throws Exception {
         if (CollectionUtils.isEmpty(changeEvents)) {
             return;
@@ -224,11 +225,13 @@ public class DebeziumChangeFetcher<T> {
                     debeziumOffset.setSourcePartition(record.sourcePartition());
                     debeziumOffset.setSourceOffset(record.sourceOffset());
                 }
+            }
+            deserialization.deserialize(record, debeziumCollector, isStreamingPhase);
+
+            if (isHeartbeatEvent(record)) {
                 // drop heartbeat events
                 continue;
             }
-            deserialization.deserialize(record, debeziumCollector);
-
             if (!isSnapshotRecord(record)) {
                 LOG.debug("Snapshot phase finishes.");
                 isInDbSnapshotPhase = false;
