@@ -319,7 +319,24 @@
             for update
         </where>
     </select>
-
+    <select id="selectByClusterAndDataNode" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            and status not in (99, 110)
+            <if test="clusterName != null">
+                and inlong_cluster_name = #{clusterName, jdbcType=VARCHAR}
+            </if>
+            <if test="nodeName != null">
+                and data_node_name = #{nodeName, jdbcType=VARCHAR}
+            </if>
+            <if test="sourceType != null">
+                and source_type = #{sourceType,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
     <update id="updateByRelatedId">
         update stream_source
         <set>
@@ -457,6 +474,22 @@
             report_time = #{reportTime,jdbcType=TIMESTAMP},
             modify_time = modify_time
         where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateStatusByIds">
+        update stream_source
+        <set>
+            previous_status = status,
+            status          = #{status, jdbcType=INTEGER},
+            modifier        = #{operator,jdbcType=VARCHAR},
+            version         = version + 1
+        </set>
+        <where>
+            is_deleted = 0
+            and id in
+            <foreach item="item" index="index" collection="idList" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </where>
     </update>
 
     <delete id="deleteByRelatedId">

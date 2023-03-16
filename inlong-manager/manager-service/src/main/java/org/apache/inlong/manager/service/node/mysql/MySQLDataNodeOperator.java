@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.node.mysql;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -38,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
+import java.util.Objects;
 
 /**
  * MySQL data node operator
@@ -103,6 +105,19 @@ public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
                     username, password);
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
+        }
+    }
+
+    @Override
+    public void updateRelatedStreamSource(DataNodeRequest request, DataNodeEntity entity, String operator) {
+        MySQLDataNodeRequest mySQLDataNodeRequest = (MySQLDataNodeRequest) request;
+        MySQLDataNodeInfo mySQLDataNodeInfo = (MySQLDataNodeInfo) this.getFromEntity(entity);
+        boolean changed = !Objects.equals(mySQLDataNodeRequest.getUrl(), mySQLDataNodeInfo.getUrl())
+                || !Objects.equals(mySQLDataNodeRequest.getBackupUrl(), mySQLDataNodeInfo.getBackupUrl())
+                || !Objects.equals(mySQLDataNodeRequest.getUsername(), mySQLDataNodeInfo.getUsername())
+                || !Objects.equals(mySQLDataNodeRequest.getToken(), mySQLDataNodeInfo.getToken());
+        if (changed) {
+            retryStreamSourceByDataNodeNameAndType(request.getName(), SourceType.MYSQL_SQL, operator);
         }
     }
 
