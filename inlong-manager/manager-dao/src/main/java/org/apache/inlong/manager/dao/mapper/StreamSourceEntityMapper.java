@@ -122,7 +122,7 @@ public interface StreamSourceEntityMapper {
     /**
      * Query whether the configuration is valid according to the dataNodeName , clusterName, sourceType
      */
-    List<StreamSourceEntity> selectByClusterAndDataNode(@Param("clusterName") String clusterName,
+    List<StreamSourceEntity> selectUnDeletedByClusterAndDataNode(@Param("clusterName") String clusterName,
             @Param("nodeName") String nodeName, @Param("sourceType") String sourceType);
 
     int updateByPrimaryKeySelective(StreamSourceEntity record);

@@ -118,7 +118,7 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
         Integer status = SourceStatus.TO_BE_ISSUED_RETRY.getCode();
         LOGGER.info("begin to update stream source status by dataNodeName={}, status={}, by operator={}",
                 dataNodeName, status, operator);
-        List<StreamSourceEntity> streamSourceEntities = sourceMapper.selectByClusterAndDataNode(null,
+        List<StreamSourceEntity> streamSourceEntities = sourceMapper.selectUnDeletedByClusterAndDataNode(null,
                 dataNodeName, type);
         List<Integer> needUpdateIds = new ArrayList<>();
         for (StreamSourceEntity source : streamSourceEntities) {

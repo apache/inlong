@@ -319,7 +319,7 @@
             for update
         </where>
     </select>
-    <select id="selectByClusterAndDataNode" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectUnDeletedByClusterAndDataNode" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
@@ -485,10 +485,12 @@
         </set>
         <where>
             is_deleted = 0
-            and id in
-            <foreach item="item" index="index" collection="idList" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
+            <if test="idList != null and idList.size() > 0">
+                and id in
+                <foreach item="item" index="index" collection="idList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
         </where>
     </update>
 
