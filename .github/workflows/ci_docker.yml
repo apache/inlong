@@ -85,13 +85,26 @@ jobs:
         run: mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
         env:
           CI: false
+
+      - name: test arm
+         working-directory: docker
+        run: |
+          bash +x build-docker-images.sh --buildx aarch64
+          bash +x publish-by-arch.sh --tag --arch aarch64 --publish      
+ 
       - name: Set up environment
         run: |
+          echo "1"
           sudo sysctl -w vm.max_map_count=262144
+          echo "2"
           sudo sysctl -w fs.file-max=65536
+          echo "3"
           sudo fallocate -l 5G /swapfile
+          echo "4"
           sudo chmod 600 /swapfile
+          echo "5"
           sudo mkswap /swapfile
+          echo "6"
           sudo swapon /swapfile
 
       # - name: Match branch
