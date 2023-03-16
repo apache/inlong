@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.pulsar.withoutadmin;
+package org.apache.inlong.sort.pulsar.internal;
 
 import org.apache.flink.api.common.eventtime.WatermarkOutput;
 import org.apache.flink.api.common.eventtime.WatermarkOutputMultiplexer;
@@ -27,6 +27,7 @@ import org.apache.flink.streaming.api.operators.StreamingRuntimeContext;
 import org.apache.flink.streaming.connectors.pulsar.internal.ClosableBlockingQueue;
 import org.apache.flink.streaming.connectors.pulsar.internal.ExceptionProxy;
 import org.apache.flink.streaming.connectors.pulsar.internal.PoisonState;
+import org.apache.flink.streaming.connectors.pulsar.internal.PulsarCommitCallback;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarTopicPartitionStateWithWatermarkGenerator;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarTopicState;
 import org.apache.flink.streaming.connectors.pulsar.internal.SourceContextWatermarkOutputAdapter;
@@ -392,7 +393,7 @@ public class PulsarFetcher<T> {
 
     /**
      * Emits a record attaching a timestamp to it.
-     * @param record The record to emit
+     * @param records The records to emit
      * @param partitionState The state of the pulsar partition from which the record was fetched
      * @param offset The offset of the corresponding pulsar record
      * @param pulsarEventTimestamp The timestamp of the pulsar record
@@ -432,6 +433,13 @@ public class PulsarFetcher<T> {
                 state.setCommittedOffset(off);
             }
         }
+    }
+
+    public void commitOffsetToPulsar(
+            Map<TopicRange, MessageId> offset,
+            PulsarCommitCallback offsetCommitCallback) {
+
+        doCommitOffsetToPulsar(removeEarliestAndLatest(offset), offsetCommitCallback);
     }
 
     public Map<TopicRange, MessageId> removeEarliestAndLatest(Map<TopicRange, MessageId> offset) {
@@ -702,6 +710,49 @@ public class PulsarFetcher<T> {
         static final BreakingException INSTANCE = new BreakingException();
 
         private BreakingException() {
+        }
+    }
+
+    protected void doCommitOffsetToPulsar(
+            Map<TopicRange, MessageId> offset,
+            PulsarCommitCallback offsetCommitCallback) {
+
+        try {
+            int retries = 0;
+            boolean success = false;
+            while (running) {
+                try {
+                    metadataReader.commitOffsetToCursor(offset);
+                    success = true;
+                    break;
+                } catch (Exception e) {
+                    log.warn("Failed to commit cursor to Pulsar.", e);
+                    if (retries >= commitMaxRetries) {
+                        log.error("Failed to commit cursor to Pulsar after {} attempts", retries);
+                        throw e;
+                    }
+                    retries += 1;
+                    Thread.sleep(1000);
+                }
+            }
+            if (success) {
+                offsetCommitCallback.onSuccess();
+            } else {
+                return;
+            }
+        } catch (Exception e) {
+            if (running) {
+                offsetCommitCallback.onException(e);
+            } else {
+                return;
+            }
+        }
+
+        for (PulsarTopicState state : subscribedPartitionStates) {
+            MessageId off = offset.get(state.getTopicRange());
+            if (off != null) {
+                state.setCommittedOffset(off);
+            }
         }
     }
 
