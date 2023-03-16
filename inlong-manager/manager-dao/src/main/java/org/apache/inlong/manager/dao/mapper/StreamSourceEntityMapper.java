@@ -120,9 +120,9 @@ public interface StreamSourceEntityMapper {
     List<String> selectSourceType(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * Query whether the configuration is valid according to the dataNodeName , clusterName, sourceType
+     * Query need update source according to the dataNodeName , clusterName, sourceType
      */
-    List<StreamSourceEntity> selectUnDeletedByClusterAndDataNode(@Param("clusterName") String clusterName,
+    List<Integer> selectNeedUpdateIdsByClusterAndDataNode(@Param("clusterName") String clusterName,
             @Param("nodeName") String nodeName, @Param("sourceType") String sourceType);
 
     int updateByPrimaryKeySelective(StreamSourceEntity record);
@@ -155,8 +155,10 @@ public interface StreamSourceEntityMapper {
     int updateSnapshot(StreamSourceEntity entity);
 
     /**
-     * @param idList db source id list
-     * @param status modify status
+     * Update the source status
+     *
+     * @param idList source id list
+     * @param status modify the status to this
      * @param operator operator name
      */
     void updateStatusByIds(@Param("idList") List<Integer> idList, @Param("status") Integer status,

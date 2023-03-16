@@ -19,15 +19,11 @@ package org.apache.inlong.manager.service.node;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
-import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
@@ -40,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,26 +113,7 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
         Integer status = SourceStatus.TO_BE_ISSUED_RETRY.getCode();
         LOGGER.info("begin to update stream source status by dataNodeName={}, status={}, by operator={}",
                 dataNodeName, status, operator);
-        List<StreamSourceEntity> streamSourceEntities = sourceMapper.selectUnDeletedByClusterAndDataNode(null,
-                dataNodeName, type);
-        List<Integer> needUpdateIds = new ArrayList<>();
-        for (StreamSourceEntity source : streamSourceEntities) {
-            String groupId = source.getInlongGroupId();
-            String streamId = source.getInlongStreamId();
-            InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-            if (groupEntity == null) {
-                continue;
-            }
-            if (GroupStatus.allowedUpdateSource(GroupStatus.forCode(groupEntity.getStatus()))) {
-                InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-                if (streamEntity == null) {
-                    continue;
-                }
-                if (GroupStatus.allowedUpdateSource(GroupStatus.forCode(streamEntity.getStatus()))) {
-                    needUpdateIds.add(source.getId());
-                }
-            }
-        }
+        List<Integer> needUpdateIds = sourceMapper.selectNeedUpdateIdsByClusterAndDataNode(null, dataNodeName, type);
         try {
             sourceMapper.updateStatusByIds(needUpdateIds, status, operator);
             LOGGER.info("success to update stream source status by dataNodeName={}, status={}, by operator={}",

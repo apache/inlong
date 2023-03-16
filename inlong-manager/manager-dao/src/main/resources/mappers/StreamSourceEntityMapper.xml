@@ -319,21 +319,26 @@
             for update
         </where>
     </select>
-    <select id="selectUnDeletedByClusterAndDataNode" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from stream_source
+    <select id="selectNeedUpdateIdsByClusterAndDataNode" resultType="java.lang.Integer">
+        select source.id
+        from stream_source source, inlong_stream stream, inlong_group inlong_group
         <where>
-            is_deleted = 0
-            and status not in (99, 110)
+            source.is_deleted = 0
+            and inlong_group.inlong_group_id = source.inlong_group_id
+            and inlong_group.is_deleted = 0
+            and inlong_group.status in (120, 130)
+            and stream.inlong_group_id = source.inlong_group_id
+            and stream.is_deleted = 0
+            and stream.status in (120, 130)
+            and source.status not in (99, 110)
             <if test="clusterName != null">
-                and inlong_cluster_name = #{clusterName, jdbcType=VARCHAR}
+                and source.inlong_cluster_name = #{clusterName, jdbcType=VARCHAR}
             </if>
             <if test="nodeName != null">
-                and data_node_name = #{nodeName, jdbcType=VARCHAR}
+                and source.data_node_name = #{nodeName, jdbcType=VARCHAR}
             </if>
             <if test="sourceType != null">
-                and source_type = #{sourceType,jdbcType=VARCHAR}
+                and source.source_type = #{sourceType, jdbcType=VARCHAR}
             </if>
         </where>
     </select>
@@ -480,7 +485,7 @@
         <set>
             previous_status = status,
             status          = #{status, jdbcType=INTEGER},
-            modifier        = #{operator,jdbcType=VARCHAR},
+            modifier        = #{operator, jdbcType=VARCHAR},
             version         = version + 1
         </set>
         <where>
