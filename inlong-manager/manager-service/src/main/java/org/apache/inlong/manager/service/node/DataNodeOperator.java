@@ -83,7 +83,9 @@ public interface DataNodeOperator {
      * Update related stream source.
      *
      * @param request data node request
+     * @param entity data node entity
+     * @param operator operator
      */
-    void updateRelatedStreamSource(DataNodeRequest request);
+    void updateRelatedStreamSource(DataNodeRequest request, DataNodeEntity entity, String operator);
 
 }
