@@ -141,7 +141,6 @@ docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/agent:${tag}       
 docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-all:${tag}     inlong-tubemq/tubemq-docker/tubemq-all/     --build-arg TUBEMQ_TARBALL=${TUBEMQ_TARBALL}
 docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-manager:${tag} inlong-tubemq/tubemq-docker/tubemq-manager/ --build-arg TUBEMQ_MANAGER_TARBALL=${TUBEMQ_MANAGER_TARBALL}
 if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
-  docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-cpp:${tag}    inlong-tubemq/tubemq-docker/tubemq-cpp/
   docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-build:${tag}  inlong-tubemq/tubemq-docker/tubemq-build/
 fi
 
@@ -159,7 +158,6 @@ docker tag inlong/dashboard:${tag}       inlong/dashboard:latest${POSTFIX}
 docker tag inlong/agent:${tag}           inlong/agent:latest${POSTFIX}
 docker tag inlong/tubemq-all:${tag}      inlong/tubemq-all:latest${POSTFIX}
 if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
-  docker tag inlong/tubemq-cpp:${tag}   inlong/tubemq-cpp:latest${POSTFIX}
   docker tag inlong/tubemq-build:${tag} inlong/tubemq-build:latest${POSTFIX}
 fi
 
