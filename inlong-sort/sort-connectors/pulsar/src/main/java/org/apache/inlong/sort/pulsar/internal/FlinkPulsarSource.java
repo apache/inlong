@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.pulsar.withoutadmin;
+package org.apache.inlong.sort.pulsar.internal;
 
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.RuntimeContextInitializationContextAdapters;
-import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.OperatorStateStore;
@@ -34,9 +33,9 @@ import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.api.java.typeutils.runtime.TupleSerializer;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
+import org.apache.flink.runtime.state.CheckpointListener;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
-import org.apache.flink.shaded.guava18.com.google.common.collect.Sets;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.functions.AssignerWithPunctuatedWatermarks;
@@ -45,6 +44,8 @@ import org.apache.flink.streaming.api.operators.StreamingRuntimeContext;
 import org.apache.flink.streaming.connectors.pulsar.config.StartupMode;
 import org.apache.flink.streaming.connectors.pulsar.internal.CachedPulsarClient;
 import org.apache.flink.streaming.connectors.pulsar.internal.MessageIdSerializer;
+import org.apache.flink.streaming.connectors.pulsar.internal.PulsarCommitCallback;
+import org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarSourceStateSerializer;
 import org.apache.flink.streaming.connectors.pulsar.internal.SerializableRange;
 import org.apache.flink.streaming.connectors.pulsar.internal.SourceSinkUtils;
@@ -57,19 +58,20 @@ import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 import org.apache.flink.streaming.util.serialization.PulsarDeserializationSchema;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.SerializedValue;
+
+import org.apache.flink.shaded.guava18.com.google.common.collect.Sets;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.pulsar.table.DynamicPulsarDeserializationSchema;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.apache.pulsar.shade.com.google.common.collect.Maps;
 import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,18 +91,18 @@ import java.util.stream.Collectors;
 import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.COMMITS_FAILED_METRICS_COUNTER;
 import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.COMMITS_SUCCEEDED_METRICS_COUNTER;
 import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.PULSAR_SOURCE_METRICS_GROUP;
+import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 
 /**
- * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9,
- * From {@link org.apache.flink.streaming.connectors.pulsar.FlinkPulsarSource}
  * Pulsar data source.
- *
+ * Copied from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9
+ * Added with inlong metric support
  * @param <T> The type of records produced by this data source.
  */
+@Slf4j
 public class FlinkPulsarSource<T>
         extends
             RichParallelSourceFunction<T>
@@ -108,8 +110,6 @@ public class FlinkPulsarSource<T>
             ResultTypeQueryable<T>,
             CheckpointListener,
             CheckpointedFunction {
-
-    private static final Logger log = LoggerFactory.getLogger(FlinkPulsarSource.class);
 
     /** The maximum number of pending non-committed checkpoints to track, to avoid memory leaks. */
     public static final int MAX_NUM_PENDING_CHECKPOINTS = 100;
@@ -126,7 +126,7 @@ public class FlinkPulsarSource<T>
     // configuration state, set on the client relevant for all subtasks
     // ------------------------------------------------------------------------
 
-    protected String serverUrl;
+    protected String adminUrl;
 
     protected ClientConfigurationData clientConfigurationData;
 
@@ -154,6 +154,9 @@ public class FlinkPulsarSource<T>
 
     /** The startup mode for the reader (default is {@link StartupMode#LATEST}). */
     private StartupMode startupMode = StartupMode.LATEST;
+
+    /** Specific startup offsets; only relevant when startup mode is {@link StartupMode#SPECIFIC_OFFSETS}. */
+    private transient Map<TopicRange, MessageId> specificStartupOffsets;
 
     /**
      * The subscription name to be used; only relevant when startup mode is {@link StartupMode#EXTERNAL_SUBSCRIPTION}
@@ -228,38 +231,31 @@ public class FlinkPulsarSource<T>
     /** Counter for failed Pulsar offset commits. */
     private transient Counter failedCommits;
 
+    /** Callback interface that will be invoked upon async pulsar commit completion. */
+    private transient PulsarCommitCallback offsetCommitCallback;
+
     private transient int taskIndex;
 
     private transient int numParallelTasks;
 
-    private MetricState metricState;
+    protected String inlongMetric;
 
-    /**
-     * Metric for InLong
-     */
-    private String inlongMetric;
-    /**
-     * audit host and ports
-     */
-    private String inlongAudit;
+    protected String auditHostAndPorts;
 
-    private String inlongAuditKeys;
+    protected String auditKeys;
 
-    private SourceMetricData sourceMetricData;
-
-    private transient ListState<MetricState> metricStateListState;
+    protected String serverUrl;
 
     public FlinkPulsarSource(
+            String adminUrl,
             String serverUrl,
             ClientConfigurationData clientConf,
             PulsarDeserializationSchema<T> deserializer,
             Properties properties,
             String inlongMetric,
             String inlongAudit,
-            String inlongAuditKeys) {
-        this.inlongAudit = inlongAudit;
-        this.inlongMetric = inlongMetric;
-        this.serverUrl = checkNotNull(serverUrl);
+            String auditKeys) {
+        this.adminUrl = checkNotNull(adminUrl);
         this.clientConfigurationData = checkNotNull(clientConf);
         this.deserializer = deserializer;
         this.properties = properties;
@@ -275,7 +271,7 @@ public class FlinkPulsarSource<T>
                 SourceSinkUtils.getCommitMaxRetries(caseInsensitiveParams);
         this.useMetrics =
                 SourceSinkUtils.getUseMetrics(caseInsensitiveParams);
-        this.inlongAuditKeys = inlongAuditKeys;
+        this.serverUrl = serverUrl;
 
         CachedPulsarClient.setCacheSize(SourceSinkUtils.getClientCacheSize(caseInsensitiveParams));
 
@@ -283,6 +279,9 @@ public class FlinkPulsarSource<T>
             throw new IllegalArgumentException("ServiceUrl must be supplied in the client configuration");
         }
         this.oldStateVersion = SourceSinkUtils.getOldStateVersion(caseInsensitiveParams, oldStateVersion);
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = inlongAudit;
+        this.auditKeys = auditKeys;
     }
 
     // ------------------------------------------------------------------------
@@ -335,7 +334,7 @@ public class FlinkPulsarSource<T>
      * watermarks will be merged across partitions in the same way as in the Flink runtime,
      * when streams are merged.
      *
-     * <p>When a subtask of a FlinkTDMQSource source reads multiple Pulsar partitions,
+     * <p>When a subtask of a FlinkPulsarSource source reads multiple Pulsar partitions,
      * the streams from the partitions are unioned in a "first come first serve" fashion.
      * Per-partition characteristics are usually lost that way.
      * For example, if the timestamps are strictly ascending per Pulsar partition,
@@ -377,14 +376,14 @@ public class FlinkPulsarSource<T>
      * (which you can do by using this method), per Pulsar partition, allows users to let them
      * exploit the per-partition characteristics.
      *
-     * <p>When a subtask of a FlinkTDMQSource reads multiple pulsar partitions,
+     * <p>When a subtask of a FlinkPulsarSource reads multiple pulsar partitions,
      * the streams from the partitions are unioned in a "first come first serve" fashion.
      * Per-partition characteristics are usually lost that way. For example, if the timestamps are
      * strictly ascending per Pulsar partition, they will not be strictly ascending in the resulting
      * Flink DataStream, if the parallel source subtask reads more than one partition.
      *
      * <p>Common watermark generation patterns can be found as static methods in the
-     * {@link WatermarkStrategy} class.
+     * {@link org.apache.flink.api.common.eventtime.WatermarkStrategy} class.
      *
      * @return The consumer object, to allow function chaining.
      */
@@ -404,11 +403,26 @@ public class FlinkPulsarSource<T>
 
     public FlinkPulsarSource<T> setStartFromEarliest() {
         this.startupMode = StartupMode.EARLIEST;
+        this.specificStartupOffsets = null;
         return this;
     }
 
     public FlinkPulsarSource<T> setStartFromLatest() {
         this.startupMode = StartupMode.LATEST;
+        this.specificStartupOffsets = null;
+        return this;
+    }
+
+    public FlinkPulsarSource<T> setStartFromSpecificOffsets(Map<String, MessageId> specificStartupOffsets) {
+        checkNotNull(specificStartupOffsets);
+        this.specificStartupOffsets = specificStartupOffsets.entrySet()
+                .stream()
+                .collect(Collectors.toMap(e -> new TopicRange(e.getKey()), Map.Entry::getValue));
+        this.startupMode = StartupMode.SPECIFIC_OFFSETS;
+        this.specificStartupOffsetsAsBytes = new HashMap<>();
+        for (Map.Entry<TopicRange, MessageId> entry : this.specificStartupOffsets.entrySet()) {
+            specificStartupOffsetsAsBytes.put(entry.getKey(), entry.getValue().toByteArray());
+        }
         return this;
     }
 
@@ -430,24 +444,27 @@ public class FlinkPulsarSource<T>
     // Work methods
     // ------------------------------------------------------------------------
 
+    private MetricState metricState;
+    private SourceMetricData sourceMetricData;
+
     @Override
     public void open(Configuration parameters) throws Exception {
 
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
-                .withAuditAddress(inlongAudit)
-                .withAuditKeys(inlongAuditKeys)
+                .withAuditAddress(auditHostAndPorts)
+                .withAuditKeys(auditKeys)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_IN) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_IN) : 0L)
                 .build();
 
         if (metricOption != null) {
+            log.info("init source");
             sourceMetricData = new SourceMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }
 
         if (this.deserializer != null) {
-
             DynamicPulsarDeserializationSchema dynamicKafkaDeserializationSchema =
                     (DynamicPulsarDeserializationSchema) deserializer;
             dynamicKafkaDeserializationSchema.setMetricData(sourceMetricData);
@@ -456,9 +473,7 @@ public class FlinkPulsarSource<T>
                     RuntimeContextInitializationContextAdapters.deserializationAdapter(
                             getRuntimeContext(),
                             metricGroup -> metricGroup.addGroup("user")));
-
         }
-
         this.taskIndex = getRuntimeContext().getIndexOfThisSubtask();
         this.numParallelTasks = getRuntimeContext().getNumberOfParallelSubtasks();
 
@@ -468,7 +483,14 @@ public class FlinkPulsarSource<T>
         excludeStartMessageIds = new HashSet<>();
         Set<TopicRange> allTopics = metadataReader.discoverTopicChanges();
 
-        Map<TopicRange, MessageId> allTopicOffsets = offsetForEachTopic(allTopics, startupMode);
+        if (specificStartupOffsets == null && specificStartupOffsetsAsBytes != null) {
+            specificStartupOffsets = new HashMap<>();
+            for (Map.Entry<TopicRange, byte[]> entry : specificStartupOffsetsAsBytes.entrySet()) {
+                specificStartupOffsets.put(entry.getKey(), MessageId.fromByteArray(entry.getValue()));
+            }
+        }
+        Map<TopicRange, MessageId> allTopicOffsets =
+                offsetForEachTopic(allTopics, startupMode, specificStartupOffsets);
 
         boolean usingRestoredState = (startupMode != StartupMode.EXTERNAL_SUBSCRIPTION) || stateSubEqualexternalSub;
 
@@ -507,8 +529,8 @@ public class FlinkPulsarSource<T>
                             .collect(Collectors.toSet());
 
             for (TopicRange goneTopic : goneTopics) {
-                log.warn(goneTopic + " is removed from subscription since "
-                        + "it no longer matches with topics settings.");
+                log.warn(goneTopic + " is removed from subscription since " +
+                        "it no longer matches with topics settings.");
                 ownedTopicStarts.remove(goneTopic);
             }
 
@@ -538,6 +560,7 @@ public class FlinkPulsarSource<T>
 
     protected PulsarMetadataReader createMetadataReader() throws PulsarClientException {
         return new PulsarMetadataReader(
+                adminUrl,
                 serverUrl,
                 clientConfigurationData,
                 getSubscriptionName(),
@@ -557,6 +580,20 @@ public class FlinkPulsarSource<T>
                 this.getRuntimeContext().getMetricGroup().counter(COMMITS_SUCCEEDED_METRICS_COUNTER);
         this.failedCommits =
                 this.getRuntimeContext().getMetricGroup().counter(COMMITS_FAILED_METRICS_COUNTER);
+
+        this.offsetCommitCallback = new PulsarCommitCallback() {
+
+            @Override
+            public void onSuccess() {
+                successfulCommits.inc();
+            }
+
+            @Override
+            public void onException(Throwable cause) {
+                log.warn("source {} failed commit by {}", taskIndex, cause.toString());
+                failedCommits.inc();
+            }
+        };
 
         if (ownedTopicStarts.isEmpty()) {
             ctx.markAsTemporarilyIdle();
@@ -747,20 +784,9 @@ public class FlinkPulsarSource<T>
                         OFFSETS_STATE_NAME_V3,
                         createStateSerializer()));
 
-        if (this.inlongMetric != null) {
-            this.metricStateListState =
-                    stateStore.getUnionListState(
-                            new ListStateDescriptor<>(
-                                    INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                                    })));
-        }
-
         if (context.isRestored()) {
             restoredState = new TreeMap<>();
             Iterator<Tuple2<TopicSubscription, MessageId>> iterator = unionOffsetStates.get().iterator();
-
-            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
-                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
 
             if (!iterator.hasNext()) {
                 iterator = tryMigrateState(stateStore);
@@ -858,12 +884,6 @@ public class FlinkPulsarSource<T>
         if (!running) {
             log.debug("snapshotState() called on closed source");
         } else {
-
-            if (sourceMetricData != null && metricStateListState != null) {
-                MetricStateUtils.snapshotMetricStateForSourceMetricData(metricStateListState, sourceMetricData,
-                        getRuntimeContext().getIndexOfThisSubtask());
-            }
-
             unionOffsetStates.clear();
 
             PulsarFetcher<T> fetcher = this.pulsarFetcher;
@@ -943,7 +963,7 @@ public class FlinkPulsarSource<T>
                 log.debug("Source {} has empty checkpoint state", taskIndex);
                 return;
             }
-            fetcher.commitOffsetToState(offset);
+            fetcher.commitOffsetToPulsar(offset, offsetCommitCallback);
         } catch (Exception e) {
             if (running) {
                 throw e;
@@ -958,7 +978,8 @@ public class FlinkPulsarSource<T>
 
     public Map<TopicRange, MessageId> offsetForEachTopic(
             Set<TopicRange> topics,
-            StartupMode mode) {
+            StartupMode mode,
+            Map<TopicRange, MessageId> specificStartupOffsets) {
 
         switch (mode) {
             case LATEST:
@@ -967,10 +988,26 @@ public class FlinkPulsarSource<T>
             case EARLIEST:
                 return topics.stream()
                         .collect(Collectors.toMap(k -> k, k -> MessageId.earliest));
-            default:
-                throw new IllegalArgumentException(
-                        "Unknown startup mode option: " + mode);
+            case SPECIFIC_OFFSETS:
+                checkArgument(topics.containsAll(specificStartupOffsets.keySet()),
+                        String.format(
+                                "Topics designated in startingOffsets should appear in %s, topics:" +
+                                        "%s, topics in offsets: %s",
+                                StringUtils.join(PulsarOptions.TOPIC_OPTION_KEYS),
+                                StringUtils.join(topics.toArray()),
+                                StringUtils.join(specificStartupOffsets.entrySet().toArray())));
+
+                Map<TopicRange, MessageId> specificOffsets = new HashMap<>();
+                for (TopicRange topic : topics) {
+                    if (specificStartupOffsets.containsKey(topic)) {
+                        specificOffsets.put(topic, specificStartupOffsets.get(topic));
+                    } else {
+                        specificOffsets.put(topic, MessageId.latest);
+                    }
+                }
+                return specificOffsets;
         }
+        return null;
     }
 
     public Map<Long, Map<TopicRange, MessageId>> getPendingOffsetsToCommit() {
