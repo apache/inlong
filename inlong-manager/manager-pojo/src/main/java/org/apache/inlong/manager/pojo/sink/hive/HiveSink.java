@@ -74,9 +74,6 @@ public class HiveSink extends StreamSink {
     @ApiModelProperty("File format, support: TextFile, ORCFile, RCFile, SequenceFile, Avro, Parquet, etc")
     private String fileFormat;
 
-    @ApiModelProperty("Data encoding format: UTF-8, GBK")
-    private String dataEncoding;
-
     @ApiModelProperty("Data separator")
     private String dataSeparator;
 
