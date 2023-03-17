@@ -27,9 +27,10 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.audit.consts.ConfigConstants;
 import org.apache.inlong.audit.file.holder.PropertiesConfigHolder;
-import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
-import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
+import org.apache.inlong.common.pojo.audit.AuditConfigRequest;
+import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +48,7 @@ public class ConfigManager {
     private static final Map<String, ConfigHolder> holderMap =
             new ConcurrentHashMap<>();
 
-    public static List<MQClusterInfo> mqClusterInfoList = new ArrayList<>();
+    public static List<MQInfo> mqInfoList = new ArrayList<>();
 
     private static ConfigManager instance = null;
 
@@ -130,8 +131,8 @@ public class ConfigManager {
         }
     }
 
-    public List<MQClusterInfo> getMQConfigList() {
-        return mqClusterInfoList;
+    public List<MQInfo> getMqInfoList() {
+        return mqInfoList;
     }
 
     public ConfigHolder getDefaultConfigHolder() {
@@ -200,17 +201,16 @@ public class ConfigManager {
             }
         }
 
-        private boolean checkWithManager(String host, String clusterName, String clusterTag) {
+        private boolean checkWithManager(String host, String clusterTag) {
             HttpPost httpPost = null;
             try {
-                String url = "http://" + host + "/inlong/manager/openapi/dataproxy/getConfig";
+                String url = "http://" + host + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_GET_CONFIG_PATH;
                 LOG.info("start to request {} to get config info", url);
                 httpPost = new HttpPost(url);
                 httpPost.addHeader(HttpHeaders.CONNECTION, "close");
 
                 // request body
-                DataProxyConfigRequest request = new DataProxyConfigRequest();
-                request.setClusterName(clusterName);
+                AuditConfigRequest request = new AuditConfigRequest();
                 request.setClusterTag(clusterTag);
                 StringEntity stringEntity = new StringEntity(gson.toJson(request));
                 stringEntity.setContentType("application/json");
@@ -224,8 +224,8 @@ public class ConfigManager {
 
                 RemoteConfigJson configJson = gson.fromJson(returnStr, RemoteConfigJson.class);
                 if (configJson.isSuccess() && configJson.getData() != null) {
-                    mqClusterInfoList = configJson.getData().getMqClusterList();
-                    if (mqClusterInfoList == null || mqClusterInfoList.isEmpty()) {
+                    mqInfoList = configJson.getData().getMqInfoList();
+                    if (mqInfoList == null || mqInfoList.isEmpty()) {
                         LOG.error("getConfig from manager: no available mq config");
                         return false;
                     }
@@ -245,14 +245,12 @@ public class ConfigManager {
 
             try {
                 String managerHosts = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES).get("manager.hosts");
-                String proxyClusterName = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES)
-                        .get("proxy.cluster.name");
                 String proxyClusterTag = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES)
                         .get("proxy.cluster.tag");
                 LOG.info("manager url: {}", managerHosts);
                 String[] hostList = StringUtils.split(managerHosts, ",");
                 for (String host : hostList) {
-                    if (checkWithManager(host, proxyClusterName, proxyClusterTag)) {
+                    if (checkWithManager(host, proxyClusterTag)) {
                         break;
                     }
                 }

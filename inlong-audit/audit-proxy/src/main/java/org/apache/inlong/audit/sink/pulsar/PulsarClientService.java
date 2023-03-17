@@ -27,7 +27,7 @@ import org.apache.inlong.audit.file.ConfigManager;
 import org.apache.inlong.audit.sink.EventStat;
 import org.apache.inlong.audit.utils.LogCounter;
 import org.apache.inlong.common.constant.MQType;
-import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
+import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
@@ -99,8 +99,8 @@ public class PulsarClientService {
      */
     public PulsarClientService(Context context) {
         ConfigManager configManager = ConfigManager.getInstance();
-        List<MQClusterInfo> mqConfigList = configManager.getMQConfigList();
-        mqConfigList.forEach(mqClusterInfo -> {
+        List<MQInfo> mqInfoList = configManager.getMqInfoList();
+        mqInfoList.forEach(mqClusterInfo -> {
             if (MQType.PULSAR.equals(mqClusterInfo.getMqType())) {
                 pulsarServerUrl = mqClusterInfo.getUrl();
             }

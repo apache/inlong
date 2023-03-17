@@ -30,14 +30,15 @@ import org.apache.http.util.EntityUtils;
 import org.apache.inlong.audit.config.ClickHouseConfig;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
+import org.apache.inlong.audit.consts.ConfigConstants;
 import org.apache.inlong.audit.db.dao.AuditDataDao;
 import org.apache.inlong.audit.file.RemoteConfigJson;
 import org.apache.inlong.audit.service.consume.BaseConsume;
 import org.apache.inlong.audit.service.consume.KafkaConsume;
 import org.apache.inlong.audit.service.consume.PulsarConsume;
 import org.apache.inlong.audit.service.consume.TubeConsume;
-import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
-import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
+import org.apache.inlong.common.pojo.audit.AuditConfigRequest;
+import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -75,21 +76,21 @@ public class AuditMsgConsumerServer implements InitializingBean {
      * Initializing bean
      */
     public void afterPropertiesSet() {
-        List<MQClusterInfo> mqConfigList = getConfigManager();
+        List<MQInfo> mqInfoList = getConfigManager();
         BaseConsume mqConsume = null;
         List<InsertData> insertServiceList = this.getInsertServiceList();
 
-        for (MQClusterInfo mqClusterInfo : mqConfigList) {
+        for (MQInfo mqInfo : mqInfoList) {
             if (mqConfig.isPulsar()) {
-                mqConfig.setPulsarServerUrl(mqClusterInfo.getUrl());
+                mqConfig.setPulsarServerUrl(mqInfo.getUrl());
                 mqConsume = new PulsarConsume(insertServiceList, storeConfig, mqConfig);
                 break;
             } else if (mqConfig.isTube()) {
-                mqConfig.setTubeMasterList(mqClusterInfo.getUrl());
+                mqConfig.setTubeMasterList(mqInfo.getUrl());
                 mqConsume = new TubeConsume(insertServiceList, storeConfig, mqConfig);
                 break;
             } else if (mqConfig.isKafka()) {
-                mqConfig.setKafkaServerUrl(mqClusterInfo.getUrl());
+                mqConfig.setKafkaServerUrl(mqInfo.getUrl());
                 mqConsume = new KafkaConsume(insertServiceList, storeConfig, mqConfig);
                 break;
             } else {
@@ -128,17 +129,17 @@ public class AuditMsgConsumerServer implements InitializingBean {
         return insertServiceList;
     }
 
-    private List<MQClusterInfo> getConfigManager() {
+    private List<MQInfo> getConfigManager() {
         Properties properties = new Properties();
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(DEFAULT_CONFIG_PROPERTIES)) {
             properties.load(inputStream);
             String managerHosts = properties.getProperty("manager.hosts");
-            String clusterName = properties.getProperty("proxy.cluster.name");
             String clusterTag = properties.getProperty("proxy.cluster.tag");
             String[] hostList = StringUtils.split(managerHosts, ",");
             for (String host : hostList) {
-                List<MQClusterInfo> mqConfig = getMQConfig(host, clusterName, clusterTag);
+                List<MQInfo> mqConfig = getMQConfig(host, clusterTag);
                 if (ObjectUtils.isNotEmpty(mqConfig)) {
+                    LOG.info("return mqConfig");
                     return mqConfig;
                 }
             }
@@ -148,18 +149,17 @@ public class AuditMsgConsumerServer implements InitializingBean {
         return null;
     }
 
-    private List<MQClusterInfo> getMQConfig(String host, String clusterName, String clusterTag) {
+    private List<MQInfo> getMQConfig(String host, String clusterTag) {
         HttpPost httpPost = null;
         Gson gson = new Gson();
         try {
-            String url = "http://" + host + "/inlong/manager/openapi/dataproxy/getConfig";
+            String url = "http://" + host + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_GET_CONFIG_PATH;
             LOG.info("start to request {} to get config info", url);
             httpPost = new HttpPost(url);
             httpPost.addHeader(HttpHeaders.CONNECTION, "close");
 
             // request body
-            DataProxyConfigRequest request = new DataProxyConfigRequest();
-            request.setClusterName(clusterName);
+            AuditConfigRequest request = new AuditConfigRequest();
             request.setClusterTag(clusterTag);
             StringEntity stringEntity = new StringEntity(gson.toJson(request));
             stringEntity.setContentType("application/json");
@@ -173,10 +173,9 @@ public class AuditMsgConsumerServer implements InitializingBean {
 
             RemoteConfigJson configJson = gson.fromJson(returnStr, RemoteConfigJson.class);
             if (configJson.isSuccess() && configJson.getData() != null) {
-                LOG.info("getConfig result: {}", configJson);
-                List<MQClusterInfo> mqClusterInfoList = configJson.getData().getMqClusterList();
-                if (mqClusterInfoList != null && !mqClusterInfoList.isEmpty()) {
-                    return mqClusterInfoList;
+                List<MQInfo> mqInfoList = configJson.getData().getMqInfoList();
+                if (mqInfoList != null && !mqInfoList.isEmpty()) {
+                    return mqInfoList;
                 }
             }
         } catch (Exception ex) {

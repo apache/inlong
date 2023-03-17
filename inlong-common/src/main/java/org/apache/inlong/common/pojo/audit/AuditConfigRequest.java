@@ -15,25 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.file;
+package org.apache.inlong.common.pojo.audit;
 
-import org.apache.inlong.common.pojo.audit.AuditConfig;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public class RemoteConfigJson {
+/**
+ * Audit MQ config request info.
+ */
+@Data
+@NoArgsConstructor
+public class AuditConfigRequest {
 
-    private boolean success;
-    private String errMsg;
-    private AuditConfig data;
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public String getErrMsg() {
-        return errMsg;
-    }
-
-    public AuditConfig getData() {
-        return data;
-    }
+    private String clusterTag;
 }

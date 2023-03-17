@@ -31,7 +31,7 @@ import org.apache.inlong.audit.base.HighPriorityThreadFactory;
 import org.apache.inlong.audit.file.ConfigManager;
 import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
 import org.apache.inlong.common.constant.MQType;
-import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
+import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -261,8 +261,8 @@ public class KafkaSink extends AbstractSink implements Configurable {
 
     private void initTopicProducer(String topic) {
         ConfigManager configManager = ConfigManager.getInstance();
-        List<MQClusterInfo> mqConfigList = configManager.getMQConfigList();
-        mqConfigList.forEach(mqClusterInfo -> {
+        List<MQInfo> mqInfoList = configManager.getMqInfoList();
+        mqInfoList.forEach(mqClusterInfo -> {
             if (MQType.KAFKA.equals(mqClusterInfo.getMqType())) {
                 kafkaServerUrl = mqClusterInfo.getUrl();
             }
