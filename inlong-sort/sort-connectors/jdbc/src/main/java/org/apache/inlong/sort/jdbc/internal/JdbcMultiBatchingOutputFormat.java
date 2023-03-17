@@ -323,6 +323,10 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         return jdbcExec;
     }
 
+    /**
+     *  Use reflection to initialize TableMetricStatementExecutor, and replace the original executor
+     *  or upsertExecutor to calculate metrics.
+     */
     private JdbcExec enhanceExecutor(JdbcExec exec) throws NoSuchFieldException, IllegalAccessException {
         if (dirtySinkHelper.getDirtySink() == null) {
             return null;
@@ -338,6 +342,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         }
         subExecutor.setAccessible(true);
         TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) subExecutor.get(exec);
+        // get the stamentfactory and rowconverter in order to initialize tablemetricstatementExecutor
         Field statementFactory = TableSimpleStatementExecutor.class.getDeclaredField("stmtFactory");
         Field rowConverter = TableSimpleStatementExecutor.class.getDeclaredField("converter");
         statementFactory.setAccessible(true);
@@ -347,6 +352,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
         TableMetricStatementExecutor newExecutor =
                 new TableMetricStatementExecutor(stmtFactory, converter, dirtySinkHelper, sinkMetricData);
         newExecutor.setMultipleSink(true);
+        // replace the original TableBufferedStatementExecutor with metric executor
         if (exec instanceof TableBufferedStatementExecutor) {
             subExecutor = TableBufferedStatementExecutor.class.getDeclaredField("valueTransform");
             subExecutor.setAccessible(true);
@@ -394,22 +400,16 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             RowData rowData = (RowData) row;
             JsonNode rootNode = jsonDynamicSchemaFormat.deserialize(rowData.getBinary(0));
             String tableIdentifier;
-            String database;
-            String table;
-            String schema = null;
             try {
                 if (StringUtils.isBlank(schemaPattern)) {
-                    database = jsonDynamicSchemaFormat.parse(rootNode, databasePattern);
-                    table = jsonDynamicSchemaFormat.parse(rootNode, tablePattern);
-                    tableIdentifier = StringUtils.join(database, ".", table);
-                } else {
-                    database = jsonDynamicSchemaFormat.parse(rootNode, databasePattern);
-                    table = jsonDynamicSchemaFormat.parse(rootNode, tablePattern);
-                    schema = jsonDynamicSchemaFormat.parse(rootNode, schemaPattern);
                     tableIdentifier = StringUtils.join(
-                            database, ".",
-                            schema, ".",
-                            table);
+                            jsonDynamicSchemaFormat.parse(rootNode, databasePattern), ".",
+                            jsonDynamicSchemaFormat.parse(rootNode, tablePattern));
+                } else {
+                    tableIdentifier = StringUtils.join(
+                            jsonDynamicSchemaFormat.parse(rootNode, databasePattern), ".",
+                            jsonDynamicSchemaFormat.parse(rootNode, schemaPattern), ".",
+                            jsonDynamicSchemaFormat.parse(rootNode, tablePattern));
                 }
             } catch (Exception e) {
                 LOG.info("Cal tableIdentifier get Exception:", e);
@@ -628,6 +628,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             Boolean flushFlag = false;
             Exception tableException = null;
             try {
+                getAndSetPkNamesFromDb(tableIdentifier);
                 jdbcStatementExecutor = getOrCreateStatementExecutor(tableIdentifier);
                 Long totalDataSize = 0L;
                 for (GenericRowData record : tableIdRecordList) {

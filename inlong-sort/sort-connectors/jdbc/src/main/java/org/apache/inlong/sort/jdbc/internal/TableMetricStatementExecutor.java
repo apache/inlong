@@ -23,6 +23,7 @@ import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatement;
 import org.apache.flink.connector.jdbc.statement.StatementFactory;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
@@ -96,6 +97,10 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
 
     @Override
     public void addToBatch(RowData record) throws SQLException {
+        if (multipleSink && record.getRowKind().equals(RowKind.UPDATE_BEFORE)) {
+            sinkMetricData.invoke(1, record.toString().getBytes().length);
+            return;
+        }
         if (valueTransform != null) {
             record = valueTransform.apply(record); // copy or not
         }

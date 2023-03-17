@@ -381,22 +381,27 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         }
     }
 
+    /**
+     *  Use reflection to initialize TableMetricStatementExecutor, and replace the original executor
+     *  or upsertExecutor to calculate metrics.
+     */
     private JdbcExec enhanceExecutor(JdbcExec exec) throws NoSuchFieldException, IllegalAccessException {
         if (dirtySink == null) {
             return null;
         }
         final DirtySinkHelper dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
         // enhance the actual executor to tablemetricstatementexecutor
-        Field ExecutorType;
+        Field executorType;
         if (exec instanceof TableBufferReducedStatementExecutor) {
-            ExecutorType = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
+            executorType = TableBufferReducedStatementExecutor.class.getDeclaredField("upsertExecutor");
         } else if (exec instanceof TableBufferedStatementExecutor) {
-            ExecutorType = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
+            executorType = TableBufferedStatementExecutor.class.getDeclaredField("statementExecutor");
         } else {
             throw new RuntimeException("table enhance failed, can't enhance " + exec.getClass());
         }
-        ExecutorType.setAccessible(true);
-        TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) ExecutorType.get(exec);
+        executorType.setAccessible(true);
+        TableSimpleStatementExecutor executor = (TableSimpleStatementExecutor) executorType.get(exec);
+        // get the factory and rowconverter to initialize TableMetricStatementExecutor.
         Field statementFactory = TableSimpleStatementExecutor.class.getDeclaredField("stmtFactory");
         Field rowConverter = TableSimpleStatementExecutor.class.getDeclaredField("converter");
         statementFactory.setAccessible(true);
@@ -405,6 +410,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         final JdbcRowConverter converter = (JdbcRowConverter) rowConverter.get(executor);
         TableMetricStatementExecutor newExecutor =
                 new TableMetricStatementExecutor(stmtFactory, converter, dirtySinkHelper, sinkMetricData);
+        // for TableBufferedStatementExecutor, replace the executor
         if (exec instanceof TableBufferedStatementExecutor) {
             Field transform = TableBufferedStatementExecutor.class.getDeclaredField("valueTransform");
             transform.setAccessible(true);
@@ -412,7 +418,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             newExecutor.setValueTransform(valueTransform);
             return (JdbcExec) newExecutor;
         }
-        ExecutorType.set(exec, newExecutor);
+        executorType.set(exec, newExecutor);
         return null;
     }
 
