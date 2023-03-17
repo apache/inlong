@@ -263,7 +263,7 @@ public class KafkaSink extends AbstractSink implements Configurable {
         ConfigManager configManager = ConfigManager.getInstance();
         List<MQClusterInfo> mqConfigList = configManager.getMQConfigList();
         mqConfigList.forEach(mqClusterInfo -> {
-            if(MQType.KAFKA.equals(mqClusterInfo.getMqType())) {
+            if (MQType.KAFKA.equals(mqClusterInfo.getMqType())) {
                 kafkaServerUrl = mqClusterInfo.getUrl();
             }
         });
