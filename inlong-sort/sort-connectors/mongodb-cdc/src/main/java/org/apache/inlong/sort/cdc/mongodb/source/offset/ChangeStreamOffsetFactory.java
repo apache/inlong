@@ -23,7 +23,9 @@ import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils
 import java.util.Map;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
 
-/** An change stream offset factory class create {@link ChangeStreamOffset} instance. */
+/** An change stream offset factory class create {@link ChangeStreamOffset} instance.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class ChangeStreamOffsetFactory extends OffsetFactory {
 
     @Override

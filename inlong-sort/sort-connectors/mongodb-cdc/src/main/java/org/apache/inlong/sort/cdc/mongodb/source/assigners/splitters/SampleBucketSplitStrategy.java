@@ -61,6 +61,7 @@ import org.bson.conversions.Bson;
  * Reads all documents that are output from a preceding aggregation stage or a collection scan.
  *      Performs a random sort to select N documents.
  * </pre>
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
  */
 @Internal
 public class SampleBucketSplitStrategy implements SplitStrategy {

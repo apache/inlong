@@ -26,7 +26,9 @@ import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** A MongoDB Client pools. */
+/** A MongoDB Client pools.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class MongoClientPool {
 
     private static final Logger LOG = LoggerFactory.getLogger(MongoClientPool.class);

@@ -32,6 +32,7 @@ import org.bson.BsonTimestamp;
 /**
  * A structure describes a fine grained offset in a change log event including resumeToken and
  * clusterTime.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
  */
 public class ChangeStreamOffset extends Offset {
 

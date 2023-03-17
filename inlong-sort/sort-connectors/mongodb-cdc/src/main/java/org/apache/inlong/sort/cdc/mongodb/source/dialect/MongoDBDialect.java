@@ -55,7 +55,9 @@ import org.bson.BsonDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** The {@link DataSourceDialect} implementation for MongoDB datasource. */
+/** The {@link DataSourceDialect} implementation for MongoDB datasource.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 @Experimental
 public class MongoDBDialect implements DataSourceDialect<MongoDBSourceConfig> {
 

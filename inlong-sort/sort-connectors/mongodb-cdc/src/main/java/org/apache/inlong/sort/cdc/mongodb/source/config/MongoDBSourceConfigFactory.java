@@ -32,7 +32,10 @@ import java.util.List;
 import org.apache.flink.annotation.Internal;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig.Factory;
 
-/** A factory to construct {@link MongoDBSourceConfig}. */
+/** A factory to construct {@link MongoDBSourceConfig}.
+ *
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 @Internal
 public class MongoDBSourceConfigFactory implements Factory<MongoDBSourceConfig> {
 

@@ -60,7 +60,9 @@ import org.bson.RawBsonDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** The task to work for fetching data of MongoDB collection snapshot split . */
+/** The task to work for fetching data of MongoDB collection snapshot split .
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class MongoDBScanFetchTask implements FetchTask<SourceSplitBase> {
 
     private static final Logger LOG = LoggerFactory.getLogger(

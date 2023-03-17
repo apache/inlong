@@ -44,7 +44,9 @@ import org.bson.BsonDocument;
 import org.bson.BsonTimestamp;
 import org.bson.json.JsonWriterSettings;
 
-/** Utility class to deal record. */
+/** Utility class to deal record.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class MongoRecordUtils {
 
     private MongoRecordUtils() {

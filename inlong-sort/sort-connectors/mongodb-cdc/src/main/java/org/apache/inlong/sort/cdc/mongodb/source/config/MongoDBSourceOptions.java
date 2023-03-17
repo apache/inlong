@@ -21,7 +21,9 @@ import org.apache.flink.annotation.Experimental;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
-/** Configurations for {@link com.ververica.cdc.connectors.mongodb.source.MongoDBSource}. */
+/** Configurations for {@link com.ververica.cdc.connectors.mongodb.source.MongoDBSource}.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class MongoDBSourceOptions {
 
     public static final ConfigOption<String> HOSTS =

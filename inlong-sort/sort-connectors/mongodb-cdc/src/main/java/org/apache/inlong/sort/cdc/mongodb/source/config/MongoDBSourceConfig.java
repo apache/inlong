@@ -28,7 +28,9 @@ import javax.annotation.Nullable;
 import org.apache.inlong.sort.cdc.base.config.MetricConfig;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 
-/** A MongoDB Source configuration which is used by {@link MongoDBSource}. */
+/** A MongoDB Source configuration which is used by {@link MongoDBSource}.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class MongoDBSourceConfig implements SourceConfig, MetricConfig {
 
     private static final long serialVersionUID = 1L;

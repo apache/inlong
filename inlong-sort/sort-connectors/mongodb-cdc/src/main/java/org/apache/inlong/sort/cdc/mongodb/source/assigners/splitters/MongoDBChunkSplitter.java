@@ -24,7 +24,9 @@ import org.apache.inlong.sort.cdc.base.source.assigner.splitter.ChunkSplitter;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
 
-/** The splitter used to split collection into a set of chunks for MongoDB data source. */
+/** The splitter used to split collection into a set of chunks for MongoDB data source.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 @Experimental
 public class MongoDBChunkSplitter implements ChunkSplitter {
 

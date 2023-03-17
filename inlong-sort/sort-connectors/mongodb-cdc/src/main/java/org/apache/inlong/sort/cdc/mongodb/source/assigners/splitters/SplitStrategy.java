@@ -28,6 +28,7 @@ import org.bson.BsonDocument;
 /**
  * The {@link MongoDBChunkSplitter} used to split collection into a set of chunks for MongoDB data
  * source.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
  */
 @Internal
 public interface SplitStrategy {

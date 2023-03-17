@@ -34,7 +34,9 @@ import org.bson.BsonUndefined;
 import org.bson.BsonValue;
 import org.bson.types.Decimal128;
 
-/** Utility class to deal {@link BsonValue}s. */
+/** Utility class to deal {@link BsonValue}s.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class BsonUtils {
 
     private BsonUtils() {

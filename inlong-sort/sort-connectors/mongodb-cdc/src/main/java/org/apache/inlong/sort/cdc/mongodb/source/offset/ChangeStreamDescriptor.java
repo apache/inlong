@@ -23,7 +23,9 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
-/** A structure describes a filter of change stream targets. */
+/** A structure describes a filter of change stream targets.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class ChangeStreamDescriptor implements Serializable {
 
     private static final long serialVersionUID = 1L;

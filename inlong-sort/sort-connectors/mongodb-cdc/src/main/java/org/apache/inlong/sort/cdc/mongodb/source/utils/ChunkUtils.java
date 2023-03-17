@@ -25,7 +25,9 @@ import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.ID_I
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
 
-/** Utilities to split chunks of collection. */
+/** Utilities to split chunks of collection.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class ChunkUtils {
 
     private ChunkUtils() {

@@ -65,7 +65,9 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Utilities of MongoDB operations. */
+/** Utilities of MongoDB operations.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class MongoUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(

@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
  * Key Index Type</a> for details.
  *
  * <p>Split collections by shard and chunk.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
  */
 @Internal
 public class ShardedSplitStrategy implements SplitStrategy {

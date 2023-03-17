@@ -32,7 +32,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.BsonDocument;
 import org.bson.conversions.Bson;
 
-/** Utilities to discovery matched collections. */
+/** Utilities to discovery matched collections.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class CollectionDiscoveryUtils {
 
     public static final String REGEX_META_CHARACTERS = ".$|()[]{}<>^?*+-=!\\";

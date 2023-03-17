@@ -36,6 +36,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
  * The Single Partitioner
  *
  * <p>Split collection as a single chunk.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
  */
 @Internal
 public class SingleSplitStrategy implements SplitStrategy {

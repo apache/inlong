@@ -26,7 +26,9 @@ import org.bson.BsonDocument;
 import org.bson.BsonTimestamp;
 import org.bson.BsonValue;
 
-/** Utility class to decode resumeToken. */
+/** Utility class to decode resumeToken.
+ * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
+ */
 public class ResumeTokenUtils {
 
     private static final int K_TIMESTAMP = 130;
