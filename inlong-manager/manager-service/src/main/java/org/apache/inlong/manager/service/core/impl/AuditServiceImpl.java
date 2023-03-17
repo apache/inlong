@@ -261,7 +261,6 @@ public class AuditServiceImpl implements AuditService {
         if (sinkNodeType == null) {
             auditSet.add(getAuditId(ClusterType.DATAPROXY, true));
         } else {
-            auditSet.add(getAuditId(sinkNodeType, true));
             auditSet.add(getAuditId(sinkNodeType, false));
         }
 
