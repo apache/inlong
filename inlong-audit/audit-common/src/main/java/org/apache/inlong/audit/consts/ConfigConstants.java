@@ -66,4 +66,8 @@ public class ConfigConstants {
     public static final long DEFAULT_SESSION_MAX_ALLOWED_DELAYED_MSG_COUNT = 4000000L;
 
     public static final long DEFAULT_NETTY_WRITE_BUFFER_HIGH_WATER_MARK = 15 * 1024 * 1024L;
+
+    public static final String MANAGER_PATH = "/inlong/manager/openapi";
+
+    public static final String MANAGER_GET_CONFIG_PATH = "/audit/getConfig";
 }

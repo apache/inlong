@@ -23,8 +23,11 @@ import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
 import org.apache.inlong.audit.consts.AttributeConstants;
+import org.apache.inlong.audit.file.ConfigManager;
 import org.apache.inlong.audit.sink.EventStat;
 import org.apache.inlong.audit.utils.LogCounter;
+import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
@@ -36,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -94,8 +98,13 @@ public class PulsarClientService {
      * @param context
      */
     public PulsarClientService(Context context) {
-
-        pulsarServerUrl = context.getString(PULSAR_SERVER_URL);
+        ConfigManager configManager = ConfigManager.getInstance();
+        List<MQInfo> mqInfoList = configManager.getMqInfoList();
+        mqInfoList.forEach(mqClusterInfo -> {
+            if (MQType.PULSAR.equals(mqClusterInfo.getMqType())) {
+                pulsarServerUrl = mqClusterInfo.getUrl();
+            }
+        });
         Preconditions.checkState(pulsarServerUrl != null, "No pulsar server url specified");
 
         sendTimeout = context.getInteger(SEND_TIMEOUT, DEFAULT_SEND_TIMEOUT_MILL);
