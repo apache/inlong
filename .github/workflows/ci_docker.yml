@@ -81,6 +81,17 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Remove unnecessary packages
+        run: | # stolen from https://github.com/easimon/maximize-build-space
+          echo "=== Before pruning ==="
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          echo
+          echo "=== After pruning ==="
+          df -h
+
       - name: Build Docker images
         run: mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
         env:
