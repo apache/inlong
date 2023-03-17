@@ -360,6 +360,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             newExecutor.setValueTransform(valueTransform);
             return (JdbcExec) newExecutor;
         }
+        // replace the sub-executor that generates flinkSQL for executors such as
+        // TableBufferReducedExecutor or InsertOrUpdateExecutor
         subExecutor.set(exec, newExecutor);
         return null;
     }

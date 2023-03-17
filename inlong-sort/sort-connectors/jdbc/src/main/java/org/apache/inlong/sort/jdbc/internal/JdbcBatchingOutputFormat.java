@@ -191,6 +191,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                                     if (!closed) {
                                         try {
                                             flush();
+                                            // report is only needed when TableMetricExecutor is not initialized
                                             if (sinkMetricData != null && dirtySink == null) {
                                                 sinkMetricData.invoke(rowSize, dataSize);
                                             }
@@ -418,6 +419,8 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
             newExecutor.setValueTransform(valueTransform);
             return (JdbcExec) newExecutor;
         }
+        // replace the sub-executor that generates flinkSQL for executors such as
+        // TableBufferReducedExecutor or InsertOrUpdateExecutor
         executorType.set(exec, newExecutor);
         return null;
     }
