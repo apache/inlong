@@ -81,23 +81,14 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Set up environment
+      - name: Set up swapfile path
         run: |
-          df -h
-          echo "1"
           sudo sysctl -w vm.max_map_count=262144
-          echo "2"
           sudo sysctl -w fs.file-max=65536
-          echo "3"
           sudo fallocate -l 5G /swapfile
-          echo "4"
           sudo chmod 600 /swapfile
-          echo "5"
           sudo mkswap /swapfile
-          echo "6"
           sudo swapon /swapfile
-          echo "7"
-          df -h
 
       - name: Remove unnecessary packages
         run: | # stolen from https://github.com/easimon/maximize-build-space
