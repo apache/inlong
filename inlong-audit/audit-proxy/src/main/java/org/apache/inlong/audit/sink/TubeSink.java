@@ -325,7 +325,7 @@ public class TubeSink extends AbstractSink implements Configurable {
             lastSuccessSendCnt.set(nowCnt);
             t2 = System.currentTimeMillis();
             logger.info("tubesink {}, succ put {} events to tube,"
-                            + " in the past {} millsec",
+                    + " in the past {} millsec",
                     new Object[]{
                             getName(), (nowCnt - oldCnt), (t2 - t1)
                     });
