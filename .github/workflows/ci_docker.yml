@@ -132,7 +132,7 @@ jobs:
           || steps.match.outputs.match_release == 'true'
         working-directory: docker
         run: |
-          bash +x publish-by-arch.sh --tag  --publish
+          bash +x publish-by-arch.sh --tag --publish
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
