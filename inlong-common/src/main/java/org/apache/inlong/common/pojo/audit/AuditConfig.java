@@ -15,25 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.file;
+package org.apache.inlong.common.pojo.audit;
 
-import org.apache.inlong.common.pojo.audit.AuditConfig;
+import lombok.Data;
 
-public class RemoteConfigJson {
+import java.util.ArrayList;
+import java.util.List;
 
-    private boolean success;
-    private String errMsg;
-    private AuditConfig data;
+/**
+ * Audit config, includes MQ server URL and other params.
+ */
+@Data
+public class AuditConfig {
 
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public String getErrMsg() {
-        return errMsg;
-    }
-
-    public AuditConfig getData() {
-        return data;
-    }
+    private List<MQInfo> mqInfoList = new ArrayList<>();
 }

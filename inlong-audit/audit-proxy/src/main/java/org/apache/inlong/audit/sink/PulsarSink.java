@@ -148,6 +148,8 @@ public class PulsarSink extends AbstractSink
 
     private String topic;
 
+    private Context context;
+
     static {
         /*
          * stat pulsar performance
@@ -168,6 +170,7 @@ public class PulsarSink extends AbstractSink
      */
     public void configure(Context context) {
         logger.info("PulsarSink started and context = {}", context.toString());
+        this.context = context;
         /*
          * topic config
          */
@@ -188,7 +191,6 @@ public class PulsarSink extends AbstractSink
         if (diskIORatePerSec != 0) {
             diskRateLimiter = RateLimiter.create(diskIORatePerSec);
         }
-        pulsarClientService = new PulsarClientService(context);
 
         if (sinkCounter == null) {
             sinkCounter = new SinkCounter(getName());
@@ -208,6 +210,7 @@ public class PulsarSink extends AbstractSink
     public void start() {
         logger.info("pulsar sink starting");
         sinkCounter.start();
+        pulsarClientService = new PulsarClientService(context);
         pulsarClientService.initCreateConnection(this);
 
         super.start();

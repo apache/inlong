@@ -15,25 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.file;
+package org.apache.inlong.common.pojo.audit;
 
-import org.apache.inlong.common.pojo.audit.AuditConfig;
+import lombok.Data;
 
-public class RemoteConfigJson {
+import java.util.HashMap;
+import java.util.Map;
 
-    private boolean success;
-    private String errMsg;
-    private AuditConfig data;
+/**
+ * MQ info
+ */
+@Data
+public class MQInfo {
 
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public String getErrMsg() {
-        return errMsg;
-    }
-
-    public AuditConfig getData() {
-        return data;
-    }
+    private String url;
+    private String mqType;
+    private Map<String, String> params = new HashMap<>();
 }
