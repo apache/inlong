@@ -71,7 +71,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
         Map<String, String> properties = new HashMap<>();
         properties.put("scan.incremental.snapshot.enabled", "true");
         return new OracleExtractNode("1", "oracle_input", fields,
-                null, properties, "ID", "101.42.138.203",
+                null, properties, "ID", "localhost",
                 "flinkuser", "flinkpw", "xE",
                 "flinkuser", "table", 1521, null);
     }

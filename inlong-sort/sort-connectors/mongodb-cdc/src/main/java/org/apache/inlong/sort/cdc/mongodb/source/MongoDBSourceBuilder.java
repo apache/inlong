@@ -82,7 +82,9 @@ public class MongoDBSourceBuilder<T> {
 
     /** Regular expressions list that match database names to be monitored. */
     public MongoDBSourceBuilder<T> databaseList(String... databases) {
-        this.configFactory.databaseList(databases);
+        for (String database : databases) {
+            this.configFactory.databaseList(database.split(","));
+        }
         return this;
     }
 
@@ -91,7 +93,9 @@ public class MongoDBSourceBuilder<T> {
      * monitored. Each identifier is of the form {@code <databaseName>.<collectionName>}.
      */
     public MongoDBSourceBuilder<T> collectionList(String... collections) {
-        this.configFactory.collectionList(collections);
+        for (String collection : collections) {
+            this.configFactory.collectionList(collection.split(","));
+        }
         return this;
     }
 
