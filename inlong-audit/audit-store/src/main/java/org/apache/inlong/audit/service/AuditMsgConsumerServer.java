@@ -67,7 +67,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
     // ClickHouseService
     private ClickHouseService ckService;
 
-    private static final String DEFAULT_CONFIG_PROPERTIES = "server.properties";
+    private static final String DEFAULT_CONFIG_PROPERTIES = "application.properties";
 
     private final CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 

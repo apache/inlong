@@ -51,7 +51,7 @@ public class ConfigManager {
 
     private static ConfigManager instance = null;
 
-    private static String DEFAULT_CONFIG_PROPERTIES = "server.properties";
+    private static String DEFAULT_CONFIG_PROPERTIES = "application.properties";
 
     static {
         instance = getInstance(DEFAULT_CONFIG_PROPERTIES, true);
