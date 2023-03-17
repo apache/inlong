@@ -58,7 +58,6 @@ initTagImageForx86() {
   docker tag inlong/tubemq-all:latest${SRC_POSTFIX}      inlong/tubemq-all:latest${DES_POSTFIX}
   docker tag inlong/tubemq-build:latest${SRC_POSTFIX}    inlong/tubemq-build:latest${DES_POSTFIX}
   docker tag inlong/dashboard:latest${SRC_POSTFIX}       inlong/dashboard:latest${DES_POSTFIX}
-  docker tag inlong/tubemq-cpp:latest${SRC_POSTFIX}      inlong/tubemq-cpp:latest${DES_POSTFIX}
   docker tag inlong/audit:latest${SRC_POSTFIX}           inlong/audit:latest${DES_POSTFIX}
 
   docker tag inlong/manager:${MVN_VERSION}${SRC_POSTFIX}         inlong/manager:${MVN_VERSION}${DES_POSTFIX}
@@ -68,7 +67,6 @@ initTagImageForx86() {
   docker tag inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}      inlong/tubemq-all:${MVN_VERSION}${DES_POSTFIX}
   docker tag inlong/tubemq-build:${MVN_VERSION}${SRC_POSTFIX}    inlong/tubemq-build:${MVN_VERSION}${DES_POSTFIX}
   docker tag inlong/dashboard:${MVN_VERSION}${SRC_POSTFIX}       inlong/dashboard:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-cpp:${MVN_VERSION}${SRC_POSTFIX}      inlong/tubemq-cpp:${MVN_VERSION}${DES_POSTFIX}
   docker tag inlong/audit:${MVN_VERSION}${SRC_POSTFIX}           inlong/audit:${MVN_VERSION}${DES_POSTFIX}
 }
 
@@ -94,9 +92,8 @@ tagImage() {
   docker tag inlong/tubemq-manager:latest${SRC_POSTFIX}  ${docker_registry_org}/tubemq-manager:latest${DES_POSTFIX}
   docker tag inlong/dashboard:latest${SRC_POSTFIX}       ${docker_registry_org}/dashboard:latest${DES_POSTFIX}
   docker tag inlong/audit:latest${SRC_POSTFIX}           ${docker_registry_org}/audit:latest${DES_POSTFIX}
-  docker tag inlong/tubemq-all:latest${SRC_POSTFIX}      ${docker_registry_org}/tubemq-all:latest${DES_POSTFIX}
   if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
-    docker tag inlong/tubemq-cpp:latest${SRC_POSTFIX}      ${docker_registry_org}/tubemq-cpp:latest${DES_POSTFIX}
+    docker tag inlong/tubemq-all:latest${SRC_POSTFIX}      ${docker_registry_org}/tubemq-all:latest${DES_POSTFIX}
     docker tag inlong/tubemq-build:latest${SRC_POSTFIX}    ${docker_registry_org}/tubemq-build:latest${DES_POSTFIX}
   fi
 
@@ -106,9 +103,8 @@ tagImage() {
   docker tag inlong/tubemq-manager:${MVN_VERSION}${SRC_POSTFIX}  ${docker_registry_org}/tubemq-manager:${MVN_VERSION}${DES_POSTFIX}
   docker tag inlong/dashboard:${MVN_VERSION}${SRC_POSTFIX}       ${docker_registry_org}/dashboard:${MVN_VERSION}${DES_POSTFIX}
   docker tag inlong/audit:${MVN_VERSION}${SRC_POSTFIX}           ${docker_registry_org}/audit:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}      ${docker_registry_org}/tubemq-all:${MVN_VERSION}${DES_POSTFIX}
   if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
-    docker tag inlong/tubemq-cpp:${MVN_VERSION}${SRC_POSTFIX}      ${docker_registry_org}/tubemq-cpp:${MVN_VERSION}${DES_POSTFIX}
+    docker tag inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}      ${docker_registry_org}/tubemq-all:${MVN_VERSION}${DES_POSTFIX}
     docker tag inlong/tubemq-build:${MVN_VERSION}${SRC_POSTFIX}    ${docker_registry_org}/tubemq-build:${MVN_VERSION}${DES_POSTFIX}
   fi
   echo "End tagging images"
@@ -148,7 +144,6 @@ pushDefaultImage() {
   docker push inlong/tubemq-all:latest
   docker push inlong/tubemq-build:latest
   docker push inlong/dashboard:latest
-  docker push inlong/tubemq-cpp:latest
   docker push inlong/audit:latest
   docker push inlong/manager:${MVN_VERSION}
   docker push inlong/agent:${MVN_VERSION}
@@ -157,7 +152,6 @@ pushDefaultImage() {
   docker push inlong/tubemq-all:${MVN_VERSION}
   docker push inlong/tubemq-build:${MVN_VERSION}
   docker push inlong/dashboard:${MVN_VERSION}
-  docker push inlong/tubemq-cpp:${MVN_VERSION}
   docker push inlong/audit:${MVN_VERSION}
 }
 
@@ -183,10 +177,9 @@ pushImage() {
   docker push inlong/tubemq-manager:latest${SRC_POSTFIX}
   docker push inlong/dashboard:latest${SRC_POSTFIX}
   docker push inlong/audit:latest${SRC_POSTFIX}
-  docker push inlong/tubemq-all:latest${SRC_POSTFIX}
   if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
     docker push inlong/tubemq-build:latest${SRC_POSTFIX}
-    docker push inlong/tubemq-cpp:latest${SRC_POSTFIX}
+    docker push inlong/tubemq-all:latest${SRC_POSTFIX}
   fi
 
   docker push inlong/manager:${MVN_VERSION}${SRC_POSTFIX}
@@ -195,10 +188,9 @@ pushImage() {
   docker push inlong/tubemq-manager:${MVN_VERSION}${SRC_POSTFIX}
   docker push inlong/dashboard:${MVN_VERSION}${SRC_POSTFIX}
   docker push inlong/audit:${MVN_VERSION}${SRC_POSTFIX}
-  docker push inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}
   if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
     docker push inlong/tubemq-build:${MVN_VERSION}${SRC_POSTFIX}
-    docker push inlong/tubemq-cpp:${MVN_VERSION}${SRC_POSTFIX}
+    docker push inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}
   fi
 
   echo "Finished pushing images to inlong"
@@ -211,9 +203,8 @@ pushManifest() {
   docker manifest create --insecure --amend inlong/dataproxy:latest      inlong/dataproxy:latest-aarch64      inlong/dataproxy:latest-x86
   docker manifest create --insecure --amend inlong/dashboard:latest      inlong/dashboard:latest-aarch64      inlong/dashboard:latest-x86
   docker manifest create --insecure --amend inlong/audit:latest          inlong/audit:latest-aarch64          inlong/audit:latest-x86
-  docker manifest create --insecure --amend inlong/tubemq-all:latest     inlong/tubemq-all:latest-aarch64     inlong/tubemq-all:latest-x86
+  docker manifest create --insecure --amend inlong/tubemq-all:latest     inlong/tubemq-all:latest-x86
   docker manifest create --insecure --amend inlong/tubemq-manager:latest inlong/tubemq-manager:latest-aarch64 inlong/tubemq-manager:latest-x86
-  docker manifest create --insecure --amend inlong/tubemq-cpp:latest     inlong/tubemq-cpp:latest-x86
   docker manifest create --insecure --amend inlong/tubemq-build:latest   inlong/tubemq-build:latest-x86
 
   docker manifest push inlong/manager:latest
@@ -223,7 +214,6 @@ pushManifest() {
   docker manifest push inlong/tubemq-all:latest
   docker manifest push inlong/tubemq-build:latest
   docker manifest push inlong/dashboard:latest
-  docker manifest push inlong/tubemq-cpp:latest
   docker manifest push inlong/audit:latest
 
   docker manifest create --insecure --amend inlong/manager:${MVN_VERSION}        inlong/manager:${MVN_VERSION}-aarch64        inlong/manager:${MVN_VERSION}-x86
@@ -232,9 +222,8 @@ pushManifest() {
   docker manifest create --insecure --amend inlong/dashboard:${MVN_VERSION}      inlong/dashboard:${MVN_VERSION}-aarch64      inlong/dashboard:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/audit:${MVN_VERSION}          inlong/audit:${MVN_VERSION}-aarch64          inlong/audit:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/tubemq-manager:${MVN_VERSION} inlong/tubemq-manager:${MVN_VERSION}-aarch64 inlong/tubemq-manager:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/tubemq-all:${MVN_VERSION}     inlong/tubemq-all:${MVN_VERSION}-aarch64     inlong/tubemq-all:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/tubemq-all:${MVN_VERSION}     inlong/tubemq-all:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/tubemq-build:${MVN_VERSION}   inlong/tubemq-build:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/tubemq-cpp:${MVN_VERSION}     inlong/tubemq-cpp:${MVN_VERSION}-x86
 
   docker manifest push inlong/manager:${MVN_VERSION}
   docker manifest push inlong/agent:${MVN_VERSION}
@@ -243,7 +232,6 @@ pushManifest() {
   docker manifest push inlong/tubemq-all:${MVN_VERSION}
   docker manifest push inlong/tubemq-build:${MVN_VERSION}
   docker manifest push inlong/dashboard:${MVN_VERSION}
-  docker manifest push inlong/tubemq-cpp:${MVN_VERSION}
   docker manifest push inlong/audit:${MVN_VERSION}
   echo "End pushing manifest"
 }
