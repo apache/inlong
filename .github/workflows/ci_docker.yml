@@ -83,6 +83,7 @@ jobs:
 
       - name: Set up environment
         run: |
+          df -h
           echo "1"
           sudo sysctl -w vm.max_map_count=262144
           echo "2"
@@ -95,6 +96,8 @@ jobs:
           sudo mkswap /swapfile
           echo "6"
           sudo swapon /swapfile
+          echo "7"
+          df -h
 
       - name: Remove unnecessary packages
         run: | # stolen from https://github.com/easimon/maximize-build-space
