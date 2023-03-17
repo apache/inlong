@@ -655,7 +655,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out) throws Exception {
-        deserialize(record, out, null);
+        deserialize(record, out);
     }
 
     @Override
@@ -686,6 +686,11 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             after.setRowKind(RowKind.UPDATE_AFTER);
             emit(record, after, tableSchema, out);
         }
+    }
+
+    @Override
+    public void deserialize(SourceRecord record, Collector<RowData> out, Boolean isStreamingPhase) throws Exception {
+        this.deserialize(record, out);
     }
 
     private GenericRowData extractAfterRow(Struct value, Schema valueSchema) throws Exception {

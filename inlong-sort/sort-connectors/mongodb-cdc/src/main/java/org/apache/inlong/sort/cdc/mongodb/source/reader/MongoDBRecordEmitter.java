@@ -25,8 +25,11 @@ import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.isDataChangeRecord;
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.isHeartbeatEvent;
 
+import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
 import org.apache.flink.api.connector.source.SourceOutput;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.flink.util.Collector;
+import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
@@ -35,7 +38,9 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplitState;
 import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
 import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceReader;
 import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceRecordEmitter;
+import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
 import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffset;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.bson.BsonDocument;
 import org.slf4j.Logger;
@@ -77,7 +82,30 @@ public final class MongoDBRecordEmitter<T> extends IncrementalSourceRecordEmitte
                 updatePositionForStreamSplit(element, splitState);
             }
             reportMetrics(element);
-            emitElement(element, output);
+            debeziumDeserializationSchema.deserialize(
+                    element,
+                    new Collector<T>() {
+
+                        @Override
+                        public void collect(final T t) {
+                            Struct value = (Struct) element.value();
+                            Struct source = value.getStruct(MongoDBEnvelope.NAMESPACE_FIELD);
+                            if (null == source) {
+                                source = value.getStruct(RecordUtils.DOCUMENT_TO_FIELD);
+                            }
+                            String dbName = source.getString(MongoDBEnvelope.NAMESPACE_DATABASE_FIELD);
+                            String collectionName =
+                                    source.getString(MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD);
+                            sourceReaderMetrics
+                                    .outputMetrics(dbName, collectionName, splitState.isSnapshotSplitState(), value);
+                            output.collect(t);
+                        }
+
+                        @Override
+                        public void close() {
+                            // do nothing
+                        }
+                    });
         } else {
             // unknown element
             LOG.info("Meet unknown element {}, just skip.", element);
@@ -92,6 +120,10 @@ public final class MongoDBRecordEmitter<T> extends IncrementalSourceRecordEmitte
             offset.updatePosition(resumeToken);
         }
         splitState.asStreamSplitState().setStartingOffset(offset);
+        // record the time metric to enter the incremental phase
+        if (sourceReaderMetrics != null) {
+            sourceReaderMetrics.outputReadPhaseMetrics(ReadPhase.INCREASE_PHASE);
+        }
     }
 
     @Override
