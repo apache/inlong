@@ -72,11 +72,13 @@ public class AuditMsgConsumerServer implements InitializingBean {
 
     private final CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
+    private final Gson gson = new Gson();
+
     /**
      * Initializing bean
      */
     public void afterPropertiesSet() {
-        List<MQInfo> mqInfoList = getConfigManager();
+        List<MQInfo> mqInfoList = getClusterFromManager();
         BaseConsume mqConsume = null;
         List<InsertData> insertServiceList = this.getInsertServiceList();
 
@@ -129,7 +131,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
         return insertServiceList;
     }
 
-    private List<MQInfo> getConfigManager() {
+    private List<MQInfo> getClusterFromManager() {
         Properties properties = new Properties();
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(DEFAULT_CONFIG_PROPERTIES)) {
             properties.load(inputStream);
@@ -151,7 +153,6 @@ public class AuditMsgConsumerServer implements InitializingBean {
 
     private List<MQInfo> getMQConfig(String host, String clusterTag) {
         HttpPost httpPost = null;
-        Gson gson = new Gson();
         try {
             String url = "http://" + host + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_GET_CONFIG_PATH;
             LOG.info("start to request {} to get config info", url);
@@ -169,8 +170,6 @@ public class AuditMsgConsumerServer implements InitializingBean {
             LOG.info("start to request {} to get config info with params {}", url, request);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             String returnStr = EntityUtils.toString(response.getEntity());
-            // get groupId <-> topic and m value.
-
             RemoteConfigJson configJson = gson.fromJson(returnStr, RemoteConfigJson.class);
             if (configJson.isSuccess() && configJson.getData() != null) {
                 List<MQInfo> mqInfoList = configJson.getData().getMqInfoList();
@@ -179,7 +178,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
                 }
             }
         } catch (Exception ex) {
-            LOG.error("exception caught", ex);
+            LOG.error("Failed to get MQ config from manager, please check it", ex);
             return null;
         } finally {
             if (httpPost != null) {
