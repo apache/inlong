@@ -81,6 +81,21 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Set up environment
+        run: |
+          echo "1"
+          sudo sysctl -w vm.max_map_count=262144
+          echo "2"
+          sudo sysctl -w fs.file-max=65536
+          echo "3"
+          sudo fallocate -l 5G /swapfile
+          echo "4"
+          sudo chmod 600 /swapfile
+          echo "5"
+          sudo mkswap /swapfile
+          echo "6"
+          sudo swapon /swapfile
+
       - name: Remove unnecessary packages
         run: | # stolen from https://github.com/easimon/maximize-build-space
           echo "=== Before pruning ==="
@@ -97,56 +112,35 @@ jobs:
         env:
           CI: false
 
-      - name: test arm
-        working-directory: docker
+      - name: Match branch
+        id: match
+        if: |
+          success()
+          && github.event_name == 'push'
+          && github.repository_owner == 'apache'
         run: |
-          bash +x build-docker-images.sh --buildx aarch64
-          bash +x publish-by-arch.sh --tag --arch aarch64 --publish      
- 
-      - name: Set up environment
-        run: |
-          echo "1"
-          sudo sysctl -w vm.max_map_count=262144
-          echo "2"
-          sudo sysctl -w fs.file-max=65536
-          echo "3"
-          sudo fallocate -l 5G /swapfile
-          echo "4"
-          sudo chmod 600 /swapfile
-          echo "5"
-          sudo mkswap /swapfile
-          echo "6"
-          sudo swapon /swapfile
-
-      # - name: Match branch
-      #  id: match
-      #  if: |
-      #    success()
-      #    && github.event_name == 'push'
-      #    && github.repository_owner == 'apache'
-      #  run: |
-      #    if [[ ${{ github.ref_name }} == ${{ github.event.repository.default_branch }} ]]; then
-      #      echo "match_master=true" >> $GITHUB_OUTPUT
-      #    elif [[ ${{ github.ref_name }} =~ ^branch-[0-9]+\.[0-9]+$ ]]; then
-      #      echo "match_release=true" >> $GITHUB_OUTPUT
-      #    fi
+          if [[ ${{ github.ref_name }} == ${{ github.event.repository.default_branch }} ]]; then
+            echo "match_master=true" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.ref_name }} =~ ^branch-[0-9]+\.[0-9]+$ ]]; then
+            echo "match_release=true" >> $GITHUB_OUTPUT
+          fi
 
       # Publish x86 Docker images when the changes are being pushed to the master branch or a release branch like 'branch-1.4'.
-      #- name: Push x86 Docker images to Docker Hub
-        # if: |
-        #   steps.match.outputs.match_master == 'true'
-        #   || steps.match.outputs.match_release == 'true'
-      #  working-directory: docker
-      #  run: |
-      #    bash +x publish-by-arch.sh --tag # --publish
-      #  env:
-      #    DOCKER_USER: ${{ secrets.DOCKER_USER }}
-      #    DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      #    DOCKER_ORG: inlong
+      - name: Push x86 Docker images to Docker Hub
+        if: |
+          steps.match.outputs.match_master == 'true'
+          || steps.match.outputs.match_release == 'true'
+        working-directory: docker
+        run: |
+          bash +x publish-by-arch.sh --tag # --publish
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_ORG: inlong
 
       # Publish aarch64 Docker images when the changes are being pushed to a release branch like 'branch-1.4'.
       - name: Push aarch64 Docker images to Docker Hub
-        # if: ${{ steps.match.outputs.match_release == 'true' }}
+        if: ${{ steps.match.outputs.match_release == 'true' }}
         working-directory: docker
         run: |
           bash +x build-docker-images.sh --buildx aarch64
