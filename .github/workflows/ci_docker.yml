@@ -91,7 +91,7 @@ jobs:
           sudo swapon /swapfile
 
       - name: Remove unnecessary packages
-        run: | # stolen from https://github.com/easimon/maximize-build-space
+        run: |
           echo "=== Before pruning ==="
           df -h
           sudo rm -rf /usr/share/dotnet
