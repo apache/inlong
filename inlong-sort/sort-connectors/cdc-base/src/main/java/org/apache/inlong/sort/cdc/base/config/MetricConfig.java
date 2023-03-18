@@ -38,7 +38,7 @@ public interface MetricConfig extends Serializable {
     String getInlongAudit();
 
     /**
-     * get getMetricLabelList()
+     * getMetricLabelList
      *
      * @return metric label list of each connector.
      * eg: oracle metric label list is [DATABASE, SCHEMA, TABLE]
