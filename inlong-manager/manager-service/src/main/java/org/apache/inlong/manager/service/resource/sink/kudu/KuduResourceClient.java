@@ -53,13 +53,8 @@ public class KuduResourceClient {
         this.client = new KuduClient.KuduClientBuilder(kuduMaster).build();
     }
 
-    public boolean tableExist(String tableName) {
-        try {
-            return client.tableExists(tableName);
-        } catch (KuduException e) {
-            LOG.error("Can not properly query kudu!", e);
-        }
-        return false;
+    public boolean tableExist(String tableName) throws KuduException {
+        return client.tableExists(tableName);
     }
 
     /**
