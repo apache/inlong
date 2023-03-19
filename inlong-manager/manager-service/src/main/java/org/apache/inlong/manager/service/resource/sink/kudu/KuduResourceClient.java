@@ -45,6 +45,7 @@ public class KuduResourceClient {
 
     private static final String PARTITION_STRATEGY_HASH = "HASH";
     private static final String PARTITION_STRATEGY_PRIMARY_KEY = "PrimaryKey";
+    private static final int DEFAULT_BUCKETS = 6;
 
     private final KuduClient client;
 
@@ -80,7 +81,9 @@ public class KuduResourceClient {
                 .filter(column -> PARTITION_STRATEGY_HASH.equalsIgnoreCase(column.getPartitionStrategy()))
                 .map(KuduColumnInfo::getFieldName).collect(Collectors.toList());
         if (!parCols.isEmpty()) {
-            options.addHashPartitions(parCols, 6);
+            Integer partitionNum = tableInfo.getBuckets();
+            int buckets = partitionNum == null ? DEFAULT_BUCKETS : partitionNum;
+            options.addHashPartitions(parCols, buckets);
         }
 
         // Create table by KuduClient.
