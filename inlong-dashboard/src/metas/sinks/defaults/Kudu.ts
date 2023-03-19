@@ -128,8 +128,8 @@ export default class KuduSink extends SinkInfo implements DataWithBackend, Rende
     visible: values => values!.enableCreateResource == '1',
   })
   @ColumnDecorator()
-  @I18n('meta.Sinks.Kudu.partitionNum')
-  partitionNum: number;
+  @I18n('meta.Sinks.Kudu.buckets')
+  buckets: number;
 
   @FieldDecorator({
     type: EditableTable,
