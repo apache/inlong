@@ -51,8 +51,8 @@ public class KuduSink extends StreamSink {
     @ApiModelProperty("Partition field list")
     private String partitionKey;
 
-    @ApiModelProperty("Number of partitions for the newly created table")
-    private Integer partitionNum;
+    @ApiModelProperty("Buckets for the newly created table")
+    private Integer buckets;
 
     public KuduSink() {
         this.setSinkType(SinkType.KUDU);
