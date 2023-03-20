@@ -125,7 +125,7 @@ export default class KuduSink extends SinkInfo implements DataWithBackend, Rende
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    visible: values => values!.enableCreateResource == '1',
+    visible: values => values!.enableCreateResource === 1,
   })
   @ColumnDecorator()
   @I18n('meta.Sinks.Kudu.buckets')
