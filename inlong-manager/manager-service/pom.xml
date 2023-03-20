@@ -561,5 +561,10 @@
             <groupId>org.apache.hudi</groupId>
             <artifactId>hudi-flink1.13-bundle</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.kudu</groupId>
+            <artifactId>kudu-client</artifactId>
+        </dependency>
+
     </dependencies>
 </project>
