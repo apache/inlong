@@ -51,6 +51,9 @@ public class KuduSinkDTO {
     @ApiModelProperty("Partition field list")
     private String partitionKey;
 
+    @ApiModelProperty("Buckets for the newly created table")
+    private Integer buckets;
+
     /**
      * Get the dto instance from the request
      */
@@ -59,6 +62,7 @@ public class KuduSinkDTO {
                 .tableName(request.getTableName())
                 .masters(request.getMasters())
                 .properties(request.getProperties())
+                .buckets(request.getBuckets())
                 .build();
     }
 
@@ -80,6 +84,7 @@ public class KuduSinkDTO {
         tableInfo.setMasters(kuduInfo.getMasters());
         tableInfo.setColumns(columnList);
         tableInfo.setTblProperties(kuduInfo.getProperties());
+        tableInfo.setBuckets(kuduInfo.getBuckets());
         return tableInfo;
     }
 
