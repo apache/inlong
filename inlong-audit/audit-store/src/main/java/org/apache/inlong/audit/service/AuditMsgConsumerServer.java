@@ -37,6 +37,7 @@ import org.apache.inlong.audit.service.consume.BaseConsume;
 import org.apache.inlong.audit.service.consume.KafkaConsume;
 import org.apache.inlong.audit.service.consume.PulsarConsume;
 import org.apache.inlong.audit.service.consume.TubeConsume;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.audit.AuditConfigRequest;
 import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.slf4j.Logger;
@@ -85,22 +86,23 @@ public class AuditMsgConsumerServer implements InitializingBean {
         List<InsertData> insertServiceList = this.getInsertServiceList();
 
         for (MQInfo mqInfo : mqInfoList) {
-            if (mqConfig.isPulsar()) {
+            if (mqConfig.isPulsar() && MQType.PULSAR.equals(mqInfo.getMqType())) {
                 mqConfig.setPulsarServerUrl(mqInfo.getUrl());
                 mqConsume = new PulsarConsume(insertServiceList, storeConfig, mqConfig);
                 break;
-            } else if (mqConfig.isTube()) {
+            } else if (mqConfig.isTube() && MQType.TUBEMQ.equals(mqInfo.getMqType())) {
                 mqConfig.setTubeMasterList(mqInfo.getUrl());
                 mqConsume = new TubeConsume(insertServiceList, storeConfig, mqConfig);
                 break;
-            } else if (mqConfig.isKafka()) {
+            } else if (mqConfig.isKafka() && MQType.KAFKA.equals(mqInfo.getMqType())) {
                 mqConfig.setKafkaServerUrl(mqInfo.getUrl());
                 mqConsume = new KafkaConsume(insertServiceList, storeConfig, mqConfig);
                 break;
-            } else {
-                LOG.error("Unknown MessageQueue {}", mqConfig.getMqType());
-                return;
             }
+        }
+
+        if (mqConsume == null) {
+            LOG.error("Unknown MessageQueue {}", mqConfig.getMqType());
         }
 
         if (storeConfig.isElasticsearchStore()) {
