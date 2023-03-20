@@ -45,7 +45,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +68,9 @@ public class AuditMsgConsumerServer implements InitializingBean {
     private ClickHouseService ckService;
 
     private static final String DEFAULT_CONFIG_PROPERTIES = "application.properties";
+
+    // interval time of getting mq config
+    private static final int INTERVAL_MS = 5000;
 
     private final CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
@@ -133,19 +135,23 @@ public class AuditMsgConsumerServer implements InitializingBean {
 
     private List<MQInfo> getClusterFromManager() {
         Properties properties = new Properties();
+        List<MQInfo> mqConfig;
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(DEFAULT_CONFIG_PROPERTIES)) {
             properties.load(inputStream);
             String managerHosts = properties.getProperty("manager.hosts");
             String clusterTag = properties.getProperty("proxy.cluster.tag");
             String[] hostList = StringUtils.split(managerHosts, ",");
             for (String host : hostList) {
-                List<MQInfo> mqConfig = getMQConfig(host, clusterTag);
-                if (ObjectUtils.isNotEmpty(mqConfig)) {
-                    LOG.info("return mqConfig");
-                    return mqConfig;
+                while (true) {
+                    mqConfig = getMQConfig(host, clusterTag);
+                    if (ObjectUtils.isNotEmpty(mqConfig)) {
+                        return mqConfig;
+                    }
+                    LOG.info("MQ config may not be registered yet, wait for 5s and try again");
+                    Thread.sleep(INTERVAL_MS);
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return null;
