@@ -158,7 +158,9 @@ public class FlinkSink {
         private ActionsProvider actionProvider;
         private boolean overwrite = false;
         private boolean appendMode = false;
+        private DistributionMode distributionMode = null;
         private Integer writeParallelism = null;
+        private boolean upsert = false;
         private List<String> equalityFieldColumns = null;
         private String uidPrefix = null;
         private ReadableConfig readableConfig = new Configuration();
@@ -171,6 +173,7 @@ public class FlinkSink {
         private MultipleSinkOption multipleSinkOption = null;
         private DirtyOptions dirtyOptions;
         private @Nullable DirtySink<Object> dirtySink;
+        private ReadableConfig tableOptions;
 
         private Builder() {
         }
@@ -255,6 +258,11 @@ public class FlinkSink {
             return this;
         }
 
+        public Builder flinkConf(ReadableConfig config) {
+            this.readableConfig = config;
+            return this;
+        }
+
         /**
          * The appendMode properties is used to insert data without equality field columns.
          *
@@ -274,6 +282,11 @@ public class FlinkSink {
          */
         public FlinkSink.Builder action(ActionsProvider actionProvider) {
             this.actionProvider = actionProvider;
+            return this;
+        }
+
+        public FlinkSink.Builder tableOptions(ReadableConfig tableOptions) {
+            this.tableOptions = tableOptions;
             return this;
         }
 
@@ -311,6 +324,7 @@ public class FlinkSink {
                     !DistributionMode.RANGE.equals(mode),
                     "Flink does not support 'range' write distribution mode now.");
             if (mode != null) {
+                this.distributionMode = mode;
                 writeOptions.put(FlinkWriteOptions.DISTRIBUTION_MODE.key(), mode.modeName());
             }
             return this;
@@ -337,6 +351,7 @@ public class FlinkSink {
          * @return {@link Builder} to connect the iceberg table.
          */
         public Builder upsert(boolean enabled) {
+            this.upsert = enabled;
             writeOptions.put(FlinkWriteOptions.WRITE_UPSERT_ENABLED.key(), Boolean.toString(enabled));
             return this;
         }
@@ -408,9 +423,11 @@ public class FlinkSink {
             // Convert the requested flink table schema to flink row type.
             RowType flinkRowType = toFlinkRowType(table.schema(), tableSchema);
 
-            // Distribute the records from input data stream based on the write.distribution-mode.
-            DataStream<RowData> distributeStream = distributeDataStream(
-                    rowDataInput, equalityFieldIds, table.spec(), table.schema(), flinkRowType);
+            // Distribute the records from input data stream based on the write.distribution-mode and
+            // equality fields.
+            DataStream<RowData> distributeStream =
+                    distributeDataStream(
+                            rowDataInput, equalityFieldIds, table.spec(), table.schema(), flinkRowType);
 
             // Add parallel writers that append rows to files
             SingleOutputStreamOperator<WriteResult> writerStream =
@@ -513,7 +530,8 @@ public class FlinkSink {
                             TableIdentifier.of(table.name()),
                             tableLoader,
                             flinkWriteConf.overwriteMode(),
-                            actionProvider));
+                            actionProvider,
+                            tableOptions));
             SingleOutputStreamOperator<Void> committerStream = writerStream
                     .transform(operatorName(ICEBERG_FILES_COMMITTER_NAME), Types.VOID, filesCommitter)
                     .setParallelism(1)
@@ -527,7 +545,8 @@ public class FlinkSink {
         private SingleOutputStreamOperator<Void> appendMultipleCommitter(
                 SingleOutputStreamOperator<MultipleWriteResult> writerStream) {
             IcebergProcessOperator<MultipleWriteResult, Void> multipleFilesCommiter =
-                    new IcebergProcessOperator<>(new IcebergMultipleFilesCommiter(catalogLoader, overwrite));
+                    new IcebergProcessOperator<>(new IcebergMultipleFilesCommiter(catalogLoader, overwrite,
+                            actionProvider, tableOptions));
             SingleOutputStreamOperator<Void> committerStream = writerStream
                     .transform(operatorName(ICEBERG_MULTIPLE_FILES_COMMITTER_NAME), Types.VOID, multipleFilesCommiter)
                     .setParallelism(1)
@@ -561,8 +580,8 @@ public class FlinkSink {
             }
 
             IcebergProcessOperator<RowData, WriteResult> streamWriter = createStreamWriter(
-                    table, flinkRowType, equalityFieldIds, flinkWriteConf,
-                    appendMode, inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink);
+                    table, flinkRowType, equalityFieldIds, flinkWriteConf, appendMode, inlongMetric,
+                    auditHostAndPorts, dirtyOptions, dirtySink);
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             SingleOutputStreamOperator<WriteResult> writerStream = input
@@ -701,6 +720,7 @@ public class FlinkSink {
             String auditHostAndPorts,
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink) {
+        // flink A, iceberg a
         Preconditions.checkArgument(table != null, "Iceberg table should't be null");
 
         Table serializableTable = SerializableTable.copyOf(table);

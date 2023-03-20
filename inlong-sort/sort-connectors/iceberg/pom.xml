@@ -66,6 +66,11 @@
             <groupId>org.apache.thrift</groupId>
             <artifactId>libfb303</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs-client</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
