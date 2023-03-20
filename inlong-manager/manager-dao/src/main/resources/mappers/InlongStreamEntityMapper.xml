@@ -268,7 +268,7 @@
                 </foreach>
             </if>
             <if test="request.inCharges != null and request.inCharges != ''">
-                and grp.in_charges like CONCAT('%', #{request.inCharges}, '%')
+                and find_in_set(#{request.inCharges, jdbcType=VARCHAR}, grp.in_charges)
             </if>
         </where>
         <choose>
