@@ -358,6 +358,7 @@
   "meta.Sinks.Kudu.FieldType": "类型",
   "meta.Sinks.Kudu.PartitionStrategy": "分区策略",
   "meta.Sinks.Kudu.FieldDescription": "描述",
+  "meta.Sinks.Kudu.buckets": "Buckets",
   "meta.Group.InlongGroupId": "数据流组 ID",
   "meta.Group.InlongGroupIdRules": "只能包含小写字母、数字、中划线、下划线",
   "meta.Group.InlongGroupName": "数据流组名称",

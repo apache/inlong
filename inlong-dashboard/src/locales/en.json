@@ -358,6 +358,7 @@
   "meta.Sinks.Kudu.FieldType": "FieldType",
   "meta.Sinks.Kudu.PartitionStrategy": "PartitionStrategy",
   "meta.Sinks.Kudu.FieldDescription": "FieldDescription",
+  "meta.Sinks.Kudu.buckets": "Buckets",
   "meta.Group.InlongGroupId": "Inlong Group ID",
   "meta.Group.InlongGroupIdRules": "Only lowercase letters, numbers, minus, and underscores",
   "meta.Group.InlongGroupName": "Inlong Group Name",
