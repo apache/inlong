@@ -267,8 +267,8 @@
                     #{status}
                 </foreach>
             </if>
-            <if test="request.inCharges != null and request.inCharges != ''">
-                and find_in_set(#{request.inCharges, jdbcType=VARCHAR}, grp.in_charges)
+            <if test="request.inCharge != null and request.inCharges != ''">
+                and find_in_set(#{request.inCharge, jdbcType=VARCHAR}, grp.in_charges)
             </if>
         </where>
         <choose>
