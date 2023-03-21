@@ -495,6 +495,9 @@ public enum MySqlReadableMetadata {
                     definitions.addAll(alterExpression.getColDataTypeList().get(0).getColDataType().getArgumentsStringList());
                     definitions.addAll(alterExpression.getColDataTypeList().get(0).getColumnSpecs());
 //                    Column newColumn = new Column(alterExpression.getColumnName(), definitions, );
+//                    Column oldColumn = new Column();
+
+//                    Column newColumn = new Column(alterExpression.getColumnName(), definitions, );
 //                        );
 
                 }
