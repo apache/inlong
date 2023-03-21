@@ -21,6 +21,7 @@ import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeBindGroupRequest;
+import org.apache.inlong.manager.pojo.stream.AddFieldsRequest;
 
 /**
  * The service interface for agent
@@ -57,4 +58,12 @@ public interface AgentService {
      * @return Whether succeed.
      */
     Boolean bindGroup(AgentClusterNodeBindGroupRequest request);
+
+    /**
+     * adds fields, need re-config the InlongStream and StreamSink.
+     *
+     * @param request add fields
+     * @return success or failure
+     */
+    Boolean addFields(AddFieldsRequest request);
 }

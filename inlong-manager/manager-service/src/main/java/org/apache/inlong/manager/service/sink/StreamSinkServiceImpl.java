@@ -33,10 +33,12 @@ import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
@@ -53,6 +55,8 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sort.util.FieldTypeUtils;
+import org.apache.inlong.manager.pojo.stream.AddFieldsRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
@@ -78,7 +82,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
@@ -97,6 +104,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private static final int PARSE_FIELD_CSV_MAX_COLUMNS = 3;
     private static final int PARSE_FIELD_CSV_MIN_COLUMNS = 2;
 
+    @Autowired
+    private FieldTypeUtils fieldTypeUtils;
     @Autowired
     private SinkOperatorFactory operatorFactory;
     @Autowired
@@ -796,6 +805,57 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         return objectMapper.readValue(statement,
                 new TypeReference<LinkedHashMap<String, String>>() {
                 });
+    }
+
+    @Override
+    public void addFieldForSink(AddFieldsRequest fieldsRequest, String sourceType, InlongGroupEntity groupEntity,
+            InlongStreamEntity streamEntity) {
+        AtomicBoolean isNeedAddField = new AtomicBoolean(false);
+        String groupId = groupEntity.getInlongGroupId();
+        String streamId = streamEntity.getInlongStreamId();
+        String defaultOperator = groupEntity.getInCharges().split(InlongConstants.COMMA)[0];
+        // add fields for StreamSinkField
+        List<StreamSinkEntity> sinkEntityList = sinkMapper.selectByRelatedId(groupId, streamId);
+        sinkEntityList.forEach(sink -> {
+            String sinkType = sink.getSinkType();
+            List<SinkField> toAddFields = fieldsRequest.getFields().stream().map(streamField -> {
+                SinkField sinkField = new SinkField();
+                sinkField.setSinkType(sink.getSinkType());
+                sinkField.setFieldName(streamField.getFieldName());
+                sinkField.setFieldType(fieldTypeUtils.getSinkField(sinkType, streamField.getFieldType()));
+                sinkField.setFieldComment(streamField.getFieldComment());
+                sinkField.setSourceFieldName(streamField.getFieldName());
+                sinkField.setSourceFieldType(fieldTypeUtils.getStreamField(sourceType, streamField.getFieldType()));
+                return sinkField;
+            }).collect(Collectors.toList());
+            List<StreamSinkFieldEntity> existsFieldList = sinkFieldMapper.selectBySinkId(sink.getId());
+            List<SinkField> sinkFields = new ArrayList<>();
+            if (CollectionUtils.isNotEmpty(existsFieldList)) {
+                sinkFields = CommonBeanUtils.copyListProperties(existsFieldList, SinkField::new);
+            }
+            Set<String> existsNames = sinkFields.stream()
+                    .map(field -> field.getFieldName().toLowerCase(Locale.ROOT))
+                    .collect(Collectors.toSet());
+            for (SinkField fieldInfo : toAddFields) {
+                String tobeAddFieldName = fieldInfo.getFieldName().toLowerCase(Locale.ROOT);
+                if (existsNames.contains(tobeAddFieldName)) {
+                    LOGGER.error("sink field {} already exist for sinkId {}", fieldInfo.getFieldName(), sink.getId());
+                } else {
+                    sinkFields.add(fieldInfo);
+                }
+            }
+            if (sinkFields.size() != existsFieldList.size()) {
+                isNeedAddField.set(true);
+                StreamSink streamSink = this.get(sink.getId());
+                SinkRequest request = streamSink.genSinkRequest();
+                request.setSinkFieldList(sinkFields);
+                this.update(request, defaultOperator);
+            }
+        });
+        boolean streamSuccess = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus());
+        if (streamSuccess && isNeedAddField.get()) {
+            startProcessForSink(groupId, streamId, defaultOperator);
+        }
     }
 
     private void checkSinkRequestParams(SinkRequest request) {

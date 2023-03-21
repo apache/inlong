@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -61,8 +62,11 @@ import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
+import org.apache.inlong.manager.pojo.stream.AddFieldsRequest;
 import org.apache.inlong.manager.service.core.AgentService;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.elasticsearch.common.util.set.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +76,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -81,6 +86,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -97,6 +108,19 @@ public class AgentServiceImpl implements AgentService {
     private static final int TASK_FETCH_SIZE = 2;
     private static final Gson GSON = new Gson();
 
+
+    // field change queue (only supports adding fields)
+    private final LinkedBlockingQueue<AddFieldsRequest> addFieldQueue = new LinkedBlockingQueue<>();
+
+    private final ExecutorService executorService = new ThreadPoolExecutor(
+            5,
+            10,
+            10L,
+            TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(100),
+            new ThreadFactoryBuilder().setNameFormat("async-add-field-%s").build(),
+            new CallerRunsPolicy());
+
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -111,6 +135,21 @@ public class AgentServiceImpl implements AgentService {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
+    @Autowired
+    private InlongStreamService streamService;
+    @Autowired
+    private StreamSinkService sinkService;
+
+    /**
+     * start add field task
+     */
+    @PostConstruct
+    private void startHeartbeatTask() {
+        AddFieldsTaskRunnable addFieldsTaskRunnable = new AddFieldsTaskRunnable();
+        this.executorService.execute(addFieldsTaskRunnable);
+        LOGGER.info("add field task started successfully");
+    }
+
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
@@ -212,12 +251,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(bindSet)) {
             bindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(ClusterType.AGENT);
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(Objects::nonNull)
+                        ClusterPageRequest pageRequest = new ClusterPageRequest();
+                        pageRequest.setParentId(cluster.getId());
+                        pageRequest.setType(ClusterType.AGENT);
+                        pageRequest.setKeyword(clusterNode);
+                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
+                    }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -236,12 +275,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(unbindSet)) {
             unbindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(ClusterType.AGENT);
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(Objects::nonNull)
+                        ClusterPageRequest pageRequest = new ClusterPageRequest();
+                        pageRequest.setParentId(cluster.getId());
+                        pageRequest.setType(ClusterType.AGENT);
+                        pageRequest.setKeyword(clusterNode);
+                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
+                    }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -258,6 +297,16 @@ public class AgentServiceImpl implements AgentService {
                     });
         }
         return true;
+    }
+
+    @Override
+    public Boolean addFields(AddFieldsRequest request) {
+        if (CollectionUtils.isEmpty(request.getFields())) {
+            LOGGER.warn("add field request is empty, just return");
+            return true;
+        }
+        LOGGER.info("received add fields request: {}", request);
+        return addFieldQueue.add(request);
     }
 
     /**
@@ -588,6 +637,58 @@ public class AgentServiceImpl implements AgentService {
         Set<String> sourceGroups = Stream.of(
                 sourceEntity.getInlongClusterNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
         return sourceGroups.stream().anyMatch(clusterNodeGroups::contains);
+    }
+
+
+    /**
+     * Task for add fields
+     */
+    private class AddFieldsTaskRunnable implements Runnable {
+
+        private static final int WAIT_SECONDS = 60 * 1000;
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    processFields();
+                    Thread.sleep(WAIT_SECONDS);
+                } catch (Exception e) {
+                    LOGGER.error("exception occurred when add fields", e);
+                }
+            }
+        }
+
+        @Transactional(rollbackFor = Throwable.class)
+        public void processFields() {
+            if (addFieldQueue.isEmpty()) {
+                return;
+            }
+            AddFieldsRequest fieldsRequest = addFieldQueue.poll();
+            Preconditions.expectNotNull(fieldsRequest, "add fields request is null from the queue");
+            Integer id = fieldsRequest.getId();
+            Preconditions.expectNotNull(fieldsRequest, "add fields request has no id field " + fieldsRequest);
+            StreamSourceEntity streamSourceEntity = sourceMapper.selectById(id);
+            Preconditions.expectNotNull(streamSourceEntity, "stream source not found by id=" + id);
+
+            String groupId = streamSourceEntity.getInlongGroupId();
+            String streamId = streamSourceEntity.getInlongStreamId();
+            String sourceType = streamSourceEntity.getSourceType();
+            InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+            Preconditions.expectNotNull(groupEntity, "not found group info by groupId " + groupId);
+            InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+
+            try {
+                streamService.addFieldForStream(fieldsRequest, sourceType, groupEntity, streamEntity);
+                sinkService.addFieldForSink(fieldsRequest, sourceType, groupEntity, streamEntity);
+                LOGGER.info("success to add fields for groupId={} streamId={}", groupId, streamId);
+            } catch (Exception e) {
+                String errMsg = String.format("failed to add fields for groupId=%s streamId=%s ",
+                        groupId, streamId);
+                LOGGER.error(errMsg, e);
+                throw new BusinessException(errMsg + e.getMessage());
+            }
+        }
     }
 
 }
