@@ -108,7 +108,6 @@ public class AgentServiceImpl implements AgentService {
     private static final int TASK_FETCH_SIZE = 2;
     private static final Gson GSON = new Gson();
 
-
     // field change queue (only supports adding fields)
     private final LinkedBlockingQueue<AddFieldsRequest> addFieldQueue = new LinkedBlockingQueue<>();
 
@@ -149,7 +148,6 @@ public class AgentServiceImpl implements AgentService {
         this.executorService.execute(addFieldsTaskRunnable);
         LOGGER.info("add field task started successfully");
     }
-
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
@@ -251,12 +249,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(bindSet)) {
             bindSet.stream().flatMap(clusterNode -> {
-                        ClusterPageRequest pageRequest = new ClusterPageRequest();
-                        pageRequest.setParentId(cluster.getId());
-                        pageRequest.setType(ClusterType.AGENT);
-                        pageRequest.setKeyword(clusterNode);
-                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
-                    }).filter(Objects::nonNull)
+                ClusterPageRequest pageRequest = new ClusterPageRequest();
+                pageRequest.setParentId(cluster.getId());
+                pageRequest.setType(ClusterType.AGENT);
+                pageRequest.setKeyword(clusterNode);
+                return clusterNodeMapper.selectByCondition(pageRequest).stream();
+            }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -275,12 +273,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(unbindSet)) {
             unbindSet.stream().flatMap(clusterNode -> {
-                        ClusterPageRequest pageRequest = new ClusterPageRequest();
-                        pageRequest.setParentId(cluster.getId());
-                        pageRequest.setType(ClusterType.AGENT);
-                        pageRequest.setKeyword(clusterNode);
-                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
-                    }).filter(Objects::nonNull)
+                ClusterPageRequest pageRequest = new ClusterPageRequest();
+                pageRequest.setParentId(cluster.getId());
+                pageRequest.setType(ClusterType.AGENT);
+                pageRequest.setKeyword(clusterNode);
+                return clusterNodeMapper.selectByCondition(pageRequest).stream();
+            }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -638,7 +636,6 @@ public class AgentServiceImpl implements AgentService {
                 sourceEntity.getInlongClusterNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
         return sourceGroups.stream().anyMatch(clusterNodeGroups::contains);
     }
-
 
     /**
      * Task for add fields
