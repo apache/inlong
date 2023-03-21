@@ -105,22 +105,20 @@ public final class MySqlRecordEmitter<T>
             TableChanges changes = TABLE_CHANGE_SERIALIZER.deserialize(tableChanges, true);
             for (TableChange tableChange : changes) {
                 splitState.asBinlogSplitState().recordSchema(tableChange.getId(), tableChange);
+                if (includeSchemaChanges) {
+                    BinlogOffset position = getBinlogPosition(element);
+                    splitState.asBinlogSplitState().setStartingOffset(position);
+                    emitElement(element, output, tableChange);
+                }
             }
-            if (includeSchemaChanges) {
+
+            if (tableChanges.isEmpty()) {
                 BinlogOffset position = getBinlogPosition(element);
                 splitState.asBinlogSplitState().setStartingOffset(position);
                 emitElement(element, output, null);
             }
+
         } else if (isDataChangeRecord(element)) {
-            // updateStartingOffsetForSplit(splitState, element);
-            // reportMetrics(element);
-            //
-            // final Map<TableId, TableChange> tableSchemas =
-            // splitState.getMySQLSplit().getTableSchemas();
-            // final TableChange tableSchema =
-            // tableSchemas.getOrDefault(getTableId(element), null);
-            //
-            // emitElement(element, output, tableSchema);
             if (splitState.isBinlogSplitState()) {
                 BinlogOffset position = getBinlogPosition(element);
                 splitState.asBinlogSplitState().setStartingOffset(position);

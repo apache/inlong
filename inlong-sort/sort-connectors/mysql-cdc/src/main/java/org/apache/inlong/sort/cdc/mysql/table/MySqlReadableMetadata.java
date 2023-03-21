@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
+import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
+import static org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
+
+import com.google.gson.Gson;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
@@ -24,6 +28,11 @@ import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.LinkedHashMap;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.alter.Alter;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericArrayData;
@@ -34,6 +43,7 @@ import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.util.RecordUtils;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson.Source;
@@ -45,11 +55,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Defines the supported metadata columns for {@link MySqlTableSource}.
  */
 public enum MySqlReadableMetadata {
+
 
     /**
      * Name of the table that contain the row.
@@ -441,24 +454,53 @@ public enum MySqlReadableMetadata {
         String databaseName = getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY);
         // opTs
         long opTs = (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
-        // ts
-        long ts = (Long) messageStruct.get(FieldName.TIMESTAMP);
         // actual data
         GenericRowData data = rowData;
         Map<String, Object> field = (Map<String, Object>) data.getField(0);
         List<Map<String, Object>> dataList = new ArrayList<>();
-        dataList.add(field);
 
         CanalJson canalJson = CanalJson.builder()
-                .data(dataList).database(databaseName)
-                .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
-                .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
+                .database(databaseName)
+                .es(opTs).pkNames(getPkNames(tableSchema))
+                .mysqlType(getMysqlType(tableSchema)).table(tableName)
                 .type(getCanalOpType(rowData)).sqlType(getSqlType(tableSchema)).build();
 
         try {
+            if (RecordUtils.isDdlRecord(messageStruct)) {
+                String sql = (String) field.get(DDL_FIELD_NAME);
+                canalJson.setSql(sql);
+                injectStatement(sql, canalJson);
+                canalJson.setDdl(true);
+                canalJson.setData(dataList);
+            } else {
+                canalJson.setDdl(false);
+                canalJson.setTs((Long) messageStruct.get(FieldName.TIMESTAMP));
+                dataList.add(field);
+                canalJson.setData(dataList);
+            }
             return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
         } catch (Exception e) {
             throw new IllegalStateException("exception occurs when get meta data", e);
+        }
+
+    }
+
+    private static void injectStatement(String sql, CanalJson canalJson) {
+        try {
+            Statement statement = CCJSqlParserUtil.parse(sql);
+
+            String ddl = "ALTER TABLE `test`.`EE` \n"
+                + "ADD COLUMN `wvcwvccwv` varchar(255) NULL AFTER `vvvvee`";
+            Statement s = CCJSqlParserUtil.parse(ddl);
+            ObjectMapper mapper = new ObjectMapper();
+            String str = mapper.writeValueAsString(s);
+            System.out.println(str);
+            mapper.setSerializationInclusion(Include.NON_NULL);
+            Alter alter = mapper.readValue(str, Alter.class);
+            canalJson.setDdlStatement(statement);
+
+        } catch (Exception e) {
+            LOG.error("parse ddl error: {}， set ddl to null", sql, e);
         }
     }
 
@@ -466,6 +508,7 @@ public enum MySqlReadableMetadata {
     private final DataType dataType;
     private final MetadataConverter converter;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Logger LOG = LoggerFactory.getLogger(MySqlReadableMetadata.class);
 
     MySqlReadableMetadata(String key, DataType dataType, MetadataConverter converter) {
         this.key = key;
@@ -499,7 +542,7 @@ public enum MySqlReadableMetadata {
                 break;
             default:
                 throw new IllegalStateException("the record only have states in DELETE, "
-                        + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
+                    + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
         }
         return opType;
     }

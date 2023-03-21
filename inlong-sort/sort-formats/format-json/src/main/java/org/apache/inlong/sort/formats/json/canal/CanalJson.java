@@ -20,6 +20,7 @@ package org.apache.inlong.sort.formats.json.canal;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
+import net.sf.jsqlparser.statement.Statement;
 
 @Builder
 public class CanalJson {
@@ -34,10 +35,19 @@ public class CanalJson {
     private Map<String, String> mysqlType;
     private Map<String, Integer> sqlType;
 
+    public Statement getDdlStatement() {
+        return ddlStatement;
+    }
+
+    public void setDdlStatement(Statement ddlStatement) {
+        this.ddlStatement = ddlStatement;
+    }
+
     private boolean isDdl;
     private List<String> pkNames;
     private String schema;
     private Map<String, String> oracleType;
+    private Statement ddlStatement;
 
     public List<Map<String, Object>> getData() {
         return data;

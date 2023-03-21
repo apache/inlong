@@ -84,6 +84,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     private final boolean migrateAll;
     private final String inlongMetric;
     private final String inlongAudit;
+    private final boolean includeSchemaChange;
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
@@ -127,7 +128,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             boolean migrateAll,
             String inlongMetric,
             String inlongAudit,
-            String rowKindsFiltered) {
+            String rowKindsFiltered,
+            boolean includeSchemaChange) {
         this(
                 physicalSchema,
                 port,
@@ -156,7 +158,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                 migrateAll,
                 inlongMetric,
                 inlongAudit,
-                rowKindsFiltered);
+                rowKindsFiltered,
+                includeSchemaChange);
     }
 
     /**
@@ -190,7 +193,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             boolean migrateAll,
             String inlongMetric,
             String inlongAudit,
-            String rowKindsFiltered) {
+            String rowKindsFiltered,
+            boolean includeSchemaChange) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -222,6 +226,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
         this.rowKindsFiltered = rowKindsFiltered;
+        this.includeSchemaChange = includeSchemaChange;
     }
 
     @Override
@@ -279,6 +284,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .startupOptions(startupOptions)
                             .deserializer(deserializer)
                             .scanNewlyAddedTableEnabled(scanNewlyAddedTableEnabled)
+                            .includeSchemaChanges(includeSchemaChange)
                             .jdbcProperties(jdbcProperties)
                             .heartbeatInterval(heartbeatInterval)
                             .inlongMetric(inlongMetric)
@@ -371,7 +377,9 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         heartbeatInterval,
                         migrateAll,
                         inlongMetric,
-                        inlongAudit, rowKindsFiltered);
+                        inlongAudit,
+                        rowKindsFiltered,
+                        includeSchemaChange);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

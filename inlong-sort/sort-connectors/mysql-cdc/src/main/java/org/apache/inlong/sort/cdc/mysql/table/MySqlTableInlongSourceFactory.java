@@ -48,6 +48,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.DATABASE_NAME;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.HEARTBEAT_INTERVAL;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.HOSTNAME;
+import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.INCLUDE_SCHEMA_CHANGE;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.MIGRATE_ALL;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.PASSWORD;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.PORT;
@@ -153,6 +154,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
                 ? ROW_KINDS_FILTERED.defaultValue()
                 : config.get(ROW_KINDS_FILTERED);
         boolean enableParallelRead = config.get(SCAN_INCREMENTAL_SNAPSHOT_ENABLED);
+        final boolean includeSchemaChange = config.get(INCLUDE_SCHEMA_CHANGE);
         if (enableParallelRead) {
             validateStartupOptionIfEnableParallel(startupOptions);
             validateIntegerOption(SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE, splitSize, 1);
@@ -191,7 +193,9 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
                 heartbeatInterval,
                 migrateAll,
                 inlongMetric,
-                inlongAudit, rowKindFiltered);
+                inlongAudit,
+                rowKindFiltered,
+                includeSchemaChange);
     }
 
     @Override
@@ -237,6 +241,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         options.add(INLONG_AUDIT);
         options.add(ROW_KINDS_FILTERED);
         options.add(AUDIT_KEYS);
+        options.add(INCLUDE_SCHEMA_CHANGE);
         return options;
     }
 
