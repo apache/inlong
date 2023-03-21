@@ -15,37 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.json.debezium;
+package org.apache.inlong.sort.ddl;
 
-import io.debezium.relational.history.TableChanges;
-import java.util.List;
-import java.util.Map;
-import lombok.Builder;
-import lombok.Data;
+import org.apache.inlong.sort.ddl.enums.PositionType;
 
-@Data
-@Builder
-public class DebeziumJson {
+public class Position {
 
-    private Map<String, String> before;
-    private Map<String, Object> after;
-    private Source source;
-    private TableChanges.TableChange tableChange;
-    private long tsMs;
-    private String op;
+    private org.apache.inlong.sort.ddl.enums.PositionType PositionType;
+    private String ColumnName;
 
-    private String ddl;
-
-    @Builder
-    @Data
-    public static class Source {
-
-        private String name;
-        private String db;
-        private String table;
-        private List<String> pkNames;
-        private Map<String, Integer> sqlType;
-        private Map<String, String> mysqlType;
+    public Position(org.apache.inlong.sort.ddl.enums.PositionType positionType, String columnName) {
+        PositionType = positionType;
+        ColumnName = columnName;
     }
-
 }

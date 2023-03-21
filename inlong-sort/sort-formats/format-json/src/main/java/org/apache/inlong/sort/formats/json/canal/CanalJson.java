@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Builder;
 import net.sf.jsqlparser.statement.Statement;
+import org.apache.inlong.sort.ddl.operations.Operation;
 
 @Builder
 public class CanalJson {
@@ -35,22 +36,23 @@ public class CanalJson {
     private Map<String, String> mysqlType;
     private Map<String, Integer> sqlType;
 
-    public Statement getDdlStatement() {
-        return ddlStatement;
-    }
-
-    public void setDdlStatement(Statement ddlStatement) {
-        this.ddlStatement = ddlStatement;
-    }
-
     private boolean isDdl;
     private List<String> pkNames;
     private String schema;
     private Map<String, String> oracleType;
-    private Statement ddlStatement;
+    private Operation operation;
 
     public List<Map<String, Object>> getData() {
         return data;
+    }
+
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(Operation operation) {
+        this.operation = operation;
     }
 
     public void setData(List<Map<String, Object>> data) {

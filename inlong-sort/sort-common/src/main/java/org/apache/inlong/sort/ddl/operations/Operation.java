@@ -15,37 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.json.debezium;
+package org.apache.inlong.sort.ddl.operations;
 
-import io.debezium.relational.history.TableChanges;
-import java.util.List;
-import java.util.Map;
-import lombok.Builder;
-import lombok.Data;
+import org.apache.inlong.sort.ddl.enums.OperationType;
 
-@Data
-@Builder
-public class DebeziumJson {
+/**
+ * @Author pengzirui
+ * @Date 2023/3/21 2:56 PM
+ * @Version 1.0
+ */
+public abstract class Operation {
 
-    private Map<String, String> before;
-    private Map<String, Object> after;
-    private Source source;
-    private TableChanges.TableChange tableChange;
-    private long tsMs;
-    private String op;
+    private String database;
 
-    private String ddl;
+    private String table;
 
-    @Builder
-    @Data
-    public static class Source {
+    private OperationType type;
 
-        private String name;
-        private String db;
-        private String table;
-        private List<String> pkNames;
-        private Map<String, Integer> sqlType;
-        private Map<String, String> mysqlType;
+    public Operation(String database, String table, OperationType type) {
+        this.database = database;
+        this.table = table;
+        this.type = type;
     }
 
 }

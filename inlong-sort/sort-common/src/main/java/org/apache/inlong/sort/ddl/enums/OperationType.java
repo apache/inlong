@@ -15,37 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.json.debezium;
+package org.apache.inlong.sort.ddl.enums;
 
-import io.debezium.relational.history.TableChanges;
-import java.util.List;
-import java.util.Map;
-import lombok.Builder;
-import lombok.Data;
+/**
+ * @Author pengzirui
+ * @Date 2023/3/21 2:48 PM
+ * @Version 1.0
+ */
+public enum OperationType {
 
-@Data
-@Builder
-public class DebeziumJson {
-
-    private Map<String, String> before;
-    private Map<String, Object> after;
-    private Source source;
-    private TableChanges.TableChange tableChange;
-    private long tsMs;
-    private String op;
-
-    private String ddl;
-
-    @Builder
-    @Data
-    public static class Source {
-
-        private String name;
-        private String db;
-        private String table;
-        private List<String> pkNames;
-        private Map<String, Integer> sqlType;
-        private Map<String, String> mysqlType;
-    }
-
+    CREATE,
+    ALTER,
+    DROP,
+    RENAME,
+    TRUNCATE,
+    INSERT,
+    UPDATE,
+    DELETE,
+    QUERY,
+    OTHER
 }

@@ -18,9 +18,7 @@
 package org.apache.inlong.sort.cdc.mysql.table;
 
 import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
-import static org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
 
-import com.google.gson.Gson;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
@@ -28,11 +26,10 @@ import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.LinkedHashMap;
-import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.alter.Alter;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
+import net.sf.jsqlparser.statement.alter.AlterExpression;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericArrayData;
@@ -44,6 +41,8 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.cdc.base.util.RecordUtils;
+import org.apache.inlong.sort.ddl.Column;
+import org.apache.inlong.sort.ddl.enums.AlterType;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson.Source;
@@ -469,7 +468,7 @@ public enum MySqlReadableMetadata {
             if (RecordUtils.isDdlRecord(messageStruct)) {
                 String sql = (String) field.get(DDL_FIELD_NAME);
                 canalJson.setSql(sql);
-                injectStatement(sql, canalJson);
+                injectStatement(sql, canalJson, tableName, databaseName);
                 canalJson.setDdl(true);
                 canalJson.setData(dataList);
             } else {
@@ -485,19 +484,36 @@ public enum MySqlReadableMetadata {
 
     }
 
-    private static void injectStatement(String sql, CanalJson canalJson) {
+    private static void injectStatement(String sql, CanalJson canalJson, String table, String database) {
         try {
             Statement statement = CCJSqlParserUtil.parse(sql);
+            if (statement instanceof Alter) {
+                Alter alter = (Alter) statement;
 
-            String ddl = "ALTER TABLE `test`.`EE` \n"
-                + "ADD COLUMN `wvcwvccwv` varchar(255) NULL AFTER `vvvvee`";
-            Statement s = CCJSqlParserUtil.parse(ddl);
-            ObjectMapper mapper = new ObjectMapper();
-            String str = mapper.writeValueAsString(s);
-            System.out.println(str);
-            mapper.setSerializationInclusion(Include.NON_NULL);
-            Alter alter = mapper.readValue(str, Alter.class);
-            canalJson.setDdlStatement(statement);
+                for (AlterExpression alterExpression : alter.getAlterExpressions()) {
+                    List<String> definitions = new ArrayList<>();
+                    definitions.addAll(alterExpression.getColDataTypeList().get(0).getColDataType().getArgumentsStringList());
+                    definitions.addAll(alterExpression.getColDataTypeList().get(0).getColumnSpecs());
+//                    Column newColumn = new Column(alterExpression.getColumnName(), definitions, );
+//                        );
+
+                }
+                //                Column newColumn = new Column();
+//                Column oldColumn = new Column();
+//
+//                AlterExpression alterExpression = new AlterExpression(AlterType.ADD_COLUMN, );
+//                AlterOperation alterOperation = new AlterOperation(table, database, alter.getOperation());
+//
+//                canalJson.setOperation(alter.getOperation());
+                return;
+            }
+//            Statement s = CCJSqlParserUtil.parse(ddl);
+//            ObjectMapper mapper = new ObjectMapper();
+//            String str = mapper.writeValueAsString(s);
+//            System.out.println(str);
+//            mapper.setSerializationInclusion(Include.NON_NULL);
+//            Alter alter = mapper.readValue(str, Alter.class);
+//            canalJson.setOperation(statement);
 
         } catch (Exception e) {
             LOG.error("parse ddl error: {}， set ddl to null", sql, e);
