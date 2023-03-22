@@ -104,7 +104,6 @@ public class StreamSourceController {
         return Response.success(result);
     }
 
-
     @RequestMapping(value = "/source/forceDelete", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Force delete stream source by groupId and streamId")

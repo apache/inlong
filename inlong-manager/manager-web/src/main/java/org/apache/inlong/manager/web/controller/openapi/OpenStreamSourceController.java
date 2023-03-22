@@ -98,7 +98,6 @@ public class OpenStreamSourceController {
         return Response.success(sourceService.delete(id, LoginUserUtils.getLoginUser()));
     }
 
-
     @RequestMapping(value = "/source/stop/{id}", method = RequestMethod.POST)
     @ApiOperation(value = "Stop stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
