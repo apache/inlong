@@ -33,11 +33,17 @@ public class Column {
 
     private boolean canBeNull;
 
+    private String defaultValue;
+
+    private String comment;
+
     public Column(String name, List<String> definition, int jdbcType,
-            Position position) {
+            Position position, String defaultValue, String comment) {
         this.name = name;
         this.definition = definition;
         this.jdbcType = jdbcType;
         this.position = position;
+        this.defaultValue = defaultValue;
+        this.comment = comment;
     }
 }

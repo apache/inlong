@@ -23,6 +23,6 @@ package org.apache.inlong.sort.ddl.enums;
  * @Version 1.0
  */
 public enum PositionType {
-    BEFORE,
+    FIRST,
     AFTER
 }
