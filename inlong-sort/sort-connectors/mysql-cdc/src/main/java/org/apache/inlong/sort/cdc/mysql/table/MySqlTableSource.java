@@ -84,6 +84,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     private final boolean migrateAll;
     private final String inlongMetric;
     private final String inlongAudit;
+    private final boolean includeIncremental;
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
@@ -127,7 +128,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             boolean migrateAll,
             String inlongMetric,
             String inlongAudit,
-            String rowKindsFiltered) {
+            String rowKindsFiltered,
+            boolean includeIncremental) {
         this(
                 physicalSchema,
                 port,
@@ -156,7 +158,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                 migrateAll,
                 inlongMetric,
                 inlongAudit,
-                rowKindsFiltered);
+                rowKindsFiltered,
+                includeIncremental);
     }
 
     /**
@@ -190,7 +193,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             boolean migrateAll,
             String inlongMetric,
             String inlongAudit,
-            String rowKindsFiltered) {
+            String rowKindsFiltered,
+            boolean includeIncremental) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -222,6 +226,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
         this.rowKindsFiltered = rowKindsFiltered;
+        this.includeIncremental = includeIncremental;
     }
 
     @Override
@@ -283,6 +288,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .heartbeatInterval(heartbeatInterval)
                             .inlongMetric(inlongMetric)
                             .inlongAudit(inlongAudit)
+                            .includeIncremental(includeIncremental)
                             .build();
             return SourceProvider.of(parallelSource);
         } else {
@@ -371,7 +377,9 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         heartbeatInterval,
                         migrateAll,
                         inlongMetric,
-                        inlongAudit, rowKindsFiltered);
+                        inlongAudit,
+                        rowKindsFiltered,
+                        includeIncremental);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

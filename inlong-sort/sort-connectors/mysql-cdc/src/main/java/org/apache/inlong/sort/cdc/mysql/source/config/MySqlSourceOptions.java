@@ -206,6 +206,13 @@ public class MySqlSourceOptions {
                     .defaultValue(false)
                     .withDescription("Whether migrate all databases");
 
+    public static final ConfigOption<Boolean> INCLUDE_INCREMENTAL =
+            ConfigOptions.key("include-incremental")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether include a incremental flag in data "
+                            + "when migrating all databases");
+
     // ----------------------------------------------------------------------------
     // experimental options, won't add them to documentation
     // ----------------------------------------------------------------------------

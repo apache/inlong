@@ -18,7 +18,9 @@
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
 import io.debezium.connector.AbstractSourceInfo;
+import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
+import io.debezium.data.Envelope.FieldName;
 import io.debezium.document.DocumentReader;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.HistoryRecord;
@@ -245,6 +247,17 @@ public class RecordUtils {
     public static boolean isWatermarkEvent(SourceRecord record) {
         Optional<SignalEventDispatcher.WatermarkKind> watermarkKind = getWatermarkKind(record);
         return watermarkKind.isPresent();
+    }
+
+    public static boolean isSnapshotRecord(Struct sourceStruct) {
+        SnapshotRecord snapshotRecord = SnapshotRecord.fromSource(sourceStruct);
+        return (SnapshotRecord.TRUE == snapshotRecord);
+    }
+
+    public static void toSnapshotRecord(SourceRecord element) {
+        Struct messageStruct = (Struct) element.value();
+        Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
+        SnapshotRecord.TRUE.toSource(sourceStruct);
     }
 
     public static boolean isLowWatermarkEvent(SourceRecord record) {

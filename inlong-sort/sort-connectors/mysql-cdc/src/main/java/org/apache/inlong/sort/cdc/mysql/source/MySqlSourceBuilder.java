@@ -270,4 +270,9 @@ public class MySqlSourceBuilder<T> {
     public MySqlSource<T> build() {
         return new MySqlSource<>(configFactory, checkNotNull(deserializer));
     }
+
+    public MySqlSourceBuilder<T> includeIncremental(boolean includeIncremental) {
+        this.configFactory.includeIncremental(includeIncremental);
+        return this;
+    }
 }

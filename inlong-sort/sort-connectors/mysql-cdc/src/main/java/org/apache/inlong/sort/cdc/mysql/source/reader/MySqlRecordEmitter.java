@@ -52,6 +52,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isHeartb
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isHighWatermarkEvent;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isSchemaChangeEvent;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isWatermarkEvent;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.toSnapshotRecord;
 
 /**
  * The {@link RecordEmitter} implementation for {@link MySqlSourceReader}.
@@ -80,25 +81,30 @@ public final class MySqlRecordEmitter<T>
     private volatile long snapEarliestTime = 0L;
     private volatile long snapProcessTime = 0L;
 
+    private boolean includeIncremental;
+
     public MySqlRecordEmitter(
             DebeziumDeserializationSchema<T> debeziumDeserializationSchema,
             MySqlSourceReaderMetrics sourceReaderMetrics,
-            boolean includeSchemaChanges) {
+            boolean includeSchemaChanges, boolean includeIncremental) {
         this.debeziumDeserializationSchema = debeziumDeserializationSchema;
         this.sourceReaderMetrics = sourceReaderMetrics;
         this.includeSchemaChanges = includeSchemaChanges;
         this.outputCollector = new OutputCollector<>();
+        this.includeIncremental = includeIncremental;
     }
 
     @Override
     public void emitRecord(SourceRecord element, SourceOutput<T> output, MySqlSplitState splitState)
             throws Exception {
+
         if (isWatermarkEvent(element)) {
             BinlogOffset watermark = getWatermark(element);
             if (isHighWatermarkEvent(element) && splitState.isSnapshotSplitState()) {
                 splitState.asSnapshotSplitState().setHighWatermark(watermark);
             }
         } else if (isSchemaChangeEvent(element) && splitState.isBinlogSplitState()) {
+            updateSnapshotRecord(element, splitState);
             HistoryRecord historyRecord = getHistoryRecord(element);
             Array tableChanges =
                     historyRecord.document().getArray(HistoryRecord.Fields.TABLE_CHANGES);
@@ -112,15 +118,6 @@ public final class MySqlRecordEmitter<T>
                 emitElement(element, output, null);
             }
         } else if (isDataChangeRecord(element)) {
-            // updateStartingOffsetForSplit(splitState, element);
-            // reportMetrics(element);
-            //
-            // final Map<TableId, TableChange> tableSchemas =
-            // splitState.getMySQLSplit().getTableSchemas();
-            // final TableChange tableSchema =
-            // tableSchemas.getOrDefault(getTableId(element), null);
-            //
-            // emitElement(element, output, tableSchema);
             if (splitState.isBinlogSplitState()) {
                 BinlogOffset position = getBinlogPosition(element);
                 splitState.asBinlogSplitState().setStartingOffset(position);
@@ -140,6 +137,8 @@ public final class MySqlRecordEmitter<T>
                     splitState.getMySQLSplit().getTableSchemas();
             final TableChange tableSchema =
                     tableSchemas.getOrDefault(RecordUtils.getTableId(element), null);
+
+            updateSnapshotRecord(element, splitState);
 
             debeziumDeserializationSchema.deserialize(
                     element,
@@ -167,6 +166,12 @@ public final class MySqlRecordEmitter<T>
         } else {
             // unknown element
             LOG.info("Meet unknown element {}, just skip.", element);
+        }
+    }
+
+    private void updateSnapshotRecord(SourceRecord element, MySqlSplitState splitState) {
+        if (splitState.isSnapshotSplitState() && includeIncremental) {
+            toSnapshotRecord(element);
         }
     }
 

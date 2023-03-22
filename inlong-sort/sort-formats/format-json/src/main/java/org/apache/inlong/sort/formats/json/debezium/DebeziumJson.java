@@ -33,6 +33,7 @@ public class DebeziumJson {
     private TableChanges.TableChange tableChange;
     private long tsMs;
     private String op;
+    private Boolean incremental;
 
     @Builder
     @Data

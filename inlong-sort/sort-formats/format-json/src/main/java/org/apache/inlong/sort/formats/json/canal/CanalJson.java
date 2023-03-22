@@ -20,127 +20,41 @@ package org.apache.inlong.sort.formats.json.canal;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 @Builder
+@JsonInclude(Include.NON_NULL)
 public class CanalJson {
 
+    @JsonProperty("data")
     private List<Map<String, Object>> data;
+    @JsonProperty("es")
     private long es;
+    @JsonProperty("table")
     private String table;
+    @JsonProperty("type")
     private String type;
+    @JsonProperty("database")
     private String database;
+    @JsonProperty("ts")
     private long ts;
+    @JsonProperty("sql")
     private String sql;
+    @JsonProperty("mysqlType")
     private Map<String, String> mysqlType;
+    @JsonProperty("sqlType")
     private Map<String, Integer> sqlType;
-
+    @JsonProperty("isDdl")
     private boolean isDdl;
+    @JsonProperty("pkNames")
     private List<String> pkNames;
+    @JsonProperty("schema")
     private String schema;
+    @JsonProperty("oracleType")
     private Map<String, String> oracleType;
-
-    public List<Map<String, Object>> getData() {
-        return data;
-    }
-
-    public void setData(List<Map<String, Object>> data) {
-        this.data = data;
-    }
-
-    public long getEs() {
-        return es;
-    }
-
-    public void setEs(long es) {
-        this.es = es;
-    }
-
-    public String getTable() {
-        return table;
-    }
-
-    public void setTable(String table) {
-        this.table = table;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getDatabase() {
-        return database;
-    }
-
-    public void setDatabase(String database) {
-        this.database = database;
-    }
-
-    public long getTs() {
-        return ts;
-    }
-
-    public void setTs(long ts) {
-        this.ts = ts;
-    }
-
-    public String getSql() {
-        return sql;
-    }
-
-    public void setSql(String sql) {
-        this.sql = sql;
-    }
-
-    public Map<String, String> getMysqlType() {
-        return mysqlType;
-    }
-
-    public void setMysqlType(Map<String, String> mysqlType) {
-        this.mysqlType = mysqlType;
-    }
-
-    public void setDdl(boolean ddl) {
-        isDdl = ddl;
-    }
-
-    public List<String> getPkNames() {
-        return pkNames;
-    }
-
-    public void setPkNames(List<String> pkNames) {
-        this.pkNames = pkNames;
-    }
-
-    public Map<String, Integer> getSqlType() {
-        return sqlType;
-    }
-
-    public void setSqlType(Map<String, Integer> sqlType) {
-        this.sqlType = sqlType;
-    }
-
-    public boolean isDdl() {
-        return isDdl;
-    }
-
-    public Map<String, String> getOracleType() {
-        return oracleType;
-    }
-
-    public void setOracleType(Map<String, String> oracleType) {
-        this.oracleType = oracleType;
-    }
-
-    public String getSchema() {
-        return schema;
-    }
-
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
+    @JsonProperty("incremental")
+    private Boolean incremental;
 
 }

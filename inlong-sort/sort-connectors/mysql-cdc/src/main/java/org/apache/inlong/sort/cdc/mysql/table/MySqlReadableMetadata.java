@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isSnapshotRecord;
+
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
@@ -173,7 +175,7 @@ public enum MySqlReadableMetadata {
                             .build();
                     DebeziumJson debeziumJson = DebeziumJson.builder().after(field).source(source)
                             .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getDebeziumOpType(data))
-                            .tableChange(tableSchema).build();
+                            .tableChange(tableSchema).incremental(isSnapshotRecord(sourceStruct)).build();
 
                     try {
                         return StringData.fromString(OBJECT_MAPPER.writeValueAsString(debeziumJson));
@@ -453,7 +455,8 @@ public enum MySqlReadableMetadata {
                 .data(dataList).database(databaseName)
                 .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
                 .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
-                .type(getCanalOpType(rowData)).sqlType(getSqlType(tableSchema)).build();
+                .type(getCanalOpType(rowData)).sqlType(getSqlType(tableSchema))
+                .incremental(isSnapshotRecord(sourceStruct)).build();
 
         try {
             return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
