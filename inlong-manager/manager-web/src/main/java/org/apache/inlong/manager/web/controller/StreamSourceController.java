@@ -88,6 +88,22 @@ public class StreamSourceController {
         return Response.success(result);
     }
 
+    @RequestMapping(value = "/source/stop/{id}", method = RequestMethod.POST)
+    @ApiOperation(value = "stop stream source")
+    @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    public Response<Boolean> stop(@PathVariable Integer id) {
+        boolean result = sourceService.stop(id, LoginUserUtils.getLoginUser().getName());
+        return Response.success(result);
+    }
+
+    @RequestMapping(value = "/source/restart/{id}", method = RequestMethod.POST)
+    @ApiOperation(value = "restart stream source")
+    @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    public Response<Boolean> restart(@PathVariable Integer id) {
+        boolean result = sourceService.restart(id, LoginUserUtils.getLoginUser().getName());
+        return Response.success(result);
+    }
+
     @RequestMapping(value = "/source/forceDelete", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Force delete stream source by groupId and streamId")
