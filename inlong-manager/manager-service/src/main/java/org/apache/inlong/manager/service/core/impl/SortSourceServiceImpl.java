@@ -202,8 +202,8 @@ public class SortSourceServiceImpl implements SortSourceService {
         List<SortSourceStreamSinkInfo> allStreamSinks = configLoader.loadAllStreamSinks();
         streamSinkMap = new HashMap<>();
         allStreamSinks.stream()
-                .filter(sink -> sink.getSortClusterName() != null)
-                .filter(sink -> sink.getSortTaskName() != null)
+                .filter(sink -> StringUtils.isNotBlank(sink.getSortClusterName()))
+                .filter(sink -> StringUtils.isNotBlank(sink.getSortTaskName()))
                 .forEach(sink -> {
                     Map<String, List<SortSourceStreamSinkInfo>> task2groupsMap =
                             streamSinkMap.computeIfAbsent(sink.getSortClusterName(), k -> new ConcurrentHashMap<>());
@@ -362,6 +362,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                                 return zone;
                             });
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
