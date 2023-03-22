@@ -35,12 +35,13 @@ public class CanalJson {
     private String sql;
     private Map<String, String> mysqlType;
     private Map<String, Integer> sqlType;
-
     private boolean isDdl;
     private List<String> pkNames;
     private String schema;
     private Map<String, String> oracleType;
     private Operation operation;
+
+    private Boolean incremental;
 
     public List<Map<String, Object>> getData() {
         return data;

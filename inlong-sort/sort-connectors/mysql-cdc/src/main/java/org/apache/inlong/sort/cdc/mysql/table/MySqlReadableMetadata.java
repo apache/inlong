@@ -26,10 +26,13 @@ import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.LinkedHashMap;
+import java.util.stream.Collectors;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.alter.Alter;
 import net.sf.jsqlparser.statement.alter.AlterExpression;
+import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericArrayData;
@@ -39,10 +42,15 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
+import org.apache.inlong.sort.base.sink.TableChange.ColumnPosition;
 import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.cdc.base.util.RecordUtils;
 import org.apache.inlong.sort.ddl.Column;
 import org.apache.inlong.sort.ddl.enums.AlterType;
+import org.apache.inlong.sort.ddl.enums.IndexType;
+import org.apache.inlong.sort.ddl.enums.PositionType;
+import org.apache.inlong.sort.ddl.indexes.Index;
+import org.apache.inlong.sort.ddl.operations.CreateTableOperation;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson.Source;
@@ -477,7 +485,8 @@ public enum MySqlReadableMetadata {
                 dataList.add(field);
                 canalJson.setData(dataList);
             }
-            return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
+            // return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
+            return StringData.fromString("NULL");
         } catch (Exception e) {
             throw new IllegalStateException("exception occurs when get meta data", e);
         }
@@ -494,22 +503,50 @@ public enum MySqlReadableMetadata {
                     List<String> definitions = new ArrayList<>();
                     definitions.addAll(alterExpression.getColDataTypeList().get(0).getColDataType().getArgumentsStringList());
                     definitions.addAll(alterExpression.getColDataTypeList().get(0).getColumnSpecs());
-                    // Column newColumn = new Column(alterExpression.getColumnName(), definitions, );
-
-//                    Column newColumn = new Column(alterExpression.getColumnName(), definitions, );
-//                    Column oldColumn = new Column();
-
-//                    Column newColumn = new Column(alterExpression.getColumnName(), definitions, );
-//                        );
-
                 }
-                //                Column newColumn = new Column();
-//                Column oldColumn = new Column();
-//
-//                AlterExpression alterExpression = new AlterExpression(AlterType.ADD_COLUMN, );
-//                AlterOperation alterOperation = new AlterOperation(table, database, alter.getOperation());
-//
-//                canalJson.setOperation(alter.getOperation());
+
+                return;
+            } if (statement instanceof CreateTable) {
+
+                CreateTable createTable = (CreateTable) statement;
+                CreateTableOperation createTableOperation = new CreateTableOperation();
+
+                if (createTable.getLikeTable() != null) {
+                    createTableOperation.setLikeTable(createTable.getLikeTable().getName());
+                }
+
+                List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
+                List<Column> columns = new ArrayList<>();
+                for (ColumnDefinition columnDefinition : columnDefinitions) {
+                    List<String> definitions = new ArrayList<>();
+                    List<String> argumentsStringList = columnDefinition.getColDataType()
+                        .getArgumentsStringList();
+                    if (argumentsStringList != null) {
+                        definitions.addAll(argumentsStringList);
+                    }
+                    definitions.addAll(columnDefinition.getColumnSpecs());
+                    Column column = new Column(columnDefinition.getColumnName(), definitions, 1,
+                        null, "", "");
+                    columns.add(column);
+                }
+
+                createTableOperation.setColumns(columns);
+
+                if (createTable.getIndexes() != null) {
+                    createTableOperation.setIndexes(((CreateTable) statement).getIndexes().stream().map(index -> {
+                        Index index1 = new Index();
+                        index1.setIndexName(index.getName());
+                        if (index.getType() == "PRIMARY KEY") {
+                            index1.setIndexType(IndexType.PRIMARY_KEY);
+                        } else if (index.getType() == "NORMAL_INDEX") {
+                            index1.setIndexType(IndexType.NORMAL_INDEX);
+                        }
+                        index1.setIndexColumns(index.getColumnsNames());
+                        return index1;
+                    }).collect(Collectors.toList()));
+                }
+
+                canalJson.setOperation(createTableOperation);
                 return;
             }
 //            Statement s = CCJSqlParserUtil.parse(ddl);

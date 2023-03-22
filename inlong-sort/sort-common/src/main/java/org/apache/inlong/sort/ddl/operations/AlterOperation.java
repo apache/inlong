@@ -25,8 +25,8 @@ public class AlterOperation extends Operation {
 
     private List<AlterExpression> alterExpressions;
 
-    public AlterOperation(String tableName, String databaseName, List<AlterExpression> alterExpressions) {
-        super(databaseName, tableName, OperationType.ALTER);
+    public AlterOperation(List<AlterExpression> alterExpressions) {
+        super(OperationType.ALTER);
         this.alterExpressions = alterExpressions;
     }
 

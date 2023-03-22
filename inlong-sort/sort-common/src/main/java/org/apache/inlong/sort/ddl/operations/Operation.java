@@ -25,16 +25,9 @@ import org.apache.inlong.sort.ddl.enums.OperationType;
  * @Version 1.0
  */
 public abstract class Operation {
-
-    private String database;
-
-    private String table;
-
     private OperationType type;
 
-    public Operation(String database, String table, OperationType type) {
-        this.database = database;
-        this.table = table;
+    public Operation(OperationType type) {
         this.type = type;
     }
 
