@@ -408,7 +408,9 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             nextStatus = SourceStatus.SOURCE_DISABLE;
         }
         if (!SourceStatus.isAllowedTransition(curStatus, nextStatus)) {
-            throw new BusinessException(String.format("Source=%s is not allowed to delete", entity));
+            throw new BusinessException(
+                    String.format("current source status=%s for id=%s is not allowed to delete", entity.getStatus(),
+                            entity.getId()));
         }
 
         entity.setPreviousStatus(curStatus.getCode());
@@ -454,7 +456,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         }
         if (!SourceStatus.isAllowedTransition(curStatus, nextStatus)) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_OPT_NOT_ALLOWED,
-                    String.format("Source=%s is not allowed to delete", entity));
+                    String.format("current source status=%s for id=%s is not allowed to delete", entity.getStatus(),
+                            entity.getId()));
         }
         // delete record
         entity.setPreviousStatus(curStatus.getCode());

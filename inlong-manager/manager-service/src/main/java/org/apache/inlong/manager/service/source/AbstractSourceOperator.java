@@ -206,7 +206,8 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             return;
         }
         if (!SourceStatus.isAllowedTransition(curState, nextState)) {
-            throw new BusinessException(String.format("source=%s is not allowed to stop", existEntity));
+            throw new BusinessException(String.format("current source status=%s for id=%s is not allowed to stop",
+                    existEntity.getStatus(), existEntity.getId()));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         curEntity.setPreviousStatus(curState.getCode());
@@ -227,7 +228,8 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         SourceStatus curState = SourceStatus.forCode(existEntity.getStatus());
         SourceStatus nextState = SourceStatus.TO_BE_ISSUED_ACTIVE;
         if (!SourceStatus.isAllowedTransition(curState, nextState)) {
-            throw new BusinessException(String.format("Source=%s is not allowed to restart", existEntity));
+            throw new BusinessException(String.format("current source status=%s for id=%s is not allowed to restart",
+                    existEntity.getStatus(), existEntity.getId()));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         curEntity.setPreviousStatus(curState.getCode());
