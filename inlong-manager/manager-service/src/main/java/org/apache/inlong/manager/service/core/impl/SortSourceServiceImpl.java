@@ -270,7 +270,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                     task2Md5.put(taskName, md5);
                 } catch (Throwable t) {
                     LOGGER.error("failed to parse sort source config of sortCluster={}, task={}",
-                            sortClusterName, taskName, t);
+                            sortClusterName, taskName);
                 }
             });
             newConfigMap.put(sortClusterName, task2Config);
