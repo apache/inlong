@@ -107,7 +107,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   const onRestart = useCallback(
     ({ id }) => {
       Modal.confirm({
-        title: i18n.t('pages.GroupDetail.Sources.ConfirmRestart'),
+        title: i18n.t('basic.ConfirmRestart'),
         onOk: async () => {
           await request({
             url: `/source/restart/${id}`,
@@ -117,17 +117,17 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
             },
           });
           await getList();
-          message.success(i18n.t('pages.GroupDetail.Sources.SuccessfullyRestart'));
+          message.success(i18n.t('basic.SuccessfullyRestart'));
         },
       });
     },
     [getList],
   );
 
-  const onFrozen = useCallback(
+  const onStop = useCallback(
     ({ id }) => {
       Modal.confirm({
-        title: i18n.t('pages.GroupDetail.Sources.ConfirmFrozen'),
+        title: i18n.t('basic.ConfirmStop'),
         onOk: async () => {
           await request({
             url: `/source/stop/${id}`,
@@ -137,7 +137,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
             },
           });
           await getList();
-          message.success(i18n.t('pages.GroupDetail.Sources.SuccessfullyFrozen'));
+          message.success(i18n.t('basic.SuccessfullyStop'));
         },
       });
     },
@@ -216,13 +216,13 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
                 {i18n.t('basic.Delete')}
               </Button>
               {record?.status && record?.status === 101 && (
-                <Button type="link" onClick={() => onFrozen(record)}>
-                  {i18n.t('pages.GroupDetail.Sources.Frozen')}
+                <Button type="link" onClick={() => onStop(record)}>
+                  {i18n.t('basic.Stop')}
                 </Button>
               )}
               {record?.status && (record?.status === 101 || record?.status === 104) && (
                 <Button type="link" onClick={() => onRestart(record)}>
-                  {i18n.t('pages.GroupDetail.Sources.Restart')}
+                  {i18n.t('basic.Restart')}
                 </Button>
               )}
             </>
@@ -281,7 +281,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
                     <DeleteOutlined />
                   </Button>,
                   item.status === 101 && (
-                    <Button type="link" onClick={() => onFrozen(item)}>
+                    <Button type="link" onClick={() => onStop(item)}>
                       <StopOutlined />
                     </Button>
                   ),
