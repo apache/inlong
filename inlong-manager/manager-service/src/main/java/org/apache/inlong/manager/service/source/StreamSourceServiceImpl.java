@@ -402,7 +402,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         SourceStatus curStatus = SourceStatus.forCode(entity.getStatus());
         SourceStatus nextStatus = SourceStatus.TO_BE_ISSUED_DELETE;
         // if source is frozen|failed|new, or if it is a template source or auto push source, delete directly
-        if (curStatus == SourceStatus.SOURCE_FROZEN || curStatus == SourceStatus.SOURCE_FAILED
+        if (curStatus == SourceStatus.SOURCE_STOP || curStatus == SourceStatus.SOURCE_FAILED
                 || curStatus == SourceStatus.SOURCE_NEW || isTemplateSource
                 || SourceType.AUTO_PUSH.equals(entity.getSourceType())) {
             nextStatus = SourceStatus.SOURCE_DISABLE;
@@ -449,7 +449,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         SourceStatus curStatus = SourceStatus.forCode(entity.getStatus());
         SourceStatus nextStatus = SourceStatus.TO_BE_ISSUED_DELETE;
         // if source is frozen|failed|new, or if it is a template source or auto push source, delete directly
-        if (curStatus == SourceStatus.SOURCE_FROZEN || curStatus == SourceStatus.SOURCE_FAILED
+        if (curStatus == SourceStatus.SOURCE_STOP || curStatus == SourceStatus.SOURCE_FAILED
                 || curStatus == SourceStatus.SOURCE_NEW || isTemplateSource
                 || SourceType.AUTO_PUSH.equals(entity.getSourceType())) {
             nextStatus = SourceStatus.SOURCE_DISABLE;

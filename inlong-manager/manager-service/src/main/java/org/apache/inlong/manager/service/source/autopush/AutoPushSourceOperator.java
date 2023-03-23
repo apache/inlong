@@ -107,7 +107,7 @@ public class AutoPushSourceOperator extends AbstractSourceOperator {
     public void stopOpt(SourceRequest request, String operator) {
         StreamSourceEntity existEntity = sourceMapper.selectByIdForUpdate(request.getId());
         SourceStatus curState = SourceStatus.forCode(existEntity.getStatus());
-        SourceStatus nextState = SourceStatus.SOURCE_FROZEN;
+        SourceStatus nextState = SourceStatus.SOURCE_STOP;
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         curEntity.setPreviousStatus(curState.getCode());
         curEntity.setStatus(nextState.getCode());

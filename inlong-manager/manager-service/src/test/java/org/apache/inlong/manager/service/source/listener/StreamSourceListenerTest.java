@@ -96,7 +96,7 @@ public class StreamSourceListenerTest extends ServiceBaseTest {
         Assertions.assertTrue(task instanceof ServiceTask);
 
         StreamSource streamSource = sourceService.get(sourceId);
-        Assertions.assertSame(SourceStatus.forCode(streamSource.getStatus()), SourceStatus.TO_BE_ISSUED_FROZEN);
+        Assertions.assertSame(SourceStatus.forCode(streamSource.getStatus()), SourceStatus.TO_BE_ISSUED_STOP);
     }
 
     private void testRestartSource(Integer sourceId) {
