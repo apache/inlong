@@ -25,6 +25,8 @@ import {
   TableOutlined,
   EditOutlined,
   DeleteOutlined,
+  StopOutlined,
+  PlayCircleOutlined,
 } from '@ant-design/icons';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
@@ -102,6 +104,46 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
     [getList, options.sourceType],
   );
 
+  const onRestart = useCallback(
+    ({ id }) => {
+      Modal.confirm({
+        title: i18n.t('pages.GroupDetail.Sources.ConfirmRestart'),
+        onOk: async () => {
+          await request({
+            url: `/source/restart/${id}`,
+            method: 'POST',
+            data: {
+              id,
+            },
+          });
+          await getList();
+          message.success(i18n.t('pages.GroupDetail.Sources.SuccessfullyRestart'));
+        },
+      });
+    },
+    [getList],
+  );
+
+  const onFrozen = useCallback(
+    ({ id }) => {
+      Modal.confirm({
+        title: i18n.t('pages.GroupDetail.Sources.ConfirmFrozen'),
+        onOk: async () => {
+          await request({
+            url: `/source/stop/${id}`,
+            method: 'POST',
+            data: {
+              id,
+            },
+          });
+          await getList();
+          message.success(i18n.t('pages.GroupDetail.Sources.SuccessfullyFrozen'));
+        },
+      });
+    },
+    [getList],
+  );
+
   const onChange = useCallback(({ current: pageNum, pageSize }) => {
     setOptions(prev => ({
       ...prev,
@@ -173,6 +215,16 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
               <Button type="link" onClick={() => onDelete(record)}>
                 {i18n.t('basic.Delete')}
               </Button>
+              {record?.status && record?.status === 101 && (
+                <Button type="link" onClick={() => onFrozen(record)}>
+                  {i18n.t('pages.GroupDetail.Sources.Frozen')}
+                </Button>
+              )}
+              {record?.status && (record?.status === 101 || record?.status === 104) && (
+                <Button type="link" onClick={() => onRestart(record)}>
+                  {i18n.t('pages.GroupDetail.Sources.Restart')}
+                </Button>
+              )}
             </>
           ),
       },
@@ -228,6 +280,16 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
                   <Button key="del" type="link" onClick={() => onDelete(item)}>
                     <DeleteOutlined />
                   </Button>,
+                  item.status === 101 && (
+                    <Button type="link" onClick={() => onFrozen(item)}>
+                      <StopOutlined />
+                    </Button>
+                  ),
+                  (item.status === 101 || item.status === 104) && (
+                    <Button type="link" onClick={() => onRestart(item)}>
+                      <PlayCircleOutlined />
+                    </Button>
+                  ),
                 ]}
                 className="test"
               >
