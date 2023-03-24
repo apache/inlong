@@ -34,6 +34,7 @@ import org.apache.flink.table.factories.DynamicTableSinkFactory;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.flink.util.Preconditions;
+import org.apache.iceberg.TableProperties;
 import org.apache.iceberg.actions.ActionsProvider;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.common.DynMethods;
@@ -111,6 +112,25 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
             .impl(Context.class, "getCatalogTable")
             .orNoop()
             .build();
+
+    public static final ConfigOption<Boolean> WRITE_COMPACT_ENABLE =
+            ConfigOptions.key("write.compact.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether to enable compact small file.");
+
+    public static final ConfigOption<Integer> WRITE_COMPACT_INTERVAL =
+            ConfigOptions.key("write.compact.snapshot.interval")
+                    .intType()
+                    .defaultValue(20)
+                    .withDescription("Compact snapshot interval.");
+
+    public static final ConfigOption<String> WRITE_DISTRIBUTION_MODE =
+            ConfigOptions.key(TableProperties.WRITE_DISTRIBUTION_MODE)
+                    .stringType()
+                    .defaultValue(TableProperties.WRITE_DISTRIBUTION_MODE_NONE)
+                    .withDescription("Distribute the records from input data stream based "
+                            + "on the write.distribution-mode.");
 
     private final FlinkCatalog catalog;
 
@@ -274,6 +294,9 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         options.add(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
         options.add(SINK_MULTIPLE_PK_AUTO_GENERATED);
         options.add(SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK);
+        options.add(WRITE_COMPACT_ENABLE);
+        options.add(WRITE_COMPACT_INTERVAL);
+        options.add(WRITE_DISTRIBUTION_MODE);
         return options;
     }
 

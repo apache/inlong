@@ -19,10 +19,12 @@ package org.apache.inlong.sort.iceberg.sink.multiple;
 
 import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.operators.BoundedOneInput;
+import org.apache.iceberg.actions.ActionsProvider;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.TableLoader;
@@ -40,20 +42,26 @@ public class IcebergMultipleFilesCommiter extends IcebergProcessFunction<Multipl
     private Map<TableIdentifier, IcebergSingleFileCommiter> multipleCommiters;
     private final CatalogLoader catalogLoader;
     private final boolean overwrite;
-
-    public IcebergMultipleFilesCommiter(CatalogLoader catalogLoader, boolean overwrite) {
-        this.catalogLoader = catalogLoader;
-        this.overwrite = overwrite;
-    }
+    private final ActionsProvider actionsProvider;
+    private final ReadableConfig tableOptions;
 
     private transient FunctionInitializationContext functionInitializationContext;
+
+    public IcebergMultipleFilesCommiter(CatalogLoader catalogLoader, boolean overwrite, ActionsProvider actionProvider,
+            ReadableConfig tableOptions) {
+        this.catalogLoader = catalogLoader;
+        this.overwrite = overwrite;
+        this.actionsProvider = actionProvider;
+        this.tableOptions = tableOptions;
+    }
 
     @Override
     public void processElement(MultipleWriteResult value) throws Exception {
         TableIdentifier tableId = value.getTableId();
         if (multipleCommiters.get(tableId) == null) {
             IcebergSingleFileCommiter commiter = new IcebergSingleFileCommiter(
-                    tableId, TableLoader.fromCatalog(catalogLoader, value.getTableId()), overwrite, null);
+                    tableId, TableLoader.fromCatalog(catalogLoader, value.getTableId()), overwrite,
+                    actionsProvider, tableOptions);
             commiter.setup(getRuntimeContext(), collector, context);
             commiter.initializeState(functionInitializationContext);
             commiter.open(new Configuration());
