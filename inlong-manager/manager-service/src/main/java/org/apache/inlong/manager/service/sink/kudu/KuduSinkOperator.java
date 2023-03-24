@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.pojo.node.kudu.KuduDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -67,14 +68,6 @@ public class KuduSinkOperator extends AbstractSinkOperator {
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
         KuduSinkRequest sinkRequest = (KuduSinkRequest) request;
-        String masters = sinkRequest.getMasters();
-        if (StringUtils.isBlank(masters)) {
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED, "masters can not be empty!");
-        }
-        if (masters.contains(InlongConstants.SEMICOLON)) {
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED, "masters can not contain comma!");
-        }
-
         try {
             KuduSinkDTO dto = KuduSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
@@ -93,6 +86,15 @@ public class KuduSinkOperator extends AbstractSinkOperator {
         }
 
         KuduSinkDTO dto = KuduSinkDTO.getFromJson(entity.getExtParams());
+        if (StringUtils.isBlank(dto.getMasters())) {
+            if (StringUtils.isBlank(entity.getDataNodeName())) {
+                throw new BusinessException(ErrorCodeEnum.ILLEGAL_RECORD_FIELD_VALUE,
+                        "clickhouse jdbc url unspecified and data node is empty");
+            }
+            KuduDataNodeInfo dataNodeInfo = (KuduDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    entity.getDataNodeName(), entity.getSinkType());
+            CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
+        }
 
         CommonBeanUtils.copyProperties(entity, sink, true);
         CommonBeanUtils.copyProperties(dto, sink, true);
