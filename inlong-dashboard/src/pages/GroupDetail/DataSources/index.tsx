@@ -215,12 +215,12 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
               <Button type="link" onClick={() => onDelete(record)}>
                 {i18n.t('basic.Delete')}
               </Button>
-              {record?.status && record?.status === 101 && (
+              {record?.status === 101 && (
                 <Button type="link" onClick={() => onStop(record)}>
                   {i18n.t('basic.Stop')}
                 </Button>
               )}
-              {record?.status && (record?.status === 101 || record?.status === 104) && (
+              {(record?.status === 101 || record?.status === 104) && (
                 <Button type="link" onClick={() => onRestart(record)}>
                   {i18n.t('basic.Restart')}
                 </Button>
