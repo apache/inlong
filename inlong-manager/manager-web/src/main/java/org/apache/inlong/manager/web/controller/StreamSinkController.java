@@ -118,11 +118,14 @@ public class StreamSinkController {
         return Response.success(sinkService.deleteByKey(groupId, streamId, name, startProcess, username));
     }
 
-    @RequestMapping(value = "/sink/parseFields", method = RequestMethod.POST)
-    @ApiOperation(value = "parse stream sink fields from JSON string")
-    @ApiImplicitParam(name = "fieldsJson", dataTypeClass = String.class, required = true)
-    public Response<List<SinkField>> parseFields(@RequestBody String fieldsJson) {
-        return Response.success(sinkService.parseFields(fieldsJson));
+    @RequestMapping(value = "/sink/parseFields/{statementType}", method = RequestMethod.POST)
+    @ApiOperation(value = "parse stream sink fields from statement")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "statement", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "statementType", dataTypeClass = String.class, required = true)
+    })
+    public Response<List<SinkField>> parseFields(@PathVariable String statementType, @RequestBody String statement) {
+        return Response.success(sinkService.parseFields(statement, statementType));
     }
 
 }

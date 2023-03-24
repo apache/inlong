@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.stream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -43,6 +44,7 @@ import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
@@ -56,6 +58,7 @@ import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.user.UserService;
+import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,14 +66,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.create.table.ColDataType;
+import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.SORT_TYPE_INFO_SUFFIX;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.packExtParams;
 import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.unpackExtParams;
 
@@ -711,22 +724,59 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public List<StreamField> parseFields(String fieldsJson) {
+    public List<StreamField> parseFields(String statement, String statementType) {
         try {
-            Map<String, String> fieldsMap = objectMapper.readValue(fieldsJson,
-                    new TypeReference<Map<String, String>>() {
-                    });
-            return fieldsMap.keySet().stream().map(fieldName -> {
+            Map<String, String> fieldsMap;
+            if (STATEMENT_TYPE_JSON.equals(statementType)) {
+                fieldsMap = parseFieldsByJson(statement);
+            } else {
+                fieldsMap = parseFieldsBySql(statement);
+            }
+            return fieldsMap.entrySet().stream().map(entry -> {
                 StreamField field = new StreamField();
-                field.setFieldName(fieldName);
-                field.setFieldType(fieldsMap.get(fieldName));
+                field.setFieldName(entry.getKey());
+                field.setFieldType(entry.getValue());
                 return field;
             }).collect(Collectors.toList());
+
         } catch (Exception e) {
             LOGGER.error("parse inlong stream fields error", e);
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
                     String.format("parse stream fields error : %s", e.getMessage()));
         }
+    }
+
+    private Map<String, String> parseFieldsBySql(String sql) throws JSQLParserException {
+        CCJSqlParserManager pm = new CCJSqlParserManager();
+        Statement statement = pm.parse(new StringReader(sql));
+        LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+        if (statement instanceof CreateTable) {
+            CreateTable createTable = (CreateTable) statement;
+            List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
+            // get column definition
+            for (ColumnDefinition definition : columnDefinitions) {
+                // get field name
+                String columnName = definition.getColumnName();
+                ColDataType colDataType = definition.getColDataType();
+                String sqlDataType = colDataType.getDataType();
+                // Convert SQL type to TypeInfo
+                FormatInfo formatInfo = FieldInfoUtils.convertFieldFormat(sqlDataType, "");
+                String typeInfoName = formatInfo.getTypeInfo().toString();
+                String type = typeInfoName.substring(0, typeInfoName.indexOf(SORT_TYPE_INFO_SUFFIX)).toLowerCase();
+                fields.put(columnName, type);
+            }
+        } else {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "The SQL statement must be a table creation statement");
+        }
+        return fields;
+    }
+
+    private Map<String, String> parseFieldsByJson(String statement) throws JsonProcessingException {
+        // Use LinkedHashMap deserialization to keep the order of the fields
+        return objectMapper.readValue(statement,
+                new TypeReference<LinkedHashMap<String, String>>() {
+                });
     }
 
     /**

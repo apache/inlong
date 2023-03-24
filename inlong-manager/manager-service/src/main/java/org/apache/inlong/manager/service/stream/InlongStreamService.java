@@ -232,10 +232,11 @@ public interface InlongStreamService {
     void logicDeleteDlqOrRlq(String bid, String topicName, String operator);
 
     /**
-     * Converts a json string to a streamFields
+     * Converts a statement to a streamFields
      *
-     * @param fieldsJson JSON string for the field information
+     * @param statement     statement field information
+     * @param statementType the type of statement: JSON or SQL
      * @return list of stream field
      */
-    List<StreamField> parseFields(String fieldsJson);
+    List<StreamField> parseFields(String statement, String statementType);
 }

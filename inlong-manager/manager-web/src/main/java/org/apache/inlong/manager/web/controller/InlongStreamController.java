@@ -176,11 +176,15 @@ public class InlongStreamController {
         return Response.success(streamService.delete(groupId, streamId, username));
     }
 
-    @RequestMapping(value = "/stream/parseFields", method = RequestMethod.POST)
-    @ApiOperation(value = "Parse inlong stream fields from JSON string")
-    @ApiImplicitParam(name = "fieldsJson", dataTypeClass = String.class, required = true)
-    public Response<List<StreamField>> parseFields(@RequestBody String fieldsJson) {
-        return Response.success(streamService.parseFields(fieldsJson));
+    @RequestMapping(value = "/stream/parseFields/{statementType}", method = RequestMethod.POST)
+    @ApiOperation(value = "Parse inlong stream fields from statement")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "statement", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "statementType", dataTypeClass = String.class, required = true)
+    })
+
+    public Response<List<StreamField>> parseFields(@PathVariable String statementType, @RequestBody String statement) {
+        return Response.success(streamService.parseFields(statement, statementType));
     }
 
 }

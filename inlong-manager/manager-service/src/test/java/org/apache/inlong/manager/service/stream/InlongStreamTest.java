@@ -28,13 +28,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
+
 public class InlongStreamTest extends ServiceBaseTest {
 
     @Autowired
     protected StreamSinkService streamSinkService;
 
     @Test
-    public void testParseStreamFields() {
+    public void testParseStreamFieldsByJson() {
         String streamFieldsJson = "{\"name0\":\"string\",\"name1\":\"string\"}";
         List<StreamField> expectStreamFields = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
@@ -44,13 +47,13 @@ public class InlongStreamTest extends ServiceBaseTest {
             expectStreamFields.add(field);
         }
         StreamField[] expectResult = expectStreamFields.toArray(new StreamField[0]);
-        List<StreamField> streamFields = streamService.parseFields(streamFieldsJson);
+        List<StreamField> streamFields = streamService.parseFields(streamFieldsJson, STATEMENT_TYPE_JSON);
         StreamField[] result = streamFields.toArray(new StreamField[0]);
         Assertions.assertArrayEquals(expectResult, result);
     }
 
     @Test
-    public void testParseSinkFields() {
+    public void testParseSinkFieldsByJson() {
         String sinkFieldsJson = "{\"sinkFieldName0\":\"string\",\"sinkFieldName1\":\"string\"}";
         List<SinkField> expectSinkFields = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
@@ -60,8 +63,41 @@ public class InlongStreamTest extends ServiceBaseTest {
             expectSinkFields.add(field);
         }
         SinkField[] expectResult = expectSinkFields.toArray(new SinkField[0]);
-        List<SinkField> sinkFields = streamSinkService.parseFields(sinkFieldsJson);
+        List<SinkField> sinkFields = streamSinkService.parseFields(sinkFieldsJson, STATEMENT_TYPE_JSON);
         SinkField[] result = sinkFields.toArray(new SinkField[0]);
         Assertions.assertArrayEquals(expectResult, result);
     }
+
+    @Test
+    public void testParseStreamFieldsBySql() {
+        String streamFieldsSql = "CREATE TABLE my_table (name0 VARCHAR(50), name1 VARCHAR(50))";
+        List<StreamField> expectStreamFields = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            StreamField field = new StreamField();
+            field.setFieldName("name" + i);
+            field.setFieldType("string");
+            expectStreamFields.add(field);
+        }
+        StreamField[] expectResult = expectStreamFields.toArray(new StreamField[0]);
+        List<StreamField> streamFields = streamService.parseFields(streamFieldsSql, STATEMENT_TYPE_SQL);
+        StreamField[] result = streamFields.toArray(new StreamField[0]);
+        Assertions.assertArrayEquals(expectResult, result);
+    }
+
+    @Test
+    public void testParseSinkFieldsBySql() {
+        String sinkFieldsSql = "CREATE TABLE my_table (sinkFieldName0 VARCHAR(50), sinkFieldName1 VARCHAR(50))";
+        List<SinkField> expectSinkFields = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            SinkField field = new SinkField();
+            field.setFieldName("sinkFieldName" + i);
+            field.setFieldType("string");
+            expectSinkFields.add(field);
+        }
+        SinkField[] expectResult = expectSinkFields.toArray(new SinkField[0]);
+        List<SinkField> sinkFields = streamSinkService.parseFields(sinkFieldsSql, STATEMENT_TYPE_SQL);
+        SinkField[] result = sinkFields.toArray(new SinkField[0]);
+        Assertions.assertArrayEquals(expectResult, result);
+    }
+
 }

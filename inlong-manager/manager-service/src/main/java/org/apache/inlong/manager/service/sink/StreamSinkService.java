@@ -246,10 +246,11 @@ public interface StreamSinkService {
     Boolean updateAfterApprove(List<SinkApproveDTO> sinkApproveList, String operator);
 
     /**
-     * Converts a json string to a sinkFields
+     * Converts a statement to a sinkFields
      *
-     * @param fieldsJson JSON string for the field information
+     * @param statement     statement for the field information
+     * @param statementType the type of statement: JSON or SQL
      * @return list of sink field
      */
-    List<SinkField> parseFields(String fieldsJson);
+    List<SinkField> parseFields(String statement, String statementType);
 }
