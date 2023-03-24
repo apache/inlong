@@ -78,7 +78,7 @@ export default class KuduSink extends SinkInfo implements DataWithBackend, Rende
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      nodeType: 'HUDI',
+      nodeType: 'KUDU',
     }),
   })
   @I18n('meta.Sinks.DataNodeName')
