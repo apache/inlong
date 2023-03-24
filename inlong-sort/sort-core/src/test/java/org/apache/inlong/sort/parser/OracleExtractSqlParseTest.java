@@ -73,7 +73,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
         return new OracleExtractNode("1", "oracle_input", fields,
                 null, properties, "ID", "localhost",
                 "flinkuser", "flinkpw", "xE",
-                "flinkuser", "table", 1521, null);
+                "flinkuser", "flinkuser.table", 1521, null);
     }
 
     private Node buildKafkaLoadNode() {
