@@ -89,45 +89,6 @@ public class MongoDBSource<T> extends IncrementalSource<T, MongoDBSourceConfig> 
                 new MongoDBDialect());
     }
 
-    @Override
-    public IncrementalSourceReader<T, MongoDBSourceConfig> createReader(SourceReaderContext readerContext)
-            throws Exception {
-        // create source config for the given subtask (e.g. unique server id)
-        MongoDBSourceConfig sourceConfig = configFactory.create(readerContext.getIndexOfSubtask());
-        MetricConfig metricConfig = (MetricConfig) sourceConfig;
-        FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecords>> elementsQueue =
-                new FutureCompletingBlockingQueue<>();
-
-        // Forward compatible with flink 1.13
-        final Method metricGroupMethod = readerContext.getClass().getMethod("metricGroup");
-        metricGroupMethod.setAccessible(true);
-        final MetricGroup metricGroup = (MetricGroup) metricGroupMethod.invoke(readerContext);
-        final SourceReaderMetrics sourceReaderMetrics = new SourceReaderMetrics(metricGroup);
-
-        // create source config for the given subtask (e.g. unique server id)
-        MetricOption metricOption = MetricOption.builder()
-                .withInlongLabels(metricConfig.getInlongMetric())
-                .withAuditAddress(metricConfig.getInlongAudit())
-                .withRegisterMetric(RegisteredMetric.ALL)
-                .build();
-
-        sourceReaderMetrics.registerMetrics(metricOption,
-                Arrays.asList(Constants.DATABASE_NAME, Constants.COLLECTION_NAME));
-        Supplier<IncrementalSourceSplitReader<MongoDBSourceConfig>> splitReaderSupplier =
-                () -> new IncrementalSourceSplitReader<>(
-                        readerContext.getIndexOfSubtask(), dataSourceDialect, sourceConfig);
-        return new IncrementalSourceReader<>(
-                elementsQueue,
-                splitReaderSupplier,
-                createRecordEmitter(sourceConfig, sourceReaderMetrics),
-                readerContext.getConfiguration(),
-                readerContext,
-                sourceConfig,
-                sourceSplitSerializer,
-                dataSourceDialect,
-                sourceReaderMetrics);
-    }
-
     /**
      * Get a MongoDBSourceBuilder to build a {@link MongoDBSource}.
      *

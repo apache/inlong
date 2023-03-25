@@ -793,7 +793,7 @@ public final class RowDataDebeziumDeserializeSchema
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out) throws Exception {
-        deserialize(record, out, null);
+        deserialize(record, out);
     }
 
     @Override
