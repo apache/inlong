@@ -17,16 +17,29 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.function.Supplier;
 import org.apache.flink.annotation.Experimental;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.api.connector.source.SourceReaderContext;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
+import org.apache.flink.metrics.MetricGroup;
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.cdc.base.config.MetricConfig;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.source.IncrementalSource;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceRecords;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
 import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
+import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceReader;
+import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceSplitReader;
 import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
 import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfigFactory;
 import org.apache.inlong.sort.cdc.mongodb.source.dialect.MongoDBDialect;
@@ -74,6 +87,45 @@ public class MongoDBSource<T> extends IncrementalSource<T, MongoDBSourceConfig> 
                 deserializationSchema,
                 new ChangeStreamOffsetFactory(),
                 new MongoDBDialect());
+    }
+
+    @Override
+    public IncrementalSourceReader<T, MongoDBSourceConfig> createReader(SourceReaderContext readerContext)
+            throws Exception {
+        // create source config for the given subtask (e.g. unique server id)
+        MongoDBSourceConfig sourceConfig = configFactory.create(readerContext.getIndexOfSubtask());
+        MetricConfig metricConfig = (MetricConfig) sourceConfig;
+        FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecords>> elementsQueue =
+                new FutureCompletingBlockingQueue<>();
+
+        // Forward compatible with flink 1.13
+        final Method metricGroupMethod = readerContext.getClass().getMethod("metricGroup");
+        metricGroupMethod.setAccessible(true);
+        final MetricGroup metricGroup = (MetricGroup) metricGroupMethod.invoke(readerContext);
+        final SourceReaderMetrics sourceReaderMetrics = new SourceReaderMetrics(metricGroup);
+
+        // create source config for the given subtask (e.g. unique server id)
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(metricConfig.getInlongMetric())
+                .withAuditAddress(metricConfig.getInlongAudit())
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .build();
+
+        sourceReaderMetrics.registerMetrics(metricOption,
+                Arrays.asList(Constants.DATABASE_NAME, Constants.COLLECTION_NAME));
+        Supplier<IncrementalSourceSplitReader<MongoDBSourceConfig>> splitReaderSupplier =
+                () -> new IncrementalSourceSplitReader<>(
+                        readerContext.getIndexOfSubtask(), dataSourceDialect, sourceConfig);
+        return new IncrementalSourceReader<>(
+                elementsQueue,
+                splitReaderSupplier,
+                createRecordEmitter(sourceConfig, sourceReaderMetrics),
+                readerContext.getConfiguration(),
+                readerContext,
+                sourceConfig,
+                sourceSplitSerializer,
+                dataSourceDialect,
+                sourceReaderMetrics);
     }
 
     /**

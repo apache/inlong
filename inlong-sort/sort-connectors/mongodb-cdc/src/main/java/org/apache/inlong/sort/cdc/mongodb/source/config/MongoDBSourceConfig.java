@@ -22,6 +22,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 import com.ververica.cdc.connectors.base.options.StartupOptions;
 import com.ververica.cdc.connectors.mongodb.source.MongoDBSource;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -217,5 +218,10 @@ public class MongoDBSourceConfig implements SourceConfig, MetricConfig {
     @Override
     public String getInlongAudit() {
         return inlongAudit;
+    }
+
+    @Override
+    public List<String> getMetricLabelList() {
+        return Arrays.asList();
     }
 }
