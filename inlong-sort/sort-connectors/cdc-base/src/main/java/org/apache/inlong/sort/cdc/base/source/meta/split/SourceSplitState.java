@@ -53,7 +53,7 @@ public abstract class SourceSplitState {
     /** Use the current split state to create a new SourceSplit. */
     public abstract SourceSplitBase toSourceSplit();
 
-    /** Get the current MySQLSplit. */
+    /** Get the current split. */
     @Internal
     public SourceSplitBase getSourceSplitBase() {
         return split;
