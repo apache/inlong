@@ -51,6 +51,8 @@ public interface DebeziumDeserializationSchema<T> extends Serializable, ResultTy
     /**
      * Deserialize the Debezium record, it is represented in Kafka {@link SourceRecord}.
      */
-    void deserialize(SourceRecord record, Collector<T> out, Boolean isStreamingPhase) throws Exception;
+    default void deserialize(SourceRecord record, Collector<T> out, Boolean isStreamingPhase) throws Exception {
+        deserialize(record, out);
+    };
 
 }

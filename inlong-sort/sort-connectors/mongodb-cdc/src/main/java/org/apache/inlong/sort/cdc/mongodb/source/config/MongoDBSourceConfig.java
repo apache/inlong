@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.cdc.base.config.MetricConfig;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 
@@ -222,6 +223,6 @@ public class MongoDBSourceConfig implements SourceConfig, MetricConfig {
 
     @Override
     public List<String> getMetricLabelList() {
-        return Arrays.asList();
+        return Arrays.asList(Constants.DATABASE_NAME, Constants.COLLECTION_NAME);
     }
 }
