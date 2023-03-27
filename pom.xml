@@ -28,7 +28,7 @@
 
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong</artifactId>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Apache InLong</name>
 
@@ -1112,13 +1112,6 @@
                 <groupId>org.apache.hudi</groupId>
                 <artifactId>hudi-flink1.13-bundle</artifactId>
                 <version>${hudi.version}</version>
-            </dependency>
-
-            <!-- kudu -->
-            <dependency>
-                <groupId>org.apache.kudu</groupId>
-                <artifactId>kudu-client</artifactId>
-                <version>${kudu.version}</version>
             </dependency>
 
             <!-- lombok -->

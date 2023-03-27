@@ -41,7 +41,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
+
 import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
@@ -90,15 +90,8 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
                     PASSWORD_OPTION,
                     USERNAME_OPTION,
                     INLONG_METRIC,
-                    INLONG_AUDIT,
-                    AUDIT_KEYS)
+                    INLONG_AUDIT)
                     .collect(Collectors.toSet());
-
-    private static void validate(boolean condition, Supplier<String> message) {
-        if (!condition) {
-            throw new ValidationException(message.get());
-        }
-    }
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
@@ -106,15 +99,20 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
         ElasticsearchValidationUtils.validatePrimaryKey(tableSchema);
         final FactoryUtil.TableFactoryHelper helper =
                 FactoryUtil.createTableFactoryHelper(this, context);
+
         final EncodingFormat<SerializationSchema<RowData>> format =
                 helper.discoverEncodingFormat(SerializationFormatFactory.class, FORMAT_OPTION);
+
         helper.validateExcept(DIRTY_PREFIX);
         Configuration configuration = new Configuration();
         context.getCatalogTable().getOptions().forEach(configuration::setString);
         Elasticsearch6Configuration config =
                 new Elasticsearch6Configuration(configuration, context.getClassLoader());
+
         validate(config, configuration);
+
         String inlongMetric = helper.getOptions().getOptional(INLONG_METRIC).orElse(null);
+
         String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(null);
         final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
         final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
@@ -163,6 +161,12 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
                             PASSWORD_OPTION.key(),
                             config.getUsername().get(),
                             config.getPassword().orElse("")));
+        }
+    }
+
+    private static void validate(boolean condition, Supplier<String> message) {
+        if (!condition) {
+            throw new ValidationException(message.get());
         }
     }
 

@@ -176,8 +176,6 @@ public class KafkaDynamicSource
 
     protected final String inlongMetric;
 
-    protected final String auditKeys;
-
     protected final String auditHostAndPorts;
 
     private final DirtyOptions dirtyOptions;
@@ -204,8 +202,7 @@ public class KafkaDynamicSource
             final String inlongMetric,
             final String auditHostAndPorts,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<String> dirtySink,
-            final String auditKeys) {
+            @Nullable DirtySink<String> dirtySink) {
         // Format attributes
         this.physicalDataType =
                 Preconditions.checkNotNull(
@@ -242,7 +239,6 @@ public class KafkaDynamicSource
         this.auditHostAndPorts = auditHostAndPorts;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
-        this.auditKeys = auditKeys;
     }
 
     @Override
@@ -263,7 +259,7 @@ public class KafkaDynamicSource
 
         final FlinkKafkaConsumer<RowData> kafkaConsumer =
                 createKafkaConsumer(keyDeserialization, valueDeserialization,
-                        producedTypeInfo, inlongMetric, auditHostAndPorts, auditKeys);
+                        producedTypeInfo, inlongMetric, auditHostAndPorts);
 
         return SourceFunctionProvider.of(kafkaConsumer, false);
     }
@@ -337,8 +333,7 @@ public class KafkaDynamicSource
                         inlongMetric,
                         auditHostAndPorts,
                         dirtyOptions,
-                        dirtySink,
-                        auditKeys);
+                        dirtySink);
         copy.producedDataType = producedDataType;
         copy.metadataKeys = metadataKeys;
         copy.watermarkStrategy = watermarkStrategy;
@@ -405,8 +400,7 @@ public class KafkaDynamicSource
             DeserializationSchema<RowData> valueDeserialization,
             TypeInformation<RowData> producedTypeInfo,
             String inlongMetric,
-            String auditHostAndPorts,
-            String auditKeys) {
+            String auditHostAndPorts) {
 
         final MetadataConverter[] metadataConverters =
                 metadataKeys.stream()
@@ -451,10 +445,10 @@ public class KafkaDynamicSource
         final FlinkKafkaConsumer<RowData> kafkaConsumer;
         if (topics != null) {
             kafkaConsumer = new FlinkKafkaConsumer<>(topics, kafkaDeserializer, properties, inlongMetric,
-                    auditHostAndPorts, auditKeys);
+                    auditHostAndPorts);
         } else {
             kafkaConsumer = new FlinkKafkaConsumer<>(topicPattern, kafkaDeserializer, properties, inlongMetric,
-                    auditHostAndPorts, auditKeys);
+                    auditHostAndPorts);
         }
 
         switch (startupMode) {

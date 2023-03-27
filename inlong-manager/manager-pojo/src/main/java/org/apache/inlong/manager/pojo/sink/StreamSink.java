@@ -115,10 +115,6 @@ public abstract class StreamSink extends StreamNode {
     @ApiModelProperty("Properties for sink")
     private Map<String, Object> properties = Maps.newHashMap();
 
-    @Builder.Default
-    @ApiModelProperty("Encoding type for sink, default is UTF-8")
-    private String dataEncoding = "UTF-8";
-
     @JsonIgnore
     @Builder.Default
     @ApiModelProperty("Data format type for stream sink")

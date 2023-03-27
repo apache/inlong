@@ -22,7 +22,6 @@ import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.PrimitiveArrayTypeInfo;
-import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.core.io.SimpleVersionedSerialization;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
@@ -49,7 +48,6 @@ import org.apache.iceberg.types.Comparators;
 import org.apache.iceberg.types.Types;
 import org.apache.iceberg.util.PropertyUtil;
 import org.apache.inlong.sort.iceberg.FlinkActions;
-import org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory;
 import org.apache.inlong.sort.iceberg.sink.DeltaManifests;
 import org.apache.inlong.sort.iceberg.sink.DeltaManifestsSerializer;
 import org.apache.inlong.sort.iceberg.sink.FlinkManifestUtil;
@@ -120,20 +118,17 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
     // compact file action
     private ActionsProvider flinkActions;
     private transient RewriteDataFiles compactAction;
-    private ReadableConfig tableOptions;
 
     public IcebergSingleFileCommiter(
             TableIdentifier tableId,
             TableLoader tableLoader,
             boolean replacePartitions,
-            ActionsProvider actionProvider,
-            ReadableConfig tableOptions) {
+            ActionsProvider actionProvider) {
         // Here must distinguish state descriptor with tableId, because all icebergSingleFileCommiter state in
         // one IcebergMultipleFilesCommiter use same StateStore.
         this.tableLoader = tableLoader;
         this.replacePartitions = replacePartitions;
         this.flinkActions = actionProvider;
-        this.tableOptions = tableOptions;
         this.jobIdDescriptor = new ListStateDescriptor<>(
                 String.format("iceberg(%s)-flink-job-id", tableId.toString()), BasicTypeInfo.STRING_TYPE_INFO);
         this.stateDescriptor = buildStateDescriptor(tableId);
@@ -147,13 +142,10 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
         this.tableLoader.open();
         this.table = tableLoader.loadTable();
 
-        boolean writeCompactEnabelFromTO = this.tableOptions == null
-                ? false
-                : this.tableOptions.get(FlinkDynamicTableFactory.WRITE_COMPACT_ENABLE);
         // compact file
-        if (flinkActions != null && (PropertyUtil.propertyAsBoolean(
-                table.properties(), FlinkActions.COMPACT_ENABLED, FlinkActions.COMPACT_ENABLED_DEFAULT)
-                || writeCompactEnabelFromTO)) {
+        if (flinkActions != null
+                && PropertyUtil.propertyAsBoolean(
+                        table.properties(), FlinkActions.COMPACT_ENABLED, FlinkActions.COMPACT_ENABLED_DEFAULT)) {
             compactAction = flinkActions.rewriteDataFiles(table);
         }
         maxContinuousEmptyCommits = PropertyUtil.propertyAsInt(table.properties(), MAX_CONTINUOUS_EMPTY_COMMITS, 10);

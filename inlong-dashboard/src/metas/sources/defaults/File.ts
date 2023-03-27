@@ -44,7 +44,6 @@ export default class PulsarSource
           method: 'POST',
           data: {
             keyword,
-            type: 'AGENT',
             pageNum: 1,
             pageSize: 10,
           },

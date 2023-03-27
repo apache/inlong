@@ -37,12 +37,6 @@ export default class ClickHouseNode
   username: string;
 
   @FieldDecorator({
-    type: 'password',
-  })
-  @I18n('meta.Nodes.ClickHouse.Password')
-  token: string;
-
-  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -52,4 +46,10 @@ export default class ClickHouseNode
   })
   @I18n('meta.Nodes.ClickHouse.Url')
   url: string;
+
+  @FieldDecorator({
+    type: 'password',
+  })
+  @I18n('meta.Nodes.ClickHouse.Password')
+  token: string;
 }

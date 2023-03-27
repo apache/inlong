@@ -15,29 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.mongodb.source;
+package org.apache.inlong.sort.cdc.base.source;
 
-import com.ververica.cdc.connectors.base.config.SourceConfig;
-import com.ververica.cdc.connectors.base.dialect.DataSourceDialect;
 import com.ververica.cdc.connectors.base.options.StartupMode;
-import com.ververica.cdc.connectors.base.source.assigner.HybridSplitAssigner;
-import com.ververica.cdc.connectors.base.source.assigner.SplitAssigner;
-import com.ververica.cdc.connectors.base.source.assigner.StreamSplitAssigner;
-import com.ververica.cdc.connectors.base.source.assigner.state.HybridPendingSplitsState;
-import com.ververica.cdc.connectors.base.source.assigner.state.PendingSplitsState;
-import com.ververica.cdc.connectors.base.source.assigner.state.PendingSplitsStateSerializer;
-import com.ververica.cdc.connectors.base.source.assigner.state.StreamPendingSplitsState;
-import com.ververica.cdc.connectors.base.source.enumerator.IncrementalSourceEnumerator;
-import com.ververica.cdc.connectors.base.source.meta.offset.OffsetFactory;
-import com.ververica.cdc.connectors.base.source.meta.split.SourceRecords;
-import com.ververica.cdc.connectors.base.source.meta.split.SourceSplitBase;
-import com.ververica.cdc.connectors.base.source.meta.split.SourceSplitSerializer;
-import com.ververica.cdc.connectors.base.source.meta.split.SourceSplitState;
-import com.ververica.cdc.connectors.base.source.metrics.SourceReaderMetrics;
-import com.ververica.cdc.connectors.base.source.reader.IncrementalSourceReader;
-import com.ververica.cdc.connectors.base.source.reader.IncrementalSourceSplitReader;
 import io.debezium.relational.TableId;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 import org.apache.flink.annotation.Experimental;
@@ -54,8 +37,30 @@ import org.apache.flink.connector.base.source.reader.synchronization.FutureCompl
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.mongodb.source.reader.IncrementalSourceRecordEmitter;
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.cdc.base.config.MetricConfig;
+import org.apache.inlong.sort.cdc.base.config.SourceConfig;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.dialect.DataSourceDialect;
+import org.apache.inlong.sort.cdc.base.source.assigner.HybridSplitAssigner;
+import org.apache.inlong.sort.cdc.base.source.assigner.SplitAssigner;
+import org.apache.inlong.sort.cdc.base.source.assigner.StreamSplitAssigner;
+import org.apache.inlong.sort.cdc.base.source.assigner.state.HybridPendingSplitsState;
+import org.apache.inlong.sort.cdc.base.source.assigner.state.PendingSplitsState;
+import org.apache.inlong.sort.cdc.base.source.assigner.state.PendingSplitsStateSerializer;
+import org.apache.inlong.sort.cdc.base.source.assigner.state.StreamPendingSplitsState;
+import org.apache.inlong.sort.cdc.base.source.enumerator.IncrementalSourceEnumerator;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceRecords;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
+import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
+import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceReader;
+import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceRecordEmitter;
+import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceSplitReader;
 
 /**
  * The basic source of Incremental Snapshot framework for datasource, it is based on FLIP-27 and
@@ -106,6 +111,7 @@ public class IncrementalSource<T, C extends SourceConfig>
             throws Exception {
         // create source config for the given subtask (e.g. unique server id)
         C sourceConfig = configFactory.create(readerContext.getIndexOfSubtask());
+        MetricConfig metricConfig = (MetricConfig) sourceConfig;
         FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecords>> elementsQueue =
                 new FutureCompletingBlockingQueue<>();
 
@@ -115,7 +121,15 @@ public class IncrementalSource<T, C extends SourceConfig>
         final MetricGroup metricGroup = (MetricGroup) metricGroupMethod.invoke(readerContext);
         final SourceReaderMetrics sourceReaderMetrics = new SourceReaderMetrics(metricGroup);
 
-        sourceReaderMetrics.registerMetrics();
+        // create source config for the given subtask (e.g. unique server id)
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(metricConfig.getInlongMetric())
+                .withAuditAddress(metricConfig.getInlongAudit())
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .build();
+
+        sourceReaderMetrics.registerMetrics(metricOption,
+                Arrays.asList(Constants.DATABASE_NAME, Constants.SCHEMA_NAME, Constants.TABLE_NAME));
         Supplier<IncrementalSourceSplitReader<C>> splitReaderSupplier =
                 () -> new IncrementalSourceSplitReader<>(
                         readerContext.getIndexOfSubtask(), dataSourceDialect, sourceConfig);
@@ -127,7 +141,8 @@ public class IncrementalSource<T, C extends SourceConfig>
                 readerContext,
                 sourceConfig,
                 sourceSplitSerializer,
-                dataSourceDialect);
+                dataSourceDialect,
+                sourceReaderMetrics);
     }
 
     @Override

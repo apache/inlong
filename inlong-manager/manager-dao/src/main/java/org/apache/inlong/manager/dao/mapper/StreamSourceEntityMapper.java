@@ -119,12 +119,6 @@ public interface StreamSourceEntityMapper {
      */
     List<String> selectSourceType(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
-    /**
-     * Query need update source according to the dataNodeName , clusterName, sourceType
-     */
-    List<Integer> selectNeedUpdateIdsByClusterAndDataNode(@Param("clusterName") String clusterName,
-            @Param("nodeName") String nodeName, @Param("sourceType") String sourceType);
-
     int updateByPrimaryKeySelective(StreamSourceEntity record);
 
     int updateByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
@@ -153,16 +147,6 @@ public interface StreamSourceEntityMapper {
             @Param("changeTime") Boolean changeModifyTime);
 
     int updateSnapshot(StreamSourceEntity entity);
-
-    /**
-     * Update the source status
-     *
-     * @param idList source id list
-     * @param status modify the status to this
-     * @param operator operator name
-     */
-    void updateStatusByIds(@Param("idList") List<Integer> idList, @Param("status") Integer status,
-            @Param("operator") String operator);
 
     /**
      * Physical delete stream sources by group id and stream id

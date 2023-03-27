@@ -17,23 +17,38 @@
 
 package org.apache.inlong.audit.file;
 
-import org.apache.inlong.common.pojo.audit.AuditConfig;
+import java.util.List;
 
 public class RemoteConfigJson {
 
-    private boolean success;
-    private String errMsg;
-    private AuditConfig data;
+    private boolean result;
+    private List<DataItem> data;
+    private int errCode;
 
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public String getErrMsg() {
-        return errMsg;
-    }
-
-    public AuditConfig getData() {
+    public List<DataItem> getData() {
         return data;
+    }
+
+    public int getErrCode() {
+        return errCode;
+    }
+
+    public static class DataItem {
+
+        private String groupId;
+        private String topic;
+        private String m;
+
+        public String getGroupId() {
+            return groupId;
+        }
+
+        public String getTopic() {
+            return topic;
+        }
+
+        public String getM() {
+            return m;
+        }
     }
 }

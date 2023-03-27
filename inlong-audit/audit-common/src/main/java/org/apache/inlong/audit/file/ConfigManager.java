@@ -22,20 +22,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.audit.consts.ConfigConstants;
 import org.apache.inlong.audit.file.holder.PropertiesConfigHolder;
-import org.apache.inlong.common.pojo.audit.AuditConfigRequest;
-import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,11 +42,9 @@ public class ConfigManager {
     private static final Map<String, ConfigHolder> holderMap =
             new ConcurrentHashMap<>();
 
-    public static List<MQInfo> mqInfoList = new ArrayList<>();
-
     private static ConfigManager instance = null;
 
-    private static String DEFAULT_CONFIG_PROPERTIES = "application.properties";
+    private static String DEFAULT_CONFIG_PROPERTIES = "server.properties";
 
     static {
         instance = getInstance(DEFAULT_CONFIG_PROPERTIES, true);
@@ -131,10 +123,6 @@ public class ConfigManager {
         }
     }
 
-    public List<MQInfo> getMqInfoList() {
-        return mqInfoList;
-    }
-
     public ConfigHolder getDefaultConfigHolder() {
         return holderMap.get(DEFAULT_CONFIG_PROPERTIES);
     }
@@ -201,41 +189,33 @@ public class ConfigManager {
             }
         }
 
-        private boolean checkWithManager(String host, String clusterTag) {
-            HttpPost httpPost = null;
+        private boolean checkWithManager(String host) {
+            HttpGet httpGet = null;
             try {
-                String url = "http://" + host + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_GET_CONFIG_PATH;
+                String url = "http://" + host + "/inlong/manager/openapi/audit/getConfig";
                 LOG.info("start to request {} to get config info", url);
-                httpPost = new HttpPost(url);
-                httpPost.addHeader(HttpHeaders.CONNECTION, "close");
-
-                // request body
-                AuditConfigRequest request = new AuditConfigRequest();
-                request.setClusterTag(clusterTag);
-                StringEntity stringEntity = new StringEntity(gson.toJson(request));
-                stringEntity.setContentType("application/json");
-                httpPost.setEntity(stringEntity);
+                httpGet = new HttpGet(url);
+                httpGet.addHeader(HttpHeaders.CONNECTION, "close");
 
                 // request with post
-                LOG.info("start to request {} to get config info with params {}", url, request);
-                CloseableHttpResponse response = httpClient.execute(httpPost);
+                CloseableHttpResponse response = httpClient.execute(httpGet);
                 String returnStr = EntityUtils.toString(response.getEntity());
                 // get groupId <-> topic and m value.
 
-                RemoteConfigJson configJson = gson.fromJson(returnStr, RemoteConfigJson.class);
-                if (configJson.isSuccess() && configJson.getData() != null) {
-                    mqInfoList = configJson.getData().getMqInfoList();
-                    if (mqInfoList == null || mqInfoList.isEmpty()) {
-                        LOG.error("getConfig from manager: no available mq config");
-                        return false;
+                Map<String, String> configJsonMap = gson.fromJson(returnStr, Map.class);
+                if (configJsonMap != null && configJsonMap.size() > 0) {
+                    for (Entry<String, String> entry : configJsonMap.entrySet()) {
+                        Map<String, String> valueMap = gson.fromJson(entry.getValue(), Map.class);
+                        configManager.updatePropertiesHolder(valueMap,
+                                entry.getKey(), true);
                     }
                 }
             } catch (Exception ex) {
                 LOG.error("exception caught", ex);
                 return false;
             } finally {
-                if (httpPost != null) {
-                    httpPost.releaseConnection();
+                if (httpGet != null) {
+                    httpGet.releaseConnection();
                 }
             }
             return true;
@@ -244,13 +224,10 @@ public class ConfigManager {
         private void checkRemoteConfig() {
 
             try {
-                String managerHosts = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES).get("manager.hosts");
-                String proxyClusterTag = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES)
-                        .get("proxy.cluster.tag");
-                LOG.info("manager url: {}", managerHosts);
+                String managerHosts = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES).get("manager_hosts");
                 String[] hostList = StringUtils.split(managerHosts, ",");
                 for (String host : hostList) {
-                    if (checkWithManager(host, proxyClusterTag)) {
+                    if (checkWithManager(host)) {
                         break;
                     }
                 }
@@ -265,6 +242,7 @@ public class ConfigManager {
             while (isRunning) {
 
                 long sleepTimeInMs = getSleepTime();
+                count += 1;
                 try {
                     checkLocalFile();
                     // wait for 30 seconds to update remote config
@@ -276,7 +254,6 @@ public class ConfigManager {
                 } catch (Exception ex) {
                     LOG.error("exception caught", ex);
                 }
-                count += 1;
             }
         }
     }

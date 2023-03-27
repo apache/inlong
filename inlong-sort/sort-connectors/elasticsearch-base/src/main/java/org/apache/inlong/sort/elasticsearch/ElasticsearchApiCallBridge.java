@@ -19,7 +19,12 @@ package org.apache.inlong.sort.elasticsearch;
 
 import org.apache.flink.annotation.Internal;
 
+import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
+import org.elasticsearch.action.bulk.BulkItemResponse;
+import org.elasticsearch.action.bulk.BulkProcessor;
+
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
@@ -39,9 +44,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @param <C> The Elasticsearch client, that implements {@link AutoCloseable}.
  */
 @Internal
-public interface ElasticsearchApiCallBridge<Request, Builder, Listener, BulkItemResponse, BulkProcessor extends AutoCloseable, C extends AutoCloseable>
-        extends
-            Serializable {
+public interface ElasticsearchApiCallBridge<C extends AutoCloseable> extends Serializable {
 
     /**
      * Creates an Elasticsearch client implementing {@link AutoCloseable}.
@@ -52,41 +55,34 @@ public interface ElasticsearchApiCallBridge<Request, Builder, Listener, BulkItem
     C createClient(Map<String, String> clientConfig);
 
     /**
-     * Creates a Builder for creating the bulk processor.
+     * Creates a {@link BulkProcessor.Builder} for creating the bulk processor.
      *
      * @param client the Elasticsearch client.
      * @param listener the bulk processor listener.
      * @return the bulk processor builder.
      */
-    Builder createBulkProcessorBuilder(C client, Listener listener);
-
-    /**
-     * Build BulkProcessor
-     *
-     * @param builder The builder of BulkProcessor
-     * @return The BulkProcessor
-     */
-    BulkProcessor buildBulkProcessor(Builder builder);
+    BulkProcessor.Builder createBulkProcessorBuilder(C client, BulkProcessor.Listener listener);
 
     /**
      * Extracts the cause of failure of a bulk item action.
      *
      * @param bulkItemResponse the bulk item response to extract cause of failure
      * @return the extracted {@link Throwable} from the response ({@code null} is the response is
-     *         successful).
+     *     successful).
      */
     @Nullable
     Throwable extractFailureCauseFromBulkItemResponse(BulkItemResponse bulkItemResponse);
 
     /**
-     * Set backoff-related configurations on the provided Builder. The builder
-     * will be later on used to instantiate the actual BulkProcessor.
+     * Set backoff-related configurations on the provided {@link BulkProcessor.Builder}. The builder
+     * will be later on used to instantiate the actual {@link BulkProcessor}.
      *
-     * @param builder the Builder to configure.
+     * @param builder the {@link BulkProcessor.Builder} to configure.
      * @param flushBackoffPolicy user-provided backoff retry settings ({@code null} if the user
-     *         disabled backoff retries).
+     *     disabled backoff retries).
      */
-    void configureBulkProcessorBackoff(Builder builder,
+    void configureBulkProcessorBackoff(
+            BulkProcessor.Builder builder,
             @Nullable ElasticsearchSinkBase.BulkFlushBackoffPolicy flushBackoffPolicy);
 
     /**
@@ -104,21 +100,16 @@ public interface ElasticsearchApiCallBridge<Request, Builder, Listener, BulkItem
      * Creates a {@link RequestIndexer} that is able to work with {@link BulkProcessor} binary
      * compatible.
      */
-    RequestIndexer<Request> createBulkProcessorIndexer(BulkProcessor bulkProcessor, boolean flushOnCheckpoint,
-            AtomicLong numPendingRequestsRef);
+    default RequestIndexer createBulkProcessorIndexer(
+            BulkProcessor bulkProcessor,
+            boolean flushOnCheckpoint,
+            AtomicLong numPendingRequestsRef) {
+        return new PreElasticsearch6BulkProcessorIndexer(
+                bulkProcessor, flushOnCheckpoint, numPendingRequestsRef);
+    }
 
-    /**
-     * Perform any necessary state cleanup.
-     */
+    /** Perform any necessary state cleanup. */
     default void cleanup() {
         // nothing to cleanup by default
     }
-
-    /**
-     * Configure the BulkProcessor
-     *
-     * @param builder The bulder of BulkProcessor
-     * @param options The options of BulkProcessor
-     */
-    void configureBulkProcessor(Builder builder, BulkProcessorOptions options);
 }

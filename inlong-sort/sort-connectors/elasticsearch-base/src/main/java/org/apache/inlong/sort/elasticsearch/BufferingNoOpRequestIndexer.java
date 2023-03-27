@@ -19,30 +19,57 @@ package org.apache.inlong.sort.elasticsearch;
 
 import org.apache.flink.annotation.Internal;
 
+import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
+import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.update.UpdateRequest;
+
+import javax.annotation.concurrent.NotThreadSafe;
+
+import java.util.Collections;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Implementation of a {@link RequestIndexer} that buffers {@link Request request}
+ * Implementation of a {@link RequestIndexer} that buffers {@link ActionRequest ActionRequests}
  * before re-sending them to the Elasticsearch cluster upon request.
  */
 @Internal
-class BufferingNoOpRequestIndexer<Request> implements RequestIndexer<Request> {
+@NotThreadSafe
+class BufferingNoOpRequestIndexer implements RequestIndexer {
 
-    private final ConcurrentLinkedQueue<Request> bufferedRequests;
+    private ConcurrentLinkedQueue<ActionRequest> bufferedRequests;
 
     BufferingNoOpRequestIndexer() {
-        this.bufferedRequests = new ConcurrentLinkedQueue<>();
+        this.bufferedRequests = new ConcurrentLinkedQueue<ActionRequest>();
     }
 
     @Override
-    public void add(Request request) {
-        bufferedRequests.add(request);
+    public void add(DeleteRequest... deleteRequests) {
+        Collections.addAll(bufferedRequests, deleteRequests);
     }
 
-    void processBufferedRequests(RequestIndexer<Request> actualIndexer) {
-        for (Request request : bufferedRequests) {
-            actualIndexer.add(request);
+    @Override
+    public void add(IndexRequest... indexRequests) {
+        Collections.addAll(bufferedRequests, indexRequests);
+    }
+
+    @Override
+    public void add(UpdateRequest... updateRequests) {
+        Collections.addAll(bufferedRequests, updateRequests);
+    }
+
+    void processBufferedRequests(RequestIndexer actualIndexer) {
+        for (ActionRequest request : bufferedRequests) {
+            if (request instanceof IndexRequest) {
+                actualIndexer.add((IndexRequest) request);
+            } else if (request instanceof DeleteRequest) {
+                actualIndexer.add((DeleteRequest) request);
+            } else if (request instanceof UpdateRequest) {
+                actualIndexer.add((UpdateRequest) request);
+            }
         }
+
         bufferedRequests.clear();
     }
 }

@@ -17,30 +17,36 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
-import org.apache.inlong.sort.elasticsearch.RequestIndexer;
+import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
+
+import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.common.xcontent.XContentType;
 
 import java.io.Serializable;
 
-/**
- * For version-agnostic creating of ActionRequests.
- */
-public interface RequestFactory<Request, ContentType> extends Serializable {
+/** For version-agnostic creating of {@link ActionRequest}s. */
+public interface RequestFactory extends Serializable {
 
     /**
      * Creates an update request to be added to a {@link RequestIndexer}. Note: the type field has
      * been deprecated since Elasticsearch 7.x and it would not take any effort.
      */
-    Request createUpdateRequest(String index, String docType, String key, ContentType contentType, byte[] document);
+    UpdateRequest createUpdateRequest(
+            String index, String docType, String key, XContentType contentType, byte[] document);
 
     /**
      * Creates an index request to be added to a {@link RequestIndexer}. Note: the type field has
      * been deprecated since Elasticsearch 7.x and it would not take any effort.
      */
-    Request createIndexRequest(String index, String docType, String key, ContentType contentType, byte[] document);
+    IndexRequest createIndexRequest(
+            String index, String docType, String key, XContentType contentType, byte[] document);
 
     /**
      * Creates a delete request to be added to a {@link RequestIndexer}. Note: the type field has
      * been deprecated since Elasticsearch 7.x and it would not take any effort.
      */
-    Request createDeleteRequest(String index, String docType, String key);
+    DeleteRequest createDeleteRequest(String index, String docType, String key);
 }

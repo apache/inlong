@@ -19,10 +19,8 @@ package org.apache.inlong.sort.cdc.mongodb;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
-import com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils;
 import com.ververica.cdc.debezium.Validator;
-import io.debezium.connector.AbstractSourceInfo;
-import io.debezium.data.Envelope;
+import io.debezium.connector.SnapshotRecord;
 import io.debezium.document.DocumentReader;
 import io.debezium.document.DocumentWriter;
 import io.debezium.embedded.Connect;
@@ -52,7 +50,6 @@ import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.base.Constants;
-import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
@@ -504,30 +501,17 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
-                                // do nothing
-                            }
-
-                            @Override
-                            public void deserialize(SourceRecord record, Collector<T> out, Boolean isStreamingPhase)
-                                    throws Exception {
-                                if (record != null && MongoRecordUtils.isHeartbeatEvent(record)) {
-                                    if (sourceMetricData != null && isStreamingPhase) {
-                                        sourceMetricData.outputReadPhaseMetrics(ReadPhase.INCREASE_PHASE);
-                                    }
-                                    return;
-                                }
                                 if (sourceMetricData != null && record != null && migrateAll) {
                                     Struct value = (Struct) record.value();
-                                    Struct ns = value.getStruct(MongoDBEnvelope.NAMESPACE_FIELD);
-                                    if (null == ns) {
-                                        ns = value.getStruct(RecordUtils.DOCUMENT_TO_FIELD);
+                                    Struct source = value.getStruct(MongoDBEnvelope.NAMESPACE_FIELD);
+                                    if (null == source) {
+                                        source = value.getStruct(RecordUtils.DOCUMENT_TO_FIELD);
                                     }
-                                    String dbName = ns.getString(MongoDBEnvelope.NAMESPACE_DATABASE_FIELD);
+                                    String dbName = source.getString(MongoDBEnvelope.NAMESPACE_DATABASE_FIELD);
                                     String collectionName =
-                                            ns.getString(MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD);
-                                    Struct source = value.getStruct(Envelope.FieldName.SOURCE);
-                                    String snapshotRecord = source.getString(AbstractSourceInfo.SNAPSHOT_KEY);
-                                    boolean isSnapshotRecord = Boolean.parseBoolean(snapshotRecord);
+                                            source.getString(MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD);
+                                    SnapshotRecord snapshotRecord = SnapshotRecord.fromSource(source);
+                                    boolean isSnapshotRecord = (SnapshotRecord.TRUE == snapshotRecord);
                                     sourceMetricData
                                             .outputMetricsWithEstimate(new String[]{dbName, collectionName},
                                                     isSnapshotRecord, value);

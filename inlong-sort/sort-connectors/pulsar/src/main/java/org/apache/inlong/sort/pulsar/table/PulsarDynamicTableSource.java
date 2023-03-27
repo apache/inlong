@@ -54,8 +54,7 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.pulsar.internal.FlinkPulsarSource;
-import org.apache.inlong.sort.pulsar.internal.FlinkPulsarSourceWithoutAdmin;
+import org.apache.inlong.sort.pulsar.withoutadmin.FlinkPulsarSource;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
@@ -274,10 +273,9 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
     private SourceFunction<RowData> createPulsarSource(
             ClientConfigurationData clientConfigurationData,
             PulsarDeserializationSchema<RowData> deserializationSchema) {
-        FlinkPulsarSource source =
-                new FlinkPulsarSource(
+        org.apache.inlong.sort.pulsar.FlinkPulsarSource source =
+                new org.apache.inlong.sort.pulsar.FlinkPulsarSource(
                         adminUrl,
-                        serviceUrl,
                         clientConfigurationData,
                         deserializationSchema,
                         properties,
@@ -312,7 +310,7 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
     private SourceFunction<RowData> createPulsarSourceWithoutAdmin(
             ClientConfigurationData clientConfigurationData,
             PulsarDeserializationSchema<RowData> deserializationSchema) {
-        FlinkPulsarSourceWithoutAdmin<RowData> source = new FlinkPulsarSourceWithoutAdmin<>(
+        FlinkPulsarSource<RowData> source = new FlinkPulsarSource<>(
                 serviceUrl,
                 clientConfigurationData,
                 deserializationSchema,

@@ -21,6 +21,7 @@ import com.google.common.base.Charsets;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
+import org.apache.flume.EventDeliveryException;
 import org.apache.flume.Sink;
 import org.apache.flume.Transaction;
 import org.apache.flume.channel.MemoryChannel;
@@ -31,7 +32,6 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,19 +47,16 @@ public class PulsarSinkTest {
 
     private PulsarSink sink;
     private Channel channel;
-    private Context context;
 
     @Before
-    public void setUp() throws Exception {
-        sink = PowerMockito.mock(PulsarSink.class);
-        PowerMockito.doNothing().when(sink, "start");
-        PowerMockito.when(sink.process()).thenReturn(Sink.Status.READY);
-        PowerMockito.when(sink.getLifecycleState()).thenReturn(LifecycleState.ERROR);
+    public void setUp() {
+        sink = new PulsarSink();
         channel = new MemoryChannel();
 
-        context = new Context();
+        Context context = new Context();
 
         context.put("type", "org.apache.inlong.dataproxy.sink.PulsarSink");
+        context.put("pulsar_server_url", "pulsar://127.0.0.1:6650");
 
         sink.setChannel(channel);
 
@@ -68,7 +65,7 @@ public class PulsarSinkTest {
     }
 
     @Test
-    public void testProcess() throws Exception {
+    public void testProcess() throws InterruptedException, EventDeliveryException {
         setUp();
         Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
         sink.start();

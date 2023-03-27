@@ -15,20 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.elasticsearch;
+package org.apache.inlong.sort.pulsar.withoutadmin;
 
-import java.io.Serializable;
+import org.apache.flink.util.Collector;
+import org.apache.flink.util.function.ThrowingConsumer;
 
 /**
- * An implementation of {@link ActionRequestFailureHandler} is provided by the user to define how failed ActionRequests
- * should be handled, e.g. dropping them, reprocessing malformed documents,
- * or simply requesting them to be sent to Elasticsearch again if the failure is only temporary.
- * Copies from {@link org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler}
- *
- * @param <ActionRequest>
+ * A collector supporting callback.
  */
-public interface ActionRequestFailureHandler<ActionRequest> extends Serializable {
+public class CallbackCollector<T> implements Collector<T> {
 
-    void onFailure(ActionRequest actionRequest, Throwable failure, int restStatusCode,
-            RequestIndexer<ActionRequest> indexer) throws Throwable;
+    private final ThrowingConsumer<T, Exception> callback;
+
+    public CallbackCollector(ThrowingConsumer<T, Exception> callback) {
+        this.callback = callback;
+    }
+
+    @Override
+    public void collect(T t) {
+        try {
+            callback.accept(t);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void close() {
+
+    }
 }

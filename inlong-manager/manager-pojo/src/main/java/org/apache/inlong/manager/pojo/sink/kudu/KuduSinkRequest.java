@@ -42,7 +42,4 @@ public class KuduSinkRequest extends SinkRequest {
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("Buckets for the newly created table")
-    private Integer buckets;
-
 }

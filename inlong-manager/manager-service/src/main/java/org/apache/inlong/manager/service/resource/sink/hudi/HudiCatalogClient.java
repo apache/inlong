@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink.hudi;
 
-import com.google.common.collect.Maps;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -36,16 +34,17 @@ import org.apache.hadoop.hive.metastore.api.StorageDescriptor;
 import org.apache.hadoop.hive.metastore.api.Table;
 import org.apache.hadoop.hive.ql.metadata.Hive;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hudi.avro.HoodieAvroUtils;
+import org.apache.hudi.common.model.HoodieFileFormat;
+import org.apache.hudi.exception.HoodieCatalogException;
+import org.apache.hudi.hadoop.utils.HoodieInputFormatUtils;
+import org.apache.hudi.org.apache.hbase.thirdparty.com.google.common.collect.Maps;
+import org.apache.hudi.sync.common.util.ConfigUtils;
 import org.apache.inlong.manager.pojo.sink.hudi.HudiColumnInfo;
 import org.apache.inlong.manager.pojo.sink.hudi.HudiTableInfo;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.inlong.manager.service.resource.sink.hudi.HudiUtils.IS_QUERY_AS_RO_TABLE;
-import static org.apache.inlong.manager.service.resource.sink.hudi.HudiUtils.getInputFormatClassName;
-import static org.apache.inlong.manager.service.resource.sink.hudi.HudiUtils.getOutputFormatClassName;
-import static org.apache.inlong.manager.service.resource.sink.hudi.HudiUtils.getSerDeClassName;
 
 /**
  * The Catalog client for Hudi.
@@ -54,12 +53,14 @@ public class HudiCatalogClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(HudiCatalogClient.class);
 
+    private final String uri;
     private final String dbName;
     private final String warehouse;
     private IMetaStoreClient client;
     private final HiveConf hiveConf;
 
     public HudiCatalogClient(String uri, String warehouse, String dbName) throws MetaException {
+        this.uri = uri;
         this.warehouse = warehouse;
         this.dbName = dbName;
         hiveConf = new HiveConf();
@@ -75,7 +76,7 @@ public class HudiCatalogClient {
             try {
                 this.client = Hive.get(hiveConf).getMSC();
             } catch (Exception e) {
-                throw new RuntimeException("Failed to create hive metastore client", e);
+                throw new HoodieCatalogException("Failed to create hive metastore client", e);
             }
             LOG.info("Connected to Hive metastore");
         }
@@ -138,7 +139,7 @@ public class HudiCatalogClient {
         Table hiveTable = client.getTable(dbName, tableName);
         List<FieldSchema> allCols = hiveTable.getSd().getCols().stream()
                 // filter out the metadata columns
-                .filter(s -> !HudiUtils.isMetadataFile(s.getName()))
+                .filter(s -> !HoodieAvroUtils.isMetadataField(s.getName()))
                 .collect(Collectors.toList());
 
         return allCols.stream()
@@ -206,18 +207,18 @@ public class HudiCatalogClient {
         hiveTable.setTableName(tableName);
         // FIXME: splitSchemas need config by frontend
 
-        HudiFileFormat baseFileFormat = HudiFileFormat.PARQUET;
+        HoodieFileFormat baseFileFormat = HoodieFileFormat.PARQUET;
         // ignore uber input Format
         String inputFormatClassName =
-                getInputFormatClassName(baseFileFormat, useRealTimeInputFormat);
-        String outputFormatClassName = getOutputFormatClassName(baseFileFormat);
-        String serDeClassName = getSerDeClassName(baseFileFormat);
+                HoodieInputFormatUtils.getInputFormatClassName(baseFileFormat, useRealTimeInputFormat);
+        String outputFormatClassName = HoodieInputFormatUtils.getOutputFormatClassName(baseFileFormat);
+        String serDeClassName = HoodieInputFormatUtils.getSerDeClassName(baseFileFormat);
         sd.setInputFormat(inputFormatClassName);
         sd.setOutputFormat(outputFormatClassName);
 
         Map<String, String> serdeProperties = new HashMap<>();
         serdeProperties.put("path", location);
-        serdeProperties.put(IS_QUERY_AS_RO_TABLE, String.valueOf(!useRealTimeInputFormat));
+        serdeProperties.put(ConfigUtils.IS_QUERY_AS_RO_TABLE, String.valueOf(!useRealTimeInputFormat));
         sd.setSerdeInfo(new SerDeInfo(null, serDeClassName, serdeProperties));
         sd.setLocation(location);
         hiveTable.setSd(sd);

@@ -15,21 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.pulsar.internal;
+package org.apache.inlong.sort.pulsar.withoutadmin;
 
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
-import org.apache.flink.streaming.connectors.pulsar.internal.PulsarClientUtils;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions;
 import org.apache.flink.streaming.connectors.pulsar.internal.SerializableRange;
 import org.apache.flink.streaming.connectors.pulsar.internal.SourceSinkUtils;
 import org.apache.flink.streaming.connectors.pulsar.internal.TopicRange;
-import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
-import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.AuthenticationFactory;
-import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Range;
@@ -89,10 +85,7 @@ public class PulsarMetadataReader implements AutoCloseable {
 
     private final SerializableRange range;
 
-    private PulsarAdmin admin;
-
     public PulsarMetadataReader(
-            String adminUrl,
             String serverUrl,
             ClientConfigurationData clientConf,
             String subscriptionName,
@@ -109,9 +102,6 @@ public class PulsarMetadataReader implements AutoCloseable {
         this.useExternalSubscription = useExternalSubscription;
         this.client = buildPulsarClient(serverUrl, clientConf, caseInsensitiveParams.get(AUTHENTICATION_TOKEN.key()));
         this.range = buildRange(caseInsensitiveParams);
-        if (adminUrl != null) {
-            this.admin = PulsarClientUtils.newAdminFromConf(adminUrl, clientConf);
-        }
     }
 
     private PulsarClient buildPulsarClient(
@@ -143,8 +133,21 @@ public class PulsarMetadataReader implements AutoCloseable {
         return SerializableRange.of(range);
     }
 
-    private String subscriptionNameFrom(TopicRange topicRange) {
-        return topicRange.isFullRange() ? subscriptionName : subscriptionName + topicRange.getPulsarRange();
+    public PulsarMetadataReader(
+            String serverUrl,
+            ClientConfigurationData clientConf,
+            String subscriptionName,
+            Map<String, String> caseInsensitiveParams,
+            int indexOfThisSubtask,
+            int numParallelSubtasks) throws PulsarClientException {
+
+        this(serverUrl,
+                clientConf,
+                subscriptionName,
+                caseInsensitiveParams,
+                indexOfThisSubtask,
+                numParallelSubtasks,
+                false);
     }
 
     @Override
@@ -237,27 +240,6 @@ public class PulsarMetadataReader implements AutoCloseable {
             }
         }
         return Collections.emptyList();
-    }
-
-    public void commitOffsetToCursor(Map<TopicRange, MessageId> offset) {
-        Preconditions.checkNotNull(admin, "admin url should not be null");
-        for (Map.Entry<TopicRange, MessageId> entry : offset.entrySet()) {
-            TopicRange tp = entry.getKey();
-            try {
-                log.info("Committing offset {} to topic {}", entry.getValue(), tp);
-                admin.topics().resetCursor(tp.getTopic(), subscriptionNameFrom(tp), entry.getValue(), true);
-                log.info("Successfully committed offset {} to topic {}", entry.getValue(), tp);
-            } catch (Throwable e) {
-                if (e instanceof PulsarAdminException &&
-                        (((PulsarAdminException) e).getStatusCode() == 404 ||
-                                ((PulsarAdminException) e).getStatusCode() == 412)) {
-                    log.info("Cannot commit cursor since the topic {} has been deleted during execution", tp);
-                } else {
-                    throw new RuntimeException(
-                            String.format("Failed to commit cursor for %s", tp), e);
-                }
-            }
-        }
     }
 
     /**

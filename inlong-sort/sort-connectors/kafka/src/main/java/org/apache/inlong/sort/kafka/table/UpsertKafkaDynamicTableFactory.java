@@ -69,7 +69,6 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.aut
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createKeyFormatProjection;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createValueFormatProjection;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.getKafkaProperties;
-import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
@@ -220,7 +219,6 @@ public class UpsertKafkaDynamicTableFactory
         final DirtySink<String> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         final String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
         final String auditHostAndPorts = tableOptions.getOptional(INLONG_AUDIT).orElse(null);
-        final String auditKeys = tableOptions.getOptional(AUDIT_KEYS).orElse(null);
         return new KafkaDynamicSource(
                 schema.toPhysicalRowDataType(),
                 keyDecodingFormat,
@@ -238,8 +236,7 @@ public class UpsertKafkaDynamicTableFactory
                 inlongMetric,
                 auditHostAndPorts,
                 dirtyOptions,
-                dirtySink,
-                auditKeys);
+                dirtySink);
     }
 
     @Override

@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.elasticsearch7;
+package org.apache.inlong.sort.elasticsearch;
 
 import org.apache.flink.annotation.Internal;
-import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 
+import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -34,16 +34,19 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * Implementation of a {@link RequestIndexer}, using a {@link BulkProcessor}. {@link ActionRequest
  * ActionRequests} will be buffered before sending a bulk request to the Elasticsearch cluster.
  *
- * <p>Note: This class is binary compatible to Elasticsearch 7.
+ * @deprecated This class is not binary compatible with newer Elasticsearch 6+ versions (i.e. the
+ *     {@link #add(UpdateRequest...)} ). However, this module is currently compiled against a very
+ *     old Elasticsearch version.
  */
+@Deprecated
 @Internal
-class Elasticsearch7BulkProcessorIndexer implements RequestIndexer {
+class PreElasticsearch6BulkProcessorIndexer implements RequestIndexer {
 
     private final BulkProcessor bulkProcessor;
     private final boolean flushOnCheckpoint;
     private final AtomicLong numPendingRequestsRef;
 
-    Elasticsearch7BulkProcessorIndexer(
+    PreElasticsearch6BulkProcessorIndexer(
             BulkProcessor bulkProcessor,
             boolean flushOnCheckpoint,
             AtomicLong numPendingRequestsRef) {

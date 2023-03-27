@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.base.metric;
+package org.apache.inlong.sort.pulsar.withoutadmin;
 
 import org.apache.flink.util.Collector;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.formats.base.collectors.TimestampedCollector;
 
 /**
@@ -26,7 +27,7 @@ import org.apache.inlong.sort.formats.base.collectors.TimestampedCollector;
  */
 public class MetricsCollector<T> implements TimestampedCollector<T> {
 
-    private final Collector<T> collector;
+    private Collector<T> collector;
 
     private long timestampMillis;
 
@@ -44,14 +45,11 @@ public class MetricsCollector<T> implements TimestampedCollector<T> {
 
     @Override
     public void collect(T record) {
-        if (metricData != null) {
-            metricData.outputMetricsWithEstimate(record, timestampMillis);
-        }
+        metricData.outputMetricsWithEstimate(record, timestampMillis);
         collector.collect(record);
     }
 
     @Override
     public void close() {
     }
-
 }

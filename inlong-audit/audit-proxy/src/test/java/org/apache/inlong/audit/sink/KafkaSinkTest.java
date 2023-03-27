@@ -49,6 +49,7 @@ public class KafkaSinkTest {
         context = new Context();
 
         context.put("topic", "inlong-audit");
+        context.put("master-host-port-list", "127.0.0.1:8080");
 
         kafkaSink.setChannel(channel);
         Configurables.configure(kafkaSink, context);

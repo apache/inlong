@@ -76,7 +76,9 @@ public enum SourceStatus {
      */
     public static final Set<Integer> ALLOWED_UPDATE = Sets.newHashSet(
             SOURCE_NEW.getCode(), SOURCE_FAILED.getCode(), SOURCE_FROZEN.getCode(),
-            SOURCE_NORMAL.getCode());
+            TO_BE_ISSUED_ADD.getCode(), TO_BE_ISSUED_DELETE.getCode(), TO_BE_ISSUED_RETRY.getCode(),
+            TO_BE_ISSUED_BACKTRACK.getCode(), TO_BE_ISSUED_FROZEN.getCode(), TO_BE_ISSUED_ACTIVE.getCode(),
+            TO_BE_ISSUED_CHECK.getCode(), TO_BE_ISSUED_REDO_METRIC.getCode(), TO_BE_ISSUED_MAKEUP.getCode());
 
     public static final Set<SourceStatus> TOBE_ISSUED_SET = Sets.newHashSet(
             TO_BE_ISSUED_ADD, TO_BE_ISSUED_DELETE, TO_BE_ISSUED_RETRY,

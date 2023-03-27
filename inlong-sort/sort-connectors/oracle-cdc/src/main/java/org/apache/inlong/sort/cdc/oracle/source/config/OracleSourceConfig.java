@@ -22,11 +22,9 @@ import io.debezium.config.Configuration;
 import io.debezium.connector.oracle.OracleConnectorConfig;
 import io.debezium.relational.RelationalTableFilters;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import javax.annotation.Nullable;
-import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 
 /**
@@ -109,10 +107,5 @@ public class OracleSourceConfig extends JdbcSourceConfig {
     @Nullable
     public String getUrl() {
         return url;
-    }
-
-    @Override
-    public List<String> getMetricLabelList() {
-        return Arrays.asList(Constants.DATABASE_NAME, Constants.SCHEMA_NAME, Constants.TABLE_NAME);
     }
 }

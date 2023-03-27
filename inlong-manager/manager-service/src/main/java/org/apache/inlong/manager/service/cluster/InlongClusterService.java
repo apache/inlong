@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.cluster;
 
-import org.apache.inlong.common.pojo.audit.AuditConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
@@ -419,14 +418,6 @@ public interface InlongClusterService {
      * @return data proxy config
      */
     String getAllConfig(String clusterName, String md5);
-
-    /**
-     * Get the MQ info by cluster tag for Audit
-     *
-     * @param clusterTag cluster tag
-     * @return MQ info
-     */
-    AuditConfig getAuditConfig(String clusterTag);
 
     /**
      * Test whether the connection can be successfully established.

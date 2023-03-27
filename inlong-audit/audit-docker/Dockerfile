@@ -26,9 +26,7 @@ ADD ${AUDIT_TARBALL} /opt/inlong-audit
 EXPOSE 10081
 # pulsar or tubemq or kafka
 ENV MQ_TYPE=pulsar
-ENV MANAGER_OPENAPI_IP=127.0.0.1
-ENV MANAGER_OPENAPI_PORT=8083
-ENV CLUSTER_TAG="default_cluster"
+ENV PULSAR_BROKER_LIST="127.0.0.1:6650"
 ENV PULSAR_AUDIT_TOPIC="persistent:\/\/public\/default\/inlong-audit"
 ENV TUBE_MASTER_LIST="localhost:8715"
 ENV TUBE_AUDIT_TOPIC="inlong-audit"

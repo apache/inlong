@@ -120,7 +120,6 @@ public class DorisStreamLoad implements Serializable {
 
         try {
             final String loadUrlStr = String.format(LOAD_URL_PATTERN, hostPort, db, tbl);
-            LOG.info("Streamload Url:{}", loadUrlStr);
             HttpPut put = new HttpPut(loadUrlStr);
             put.setHeader(HttpHeaders.EXPECT, "100-continue");
             put.setHeader(HttpHeaders.AUTHORIZATION, this.authEncoding);
@@ -130,9 +129,7 @@ public class DorisStreamLoad implements Serializable {
                     put.setHeader(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
                 }
             }
-            if (!put.containsHeader("format")) {
-                put.setHeader("format", "json");
-            }
+            put.setHeader("format", "json");
             put.setHeader("strip_outer_array", "true");
             StringEntity entity = new StringEntity(value, "UTF-8");
             put.setEntity(entity);

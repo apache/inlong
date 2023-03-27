@@ -31,7 +31,6 @@ public class KuduTableInfo {
     private String masters;
     private String tableName;
     private String tableDesc;
-    private Integer buckets;
     private Map<String, Object> tblProperties;
     private List<KuduColumnInfo> columns;
 

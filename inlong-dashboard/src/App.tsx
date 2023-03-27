@@ -97,7 +97,7 @@ const App = () => {
   }, [history, location, setCurrentMenu]);
 
   return (
-    <>
+    <Suspense fallback={<AppLoading />}>
       <Switch>
         {useLogin && (
           <Route
@@ -105,32 +105,25 @@ const App = () => {
             path="/login"
             render={() => {
               const LazyLogin = lazy(() => import('@/pages/Login'));
-              return (
-                <Suspense fallback={<AppLoading />}>
-                  <LazyLogin />
-                </Suspense>
-              );
+              return <LazyLogin />;
             }}
           />
         )}
-
         <AppLayout>
-          <Suspense fallback={<AppLoading />}>
-            <Switch>
-              {Object.keys(redirectRoutes).map(path => (
-                <Route
-                  exact
-                  key={path}
-                  path={path}
-                  render={() => <Redirect to={redirectRoutes[path]} />}
-                />
-              ))}
-              {renderRoutes(routes)}
-            </Switch>
-          </Suspense>
+          <Switch>
+            {Object.keys(redirectRoutes).map(path => (
+              <Route
+                exact
+                key={path}
+                path={path}
+                render={() => <Redirect to={redirectRoutes[path]} />}
+              />
+            ))}
+            {renderRoutes(routes)}
+          </Switch>
         </AppLayout>
       </Switch>
-    </>
+    </Suspense>
   );
 };
 
