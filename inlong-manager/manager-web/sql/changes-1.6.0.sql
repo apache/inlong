@@ -91,3 +91,9 @@ VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
        ('audit_sort_mysql_output', 'MYSQL', 1, '24'),
        ('audit_sort_kudu_input', 'KUDU', 0, '25'),
        ('audit_sort_kudu_output', 'KUDU', 1, '26');
+
+DROP INDEX `group_ext_group_index` ON `inlong_group_ext`;
+DROP INDEX `stream_id_index` ON `inlong_stream_ext`;
+DROP INDEX `stream_group_id_index` ON `inlong_stream`;
+DROP INDEX `unique_inlong_stream` ON `inlong_stream`;
+ALTER TABLE `inlong_stream` ADD UNIQUE KEY `unique_inlong_stream` (`inlong_group_id`, `inlong_stream_id`, `is_deleted`);
