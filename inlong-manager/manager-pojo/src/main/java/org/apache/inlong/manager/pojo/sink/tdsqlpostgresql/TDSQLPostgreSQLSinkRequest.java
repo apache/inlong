@@ -26,6 +26,8 @@ import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * TDSQLPostgreSQL sink request.
  */
@@ -37,6 +39,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 public class TDSQLPostgreSQLSinkRequest extends SinkRequest {
 
     @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")

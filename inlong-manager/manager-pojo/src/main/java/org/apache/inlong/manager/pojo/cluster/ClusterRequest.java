@@ -65,6 +65,7 @@ public abstract class ClusterRequest {
 
     @ApiModelProperty(value = "Cluster url")
     @Length(max = 512, message = "length must be less than or equal to 512")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String url;
 
     @ApiModelProperty(value = "Extension tag")

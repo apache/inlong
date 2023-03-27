@@ -27,6 +27,8 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * Inlong cluster request for Pulsar
  */
@@ -38,6 +40,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 public class PulsarClusterRequest extends ClusterRequest {
 
     @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080", notes = "Pulsar service URL is the 'url' field of the cluster")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String adminUrl;
 
     @ApiModelProperty(value = "Pulsar tenant, default is 'public'")

@@ -225,6 +225,7 @@ public class MySQLSinkDTO {
             while (resultUrl.contains(InlongConstants.PERCENT)) {
                 resultUrl = URLDecoder.decode(resultUrl, "UTF-8");
             }
+            resultUrl = resultUrl.replaceAll(InlongConstants.BLANK, "");
             for (String sensitiveParam : SENSITIVE_PARAM_MAP.keySet()) {
                 if (StringUtils.containsIgnoreCase(resultUrl, sensitiveParam)) {
                     resultUrl = StringUtils.replaceIgnoreCase(resultUrl, sensitiveParam,

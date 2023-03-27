@@ -28,6 +28,8 @@ import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * Hudi sink request.
  */
@@ -42,6 +44,7 @@ public class HudiSinkRequest extends SinkRequest {
     private String catalogType = "HIVE";
 
     @ApiModelProperty("Catalog uri, such as hive metastore thrift://ip:port")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String catalogUri;
 
     @ApiModelProperty("Hudi data warehouse dir")

@@ -26,6 +26,8 @@ import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * MySQL data node request
  */
@@ -37,6 +39,7 @@ import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 public class MySQLDataNodeRequest extends DataNodeRequest {
 
     @ApiModelProperty("URL of backup DB server")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String backupUrl;
 
 }
