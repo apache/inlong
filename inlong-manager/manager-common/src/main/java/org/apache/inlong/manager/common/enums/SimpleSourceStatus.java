@@ -38,10 +38,10 @@ public enum SimpleSourceStatus {
                 return INIT;
             case SOURCE_NORMAL:
                 return NORMAL;
-            case TO_BE_ISSUED_FROZEN:
-            case BEEN_ISSUED_FROZEN:
+            case TO_BE_ISSUED_STOP:
+            case BEEN_ISSUED_STOP:
                 return FREEZING;
-            case SOURCE_FROZEN:
+            case SOURCE_STOP:
                 return FROZEN;
             case SOURCE_FAILED:
                 return FAILED;

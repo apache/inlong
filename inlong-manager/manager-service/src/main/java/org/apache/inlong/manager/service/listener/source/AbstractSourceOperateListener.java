@@ -103,7 +103,7 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
             int status = streamSource.getStatus();
             SourceStatus sourceStatus = SourceStatus.forCode(status);
             // template sources are filtered and processed in corresponding subclass listeners
-            if (sourceStatus == SourceStatus.SOURCE_NORMAL || sourceStatus == SourceStatus.SOURCE_FROZEN
+            if (sourceStatus == SourceStatus.SOURCE_NORMAL || sourceStatus == SourceStatus.SOURCE_STOP
                     || CollectionUtils.isNotEmpty(streamSource.getSubSourceList())) {
                 return true;
             } else if (sourceStatus == SourceStatus.SOURCE_FAILED || sourceStatus == SourceStatus.SOURCE_DISABLE) {
@@ -116,7 +116,7 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
         }
         SourceStatus sourceStatus = SourceStatus.forCode(streamSource.getStatus());
         if (sourceStatus != SourceStatus.SOURCE_NORMAL
-                && sourceStatus != SourceStatus.SOURCE_FROZEN
+                && sourceStatus != SourceStatus.SOURCE_STOP
                 && sourceStatus != SourceStatus.SOURCE_DISABLE
                 && sourceStatus != SourceStatus.SOURCE_FAILED) {
             log.error("stream source ={} cannot be operated for status={}", streamSource, sourceStatus);

@@ -92,7 +92,7 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
     private void changeSource4Lightweight(String groupId, GroupOperateType operateType, String operator) {
         switch (operateType) {
             case SUSPEND:
-                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_FROZEN.getCode(), operator);
+                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_STOP.getCode(), operator);
                 break;
             case RESTART:
                 sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);

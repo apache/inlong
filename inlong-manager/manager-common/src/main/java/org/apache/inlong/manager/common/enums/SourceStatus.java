@@ -33,7 +33,7 @@ public enum SourceStatus {
     SOURCE_DISABLE(99, "disable"),
     SOURCE_NORMAL(101, "normal"),
     SOURCE_FAILED(102, "failed"),
-    SOURCE_FROZEN(104, "frozen"),
+    SOURCE_STOP(104, "stop"),
 
     // if not approved
     SOURCE_NEW(110, "new created"),
@@ -44,7 +44,7 @@ public enum SourceStatus {
     TO_BE_ISSUED_DELETE(201, "waiting to be issued delete"),
     TO_BE_ISSUED_RETRY(202, "waiting to be issued retry"),
     TO_BE_ISSUED_BACKTRACK(203, "waiting to be issued backtrack"),
-    TO_BE_ISSUED_FROZEN(204, "waiting to be issued frozen"),
+    TO_BE_ISSUED_STOP(204, "waiting to be issued stop"),
     TO_BE_ISSUED_ACTIVE(205, "waiting to be issued active"),
     TO_BE_ISSUED_CHECK(206, "waiting to be issued check"),
     TO_BE_ISSUED_REDO_METRIC(207, "waiting to be issued redo metric"),
@@ -55,7 +55,7 @@ public enum SourceStatus {
     BEEN_ISSUED_DELETE(301, "been issued delete"),
     BEEN_ISSUED_RETRY(302, "been issued retry"),
     BEEN_ISSUED_BACKTRACK(303, "been issued backtrack"),
-    BEEN_ISSUED_FROZEN(304, "been issued frozen"),
+    BEEN_ISSUED_STOP(304, "been issued stop"),
     BEEN_ISSUED_ACTIVE(305, "been issued active"),
     BEEN_ISSUED_CHECK(306, "been issued check"),
     BEEN_ISSUED_REDO_METRIC(307, "been issued redo metric"),
@@ -75,12 +75,12 @@ public enum SourceStatus {
      * The set of status allowed updating
      */
     public static final Set<Integer> ALLOWED_UPDATE = Sets.newHashSet(
-            SOURCE_NEW.getCode(), SOURCE_FAILED.getCode(), SOURCE_FROZEN.getCode(),
+            SOURCE_NEW.getCode(), SOURCE_FAILED.getCode(), SOURCE_STOP.getCode(),
             SOURCE_NORMAL.getCode());
 
     public static final Set<SourceStatus> TOBE_ISSUED_SET = Sets.newHashSet(
             TO_BE_ISSUED_ADD, TO_BE_ISSUED_DELETE, TO_BE_ISSUED_RETRY,
-            TO_BE_ISSUED_BACKTRACK, TO_BE_ISSUED_FROZEN, TO_BE_ISSUED_ACTIVE,
+            TO_BE_ISSUED_BACKTRACK, TO_BE_ISSUED_STOP, TO_BE_ISSUED_ACTIVE,
             TO_BE_ISSUED_CHECK, TO_BE_ISSUED_REDO_METRIC, TO_BE_ISSUED_MAKEUP);
 
     private static final Map<SourceStatus, Set<SourceStatus>> SOURCE_STATE_AUTOMATON = Maps.newHashMap();
@@ -92,14 +92,14 @@ public enum SourceStatus {
         // normal
         SOURCE_STATE_AUTOMATON.put(SOURCE_NORMAL,
                 Sets.newHashSet(SOURCE_DISABLE, SOURCE_NORMAL, SOURCE_FAILED, TO_BE_ISSUED_DELETE,
-                        TO_BE_ISSUED_RETRY, TO_BE_ISSUED_BACKTRACK, TO_BE_ISSUED_FROZEN, TO_BE_ISSUED_ACTIVE,
+                        TO_BE_ISSUED_RETRY, TO_BE_ISSUED_BACKTRACK, TO_BE_ISSUED_STOP, TO_BE_ISSUED_ACTIVE,
                         TO_BE_ISSUED_CHECK, TO_BE_ISSUED_REDO_METRIC, TO_BE_ISSUED_MAKEUP));
 
         // failed
         SOURCE_STATE_AUTOMATON.put(SOURCE_FAILED, Sets.newHashSet(SOURCE_DISABLE, SOURCE_FAILED, TO_BE_ISSUED_RETRY));
 
         // frozen
-        SOURCE_STATE_AUTOMATON.put(SOURCE_FROZEN, Sets.newHashSet(SOURCE_DISABLE, SOURCE_FROZEN, TO_BE_ISSUED_ACTIVE));
+        SOURCE_STATE_AUTOMATON.put(SOURCE_STOP, Sets.newHashSet(SOURCE_DISABLE, SOURCE_STOP, TO_BE_ISSUED_ACTIVE));
 
         // [xxx] bo be issued
         HashSet<SourceStatus> tobeAddNext = Sets.newHashSet(BEEN_ISSUED_ADD, SOURCE_DISABLE);
@@ -114,9 +114,9 @@ public enum SourceStatus {
         HashSet<SourceStatus> tobeBacktrackNext = Sets.newHashSet(BEEN_ISSUED_BACKTRACK);
         tobeBacktrackNext.addAll(TOBE_ISSUED_SET);
         SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_BACKTRACK, Sets.newHashSet(tobeBacktrackNext));
-        HashSet<SourceStatus> tobeFrozenNext = Sets.newHashSet(BEEN_ISSUED_FROZEN);
+        HashSet<SourceStatus> tobeFrozenNext = Sets.newHashSet(BEEN_ISSUED_STOP);
         tobeFrozenNext.addAll(TOBE_ISSUED_SET);
-        SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_FROZEN, Sets.newHashSet(tobeFrozenNext));
+        SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_STOP, Sets.newHashSet(tobeFrozenNext));
         HashSet<SourceStatus> tobeActiveNext = Sets.newHashSet(BEEN_ISSUED_ACTIVE);
         tobeActiveNext.addAll(TOBE_ISSUED_SET);
         SOURCE_STATE_AUTOMATON.put(TO_BE_ISSUED_ACTIVE, Sets.newHashSet(tobeActiveNext));
@@ -135,7 +135,7 @@ public enum SourceStatus {
         SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_DELETE, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
         SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_RETRY, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
         SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_BACKTRACK, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
-        SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_FROZEN, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
+        SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_STOP, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
         SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_ACTIVE, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
         SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_CHECK, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));
         SOURCE_STATE_AUTOMATON.put(BEEN_ISSUED_REDO_METRIC, Sets.newHashSet(SOURCE_NORMAL, SOURCE_FAILED));

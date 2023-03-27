@@ -201,8 +201,8 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     public void stopOpt(SourceRequest request, String operator) {
         StreamSourceEntity existEntity = sourceMapper.selectByIdForUpdate(request.getId());
         SourceStatus curState = SourceStatus.forCode(existEntity.getStatus());
-        SourceStatus nextState = SourceStatus.TO_BE_ISSUED_FROZEN;
-        if (curState == SourceStatus.SOURCE_FROZEN) {
+        SourceStatus nextState = SourceStatus.TO_BE_ISSUED_STOP;
+        if (curState == SourceStatus.SOURCE_STOP) {
             return;
         }
         if (!SourceStatus.isAllowedTransition(curState, nextState)) {

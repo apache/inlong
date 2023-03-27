@@ -167,8 +167,8 @@ public class AgentServiceImpl implements AgentService {
             // Change the status from 30x to normal / disable / frozen
             if (SourceStatus.BEEN_ISSUED_DELETE.getCode() == previousStatus) {
                 nextStatus = SourceStatus.SOURCE_DISABLE.getCode();
-            } else if (SourceStatus.BEEN_ISSUED_FROZEN.getCode() == previousStatus) {
-                nextStatus = SourceStatus.SOURCE_FROZEN.getCode();
+            } else if (SourceStatus.BEEN_ISSUED_STOP.getCode() == previousStatus) {
+                nextStatus = SourceStatus.SOURCE_STOP.getCode();
             }
         }
 
@@ -365,9 +365,9 @@ public class AgentServiceImpl implements AgentService {
         List<Integer> needProcessedStatusList = Arrays.asList(
                 SourceStatus.SOURCE_NORMAL.getCode(),
                 SourceStatus.SOURCE_FAILED.getCode(),
-                SourceStatus.SOURCE_FROZEN.getCode(),
+                SourceStatus.SOURCE_STOP.getCode(),
                 SourceStatus.TO_BE_ISSUED_ADD.getCode(),
-                SourceStatus.TO_BE_ISSUED_FROZEN.getCode(),
+                SourceStatus.TO_BE_ISSUED_STOP.getCode(),
                 SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         final String agentIp = taskRequest.getAgentIp();
         final String agentClusterName = taskRequest.getClusterName();
@@ -381,16 +381,16 @@ public class AgentServiceImpl implements AgentService {
         sourceEntities.forEach(sourceEntity -> {
             // case: agent tag unbind and mismatch source task
             Set<SourceStatus> exceptedUnmatchedStatus = Sets.newHashSet(
-                    SourceStatus.SOURCE_FROZEN,
-                    SourceStatus.TO_BE_ISSUED_FROZEN);
+                    SourceStatus.SOURCE_STOP,
+                    SourceStatus.TO_BE_ISSUED_STOP);
             if (!matchGroup(sourceEntity, clusterNodeEntity)
                     && !exceptedUnmatchedStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))) {
                 LOGGER.info("Transform task({}) from {} to {} because tag mismatch "
                         + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
-                        sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(),
+                        sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_STOP.getCode(),
                         agentIp, agentClusterName);
                 sourceMapper.updateStatus(
-                        sourceEntity.getId(), SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), false);
+                        sourceEntity.getId(), SourceStatus.TO_BE_ISSUED_STOP.getCode(), false);
             }
 
             // case: agent tag rebind and match source task again and stream is not in 'SUSPENDED' status
