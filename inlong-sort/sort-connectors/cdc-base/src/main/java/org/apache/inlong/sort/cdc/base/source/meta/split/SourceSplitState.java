@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.split;
 
+import org.apache.flink.annotation.Internal;
+
 /** State of the reader, essentially a mutable version of the {@link SourceSplitBase}.
  * Copy from com.ververica:flink-cdc-base:2.3.0.
  * */
@@ -50,4 +52,10 @@ public abstract class SourceSplitState {
 
     /** Use the current split state to create a new SourceSplit. */
     public abstract SourceSplitBase toSourceSplit();
+
+    /** Get the current split. */
+    @Internal
+    public SourceSplitBase getSourceSplitBase() {
+        return split;
+    }
 }
