@@ -54,7 +54,7 @@ public class HudiCatalogClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(HudiCatalogClient.class);
 
-    private final String dbName;
+    private String dbName;
     private final String warehouse;
     private IMetaStoreClient client;
     private final HiveConf hiveConf;
@@ -62,6 +62,13 @@ public class HudiCatalogClient {
     public HudiCatalogClient(String uri, String warehouse, String dbName) throws MetaException {
         this.warehouse = warehouse;
         this.dbName = dbName;
+        hiveConf = new HiveConf();
+        hiveConf.setVar(HiveConf.ConfVars.METASTOREURIS, uri);
+        hiveConf.setBoolVar(HiveConf.ConfVars.METASTORE_EXECUTE_SET_UGI, false);
+    }
+
+    public HudiCatalogClient(String uri, String warehouse) throws MetaException {
+        this.warehouse = warehouse;
         hiveConf = new HiveConf();
         hiveConf.setVar(HiveConf.ConfVars.METASTOREURIS, uri);
         hiveConf.setBoolVar(HiveConf.ConfVars.METASTORE_EXECUTE_SET_UGI, false);
@@ -225,6 +232,10 @@ public class HudiCatalogClient {
         hiveTable.setParameters(properties);
 
         client.createTable(hiveTable);
+    }
+
+    public List<String> listAllDatabases() throws TException {
+        return client.getAllDatabases();
     }
 
     /**
