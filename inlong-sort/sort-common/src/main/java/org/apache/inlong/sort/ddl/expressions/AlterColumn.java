@@ -20,7 +20,7 @@ package org.apache.inlong.sort.ddl.expressions;
 import org.apache.inlong.sort.ddl.enums.AlterType;
 import org.apache.inlong.sort.ddl.Column;
 
-public class AlterExpression {
+public class AlterColumn {
 
     private AlterType alterType;
 
@@ -28,7 +28,7 @@ public class AlterExpression {
 
     private Column oldColumn;
 
-    public AlterExpression(AlterType alterType, Column newColumn, Column oldColumn) {
+    public AlterColumn(AlterType alterType, Column newColumn, Column oldColumn) {
         this.alterType = alterType;
         this.newColumn = newColumn;
         this.oldColumn = oldColumn;

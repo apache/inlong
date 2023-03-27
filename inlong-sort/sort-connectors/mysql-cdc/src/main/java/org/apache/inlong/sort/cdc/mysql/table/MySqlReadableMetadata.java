@@ -18,19 +18,27 @@
 package org.apache.inlong.sort.cdc.mysql.table;
 
 import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
+import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getComment;
+import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getDefaultValue;
+import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getNullable;
+import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getPosition;
 
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
+import io.debezium.relational.TableSchema;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.alter.Alter;
 import net.sf.jsqlparser.statement.alter.AlterExpression;
+import net.sf.jsqlparser.statement.alter.AlterExpression.ColumnDataType;
+import net.sf.jsqlparser.statement.create.table.ColDataType;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,14 +50,16 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
-import org.apache.inlong.sort.base.sink.TableChange.ColumnPosition;
 import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.cdc.base.util.RecordUtils;
 import org.apache.inlong.sort.ddl.Column;
+import org.apache.inlong.sort.ddl.Position;
 import org.apache.inlong.sort.ddl.enums.AlterType;
 import org.apache.inlong.sort.ddl.enums.IndexType;
 import org.apache.inlong.sort.ddl.enums.PositionType;
+import org.apache.inlong.sort.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.ddl.indexes.Index;
+import org.apache.inlong.sort.ddl.operations.AlterOperation;
 import org.apache.inlong.sort.ddl.operations.CreateTableOperation;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
@@ -476,7 +486,7 @@ public enum MySqlReadableMetadata {
             if (RecordUtils.isDdlRecord(messageStruct)) {
                 String sql = (String) field.get(DDL_FIELD_NAME);
                 canalJson.setSql(sql);
-                injectStatement(sql, canalJson, tableName, databaseName);
+                injectStatement(sql, canalJson, tableSchema);
                 canalJson.setDdl(true);
                 canalJson.setData(dataList);
             } else {
@@ -485,81 +495,107 @@ public enum MySqlReadableMetadata {
                 dataList.add(field);
                 canalJson.setData(dataList);
             }
-            // return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
-            return StringData.fromString("NULL");
+            return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
+            //return StringData.fromString("NULL");
         } catch (Exception e) {
             throw new IllegalStateException("exception occurs when get meta data", e);
         }
 
     }
 
-    private static void injectStatement(String sql, CanalJson canalJson, String table, String database) {
+    private static void injectStatement(String sql, CanalJson canalJson, TableChange tableSchema) {
         try {
+
+            boolean isFirst = sql.endsWith("FIRST");
+            if (sql.endsWith("FIRST") ) {
+                sql = sql.substring(0, sql.lastIndexOf("FIRST"));
+            }
             Statement statement = CCJSqlParserUtil.parse(sql);
             if (statement instanceof Alter) {
-                Alter alter = (Alter) statement;
-
-                for (AlterExpression alterExpression : alter.getAlterExpressions()) {
-                    List<String> definitions = new ArrayList<>();
-                    definitions.addAll(alterExpression.getColDataTypeList().get(0).getColDataType().getArgumentsStringList());
-                    definitions.addAll(alterExpression.getColDataTypeList().get(0).getColumnSpecs());
-                }
-
-                return;
+                canalJson.setOperation(getAlterOperation(
+                    (Alter) statement, tableSchema, isFirst));
             } if (statement instanceof CreateTable) {
-
-                CreateTable createTable = (CreateTable) statement;
-                CreateTableOperation createTableOperation = new CreateTableOperation();
-
-                if (createTable.getLikeTable() != null) {
-                    createTableOperation.setLikeTable(createTable.getLikeTable().getName());
-                }
-
-                List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
-                List<Column> columns = new ArrayList<>();
-                for (ColumnDefinition columnDefinition : columnDefinitions) {
-                    List<String> definitions = new ArrayList<>();
-                    List<String> argumentsStringList = columnDefinition.getColDataType()
-                        .getArgumentsStringList();
-                    if (argumentsStringList != null) {
-                        definitions.addAll(argumentsStringList);
-                    }
-                    definitions.addAll(columnDefinition.getColumnSpecs());
-                    Column column = new Column(columnDefinition.getColumnName(), definitions, 1,
-                        null, "", "");
-                    columns.add(column);
-                }
-
-                createTableOperation.setColumns(columns);
-
-                if (createTable.getIndexes() != null) {
-                    createTableOperation.setIndexes(((CreateTable) statement).getIndexes().stream().map(index -> {
-                        Index index1 = new Index();
-                        index1.setIndexName(index.getName());
-                        if (index.getType() == "PRIMARY KEY") {
-                            index1.setIndexType(IndexType.PRIMARY_KEY);
-                        } else if (index.getType() == "NORMAL_INDEX") {
-                            index1.setIndexType(IndexType.NORMAL_INDEX);
-                        }
-                        index1.setIndexColumns(index.getColumnsNames());
-                        return index1;
-                    }).collect(Collectors.toList()));
-                }
-
-                canalJson.setOperation(createTableOperation);
-                return;
+                canalJson.setOperation(getCreateTableOperation(
+                    (CreateTable) statement, tableSchema));
             }
-//            Statement s = CCJSqlParserUtil.parse(ddl);
-//            ObjectMapper mapper = new ObjectMapper();
-//            String str = mapper.writeValueAsString(s);
-//            System.out.println(str);
-//            mapper.setSerializationInclusion(Include.NON_NULL);
-//            Alter alter = mapper.readValue(str, Alter.class);
-//            canalJson.setOperation(statement);
 
         } catch (Exception e) {
             LOG.error("parse ddl error: {}， set ddl to null", sql, e);
         }
+    }
+
+    private static AlterOperation getAlterOperation(Alter statement, TableChange tableSchema, boolean isFirst) {
+        Alter alter = statement;
+        Map<String, Integer> sqlType = getSqlType(tableSchema);
+
+        List<AlterColumn> alterColumns = new ArrayList<>();
+
+        for (AlterExpression alterExpression : alter.getAlterExpressions()) {
+            List<String> definitions = new ArrayList<>();
+            ColumnDataType columnDataType = alterExpression.getColDataTypeList().get(0);
+            ColDataType colDataType = columnDataType.getColDataType();
+            if (colDataType.getArgumentsStringList() != null) {
+                definitions.addAll(colDataType.getArgumentsStringList());
+            }
+            Column column;
+            List<String> columnSpecs = columnDataType.getColumnSpecs();
+            if (isFirst) {
+                column = new Column(columnDataType.getColumnName(), definitions, sqlType.get(columnDataType.getColumnName()),
+                    new Position(PositionType.FIRST, null), getNullable(columnSpecs), getDefaultValue(
+                    columnSpecs), getComment(columnSpecs));
+            } else {
+                column = new Column(columnDataType.getColumnName(), definitions, sqlType.get(columnDataType.getColumnName()),
+                    getPosition(columnSpecs), getNullable(columnSpecs), getDefaultValue(
+                    columnSpecs), getComment(columnSpecs));
+            }
+
+            alterColumns.add(new AlterColumn(AlterType.ADD_COLUMN, column, null));
+        }
+
+        return new AlterOperation(alterColumns);
+    }
+
+    private static CreateTableOperation getCreateTableOperation(CreateTable statement, TableChange tableSchema) {
+        CreateTable createTable = statement;
+        Map<String, Integer> sqlType = getSqlType(tableSchema);
+
+        CreateTableOperation createTableOperation = new CreateTableOperation();
+
+        if (createTable.getLikeTable() != null) {
+            createTableOperation.setLikeTable(createTable.getLikeTable().getName());
+        }
+
+        List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
+        List<Column> columns = new ArrayList<>();
+        for (ColumnDefinition columnDefinition : columnDefinitions) {
+
+            List<String> definitions = new ArrayList<>();
+            ColDataType colDataType = columnDefinition.getColDataType();
+            if (colDataType.getArgumentsStringList() != null) {
+                definitions.addAll(colDataType.getArgumentsStringList());
+            }
+
+            Column column = new Column(columnDefinition.getColumnName(), definitions, sqlType.get(columnDefinition.getColumnName()),
+                null, getNullable(definitions), getDefaultValue(definitions), getComment(definitions));
+            columns.add(column);
+        }
+
+        createTableOperation.setColumns(columns);
+
+        if (createTable.getIndexes() != null) {
+            createTableOperation.setIndexes(statement.getIndexes().stream().map(index -> {
+                Index index1 = new Index();
+                index1.setIndexName(index.getName());
+                if (Objects.equals(index.getType(), "PRIMARY KEY")) {
+                    index1.setIndexType(IndexType.PRIMARY_KEY);
+                } else if (Objects.equals(index.getType(), "NORMAL_INDEX")) {
+                    index1.setIndexType(IndexType.NORMAL_INDEX);
+                }
+                index1.setIndexColumns(index.getColumnsNames());
+                return index1;
+            }).collect(Collectors.toList()));
+        }
+        return createTableOperation;
     }
 
     private final String key;

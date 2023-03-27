@@ -20,10 +20,12 @@ package org.apache.inlong.sort.formats.json.canal;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
+import lombok.Data;
 import net.sf.jsqlparser.statement.Statement;
 import org.apache.inlong.sort.ddl.operations.Operation;
 
 @Builder
+@Data
 public class CanalJson {
 
     private List<Map<String, Object>> data;

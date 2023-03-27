@@ -18,12 +18,14 @@
 package org.apache.inlong.sort.ddl;
 
 import java.util.List;
+import lombok.Data;
 
 /**
  * @Author pengzirui
  * @Date 2023/3/21 2:43 PM
  * @Version 1.0
  */
+@Data
 public class Column {
 
     private String name;
@@ -31,19 +33,20 @@ public class Column {
     private int jdbcType;
     private Position position;
 
-    private boolean canBeNull;
+    private boolean isNullable;
 
     private String defaultValue;
 
     private String comment;
 
     public Column(String name, List<String> definition, int jdbcType,
-            Position position, String defaultValue, String comment) {
+            Position position, boolean isNullable, String defaultValue, String comment) {
         this.name = name;
         this.definition = definition;
         this.jdbcType = jdbcType;
         this.position = position;
         this.defaultValue = defaultValue;
         this.comment = comment;
+        this.isNullable = isNullable;
     }
 }

@@ -18,16 +18,27 @@
 package org.apache.inlong.sort.ddl.operations;
 
 import java.util.List;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.ddl.enums.OperationType;
-import org.apache.inlong.sort.ddl.expressions.AlterExpression;
+import org.apache.inlong.sort.ddl.expressions.AlterColumn;
 
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeName("alterOperation")
+@JsonInclude(Include.NON_NULL)
+@Data
 public class AlterOperation extends Operation {
 
-    private List<AlterExpression> alterExpressions;
+    @JsonProperty("alterColumns")
+    private List<AlterColumn> alterColumns;
 
-    public AlterOperation(List<AlterExpression> alterExpressions) {
+    public AlterOperation(List<AlterColumn> alterColumns) {
         super(OperationType.ALTER);
-        this.alterExpressions = alterExpressions;
+        this.alterColumns = alterColumns;
     }
 
 }

@@ -17,14 +17,24 @@
 
 package org.apache.inlong.sort.ddl.operations;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.ddl.enums.OperationType;
 
-/**
- * @Author pengzirui
- * @Date 2023/3/21 2:56 PM
- * @Version 1.0
- */
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = AlterOperation.class, name = "alterOperation"),
+    @JsonSubTypes.Type(value = CreateTableOperation.class, name = "CreateTableOperation"),
+})
+@Data
+@NoArgsConstructor
 public abstract class Operation {
+
+    @JsonProperty("type")
     private OperationType type;
 
     public Operation(OperationType type) {
