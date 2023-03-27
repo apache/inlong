@@ -73,7 +73,6 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private @Nullable RowType flinkRowType;
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
-
     private boolean multipleSink;
 
     public IcebergSingleStreamWriter(

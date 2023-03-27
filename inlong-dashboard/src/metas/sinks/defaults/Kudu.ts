@@ -24,6 +24,7 @@ import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
+import NodeSelect from '@/components/NodeSelect';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
@@ -73,17 +74,15 @@ const matchPartitionStrategies = fieldType => {
 
 export default class KuduSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
   @FieldDecorator({
-    type: 'input',
-    initialValue: '127.0.0.1:5071,127.0.0.1:5072',
+    type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      placeholder: '127.0.0.1:5071,127.0.0.1:5072',
+      nodeType: 'KUDU',
     }),
   })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Kudu.masters')
-  masters: string;
+  @I18n('meta.Sinks.DataNodeName')
+  dataNodeName: string;
 
   @FieldDecorator({
     type: 'input',

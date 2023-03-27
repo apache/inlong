@@ -66,4 +66,9 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     value: 'STARROCKS',
     LoadEntity: () => import('./StarRocks'),
   },
+  {
+    label: 'Kudu',
+    value: 'KUDU',
+    LoadEntity: () => import('./Kudu'),
+  },
 ];

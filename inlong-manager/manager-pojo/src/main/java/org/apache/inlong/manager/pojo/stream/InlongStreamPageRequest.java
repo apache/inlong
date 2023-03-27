@@ -51,13 +51,13 @@ public class InlongStreamPageRequest extends PageRequest {
     @ApiModelProperty(value = "Stream status list")
     private List<Integer> statusList;
 
+    @ApiModelProperty(value = "Inlong group in charge")
+    private String inCharge;
+
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
     @ApiModelProperty(value = "weather is admin role.", hidden = true)
     private Boolean isAdminRole;
-
-    @ApiModelProperty(value = "Inlong group in charges", hidden = true)
-    private String inCharges;
 
 }

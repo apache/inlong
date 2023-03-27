@@ -335,6 +335,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         // the person in charge of the inlong group has the authority of all inlong streams,
         // so do not filter by in charge person
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        OrderFieldEnum.checkOrderField(request);
+        OrderTypeEnum.checkOrderType(request);
         Page<InlongStreamEntity> page = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
         List<InlongStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(page, InlongStreamInfo::new);
 
