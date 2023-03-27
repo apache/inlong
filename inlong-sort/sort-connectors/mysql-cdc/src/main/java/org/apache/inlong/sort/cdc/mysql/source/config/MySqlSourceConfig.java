@@ -69,6 +69,7 @@ public class MySqlSourceConfig implements Serializable {
 
     private final String inlongMetric;
     private final String inlongAudit;
+    private final boolean includeIncremental;
 
     MySqlSourceConfig(
             String hostname,
@@ -93,7 +94,8 @@ public class MySqlSourceConfig implements Serializable {
             Properties dbzProperties,
             Properties jdbcProperties,
             String inlongMetric,
-            String inlongAudit) {
+            String inlongAudit,
+            boolean includeIncremental) {
         this.hostname = checkNotNull(hostname);
         this.port = port;
         this.username = checkNotNull(username);
@@ -119,6 +121,7 @@ public class MySqlSourceConfig implements Serializable {
         this.jdbcProperties = jdbcProperties;
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
+        this.includeIncremental = includeIncremental;
     }
 
     public String getHostname() {
@@ -224,5 +227,9 @@ public class MySqlSourceConfig implements Serializable {
 
     public String getInlongAudit() {
         return inlongAudit;
+    }
+
+    public boolean isIncludeIncremental() {
+        return includeIncremental;
     }
 }
