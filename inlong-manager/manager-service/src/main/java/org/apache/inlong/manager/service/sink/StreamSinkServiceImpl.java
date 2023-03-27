@@ -395,7 +395,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
         sinkOperator.updateOpt(request, nextStatus, operator);
 
-        // If the stream is [CONFIG_SUCCESSFUL] or [CONFIG_FAILED], then asynchronously start the [CREATE_STREAM_RESOURCE] process
+        // If the stream is [CONFIG_SUCCESSFUL] or [CONFIG_FAILED], then asynchronously start the
+        // [CREATE_STREAM_RESOURCE] process
         if (enableConfig && request.getStartProcess()) {
             this.startProcessForSink(request.getInlongGroupId(), request.getInlongStreamId(), operator);
         }
@@ -456,7 +457,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
         sinkOperator.updateOpt(request, nextStatus, opInfo.getName());
-        // If the stream is [CONFIG_SUCCESSFUL] or [CONFIG_FAILED], then asynchronously start the [CREATE_STREAM_RESOURCE] process
+        // If the stream is [CONFIG_SUCCESSFUL] or [CONFIG_FAILED], then asynchronously start the
+        // [CREATE_STREAM_RESOURCE] process
         if (enableConfig && request.getStartProcess()) {
             this.startProcessForSink(request.getInlongGroupId(), request.getInlongStreamId(), opInfo.getName());
         }
