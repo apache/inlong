@@ -249,7 +249,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
     interface ElasticSearchBuilderProvider {
 
         ElasticsearchSink.Builder<RowData> createBuilder(
-                List<HttpHost> httpHosts, ElasticsearchSinkFunction<RowData, DocWriteRequest<?>> upsertSinkFunction);
+                List<HttpHost> httpHosts, RowElasticsearchSinkFunction upsertSinkFunction);
     }
 
     /**
@@ -346,27 +346,33 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
      * Version-specific creation of {@link org.elasticsearch.action.ActionRequest}s used by the
      * sink.
      */
-    private static class Elasticsearch6RequestFactory implements RequestFactory<DocWriteRequest<?>, XContentType> {
-
-        private static final long serialVersionUID = 1L;
+    private static class Elasticsearch6RequestFactory implements RequestFactory {
 
         @Override
-        public DocWriteRequest<?> createDeleteRequest(String index, String docType, String key) {
-            return new DeleteRequest(index, docType, key);
-        }
-
-        @Override
-        public DocWriteRequest<?> createUpdateRequest(String index, String docType, String key,
-                XContentType contentType, byte[] document) {
+        public UpdateRequest createUpdateRequest(
+                String index,
+                String docType,
+                String key,
+                XContentType contentType,
+                byte[] document) {
             return new UpdateRequest(index, docType, key)
                     .doc(document, contentType)
                     .upsert(document, contentType);
         }
 
         @Override
-        public DocWriteRequest<?> createIndexRequest(String index, String docType, String key,
-                XContentType contentType, byte[] document) {
+        public IndexRequest createIndexRequest(
+                String index,
+                String docType,
+                String key,
+                XContentType contentType,
+                byte[] document) {
             return new IndexRequest(index, docType, key).source(document, contentType);
+        }
+
+        @Override
+        public DeleteRequest createDeleteRequest(String index, String docType, String key) {
+            return new DeleteRequest(index, docType, key);
         }
     }
 }
