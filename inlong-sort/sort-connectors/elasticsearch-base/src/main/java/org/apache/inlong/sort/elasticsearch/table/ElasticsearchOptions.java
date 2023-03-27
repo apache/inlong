@@ -21,6 +21,7 @@ import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.configuration.description.Description;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
 
 import java.time.Duration;
@@ -143,6 +144,30 @@ public class ElasticsearchOptions {
                     .withDescription(
                             "The format must produce a valid JSON document. "
                                     + "Please refer to the documentation on formats for more details.");
+    public static final ConfigOption<String> SINK_MULTIPLE_FORMAT =
+            ConfigOptions.key("sink.multiple.format")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "The format of multiple sink, it represents the real format of the raw binary data");
+    public static final ConfigOption<String> SINK_MULTIPLE_INDEX_PATTERN =
+            ConfigOptions.key("sink.multiple.index-pattern")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("The option 'sink.multiple.table-pattern' "
+                            + "is used extract table name from the raw binary data, "
+                            + "this is only used in the multiple sink writing scenario.");
+    public static final ConfigOption<Boolean> SINK_MULTIPLE_ENABLE =
+            ConfigOptions.key("sink.multiple.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("The option 'sink.multiple.enable' "
+                            + "is used to determine whether to support multiple sink writing, default is 'false'.");
+    public static final ConfigOption<SchemaUpdateExceptionPolicy> SINK_MULTIPLE_SCHEMA_UPDATE_POLICY =
+            ConfigOptions.key("sink.multiple.schema-update.policy")
+                    .enumType(SchemaUpdateExceptionPolicy.class)
+                    .defaultValue(SchemaUpdateExceptionPolicy.TRY_IT_BEST)
+                    .withDescription("The action to deal with schema update in multiple sink.");
 
     private ElasticsearchOptions() {
 
