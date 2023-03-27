@@ -26,6 +26,8 @@ import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * SQLServer sink request.
  */
@@ -43,6 +45,7 @@ public class SQLServerSinkRequest extends SinkRequest {
     private String password;
 
     @ApiModelProperty("SQLServer meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String jdbcUrl;
 
     @ApiModelProperty("Schema name of the SQLServer")

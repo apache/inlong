@@ -26,6 +26,8 @@ import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * StarRocks sink request.
  */
@@ -37,6 +39,7 @@ import org.apache.inlong.manager.pojo.sink.SinkRequest;
 public class StarRocksSinkRequest extends SinkRequest {
 
     @ApiModelProperty("StarRocks jdbc url")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String jdbcUrl;
 
     @ApiModelProperty("StarRocks FE http address")

@@ -26,6 +26,8 @@ import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * PostgreSQL sink request.
  */
@@ -37,6 +39,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 public class PostgreSQLSinkRequest extends SinkRequest {
 
     @ApiModelProperty("JDBC URL of the PostgreSQL server")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")

@@ -26,6 +26,8 @@ import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * ClickHouse sink request.
  */
@@ -37,6 +39,7 @@ import org.apache.inlong.manager.pojo.sink.SinkRequest;
 public class ClickHouseSinkRequest extends SinkRequest {
 
     @ApiModelProperty("JDBC URL of the ClickHouse server")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String jdbcUrl;
 
     @ApiModelProperty("Username of the ClickHouse server")

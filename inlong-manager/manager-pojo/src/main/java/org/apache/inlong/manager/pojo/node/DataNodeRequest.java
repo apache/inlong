@@ -60,6 +60,7 @@ public abstract class DataNodeRequest {
 
     @ApiModelProperty(value = "Data node URL")
     @Length(max = 512, message = "length must be less than or equal to 512")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String url;
 
     @ApiModelProperty(value = "Data node username")

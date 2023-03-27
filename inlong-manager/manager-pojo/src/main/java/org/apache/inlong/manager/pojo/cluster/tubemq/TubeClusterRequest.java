@@ -26,6 +26,8 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * Inlong cluster request for TubeMQ
  */
@@ -37,6 +39,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 public class TubeClusterRequest extends ClusterRequest {
 
     @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080", notes = "TubeMQ master RPC URL is the 'url' field of the cluster")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String masterWebUrl;
 
     public TubeClusterRequest() {

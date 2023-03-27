@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -42,6 +43,7 @@ import java.util.List;
 public class HiveSinkRequest extends SinkRequest {
 
     @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
+    @Pattern(regexp = "^((?!\\s).)*$", message = "not supports blank in url")
     private String jdbcUrl;
 
     @ApiModelProperty("Username of the Hive server")
