@@ -30,12 +30,27 @@ echo stop ${APPLICATION} Application...
 
 # Project startup jar package name
 APPLICATION_JAR="manager-web.jar"
+INLONG_STOP_TIMEOUT=30
 PID=$(ps -ef | grep "${APPLICATION_JAR}" | grep -v grep | awk '{ print $2 }')
 
 if [[ -z "$PID" ]]; then
   echo ${APPLICATION} was already stopped
+fi
+echo "${APPLICATION} stopping"
+kill -15 ${PID}
+count=0
+while ps -p ${PID} > /dev/null;
+do
+    echo "Shutdown is in progress... Please wait..."
+    sleep 1
+    count=$((count+1))
+    if [ ${count} -eq ${INLONG_STOP_TIMEOUT} ]; then
+        break
+    fi
+done
+if ps -p ${PID} > /dev/null; then
+    echo "${APPLICATION} did not stop gracefully, killing with SIGKILL..."
+    kill -9 ${PID}
 else
-  echo ${APPLICATION} running with PID ${PID}, begin to stop...
-  kill -9 ${PID}
-  echo ${APPLICATION} stopped successfully
+    echo "${APPLICATION} stopped successfully"
 fi

@@ -222,6 +222,11 @@ public class MongoDBConnectorDeserializationSchema
         }
     }
 
+    @Override
+    public void deserialize(SourceRecord record, Collector<RowData> out, Boolean isStreamingPhase) throws Exception {
+        this.deserialize(record, out);
+    }
+
     private GenericRowData extractMongoDMLData(Struct value, String keyFiled, String ddlType) {
         Struct documentTo = (Struct) value.get(keyFiled);
         String newDb = documentTo.getString(MongoDBEnvelope.NAMESPACE_DATABASE_FIELD);

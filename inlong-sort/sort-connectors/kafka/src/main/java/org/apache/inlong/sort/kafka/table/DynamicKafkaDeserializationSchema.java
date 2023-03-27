@@ -32,6 +32,7 @@ import org.apache.inlong.sort.base.dirty.DirtyData;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.metric.MetricsCollector;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -134,13 +135,10 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
             throws Exception {
         // shortcut in case no output projection is required,
         // also not for a cartesian product with the keys
+
         if (keyDeserialization == null && !hasMetadata) {
             deserializeWithDirtyHandle(record.value(), DirtyType.VALUE_DESERIALIZE_ERROR,
-                    valueDeserialization, collector);
-            // output metrics
-            if (metricData != null) {
-                outputMetrics(record);
-            }
+                    valueDeserialization, new MetricsCollector<>(collector, metricData));
             return;
         }
 
@@ -160,11 +158,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
             outputCollector.collect(null);
         } else {
             deserializeWithDirtyHandle(record.value(), DirtyType.VALUE_DESERIALIZE_ERROR,
-                    valueDeserialization, outputCollector);
-            // output metrics
-            if (metricData != null) {
-                outputMetrics(record);
-            }
+                    valueDeserialization, new MetricsCollector<>(outputCollector, metricData));
         }
         keyCollector.buffer.clear();
     }
@@ -196,13 +190,6 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
                     }
                 }
             }
-        }
-    }
-
-    private void outputMetrics(ConsumerRecord<byte[], byte[]> record) {
-        long dataSize = record.value() == null ? 0L : record.value().length;
-        if (metricData != null) {
-            metricData.outputMetrics(1L, dataSize);
         }
     }
 

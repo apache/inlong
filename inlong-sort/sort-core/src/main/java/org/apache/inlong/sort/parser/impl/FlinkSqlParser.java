@@ -226,11 +226,34 @@ public class FlinkSqlParser implements Parser {
                 "relation must have at least one output node");
         relation.getOutputs().forEach(s -> {
             Preconditions.checkNotNull(s, "node id in outputs is null");
-            Node node = nodeMap.get(s);
-            Preconditions.checkNotNull(node, "can not find any node by node id " + s);
-            parseNode(node, relation, nodeMap, relationMap);
+            Node outputNode = nodeMap.get(s);
+            Preconditions.checkNotNull(outputNode, "can not find any node by node id " + s);
+            parseInputNodes(relation, nodeMap, relationMap);
+            parseSingleNode(outputNode, relation, nodeMap);
+            // for Load node we need to generate insert sql
+            if (outputNode instanceof LoadNode) {
+                insertSqls.add(genLoadNodeInsertSql((LoadNode) outputNode, relation, nodeMap));
+            }
         });
         log.info("parse node relation success, relation:{}", relation);
+    }
+
+    /**
+     * parse the input nodes corresponding to the output node
+     * @param relation Define relations between nodes, it also shows the data flow
+     * @param nodeMap Store the mapping relation between node id and node
+     * @param relationMap Store the mapping relation between node id and relation
+     */
+    private void parseInputNodes(NodeRelation relation, Map<String, Node> nodeMap,
+            Map<String, NodeRelation> relationMap) {
+        for (String upstreamNodeId : relation.getInputs()) {
+            if (!hasParsedSet.contains(upstreamNodeId)) {
+                Node upstreamNode = nodeMap.get(upstreamNodeId);
+                Preconditions.checkNotNull(upstreamNode,
+                        "can not find any node by node id " + upstreamNodeId);
+                parseSingleNode(upstreamNode, relationMap.get(upstreamNodeId), nodeMap);
+            }
+        }
     }
 
     private void registerTableSql(Node node, String sql) {
@@ -246,15 +269,13 @@ public class FlinkSqlParser implements Parser {
     }
 
     /**
-     * Parse a node and recursively resolve its dependent nodes
+     * Parse a single node and generate the corresponding sql
      *
      * @param node The abstract of extract, transform, load
      * @param relation Define relations between nodes, it also shows the data flow
      * @param nodeMap store the mapping relation between node id and node
-     * @param relationMap Store the mapping relation between node id and relation
      */
-    private void parseNode(Node node, NodeRelation relation, Map<String, Node> nodeMap,
-            Map<String, NodeRelation> relationMap) {
+    private void parseSingleNode(Node node, NodeRelation relation, Map<String, Node> nodeMap) {
         if (hasParsedSet.contains(node.getId())) {
             log.warn("the node has already been parsed, node id:{}", node.getId());
             return;
@@ -267,22 +288,10 @@ public class FlinkSqlParser implements Parser {
             hasParsedSet.add(node.getId());
         } else {
             Preconditions.checkNotNull(relation, "relation is null");
-            for (String upstreamNodeId : relation.getInputs()) {
-                if (!hasParsedSet.contains(upstreamNodeId)) {
-                    Node upstreamNode = nodeMap.get(upstreamNodeId);
-                    Preconditions.checkNotNull(upstreamNode,
-                            "can not find any node by node id " + upstreamNodeId);
-                    parseNode(upstreamNode, relationMap.get(upstreamNodeId), nodeMap, relationMap);
-                }
-            }
             if (node instanceof LoadNode) {
                 String createSql = genCreateSql(node);
                 log.info("node id:{}, create table sql:\n{}", node.getId(), createSql);
                 registerTableSql(node, createSql);
-                LoadNode loadNode = (LoadNode) node;
-                String insertSql = genLoadNodeInsertSql(loadNode, relation, nodeMap);
-                log.info("node id:{}, insert sql:\n{}", node.getId(), insertSql);
-                insertSqls.add(insertSql);
                 hasParsedSet.add(node.getId());
             } else if (node instanceof TransformNode) {
                 TransformNode transformNode = (TransformNode) node;

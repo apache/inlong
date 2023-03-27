@@ -34,12 +34,21 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
 import org.apache.inlong.sort.elasticsearch.table.IndexGeneratorFactory;
 import org.apache.inlong.sort.elasticsearch.table.KeyExtractor;
 import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
 import org.apache.inlong.sort.elasticsearch.table.RoutingExtractor;
-import org.apache.inlong.sort.elasticsearch.table.RowElasticsearchSinkFunction;
+<<<<<<< HEAD
 import org.apache.inlong.sort.elasticsearch7.ElasticsearchSink;
+=======
+import org.apache.inlong.sort.elasticsearch.table.TableSchemaFactory;
+import org.apache.inlong.sort.elasticsearch7.ElasticsearchSink;
+import org.apache.inlong.sort.elasticsearch7.MultipleRowElasticsearchSinkFunction;
+>>>>>>> 1ef6aaf797dade69bb2e7da14cbf4734a96b9598
+import org.apache.inlong.sort.elasticsearch7.RowElasticsearchSinkFunction;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -68,6 +77,10 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
     private final String auditHostAndPorts;
     private final ElasticSearchBuilderProvider builderProvider;
     private final DirtySinkHelper<Object> dirtySinkHelper;
+    private final boolean multipleSink;
+    private final String multipleFormat;
+    private final String indexPattern;
+    private final SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy;
 
     // --------------------------------------------------------------
     // Hack to make configuration testing possible.
@@ -85,9 +98,14 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
             TableSchema schema,
             String inlongMetric,
             String auditHostAndPorts,
-            DirtySinkHelper<Object> dirtySinkHelper) {
+            DirtySinkHelper<Object> dirtySinkHelper,
+            boolean multipleSink,
+            String multipleFormat,
+            String indexPattern,
+            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy) {
         this(format, config, schema, (ElasticsearchSink.Builder::new),
-                inlongMetric, auditHostAndPorts, dirtySinkHelper);
+                inlongMetric, auditHostAndPorts, dirtySinkHelper, multipleSink, multipleFormat, indexPattern,
+                schemaUpdateExceptionPolicy);
     }
 
     Elasticsearch7DynamicSink(
@@ -97,7 +115,11 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
             ElasticSearchBuilderProvider builderProvider,
             String inlongMetric,
             String auditHostAndPorts,
-            DirtySinkHelper<Object> dirtySinkHelper) {
+            DirtySinkHelper<Object> dirtySinkHelper,
+            boolean multipleSink,
+            String multipleFormat,
+            String indexPattern,
+            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy) {
         this.format = format;
         this.schema = schema;
         this.config = config;
@@ -105,6 +127,11 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.dirtySinkHelper = dirtySinkHelper;
+        this.multipleSink = multipleSink;
+        this.multipleFormat = multipleFormat;
+        this.indexPattern = indexPattern;
+        this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
+
     }
 
     @Override
@@ -116,27 +143,47 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
     // End of hack to make configuration testing possible
     // --------------------------------------------------------------
 
+    private ElasticsearchSinkFunction<RowData, DocWriteRequest<?>> createSinkFunction(
+            SerializationSchema<RowData> format,
+            Context context) {
+
+        if (multipleSink) {
+            return new MultipleRowElasticsearchSinkFunction(
+                    null, // this is deprecated in es 7+
+                    format,
+                    XContentType.JSON,
+                    REQUEST_FACTORY,
+                    KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
+                    RoutingExtractor.createRoutingExtractor(
+                            schema, config.getRoutingField().orElse(null)),
+                    dirtySinkHelper,
+                    new TableSchemaFactory(schema.getFieldNames(), schema.getFieldTypes()),
+                    multipleFormat,
+                    indexPattern,
+                    schemaUpdateExceptionPolicy);
+        }
+
+        return new RowElasticsearchSinkFunction(
+                IndexGeneratorFactory.createIndexGenerator(config.getIndex(), schema),
+                null, // this is deprecated in es 7+
+                format,
+                XContentType.JSON,
+                REQUEST_FACTORY,
+                KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
+                RoutingExtractor.createRoutingExtractor(
+                        schema, config.getRoutingField().orElse(null)),
+                dirtySinkHelper);
+    }
+
     @Override
     public SinkFunctionProvider getSinkRuntimeProvider(Context context) {
         return () -> {
             SerializationSchema<RowData> format =
                     this.format.createRuntimeEncoder(context, schema.toRowDataType());
-
-            final RowElasticsearchSinkFunction upsertFunction =
-                    new RowElasticsearchSinkFunction(
-                            IndexGeneratorFactory.createIndexGenerator(config.getIndex(), schema),
-                            null, // this is deprecated in es 7+
-                            format,
-                            XContentType.JSON,
-                            REQUEST_FACTORY,
-                            KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
-                            RoutingExtractor.createRoutingExtractor(
-                                    schema, config.getRoutingField().orElse(null)),
-                            dirtySinkHelper);
-
+            final ElasticsearchSinkFunction<RowData, DocWriteRequest<?>> upsertFunction =
+                    createSinkFunction(format, context);
             final ElasticsearchSink.Builder<RowData> builder =
                     builderProvider.createBuilder(config.getHosts(), upsertFunction);
-
             builder.setFailureHandler(config.getFailureHandler());
             builder.setBulkFlushMaxActions(config.getBulkFlushMaxActions());
             builder.setBulkFlushMaxSizeMb((int) (config.getBulkFlushMaxByteSize() >> 20));
@@ -148,7 +195,6 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
             config.getBulkFlushBackoffType().ifPresent(builder::setBulkFlushBackoffType);
             config.getBulkFlushBackoffRetries().ifPresent(builder::setBulkFlushBackoffRetries);
             config.getBulkFlushBackoffDelay().ifPresent(builder::setBulkFlushBackoffDelay);
-
             // we must overwrite the default factory which is defined with a lambda because of a bug
             // in shading lambda serialization shading see FLINK-18006
             if (config.getUsername().isPresent()
@@ -164,13 +210,10 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
                 builder.setRestClientFactory(
                         new DefaultRestClientFactory(config.getPathPrefix().orElse(null)));
             }
-
             final ElasticsearchSink<RowData> sink = builder.build();
-
             if (config.isDisableFlushOnCheckpoint()) {
                 sink.disableFlushOnCheckpoint();
             }
-
             return sink;
         };
     }
@@ -211,7 +254,7 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
     interface ElasticSearchBuilderProvider {
 
         ElasticsearchSink.Builder<RowData> createBuilder(
-                List<HttpHost> httpHosts, RowElasticsearchSinkFunction upsertSinkFunction);
+                List<HttpHost> httpHosts, ElasticsearchSinkFunction<RowData, DocWriteRequest<?>> upsertSinkFunction);
     }
 
     /**
@@ -308,33 +351,25 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
      * Version-specific creation of {@link org.elasticsearch.action.ActionRequest}s used by the
      * sink.
      */
-    private static class Elasticsearch7RequestFactory implements RequestFactory {
+    private static class Elasticsearch7RequestFactory implements RequestFactory<DocWriteRequest<?>, XContentType> {
+
+        private static final long serialVersionUID = 1L;
 
         @Override
-        public UpdateRequest createUpdateRequest(
-                String index,
-                String docType,
-                String key,
-                XContentType contentType,
-                byte[] document) {
-            return new UpdateRequest(index, key)
-                    .doc(document, contentType)
-                    .upsert(document, contentType);
-        }
-
-        @Override
-        public IndexRequest createIndexRequest(
-                String index,
-                String docType,
-                String key,
-                XContentType contentType,
-                byte[] document) {
-            return new IndexRequest(index).id(key).source(document, contentType);
-        }
-
-        @Override
-        public DeleteRequest createDeleteRequest(String index, String docType, String key) {
+        public DocWriteRequest<?> createDeleteRequest(String index, String docType, String key) {
             return new DeleteRequest(index, key);
+        }
+
+        @Override
+        public DocWriteRequest<?> createUpdateRequest(String index, String docType, String key,
+                XContentType contentType, byte[] document) {
+            return new UpdateRequest(index, key).doc(document, contentType).upsert(document, contentType);
+        }
+
+        @Override
+        public DocWriteRequest<?> createIndexRequest(String index, String docType, String key,
+                XContentType contentType, byte[] document) {
+            return new IndexRequest(index).source(document, contentType);
         }
     }
 }

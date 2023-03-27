@@ -363,6 +363,9 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         final String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
 
         final String auditHostAndPorts = tableOptions.getOptional(INLONG_AUDIT).orElse(null);
+
+        final String auditKeys = tableOptions.getOptional(AUDIT_KEYS).orElse(null);
+
         // Build the dirty data side-output
         final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
         final DirtySink<String> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
@@ -382,7 +385,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 inlongMetric,
                 auditHostAndPorts,
                 dirtyOptions,
-                dirtySink);
+                dirtySink,
+                auditKeys);
     }
 
     @Override
@@ -493,7 +497,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             String inlongMetric,
             String auditHostAndPorts,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<String> dirtySink) {
+            @Nullable DirtySink<String> dirtySink,
+            String auditKeys) {
         return new KafkaDynamicSource(
                 physicalDataType,
                 keyDecodingFormat,
@@ -511,7 +516,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 inlongMetric,
                 auditHostAndPorts,
                 dirtyOptions,
-                dirtySink);
+                dirtySink,
+                auditKeys);
     }
 
     protected KafkaDynamicSink createKafkaTableSink(

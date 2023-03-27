@@ -75,6 +75,15 @@ public class ElasticsearchSink extends StreamSink {
     @ApiModelProperty("Elasticsearch version")
     private Integer esVersion;
 
+    @ApiModelProperty("The multiple enable of sink")
+    private Boolean sinkMultipleEnable = false;
+
+    @ApiModelProperty("The multiple format of sink")
+    private String sinkMultipleFormat;
+
+    @ApiModelProperty("The multiple index-pattern of sink")
+    private String indexPattern;
+
     public ElasticsearchSink() {
         this.setSinkType(SinkType.ELASTICSEARCH);
     }

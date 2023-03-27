@@ -294,6 +294,8 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 
     private SourceMetricData sourceMetricData;
 
+    private String auditKeys;
+
     // ------------------------------------------------------------------------
 
     /**
@@ -310,7 +312,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
             Pattern topicPattern,
             KafkaDeserializationSchema<T> deserializer,
             long discoveryIntervalMillis,
-            boolean useMetrics, String inlongMetric, String auditHostAndPorts) {
+            boolean useMetrics, String inlongMetric, String auditHostAndPorts, String auditKeys) {
         this.topicsDescriptor = new KafkaTopicsDescriptor(topics, topicPattern);
         this.deserializer = checkNotNull(deserializer, "valueDeserializer");
 
@@ -323,6 +325,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
         this.useMetrics = useMetrics;
         this.inlongMetric = inlongMetric;
         this.inlongAudit = auditHostAndPorts;
+        this.auditKeys = auditKeys;
     }
 
     /**
@@ -833,6 +836,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_IN) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_IN) : 0L)
+                .withAuditKeys(auditKeys)
                 .build();
         if (metricOption != null) {
             sourceMetricData = new SourceMetricData(metricOption, getRuntimeContext().getMetricGroup());

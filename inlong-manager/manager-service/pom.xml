@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-manager</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>manager-service</artifactId>
@@ -558,8 +558,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.hudi</groupId>
-            <artifactId>hudi-flink1.13-bundle</artifactId>
+            <groupId>org.apache.kudu</groupId>
+            <artifactId>kudu-client</artifactId>
         </dependency>
+
     </dependencies>
 </project>

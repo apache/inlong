@@ -70,6 +70,10 @@ public class RecordWithSchema {
         return data;
     }
 
+    public JsonNode getOriginalData() {
+        return originalData;
+    }
+
     public Schema getSchema() {
         return schema;
     }

@@ -26,6 +26,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.pojo.audit.AuditConfig;
+import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
@@ -1327,6 +1329,27 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         return configJson;
+    }
+
+    @Override
+    public AuditConfig getAuditConfig(String clusterTag) {
+        AuditConfig auditConfig = new AuditConfig();
+        ClusterPageRequest request = ClusterPageRequest.builder()
+                .clusterTag(clusterTag)
+                .typeList(Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR, ClusterType.KAFKA))
+                .build();
+        List<InlongClusterEntity> clusterEntityList = clusterMapper.selectByCondition(request);
+        LOGGER.info("clusterEntityList {}", clusterEntityList);
+        List<MQInfo> mqInfoList = new ArrayList<>();
+        for (InlongClusterEntity entity : clusterEntityList) {
+            MQInfo info = new MQInfo();
+            info.setUrl(entity.getUrl());
+            info.setMqType(entity.getType());
+            info.setParams(GSON.fromJson(entity.getExtParams(), Map.class));
+            mqInfoList.add(info);
+        }
+        auditConfig.setMqInfoList(mqInfoList);
+        return auditConfig;
     }
 
     @Override

@@ -28,7 +28,10 @@ import org.apache.flume.conf.Configurable;
 import org.apache.flume.instrumentation.SinkCounter;
 import org.apache.flume.sink.AbstractSink;
 import org.apache.inlong.audit.base.HighPriorityThreadFactory;
+import org.apache.inlong.audit.file.ConfigManager;
 import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
+import org.apache.inlong.common.constant.MQType;
+import org.apache.inlong.common.pojo.audit.MQInfo;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -40,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -54,6 +58,7 @@ public class KafkaSink extends AbstractSink implements Configurable {
 
     // for kafka producer
     private static Properties properties = new Properties();
+    private String kafkaServerUrl;
     private static final String BOOTSTRAP_SERVER = "bootstrap_servers";
     private static final String TOPIC = "topic";
     private static final String RETRIES = "retries";
@@ -247,7 +252,6 @@ public class KafkaSink extends AbstractSink implements Configurable {
         localIp = NetworkUtils.getLocalIp();
 
         properties = new Properties();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, context.getString(BOOTSTRAP_SERVER));
         properties.put(ProducerConfig.ACKS_CONFIG, defaultAcks);
         properties.put(ProducerConfig.RETRIES_CONFIG, context.getString(RETRIES, defaultRetries));
         properties.put(ProducerConfig.BATCH_SIZE_CONFIG, context.getString(BATCH_SIZE, defaultBatchSize));
@@ -256,6 +260,15 @@ public class KafkaSink extends AbstractSink implements Configurable {
     }
 
     private void initTopicProducer(String topic) {
+        ConfigManager configManager = ConfigManager.getInstance();
+        List<MQInfo> mqInfoList = configManager.getMqInfoList();
+        mqInfoList.forEach(mqClusterInfo -> {
+            if (MQType.KAFKA.equals(mqClusterInfo.getMqType())) {
+                kafkaServerUrl = mqClusterInfo.getUrl();
+            }
+        });
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServerUrl);
+
         if (StringUtils.isEmpty(topic)) {
             logger.error("topic is empty");
         }

@@ -20,27 +20,28 @@ package org.apache.inlong.sort.elasticsearch7.table;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
-import org.apache.inlong.sort.elasticsearch.table.ElasticsearchConfiguration;
-
+import org.apache.flink.util.InstantiationUtil;
 import org.apache.http.HttpHost;
+import org.apache.inlong.sort.elasticsearch.ActionRequestFailureHandler;
+import org.apache.inlong.sort.elasticsearch.table.ElasticsearchConfiguration;
+import org.apache.inlong.sort.elasticsearch.utils.IgnoringFailureHandler;
+import org.apache.inlong.sort.elasticsearch.utils.NoOpFailureHandler;
+import org.apache.inlong.sort.elasticsearch7.utils.RetryRejectedExecutionFailureHandler;
+import org.elasticsearch.action.DocWriteRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.FAILURE_HANDLER_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
 
-/** Elasticsearch 7 specific configuration. */
+/**
+ * Elasticsearch 7 specific configuration.
+ */
 @Internal
 final class Elasticsearch7Configuration extends ElasticsearchConfiguration {
 
     Elasticsearch7Configuration(ReadableConfig config, ClassLoader classLoader) {
         super(config, classLoader);
-    }
-
-    public List<HttpHost> getHosts() {
-        return config.get(HOSTS_OPTION).stream()
-                .map(Elasticsearch7Configuration::validateAndParseHostsString)
-                .collect(Collectors.toList());
     }
 
     private static HttpHost validateAndParseHostsString(String host) {
@@ -67,5 +68,39 @@ final class Elasticsearch7Configuration extends ElasticsearchConfiguration {
                             host, HOSTS_OPTION.key()),
                     e);
         }
+    }
+
+    public List<HttpHost> getHosts() {
+        return config.get(HOSTS_OPTION).stream()
+                .map(Elasticsearch7Configuration::validateAndParseHostsString)
+                .collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("unchecked")
+    public ActionRequestFailureHandler<DocWriteRequest<?>> getFailureHandler() {
+        final ActionRequestFailureHandler<DocWriteRequest<?>> failureHandler;
+        String value = config.get(FAILURE_HANDLER_OPTION);
+        switch (value.toUpperCase()) {
+            case "FAIL":
+                failureHandler = new NoOpFailureHandler<>();
+                break;
+            case "IGNORE":
+                failureHandler = new IgnoringFailureHandler<>();
+                break;
+            case "RETRY-REJECTED":
+                failureHandler = new RetryRejectedExecutionFailureHandler();
+                break;
+            default:
+                try {
+                    Class<?> failureHandlerClass = Class.forName(value, false, getClassLoader());
+                    failureHandler = (ActionRequestFailureHandler<DocWriteRequest<?>>) InstantiationUtil
+                            .instantiate(failureHandlerClass);
+                } catch (ClassNotFoundException e) {
+                    throw new ValidationException(
+                            "Could not instantiate the failure handler class: " + value, e);
+                }
+                break;
+        }
+        return failureHandler;
     }
 }

@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.cdc.base.config;
 
 import java.io.Serializable;
+import java.util.List;
 
 /** The mertic configuration which offers basic metric configuration. **/
 public interface MetricConfig extends Serializable {
@@ -35,5 +36,13 @@ public interface MetricConfig extends Serializable {
      * @return an address of inlong audit
      */
     String getInlongAudit();
+
+    /**
+     * getMetricLabelList
+     *
+     * @return metric label list of each connector.
+     * eg: oracle metric label list is [DATABASE, SCHEMA, TABLE]
+     */
+    List<String> getMetricLabelList();
 
 }

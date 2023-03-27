@@ -50,7 +50,6 @@ public class TubeSinkTest {
         context = new Context();
 
         context.put("topic", "inlong-audit");
-        context.put("master-host-port-list", "127.0.0.1:8080");
 
         tubeSink.setChannel(channel);
         Configurables.configure(tubeSink, context);

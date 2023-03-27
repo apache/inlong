@@ -97,4 +97,24 @@ public class OpenStreamSourceController {
         Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
         return Response.success(sourceService.delete(id, LoginUserUtils.getLoginUser()));
     }
+
+    @RequestMapping(value = "/source/stop/{id}", method = RequestMethod.POST)
+    @ApiOperation(value = "Stop stream source")
+    @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    public Response<Boolean> stop(@PathVariable Integer id) {
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "sourceId cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        boolean result = sourceService.stop(id, LoginUserUtils.getLoginUser().getName());
+        return Response.success(result);
+    }
+
+    @RequestMapping(value = "/source/restart/{id}", method = RequestMethod.POST)
+    @ApiOperation(value = "Restart stream source")
+    @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    public Response<Boolean> restart(@PathVariable Integer id) {
+        Preconditions.expectNotNull(id, ErrorCodeEnum.INVALID_PARAMETER, "sourceId cannot be null");
+        Preconditions.expectNotNull(LoginUserUtils.getLoginUser(), ErrorCodeEnum.LOGIN_USER_EMPTY);
+        boolean result = sourceService.restart(id, LoginUserUtils.getLoginUser().getName());
+        return Response.success(result);
+    }
 }

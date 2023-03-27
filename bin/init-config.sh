@@ -67,20 +67,12 @@ init_inlong_audit() {
   $SED_COMMAND 's/spring.datasource.druid.password=.*/'''spring.datasource.druid.password=${spring_datasource_password}'''/g' application.properties
   if [ $mq_type == "pulsar" ]; then
     $SED_COMMAND 's/audit.config.proxy.type=.*/'''audit.config.proxy.type=pulsar'''/g' application.properties
-    $SED_COMMAND 's#pulsar://.*#'''${pulsar_service_url}'''#g' audit-proxy-pulsar.conf
-    $SED_COMMAND 's#pulsar://.*#'''${pulsar_service_url}'''#g' application.properties
   fi
   if [ $mq_type == "kafka" ]; then
     $SED_COMMAND 's/audit.config.proxy.type=.*/'''audit.config.proxy.type=kafka'''/g' application.properties
-    $SED_COMMAND 's/audit.kafka.server.url=.*/'''audit.kafka.server.url=${bootstrap_server_url}'''/g' application.properties
-    $SED_COMMAND 's/agent1.sinks.kafka-sink-msg1.bootstrap_servers.*/'''agent1.sinks.kafka-sink-msg1.bootstrap_servers=${bootstrap_server_url}'''/g' audit-proxy-kafka.conf
-    $SED_COMMAND 's/agent1.sinks.kafka-sink-msg2.bootstrap_servers.*/'''agent1.sinks.kafka-sink-msg2.bootstrap_servers=${bootstrap_server_url}'''/g' audit-proxy-kafka.conf
   fi
   if [ $mq_type == "tubemq" ]; then
     $SED_COMMAND 's/audit.config.proxy.type=.*/'''audit.config.proxy.type=tube'''/g' application.properties
-    $SED_COMMAND 's/audit.tube.masterlist=.*/'''audit.tube.masterlist=${tube_master_url}'''/g' application.properties
-    $SED_COMMAND 's/agent1.sinks.tube-sink-msg1.master-host-port-list=.*/'''agent1.sinks.tube-sink-msg1.master-host-port-list=${tube_master_url}'''/g' audit-proxy-tube.conf
-    $SED_COMMAND 's/agent1.sinks.tube-sink-msg2.master-host-port-list=.*/'''agent1.sinks.tube-sink-msg2.master-host-port-list=${tube_master_url}'''/g' audit-proxy-tube.conf
   fi
 }
 

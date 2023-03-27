@@ -127,6 +127,14 @@ public enum GroupStatus {
     }
 
     /**
+     * Checks whether the given status allows updating stream source.
+     */
+    public static boolean allowedUpdateSource(GroupStatus status) {
+        return status == GroupStatus.CONFIG_SUCCESSFUL
+                || status == GroupStatus.CONFIG_FAILED;
+    }
+
+    /**
      * Checks whether the given status needs to delete the inlong stream first.
      */
     public static boolean deleteStreamFirst(GroupStatus status) {

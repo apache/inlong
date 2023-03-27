@@ -30,41 +30,19 @@ import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
-import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
-import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
-import org.apache.flink.streaming.connectors.elasticsearch.util.IgnoringFailureHandler;
-import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.InstantiationUtil;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
-import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.elasticsearch.ElasticsearchParseException;
-import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.unit.ByteSizeUnit;
-import org.elasticsearch.common.unit.ByteSizeValue;
-import org.elasticsearch.common.unit.TimeValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
@@ -77,27 +55,26 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
  * Base class for all Flink Elasticsearch Sinks.
  *
  * <p>This class implements the common behaviour across Elasticsearch versions, such as the use of
- * an internal {@link BulkProcessor} to buffer multiple {@link ActionRequest}s before sending the
+ * an internal {@link BulkProcessor} to buffer multiple {@link Request}s before sending the
  * requests to the cluster, as well as passing input records to the user provided {@link
  * ElasticsearchSinkFunction} for processing.
  *
  * <p>The version specific API calls for different Elasticsearch versions should be defined by a
  * concrete implementation of a {@link ElasticsearchApiCallBridge}, which is provided to the
  * constructor of this class. This call bridge is used, for example, to create a Elasticsearch
- * {@link Client}, handle failed item responses, etc.
+ * {@link C}, handle failed item responses, etc.
  *
  * @param <T> Type of the elements handled by this sink
  * @param <C> Type of the Elasticsearch client, which implements {@link AutoCloseable}
  */
 @Internal
-public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends RichSinkFunction<T>
+public abstract class ElasticsearchSinkBase<T, Request, Builder, Listener, BulkItemResponse, BulkProcessor extends AutoCloseable, C extends AutoCloseable>
+        extends
+            RichSinkFunction<T>
         implements
             CheckpointedFunction {
 
     public static final String CONFIG_KEY_BULK_FLUSH_MAX_ACTIONS = "bulk.flush.max.actions";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchSinkBase.class);
-
     // ------------------------------------------------------------------------
     // Internal bulk processor configuration
     // ------------------------------------------------------------------------
@@ -121,26 +98,26 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      */
     private final Map<String, String> userConfig;
     /**
-     * The function that is used to construct multiple {@link ActionRequest ActionRequests} from
+     * The function that is used to construct multiple {@link Request ActionRequests} from
      * each incoming element.
      */
-    private final ElasticsearchSinkFunction<T> elasticsearchSinkFunction;
+    private final ElasticsearchSinkFunction<T, Request> elasticsearchSinkFunction;
 
     // ------------------------------------------------------------------------
     // User-facing API and configuration
     // ------------------------------------------------------------------------
     /**
-     * User-provided handler for failed {@link ActionRequest ActionRequests}.
+     * User-provided handler for failed {@link Request ActionRequests}.
      */
-    private final ActionRequestFailureHandler failureHandler;
+    private final ActionRequestFailureHandler<Request> failureHandler;
     /**
      * Call bridge for different version-specific.
      */
-    private final ElasticsearchApiCallBridge<C> callBridge;
+    private final ElasticsearchApiCallBridge<Request, Builder, Listener, BulkItemResponse, BulkProcessor, C> callBridge;
     /**
-     * This is set from inside the {@link BulkProcessor.Listener} if a {@link Throwable} was thrown
-     * in callbacks and the user considered it should fail the sink via the {@link
-     * ActionRequestFailureHandler#onFailure(ActionRequest, Throwable, int, RequestIndexer)} method.
+     * This is set from inside the {@link Listener} if a {@link Throwable} was thrown
+     * in callbacks and the user considered it should fail the sink via the
+     * {@link ActionRequestFailureHandler#onFailure(Request, Throwable, int, RequestIndexer)} method.
      *
      * <p>Errors will be checked and rethrown before processing each input element, and when the
      * sink is closed.
@@ -148,36 +125,33 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     private final AtomicReference<Throwable> failureThrowable = new AtomicReference<>();
     private final String inlongMetric;
     private final DirtySinkHelper<Object> dirtySinkHelper;
+    private final String auditHostAndPorts;
+    /**
+     * Number of pending action requests not yet acknowledged by Elasticsearch. This value is
+     * maintained only if {@link ElasticsearchSinkBase#flushOnCheckpoint} is {@code true}.
+     *
+     * <p>This is incremented whenever the user adds (or re-adds through the {@link
+     * ActionRequestFailureHandler}) requests to the {@link RequestIndexer}.
+     */
+    private final AtomicLong numPendingRequests = new AtomicLong(0);
+
+    // ------------------------------------------------------------------------
+    // Internals for the Flink Elasticsearch Sink
+    // ------------------------------------------------------------------------
     /**
      * If true, the producer will wait until all outstanding action requests have been sent to
      * Elasticsearch.
      */
     private boolean flushOnCheckpoint = true;
     /**
-     * Provided to the user via the {@link ElasticsearchSinkFunction} to add {@link ActionRequest
-     * ActionRequests}.
+     * Provided to the user via the {@link ElasticsearchSinkFunction} to add ActionRequests
      */
-    private transient RequestIndexer requestIndexer;
-
-    // ------------------------------------------------------------------------
-    // Internals for the Flink Elasticsearch Sink
-    // ------------------------------------------------------------------------
+    private transient RequestIndexer<Request> requestIndexer;
     /**
      * Provided to the {@link ActionRequestFailureHandler} to allow users to re-index failed
      * requests.
      */
-    private transient BufferingNoOpRequestIndexer failureRequestIndexer;
-    /**
-     * Number of pending action requests not yet acknowledged by Elasticsearch. This value is
-     * maintained only if {@link ElasticsearchSinkBase#flushOnCheckpoint} is {@code true}.
-     *
-     * <p>This is incremented whenever the user adds (or re-adds through the {@link
-     * ActionRequestFailureHandler}) requests to the {@link RequestIndexer}. It is decremented for
-     * each completed request of a bulk request, in {@link BulkProcessor.Listener#afterBulk(long,
-     * BulkRequest, BulkResponse)} and {@link BulkProcessor.Listener#afterBulk(long, BulkRequest,
-     * Throwable)}.
-     */
-    private AtomicLong numPendingRequests = new AtomicLong(0);
+    private transient BufferingNoOpRequestIndexer<Request> failureRequestIndexer;
     /**
      * Elasticsearch client created using the call bridge.
      */
@@ -189,13 +163,12 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     private SinkMetricData sinkMetricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
-    private String auditHostAndPorts;
 
     public ElasticsearchSinkBase(
-            ElasticsearchApiCallBridge<C> callBridge,
+            ElasticsearchApiCallBridge<Request, Builder, Listener, BulkItemResponse, BulkProcessor, C> callBridge,
             Map<String, String> userConfig,
-            ElasticsearchSinkFunction<T> elasticsearchSinkFunction,
-            ActionRequestFailureHandler failureHandler,
+            ElasticsearchSinkFunction<T, Request> elasticsearchSinkFunction,
+            ActionRequestFailureHandler<Request> failureHandler,
             String inlongMetric,
             DirtySinkHelper<Object> dirtySinkHelper,
             String auditHostAndPorts) {
@@ -209,12 +182,10 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
         // otherwise, if they aren't serializable, users will merely get a non-informative error
         // message
         // "ElasticsearchSinkBase is not serializable"
-
         checkArgument(
                 InstantiationUtil.isSerializable(elasticsearchSinkFunction),
                 "The implementation of the provided ElasticsearchSinkFunction is not serializable. "
                         + "The object probably contains or references non-serializable fields.");
-
         checkArgument(
                 InstantiationUtil.isSerializable(failureHandler),
                 "The implementation of the provided ActionRequestFailureHandler is not serializable. "
@@ -223,64 +194,51 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
         // extract and remove bulk processor related configuration from the user-provided config,
         // so that the resulting user config only contains configuration related to the
         // Elasticsearch client.
-
         checkNotNull(userConfig);
-
         // copy config so we can remove entries without side-effects
         userConfig = new HashMap<>(userConfig);
-
         ParameterTool params = ParameterTool.fromMap(userConfig);
-
         if (params.has(CONFIG_KEY_BULK_FLUSH_MAX_ACTIONS)) {
             bulkProcessorFlushMaxActions = params.getInt(CONFIG_KEY_BULK_FLUSH_MAX_ACTIONS);
             userConfig.remove(CONFIG_KEY_BULK_FLUSH_MAX_ACTIONS);
         } else {
             bulkProcessorFlushMaxActions = null;
         }
-
         if (params.has(CONFIG_KEY_BULK_FLUSH_MAX_SIZE_MB)) {
             bulkProcessorFlushMaxSizeMb = params.getInt(CONFIG_KEY_BULK_FLUSH_MAX_SIZE_MB);
             userConfig.remove(CONFIG_KEY_BULK_FLUSH_MAX_SIZE_MB);
         } else {
             bulkProcessorFlushMaxSizeMb = null;
         }
-
         if (params.has(CONFIG_KEY_BULK_FLUSH_INTERVAL_MS)) {
             bulkProcessorFlushIntervalMillis = params.getLong(CONFIG_KEY_BULK_FLUSH_INTERVAL_MS);
             userConfig.remove(CONFIG_KEY_BULK_FLUSH_INTERVAL_MS);
         } else {
             bulkProcessorFlushIntervalMillis = null;
         }
-
         boolean bulkProcessorFlushBackoffEnable =
                 params.getBoolean(CONFIG_KEY_BULK_FLUSH_BACKOFF_ENABLE, true);
         userConfig.remove(CONFIG_KEY_BULK_FLUSH_BACKOFF_ENABLE);
-
         if (bulkProcessorFlushBackoffEnable) {
             this.bulkProcessorFlushBackoffPolicy = new BulkFlushBackoffPolicy();
-
             if (params.has(CONFIG_KEY_BULK_FLUSH_BACKOFF_TYPE)) {
                 bulkProcessorFlushBackoffPolicy.setBackoffType(
                         FlushBackoffType.valueOf(params.get(CONFIG_KEY_BULK_FLUSH_BACKOFF_TYPE)));
                 userConfig.remove(CONFIG_KEY_BULK_FLUSH_BACKOFF_TYPE);
             }
-
             if (params.has(CONFIG_KEY_BULK_FLUSH_BACKOFF_RETRIES)) {
                 bulkProcessorFlushBackoffPolicy.setMaxRetryCount(
                         params.getInt(CONFIG_KEY_BULK_FLUSH_BACKOFF_RETRIES));
                 userConfig.remove(CONFIG_KEY_BULK_FLUSH_BACKOFF_RETRIES);
             }
-
             if (params.has(CONFIG_KEY_BULK_FLUSH_BACKOFF_DELAY)) {
                 bulkProcessorFlushBackoffPolicy.setDelayMillis(
                         params.getLong(CONFIG_KEY_BULK_FLUSH_BACKOFF_DELAY));
                 userConfig.remove(CONFIG_KEY_BULK_FLUSH_BACKOFF_DELAY);
             }
-
         } else {
             bulkProcessorFlushBackoffPolicy = null;
         }
-
         this.userConfig = userConfig;
     }
 
@@ -298,7 +256,6 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     @Override
     public void open(Configuration parameters) throws Exception {
         client = callBridge.createClient(userConfig);
-
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
                 .withAuditAddress(auditHostAndPorts)
@@ -308,21 +265,19 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                 .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
-
         if (metricOption != null) {
             sinkMetricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }
-
-        bulkProcessor = buildBulkProcessor(new BulkProcessorListener(sinkMetricData, dirtySinkHelper));
-        requestIndexer =
-                callBridge.createBulkProcessorIndexer(
-                        bulkProcessor, flushOnCheckpoint, numPendingRequests);
         dirtySinkHelper.open(parameters);
+        Listener listener = createListener();
+        bulkProcessor = buildBulkProcessor(listener);
+        requestIndexer = callBridge.createBulkProcessorIndexer(bulkProcessor, flushOnCheckpoint, numPendingRequests);
         callBridge.verifyClientConnection(client);
-        failureRequestIndexer = new BufferingNoOpRequestIndexer();
+        failureRequestIndexer = new BufferingNoOpRequestIndexer<>();
         elasticsearchSinkFunction.open(getRuntimeContext(), sinkMetricData);
-
     }
+
+    public abstract Listener createListener();
 
     @Override
     public void invoke(T value, Context context) {
@@ -332,40 +287,36 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
-
         if (this.inlongMetric != null) {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
                             })));
         }
-
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
                     getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
         }
-
         elasticsearchSinkFunction.initializeState(context);
     }
 
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
         checkAsyncErrorsAndRequests();
-
         if (flushOnCheckpoint) {
             while (numPendingRequests.get() != 0) {
-                bulkProcessor.flush();
+                flush(bulkProcessor);
                 checkAsyncErrorsAndRequests();
             }
         }
-
         if (sinkMetricData != null && metricStateListState != null) {
             MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, sinkMetricData,
                     getRuntimeContext().getIndexOfThisSubtask());
         }
-
         elasticsearchSinkFunction.snapshotState(context);
     }
+
+    public abstract void flush(BulkProcessor bulkProcessor);
 
     @Override
     public void close() throws Exception {
@@ -374,14 +325,11 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
             bulkProcessor.close();
             bulkProcessor = null;
         }
-
         if (client != null) {
             client.close();
             client = null;
         }
-
         callBridge.cleanup();
-
         // make sure any errors from callbacks are rethrown
         checkErrorAndRethrow();
     }
@@ -392,53 +340,17 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      * <p>Note: this is exposed for testing purposes.
      */
     @VisibleForTesting
-    protected BulkProcessor buildBulkProcessor(BulkProcessor.Listener listener) {
+    protected BulkProcessor buildBulkProcessor(Listener listener) {
         checkNotNull(listener);
-
-        BulkProcessor.Builder bulkProcessorBuilder =
-                callBridge.createBulkProcessorBuilder(client, listener);
-
-        // This makes flush() blocking
-        bulkProcessorBuilder.setConcurrentRequests(0);
-
-        if (bulkProcessorFlushMaxActions != null) {
-            bulkProcessorBuilder.setBulkActions(bulkProcessorFlushMaxActions);
-        }
-
-        if (bulkProcessorFlushMaxSizeMb != null) {
-            configureBulkSize(bulkProcessorBuilder);
-        }
-
-        if (bulkProcessorFlushIntervalMillis != null) {
-            configureFlushInterval(bulkProcessorBuilder);
-        }
-
+        Builder builder = callBridge.createBulkProcessorBuilder(client, listener);
         // if backoff retrying is disabled, bulkProcessorFlushBackoffPolicy will be null
         callBridge.configureBulkProcessorBackoff(
-                bulkProcessorBuilder, bulkProcessorFlushBackoffPolicy);
-
-        return bulkProcessorBuilder.build();
-    }
-
-    private void configureBulkSize(BulkProcessor.Builder bulkProcessorBuilder) {
-        final ByteSizeUnit sizeUnit;
-        if (bulkProcessorFlushMaxSizeMb == -1) {
-            // bulk size can be disabled with -1, however the ByteSizeValue constructor accepts -1
-            // only with BYTES as the size unit
-            sizeUnit = ByteSizeUnit.BYTES;
-        } else {
-            sizeUnit = ByteSizeUnit.MB;
-        }
-        bulkProcessorBuilder.setBulkSize(new ByteSizeValue(bulkProcessorFlushMaxSizeMb, sizeUnit));
-    }
-
-    private void configureFlushInterval(BulkProcessor.Builder bulkProcessorBuilder) {
-        if (bulkProcessorFlushIntervalMillis == -1) {
-            bulkProcessorBuilder.setFlushInterval(null);
-        } else {
-            bulkProcessorBuilder.setFlushInterval(
-                    TimeValue.timeValueMillis(bulkProcessorFlushIntervalMillis));
-        }
+                builder, bulkProcessorFlushBackoffPolicy);
+        /// This makes flush() blocking
+        // builder.setConcurrentRequests(0);
+        callBridge.configureBulkProcessor(builder, new BulkProcessorOptions(bulkProcessorFlushMaxActions,
+                bulkProcessorFlushMaxSizeMb, bulkProcessorFlushIntervalMillis, 0));
+        return callBridge.buildBulkProcessor(builder);
     }
 
     private void checkErrorAndRethrow() {
@@ -461,6 +373,43 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
             throw new UnsupportedOperationException(
                     "The number of pending requests is not maintained when flushing on checkpoint is disabled.");
         }
+    }
+
+    /**
+     * Get pending requests for handle in subClass
+     *
+     * @return The numPendingRequests
+     */
+    public AtomicLong getPendingRequests() {
+        return numPendingRequests;
+    }
+
+    public ElasticsearchApiCallBridge<Request, Builder, Listener, BulkItemResponse, BulkProcessor, C> getCallBridge() {
+        return callBridge;
+    }
+
+    public AtomicReference<Throwable> getFailureThrowable() {
+        return failureThrowable;
+    }
+
+    public boolean flushOnCheckpoint() {
+        return flushOnCheckpoint;
+    }
+
+    public BufferingNoOpRequestIndexer<Request> getFailureRequestIndexer() {
+        return failureRequestIndexer;
+    }
+
+    public ActionRequestFailureHandler<Request> getFailureHandler() {
+        return failureHandler;
+    }
+
+    public DirtySinkHelper<Object> getDirtySinkHelper() {
+        return dirtySinkHelper;
+    }
+
+    public SinkMetricData getSinkMetricData() {
+        return sinkMetricData;
     }
 
     /**
@@ -512,108 +461,6 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
         public void setDelayMillis(long delayMillis) {
             checkArgument(delayMillis >= 0);
             this.delayMillis = delayMillis;
-        }
-    }
-
-    private class BulkProcessorListener implements BulkProcessor.Listener {
-
-        private final SinkMetricData sinkMetricData;
-        private final DirtySinkHelper<Object> dirtySinkHelper;
-
-        public BulkProcessorListener(SinkMetricData sinkMetricData,
-                DirtySinkHelper<Object> dirtySinkHelper) {
-            this.sinkMetricData = sinkMetricData;
-            this.dirtySinkHelper = dirtySinkHelper;
-        }
-
-        @Override
-        public void beforeBulk(long executionId, BulkRequest request) {
-        }
-
-        @Override
-        public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-            if (response.hasFailures()) {
-                BulkItemResponse itemResponse;
-                Throwable failure;
-                int restStatus;
-                try {
-                    for (int i = 0; i < response.getItems().length; i++) {
-                        itemResponse = response.getItems()[i];
-                        failure = callBridge.extractFailureCauseFromBulkItemResponse(itemResponse);
-                        if (failure != null) {
-                            restStatus = itemResponse.getFailure().getStatus() != null
-                                    ? itemResponse.getFailure().getStatus().getStatus()
-                                    : -1;
-                            handleFailure(request.requests().get(i), restStatus, failure);
-                        }
-                    }
-                } catch (Throwable t) {
-                    // fail the sink and skip the rest of the items
-                    // if the failure handler decides to throw an exception
-                    failureThrowable.compareAndSet(null, t);
-                }
-            }
-            if (flushOnCheckpoint) {
-                numPendingRequests.getAndAdd(-request.numberOfActions());
-            }
-        }
-
-        @Override
-        public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-            try {
-                for (DocWriteRequest<?> writeRequest : request.requests()) {
-                    handleFailure(writeRequest, -1, failure);
-                }
-            } catch (Throwable t) {
-                // fail the sink and skip the rest of the items
-                // if the failure handler decides to throw an exception
-                failureThrowable.compareAndSet(null, t);
-            }
-            if (flushOnCheckpoint) {
-                numPendingRequests.getAndAdd(-request.numberOfActions());
-            }
-        }
-
-        private void handleFailure(DocWriteRequest<?> writeRequest, int restStatus, Throwable failure)
-                throws Throwable {
-            // Only supports dirty data sink when the failureHandler is IgnoringFailureHandler
-            if (failureHandler instanceof IgnoringFailureHandler) {
-                if (!(writeRequest instanceof ActionRequest)) {
-                    LOGGER.error("The sink currently only supports ActionRequests");
-                    dirtySinkHelper.invoke(writeRequest.id(), DirtyType.UNSUPPORTED_DATA_TYPE,
-                            new UnsupportedOperationException("The sink currently only supports ActionRequests"));
-                    if (sinkMetricData != null) {
-                        sinkMetricData.invokeDirty(1, writeRequest.id().getBytes(StandardCharsets.UTF_8).length);
-                    }
-                } else if (ExceptionUtils.findThrowable(failure, ElasticsearchParseException.class).isPresent()) {
-                    String dirtyData;
-                    if (writeRequest instanceof UpdateRequest) {
-                        dirtyData = ((UpdateRequest) writeRequest).doc().source().utf8ToString();
-                    } else if (writeRequest instanceof IndexRequest) {
-                        dirtyData = ((IndexRequest) writeRequest).source().utf8ToString();
-                    } else {
-                        dirtyData = writeRequest.id();
-                    }
-                    LOGGER.error(String.format("Elasticsearch parse exception, raw data: %s", dirtyData), failure);
-                    dirtySinkHelper.invoke(dirtyData, DirtyType.DOCUMENT_PARSE_ERROR, failure);
-                    if (sinkMetricData != null) {
-                        sinkMetricData.invokeDirty(1, dirtyData.getBytes(StandardCharsets.UTF_8).length);
-                    }
-                } else {
-                    throw failure;
-                }
-            } else {
-                if (writeRequest instanceof ActionRequest) {
-                    failureHandler.onFailure(
-                            (ActionRequest) writeRequest,
-                            failure,
-                            restStatus,
-                            failureRequestIndexer);
-                } else {
-                    throw new UnsupportedOperationException(
-                            "The sink currently only supports ActionRequests");
-                }
-            }
         }
     }
 }
