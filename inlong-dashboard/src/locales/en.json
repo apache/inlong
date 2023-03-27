@@ -212,7 +212,7 @@
   "meta.Sinks.Hudi.PrimaryKey": "PrimaryKey",
   "meta.Sinks.Hudi.PrimaryKeyHelper": "The Primary key fields, separated by commas (,)",
   "meta.Sinks.Hudi.PartitionKey": "PartitionKey",
-  "meta.Sinks.Hudi.PartitionKeyHelp": "A list of partition fields, separated by commas.",
+  "meta.Sinks.Hudi.PartitionKeyHelper": "A list of partition fields, separated by commas (,).",
   "meta.Sinks.Hudi.FieldFormat": "FieldFormat",
   "meta.Sinks.Hudi.ExtListHelper": "The DDL attribute of the hudi table needs to be prefixed with 'ddl.'",
   "meta.Sinks.Greenplum.TableName": "TableName",
