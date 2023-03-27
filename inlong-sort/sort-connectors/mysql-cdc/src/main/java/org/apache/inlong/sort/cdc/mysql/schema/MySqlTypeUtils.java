@@ -28,18 +28,25 @@ public class MySqlTypeUtils {
     private static final String BIT = "BIT";
     private static final String TINYINT = "TINYINT";
     private static final String TINYINT_UNSIGNED = "TINYINT UNSIGNED";
+    private static final String TINYINT_UNSIGNED_ZEROFILL = "TINYINT UNSIGNED ZEROFILL";
     private static final String SMALLINT = "SMALLINT";
     private static final String SMALLINT_UNSIGNED = "SMALLINT UNSIGNED";
+    private static final String SMALLINT_UNSIGNED_ZEROFILL = "SMALLINT UNSIGNED ZEROFILL";
     private static final String MEDIUMINT = "MEDIUMINT";
     private static final String MEDIUMINT_UNSIGNED = "MEDIUMINT UNSIGNED";
+    private static final String MEDIUMINT_UNSIGNED_ZEROFILL = "MEDIUMINT UNSIGNED ZEROFILL";
     private static final String INT = "INT";
     private static final String INT_UNSIGNED = "INT UNSIGNED";
+    private static final String INT_UNSIGNED_ZEROFILL = "INT UNSIGNED ZEROFILL";
     private static final String BIGINT = "BIGINT";
     private static final String BIGINT_UNSIGNED = "BIGINT UNSIGNED";
+    private static final String BIGINT_UNSIGNED_ZEROFILL = "BIGINT UNSIGNED ZEROFILL";
     private static final String FLOAT = "FLOAT";
     private static final String FLOAT_UNSIGNED = "FLOAT UNSIGNED";
+    private static final String FLOAT_UNSIGNED_ZEROFILL = "FLOAT UNSIGNED ZEROFILL";
     private static final String DOUBLE = "DOUBLE";
     private static final String DOUBLE_UNSIGNED = "DOUBLE UNSIGNED";
+    private static final String DOUBLE_UNSIGNED_ZEROFILL = "DOUBLE UNSIGNED ZEROFILL";
     private static final String DECIMAL = "DECIMAL";
     private static final String DECIMAL_UNSIGNED = "DECIMAL UNSIGNED";
     private static final String CHAR = "CHAR";
@@ -85,21 +92,30 @@ public class MySqlTypeUtils {
             case TINYINT:
                 return column.length() == 1 ? DataTypes.BOOLEAN() : DataTypes.TINYINT();
             case TINYINT_UNSIGNED:
+            case TINYINT_UNSIGNED_ZEROFILL:
             case SMALLINT:
                 return DataTypes.SMALLINT();
             case SMALLINT_UNSIGNED:
+            case SMALLINT_UNSIGNED_ZEROFILL:
             case INT:
             case MEDIUMINT:
                 return DataTypes.INT();
             case INT_UNSIGNED:
+            case INT_UNSIGNED_ZEROFILL:
             case MEDIUMINT_UNSIGNED:
+            case MEDIUMINT_UNSIGNED_ZEROFILL:
             case BIGINT:
                 return DataTypes.BIGINT();
             case BIGINT_UNSIGNED:
+            case BIGINT_UNSIGNED_ZEROFILL:
                 return DataTypes.DECIMAL(20, 0);
             case FLOAT:
+            case FLOAT_UNSIGNED:
+            case FLOAT_UNSIGNED_ZEROFILL:
                 return DataTypes.FLOAT();
             case DOUBLE:
+            case DOUBLE_UNSIGNED:
+            case DOUBLE_UNSIGNED_ZEROFILL:
                 return DataTypes.DOUBLE();
             case DECIMAL:
                 return DataTypes.DECIMAL(column.length(), column.scale().orElse(0));
