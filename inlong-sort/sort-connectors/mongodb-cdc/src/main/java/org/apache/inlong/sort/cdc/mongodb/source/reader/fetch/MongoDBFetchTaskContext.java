@@ -23,6 +23,7 @@ import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils
 
 import com.mongodb.client.model.changestream.OperationType;
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
+import com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils;
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.pipeline.DataChangeEvent;
 import io.debezium.relational.TableId;
@@ -40,7 +41,6 @@ import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
 import org.apache.inlong.sort.cdc.mongodb.source.dialect.MongoDBDialect;
 import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamDescriptor;
 import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffset;
-import org.apache.inlong.sort.cdc.mongodb.source.utils.MongoRecordUtils;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.bson.BsonDocument;
