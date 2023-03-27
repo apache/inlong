@@ -387,7 +387,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         SinkStatus nextStatus = null;
         boolean enableConfig = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus())
                 || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus());
-        if (enableConfig || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus())) {
+        if (enableConfig) {
             boolean enableCreateResource = InlongConstants.ENABLE_CREATE_RESOURCE.equals(
                     request.getEnableCreateResource());
             nextStatus = enableCreateResource ? SinkStatus.CONFIG_ING : SinkStatus.CONFIG_SUCCESSFUL;
@@ -449,7 +449,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         SinkStatus nextStatus = null;
         boolean enableConfig = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus())
                 || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus());
-        if (enableConfig || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus())) {
+        if (enableConfig) {
             boolean enableCreateResource = InlongConstants.ENABLE_CREATE_RESOURCE.equals(
                     request.getEnableCreateResource());
             nextStatus = enableCreateResource ? SinkStatus.CONFIG_ING : SinkStatus.CONFIG_SUCCESSFUL;
