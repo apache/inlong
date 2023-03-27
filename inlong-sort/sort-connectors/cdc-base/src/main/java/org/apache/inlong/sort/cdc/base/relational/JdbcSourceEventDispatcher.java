@@ -195,7 +195,7 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
             Struct sourceInfo = event.getSource();
             Map<String, Object> source = new HashMap<>();
             String connector = sourceInfo.getString(CONNECTOR);
-            if (MYSQL.equals(connector)) {
+            if (MYSQL.equalsIgnoreCase(connector)) {
                 String fileName = sourceInfo.getString(BINLOG_FILENAME_OFFSET_KEY);
                 Long pos = sourceInfo.getInt64(BINLOG_POSITION_OFFSET_KEY);
                 Long serverId = sourceInfo.getInt64(SERVER_ID_KEY);
