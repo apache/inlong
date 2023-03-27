@@ -17,29 +17,16 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.function.Supplier;
 import org.apache.flink.annotation.Experimental;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.PublicEvolving;
-import org.apache.flink.api.connector.source.SourceReaderContext;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
-import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
-import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
-import org.apache.flink.metrics.MetricGroup;
-import org.apache.inlong.sort.base.Constants;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.cdc.base.config.MetricConfig;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.source.IncrementalSource;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceRecords;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
 import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
-import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceReader;
-import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceSplitReader;
 import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
 import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfigFactory;
 import org.apache.inlong.sort.cdc.mongodb.source.dialect.MongoDBDialect;
