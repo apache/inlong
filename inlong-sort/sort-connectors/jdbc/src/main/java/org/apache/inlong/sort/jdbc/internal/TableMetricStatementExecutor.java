@@ -97,10 +97,6 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
 
     @Override
     public void addToBatch(RowData record) throws SQLException {
-        if (multipleSink && record.getRowKind().equals(RowKind.UPDATE_BEFORE)) {
-            sinkMetricData.invoke(1, record.toString().getBytes().length);
-            return;
-        }
         if (valueTransform != null) {
             record = valueTransform.apply(record); // copy or not
         }
