@@ -123,53 +123,13 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
     public void snapshotState(FunctionSnapshotContext context) {
     }
 
-    // dynamically parse the columns of the schema and deserialize the canal-json element
-    private RowData parseElement(RowData element, JsonNode rootNode) {
-        RowType rowType = jsonDynamicSchemaFormat.extractSchema(rootNode);
-        RowData result = jsonDynamicSchemaFormat.extractRowData(rootNode, rowType).get(0);
-        debugconverter(result, rowType);
-        LOGGER.info("parseElement result, rootNode:{}", rootNode);
-        LOGGER.info("parseElement result, rowType:{}", rowType);
-        LOGGER.info("parseElement result, result:{}", result);
-        return result;
-    }
-
-    private void debugconverter(RowData row, RowType type) {
-        final String[] fieldNames = type.getFieldNames().toArray(new String[0]);
-        for (String fieldname : fieldNames) {
-            LOGGER.info("fieldname:{}", fieldname);
-        }
-        final LogicalType[] fieldTypes =
-                type.getFields().stream()
-                        .map(RowType.RowField::getType)
-                        .toArray(LogicalType[]::new);
-        for (LogicalType fieldType : fieldTypes) {
-            LOGGER.info("fieldType:{}", fieldType);
-        }
-        final int fieldCount = type.getFieldCount();
-        final RowData.FieldGetter[] fieldGetters = new RowData.FieldGetter[fieldTypes.length];
-        for (int i = 0; i < fieldCount; i++) {
-            fieldGetters[i] = RowData.createFieldGetter(fieldTypes[i], i);
-            LOGGER.info("fieldgetter {}:{}", i, fieldGetters[i]);
-        }
-
-        for (int i = 0; i < fieldCount; i++) {
-            String fieldName = fieldNames[i];
-            Object field = fieldGetters[i].getFieldOrNull(row);
-            LOGGER.info("debugconverter field is {}:{}", fieldName, field);
-        }
-    }
-
     @Override
     public void process(RowData element, RuntimeContext ctx, RequestIndexer<Request> indexer) {
-        LOGGER.info("starting to process, rowdata:{}", element);
         JsonNode rootNode = null;
         // parse rootnode
         try {
-            LOGGER.info("multipleFormat:{}", multipleFormat);
             jsonDynamicSchemaFormat =
                     (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(multipleFormat);
-            LOGGER.info("jsonDynamicSchemaFormat:{}", jsonDynamicSchemaFormat);
             rootNode = jsonDynamicSchemaFormat.deserialize(element.getBinary(0));
             // Ignore ddl change for now
             boolean isDDL = jsonDynamicSchemaFormat.extractDDLFlag(rootNode);
@@ -181,12 +141,8 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
             LOGGER.error(String.format("deserialize error, raw data: %s", new String(element.getBinary(0))), e);
         }
 
-        // RowData data = parseElement(element, rootNode);
-
         RowType rowType = jsonDynamicSchemaFormat.extractSchema(rootNode);
         RowData data = jsonDynamicSchemaFormat.extractRowData(rootNode, rowType).get(0);
-        LOGGER.info("rowtype:{}", rowType);
-        LOGGER.info("data:{}", data);
         // generate the serialization schema
         serializationSchema = new JsonRowDataSerializationSchema(
                 rowType, TimestampFormat.ISO_8601, MapNullKeyMode.LITERAL, "null", true);
@@ -210,7 +166,6 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
             JsonNode physicalData = jsonDynamicSchemaFormat.getPhysicalData(rootNode);
             // will this line have performance issues?
             key = UUID.nameUUIDFromBytes(physicalData.toString().getBytes(StandardCharsets.UTF_8)).toString();
-            LOGGER.info("physical data is:{}, key is:{}", physicalData, key);
         } catch (Exception e) {
             LOGGER.error(String.format("Generate index id error, raw data: %s", data), e);
             dirtySinkHelper.invoke(data, DirtyType.INDEX_ID_GENERATE_ERROR, e);
@@ -238,7 +193,6 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
         String index;
         // parse the index dynamically, put index generators
         try {
-            LOGGER.info("indexPattern:{}", indexPattern);
             String rawIndex = jsonDynamicSchemaFormat.parse(rootNode, indexPattern);
             if (!indexGeneratorMap.containsKey(rawIndex)) {
                 TableSchema schema = tableSchemaFactory.getSchema();
@@ -246,9 +200,7 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
                 indexGeneratorMap.put(rawIndex, indexGenerator);
                 indexGenerator.open();
             }
-            LOGGER.info("indexGeneratorMap:{}", indexGeneratorMap);
             index = indexGeneratorMap.get(rawIndex).generate(rowData);
-            LOGGER.info("index:{}", index);
         } catch (Exception e) {
             LOGGER.error(String.format("json parse error, raw data: %s", new String(rowData.getBinary(0))), e);
             throw e;
