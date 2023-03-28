@@ -138,7 +138,7 @@ public class RecordUtils {
     /**
      * Whether the source Record is a schema change event.
      * @param sourceRecord
-     * @retur ture or false
+     * @return ture if the source Record is a schema change event.
      */
     public static boolean isSchemaChangeEvent(SourceRecord sourceRecord) {
         Schema keySchema = sourceRecord.keySchema();
@@ -147,9 +147,9 @@ public class RecordUtils {
     }
 
     /**
-     * Whether the source is Mysql Connector
+     * Whether the source belong Mysql Connector
      * @param source
-     * @return true or false
+     * @return true if the source belong Mysql Connector
      */
     public static boolean isMysqlConnector(Struct source) {
         String connector = source.getString(CONNECTOR);
