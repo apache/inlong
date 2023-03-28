@@ -62,8 +62,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            com.ververica.cdc.connectors.base.relational.JdbcSourceEventDispatcher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JdbcSourceEventDispatcher.class);
 
     public static final String HISTORY_RECORD_FIELD = "historyRecord";
     public static final String SERVER_ID_KEY = "server_id";
