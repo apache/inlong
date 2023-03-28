@@ -96,7 +96,7 @@ public class ESMultipleSinkTest {
     }
 
     /**
-     * Test kafka to doris with multiple sink enable
+     * Test kafka to ES with multiple sink enable
      *
      * @throws Exception The exception may be thrown when executing
      */

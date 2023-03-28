@@ -28,7 +28,6 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.formats.json.JsonRowDataSerializationSchema;
 
-import java.io.IOException;
 import java.util.UUID;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.util.Preconditions;
