@@ -124,6 +124,14 @@ public class ElasticsearchConfiguration {
         return config.getOptional(ElasticsearchOptions.CONNECTION_PATH_PREFIX);
     }
 
+    public Optional<String> getMultipleFormat() {
+        return config.getOptional(ElasticsearchOptions.SINK_MULTIPLE_FORMAT);
+    }
+
+    public Optional<String> getMultipleIndexPattern() {
+        return config.getOptional(ElasticsearchOptions.SINK_MULTIPLE_INDEX_PATTERN);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

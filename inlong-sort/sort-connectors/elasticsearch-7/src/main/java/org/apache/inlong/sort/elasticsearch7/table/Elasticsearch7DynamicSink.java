@@ -39,6 +39,9 @@ import org.apache.inlong.sort.elasticsearch.table.KeyExtractor;
 import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
 import org.apache.inlong.sort.elasticsearch.table.RoutingExtractor;
 import org.apache.inlong.sort.elasticsearch7.ElasticsearchSink;
+import org.apache.inlong.sort.elasticsearch.table.TableSchemaFactory;
+import org.apache.inlong.sort.elasticsearch7.ElasticsearchSink;
+import org.apache.inlong.sort.elasticsearch7.MultipleRowElasticsearchSinkFunction;
 import org.apache.inlong.sort.elasticsearch7.RowElasticsearchSinkFunction;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -122,18 +125,8 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
         return () -> {
             SerializationSchema<RowData> format =
                     this.format.createRuntimeEncoder(context, schema.toRowDataType());
-
-            final RowElasticsearchSinkFunction upsertFunction =
-                    new RowElasticsearchSinkFunction(
-                            IndexGeneratorFactory.createIndexGenerator(config.getIndex(), schema),
-                            null, // this is deprecated in es 7+
-                            format,
-                            XContentType.JSON,
-                            REQUEST_FACTORY,
-                            KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
-                            RoutingExtractor.createRoutingExtractor(
-                                    schema, config.getRoutingField().orElse(null)),
-                            dirtySinkHelper);
+            final ElasticsearchSinkFunction<RowData, DocWriteRequest<?>> upsertFunction =
+                    createSinkFunction(format, context);
             final ElasticsearchSink.Builder<RowData> builder =
                     builderProvider.createBuilder(config.getHosts(), upsertFunction);
             builder.setFailureHandler(config.getFailureHandler());

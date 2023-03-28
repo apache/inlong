@@ -143,6 +143,20 @@ public class ElasticsearchOptions {
                     .withDescription(
                             "The format must produce a valid JSON document. "
                                     + "Please refer to the documentation on formats for more details.");
+    
+    public static final ConfigOption<String> SINK_MULTIPLE_FORMAT =
+            ConfigOptions.key("sink.multiple.format")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "The format of multiple sink, it represents the real format of the raw binary data");
+    public static final ConfigOption<String> SINK_MULTIPLE_INDEX_PATTERN =
+            ConfigOptions.key("sink.multiple.index-pattern")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("The option 'sink.multiple.table-pattern' "
+                            + "is used extract table name from the raw binary data, "
+                            + "this is only used in the multiple sink writing scenario.");
 
     private ElasticsearchOptions() {
 
