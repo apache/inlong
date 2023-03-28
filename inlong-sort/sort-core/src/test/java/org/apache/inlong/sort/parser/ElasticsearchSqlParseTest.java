@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -41,6 +34,14 @@ import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * test elastic search sql parse
@@ -84,7 +85,7 @@ public abstract class ElasticsearchSqlParseTest extends AbstractTestBase {
         return new ElasticsearchLoadNode("2", "kafka_output", fields, relations, null, null,
                 2, properties,
                 "test", "http://localhost:9200",
-                "elastic", "my_password", null, "age", version);
+                "elastic", "my_password", null, "age", version, false, null, null);
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
