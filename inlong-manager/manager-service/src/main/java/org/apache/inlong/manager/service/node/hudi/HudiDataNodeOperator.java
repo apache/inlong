@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -30,6 +31,7 @@ import org.apache.inlong.manager.pojo.node.hudi.HudiDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.hudi.HudiDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.hudi.HudiDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
+import org.apache.inlong.manager.service.resource.sink.hudi.HudiCatalogClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,26 @@ public class HudiDataNodeOperator extends AbstractDataNodeOperator {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
                     String.format("Failed to build extParams for Hudi node: %s", e.getMessage()));
+        }
+    }
+
+    @Override
+    public Boolean testConnection(DataNodeRequest request) {
+        HudiDataNodeRequest hudiRequest = (HudiDataNodeRequest) request;
+        String metastoreUri = hudiRequest.getUrl();
+        String warehouse = hudiRequest.getWarehouse();
+        Preconditions.expectNotBlank(metastoreUri, ErrorCodeEnum.INVALID_PARAMETER, "connection url cannot be empty");
+        try (HudiCatalogClient client = new HudiCatalogClient(metastoreUri, warehouse)) {
+            client.open();
+            client.listAllDatabases();
+            LOGGER.info("hudi connection not null - connection success for metastoreUri={}, warehouse={}",
+                    metastoreUri, warehouse);
+            return true;
+        } catch (Exception e) {
+            String errMsg = String.format("hudi connection failed for metastoreUri=%s, warehouse=%s", metastoreUri,
+                    warehouse);
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
         }
     }
 

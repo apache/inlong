@@ -96,7 +96,7 @@ public class IcebergDataNodeOperator extends AbstractDataNodeOperator {
                     metastoreUri, warehouse);
             return true;
         } catch (Exception e) {
-            String errMsg = String.format("iceberg connection failed for metastoreUri=%s, warhouse=%s", metastoreUri,
+            String errMsg = String.format("iceberg connection failed for metastoreUri=%s, warehouse=%s", metastoreUri,
                     warehouse);
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
