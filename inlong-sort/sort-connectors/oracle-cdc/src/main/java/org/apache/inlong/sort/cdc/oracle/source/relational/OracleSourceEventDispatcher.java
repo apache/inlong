@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.base.relational;
+package org.apache.inlong.sort.cdc.oracle.source.relational;
 
 import io.debezium.config.CommonConnectorConfig;
 import io.debezium.connector.base.ChangeEventQueue;
@@ -29,7 +29,6 @@ import io.debezium.relational.TableId;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.schema.DataCollectionFilters;
 import io.debezium.schema.DatabaseSchema;
-import io.debezium.schema.HistorizedDatabaseSchema;
 import io.debezium.schema.SchemaChangeEvent;
 import io.debezium.schema.TopicSelector;
 import io.debezium.util.SchemaNameAdjuster;
@@ -37,12 +36,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
-import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkEvent;
-import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkKind;
-import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.SchemaBuilder;
+import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
@@ -56,32 +50,19 @@ import org.slf4j.LoggerFactory;
  *  2. This class override some methods for dispatching {@link HistoryRecord} directly,
  *     this is useful for downstream to deserialize the {@link HistoryRecord} back.
  * </pre>
- * This class is a rewrite of JdbcSourceEventDispatcher in cdc-base,
+ * This class extends JdbcSourceEventDispatcher in cdc-base,
  * because there is a conflict between the io-debezium-core:1.5.4-final depended on in cdc-base
  * and the io-debezium-core:1.6.4-final relied on in this module.
- * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
-public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
+public class OracleSourceEventDispatcher extends JdbcSourceEventDispatcher {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JdbcSourceEventDispatcher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OracleSourceEventDispatcher.class);
 
     public static final String HISTORY_RECORD_FIELD = "historyRecord";
-    public static final String SERVER_ID_KEY = "server_id";
-    public static final String BINLOG_FILENAME_OFFSET_KEY = "file";
-    public static final String BINLOG_POSITION_OFFSET_KEY = "pos";
 
     private static final DocumentWriter DOCUMENT_WRITER = DocumentWriter.defaultWriter();
 
-    private final ChangeEventQueue<DataChangeEvent> queue;
-    private final HistorizedDatabaseSchema historizedSchema;
-    private final DataCollectionFilters.DataCollectionFilter<TableId> filter;
-    private final CommonConnectorConfig connectorConfig;
-    private final TopicSelector<TableId> topicSelector;
-    private final Schema schemaChangeKeySchema;
-    private final Schema schemaChangeValueSchema;
-    private final String topic;
-
-    public JdbcSourceEventDispatcher(
+    public OracleSourceEventDispatcher(
             CommonConnectorConfig connectorConfig,
             TopicSelector<TableId> topicSelector,
             DatabaseSchema<TableId> schema,
@@ -99,40 +80,6 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
                 changeEventCreator,
                 metadataProvider,
                 schemaNameAdjuster);
-        this.historizedSchema =
-                schema instanceof HistorizedDatabaseSchema
-                        ? (HistorizedDatabaseSchema<TableId>) schema
-                        : null;
-        this.filter = filter;
-        this.queue = queue;
-        this.connectorConfig = connectorConfig;
-        this.topicSelector = topicSelector;
-        this.topic = topicSelector.getPrimaryTopic();
-        this.schemaChangeKeySchema =
-                SchemaBuilder.struct()
-                        .name(
-                                schemaNameAdjuster.adjust(
-                                        "io.debezium.connector."
-                                                + connectorConfig.getConnectorName()
-                                                + ".SchemaChangeKey"))
-                        .field(HistoryRecord.Fields.DATABASE_NAME, Schema.STRING_SCHEMA)
-                        .build();
-        this.schemaChangeValueSchema =
-                SchemaBuilder.struct()
-                        .name(
-                                schemaNameAdjuster.adjust(
-                                        "io.debezium.connector."
-                                                + connectorConfig.getConnectorName()
-                                                + ".SchemaChangeValue"))
-                        .field(
-                                HistoryRecord.Fields.SOURCE,
-                                connectorConfig.getSourceInfoStructMaker().schema())
-                        .field(HISTORY_RECORD_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
-                        .build();
-    }
-
-    public ChangeEventQueue<DataChangeEvent> getQueue() {
-        return queue;
     }
 
     @Override
@@ -229,16 +176,4 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
         }
     }
 
-    public void dispatchWatermarkEvent(
-            Map<String, ?> sourcePartition,
-            SourceSplitBase sourceSplit,
-            Offset watermark,
-            WatermarkKind watermarkKind)
-            throws InterruptedException {
-
-        SourceRecord sourceRecord =
-                WatermarkEvent.create(
-                        sourcePartition, topic, sourceSplit.splitId(), watermarkKind, watermark);
-        queue.enqueue(new DataChangeEvent(sourceRecord));
-    }
 }

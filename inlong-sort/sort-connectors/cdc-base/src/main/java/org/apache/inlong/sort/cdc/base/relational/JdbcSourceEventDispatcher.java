@@ -71,14 +71,14 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
 
     private static final DocumentWriter DOCUMENT_WRITER = DocumentWriter.defaultWriter();
 
-    private final ChangeEventQueue<DataChangeEvent> queue;
-    private final HistorizedDatabaseSchema historizedSchema;
-    private final DataCollectionFilters.DataCollectionFilter<TableId> filter;
-    private final CommonConnectorConfig connectorConfig;
-    private final TopicSelector<TableId> topicSelector;
-    private final Schema schemaChangeKeySchema;
-    private final Schema schemaChangeValueSchema;
-    private final String topic;
+    public final ChangeEventQueue<DataChangeEvent> queue;
+    public final HistorizedDatabaseSchema historizedSchema;
+    public final DataCollectionFilters.DataCollectionFilter<TableId> filter;
+    public final CommonConnectorConfig connectorConfig;
+    public final TopicSelector<TableId> topicSelector;
+    public final Schema schemaChangeKeySchema;
+    public final Schema schemaChangeValueSchema;
+    public final String topic;
 
     public JdbcSourceEventDispatcher(
             CommonConnectorConfig connectorConfig,
