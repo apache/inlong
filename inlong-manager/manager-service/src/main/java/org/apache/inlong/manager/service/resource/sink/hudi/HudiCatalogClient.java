@@ -50,7 +50,7 @@ import static org.apache.inlong.manager.service.resource.sink.hudi.HudiUtils.get
 /**
  * The Catalog client for Hudi.
  */
-public class HudiCatalogClient {
+public class HudiCatalogClient implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(HudiCatalogClient.class);
 

@@ -89,9 +89,7 @@ public class HudiDataNodeOperator extends AbstractDataNodeOperator {
         String metastoreUri = hudiRequest.getUrl();
         String warehouse = hudiRequest.getWarehouse();
         Preconditions.expectNotBlank(metastoreUri, ErrorCodeEnum.INVALID_PARAMETER, "connection url cannot be empty");
-        HudiCatalogClient client = null;
-        try {
-            client = new HudiCatalogClient(metastoreUri, warehouse);
+        try (HudiCatalogClient client = new HudiCatalogClient(metastoreUri, warehouse)) {
             client.open();
             client.listAllDatabases();
             LOGGER.info("hudi connection not null - connection success for metastoreUri={}, warehouse={}",
@@ -102,10 +100,6 @@ public class HudiDataNodeOperator extends AbstractDataNodeOperator {
                     warehouse);
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
-        } finally {
-            if (client != null) {
-                client.close();
-            }
         }
     }
 
