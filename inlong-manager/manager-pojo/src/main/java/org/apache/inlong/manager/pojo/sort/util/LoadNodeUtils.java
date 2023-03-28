@@ -549,7 +549,7 @@ public class LoadNodeUtils {
         Format format = null;
         if (elasticsearchSink.getSinkMultipleEnable() != null && elasticsearchSink.getSinkMultipleEnable()
                 && StringUtils.isNotBlank(
-                elasticsearchSink.getSinkMultipleFormat())) {
+                        elasticsearchSink.getSinkMultipleFormat())) {
             DataTypeEnum dataType = DataTypeEnum.forType(elasticsearchSink.getSinkMultipleFormat());
             switch (dataType) {
                 case CANAL:
