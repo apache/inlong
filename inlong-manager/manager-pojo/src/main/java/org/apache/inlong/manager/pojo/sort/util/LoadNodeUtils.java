@@ -559,7 +559,7 @@ public class LoadNodeUtils {
                     format = new DebeziumJsonFormat();
                     break;
                 default:
-                    throw new IllegalArgumentException(String.format("Unsupported dataType=%s for doris", dataType));
+                    throw new IllegalArgumentException(String.format("Unsupported dataType=%s for elasticsearch", dataType));
             }
         }
         return new ElasticsearchLoadNode(

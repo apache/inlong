@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
 import java.util.function.Function;
 
 /**
- * ElasticsearchSinkFunction for elasticsearch7
+ * ElasticsearchSinkFunction for elasticsearch6
  */
 public class MultipleRowElasticsearchSinkFunction
         extends

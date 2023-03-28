@@ -27,6 +27,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.formats.json.JsonRowDataSerializationSchema;
+
+import java.io.IOException;
 import java.util.UUID;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.util.Preconditions;
@@ -138,6 +140,7 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
             }
         } catch (Exception e) {
             LOGGER.error(String.format("deserialize error, raw data: %s", new String(element.getBinary(0))), e);
+            throw new RuntimeException(e);
         }
 
         RowType rowType = jsonDynamicSchemaFormat.extractSchema(rootNode);
@@ -163,7 +166,6 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
         try {
             // use uuid3 as key
             JsonNode physicalData = jsonDynamicSchemaFormat.getPhysicalData(rootNode);
-            // will this line have performance issues?
             key = UUID.nameUUIDFromBytes(physicalData.toString().getBytes(StandardCharsets.UTF_8)).toString();
         } catch (Exception e) {
             LOGGER.error(String.format("Generate index id error, raw data: %s", data), e);
