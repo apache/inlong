@@ -59,7 +59,6 @@ import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
 import org.apache.inlong.manager.service.user.UserService;
-import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +82,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.manager.common.consts.InlongConstants.SORT_TYPE_INFO_SUFFIX;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 
 /**
@@ -725,15 +723,19 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             CreateTable createTable = (CreateTable) statement;
             List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
             // get column definition
-            for (ColumnDefinition definition : columnDefinitions) {
+            for (int i = 0; i < columnDefinitions.size(); i++) {
+                ColumnDefinition definition = columnDefinitions.get(i);
                 // get field name
                 String columnName = definition.getColumnName();
                 ColDataType colDataType = definition.getColDataType();
                 String sqlDataType = colDataType.getDataType();
                 // Convert SQL type to TypeInfo
-                FormatInfo formatInfo = FieldInfoUtils.convertFieldFormat(sqlDataType, "");
-                String typeInfoName = formatInfo.getTypeInfo().toString();
-                String type = typeInfoName.substring(0, typeInfoName.indexOf(SORT_TYPE_INFO_SUFFIX)).toLowerCase();
+                Class<?> clazz = FieldInfoUtils.sqlTypeToJavaType(sqlDataType);
+                if (clazz == Object.class) {
+                    throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                            "Unrecognized SQL field type, line: " + (i + 1) + ", type: " + sqlDataType);
+                }
+                String type = clazz.getSimpleName().toLowerCase();
                 fields.put(columnName, type);
             }
         } else {

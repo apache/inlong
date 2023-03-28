@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.pojo.sort.util;
 
 import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.enums.FieldType;
@@ -53,6 +53,8 @@ import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 
+import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
@@ -95,11 +97,11 @@ public class FieldInfoUtils {
     /*
      * public static List<FieldMappingUnit> createFieldInfo( List<StreamField> streamFieldList, List<SinkField>
      * fieldList, List<FieldInfo> sourceFields, List<FieldInfo> sinkFields) {
-     * 
+     *
      * // Set source field info list. for (StreamField field : streamFieldList) { FieldInfo sourceField =
      * getFieldInfo(field.getFieldName(), field.getFieldType(), field.getIsMetaField() == 1, field.getMetaFieldName(),
      * field.getFieldFormat()); sourceFields.add(sourceField); }
-     * 
+     *
      * List<FieldMappingUnit> mappingUnitList = new ArrayList<>(); // Get sink field info list, if the field name equals
      * to build-in field, new a build-in field info for (SinkField field : fieldList) { FieldInfo sinkField =
      * getFieldInfo(field.getFieldName(), field.getFieldType(), field.getIsMetaField() == 1, field.getMetaFieldName(),
@@ -107,7 +109,7 @@ public class FieldInfoUtils {
      * FieldInfo sourceField = getFieldInfo(field.getSourceFieldName(), field.getSourceFieldType(),
      * field.getIsMetaField() == 1, field.getMetaFieldName(), field.getFieldFormat()); mappingUnitList.add(new
      * FieldMappingUnit(sourceField, sinkField)); } }
-     * 
+     *
      * return mappingUnitList; }
      */
 
@@ -137,7 +139,7 @@ public class FieldInfoUtils {
      * : MetaField.values()) { MetaFieldInfo fieldInfo = new MetaFieldInfo(metaField.name(), metaField);
      * sourceFields.add(fieldInfo); sinkFields.add(fieldInfo); mappingUnitList.add(new FieldMappingUnit(fieldInfo,
      * fieldInfo)); }
-     * 
+     *
      * return mappingUnitList; }
      */
 
@@ -164,6 +166,37 @@ public class FieldInfoUtils {
                 formatInfo = convertFieldFormat(type, null);
         }
         return formatInfo;
+    }
+
+    /**
+     * Convert SQL type names to Java types.
+     */
+    public static Class<?> sqlTypeToJavaType(String type) {
+        FieldType fieldType = FieldType.forName(StringUtils.substringBefore(type, LEFT_BRACKET));
+        switch (fieldType) {
+            case BOOLEAN:
+                return Boolean.class;
+            case TINYINT:
+            case SMALLINT:
+            case INT:
+                return int.class;
+            case BIGINT:
+                return Long.class;
+            case FLOAT:
+                return Float.class;
+            case DOUBLE:
+                return Double.class;
+            case DECIMAL:
+                return BigDecimal.class;
+            case VARCHAR:
+                return String.class;
+            case DATE:
+            case TIME:
+            case TIMESTAMP:
+                return java.util.Date.class;
+            default:
+                return Object.class;
+        }
     }
 
     /**
