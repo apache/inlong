@@ -182,7 +182,7 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
     }
 
     /** A {@link SchemaChangeEventEmitter.Receiver} implementation for {@link SchemaChangeEvent}. */
-    private final class SchemaChangeEventReceiver implements SchemaChangeEventEmitter.Receiver {
+    public final class SchemaChangeEventReceiver implements SchemaChangeEventEmitter.Receiver {
 
         private Struct schemaChangeRecordKey(SchemaChangeEvent event) {
             Struct result = new Struct(schemaChangeKeySchema);
