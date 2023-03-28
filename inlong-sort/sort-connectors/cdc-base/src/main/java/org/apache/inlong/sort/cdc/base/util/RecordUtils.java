@@ -55,6 +55,8 @@ public class RecordUtils {
     private static final List<String> BIGINT_TYPE = Arrays.asList("INTERVAL DAY TO SECOND", "INTERVAL YEAR TO MONTH");
     public static final String MYSQL_SCHEMA_CHANGE_EVENT_KEY_NAME = "io.debezium.connector.mysql.SchemaChangeKey";
     public static final String ORACLE_SCHEMA_CHANGE_EVENT_KEY_NAME = "io.debezium.connector.oracle.SchemaChangeKey";
+    public static final String CONNECTOR = "connector";
+    public static final String MYSQL_CONNECTOR = "mysql";
 
     private RecordUtils() {
 
@@ -144,4 +146,13 @@ public class RecordUtils {
                 || ORACLE_SCHEMA_CHANGE_EVENT_KEY_NAME.equalsIgnoreCase(keySchema.name()));
     }
 
+    /**
+     * Whether the source is Mysql Connector
+     * @param source
+     * @return true or false
+     */
+    public static boolean isMysqlConnector(Struct source) {
+        String connector = source.getString(CONNECTOR);
+        return MYSQL_CONNECTOR.equalsIgnoreCase(connector);
+    }
 }
