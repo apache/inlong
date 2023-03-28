@@ -157,4 +157,11 @@ public class MySqlSnapshotSplit extends MySqlSplit {
                 + highWatermark
                 + '}';
     }
+
+    /** Casts this split into a {@link MySqlSchemalessSnapshotSplit}. */
+    public final MySqlSchemalessSnapshotSplit toSchemaLessSnapshotSplit() {
+        return new MySqlSchemalessSnapshotSplit(
+                tableId, splitId, splitKeyType, splitStart, splitEnd, highWatermark);
+    }
+
 }
