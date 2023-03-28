@@ -101,7 +101,7 @@ public class ESMultipleSinkTest {
      * @throws Exception The exception may be thrown when executing
      */
     @Test
-    public void testDorisMultipleSinkParse() throws Exception {
+    public void testESMultipleSinkParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
                 .useBlinkPlanner()

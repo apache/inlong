@@ -35,18 +35,20 @@ import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.elasticsearch.table.ElasticsearchValidationUtils;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
 
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLASH_MAX_SIZE_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_DELAY_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION;
@@ -63,6 +65,8 @@ import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.IN
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.KEY_DELIMITER_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.PASSWORD_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.ROUTING_FIELD_NAME;
+import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.SINK_MULTIPLE_INDEX_PATTERN;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.USERNAME_OPTION;
 
 /**
@@ -92,7 +96,11 @@ public class Elasticsearch7DynamicSinkFactory implements DynamicTableSinkFactory
                     USERNAME_OPTION,
                     INLONG_METRIC,
                     INLONG_AUDIT,
-                    AUDIT_KEYS)
+                    AUDIT_KEYS,
+                    SINK_MULTIPLE_FORMAT,
+                    SINK_MULTIPLE_INDEX_PATTERN,
+                    SINK_MULTIPLE_ENABLE,
+                    SINK_MULTIPLE_SCHEMA_UPDATE_POLICY)
                     .collect(Collectors.toSet());
 
     private static void validate(boolean condition, Supplier<String> message) {
@@ -126,9 +134,16 @@ public class Elasticsearch7DynamicSinkFactory implements DynamicTableSinkFactory
         final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(helper.getOptions());
         final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         final DirtySinkHelper<Object> dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
+        final boolean multipleSink = helper.getOptions().getOptional(SINK_MULTIPLE_ENABLE).orElse(false);
+        final String indexPattern = helper.getOptions().getOptional(SINK_MULTIPLE_INDEX_PATTERN).orElse(null);
+        final String multipleFormat = helper.getOptions().getOptional(SINK_MULTIPLE_FORMAT).orElse(null);
+        final SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy =
+                helper.getOptions().getOptional(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY).orElse(null);
+
         return new Elasticsearch7DynamicSink(
                 format, config, TableSchemaUtils.getPhysicalSchema(tableSchema),
-                inlongMetric, auditHostAndPorts, dirtySinkHelper);
+                inlongMetric, auditHostAndPorts, dirtySinkHelper, multipleSink, multipleFormat, indexPattern,
+                schemaUpdateExceptionPolicy);
     }
 
     private void validate(Elasticsearch7Configuration config, Configuration originalConfiguration) {

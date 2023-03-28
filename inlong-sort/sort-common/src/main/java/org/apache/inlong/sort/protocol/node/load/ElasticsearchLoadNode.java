@@ -86,7 +86,6 @@ public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Ser
     @JsonProperty("indexPattern")
     private String indexPattern;
 
-
     @JsonCreator
     public ElasticsearchLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,

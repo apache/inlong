@@ -143,7 +143,7 @@ public class ElasticsearchOptions {
                     .withDescription(
                             "The format must produce a valid JSON document. "
                                     + "Please refer to the documentation on formats for more details.");
-    
+
     public static final ConfigOption<String> SINK_MULTIPLE_FORMAT =
             ConfigOptions.key("sink.multiple.format")
                     .stringType()
