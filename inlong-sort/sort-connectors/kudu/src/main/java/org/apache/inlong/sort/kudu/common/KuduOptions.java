@@ -49,6 +49,30 @@ public class KuduOptions {
                     .withDescription("The maximum number of results cached in the " +
                             "lookup source.");
 
+    public static final ConfigOption<Long> DEFAULT_ADMIN_OPERATION_TIMEOUT_IN_MS =
+            ConfigOptions.key("default-admin-operation-timeout")
+                    .longType()
+                    .defaultValue(30000L)
+                    .withDescription("Default admin operation timeout in ms.");
+
+    public static final ConfigOption<Long> DEFAULT_OPERATION_TIMEOUT_IN_MS =
+            ConfigOptions.key("default-operation-timeout")
+                    .longType()
+                    .defaultValue(30000L)
+                    .withDescription("Default operation timeout in ms, default is 3000.");
+
+    public static final ConfigOption<Long> DEFAULT_SOCKET_READ_TIMEOUT_IN_MS =
+            ConfigOptions.key("default-socket-read-timeout")
+                    .longType()
+                    .defaultValue(10000L)
+                    .withDescription("Default socket read timeout in ms, default is 10000");
+    public static final ConfigOption<Boolean> DISABLED_STATISTICS =
+            ConfigOptions.key("disabled-statistics")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription(
+                            "Whether to enable the statistics collection function of the Kudu client, default is false.");
+
     public static final ConfigOption<String> MAX_CACHE_TIME =
             ConfigOptions.key("lookup.max-cache-time")
                     .stringType()
@@ -67,6 +91,7 @@ public class KuduOptions {
                     .defaultValue(3)
                     .withDescription("The maximum number of retries when an " +
                             "exception is caught.");
+
     public static final ConfigOption<Integer> MAX_BUFFER_SIZE =
             ConfigOptions.key("sink.max-buffer-size")
                     .intType()

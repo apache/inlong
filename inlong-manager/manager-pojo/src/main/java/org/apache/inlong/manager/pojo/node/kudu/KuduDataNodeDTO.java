@@ -47,10 +47,10 @@ public class KuduDataNodeDTO {
     @ApiModelProperty("Kudu masters, a comma separated list of 'host:port' pairs")
     private String masters;
 
-    @ApiModelProperty("Default admin operation timeout in ms, default is 3000")
+    @ApiModelProperty("Default admin operation timeout in ms, default is 30000")
     private Integer defaultAdminOperationTimeoutMs;
 
-    @ApiModelProperty("Default operation timeout in ms, default is 3000")
+    @ApiModelProperty("Default operation timeout in ms, default is 30000")
     private Integer defaultOperationTimeoutMs = 3000;
 
     @ApiModelProperty("Default socket read timeout in ms, default is 10000")

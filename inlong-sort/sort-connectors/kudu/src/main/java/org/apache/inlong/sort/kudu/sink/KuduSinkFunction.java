@@ -66,8 +66,7 @@ public class KuduSinkFunction
 
         boolean forceWithUpsertMode = configuration.getBoolean(SINK_FORCE_WITH_UPSERT_MODE);
 
-        KuduClient client = new KuduClient.KuduClientBuilder(kuduTableInfo.getMasters())
-                .build();
+        KuduClient client = buildKuduClient();
         KuduTable kuduTable;
         try {
             String tableName = kuduTableInfo.getTableName();

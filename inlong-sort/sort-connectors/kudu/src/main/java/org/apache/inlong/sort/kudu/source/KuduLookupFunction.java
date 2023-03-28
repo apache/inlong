@@ -49,6 +49,10 @@ import java.util.stream.Collectors;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.TimeUtils.parseDuration;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DEFAULT_ADMIN_OPERATION_TIMEOUT_IN_MS;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DEFAULT_OPERATION_TIMEOUT_IN_MS;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DEFAULT_SOCKET_READ_TIMEOUT_IN_MS;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DISABLED_STATISTICS;
 import static org.apache.kudu.client.KuduPredicate.ComparisonOp.EQUAL;
 
 /**
@@ -129,10 +133,23 @@ public class KuduLookupFunction extends TableFunction<Row> {
                             .build();
         }
 
-        this.client = new KuduClient.KuduClientBuilder(masters).build();
+        this.client = buildKuduClient();
 
         this.table = client.openTable(tableName);
         LOG.info("KuduLookupFunction opened.");
+    }
+
+    private KuduClient buildKuduClient() {
+        KuduClient.KuduClientBuilder builder = new KuduClient.KuduClientBuilder(masters);
+        if (configuration.getBoolean(DISABLED_STATISTICS)) {
+            builder.disableStatistics();
+        }
+        builder.defaultAdminOperationTimeoutMs(configuration.getLong(DEFAULT_ADMIN_OPERATION_TIMEOUT_IN_MS));
+        builder.defaultOperationTimeoutMs(configuration.getLong(DEFAULT_OPERATION_TIMEOUT_IN_MS));
+        builder.defaultSocketReadTimeoutMs(configuration.getLong(DEFAULT_SOCKET_READ_TIMEOUT_IN_MS));
+
+        return builder
+                .build();
     }
 
     @Override

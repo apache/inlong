@@ -33,6 +33,7 @@ import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.kudu.common.KuduTableInfo;
+import org.apache.kudu.client.KuduClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +44,12 @@ import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DEFAULT_OPERATION_TIMEOUT_IN_MS;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DEFAULT_SOCKET_READ_TIMEOUT_IN_MS;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_BUFFER_SIZE;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DEFAULT_ADMIN_OPERATION_TIMEOUT_IN_MS;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_RETRIES;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DISABLED_STATISTICS;
 
 /**
  * The base for all kudu sinks.
@@ -126,7 +131,18 @@ public abstract class AbstractKuduSinkFunction
             sinkMetricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }
     }
+    protected KuduClient buildKuduClient() {
+        KuduClient.KuduClientBuilder builder = new KuduClient.KuduClientBuilder(kuduTableInfo.getMasters());
+        if (configuration.getBoolean(DISABLED_STATISTICS)) {
+            builder.disableStatistics();
+        }
+        builder.defaultAdminOperationTimeoutMs(configuration.getLong(DEFAULT_ADMIN_OPERATION_TIMEOUT_IN_MS));
+        builder.defaultOperationTimeoutMs(configuration.getLong(DEFAULT_OPERATION_TIMEOUT_IN_MS));
+        builder.defaultSocketReadTimeoutMs(configuration.getLong(DEFAULT_SOCKET_READ_TIMEOUT_IN_MS));
 
+        return builder
+                .build();
+    }
     @Override
     public void invoke(RowData row, Context context) throws Exception {
         addBatch(row);
