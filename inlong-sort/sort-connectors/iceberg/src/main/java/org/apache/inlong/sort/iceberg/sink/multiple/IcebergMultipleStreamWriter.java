@@ -246,55 +246,64 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
         }
 
         if (multipleWriters.get(tableId) != null) {
-            for (RowData data : recordWithSchema.getData()) {
+            if (recordWithSchema.isDirty()) {
                 String dataBaseName = tableId.namespace().toString();
                 String tableName = tableId.name();
-                long size = data == null ? 0 : data.toString().getBytes(StandardCharsets.UTF_8).length;
-
-                try {
-                    multipleWriters.get(tableId).processElement(data);
-                } catch (Exception e) {
-                    LOG.error(String.format("write error, raw data: %s", data), e);
-                    if (!dirtyOptions.ignoreDirty()) {
-                        throw e;
-                    }
-                    if (dirtySink != null) {
-                        DirtyData.Builder<Object> builder = DirtyData.builder();
-                        try {
-                            String dirtyLabel = DirtySinkHelper.regexReplace(dirtyOptions.getLabels(),
-                                    DirtyType.BATCH_LOAD_ERROR, null,
-                                    dataBaseName, tableName, null);
-                            String dirtyLogTag =
-                                    DirtySinkHelper.regexReplace(dirtyOptions.getLogTag(),
-                                            DirtyType.BATCH_LOAD_ERROR, null,
-                                            dataBaseName, tableName, null);
-                            String dirtyIdentifier =
-                                    DirtySinkHelper.regexReplace(dirtyOptions.getIdentifier(),
-                                            DirtyType.BATCH_LOAD_ERROR, null,
-                                            dataBaseName, tableName, null);
-                            builder.setData(data)
-                                    .setLabels(dirtyLabel)
-                                    .setLogTag(dirtyLogTag)
-                                    .setIdentifier(dirtyIdentifier)
-                                    .setRowType(multipleWriters.get(tableId).getFlinkRowType())
-                                    .setDirtyMessage(e.getMessage());
-                            dirtySink.invoke(builder.build());
-                            if (sinkMetricData != null) {
-                                sinkMetricData.outputDirtyMetricsWithEstimate(dataBaseName,
-                                        tableName, 1, size);
-                            }
-                        } catch (Exception ex) {
-                            if (!dirtyOptions.ignoreSideOutputErrors()) {
-                                throw new RuntimeException(ex);
-                            }
-                            LOG.warn("Dirty sink failed", ex);
-                        }
-                    }
-                    return;
-                }
-
                 if (sinkMetricData != null) {
-                    sinkMetricData.outputMetrics(dataBaseName, tableName, 1, size);
+                    sinkMetricData.outputDirtyMetrics(dataBaseName,
+                            tableName, recordWithSchema.getRowCount(), recordWithSchema.getRowSize());
+                }
+            } else {
+                for (RowData data : recordWithSchema.getData()) {
+                    String dataBaseName = tableId.namespace().toString();
+                    String tableName = tableId.name();
+                    long size = data == null ? 0 : data.toString().getBytes(StandardCharsets.UTF_8).length;
+
+                    try {
+                        multipleWriters.get(tableId).processElement(data);
+                    } catch (Exception e) {
+                        LOG.error(String.format("write error, raw data: %s", data), e);
+                        if (!dirtyOptions.ignoreDirty()) {
+                            throw e;
+                        }
+                        if (dirtySink != null) {
+                            DirtyData.Builder<Object> builder = DirtyData.builder();
+                            try {
+                                String dirtyLabel = DirtySinkHelper.regexReplace(dirtyOptions.getLabels(),
+                                        DirtyType.BATCH_LOAD_ERROR, null,
+                                        dataBaseName, tableName, null);
+                                String dirtyLogTag =
+                                        DirtySinkHelper.regexReplace(dirtyOptions.getLogTag(),
+                                                DirtyType.BATCH_LOAD_ERROR, null,
+                                                dataBaseName, tableName, null);
+                                String dirtyIdentifier =
+                                        DirtySinkHelper.regexReplace(dirtyOptions.getIdentifier(),
+                                                DirtyType.BATCH_LOAD_ERROR, null,
+                                                dataBaseName, tableName, null);
+                                builder.setData(data)
+                                        .setLabels(dirtyLabel)
+                                        .setLogTag(dirtyLogTag)
+                                        .setIdentifier(dirtyIdentifier)
+                                        .setRowType(multipleWriters.get(tableId).getFlinkRowType())
+                                        .setDirtyMessage(e.getMessage());
+                                dirtySink.invoke(builder.build());
+                                if (sinkMetricData != null) {
+                                    sinkMetricData.outputDirtyMetricsWithEstimate(dataBaseName,
+                                            tableName, 1, size);
+                                }
+                            } catch (Exception ex) {
+                                if (!dirtyOptions.ignoreSideOutputErrors()) {
+                                    throw new RuntimeException(ex);
+                                }
+                                LOG.warn("Dirty sink failed", ex);
+                            }
+                        }
+                        return;
+                    }
+
+                    if (sinkMetricData != null) {
+                        sinkMetricData.outputMetrics(dataBaseName, tableName, 1, size);
+                    }
                 }
             }
         } else {

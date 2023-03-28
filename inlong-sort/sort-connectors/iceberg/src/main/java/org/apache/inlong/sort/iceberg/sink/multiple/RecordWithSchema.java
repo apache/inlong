@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.RowData;
 import org.apache.iceberg.Schema;
@@ -55,6 +57,16 @@ public class RecordWithSchema {
         this.tableId = tableId;
         this.primaryKeys = primaryKeys;
     }
+
+    @Setter
+    @Getter
+    private boolean isDirty;
+    @Setter
+    @Getter
+    private long rowCount;
+    @Setter
+    @Getter
+    private long rowSize;
 
     private transient JsonNode originalData;
 

@@ -66,6 +66,7 @@ import javax.annotation.Nullable;
 import javax.ws.rs.NotSupportedException;
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -74,6 +75,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
@@ -225,16 +228,26 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                             null, tableId.name(), rowData.toString());
                 }
             } else {
-                handleDirtyData(rowData.toString(), jsonNode, DirtyType.EXTRACT_ROWDATA_ERROR, e, tableId);
+                handleDirtyData(rowData.toString(), jsonNode, DirtyType.EXTRACT_ROWDATA_ERROR, e, tableId,
+                        true);
             }
         }
+    }
+
+    private void handleDirtyData(Object dirtyData,
+                                 JsonNode rootNode,
+                                 DirtyType dirtyType,
+                                 Exception e,
+                                 TableIdentifier tableId) {
+        handleDirtyData(dirtyData, rootNode, dirtyType, e, tableId, true);
     }
 
     private void handleDirtyData(Object dirtyData,
             JsonNode rootNode,
             DirtyType dirtyType,
             Exception e,
-            TableIdentifier tableId) {
+            TableIdentifier tableId,
+            boolean needDirtyMetric) {
         DirtyOptions dirtyOptions = dirtySinkHelper.getDirtyOptions();
         if (rootNode != null) {
             try {
@@ -252,7 +265,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             dirtySinkHelper.invoke(dirtyData, dirtyType, dirtyOptions.getLabels(), dirtyOptions.getLogTag(),
                     dirtyOptions.getIdentifier(), e);
         }
-        if (metricData != null) {
+        if (metricData != null && needDirtyMetric) {
             metricData.outputDirtyMetricsWithEstimate(tableId.namespace().toString(), null, tableId.name(), dirtyData);
         }
     }
@@ -337,6 +350,9 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             // if compatible, this means that the current schema is the latest schema
             // if not, prove the need to update the current schema
             if (isCompatible(latestSchema, dataSchema)) {
+                AtomicBoolean isDirty = new AtomicBoolean(false);
+                AtomicLong rowCount = new AtomicLong();
+                AtomicLong rowSize = new AtomicLong();
                 RecordWithSchema recordWithSchema = queue.poll()
                         .refreshFieldId(latestSchema)
                         .refreshRowData((jsonNode, schema1) -> {
@@ -345,7 +361,31 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                             } catch (Exception e) {
                                 if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == multipleSinkOption
                                         .getSchemaUpdatePolicy()) {
-                                    handleDirtyDataOfLogWithIgnore(jsonNode, dataSchema, tableId, e);
+                                    isDirty.set(true);
+                                    List<RowData> rowDataForDataSchemaList = Collections.emptyList();
+                                    try {
+                                        rowDataForDataSchemaList = dynamicSchemaFormat
+                                                .extractRowData(jsonNode, FlinkSchemaUtil.convert(dataSchema));
+                                    } catch (Throwable ee) {
+                                        LOG.error("extractRowData {} failed!", jsonNode, ee);
+                                    }
+
+                                    for (RowData rowData : rowDataForDataSchemaList) {
+                                        rowCount.addAndGet(1);
+                                        long size = jsonNode == null ? 0L
+                                                : rowData.toString().getBytes(StandardCharsets.UTF_8).length;
+                                        rowSize.addAndGet(size);
+                                        DirtyOptions dirtyOptions = dirtySinkHelper.getDirtyOptions();
+                                        if (!dirtyOptions.ignoreDirty()) {
+                                            if (metricData != null) {
+                                                metricData.outputDirtyMetricsWithEstimate(tableId.namespace().toString(),
+                                                        null, tableId.name(), rowData.toString());
+                                            }
+                                        } else {
+                                            handleDirtyData(rowData.toString(), jsonNode,
+                                                    DirtyType.EXTRACT_ROWDATA_ERROR, e, tableId, false);
+                                        }
+                                    }
                                 } else if (SchemaUpdateExceptionPolicy.STOP_PARTIAL == multipleSinkOption
                                         .getSchemaUpdatePolicy()) {
                                     blacklist.add(tableId);
@@ -358,6 +398,9 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                             }
                             return Collections.emptyList();
                         });
+                recordWithSchema.setDirty(isDirty.get());
+                recordWithSchema.setRowCount(rowCount.get());
+                recordWithSchema.setRowSize(rowSize.get());
                 output.collect(new StreamRecord<>(recordWithSchema));
             } else {
                 if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == multipleSinkOption
