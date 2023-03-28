@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.stream;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -234,9 +235,8 @@ public interface InlongStreamService {
     /**
      * Converts a statement to a streamFields
      *
-     * @param statement     statement field information
-     * @param statementType the type of statement: JSON or SQL
+     * @param parseFieldRequest    parse field request
      * @return list of stream field
      */
-    List<StreamField> parseFields(String statement, String statementType);
+    List<StreamField> parseFields(ParseFieldRequest parseFieldRequest);
 }

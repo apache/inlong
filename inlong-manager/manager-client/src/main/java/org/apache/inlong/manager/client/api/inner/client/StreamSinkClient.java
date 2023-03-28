@@ -25,12 +25,16 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
 import java.util.List;
+
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
 
 /**
  * Client for {@link StreamSinkApi}.
@@ -137,12 +141,26 @@ public class StreamSinkClient {
     /**
      * Converts a json string to a sinkFields
      *
-     * @param fieldsJson JSON string for the field information
+     * @param parseFieldRequest the request for the field information
      * @return list of sink field
      */
-    public List<SinkField> parseFields(String fieldsJson) {
-        Response<List<SinkField>> response = ClientUtils.executeHttpCall(streamSinkApi.parseFields(fieldsJson));
+    public List<SinkField> parseFields(ParseFieldRequest parseFieldRequest) {
+        Response<List<SinkField>> response = ClientUtils.executeHttpCall(streamSinkApi.parseFields(parseFieldRequest));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
+    }
+
+    /**
+     * Converts a json string to a streamFields
+     *     @param method the method for the field information: json or sql
+     * @param statement the statement for the field information
+     * @return list of stream field
+     */
+    public List<SinkField> parseFields(String method, String statement) {
+        Preconditions.expectTrue(STATEMENT_TYPE_JSON.equals(method) || STATEMENT_TYPE_SQL.equals(method),
+                "Unsupported parse field method: '" + method + "'");
+        Preconditions.expectNotBlank(statement, "The statement must not empty");
+        ParseFieldRequest request = ParseFieldRequest.builder().method(method).statement(statement).build();
+        return parseFields(request);
     }
 }

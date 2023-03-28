@@ -46,6 +46,7 @@ import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -691,10 +692,13 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public List<SinkField> parseFields(String statement, String statementType) {
+    public List<SinkField> parseFields(ParseFieldRequest parseFieldRequest) {
         try {
+            String method = parseFieldRequest.getMethod();
+            String statement = parseFieldRequest.getStatement();
+
             Map<String, String> fieldsMap;
-            if (STATEMENT_TYPE_JSON.equals(statementType)) {
+            if (STATEMENT_TYPE_JSON.equals(method)) {
                 fieldsMap = parseFieldsByJson(statement);
             } else {
                 fieldsMap = parseFieldsBySql(statement);

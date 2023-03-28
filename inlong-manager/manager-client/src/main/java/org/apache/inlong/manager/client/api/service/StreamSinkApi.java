@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.service;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -59,6 +60,6 @@ public interface StreamSinkApi {
     Call<Response<PageResult<StreamSink>>> list(@Body SinkPageRequest request);
 
     @POST("sink/parseFields")
-    Call<Response<List<SinkField>>> parseFields(@Body String fieldsJson);
+    Call<Response<List<SinkField>>> parseFields(@Body ParseFieldRequest parseFieldRequest);
 
 }

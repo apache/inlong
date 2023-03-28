@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.sink;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -248,9 +249,8 @@ public interface StreamSinkService {
     /**
      * Converts a statement to a sinkFields
      *
-     * @param statement     statement for the field information
-     * @param statementType the type of statement: JSON or SQL
+     * @param parseFieldRequest the request for parse field
      * @return list of sink field
      */
-    List<SinkField> parseFields(String statement, String statementType);
+    List<SinkField> parseFields(ParseFieldRequest parseFieldRequest);
 }

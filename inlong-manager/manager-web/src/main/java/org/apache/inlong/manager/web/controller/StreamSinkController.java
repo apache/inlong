@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -118,14 +119,11 @@ public class StreamSinkController {
         return Response.success(sinkService.deleteByKey(groupId, streamId, name, startProcess, username));
     }
 
-    @RequestMapping(value = "/sink/parseFields/{statementType}", method = RequestMethod.POST)
+    @RequestMapping(value = "/sink/parseFields", method = RequestMethod.POST)
     @ApiOperation(value = "parse stream sink fields from statement")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "statement", dataTypeClass = String.class, required = true),
-            @ApiImplicitParam(name = "statementType", dataTypeClass = String.class, required = true)
-    })
-    public Response<List<SinkField>> parseFields(@PathVariable String statementType, @RequestBody String statement) {
-        return Response.success(sinkService.parseFields(statement, statementType));
+    @ApiImplicitParam(name = "parseFieldRequest", dataTypeClass = ParseFieldRequest.class, required = true)
+    public Response<List<SinkField>> parseFields(@RequestBody ParseFieldRequest parseFieldRequest) {
+        return Response.success(sinkService.parseFields(parseFieldRequest));
     }
 
 }

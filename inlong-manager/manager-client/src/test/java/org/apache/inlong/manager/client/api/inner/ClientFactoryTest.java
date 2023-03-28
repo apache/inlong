@@ -106,6 +106,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 
 /**
  * Unit test for {@link ClientFactory}.
@@ -1034,7 +1035,7 @@ class ClientFactoryTest {
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(Lists.newArrayList(streamFieldList))))));
 
-        List<StreamField> responseList = streamClient.parseFields("{\"test_name\":\"string\"}");
+        List<StreamField> responseList = streamClient.parseFields(STATEMENT_TYPE_JSON, "{\"test_name\":\"string\"}");
         Assertions.assertEquals(JsonUtils.toJsonString(responseList), JsonUtils.toJsonString(streamFieldList));
 
     }
@@ -1052,7 +1053,7 @@ class ClientFactoryTest {
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(Lists.newArrayList(sinkFieldList))))));
 
-        List<SinkField> responseList = sinkClient.parseFields("{\"test_name\":\"string\"}");
+        List<SinkField> responseList = sinkClient.parseFields(STATEMENT_TYPE_JSON, "{\"test_name\":\"string\"}");
         Assertions.assertEquals(JsonUtils.toJsonString(responseList), JsonUtils.toJsonString(sinkFieldList));
 
     }

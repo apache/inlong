@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.stream;
 
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.ServiceBaseTest;
@@ -47,7 +48,9 @@ public class InlongStreamTest extends ServiceBaseTest {
             expectStreamFields.add(field);
         }
         StreamField[] expectResult = expectStreamFields.toArray(new StreamField[0]);
-        List<StreamField> streamFields = streamService.parseFields(streamFieldsJson, STATEMENT_TYPE_JSON);
+        ParseFieldRequest request =
+                ParseFieldRequest.builder().method(STATEMENT_TYPE_JSON).statement(streamFieldsJson).build();
+        List<StreamField> streamFields = streamService.parseFields(request);
         StreamField[] result = streamFields.toArray(new StreamField[0]);
         Assertions.assertArrayEquals(expectResult, result);
     }
@@ -63,7 +66,9 @@ public class InlongStreamTest extends ServiceBaseTest {
             expectSinkFields.add(field);
         }
         SinkField[] expectResult = expectSinkFields.toArray(new SinkField[0]);
-        List<SinkField> sinkFields = streamSinkService.parseFields(sinkFieldsJson, STATEMENT_TYPE_JSON);
+        ParseFieldRequest parseFieldRequest =
+                ParseFieldRequest.builder().method(STATEMENT_TYPE_JSON).statement(sinkFieldsJson).build();
+        List<SinkField> sinkFields = streamSinkService.parseFields(parseFieldRequest);
         SinkField[] result = sinkFields.toArray(new SinkField[0]);
         Assertions.assertArrayEquals(expectResult, result);
     }
@@ -79,7 +84,9 @@ public class InlongStreamTest extends ServiceBaseTest {
             expectStreamFields.add(field);
         }
         StreamField[] expectResult = expectStreamFields.toArray(new StreamField[0]);
-        List<StreamField> streamFields = streamService.parseFields(streamFieldsSql, STATEMENT_TYPE_SQL);
+        ParseFieldRequest request =
+                ParseFieldRequest.builder().method(STATEMENT_TYPE_SQL).statement(streamFieldsSql).build();
+        List<StreamField> streamFields = streamService.parseFields(request);
         StreamField[] result = streamFields.toArray(new StreamField[0]);
         Assertions.assertArrayEquals(expectResult, result);
     }
@@ -95,7 +102,9 @@ public class InlongStreamTest extends ServiceBaseTest {
             expectSinkFields.add(field);
         }
         SinkField[] expectResult = expectSinkFields.toArray(new SinkField[0]);
-        List<SinkField> sinkFields = streamSinkService.parseFields(sinkFieldsSql, STATEMENT_TYPE_SQL);
+        ParseFieldRequest parseFieldRequest =
+                ParseFieldRequest.builder().method(STATEMENT_TYPE_SQL).statement(sinkFieldsSql).build();
+        List<SinkField> sinkFields = streamSinkService.parseFields(parseFieldRequest);
         SinkField[] result = sinkFields.toArray(new SinkField[0]);
         Assertions.assertArrayEquals(expectResult, result);
     }

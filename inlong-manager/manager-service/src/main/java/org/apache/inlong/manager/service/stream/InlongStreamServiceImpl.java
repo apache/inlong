@@ -42,6 +42,7 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
@@ -724,10 +725,13 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public List<StreamField> parseFields(String statement, String statementType) {
+    public List<StreamField> parseFields(ParseFieldRequest parseFieldRequest) {
         try {
+            String method = parseFieldRequest.getMethod();
+            String statement = parseFieldRequest.getStatement();
+
             Map<String, String> fieldsMap;
-            if (STATEMENT_TYPE_JSON.equals(statementType)) {
+            if (STATEMENT_TYPE_JSON.equals(method)) {
                 fieldsMap = parseFieldsByJson(statement);
             } else {
                 fieldsMap = parseFieldsBySql(statement);
