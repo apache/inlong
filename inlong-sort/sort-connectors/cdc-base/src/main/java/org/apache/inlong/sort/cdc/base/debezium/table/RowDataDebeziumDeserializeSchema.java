@@ -718,11 +718,10 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
     }
 
     private void extractDdlRecord(SourceRecord record, Collector<RowData> out, TableChange tableSchema,
-        Struct value) throws Exception {
+            Struct value) throws Exception {
 
-        GenericRowData insert = (GenericRowData)
-            physicalConverter.convert(objectMapper.readTree(value.get(HISTORY_RECORD_FIELD).
-                toString()).get(DDL_FIELD_NAME).asText(), null);
+        GenericRowData insert = (GenericRowData) physicalConverter.convert(
+                objectMapper.readTree(value.get(HISTORY_RECORD_FIELD).toString()).get(DDL_FIELD_NAME).asText(), null);
         insert.setRowKind(RowKind.INSERT);
         emit(record, insert, tableSchema, out);
 

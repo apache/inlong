@@ -207,10 +207,10 @@ public class MySqlSourceOptions {
                     .withDescription("Whether migrate all databases");
 
     public static final ConfigOption<Boolean> INCLUDE_SCHEMA_CHANGE =
-        ConfigOptions.key("include-schema-change")
-            .booleanType()
-            .defaultValue(false)
-            .withDescription("Whether include schema change in cdc connector");
+            ConfigOptions.key("include-schema-change")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether include schema change in cdc connector");
 
     // ----------------------------------------------------------------------------
     // experimental options, won't add them to documentation

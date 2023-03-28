@@ -27,7 +27,6 @@ import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
-import io.debezium.relational.TableSchema;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.LinkedHashMap;
@@ -79,7 +78,6 @@ import org.slf4j.LoggerFactory;
  * Defines the supported metadata columns for {@link MySqlTableSource}.
  */
 public enum MySqlReadableMetadata {
-
 
     /**
      * Name of the table that contain the row.
@@ -496,7 +494,7 @@ public enum MySqlReadableMetadata {
                 canalJson.setData(dataList);
             }
             return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
-            //return StringData.fromString("NULL");
+            // return StringData.fromString("NULL");
         } catch (Exception e) {
             throw new IllegalStateException("exception occurs when get meta data", e);
         }
@@ -507,16 +505,17 @@ public enum MySqlReadableMetadata {
         try {
 
             boolean isFirst = sql.endsWith("FIRST");
-            if (sql.endsWith("FIRST") ) {
+            if (sql.endsWith("FIRST")) {
                 sql = sql.substring(0, sql.lastIndexOf("FIRST"));
             }
             Statement statement = CCJSqlParserUtil.parse(sql);
             if (statement instanceof Alter) {
                 canalJson.setOperation(getAlterOperation(
-                    (Alter) statement, tableSchema, isFirst));
-            } if (statement instanceof CreateTable) {
+                        (Alter) statement, tableSchema, isFirst));
+            }
+            if (statement instanceof CreateTable) {
                 canalJson.setOperation(getCreateTableOperation(
-                    (CreateTable) statement, tableSchema));
+                        (CreateTable) statement, tableSchema));
             }
 
         } catch (Exception e) {
@@ -540,13 +539,17 @@ public enum MySqlReadableMetadata {
             Column column;
             List<String> columnSpecs = columnDataType.getColumnSpecs();
             if (isFirst) {
-                column = new Column(columnDataType.getColumnName(), definitions, sqlType.get(columnDataType.getColumnName()),
-                    new Position(PositionType.FIRST, null), getNullable(columnSpecs), getDefaultValue(
-                    columnSpecs), getComment(columnSpecs));
+                column = new Column(columnDataType.getColumnName(), definitions,
+                        sqlType.get(columnDataType.getColumnName()),
+                        new Position(PositionType.FIRST, null), getNullable(columnSpecs), getDefaultValue(
+                                columnSpecs),
+                        getComment(columnSpecs));
             } else {
-                column = new Column(columnDataType.getColumnName(), definitions, sqlType.get(columnDataType.getColumnName()),
-                    getPosition(columnSpecs), getNullable(columnSpecs), getDefaultValue(
-                    columnSpecs), getComment(columnSpecs));
+                column = new Column(columnDataType.getColumnName(), definitions,
+                        sqlType.get(columnDataType.getColumnName()),
+                        getPosition(columnSpecs), getNullable(columnSpecs), getDefaultValue(
+                                columnSpecs),
+                        getComment(columnSpecs));
             }
 
             alterColumns.add(new AlterColumn(AlterType.ADD_COLUMN, column, null));
@@ -575,8 +578,9 @@ public enum MySqlReadableMetadata {
                 definitions.addAll(colDataType.getArgumentsStringList());
             }
 
-            Column column = new Column(columnDefinition.getColumnName(), definitions, sqlType.get(columnDefinition.getColumnName()),
-                null, getNullable(definitions), getDefaultValue(definitions), getComment(definitions));
+            Column column = new Column(columnDefinition.getColumnName(), definitions,
+                    sqlType.get(columnDefinition.getColumnName()),
+                    null, getNullable(definitions), getDefaultValue(definitions), getComment(definitions));
             columns.add(column);
         }
 
@@ -636,7 +640,7 @@ public enum MySqlReadableMetadata {
                 break;
             default:
                 throw new IllegalStateException("the record only have states in DELETE, "
-                    + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
+                        + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
         }
         return opType;
     }

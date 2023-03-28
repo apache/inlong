@@ -55,6 +55,7 @@ public class AllMigrateTest {
         Map<String, String> option = new HashMap<>();
         option.put("append-mode", "false");
         option.put("migrate-all", "true");
+        option.put("server-id", "2-20000");
         option.put("include-schema-change", "true");
         List<String> tables = new ArrayList(10);
         tables.add("test.*");

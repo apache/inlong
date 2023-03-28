@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.ddl.enums;
 
-
 public enum AlterType {
 
     RENAME_COLUMN,

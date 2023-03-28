@@ -24,11 +24,10 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSub
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.ddl.enums.OperationType;
 
-
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = AlterOperation.class, name = "alterOperation"),
-    @JsonSubTypes.Type(value = CreateTableOperation.class, name = "CreateTableOperation"),
+        @JsonSubTypes.Type(value = AlterOperation.class, name = "alterOperation"),
+        @JsonSubTypes.Type(value = CreateTableOperation.class, name = "CreateTableOperation"),
 })
 @Data
 @NoArgsConstructor

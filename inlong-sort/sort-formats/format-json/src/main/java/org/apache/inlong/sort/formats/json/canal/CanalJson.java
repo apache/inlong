@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
-import net.sf.jsqlparser.statement.Statement;
 import org.apache.inlong.sort.ddl.operations.Operation;
 
 @Builder
@@ -48,7 +47,6 @@ public class CanalJson {
     public List<Map<String, Object>> getData() {
         return data;
     }
-
 
     public Operation getOperation() {
         return operation;
