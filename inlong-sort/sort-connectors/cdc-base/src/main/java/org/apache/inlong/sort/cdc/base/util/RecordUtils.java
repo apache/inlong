@@ -136,7 +136,7 @@ public class RecordUtils {
     /**
      * Whether the source Record is a schema change event.
      * @param sourceRecord
-     * @return
+     * @retur ture or false
      */
     public static boolean isSchemaChangeEvent(SourceRecord sourceRecord) {
         Schema keySchema = sourceRecord.keySchema();
