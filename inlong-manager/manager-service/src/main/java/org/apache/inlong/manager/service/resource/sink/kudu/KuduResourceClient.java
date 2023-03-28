@@ -29,6 +29,7 @@ import org.apache.kudu.client.CreateTableOptions;
 import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.KuduException;
 import org.apache.kudu.client.KuduTable;
+import org.apache.kudu.client.ListTablesResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ import java.util.stream.Collectors;
 /**
  * The resourceClient for Kudu.
  */
-public class KuduResourceClient {
+public class KuduResourceClient implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(KuduResourceClient.class);
 
@@ -166,6 +167,11 @@ public class KuduResourceClient {
         client.alterTable(table.getName(), alterOptions);
     }
 
+    public List<String> getTablesList() throws KuduException {
+        ListTablesResponse tablesList = client.getTablesList();
+        return tablesList.getTablesList();
+    }
+
     /**
      * Close KuduClient bundled this instance.
      */
@@ -176,4 +182,5 @@ public class KuduResourceClient {
             LOG.error("Can not properly close kuduClient.", e);
         }
     }
+
 }

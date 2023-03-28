@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -32,6 +33,7 @@ import org.apache.inlong.manager.pojo.node.kudu.KuduDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.kudu.KuduDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.kudu.KuduDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
+import org.apache.inlong.manager.service.resource.sink.kudu.KuduResourceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,5 +89,24 @@ public class KuduDataNodeOperator extends AbstractDataNodeOperator {
             CommonBeanUtils.copyProperties(dto, info);
         }
         return info;
+    }
+
+    @Override
+    public Boolean testConnection(DataNodeRequest request) {
+        KuduDataNodeRequest kuduRequest = (KuduDataNodeRequest) request;
+        String masters = kuduRequest.getMasters();
+        Preconditions.expectNotBlank(masters, ErrorCodeEnum.INVALID_PARAMETER, "masters cannot be empty");
+
+        try (KuduResourceClient kuduClient = new KuduResourceClient(masters)) {
+            kuduClient.getTablesList();
+            LOGGER.info("kudu connection not null - connection success for masters={}",
+                    masters);
+            return true;
+        } catch (Exception e) {
+            String errMsg = String.format("kudu connection failed for masters=%s", masters);
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
+        }
+
     }
 }
