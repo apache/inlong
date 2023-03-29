@@ -70,32 +70,6 @@ const schemaMappingModeStrategies = dataType => {
 
 export default class RedisSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
   @FieldDecorator({
-    type: 'select',
-    rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.Redis.ClusterNameHelper'),
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      options: [
-        {
-          label: 'cluster',
-          value: 'cluster',
-        },
-        {
-          label: 'sentinel',
-          value: 'sentinel',
-        },
-        {
-          label: 'standalone',
-          value: 'standalone',
-        },
-      ],
-      placeholder: i18n.t('meta.Sinks.Redis.ClusterModeHelper'),
-    }),
-  })
-  @I18n('meta.Sinks.Redis.ClusterMode')
-  clusterMode: string;
-
-  @FieldDecorator({
     type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
@@ -105,19 +79,6 @@ export default class RedisSink extends SinkInfo implements DataWithBackend, Rend
   })
   @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
-
-  @FieldDecorator({
-    type: 'input',
-    initialValue: '',
-    rules: [{ required: false }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-    visible: values => values!.clusterMode == 'sentinel',
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Redis.SentinelMasterName')
-  sentinelMasterName: String;
 
   @FieldDecorator({
     type: 'select',
