@@ -132,6 +132,13 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
                     .withDescription("Distribute the records from input data stream based "
                             + "on the write.distribution-mode.");
 
+    public static final ConfigOption<Long> WRITE_RATE_LIMIT =
+            ConfigOptions.key("write.rate.limit")
+                    .longType()
+                    .defaultValue(0L)
+                    .withDescription("Write record rate limit per second to"
+                            + " prevent traffic jitter and improve stability, default 0 (no limit)");
+
     private final FlinkCatalog catalog;
 
     public FlinkDynamicTableFactory() {
@@ -297,6 +304,7 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         options.add(WRITE_COMPACT_ENABLE);
         options.add(WRITE_COMPACT_INTERVAL);
         options.add(WRITE_DISTRIBUTION_MODE);
+        options.add(WRITE_RATE_LIMIT);
         return options;
     }
 
