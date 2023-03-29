@@ -23,7 +23,7 @@ import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getFetch
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getHistoryRecord;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getMessageTimestamp;
 import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isDataChangeRecord;
-import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isSchemaChangeEvent;
+import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isSchemaChangeEvent;
 
 import io.debezium.document.Array;
 import io.debezium.relational.history.HistoryRecord;

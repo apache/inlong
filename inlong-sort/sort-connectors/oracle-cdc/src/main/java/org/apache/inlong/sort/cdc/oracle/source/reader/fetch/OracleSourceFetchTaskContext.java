@@ -53,6 +53,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.reader.external.JdbcSourceFetchTaskContext;
 import org.apache.inlong.sort.cdc.oracle.source.config.OracleSourceConfig;
 import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
+import org.apache.inlong.sort.cdc.oracle.source.relational.OracleSourceEventDispatcher;
 import org.apache.inlong.sort.cdc.oracle.source.utils.OracleUtils;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -123,7 +124,7 @@ public class OracleSourceFetchTaskContext extends JdbcSourceFetchTaskContext {
                         // .buffering()
                         .build();
         this.dispatcher =
-                new JdbcSourceEventDispatcher(
+                new OracleSourceEventDispatcher(
                         connectorConfig,
                         topicSelector,
                         databaseSchema,
