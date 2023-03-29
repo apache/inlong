@@ -106,7 +106,7 @@ public class InlongGroupProcessService {
         WorkflowResult result = workflowService.start(ProcessName.APPLY_GROUP_PROCESS, operator, form);
         List<TaskResponse> tasks = result.getNewTasks();
         if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
-            throw new BusinessException(ErrorCodeEnum.WORKFLOW_DELETE_RECORD_FAILED,
+            throw new BusinessException(ErrorCodeEnum.WORKFLOW_START_RECORD_FAILED,
                     String.format("failed to start inlong group for groupId=%s", groupId));
         }
 
@@ -153,7 +153,7 @@ public class InlongGroupProcessService {
         WorkflowResult result = workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
         List<TaskResponse> tasks = result.getNewTasks();
         if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
-            throw new BusinessException(ErrorCodeEnum.WORKFLOW_DELETE_RECORD_FAILED,
+            throw new BusinessException(ErrorCodeEnum.WORKFLOW_SUSPEND_RECORD_FAILED,
                     String.format("failed to suspend inlong group for groupId=%s", groupId));
         }
 
@@ -196,7 +196,7 @@ public class InlongGroupProcessService {
         WorkflowResult result = workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form);
         List<TaskResponse> tasks = result.getNewTasks();
         if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
-            throw new BusinessException(ErrorCodeEnum.WORKFLOW_DELETE_RECORD_FAILED,
+            throw new BusinessException(ErrorCodeEnum.WORKFLOW_RESTART_RECORD_FAILED,
                     String.format("failed to restart inlong group for groupId=%s", groupId));
         }
 
