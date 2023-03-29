@@ -38,6 +38,8 @@ public class CommandToolMain {
         jcommander.addCommand("list", new ListCommand());
         jcommander.addCommand("describe", new DescribeCommand());
         jcommander.addCommand("create", new CreateCommand());
+        jcommander.addCommand("suspend", new SuspendCommand());
+        jcommander.addCommand("restart", new RestartCommand());
         jcommander.addCommand("delete", new DeleteCommand());
         jcommander.addCommand("update", new UpdateCommand());
         jcommander.addCommand("log", new LogCommand());

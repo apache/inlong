@@ -31,7 +31,7 @@ import java.util.List;
  * The delete command used for deleting inlong group instances.
  * Please refer to the document for parameters
  */
-@Parameters(commandDescription = "Delete resource by json file")
+@Parameters(commandDescription = "Delete resource by group id")
 public class DeleteCommand extends AbstractCommand {
 
     @Parameter()

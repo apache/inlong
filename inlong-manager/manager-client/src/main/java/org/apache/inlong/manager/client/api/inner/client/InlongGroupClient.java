@@ -199,19 +199,34 @@ public class InlongGroupClient {
     }
 
     public boolean operateInlongGroup(String groupId, SimpleGroupStatus status, boolean async) {
+        if (async) {
+            return operateInlongGroupAsync(groupId, status);
+        }
+
+        // Sync
+        Call<Response<WorkflowResult>> responseCall;
+        if (status == SimpleGroupStatus.STOPPED) {
+            responseCall = inlongGroupApi.suspendProcess(groupId);
+        } else if (status == SimpleGroupStatus.STARTED) {
+            responseCall = inlongGroupApi.restartProcess(groupId);
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupported inlong group status: %s", status));
+        }
+
+        Response<WorkflowResult> responseBody = ClientUtils.executeHttpCall(responseCall);
+
+        String errMsg = responseBody.getErrMsg();
+        return responseBody.isSuccess()
+                || errMsg == null
+                || !errMsg.contains("not allowed");
+    }
+
+    public boolean operateInlongGroupAsync(String groupId, SimpleGroupStatus status) {
         Call<Response<String>> responseCall;
         if (status == SimpleGroupStatus.STOPPED) {
-            if (async) {
-                responseCall = inlongGroupApi.suspendProcessAsync(groupId);
-            } else {
-                responseCall = inlongGroupApi.suspendProcess(groupId);
-            }
+            responseCall = inlongGroupApi.suspendProcessAsync(groupId);
         } else if (status == SimpleGroupStatus.STARTED) {
-            if (async) {
-                responseCall = inlongGroupApi.restartProcessAsync(groupId);
-            } else {
-                responseCall = inlongGroupApi.restartProcess(groupId);
-            }
+            responseCall = inlongGroupApi.restartProcessAsync(groupId);
         } else {
             throw new IllegalArgumentException(String.format("Unsupported inlong group status: %s", status));
         }
