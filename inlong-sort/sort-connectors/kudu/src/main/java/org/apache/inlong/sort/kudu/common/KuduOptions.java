@@ -53,13 +53,15 @@ public class KuduOptions {
             ConfigOptions.key("default-admin-operation-timeout")
                     .longType()
                     .defaultValue(30000L)
-                    .withDescription("Default admin operation timeout in ms.");
+                    .withDescription(
+                            "Sets the default timeout used for administrative operations (e.g. createTable, deleteTable, etc). Optional. If not provided, defaults to 30s. A value of 0 disables the timeout.");
 
     public static final ConfigOption<Long> DEFAULT_OPERATION_TIMEOUT_IN_MS =
             ConfigOptions.key("default-operation-timeout")
                     .longType()
                     .defaultValue(30000L)
-                    .withDescription("Default operation timeout in ms, default is 3000.");
+                    .withDescription(
+                            "Sets the default timeout used for user operations (using sessions and scanners). Optional. If not provided, defaults to 30s. A value of 0 disables the timeout.");
 
     public static final ConfigOption<Long> DEFAULT_SOCKET_READ_TIMEOUT_IN_MS =
             ConfigOptions.key("default-socket-read-timeout")
@@ -71,7 +73,7 @@ public class KuduOptions {
                     .booleanType()
                     .defaultValue(false)
                     .withDescription(
-                            "Whether to enable the statistics collection function of the Kudu client, default is false.");
+                            "Disable this client's collection of statistics. Statistics are enabled by default.");
 
     public static final ConfigOption<String> MAX_CACHE_TIME =
             ConfigOptions.key("lookup.max-cache-time")
