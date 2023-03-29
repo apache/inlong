@@ -67,7 +67,6 @@ import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.PA
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.ROUTING_FIELD_NAME;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.USERNAME_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.SINK_MULTIPLE_INDEX_PATTERN;
-import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.USERNAME_OPTION;
 
 /**
  * A {@link DynamicTableSinkFactory} for discovering {@link Elasticsearch7DynamicSink}.

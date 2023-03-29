@@ -102,6 +102,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>audit-sdk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
         <!-- Elasticsearch table sink factory testing -->
         <dependency>
             <groupId>org.apache.flink</groupId>
