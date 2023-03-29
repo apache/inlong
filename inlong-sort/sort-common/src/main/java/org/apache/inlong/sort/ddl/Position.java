@@ -29,15 +29,15 @@ import org.apache.inlong.sort.ddl.enums.PositionType;
 public class Position {
 
     @JsonProperty("positionType")
-    private PositionType PositionType;
+    private PositionType positionType;
 
     @JsonProperty("columnName")
-    private String ColumnName;
+    private String columnName;
 
     @JsonCreator
     public Position(@JsonProperty("positionType") PositionType positionType,
             @JsonProperty("columnName") String columnName) {
-        PositionType = positionType;
-        ColumnName = columnName;
+        this.positionType = positionType;
+        this.columnName = columnName;
     }
 }

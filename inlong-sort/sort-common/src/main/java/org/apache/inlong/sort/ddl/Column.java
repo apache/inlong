@@ -24,11 +24,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * @Author pengzirui
- * @Date 2023/3/21 2:43 PM
- * @Version 1.0
- */
 @Data
 @JsonInclude(Include.NON_NULL)
 public class Column {
@@ -41,13 +36,10 @@ public class Column {
     private int jdbcType;
     @JsonProperty("position")
     private Position position;
-
     @JsonProperty("isNullable")
     private boolean isNullable;
-
     @JsonProperty("defaultValue")
     private String defaultValue;
-
     @JsonProperty("comment")
     private String comment;
 

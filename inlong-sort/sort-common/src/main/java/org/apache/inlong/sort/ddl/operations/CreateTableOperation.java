@@ -35,11 +35,6 @@ import org.apache.inlong.sort.ddl.indexes.Index;
 @Data
 public class CreateTableOperation extends Operation {
 
-    @JsonCreator
-    public CreateTableOperation() {
-        super(OperationType.CREATE);
-    }
-
     @JsonProperty("columns")
     private List<Column> columns;
 
@@ -48,5 +43,22 @@ public class CreateTableOperation extends Operation {
 
     @JsonProperty("likeTable")
     private String likeTable;
+
+    @JsonProperty("comment")
+    private String comment;
+
+    @JsonCreator
+    public CreateTableOperation(@JsonProperty("columns") List<Column> columns,
+        @JsonProperty("indexes") List<Index> indexes,
+        @JsonProperty("likeTable") String likeTable) {
+        super(OperationType.CREATE);
+        this.columns = columns;
+        this.indexes = indexes;
+        this.likeTable = likeTable;
+    }
+
+    public CreateTableOperation() {
+        super(OperationType.CREATE);
+    }
 
 }

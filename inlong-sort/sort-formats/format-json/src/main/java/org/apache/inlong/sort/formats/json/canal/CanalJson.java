@@ -29,7 +29,7 @@ import org.apache.inlong.sort.ddl.operations.Operation;
 
 @Builder
 @Data
-@JsonTypeName("CanalJson")
+@JsonTypeName("canalJson")
 public class CanalJson {
 
     @JsonProperty("data")

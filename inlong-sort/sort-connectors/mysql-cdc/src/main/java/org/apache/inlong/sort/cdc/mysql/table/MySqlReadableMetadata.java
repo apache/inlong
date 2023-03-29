@@ -18,11 +18,20 @@
 package org.apache.inlong.sort.cdc.mysql.table;
 
 import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getCanalData;
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getCanalOpType;
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getDebeziumOpType;
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getMetaData;
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getMysqlType;
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getOpType;
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getPkNames;
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getSqlType;
 import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getComment;
 import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getDefaultValue;
 import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getNullable;
 import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getPosition;
 
+import akka.stream.scaladsl.ScalaSessionAPI;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
@@ -60,6 +69,7 @@ import org.apache.inlong.sort.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.ddl.indexes.Index;
 import org.apache.inlong.sort.ddl.operations.AlterOperation;
 import org.apache.inlong.sort.ddl.operations.CreateTableOperation;
+import org.apache.inlong.sort.ddl.operations.Operation;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson.Source;
@@ -459,152 +469,12 @@ public enum MySqlReadableMetadata {
                 }
             });
 
-    private static StringData getCanalData(SourceRecord record, GenericRowData rowData,
-            TableChange tableSchema) {
-        Struct messageStruct = (Struct) record.value();
-        Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
-        // tableName
-        String tableName = getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY);
-        // databaseName
-        String databaseName = getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY);
-        // opTs
-        long opTs = (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
-        // actual data
-        GenericRowData data = rowData;
-        Map<String, Object> field = (Map<String, Object>) data.getField(0);
-        List<Map<String, Object>> dataList = new ArrayList<>();
 
-        CanalJson canalJson = CanalJson.builder()
-                .database(databaseName)
-                .es(opTs).pkNames(getPkNames(tableSchema))
-                .mysqlType(getMysqlType(tableSchema)).table(tableName)
-                .type(getCanalOpType(rowData)).sqlType(getSqlType(tableSchema)).build();
-
-        try {
-            if (RecordUtils.isDdlRecord(messageStruct)) {
-                String sql = (String) field.get(DDL_FIELD_NAME);
-                canalJson.setSql(sql);
-                injectStatement(sql, canalJson, tableSchema);
-                canalJson.setDdl(true);
-                canalJson.setData(dataList);
-            } else {
-                canalJson.setDdl(false);
-                canalJson.setTs((Long) messageStruct.get(FieldName.TIMESTAMP));
-                dataList.add(field);
-                canalJson.setData(dataList);
-            }
-            return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
-        } catch (Exception e) {
-            throw new IllegalStateException("exception occurs when get meta data", e);
-        }
-
-    }
-
-    private static void injectStatement(String sql, CanalJson canalJson, TableChange tableSchema) {
-        try {
-
-            boolean isFirst = sql.endsWith("FIRST");
-            if (sql.endsWith("FIRST")) {
-                sql = sql.substring(0, sql.lastIndexOf("FIRST"));
-            }
-            Statement statement = CCJSqlParserUtil.parse(sql);
-            if (statement instanceof Alter) {
-                canalJson.setOperation(getAlterOperation(
-                        (Alter) statement, tableSchema, isFirst));
-            }
-            if (statement instanceof CreateTable) {
-                canalJson.setOperation(getCreateTableOperation(
-                        (CreateTable) statement, tableSchema));
-            }
-
-        } catch (Exception e) {
-            LOG.error("parse ddl error: {}， set ddl to null", sql, e);
-        }
-    }
-
-    private static AlterOperation getAlterOperation(Alter statement, TableChange tableSchema, boolean isFirst) {
-        Map<String, Integer> sqlType = getSqlType(tableSchema);
-
-        List<AlterColumn> alterColumns = new ArrayList<>();
-
-        for (AlterExpression alterExpression : statement.getAlterExpressions()) {
-            List<String> definitions = new ArrayList<>();
-            ColumnDataType columnDataType = alterExpression.getColDataTypeList().get(0);
-            ColDataType colDataType = columnDataType.getColDataType();
-            if (colDataType.getArgumentsStringList() != null) {
-                definitions.addAll(colDataType.getArgumentsStringList());
-            }
-            Column column;
-            List<String> columnSpecs = columnDataType.getColumnSpecs();
-            if (isFirst) {
-                column = new Column(columnDataType.getColumnName(), definitions,
-                        sqlType.get(columnDataType.getColumnName()),
-                        new Position(PositionType.FIRST, null), getNullable(columnSpecs), getDefaultValue(
-                                columnSpecs),
-                        getComment(columnSpecs));
-            } else {
-                column = new Column(columnDataType.getColumnName(), definitions,
-                        sqlType.get(columnDataType.getColumnName()),
-                        getPosition(columnSpecs), getNullable(columnSpecs), getDefaultValue(
-                                columnSpecs),
-                        getComment(columnSpecs));
-            }
-
-            alterColumns.add(new AlterColumn(AlterType.ADD_COLUMN, column, null));
-        }
-
-        return new AlterOperation(alterColumns);
-    }
-
-    private static CreateTableOperation getCreateTableOperation(CreateTable statement, TableChange tableSchema) {
-        CreateTable createTable = statement;
-        Map<String, Integer> sqlType = getSqlType(tableSchema);
-
-        CreateTableOperation createTableOperation = new CreateTableOperation();
-
-        if (createTable.getLikeTable() != null) {
-            createTableOperation.setLikeTable(createTable.getLikeTable().getName());
-        }
-
-        List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
-        List<Column> columns = new ArrayList<>();
-        for (ColumnDefinition columnDefinition : columnDefinitions) {
-
-            List<String> definitions = new ArrayList<>();
-            ColDataType colDataType = columnDefinition.getColDataType();
-            if (colDataType.getArgumentsStringList() != null) {
-                definitions.addAll(colDataType.getArgumentsStringList());
-            }
-
-            Column column = new Column(columnDefinition.getColumnName(), definitions,
-                    sqlType.get(columnDefinition.getColumnName()),
-                    null, getNullable(definitions), getDefaultValue(definitions), getComment(definitions));
-            columns.add(column);
-        }
-
-        createTableOperation.setColumns(columns);
-
-        if (createTable.getIndexes() != null) {
-            createTableOperation.setIndexes(statement.getIndexes().stream().map(index -> {
-                Index index1 = new Index();
-                index1.setIndexName(index.getName());
-                if (Objects.equals(index.getType(), "PRIMARY KEY")) {
-                    index1.setIndexType(IndexType.PRIMARY_KEY);
-                } else if (Objects.equals(index.getType(), "NORMAL_INDEX")) {
-                    index1.setIndexType(IndexType.NORMAL_INDEX);
-                }
-                index1.setIndexColumns(index.getColumnsNames());
-                return index1;
-            }).collect(Collectors.toList()));
-        }
-        return createTableOperation;
-    }
 
     private final String key;
     private final DataType dataType;
     private final MetadataConverter converter;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Logger LOG = LoggerFactory.getLogger(MySqlReadableMetadata.class);
 
     MySqlReadableMetadata(String key, DataType dataType, MetadataConverter converter) {
         this.key = key;
@@ -612,102 +482,6 @@ public enum MySqlReadableMetadata {
         this.converter = converter;
     }
 
-    private static String getOpType(SourceRecord record) {
-        String opType;
-        final Envelope.Operation op = Envelope.operationFor(record);
-        if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
-            opType = "INSERT";
-        } else if (op == Envelope.Operation.DELETE) {
-            opType = "DELETE";
-        } else {
-            opType = "UPDATE";
-        }
-        return opType;
-    }
-
-    private static String getCanalOpType(GenericRowData record) {
-        String opType;
-        switch (record.getRowKind()) {
-            case DELETE:
-            case UPDATE_BEFORE:
-                opType = "DELETE";
-                break;
-            case INSERT:
-            case UPDATE_AFTER:
-                opType = "INSERT";
-                break;
-            default:
-                throw new IllegalStateException("the record only have states in DELETE, "
-                        + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
-        }
-        return opType;
-    }
-
-    private static String getDebeziumOpType(GenericRowData record) {
-        String opType;
-        switch (record.getRowKind()) {
-            case DELETE:
-            case UPDATE_BEFORE:
-                opType = "d";
-                break;
-            case INSERT:
-            case UPDATE_AFTER:
-                opType = "c";
-                break;
-            default:
-                throw new IllegalStateException("the record only have states in DELETE, "
-                        + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
-        }
-        return opType;
-    }
-
-    private static List<String> getPkNames(@Nullable TableChanges.TableChange tableSchema) {
-        if (tableSchema == null) {
-            return null;
-        }
-        return tableSchema.getTable().primaryKeyColumnNames();
-    }
-
-    public static Map<String, String> getMysqlType(@Nullable TableChanges.TableChange tableSchema) {
-        if (tableSchema == null) {
-            return null;
-        }
-        Map<String, String> mysqlType = new LinkedHashMap<>();
-        final Table table = tableSchema.getTable();
-        table.columns()
-                .forEach(
-                        column -> {
-                            mysqlType.put(
-                                    column.name(),
-                                    String.format(
-                                            "%s(%d)",
-                                            column.typeName(),
-                                            column.length()));
-                        });
-        return mysqlType;
-    }
-
-    /**
-     * get sql type from table schema, represents the jdbc data type
-     *
-     * @param tableSchema table schema
-     */
-    public static Map<String, Integer> getSqlType(@Nullable TableChanges.TableChange tableSchema) {
-        if (tableSchema == null) {
-            return null;
-        }
-        Map<String, Integer> sqlType = new LinkedHashMap<>();
-        final Table table = tableSchema.getTable();
-        table.columns().forEach(
-                column -> sqlType.put(column.name(), column.jdbcType()));
-        return sqlType;
-    }
-
-    public static String getMetaData(SourceRecord record, String tableNameKey) {
-        Struct messageStruct = (Struct) record.value();
-        Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
-        return sourceStruct.getString(tableNameKey);
-    }
 
     public String getKey() {
         return key;
