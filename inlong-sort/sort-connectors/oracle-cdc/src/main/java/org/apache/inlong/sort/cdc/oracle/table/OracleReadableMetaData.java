@@ -381,7 +381,9 @@ public enum OracleReadableMetaData {
 
         CanalJson canalJson = CanalJson.builder()
                 .data(dataList).database(databaseName).schema(schemaName)
-                .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
+                .sql("").es(opTs)
+            //.isDdl(false)
+                .pkNames(getPkNames(tableSchema))
                 .oracleType(getOracleType(tableSchema))
                 .table(tableName).ts(ts)
                 .type(getOpType(record)).sqlType(getSqlType(tableSchema)).build();

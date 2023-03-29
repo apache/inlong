@@ -20,6 +20,7 @@ package org.apache.inlong.sort.ddl.operations;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,6 +35,7 @@ import org.apache.inlong.sort.ddl.indexes.Index;
 @Data
 public class CreateTableOperation extends Operation {
 
+    @JsonCreator
     public CreateTableOperation() {
         super(OperationType.CREATE);
     }

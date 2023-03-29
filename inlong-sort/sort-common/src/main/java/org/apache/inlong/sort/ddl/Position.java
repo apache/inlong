@@ -17,14 +17,26 @@
 
 package org.apache.inlong.sort.ddl;
 
+import lombok.Data;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.ddl.enums.PositionType;
 
+@JsonInclude(Include.NON_NULL)
+@Data
 public class Position {
 
-    private org.apache.inlong.sort.ddl.enums.PositionType PositionType;
+    @JsonProperty("positionType")
+    private PositionType PositionType;
+
+    @JsonProperty("columnName")
     private String ColumnName;
 
-    public Position(org.apache.inlong.sort.ddl.enums.PositionType positionType, String columnName) {
+    @JsonCreator
+    public Position(@JsonProperty("positionType") PositionType positionType,
+            @JsonProperty("columnName") String columnName) {
         PositionType = positionType;
         ColumnName = columnName;
     }

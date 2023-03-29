@@ -20,6 +20,7 @@ package org.apache.inlong.sort.ddl.operations;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -36,7 +37,8 @@ public class AlterOperation extends Operation {
     @JsonProperty("alterColumns")
     private List<AlterColumn> alterColumns;
 
-    public AlterOperation(List<AlterColumn> alterColumns) {
+    @JsonCreator
+    public AlterOperation(@JsonProperty("alterColumns") List<AlterColumn> alterColumns) {
         super(OperationType.ALTER);
         this.alterColumns = alterColumns;
     }

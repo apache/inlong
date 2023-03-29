@@ -494,7 +494,6 @@ public enum MySqlReadableMetadata {
                 canalJson.setData(dataList);
             }
             return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
-            // return StringData.fromString("NULL");
         } catch (Exception e) {
             throw new IllegalStateException("exception occurs when get meta data", e);
         }
@@ -524,12 +523,11 @@ public enum MySqlReadableMetadata {
     }
 
     private static AlterOperation getAlterOperation(Alter statement, TableChange tableSchema, boolean isFirst) {
-        Alter alter = statement;
         Map<String, Integer> sqlType = getSqlType(tableSchema);
 
         List<AlterColumn> alterColumns = new ArrayList<>();
 
-        for (AlterExpression alterExpression : alter.getAlterExpressions()) {
+        for (AlterExpression alterExpression : statement.getAlterExpressions()) {
             List<String> definitions = new ArrayList<>();
             ColumnDataType columnDataType = alterExpression.getColDataTypeList().get(0);
             ColDataType colDataType = columnDataType.getColDataType();

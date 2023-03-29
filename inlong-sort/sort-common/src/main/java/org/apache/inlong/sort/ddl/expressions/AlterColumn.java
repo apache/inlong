@@ -17,18 +17,31 @@
 
 package org.apache.inlong.sort.ddl.expressions;
 
+import lombok.Data;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.ddl.enums.AlterType;
 import org.apache.inlong.sort.ddl.Column;
 
+@JsonInclude(Include.NON_NULL)
+@Data
 public class AlterColumn {
 
+    @JsonProperty("alterType")
     private AlterType alterType;
 
+    @JsonProperty("newColumn")
     private Column newColumn;
 
+    @JsonProperty("oldColumn")
     private Column oldColumn;
 
-    public AlterColumn(AlterType alterType, Column newColumn, Column oldColumn) {
+    @JsonCreator
+    public AlterColumn(@JsonProperty("alterType") AlterType alterType,
+            @JsonProperty("newColumn") Column newColumn,
+            @JsonProperty("oldColumn") Column oldColumn) {
         this.alterType = alterType;
         this.newColumn = newColumn;
         this.oldColumn = oldColumn;

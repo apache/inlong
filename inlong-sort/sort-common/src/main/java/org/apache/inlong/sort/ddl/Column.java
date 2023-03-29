@@ -19,6 +19,10 @@ package org.apache.inlong.sort.ddl;
 
 import java.util.List;
 import lombok.Data;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @Author pengzirui
@@ -26,21 +30,32 @@ import lombok.Data;
  * @Version 1.0
  */
 @Data
+@JsonInclude(Include.NON_NULL)
 public class Column {
 
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("definition")
     private List<String> definition;
+    @JsonProperty("jdbcType")
     private int jdbcType;
+    @JsonProperty("position")
     private Position position;
 
+    @JsonProperty("isNullable")
     private boolean isNullable;
 
+    @JsonProperty("defaultValue")
     private String defaultValue;
 
+    @JsonProperty("comment")
     private String comment;
 
-    public Column(String name, List<String> definition, int jdbcType,
-            Position position, boolean isNullable, String defaultValue, String comment) {
+    @JsonCreator
+    public Column(@JsonProperty("name") String name, @JsonProperty("definition") List<String> definition,
+            @JsonProperty("jdbcType") int jdbcType, @JsonProperty("position") Position position,
+            @JsonProperty("isNullable") boolean isNullable, @JsonProperty("defaultValue") String defaultValue,
+            @JsonProperty("comment") String comment) {
         this.name = name;
         this.definition = definition;
         this.jdbcType = jdbcType;

@@ -21,11 +21,6 @@ import java.util.List;
 import lombok.Data;
 import org.apache.inlong.sort.ddl.enums.IndexType;
 
-/**
- * @Author pengzirui
- * @Date 2023/3/22 7:51 PM
- * @Version 1.0
- */
 @Data
 public class Index {
 

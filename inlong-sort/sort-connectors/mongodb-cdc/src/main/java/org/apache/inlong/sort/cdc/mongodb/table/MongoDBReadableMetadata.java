@@ -183,7 +183,7 @@ public enum MongoDBReadableMetadata {
                             .database(to.getString(MongoDBEnvelope.NAMESPACE_DATABASE_FIELD))
                             .sql("")
                             .es((Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY))
-                            .isDdl(false)
+                            //.isDdl(false)
                             .pkNames(null)
                             .mysqlType(getMysqlType(tableSchema))
                             .table(to.getString(MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD))
