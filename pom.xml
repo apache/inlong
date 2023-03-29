@@ -206,6 +206,7 @@
         <os.maven.plugin.version>1.6.0</os.maven.plugin.version>
         <kudu.version>1.16.0</kudu.version>
         <tomcat.version>8.5.53</tomcat.version>
+        <jedis.version>2.9.0</jedis.version>
     </properties>
 
     <dependencyManagement>
@@ -1119,6 +1120,13 @@
                 <groupId>org.apache.kudu</groupId>
                 <artifactId>kudu-client</artifactId>
                 <version>${kudu.version}</version>
+            </dependency>
+
+            <!-- Redis-->
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis.version}</version>
             </dependency>
 
             <!-- lombok -->
