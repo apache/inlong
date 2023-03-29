@@ -627,8 +627,8 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
                 try {
                     data.put(DDL_FIELD_NAME, ddl);
                 } catch (Exception e) {
-                    LOG.info("Failed to convert DDL to json string", e);
-                    throw new RuntimeException(e);
+                    LOG.error("failed to convert DDL {} to json string", ddl);
+                    throw e;
                 }
                 row.setField(0, data);
                 return row;

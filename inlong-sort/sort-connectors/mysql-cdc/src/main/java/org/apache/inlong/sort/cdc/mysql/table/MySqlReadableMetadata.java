@@ -460,8 +460,7 @@ public enum MySqlReadableMetadata {
 
         try {
             if (RecordUtils.isDdlRecord(messageStruct)) {
-                String sql = (String) field.get(DDL_FIELD_NAME);
-                canalJson.setSql(sql);
+                canalJson.setSql((String) field.get(DDL_FIELD_NAME));
                 canalJson.setDdl(true);
                 canalJson.setData(dataList);
             } else {
