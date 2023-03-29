@@ -53,7 +53,6 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
@@ -82,6 +81,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 
 /**
@@ -723,20 +723,14 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             CreateTable createTable = (CreateTable) statement;
             List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
             // get column definition
-            for (int i = 0; i < columnDefinitions.size(); i++) {
-                ColumnDefinition definition = columnDefinitions.get(i);
+            for (ColumnDefinition definition : columnDefinitions) {
                 // get field name
                 String columnName = definition.getColumnName();
                 ColDataType colDataType = definition.getColDataType();
                 String sqlDataType = colDataType.getDataType();
-                // Convert SQL type to TypeInfo
-                Class<?> clazz = FieldInfoUtils.sqlTypeToJavaType(sqlDataType);
-                if (clazz == Object.class) {
-                    throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                            "Unrecognized SQL field type, line: " + (i + 1) + ", type: " + sqlDataType);
-                }
-                String type = clazz.getSimpleName().toLowerCase();
-                fields.put(columnName, type);
+                // get field type
+                String realDataType = StringUtils.substringBefore(sqlDataType, LEFT_BRACKET).toLowerCase();
+                fields.put(columnName, realDataType);
             }
         } else {
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,

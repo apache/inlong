@@ -98,7 +98,7 @@ public class InlongStreamTest extends ServiceBaseTest {
         for (int i = 0; i < 2; i++) {
             SinkField field = new SinkField();
             field.setFieldName("sinkFieldName" + i);
-            field.setFieldType("string");
+            field.setFieldType("varchar");
             expectSinkFields.add(field);
         }
         SinkField[] expectResult = expectSinkFields.toArray(new SinkField[0]);
