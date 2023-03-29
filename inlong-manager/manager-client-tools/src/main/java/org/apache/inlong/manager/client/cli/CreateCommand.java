@@ -22,12 +22,14 @@ import com.beust.jcommander.Parameters;
 import com.beust.jcommander.converters.FileConverter;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
+import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.validator.UserTypeValidator;
+import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
@@ -91,8 +93,11 @@ public class CreateCommand extends AbstractCommand {
                 streamBuilder.transform(groupConf.getStreamTransform());
                 streamBuilder.initOrUpdate();
                 // initialize the new stream group
-                group.init();
-                System.out.println("Create group success!");
+                InlongGroupContext context = group.init();
+                if (!SimpleGroupStatus.STARTED.equals(context.getStatus())) {
+                    throw new Exception("Start group failed, current status: " + context.getStatus());
+                }
+                System.out.println("Start group success!");
             } catch (Exception e) {
                 System.out.println("Create group failed!");
                 System.out.println(e.getMessage());

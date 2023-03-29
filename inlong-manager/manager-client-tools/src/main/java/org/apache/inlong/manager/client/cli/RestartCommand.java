@@ -51,15 +51,15 @@ public class RestartCommand extends AbstractCommand {
         private String inlongGroupId;
 
         @Override
-        void run() throws Exception {
+        void run() {
             try {
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.getGroup(inlongGroupId);
                 InlongGroupContext context = group.restart();
-                if (SimpleGroupStatus.STARTED.equals(context.getStatus())) {
-                    System.out.println("Restart group success!");
+                if (!SimpleGroupStatus.STARTED.equals(context.getStatus())) {
+                    throw new Exception("Restart group failed, current status: " + context.getStatus());
                 }
-                System.out.println("Restart group failed, current status: " + context.getStatus());
+                System.out.println("Restart group success!");
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

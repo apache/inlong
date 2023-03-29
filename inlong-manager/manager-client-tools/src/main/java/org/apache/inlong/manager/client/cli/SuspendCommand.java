@@ -51,15 +51,15 @@ public class SuspendCommand extends AbstractCommand {
         private String inlongGroupId;
 
         @Override
-        void run() throws Exception {
+        void run() {
             try {
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.getGroup(inlongGroupId);
                 InlongGroupContext context = group.suspend();
-                if (SimpleGroupStatus.STOPPED.equals(context.getStatus())) {
-                    System.out.println("Suspend group success!");
+                if (!SimpleGroupStatus.STOPPED.equals(context.getStatus())) {
+                    throw new Exception("Suspend group failed, current status: " + context.getStatus());
                 }
-                System.out.println("Suspend group failed, current status: " + context.getStatus());
+                System.out.println("Suspend group success!");
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
