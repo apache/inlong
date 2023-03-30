@@ -82,7 +82,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.PATTERN_NORMAL_CHARACTERS;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FORMAT_TYPES;
 import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.packExtParams;
 import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.unpackExtParams;
 
@@ -93,6 +96,7 @@ import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.unpackE
 public class InlongStreamServiceImpl implements InlongStreamService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongStreamServiceImpl.class);
+    private static final String PARSE_FIELD_CSV_SPLITTER = "\t|\\s|,";
 
     @Autowired
     private InlongStreamEntityMapper streamMapper;
@@ -112,7 +116,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     private UserService userService;
 
     @Transactional(rollbackFor = Throwable.class)
-
     @Override
     public Integer save(InlongStreamRequest request, String operator) {
         LOGGER.debug("begin to save inlong stream info={}", request);
@@ -222,8 +225,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamInfo.setFieldList(streamFields);
         // load ext infos
         List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
-        List<InlongStreamExtInfo> exts = CommonBeanUtils.copyListProperties(extEntities, InlongStreamExtInfo::new);
-        streamInfo.setExtList(exts);
+        List<InlongStreamExtInfo> extInfos = CommonBeanUtils.copyListProperties(extEntities, InlongStreamExtInfo::new);
+        streamInfo.setExtList(extInfos);
         // load extParams
         unpackExtParams(streamEntity.getExtParams(), streamInfo);
 
@@ -255,8 +258,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         List<StreamField> streamFields = getStreamFields(groupId, streamId);
         streamInfo.setFieldList(streamFields);
         List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
-        List<InlongStreamExtInfo> exts = CommonBeanUtils.copyListProperties(extEntities, InlongStreamExtInfo::new);
-        streamInfo.setExtList(exts);
+        List<InlongStreamExtInfo> extInfos = CommonBeanUtils.copyListProperties(extEntities, InlongStreamExtInfo::new);
+        streamInfo.setExtList(extInfos);
         List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
         streamInfo.setSinkList(sinkList);
         List<StreamSource> sourceList = sourceService.listSource(groupId, streamId);
@@ -733,8 +736,10 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             Map<String, String> fieldsMap;
             if (STATEMENT_TYPE_JSON.equals(method)) {
                 fieldsMap = parseFieldsByJson(statement);
-            } else {
+            } else if (STATEMENT_TYPE_SQL.equals(method)) {
                 fieldsMap = parseFieldsBySql(statement);
+            } else {
+                return parseFieldsByCsv(statement);
             }
             return fieldsMap.entrySet().stream().map(entry -> {
                 StreamField field = new StreamField();
@@ -749,7 +754,49 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                     String.format("parse stream fields error : %s", e.getMessage()));
         }
     }
+    /**
+     * Parse fields from CSV format
+     * @param statement CSV statement
+     * @return List of StreamField
+     */
+    private List<StreamField> parseFieldsByCsv(String statement) {
+        String[] lines = statement.split(InlongConstants.NEW_LINE);
+        List<StreamField> fields = new ArrayList<>();
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            if (StringUtils.isBlank(line)) {
+                continue;
+            }
 
+            String[] cols = line.split(PARSE_FIELD_CSV_SPLITTER, 3);
+            if (cols.length < 2) {
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                        "At least two fields are required, line number is " + (i + 1));
+            }
+            String fieldName = cols[0];
+            if (!PATTERN_NORMAL_CHARACTERS.matcher(fieldName).matches()) {
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Field names in line " + (i + 1) +
+                        " can only contain letters, underscores or numbers");
+            }
+            String fieldType = cols[1];
+            if (!STREAM_FORMAT_TYPES.contains(fieldType)) {
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "The field type in line" + (i + 1) +
+                        " must be one of " + STREAM_FORMAT_TYPES);
+            }
+
+            String comment = null;
+            if (cols.length == 3) {
+                comment = cols[2];
+            }
+
+            StreamField field = new StreamField();
+            field.setFieldName(fieldName);
+            field.setFieldType(fieldType);
+            field.setFieldComment(comment);
+            fields.add(field);
+        }
+        return fields;
+    }
     private Map<String, String> parseFieldsBySql(String sql) throws JSQLParserException {
         CCJSqlParserManager pm = new CCJSqlParserManager();
         Statement statement = pm.parse(new StringReader(sql));
@@ -793,7 +840,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
      * First physically delete the existing field information, and then add the field information of this batch
      */
     @Transactional(rollbackFor = Throwable.class)
-    void updateField(String groupId, String streamId, List<StreamField> fieldList) {
+    public void updateField(String groupId, String streamId, List<StreamField> fieldList) {
         LOGGER.debug("begin to update inlong stream field, groupId={}, streamId={}, field={}", groupId, streamId,
                 fieldList);
         try {
@@ -807,7 +854,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Transactional(rollbackFor = Throwable.class)
-    void saveField(String groupId, String streamId, List<StreamField> infoList) {
+    public void saveField(String groupId, String streamId, List<StreamField> infoList) {
         if (CollectionUtils.isEmpty(infoList)) {
             return;
         }
@@ -823,14 +870,15 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Transactional(rollbackFor = Throwable.class)
-    void saveOrUpdateExt(String groupId, String streamId, List<InlongStreamExtInfo> exts) {
+    public void saveOrUpdateExt(String groupId, String streamId, List<InlongStreamExtInfo> extInfos) {
         LOGGER.info("begin to save or update inlong stream ext info, groupId={}, streamId={}, ext={}", groupId,
-                streamId, exts);
-        if (CollectionUtils.isEmpty(exts)) {
+                streamId, extInfos);
+        if (CollectionUtils.isEmpty(extInfos)) {
             return;
         }
 
-        List<InlongStreamExtEntity> entityList = CommonBeanUtils.copyListProperties(exts, InlongStreamExtEntity::new);
+        List<InlongStreamExtEntity> entityList =
+                CommonBeanUtils.copyListProperties(extInfos, InlongStreamExtEntity::new);
         entityList.forEach(streamEntity -> {
             streamEntity.setInlongGroupId(groupId);
             streamEntity.setInlongStreamId(streamId);
