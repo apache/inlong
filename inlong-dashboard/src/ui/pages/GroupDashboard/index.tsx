@@ -29,7 +29,7 @@ import { defaultSize } from '@/configs/pagination';
 import { GroupLogs } from '@/ui/components/GroupLogs';
 import { dashCardList, useColumns } from './config';
 import { statusList } from '@/plugins/groups/common/status';
-import { useDefaultMeta } from '@/metas';
+import { useDefaultMeta } from '@/plugins';
 
 const Comp: React.FC = () => {
   const { options: groups } = useDefaultMeta('group');

@@ -20,7 +20,7 @@
 import React, { useMemo } from 'react';
 import { Divider, Table } from 'antd';
 import i18n from '@/i18n';
-import { useLoadMeta, GroupMetaType } from '@/metas';
+import { useLoadMeta, GroupMetaType } from '@/plugins';
 
 export const useGroupFormContent = ({ mqType = '', isFinished, isViwer }) => {
   const { Entity } = useLoadMeta<GroupMetaType>('group', mqType);

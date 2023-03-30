@@ -22,7 +22,7 @@ import { Button, Space, message } from 'antd';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useRequest, useBoolean, useSelector } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
-import { useDefaultMeta } from '@/metas';
+import { useDefaultMeta } from '@/plugins';
 import request from '@/core/utils/request';
 import { State } from '@/core/stores';
 import { CommonInterface } from '../common';

@@ -25,7 +25,7 @@ import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/ui/hooks';
 import request from '@/core/utils/request';
 import { useTranslation } from 'react-i18next';
-import { useLoadMeta, useDefaultMeta, StreamMetaType } from '@/metas';
+import { useLoadMeta, useDefaultMeta, StreamMetaType } from '@/plugins';
 import { GroupLogs } from '@/ui/components/GroupLogs';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';

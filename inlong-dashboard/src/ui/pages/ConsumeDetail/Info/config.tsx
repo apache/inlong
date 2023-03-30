@@ -18,7 +18,7 @@
  */
 
 import { useMemo } from 'react';
-import { useLoadMeta, ConsumeMetaType } from '@/metas';
+import { useLoadMeta, ConsumeMetaType } from '@/plugins';
 import { excludeObjectArray } from '@/core/utils';
 
 export const useFormContent = ({ mqType, editing, isCreate }) => {

@@ -31,7 +31,7 @@ import {
 import HighTable from '@/ui/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/ui/hooks';
-import { useDefaultMeta, useLoadMeta, SourceMetaType } from '@/metas';
+import { useDefaultMeta, useLoadMeta, SourceMetaType } from '@/plugins';
 import DetailModal from './DetailModal';
 import i18n from '@/i18n';
 import request from '@/core/utils/request';
@@ -324,7 +324,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         defaultType={options.sourceType}
         inlongGroupId={inlongGroupId}
         inlongStreamId={inlongStreamId}
-        visible={createModal.visible as boolean}
+        open={createModal.visible as boolean}
         onOk={async () => {
           await getList();
           setCreateModal({ visible: false });

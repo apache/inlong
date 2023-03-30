@@ -23,7 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/ui/hooks';
 import request from '@/core/utils/request';
-import { useDefaultMeta, useLoadMeta, ClusterMetaType } from '@/metas';
+import { useDefaultMeta, useLoadMeta, ClusterMetaType } from '@/plugins';
 import i18n from '@/i18n';
 
 export interface Props extends ModalProps {

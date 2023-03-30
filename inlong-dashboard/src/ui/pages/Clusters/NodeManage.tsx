@@ -184,7 +184,7 @@ const Comp: React.FC = () => {
         type={type}
         clusterId={+clusterId}
         {...nodeEditModal}
-        visible={nodeEditModal.visible as boolean}
+        open={nodeEditModal.visible as boolean}
         onOk={async () => {
           await getList();
           setNodeEditModal({ visible: false });

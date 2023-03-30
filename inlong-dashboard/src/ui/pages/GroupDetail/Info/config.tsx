@@ -20,7 +20,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
-import { useLoadMeta, GroupMetaType } from '@/metas';
+import { useLoadMeta, GroupMetaType } from '@/plugins';
 import { excludeObjectArray } from '@/core/utils';
 
 export const useFormContent = ({ mqType, editing, isCreate, isUpdate }) => {

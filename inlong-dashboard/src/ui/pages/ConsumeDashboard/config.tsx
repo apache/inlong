@@ -22,7 +22,7 @@ import { Button } from 'antd';
 import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/ui/components/Icons';
-import { useDefaultMeta, useLoadMeta, ConsumeMetaType } from '@/metas';
+import { useDefaultMeta, useLoadMeta, ConsumeMetaType } from '@/plugins';
 
 export const dashCardList = [
   {

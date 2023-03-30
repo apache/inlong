@@ -24,7 +24,7 @@ import HighTable from '@/ui/components/HighTable';
 import { PageContainer } from '@/ui/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
 import { dao } from '@/plugins/nodes';
-import { useDefaultMeta, useLoadMeta, NodeMetaType } from '@/metas';
+import { useDefaultMeta, useLoadMeta, NodeMetaType } from '@/plugins';
 import DetailModal from './DetailModal';
 
 const { useListNodeDao, useDeleteNodeDao } = dao;
@@ -163,7 +163,7 @@ const Comp: React.FC = () => {
       <DetailModal
         {...detailModal}
         defaultType={options.type}
-        visible={detailModal.visible as boolean}
+        open={detailModal.visible as boolean}
         onOk={async () => {
           await getList();
           setDetailModal({ visible: false });

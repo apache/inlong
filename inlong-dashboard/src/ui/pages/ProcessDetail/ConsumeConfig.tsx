@@ -20,7 +20,7 @@
 import React, { useMemo } from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
-import { useLoadMeta, ConsumeMetaType } from '@/metas';
+import { useLoadMeta, ConsumeMetaType } from '@/plugins';
 
 export const useConsumeFormContent = (mqType = '') => {
   const { Entity } = useLoadMeta<ConsumeMetaType>('consume', mqType);

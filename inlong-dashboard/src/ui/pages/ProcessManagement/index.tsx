@@ -125,7 +125,7 @@ const Comp: React.FC = () => {
 
       <ApprovalDetailModal
         {...createModal}
-        visible={createModal.visible as boolean}
+        open={createModal.visible as boolean}
         onOk={async () => {
           await getList();
           setCreateModal({ visible: false });

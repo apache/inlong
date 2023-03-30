@@ -18,13 +18,11 @@
  */
 
 import React, { useState } from 'react';
-import { Dropdown, Menu } from 'antd';
+import { Dropdown } from 'antd';
 import { useSelector } from '@/ui/hooks';
 import { State } from '@/core/stores';
 import { useTranslation } from 'react-i18next';
 import request from '@/core/utils/request';
-import LocaleSelect from './LocaleSelect';
-import styles from './index.module.less';
 import PasswordModal from './PasswordModal';
 import KeyModal from './KeyModal';
 
@@ -64,16 +62,13 @@ const Comp: React.FC = () => {
   ];
 
   return (
-    <div style={{ marginRight: '20px' }}>
-      <span className={styles.iconToolBar}>
-        <LocaleSelect />
-      </span>
-      <Dropdown overlay={<Menu items={menuItems} />} placement="bottomLeft">
-        <span>{userName}</span>
+    <>
+      <Dropdown menu={{ items: menuItems }} placement="bottomLeft">
+        <span style={{ fontSize: 14 }}>{userName}</span>
       </Dropdown>
       <PasswordModal
         {...createModal}
-        visible={createModal.visible as boolean}
+        open={createModal.visible as boolean}
         onCancel={() => setCreateModal({ visible: false })}
         onOk={async () => {
           runLogout();
@@ -82,13 +77,13 @@ const Comp: React.FC = () => {
       />
       <KeyModal
         {...keyModal}
-        visible={keyModal.visible as boolean}
+        open={keyModal.visible as boolean}
         onCancel={() => setKeyModal({ visible: false })}
         onOk={async () => {
           setKeyModal({ visible: false });
         }}
       />
-    </div>
+    </>
   );
 };
 

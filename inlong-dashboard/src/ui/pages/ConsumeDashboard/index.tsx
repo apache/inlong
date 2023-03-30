@@ -28,7 +28,7 @@ import { defaultSize } from '@/configs/pagination';
 import { dashCardList, useColumns } from './config';
 import { statusList, lastConsumerStatusList } from '@/plugins/consumes/common/status';
 import i18n from '@/i18n';
-import { useDefaultMeta } from '@/metas';
+import { useDefaultMeta } from '@/plugins';
 
 const Comp: React.FC = () => {
   const { options: consumes } = useDefaultMeta('consume');

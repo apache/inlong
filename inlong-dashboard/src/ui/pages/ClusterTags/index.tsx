@@ -186,7 +186,7 @@ const Comp: React.FC = () => {
 
       <TagDetailModal
         {...tagDetailModal}
-        visible={tagDetailModal.visible as boolean}
+        open={tagDetailModal.visible as boolean}
         onOk={async () => {
           await getList();
           setTagDetailModal({ visible: false });

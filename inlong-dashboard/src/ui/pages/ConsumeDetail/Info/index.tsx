@@ -23,7 +23,7 @@ import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useBoolean, useRequest } from '@/ui/hooks';
 import request from '@/core/utils/request';
 import { useTranslation } from 'react-i18next';
-import { useDefaultMeta } from '@/metas';
+import { useDefaultMeta } from '@/plugins';
 import { CommonInterface } from '../common';
 import { useFormContent } from './config';
 

@@ -17,9 +17,10 @@
  * under the License.
  */
 
+import { SmileOutlined, SmileTwoTone } from '@ant-design/icons';
 import { config } from '@/configs/default';
 import menusTree from '@/configs/menus';
-import defaultSettings from '@/defaultSettings';
+import defaultSettings from './defaultSettings';
 import { useLocation, useSelector } from '@/ui/hooks';
 import { isDevelopEnv } from '@/core/utils';
 import ProBasicLayout, {
@@ -33,6 +34,7 @@ import { Link } from 'react-router-dom';
 import type { MenuProps } from 'antd/es/menu';
 import { State } from '@/core/stores';
 import NavWidget from './NavWidget';
+import LocaleSelect from './NavWidget/LocaleSelect';
 
 const renderMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
   menus.map(({ icon, children, ...item }) => ({
@@ -59,7 +61,7 @@ const BasicLayout: React.FC = props => {
     const firstPathname = `/${pathname.slice(1).split('/')?.[0]}`;
     const select = breadcrumbMap.get(firstPathname);
     if (select) {
-      // setOpenKeys((select as MenuDataItem)['pro_layout_parentKeys']);
+      setOpenKeys((select as MenuDataItem)['pro_layout_parentKeys']);
       setSelectedKeys([(select as MenuDataItem)['key'] as string]);
     }
   }, [breadcrumbMap, pathname]);
@@ -83,23 +85,27 @@ const BasicLayout: React.FC = props => {
     };
   }, [handleOnOpenChange, openKeys, selectedKeys]);
 
+  const [navTheme, setNavTheme] = useState(settings.navTheme);
+
   return (
     <>
       <ProBasicLayout
         {...settings}
         title={config.title}
-        logo={config.logo}
+        logo={<img src={config.logo} style={{ height: 50 }} alt="Logo" />}
         menuDataRender={menuDataRender}
         menuItemRender={menuItemRender}
-        menuHeaderRender={(logo, title) => (
-          <a href="#/">
-            {logo}
-            {title}
-          </a>
-        )}
+        navTheme={navTheme}
         menuProps={menuProps}
-        rightContentRender={() => <NavWidget />}
-        headerHeight={64}
+        actionsRender={() => [
+          navTheme === 'realDark' ? (
+            <SmileOutlined onClick={() => setNavTheme(settings.navTheme)} />
+          ) : (
+            <SmileTwoTone onClick={() => setNavTheme('realDark')} />
+          ),
+          <LocaleSelect />,
+          <NavWidget />,
+        ]}
       >
         {props.children}
       </ProBasicLayout>
@@ -109,6 +115,7 @@ const BasicLayout: React.FC = props => {
           getContainer={() => document.getElementById('root')}
           settings={settings}
           onSettingChange={setSetting}
+          enableDarkTheme
         />
       )}
     </>

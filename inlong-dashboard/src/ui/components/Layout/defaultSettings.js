@@ -20,9 +20,10 @@
 // eslint-disable-next-line
 export default {
   navTheme: 'light',
-  layout: 'side',
+  layout: 'mix',
   primaryColor: '#0052D9',
   contentWidth: 'Fluid',
   splitMenus: false,
   fixedHeader: true,
+  fixSiderbar: true,
 };

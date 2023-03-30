@@ -25,7 +25,7 @@ import HighTable from '@/ui/components/HighTable';
 import { PageContainer } from '@/ui/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/ui/hooks';
-import { useDefaultMeta, useLoadMeta, ClusterMetaType } from '@/metas';
+import { useDefaultMeta, useLoadMeta, ClusterMetaType } from '@/plugins';
 import CreateModal from './CreateModal';
 import request from '@/core/utils/request';
 import { timestampFormat } from '@/core/utils';
@@ -191,7 +191,7 @@ const Comp: React.FC = () => {
       <CreateModal
         {...createModal}
         defaultType={options.type}
-        visible={createModal.visible as boolean}
+        open={createModal.visible as boolean}
         onOk={async () => {
           await getList();
           setCreateModal({ visible: false });

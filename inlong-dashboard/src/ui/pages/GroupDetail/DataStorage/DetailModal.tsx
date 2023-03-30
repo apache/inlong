@@ -24,7 +24,7 @@ import { useRequest, useUpdateEffect } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import EditableTable from '@/ui/components/EditableTable';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
-import { useLoadMeta, SinkMetaType } from '@/metas';
+import { useLoadMeta, SinkMetaType } from '@/plugins';
 import request from '@/core/utils/request';
 
 export interface DetailModalProps extends ModalProps {

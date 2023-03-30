@@ -31,7 +31,7 @@ import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/ui/hooks';
 import i18n from '@/i18n';
 import DetailModal from './DetailModal';
-import { useDefaultMeta, useLoadMeta, SinkMetaType } from '@/metas';
+import { useDefaultMeta, useLoadMeta, SinkMetaType } from '@/plugins';
 import request from '@/core/utils/request';
 import { pickObjectArray } from '@/core/utils';
 import { CommonInterface } from '../common';
@@ -255,7 +255,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         defaultType={options.sinkType}
         inlongGroupId={inlongGroupId}
         inlongStreamId={inlongStreamId}
-        visible={createModal.visible as boolean}
+        open={createModal.visible as boolean}
         onOk={async () => {
           await getList();
           setCreateModal({ visible: false });

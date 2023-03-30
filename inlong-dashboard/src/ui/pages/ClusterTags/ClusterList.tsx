@@ -189,7 +189,7 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
       <ClusterBindModal
         {...clusterBindModal}
         clusterTag={clusterTag}
-        visible={clusterBindModal.visible as boolean}
+        open={clusterBindModal.visible as boolean}
         onOk={async () => {
           await getList();
           setClusterBindModal({ visible: false });
