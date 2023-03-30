@@ -133,7 +133,7 @@ public class PulsarOperator {
 
             // Configure persistence policies
             PersistencePolicies persistencePolicies = new PersistencePolicies(pulsarInfo.getEnsemble(),
-                    pulsarInfo.getWriteQuorum(), pulsarInfo.getAckQuorum(), 0);
+                    pulsarInfo.getWriteQuorum(), pulsarInfo.getAckQuorum(), pulsarInfo.getMaxMarkDeleteRate());
             namespaces.setPersistence(namespaceName, persistencePolicies);
             LOGGER.info("success to create namespace={}", namespaceName);
         } catch (PulsarAdminException e) {
