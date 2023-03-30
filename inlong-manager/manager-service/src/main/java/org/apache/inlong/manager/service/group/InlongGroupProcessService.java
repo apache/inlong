@@ -104,6 +104,11 @@ public class InlongGroupProcessService {
         groupService.updateStatus(groupId, GroupStatus.TO_BE_APPROVAL.getCode(), operator);
         ApplyGroupProcessForm form = genApplyGroupProcessForm(groupId);
         WorkflowResult result = workflowService.start(ProcessName.APPLY_GROUP_PROCESS, operator, form);
+        List<TaskResponse> tasks = result.getNewTasks();
+        if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
+            throw new BusinessException(ErrorCodeEnum.WORKFLOW_START_RECORD_FAILED,
+                    String.format("failed to start inlong group for groupId=%s", groupId));
+        }
 
         LOGGER.info("success to start approve process for groupId={} by operator={}", groupId, operator);
         return result;
@@ -146,6 +151,11 @@ public class InlongGroupProcessService {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.SUSPEND);
         WorkflowResult result = workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
+        List<TaskResponse> tasks = result.getNewTasks();
+        if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
+            throw new BusinessException(ErrorCodeEnum.WORKFLOW_SUSPEND_RECORD_FAILED,
+                    String.format("failed to suspend inlong group for groupId=%s", groupId));
+        }
 
         LOGGER.info("success to suspend process for groupId={} by operator={}", groupId, operator);
         return result;
@@ -184,6 +194,11 @@ public class InlongGroupProcessService {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.RESTART);
         WorkflowResult result = workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form);
+        List<TaskResponse> tasks = result.getNewTasks();
+        if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
+            throw new BusinessException(ErrorCodeEnum.WORKFLOW_RESTART_RECORD_FAILED,
+                    String.format("failed to restart inlong group for groupId=%s", groupId));
+        }
 
         LOGGER.info("success to restart process for groupId={} by operator={}", groupId, operator);
         return result;
