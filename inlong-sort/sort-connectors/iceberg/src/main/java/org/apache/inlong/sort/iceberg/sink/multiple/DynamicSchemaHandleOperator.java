@@ -184,11 +184,12 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             LOGGER.error(String.format("Deserialize error, raw data: %s",
                     new String(element.getValue().getBinary(0))), e);
             if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == multipleSinkOption.getSchemaUpdatePolicy()) {
-                // If the table name and library name are "unkonw",
+                // If the table name and library name are "unknown",
                 // it will not conflict with the table and library names in the IcebergMultipleStreamWriter operator,
                 // so it can be counted here
                 handleDirtyData(new String(element.getValue().getBinary(0)),
-                        null, DirtyType.DESERIALIZE_ERROR, e, TableIdentifier.of("unknow", "unknow"));
+                        null, DirtyType.DESERIALIZE_ERROR, e,
+                        TableIdentifier.of("unknown", "unknown"));
             }
             return;
         }
@@ -199,7 +200,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             LOGGER.error(String.format("Table identifier parse error, raw data: %s", jsonNode), e);
             if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == multipleSinkOption.getSchemaUpdatePolicy()) {
                 handleDirtyData(jsonNode, jsonNode, DirtyType.TABLE_IDENTIFIER_PARSE_ERROR, e,
-                        TableIdentifier.of("unknow", "unknow"));
+                        TableIdentifier.of("unknown", "unknown"));
             }
         }
         if (blacklist.contains(tableId)) {
