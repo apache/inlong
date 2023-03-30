@@ -107,7 +107,7 @@
             <artifactId>audit-sdk</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <!-- Elasticsearch table sink factory testing -->
         <dependency>
             <groupId>org.apache.flink</groupId>
