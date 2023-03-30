@@ -99,8 +99,7 @@ public class KuduAsyncSinkFunction
                 namedThreadFactory,
                 new ThreadPoolExecutor.AbortPolicy());
 
-        KuduClient client = new KuduClient.KuduClientBuilder(kuduTableInfo.getMasters())
-                .build();
+        KuduClient client = buildKuduClient();
         KuduTable kuduTable;
         try {
             String tableName = kuduTableInfo.getTableName();

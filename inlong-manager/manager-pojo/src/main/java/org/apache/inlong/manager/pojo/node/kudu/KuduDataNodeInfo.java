@@ -46,17 +46,17 @@ public class KuduDataNodeInfo extends DataNodeInfo {
     @ApiModelProperty("Kudu masters, a comma separated list of 'host:port' pairs")
     private String masters;
 
-    @ApiModelProperty("Default admin operation timeout in ms, default is 3000")
+    @ApiModelProperty("Sets the default timeout used for administrative operations (e.g. createTable, deleteTable, etc). Optional. If not provided, defaults to 30s. A value of 0 disables the timeout")
     private Integer defaultAdminOperationTimeoutMs;
 
-    @ApiModelProperty("Default operation timeout in ms, default is 3000")
-    private Integer defaultOperationTimeoutMs = 3000;
+    @ApiModelProperty("Sets the default timeout used for user operations (using sessions and scanners). Optional. If not provided, defaults to 30s. A value of 0 disables the timeout")
+    private Integer defaultOperationTimeoutMs = 30000;
 
     @ApiModelProperty("Default socket read timeout in ms, default is 10000")
-    private Integer defaultSocketReadTimeoutMs;
+    private Integer defaultSocketReadTimeoutMs = 10000;
 
-    @ApiModelProperty("Whether to enable the statistics collection function of the Kudu client, default is false.")
-    private Boolean statisticsDisabled;
+    @ApiModelProperty("Disable this client's collection of statistics. Statistics are enabled by default")
+    private Boolean statisticsDisabled = false;
 
     public KuduDataNodeInfo() {
         setType(DataNodeType.KUDU);

@@ -44,15 +44,19 @@ import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.CONNECTOR_MASTERS;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.CONNECTOR_TABLE;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DEFAULT_OPERATION_TIMEOUT_IN_MS;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DEFAULT_SOCKET_READ_TIMEOUT_IN_MS;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.ENABLE_KEY_FIELD_CHECK;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.FLUSH_MODE;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_BUFFER_SIZE;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_BUFFER_TIME;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_CACHE_SIZE;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_CACHE_TIME;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DEFAULT_ADMIN_OPERATION_TIMEOUT_IN_MS;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.MAX_RETRIES;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.SINK_KEY_FIELD_NAMES;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.SINK_START_NEW_CHAIN;
+import static org.apache.inlong.sort.kudu.common.KuduOptions.DISABLED_STATISTICS;
 import static org.apache.inlong.sort.kudu.common.KuduOptions.WRITE_THREAD_COUNT;
 import static org.apache.inlong.sort.kudu.common.KuduValidator.CONNECTOR_TYPE_VALUE_KUDU;
 
@@ -175,6 +179,10 @@ public class KuduDynamicTableFactory
         options.add(MAX_BUFFER_TIME);
         options.add(SINK_KEY_FIELD_NAMES);
         options.add(ENABLE_KEY_FIELD_CHECK);
+        options.add(DEFAULT_ADMIN_OPERATION_TIMEOUT_IN_MS);
+        options.add(DEFAULT_OPERATION_TIMEOUT_IN_MS);
+        options.add(DEFAULT_SOCKET_READ_TIMEOUT_IN_MS);
+        options.add(DISABLED_STATISTICS);
 
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);

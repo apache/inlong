@@ -49,6 +49,32 @@ public class KuduOptions {
                     .withDescription("The maximum number of results cached in the " +
                             "lookup source.");
 
+    public static final ConfigOption<Long> DEFAULT_ADMIN_OPERATION_TIMEOUT_IN_MS =
+            ConfigOptions.key("default-admin-operation-timeout")
+                    .longType()
+                    .defaultValue(30000L)
+                    .withDescription(
+                            "Sets the default timeout used for administrative operations (e.g. createTable, deleteTable, etc). Optional. If not provided, defaults to 30s. A value of 0 disables the timeout.");
+
+    public static final ConfigOption<Long> DEFAULT_OPERATION_TIMEOUT_IN_MS =
+            ConfigOptions.key("default-operation-timeout")
+                    .longType()
+                    .defaultValue(30000L)
+                    .withDescription(
+                            "Sets the default timeout used for user operations (using sessions and scanners). Optional. If not provided, defaults to 30s. A value of 0 disables the timeout.");
+
+    public static final ConfigOption<Long> DEFAULT_SOCKET_READ_TIMEOUT_IN_MS =
+            ConfigOptions.key("default-socket-read-timeout")
+                    .longType()
+                    .defaultValue(10000L)
+                    .withDescription("Default socket read timeout in ms, default is 10000");
+    public static final ConfigOption<Boolean> DISABLED_STATISTICS =
+            ConfigOptions.key("disabled-statistics")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription(
+                            "Disable this client's collection of statistics. Statistics are enabled by default.");
+
     public static final ConfigOption<String> MAX_CACHE_TIME =
             ConfigOptions.key("lookup.max-cache-time")
                     .stringType()
@@ -67,6 +93,7 @@ public class KuduOptions {
                     .defaultValue(3)
                     .withDescription("The maximum number of retries when an " +
                             "exception is caught.");
+
     public static final ConfigOption<Integer> MAX_BUFFER_SIZE =
             ConfigOptions.key("sink.max-buffer-size")
                     .intType()
