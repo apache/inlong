@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -45,6 +46,7 @@ import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -63,13 +65,24 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.create.table.ColDataType;
+import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 
 /**
  * Implementation of sink service interface
@@ -687,22 +700,60 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public List<SinkField> parseFields(String fieldsJson) {
+    public List<SinkField> parseFields(ParseFieldRequest parseFieldRequest) {
         try {
-            Map<String, String> fieldsMap = objectMapper.readValue(fieldsJson,
-                    new TypeReference<Map<String, String>>() {
-                    });
-            return fieldsMap.keySet().stream().map(fieldName -> {
+            String method = parseFieldRequest.getMethod();
+            String statement = parseFieldRequest.getStatement();
+
+            Map<String, String> fieldsMap;
+            if (STATEMENT_TYPE_JSON.equals(method)) {
+                fieldsMap = parseFieldsByJson(statement);
+            } else {
+                fieldsMap = parseFieldsBySql(statement);
+            }
+            return fieldsMap.entrySet().stream().map(entry -> {
                 SinkField field = new SinkField();
-                field.setFieldName(fieldName);
-                field.setFieldType(fieldsMap.get(fieldName));
+                field.setFieldName(entry.getKey());
+                field.setFieldType(entry.getValue());
                 return field;
             }).collect(Collectors.toList());
+
         } catch (Exception e) {
             LOGGER.error("parse sink fields error", e);
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
                     String.format("parse sink fields error : %s", e.getMessage()));
         }
+    }
+
+    private Map<String, String> parseFieldsBySql(String sql) throws JSQLParserException {
+        CCJSqlParserManager pm = new CCJSqlParserManager();
+        Statement statement = pm.parse(new StringReader(sql));
+        LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+        if (statement instanceof CreateTable) {
+            CreateTable createTable = (CreateTable) statement;
+            List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
+            // get column definition
+            for (ColumnDefinition definition : columnDefinitions) {
+                // get field name
+                String columnName = definition.getColumnName();
+                ColDataType colDataType = definition.getColDataType();
+                String sqlDataType = colDataType.getDataType();
+                // get field type
+                String realDataType = StringUtils.substringBefore(sqlDataType, LEFT_BRACKET).toLowerCase();
+                fields.put(columnName, realDataType);
+            }
+        } else {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "The SQL statement must be a table creation statement");
+        }
+        return fields;
+    }
+
+    private Map<String, String> parseFieldsByJson(String statement) throws JsonProcessingException {
+        // Use LinkedHashMap deserialization to keep the order of the fields
+        return objectMapper.readValue(statement,
+                new TypeReference<LinkedHashMap<String, String>>() {
+                });
     }
 
     private void checkSinkRequestParams(SinkRequest request) {

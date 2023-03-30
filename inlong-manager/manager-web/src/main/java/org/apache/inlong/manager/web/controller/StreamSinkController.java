@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -119,10 +120,10 @@ public class StreamSinkController {
     }
 
     @RequestMapping(value = "/sink/parseFields", method = RequestMethod.POST)
-    @ApiOperation(value = "parse stream sink fields from JSON string")
-    @ApiImplicitParam(name = "fieldsJson", dataTypeClass = String.class, required = true)
-    public Response<List<SinkField>> parseFields(@RequestBody String fieldsJson) {
-        return Response.success(sinkService.parseFields(fieldsJson));
+    @ApiOperation(value = "parse stream sink fields from statement")
+    @ApiImplicitParam(name = "parseFieldRequest", dataTypeClass = ParseFieldRequest.class, required = true)
+    public Response<List<SinkField>> parseFields(@RequestBody ParseFieldRequest parseFieldRequest) {
+        return Response.success(sinkService.parseFields(parseFieldRequest));
     }
 
 }

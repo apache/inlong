@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.service;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
@@ -70,5 +71,5 @@ public interface InlongStreamApi {
     Call<Response<Boolean>> delete(@Query("groupId") String groupId, @Query("streamId") String streamId);
 
     @POST("stream/parseFields")
-    Call<Response<List<StreamField>>> parseFields(@Body String fieldsJson);
+    Call<Response<List<StreamField>>> parseFields(@Body ParseFieldRequest parseFieldRequest);
 }

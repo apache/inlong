@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
@@ -177,10 +178,11 @@ public class InlongStreamController {
     }
 
     @RequestMapping(value = "/stream/parseFields", method = RequestMethod.POST)
-    @ApiOperation(value = "Parse inlong stream fields from JSON string")
-    @ApiImplicitParam(name = "fieldsJson", dataTypeClass = String.class, required = true)
-    public Response<List<StreamField>> parseFields(@RequestBody String fieldsJson) {
-        return Response.success(streamService.parseFields(fieldsJson));
+    @ApiOperation(value = "Parse inlong stream fields from statement")
+    @ApiImplicitParam(name = "parseFieldRequest", dataTypeClass = ParseFieldRequest.class, required = true)
+
+    public Response<List<StreamField>> parseFields(@RequestBody ParseFieldRequest request) {
+        return Response.success(streamService.parseFields(request));
     }
 
 }

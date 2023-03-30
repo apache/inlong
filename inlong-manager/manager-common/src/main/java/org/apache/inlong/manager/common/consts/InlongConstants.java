@@ -148,4 +148,9 @@ public class InlongConstants {
 
     public static final int DEFAULT_ENABLE_VALUE = 1;
 
+    public static final String STATEMENT_TYPE_SQL = "sql";
+    public static final String STATEMENT_TYPE_JSON = "json";
+
+    public static final String SORT_TYPE_INFO_SUFFIX = "TypeInfo";
+
 }

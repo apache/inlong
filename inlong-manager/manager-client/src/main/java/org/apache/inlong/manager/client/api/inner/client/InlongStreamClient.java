@@ -25,12 +25,16 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 
 import java.util.List;
+
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
 
 /**
  * Client for {@link InlongStreamApi}.
@@ -218,12 +222,27 @@ public class InlongStreamClient {
     /**
      * Converts a json string to a streamFields
      *
-     * @param fieldsJson JSON string for the field information
+     * @param parseFieldRequest the request for the field information
      * @return list of stream field
      */
-    public List<StreamField> parseFields(String fieldsJson) {
-        Response<List<StreamField>> response = ClientUtils.executeHttpCall(inlongStreamApi.parseFields(fieldsJson));
+    public List<StreamField> parseFields(ParseFieldRequest parseFieldRequest) {
+        Response<List<StreamField>> response =
+                ClientUtils.executeHttpCall(inlongStreamApi.parseFields(parseFieldRequest));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
+    }
+
+    /**
+     * Converts a json string to a streamFields
+     *     @param method the method for the field information: json or sql
+     * @param statement the statement for the field information
+     * @return list of stream field
+     */
+    public List<StreamField> parseFields(String method, String statement) {
+        Preconditions.expectTrue(STATEMENT_TYPE_JSON.equals(method) || STATEMENT_TYPE_SQL.equals(method),
+                "Unsupported parse field method: '" + method + "'");
+        Preconditions.expectNotBlank(statement, "The statement must not empty");
+        ParseFieldRequest request = ParseFieldRequest.builder().method(method).statement(statement).build();
+        return parseFields(request);
     }
 }
