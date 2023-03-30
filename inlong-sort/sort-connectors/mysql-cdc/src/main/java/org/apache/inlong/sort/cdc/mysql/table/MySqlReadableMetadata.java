@@ -19,6 +19,8 @@ package org.apache.inlong.sort.cdc.mysql.table;
 
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isSnapshotRecord;
 
+import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
+
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
@@ -36,6 +38,7 @@ import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.util.RecordUtils;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson.Source;
@@ -443,26 +446,34 @@ public enum MySqlReadableMetadata {
         String databaseName = getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY);
         // opTs
         long opTs = (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
-        // ts
-        long ts = (Long) messageStruct.get(FieldName.TIMESTAMP);
         // actual data
         GenericRowData data = rowData;
         Map<String, Object> field = (Map<String, Object>) data.getField(0);
         List<Map<String, Object>> dataList = new ArrayList<>();
-        dataList.add(field);
 
         CanalJson canalJson = CanalJson.builder()
-                .data(dataList).database(databaseName)
-                .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
-                .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
+                .database(databaseName)
+                .es(opTs).pkNames(getPkNames(tableSchema))
+                .mysqlType(getMysqlType(tableSchema)).table(tableName)
                 .type(getCanalOpType(rowData)).sqlType(getSqlType(tableSchema))
                 .incremental(isSnapshotRecord(sourceStruct)).build();
 
         try {
+            if (RecordUtils.isDdlRecord(messageStruct)) {
+                canalJson.setSql((String) field.get(DDL_FIELD_NAME));
+                canalJson.setDdl(true);
+                canalJson.setData(dataList);
+            } else {
+                canalJson.setDdl(false);
+                canalJson.setTs((Long) messageStruct.get(FieldName.TIMESTAMP));
+                dataList.add(field);
+                canalJson.setData(dataList);
+            }
             return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
         } catch (Exception e) {
             throw new IllegalStateException("exception occurs when get meta data", e);
         }
+
     }
 
     private final String key;

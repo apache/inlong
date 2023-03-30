@@ -85,6 +85,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     private final String inlongMetric;
     private final String inlongAudit;
     private final boolean includeIncremental;
+    private final boolean includeSchemaChange;
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
@@ -124,69 +125,6 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             double distributionFactorLower,
             boolean appendSource,
             StartupOptions startupOptions,
-            Duration heartbeatInterval,
-            boolean migrateAll,
-            String inlongMetric,
-            String inlongAudit,
-            String rowKindsFiltered,
-            boolean includeIncremental) {
-        this(
-                physicalSchema,
-                port,
-                hostname,
-                database,
-                tableName,
-                username,
-                password,
-                serverTimeZone,
-                dbzProperties,
-                serverId,
-                enableParallelRead,
-                splitSize,
-                splitMetaGroupSize,
-                fetchSize,
-                connectTimeout,
-                connectMaxRetries,
-                connectionPoolSize,
-                distributionFactorUpper,
-                distributionFactorLower,
-                appendSource,
-                startupOptions,
-                false,
-                new Properties(),
-                heartbeatInterval,
-                migrateAll,
-                inlongMetric,
-                inlongAudit,
-                rowKindsFiltered,
-                includeIncremental);
-    }
-
-    /**
-     * Constructor of MySqlTableSource.
-     */
-    public MySqlTableSource(
-            ResolvedSchema physicalSchema,
-            int port,
-            String hostname,
-            String database,
-            String tableName,
-            String username,
-            String password,
-            ZoneId serverTimeZone,
-            Properties dbzProperties,
-            @Nullable String serverId,
-            boolean enableParallelRead,
-            int splitSize,
-            int splitMetaGroupSize,
-            int fetchSize,
-            Duration connectTimeout,
-            int connectMaxRetries,
-            int connectionPoolSize,
-            double distributionFactorUpper,
-            double distributionFactorLower,
-            boolean appendSource,
-            StartupOptions startupOptions,
             boolean scanNewlyAddedTableEnabled,
             Properties jdbcProperties,
             Duration heartbeatInterval,
@@ -194,6 +132,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             String inlongMetric,
             String inlongAudit,
             String rowKindsFiltered,
+            boolean includeSchemaChange,
             boolean includeIncremental) {
         this.physicalSchema = physicalSchema;
         this.port = port;
@@ -227,6 +166,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
         this.inlongAudit = inlongAudit;
         this.rowKindsFiltered = rowKindsFiltered;
         this.includeIncremental = includeIncremental;
+        this.includeSchemaChange = includeSchemaChange;
     }
 
     @Override
@@ -284,6 +224,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .startupOptions(startupOptions)
                             .deserializer(deserializer)
                             .scanNewlyAddedTableEnabled(scanNewlyAddedTableEnabled)
+                            .includeSchemaChanges(includeSchemaChange)
                             .jdbcProperties(jdbcProperties)
                             .heartbeatInterval(heartbeatInterval)
                             .inlongMetric(inlongMetric)
@@ -379,6 +320,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         inlongMetric,
                         inlongAudit,
                         rowKindsFiltered,
+                        includeSchemaChange,
                         includeIncremental);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;

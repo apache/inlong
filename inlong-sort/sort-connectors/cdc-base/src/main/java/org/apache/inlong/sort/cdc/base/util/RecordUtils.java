@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.cdc.base.util;
 
+import static org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
+
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.relational.Column;
@@ -155,4 +157,9 @@ public class RecordUtils {
         String connector = source.getString(CONNECTOR);
         return MYSQL_CONNECTOR.equalsIgnoreCase(connector);
     }
+
+    public static boolean isDdlRecord(Struct value) {
+        return value.schema().field(HISTORY_RECORD_FIELD) != null;
+    }
+
 }
