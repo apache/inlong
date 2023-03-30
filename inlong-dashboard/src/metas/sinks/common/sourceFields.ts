@@ -18,7 +18,7 @@
  */
 
 import i18n from '@/i18n';
-import { ColumnsItemProps } from '@/components/EditableTable';
+import { ColumnsItemProps } from '@/ui/components/EditableTable';
 
 export const fieldTypes = ['int', 'long', 'float', 'double', 'string', 'date', 'timestamp'].map(
   item => ({

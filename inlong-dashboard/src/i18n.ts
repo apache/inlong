@@ -20,7 +20,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { getCurrentLocale } from '@/configs/locales';
-import { isDevelopEnv } from '@/utils';
+import { isDevelopEnv } from '@/core/utils';
 
 const resources = {
   en: {

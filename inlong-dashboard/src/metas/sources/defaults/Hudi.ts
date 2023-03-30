@@ -22,7 +22,7 @@ import { RenderRow } from '@/metas/RenderRow';
 import { RenderList } from '@/metas/RenderList';
 import { SourceInfo } from '../common/SourceInfo';
 import i18n from '@/i18n';
-import EditableTable from '@/components/EditableTable';
+import EditableTable from '@/ui/components/EditableTable';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;

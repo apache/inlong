@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { useRequest } from '@/hooks';
-import request from '@/utils/request';
+import { useRequest } from 'ahooks';
+import request from '@/core/utils/request';
 import type { NodeInfo } from './NodeInfo';
 import { nodes } from '..';
 

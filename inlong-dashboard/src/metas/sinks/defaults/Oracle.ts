@@ -21,7 +21,7 @@ import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
-import EditableTable from '@/components/EditableTable';
+import EditableTable from '@/ui/components/EditableTable';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;

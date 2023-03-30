@@ -64,21 +64,24 @@ export const useDefaultMeta = (metaType: MetaTypeKeys) => {
 
 export const useLoadMeta = <T>(metaType: MetaTypeKeys, subType: string): UseLoadMetaResult<T> => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [loaded, setLoaded] = useState<Record<string, { default: T }>>();
   const [Entity, setEntity] = useState<{ default: T }>();
 
   const { defaultValue } = useDefaultMeta(metaType);
 
   const load = useCallback(
-    async subType => {
+    async _subType => {
       const subList = metasMap[metaType]?.[0];
       const LoadEntity =
-        subList?.find(item => item.value === subType)?.LoadEntity ||
+        subList?.find(item => item.value === _subType)?.LoadEntity ||
         subList?.find(item => item.value === defaultValue)?.LoadEntity;
       if (LoadEntity) {
         setLoading(true);
         try {
           const result = await LoadEntity();
-          setEntity(result);
+          // setEntity(result);
+          // setEntity(prev => ({ ...prev, [_subType]: result }));
+          setLoaded(prev => ({ ...prev, [_subType]: result }));
         } finally {
           setLoading(false);
         }
@@ -91,8 +94,14 @@ export const useLoadMeta = <T>(metaType: MetaTypeKeys, subType: string): UseLoad
     load(subType);
   }, [subType, load]);
 
+  useEffect(() => {
+    const Entity = loaded?.[subType];
+    if (Entity) setEntity(Entity);
+  }, [subType, loaded]);
+
   return {
     loading,
+    // Entity: Entity?.[subType]?.default,
     Entity: Entity?.default,
   };
 };

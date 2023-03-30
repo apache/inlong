@@ -72,7 +72,7 @@ export default defineConfig({
       less: {
         javascriptEnabled: true,
         modifyVars: {
-          hack: `true; @import "${path.resolve('src/themes/antd.var.less')}";`,
+          hack: `true; @import "${path.resolve('src/ui/themes/antd.var.less')}";`,
         },
       },
     },

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import type { FormItemProps as FieldItemType } from '@/components/FormGenerator';
+import type { FormItemProps as FieldItemType } from '@/ui/components/FormGenerator';
 import merge from 'lodash/merge';
 
 export abstract class RenderRow {

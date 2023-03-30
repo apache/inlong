@@ -34,7 +34,7 @@ const config: CracoConfig = {
         lessLoaderOptions: {
           lessOptions: {
             modifyVars: {
-              hack: `true; @import "@/themes/antd.var.less";`,
+              hack: `true; @import "@/ui/themes/antd.var.less";`,
             },
             javascriptEnabled: true,
           },

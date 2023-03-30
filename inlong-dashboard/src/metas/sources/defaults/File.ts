@@ -21,7 +21,7 @@ import { DataWithBackend } from '@/metas/DataWithBackend';
 import { RenderRow } from '@/metas/RenderRow';
 import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
-import rulesPattern from '@/utils/pattern';
+import rulesPattern from '@/core/utils/pattern';
 import { SourceInfo } from '../common/SourceInfo';
 
 const { I18n } = DataWithBackend;

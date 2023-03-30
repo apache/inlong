@@ -21,7 +21,7 @@ import { DataWithBackend } from '@/metas/DataWithBackend';
 import { RenderRow } from '@/metas/RenderRow';
 import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
-import UserSelect from '@/components/UserSelect';
+import UserSelect from '@/ui/components/UserSelect';
 import { statusList, genStatusTag } from './status';
 import { groups, defaultValue } from '..';
 

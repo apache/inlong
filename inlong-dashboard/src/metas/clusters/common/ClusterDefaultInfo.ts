@@ -20,7 +20,7 @@
 import { DataWithBackend } from '@/metas/DataWithBackend';
 import { RenderRow } from '@/metas/RenderRow';
 import { RenderList } from '@/metas/RenderList';
-import UserSelect from '@/components/UserSelect';
+import UserSelect from '@/ui/components/UserSelect';
 import { clusters, defaultValue } from '..';
 
 const { I18nMap, I18n } = DataWithBackend;

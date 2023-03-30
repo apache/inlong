@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { treeToArray } from '@/utils';
+import { treeToArray } from '@/core/utils';
 import menusTreeConf from './conf';
 
 export interface MenuItemType {

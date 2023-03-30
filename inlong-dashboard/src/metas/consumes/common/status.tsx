@@ -19,8 +19,8 @@
 
 import React from 'react';
 import i18n from '@/i18n';
-import StatusTag, { StatusTagProps } from '@/components/StatusTag';
-import { ClockCircleFilled } from '@/components/Icons';
+import StatusTag, { StatusTagProps } from '@/ui/components/StatusTag';
+import { ClockCircleFilled } from '@/ui/components/Icons';
 
 type StatusProp = {
   label: string;

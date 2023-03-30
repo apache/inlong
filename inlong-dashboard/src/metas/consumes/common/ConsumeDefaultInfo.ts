@@ -21,8 +21,8 @@ import { DataWithBackend } from '@/metas/DataWithBackend';
 import { RenderRow } from '@/metas/RenderRow';
 import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
-import UserSelect from '@/components/UserSelect';
-import { timestampFormat } from '@/utils';
+import UserSelect from '@/ui/components/UserSelect';
+import { timestampFormat } from '@/core/utils';
 import {
   statusList,
   lastConsumerStatusList,

@@ -19,7 +19,7 @@ import { DataWithBackend } from '@/metas/DataWithBackend';
 import { RenderRow } from '@/metas/RenderRow';
 import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
-import EditableTable from '@/components/EditableTable';
+import EditableTable from '@/ui/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
 
