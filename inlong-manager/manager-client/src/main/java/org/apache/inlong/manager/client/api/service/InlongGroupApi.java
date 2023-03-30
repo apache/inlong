@@ -59,13 +59,13 @@ public interface InlongGroupApi {
     Call<Response<String>> suspendProcessAsync(@Path("id") String id);
 
     @POST("group/suspendProcess/{id}")
-    Call<Response<String>> suspendProcess(@Path("id") String id);
+    Call<Response<WorkflowResult>> suspendProcess(@Path("id") String id);
 
     @POST("group/restartProcessAsync/{id}")
     Call<Response<String>> restartProcessAsync(@Path("id") String id);
 
     @POST("group/restartProcess/{id}")
-    Call<Response<String>> restartProcess(@Path("id") String id);
+    Call<Response<WorkflowResult>> restartProcess(@Path("id") String id);
 
     @DELETE("group/deleteAsync/{id}")
     Call<Response<String>> deleteGroupAsync(@Path("id") String id);

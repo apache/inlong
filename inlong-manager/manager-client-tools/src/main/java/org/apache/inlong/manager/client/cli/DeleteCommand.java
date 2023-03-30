@@ -21,9 +21,11 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
+import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 
 import java.util.List;
 
@@ -31,7 +33,7 @@ import java.util.List;
  * The delete command used for deleting inlong group instances.
  * Please refer to the document for parameters
  */
-@Parameters(commandDescription = "Delete resource by json file")
+@Parameters(commandDescription = "Delete resource by group id")
 public class DeleteCommand extends AbstractCommand {
 
     @Parameter()
@@ -62,7 +64,10 @@ public class DeleteCommand extends AbstractCommand {
             try {
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.getGroup(inlongGroupId);
-                group.delete();
+                InlongGroupContext context = group.delete();
+                if (!SimpleGroupStatus.STOPPED.equals(context.getStatus())) {
+                    throw new Exception("Delete group failed, current status: " + context.getStatus());
+                }
                 System.out.println("Delete group success!");
             } catch (Exception e) {
                 System.out.format("Delete group failed! message: %s \n", e.getMessage());
