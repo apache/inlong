@@ -21,33 +21,101 @@ import { DataWithBackend } from '@/metas/DataWithBackend';
 import { RenderRow } from '@/metas/RenderRow';
 import { RenderList } from '@/metas/RenderList';
 import { NodeInfo } from '../common/NodeInfo';
+import i18n from '@/i18n';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
 
 export default class RedisNode extends NodeInfo implements DataWithBackend, RenderRow, RenderList {
   @FieldDecorator({
-    type: 'input',
+    type: 'select',
     rules: [{ required: true }],
+    tooltip: i18n.t('meta.Nodes.Redis.ClusterModeHelper'),
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: 'cluster',
+          value: 'cluster',
+        },
+        {
+          label: 'sentinel',
+          value: 'sentinel',
+        },
+        {
+          label: 'standalone',
+          value: 'standalone',
+        },
+      ],
+      placeholder: i18n.t('meta.Nodes.Redis.ClusterModeHelper'),
+    }),
   })
-  @I18n('meta.Nodes.Redis.Username')
-  username: string;
+  @I18n('meta.Nodes.Redis.ClusterMode')
+  clusterMode: string;
 
   @FieldDecorator({
-    type: 'password',
-    rules: [{ required: true }],
+    type: 'input',
+    initialValue: '127.0.0.1',
+    rules: [{ required: false }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: '127.0.0.1',
+    }),
+    visible: values => values!.clusterMode === 'standalone',
   })
-  @I18n('meta.Nodes.Redis.Password')
-  token: string;
+  @I18n('meta.Nodes.Redis.Host')
+  host: String;
+
+  @FieldDecorator({
+    type: 'inputnumber',
+    rules: [{ required: false }],
+    initialValue: 6379,
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      min: 1,
+      max: 65535,
+      placeholder: i18n.t('meta.Nodes.Redis.PortHelper'),
+    }),
+    visible: values => values!.clusterMode === 'standalone',
+  })
+  @I18n('meta.Nodes.Redis.Port')
+  port: number;
 
   @FieldDecorator({
     type: 'input',
-    rules: [{ required: true }],
+    initialValue: '',
+    rules: [{ required: false }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    visible: values => values!.clusterMode === 'sentinel',
+  })
+  @I18n('meta.Nodes.Redis.SentinelMasterName')
+  sentinelMasterName: String;
+
+  @FieldDecorator({
+    type: 'input',
+    initialValue: '',
+    rules: [{ required: false }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       placeholder: '127.0.0.1:6379,127.0.0.1:6378',
     }),
+    visible: values => values!.clusterMode === 'sentinel',
   })
-  @I18n('meta.Nodes.Redis.Url')
-  url: string;
+  @I18n('meta.Nodes.Redis.SentinelsInfo')
+  sentinelsInfo: String;
+
+  @FieldDecorator({
+    type: 'input',
+    initialValue: '',
+    rules: [{ required: false }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: '127.0.0.1:6379,127.0.0.1:6378',
+    }),
+    visible: values => values!.clusterMode === 'cluster',
+  })
+  @I18n('meta.Nodes.Redis.ClusterNodes')
+  clusterNodes: String;
 }
