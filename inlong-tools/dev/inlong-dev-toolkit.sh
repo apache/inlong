@@ -115,6 +115,11 @@ function manager() {
 }
 
 function main() {
+  if [[ "$OSTYPE" != "darwin"* ]] && [[ "$OSTYPE" != "linux-gnu"* ]]; then
+    echo "This script only supports macOS or Linux, current OS is $OSTYPE"
+    exit 1
+  fi
+
   action=$1
 
   if [ ! -n "$action" ]; then
