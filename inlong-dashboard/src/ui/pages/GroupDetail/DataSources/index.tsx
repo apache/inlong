@@ -236,7 +236,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
       <Card
         size="small"
         title={
-          <Badge size="small" count={data?.total} offset={[15, 0]}>
+          <Badge size="small" count={data?.total} offset={[12, 3]}>
             {i18n.t('pages.GroupDetail.Sources')}
           </Badge>
         }
