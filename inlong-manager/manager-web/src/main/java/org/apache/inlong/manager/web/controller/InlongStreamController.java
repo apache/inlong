@@ -22,7 +22,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.tool.excel.ExcelTool;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -45,7 +48,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -54,6 +63,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Inlong-Stream-API")
+@Slf4j
 public class InlongStreamController {
 
     @Autowired
@@ -181,6 +191,31 @@ public class InlongStreamController {
     @ApiOperation(value = "Parse inlong stream fields from statement")
     public Response<List<StreamField>> parseFields(@RequestBody ParseFieldRequest parseFieldRequest) {
         return Response.success(streamService.parseFields(parseFieldRequest));
+    }
+
+    @RequestMapping(value = "/stream/parseFieldsByExcel", method = RequestMethod.POST)
+    @ApiOperation(value = "Parse inlong stream fields by update excel file", httpMethod = "POST")
+    @ApiImplicitParam(name = "parseFieldRequest", dataTypeClass = ParseFieldRequest.class, required = true)
+    public Response<List<StreamField>> parseFieldsByExcel(@RequestParam("file") MultipartFile file) {
+        return Response.success(streamService.parseFields(file));
+    }
+
+    @RequestMapping(value = "/stream/fieldsImportTemplate", method = RequestMethod.GET)
+    @ApiOperation(value = "Download fields import template")
+    public void downloadFieldsImportTemplate(HttpServletResponse response) {
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+        String fileName = String.format("InLong-stream-fields-template-%s.xlsx", date);
+        response.setHeader("Content-disposition",
+                "attachment;filename=" + fileName);
+        response.setContentType("multipart/form-data");
+
+        try {
+            ServletOutputStream outputStream = response.getOutputStream();
+            ExcelTool.write2Excel(StreamField.class, null, outputStream);
+
+        } catch (IOException | InstantiationException | IllegalAccessException e) {
+            log.error("", e);
+        }
     }
 
 }

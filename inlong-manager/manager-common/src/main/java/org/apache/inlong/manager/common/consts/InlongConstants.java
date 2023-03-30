@@ -158,6 +158,7 @@ public class InlongConstants {
     public static final String STATEMENT_TYPE_SQL = "sql";
     public static final String STATEMENT_TYPE_JSON = "json";
     public static final String STATEMENT_TYPE_CSV = "csv";
+    public static final String STATEMENT_TYPE_excel = "excel";
 
     public static final String SORT_TYPE_INFO_SUFFIX = "TypeInfo";
 

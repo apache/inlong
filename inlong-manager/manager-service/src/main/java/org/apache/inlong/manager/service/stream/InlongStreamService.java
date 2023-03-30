@@ -26,6 +26,7 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -239,4 +240,6 @@ public interface InlongStreamService {
      * @return list of stream field
      */
     List<StreamField> parseFields(ParseFieldRequest parseFieldRequest);
+
+    List<StreamField> parseFields(MultipartFile file);
 }
