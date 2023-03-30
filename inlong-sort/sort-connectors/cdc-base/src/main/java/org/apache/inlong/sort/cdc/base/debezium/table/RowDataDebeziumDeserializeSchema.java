@@ -740,7 +740,8 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
 
         try {
             GenericRowData insert = (GenericRowData) physicalConverter.convert(
-                objectMapper.readTree(value.get(HISTORY_RECORD_FIELD).toString()).get(DDL_FIELD_NAME).asText(), null);
+                    objectMapper.readTree(value.get(HISTORY_RECORD_FIELD).toString()).get(DDL_FIELD_NAME).asText(),
+                    null);
             insert.setRowKind(RowKind.INSERT);
             emit(record, insert, tableSchema, out);
         } catch (Exception e) {
