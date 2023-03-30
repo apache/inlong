@@ -624,12 +624,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
                 Map<String, Object> data = new HashMap<>();
                 GenericRowData row = new GenericRowData(1);
                 row.setField(0, data);
-                try {
-                    data.put(DDL_FIELD_NAME, ddl);
-                } catch (Exception e) {
-                    LOG.error("failed to convert DDL {} to json string", ddl);
-                    throw e;
-                }
+                data.put(DDL_FIELD_NAME, ddl);
                 row.setField(0, data);
                 return row;
             }
@@ -741,12 +736,16 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
     }
 
     private void extractDdlRecord(SourceRecord record, Collector<RowData> out, TableChange tableSchema,
-            Struct value) throws Exception {
+            Struct value) {
 
-        GenericRowData insert = (GenericRowData) physicalConverter.convert(
+        try {
+            GenericRowData insert = (GenericRowData) physicalConverter.convert(
                 objectMapper.readTree(value.get(HISTORY_RECORD_FIELD).toString()).get(DDL_FIELD_NAME).asText(), null);
-        insert.setRowKind(RowKind.INSERT);
-        emit(record, insert, tableSchema, out);
+            insert.setRowKind(RowKind.INSERT);
+            emit(record, insert, tableSchema, out);
+        } catch (Exception e) {
+            LOG.error("Failed to extract DDL record {}", record, e);
+        }
 
     }
 
