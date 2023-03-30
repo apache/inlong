@@ -76,6 +76,9 @@ public class InlongPulsarInfo extends InlongGroupInfo {
     @ApiModelProperty(value = "The unit of message size")
     private String retentionSizeUnit = "MB";
 
+    @ApiModelProperty(value = "The limit rate of the mark-delete operation")
+    private Double maxMarkDeleteRate = 0.0;
+
     public InlongPulsarInfo() {
         this.setMqType(MQType.PULSAR);
     }

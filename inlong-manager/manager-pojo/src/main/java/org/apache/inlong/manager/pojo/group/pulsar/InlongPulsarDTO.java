@@ -80,6 +80,9 @@ public class InlongPulsarDTO extends BaseInlongGroup {
     @ApiModelProperty(value = "The unit of message size")
     private String retentionSizeUnit;
 
+    @ApiModelProperty(value = "The limit rate of the mark-delete operation")
+    private Double maxMarkDeleteRate;
+
     /**
      * Get the dto instance from the request
      */
