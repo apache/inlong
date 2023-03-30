@@ -238,10 +238,10 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     }
 
     private void handleDirtyData(Object dirtyData,
-                                 JsonNode rootNode,
-                                 DirtyType dirtyType,
-                                 Exception e,
-                                 TableIdentifier tableId) {
+            JsonNode rootNode,
+            DirtyType dirtyType,
+            Exception e,
+            TableIdentifier tableId) {
         handleDirtyData(dirtyData, rootNode, dirtyType, e, tableId, true);
     }
 
@@ -381,8 +381,9 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                                         DirtyOptions dirtyOptions = dirtySinkHelper.getDirtyOptions();
                                         if (!dirtyOptions.ignoreDirty()) {
                                             if (metricData != null) {
-                                                metricData.outputDirtyMetricsWithEstimate(tableId.namespace().toString()
-                                                        , tableId.name(), rowData.toString());
+                                                metricData.outputDirtyMetricsWithEstimate(
+                                                        tableId.namespace().toString(), tableId.name(),
+                                                        rowData.toString());
                                             }
                                         } else {
                                             handleDirtyData(rowData.toString(), jsonNode,
