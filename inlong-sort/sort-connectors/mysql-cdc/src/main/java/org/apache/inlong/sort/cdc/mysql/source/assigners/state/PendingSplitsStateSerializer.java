@@ -18,11 +18,14 @@
 package org.apache.inlong.sort.cdc.mysql.source.assigners.state;
 
 import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
+import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataOutputSerializer;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSchemalessSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 
@@ -33,6 +36,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.fromStatusCode;
+import static org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitSerializer.readTableSchemas;
+import static org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitSerializer.writeTableSchemas;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.readBinlogPosition;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.writeBinlogPosition;
 
@@ -42,7 +48,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.writ
  */
 public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<PendingSplitsState> {
 
-    private static final int VERSION = 3;
+    private static final int VERSION = 4;
     private static final ThreadLocal<DataOutputSerializer> SERIALIZER_CACHE =
             ThreadLocal.withInitial(() -> new DataOutputSerializer(64));
 
@@ -101,7 +107,7 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
                 return deserializeLegacyPendingSplitsState(serialized);
             case 3:
             case 4:
-                return deserializePendingSplitsState(serialized);
+                return deserializePendingSplitsState(version, serialized);
             default:
                 throw new IOException("Unknown version: " + version);
         }
@@ -124,14 +130,14 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
         }
     }
 
-    public PendingSplitsState deserializePendingSplitsState(byte[] serialized) throws IOException {
+    public PendingSplitsState deserializePendingSplitsState(int version, byte[] serialized) throws IOException {
         final DataInputDeserializer in = new DataInputDeserializer(serialized);
         final int splitVersion = in.readInt();
         final int stateFlag = in.readInt();
         if (stateFlag == SNAPSHOT_PENDING_SPLITS_STATE_FLAG) {
-            return deserializeSnapshotPendingSplitsState(splitVersion, in);
+            return deserializeSnapshotPendingSplitsState(version, splitVersion, in);
         } else if (stateFlag == HYBRID_PENDING_SPLITS_STATE_FLAG) {
-            return deserializeHybridPendingSplitsState(splitVersion, in);
+            return deserializeHybridPendingSplitsState(version, splitVersion, in);
         } else if (stateFlag == BINLOG_PENDING_SPLITS_STATE_FLAG) {
             return deserializeBinlogPendingSplitsState(in);
         } else {
@@ -153,6 +159,7 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
         out.writeInt(state.getSnapshotAssignerStatus().getStatusCode());
         writeTableIds(state.getRemainingTables(), out);
         out.writeBoolean(state.isTableIdCaseSensitive());
+        writeTableSchemas(state.getTableSchemas(), out);
     }
 
     private void serializeHybridPendingSplitsState(
@@ -176,6 +183,23 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
         List<MySqlSnapshotSplit> remainingSplits = readMySqlSnapshotSplits(splitVersion, in);
         Map<String, MySqlSnapshotSplit> assignedSnapshotSplits =
                 readAssignedSnapshotSplits(splitVersion, in);
+
+        final List<MySqlSchemalessSnapshotSplit> remainingSchemaLessSplits = new ArrayList<>();
+        final Map<String, MySqlSchemalessSnapshotSplit> assignedSchemaLessSnapshotSplits =
+                new HashMap<>();
+        final Map<TableId, TableChanges.TableChange> tableSchemas = new HashMap<>();
+        remainingSplits.forEach(
+                split -> {
+                    tableSchemas.putAll(split.getTableSchemas());
+                    remainingSchemaLessSplits.add(split.toSchemaLessSnapshotSplit());
+                });
+        assignedSnapshotSplits
+                .forEach((key, value) -> {
+                    tableSchemas.putAll(value.getTableSchemas());
+                    assignedSchemaLessSnapshotSplits.put(
+                            key, value.toSchemaLessSnapshotSplit());
+                });
+
         Map<String, BinlogOffset> finishedOffsets = readFinishedOffsets(splitVersion, in);
         AssignerStatus assignerStatus;
         boolean isAssignerFinished = in.readBoolean();
@@ -187,13 +211,13 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
 
         return new SnapshotPendingSplitsState(
                 alreadyProcessedTables,
-                remainingSplits,
-                assignedSnapshotSplits,
+                remainingSchemaLessSplits,
+                assignedSchemaLessSnapshotSplits,
                 finishedOffsets,
                 assignerStatus,
                 new ArrayList<>(),
                 false,
-                false);
+                false, tableSchemas);
     }
 
     private HybridPendingSplitsState deserializeLegacyHybridPendingSplitsState(
@@ -204,7 +228,7 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
         return new HybridPendingSplitsState(snapshotPendingSplitsState, isBinlogSplitAssigned);
     }
 
-    private SnapshotPendingSplitsState deserializeSnapshotPendingSplitsState(
+    private SnapshotPendingSplitsState deserializeSnapshotPendingSplitsState(int version,
             int splitVersion, DataInputDeserializer in) throws IOException {
         List<TableId> alreadyProcessedTables = readTableIds(in);
         List<MySqlSnapshotSplit> remainingSplits = readMySqlSnapshotSplits(splitVersion, in);
@@ -212,33 +236,51 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
                 readAssignedSnapshotSplits(splitVersion, in);
         Map<String, BinlogOffset> finishedOffsets = readFinishedOffsets(splitVersion, in);
         AssignerStatus assignerStatus;
-        if (splitVersion < 4) {
+        if (version >= 3) {
+            assignerStatus = fromStatusCode(in.readInt());
+        } else {
             boolean isAssignerFinished = in.readBoolean();
             if (isAssignerFinished) {
                 assignerStatus = AssignerStatus.INITIAL_ASSIGNING_FINISHED;
             } else {
                 assignerStatus = AssignerStatus.INITIAL_ASSIGNING;
             }
-        } else {
-            assignerStatus = AssignerStatus.fromStatusCode(in.readInt());
         }
         List<TableId> remainingTableIds = readTableIds(in);
         boolean isTableIdCaseSensitive = in.readBoolean();
+        final List<MySqlSchemalessSnapshotSplit> remainingSchemaLessSplits = new ArrayList<>();
+        final Map<String, MySqlSchemalessSnapshotSplit> assignedSchemaLessSnapshotSplits =
+                new HashMap<>();
+        final Map<TableId, TableChange> tableSchemas = new HashMap<>();
+        remainingSplits.forEach(
+                split -> {
+                    tableSchemas.putAll(split.getTableSchemas());
+                    remainingSchemaLessSplits.add(split.toSchemaLessSnapshotSplit());
+                });
+        assignedSnapshotSplits
+                .forEach((key, value) -> {
+                    tableSchemas.putAll(value.getTableSchemas());
+                    assignedSchemaLessSnapshotSplits.put(
+                            key, value.toSchemaLessSnapshotSplit());
+                });
+        if (version >= 4) {
+            tableSchemas.putAll(readTableSchemas(splitVersion, in));
+        }
         return new SnapshotPendingSplitsState(
                 alreadyProcessedTables,
-                remainingSplits,
-                assignedSnapshotSplits,
+                remainingSchemaLessSplits,
+                assignedSchemaLessSnapshotSplits,
                 finishedOffsets,
                 assignerStatus,
                 remainingTableIds,
                 isTableIdCaseSensitive,
-                true);
+                true, tableSchemas);
     }
 
     private HybridPendingSplitsState deserializeHybridPendingSplitsState(
-            int splitVersion, DataInputDeserializer in) throws IOException {
+            int version, int splitVersion, DataInputDeserializer in) throws IOException {
         SnapshotPendingSplitsState snapshotPendingSplitsState =
-                deserializeSnapshotPendingSplitsState(splitVersion, in);
+                deserializeSnapshotPendingSplitsState(version, splitVersion, in);
         boolean isBinlogSplitAssigned = in.readBoolean();
         return new HybridPendingSplitsState(snapshotPendingSplitsState, isBinlogSplitAssigned);
     }
@@ -275,11 +317,11 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
     }
 
     private void writeAssignedSnapshotSplits(
-            Map<String, MySqlSnapshotSplit> assignedSplits, DataOutputSerializer out)
+            Map<String, MySqlSchemalessSnapshotSplit> assignedSplits, DataOutputSerializer out)
             throws IOException {
         final int size = assignedSplits.size();
         out.writeInt(size);
-        for (Map.Entry<String, MySqlSnapshotSplit> entry : assignedSplits.entrySet()) {
+        for (Map.Entry<String, MySqlSchemalessSnapshotSplit> entry : assignedSplits.entrySet()) {
             out.writeUTF(entry.getKey());
             byte[] splitBytes = splitSerializer.serialize(entry.getValue());
             out.writeInt(splitBytes.length);

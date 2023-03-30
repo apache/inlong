@@ -58,7 +58,7 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
     private static final int BINLOG_SPLIT_FLAG = 2;
     private static final int METRIC_SPLIT_FLAG = 3;
 
-    private static void writeTableSchemas(
+    public static void writeTableSchemas(
             Map<TableId, TableChange> tableSchemas, DataOutputSerializer out) throws IOException {
         FlinkJsonTableChangeSerializer jsonSerializer = new FlinkJsonTableChangeSerializer();
         DocumentWriter documentWriter = DocumentWriter.defaultWriter();
@@ -74,7 +74,7 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
         }
     }
 
-    private static Map<TableId, TableChange> readTableSchemas(int version, DataInputDeserializer in)
+    public static Map<TableId, TableChange> readTableSchemas(int version, DataInputDeserializer in)
             throws IOException {
         DocumentReader documentReader = DocumentReader.defaultReader();
         Map<TableId, TableChange> tableSchemas = new HashMap<>();
