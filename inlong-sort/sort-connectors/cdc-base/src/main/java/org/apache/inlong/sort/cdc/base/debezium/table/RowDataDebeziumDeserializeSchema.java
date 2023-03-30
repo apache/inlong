@@ -655,7 +655,30 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out) throws Exception {
-        deserialize(record, out, null);
+        Envelope.Operation op = Envelope.operationFor(record);
+        Struct value = (Struct) record.value();
+        Schema valueSchema = record.valueSchema();
+        if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
+            GenericRowData insert = extractAfterRow(value, valueSchema);
+            insert.setRowKind(RowKind.INSERT);
+            emit(record, insert, null, out);
+        } else if (op == Envelope.Operation.DELETE) {
+            GenericRowData delete = extractBeforeRow(value, valueSchema);
+            delete.setRowKind(RowKind.DELETE);
+            emit(record, delete, null, out);
+        } else {
+            if (!appendSource) {
+                GenericRowData before = extractBeforeRow(value, valueSchema);
+                if (before != null) {
+                    before.setRowKind(RowKind.UPDATE_BEFORE);
+                    emit(record, before, null, out);
+                }
+            }
+
+            GenericRowData after = extractAfterRow(value, valueSchema);
+            after.setRowKind(RowKind.UPDATE_AFTER);
+            emit(record, after, null, out);
+        }
     }
 
     @Override
@@ -686,6 +709,11 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             after.setRowKind(RowKind.UPDATE_AFTER);
             emit(record, after, tableSchema, out);
         }
+    }
+
+    @Override
+    public void deserialize(SourceRecord record, Collector<RowData> out, Boolean isStreamingPhase) throws Exception {
+        this.deserialize(record, out);
     }
 
     private GenericRowData extractAfterRow(Struct value, Schema valueSchema) throws Exception {

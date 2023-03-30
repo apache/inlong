@@ -30,8 +30,8 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mongodb.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mongodb.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.cdc.mongodb.debezium.table.MongoDBConnectorDeserializationSchema;
 import org.apache.inlong.sort.cdc.mongodb.source.MongoDBSource;
@@ -128,11 +128,11 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
         this.pollAwaitTimeMillis = pollAwaitTimeMillis;
         this.heartbeatIntervalMillis = heartbeatIntervalMillis;
         this.localTimeZone = localTimeZone;
+        this.producedDataType = physicalSchema.toPhysicalRowDataType();
+        this.metadataKeys = Collections.emptyList();
         this.enableParallelRead = enableParallelRead;
         this.splitMetaGroupSize = splitMetaGroupSize;
         this.splitSizeMB = splitSizeMB;
-        this.producedDataType = physicalSchema.toPhysicalRowDataType();
-        this.metadataKeys = Collections.emptyList();
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
         this.rowValidator = rowFilter;
@@ -203,6 +203,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                     .ifPresent(builder::heartbeatIntervalMillis);
             Optional.ofNullable(splitMetaGroupSize).ifPresent(builder::splitMetaGroupSize);
             Optional.ofNullable(splitSizeMB).ifPresent(builder::splitSizeMB);
+            Optional.ofNullable(inlongMetric).ifPresent(builder::inlongMetric);
+            Optional.ofNullable(inlongAudit).ifPresent(builder::inlongAudit);
 
             return SourceProvider.of(builder.build());
         } else {

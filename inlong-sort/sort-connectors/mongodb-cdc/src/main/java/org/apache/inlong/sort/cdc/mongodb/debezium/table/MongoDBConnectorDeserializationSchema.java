@@ -36,7 +36,7 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.utils.LogicalTypeUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
 import org.apache.inlong.sort.cdc.mongodb.table.filter.MongoRowKind;
 import org.apache.inlong.sort.cdc.mongodb.table.filter.RowKindValidator;

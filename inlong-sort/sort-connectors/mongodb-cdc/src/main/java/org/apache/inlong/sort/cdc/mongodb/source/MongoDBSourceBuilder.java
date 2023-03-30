@@ -21,10 +21,10 @@ import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 import com.ververica.cdc.connectors.base.options.StartupOptions;
-import com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceConfigFactory;
 import org.apache.flink.annotation.Experimental;
 import org.apache.flink.annotation.PublicEvolving;
-import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfigFactory;
 
 /**
  * The builder class for {@link MongoDBSource} to make it easier for the users to construct a {@link
@@ -83,7 +83,9 @@ public class MongoDBSourceBuilder<T> {
 
     /** Regular expressions list that match database names to be monitored. */
     public MongoDBSourceBuilder<T> databaseList(String... databases) {
-        this.configFactory.databaseList(databases);
+        for (String database : databases) {
+            this.configFactory.databaseList(database.split(","));
+        }
         return this;
     }
 
@@ -92,7 +94,9 @@ public class MongoDBSourceBuilder<T> {
      * monitored. Each identifier is of the form {@code <databaseName>.<collectionName>}.
      */
     public MongoDBSourceBuilder<T> collectionList(String... collections) {
-        this.configFactory.collectionList(collections);
+        for (String collection : collections) {
+            this.configFactory.collectionList(collection.split(","));
+        }
         return this;
     }
 
@@ -166,6 +170,16 @@ public class MongoDBSourceBuilder<T> {
      */
     public MongoDBSourceBuilder<T> splitSizeMB(int splitSizeMB) {
         this.configFactory.splitSizeMB(splitSizeMB);
+        return this;
+    }
+
+    public MongoDBSourceBuilder<T> inlongMetric(String inlongMetric) {
+        this.configFactory.inlongMetric(inlongMetric);
+        return this;
+    }
+
+    public MongoDBSourceBuilder<T> inlongAudit(String inlongAudit) {
+        this.configFactory.inlongAudit(inlongAudit);
         return this;
     }
 
