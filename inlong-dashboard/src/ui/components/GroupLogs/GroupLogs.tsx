@@ -87,13 +87,13 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
   );
 
   useUpdateEffect(() => {
-    if (modalProps.visible) {
+    if (modalProps.open) {
       getData();
     }
   }, [options]);
 
   useUpdateEffect(() => {
-    if (modalProps.visible) {
+    if (modalProps.open) {
       getData();
     } else {
       setOptions(prev => ({
@@ -101,7 +101,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
         pageNum: 1,
       }));
     }
-  }, [modalProps.visible]);
+  }, [modalProps.open]);
 
   const columns = [
     {

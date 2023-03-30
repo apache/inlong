@@ -80,7 +80,7 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
   };
 
   useUpdateEffect(() => {
-    if (modalProps.visible) {
+    if (modalProps.open) {
       // open
       if (id) {
         getData(id);
@@ -91,7 +91,7 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
     } else {
       form.resetFields();
     }
-  }, [modalProps.visible]);
+  }, [modalProps.open]);
 
   const { Entity } = useLoadMeta<NodeMetaType>('node', type);
 
@@ -105,7 +105,7 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
       width={720}
       title={id ? i18n.t('basic.Detail') : i18n.t('basic.Create')}
       footer={[
-        <Button key="cancel" onClick={modalProps.onCancel}>
+        <Button key="cancel" onClick={e => modalProps.onCancel(e)}>
           {i18n.t('basic.Cancel')}
         </Button>,
         <Button key="save" type="primary" onClick={onOk}>

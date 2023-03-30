@@ -50,7 +50,7 @@ const SelectLang = () => {
   );
 
   return (
-    <Dropdown overlay={langMenu} placement="bottomRight">
+    <Dropdown dropdownRender={() => langMenu} placement="bottomRight">
       <GlobalOutlined />
     </Dropdown>
   );

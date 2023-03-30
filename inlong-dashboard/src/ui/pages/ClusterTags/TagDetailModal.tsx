@@ -70,14 +70,14 @@ const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) =>
   };
 
   useUpdateEffect(() => {
-    if (modalProps.visible) {
+    if (modalProps.open) {
       // open
       form.resetFields();
       if (id) {
         getData(id);
       }
     }
-  }, [modalProps.visible]);
+  }, [modalProps.open]);
 
   const content = useMemo(() => {
     return [

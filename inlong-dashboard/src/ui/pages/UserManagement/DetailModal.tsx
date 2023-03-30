@@ -123,11 +123,11 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   };
 
   useUpdateEffect(() => {
-    if (modalProps.visible) {
+    if (modalProps.open) {
       // open
       id ? getData(id) : form.resetFields();
     }
-  }, [modalProps.visible]);
+  }, [modalProps.open]);
 
   return (
     <Modal

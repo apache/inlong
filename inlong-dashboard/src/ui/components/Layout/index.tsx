@@ -85,7 +85,15 @@ const BasicLayout: React.FC = props => {
     };
   }, [handleOnOpenChange, openKeys, selectedKeys]);
 
-  const [navTheme, setNavTheme] = useState(settings.navTheme);
+  const [navTheme, setNavTheme] = useState(
+    window.matchMedia('(prefers-color-scheme: dark)')?.matches ? 'realDark' : settings.navTheme,
+  );
+
+  useEffect(() => {
+    window.matchMedia('(prefers-color-scheme: dark)').onchange = e => {
+      setNavTheme(e.matches ? 'realDark' : settings.navTheme);
+    };
+  }, [settings.navTheme]);
 
   return (
     <>

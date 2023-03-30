@@ -69,14 +69,14 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
   };
 
   useUpdateEffect(() => {
-    if (modalProps.visible) {
+    if (modalProps.open) {
       // open
       form.resetFields();
       if (id) {
         getData(id);
       }
     }
-  }, [modalProps.visible]);
+  }, [modalProps.open]);
 
   const content = useMemo(() => {
     return [

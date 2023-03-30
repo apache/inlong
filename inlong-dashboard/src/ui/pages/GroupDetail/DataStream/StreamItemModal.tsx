@@ -140,14 +140,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
   };
 
   useUpdateEffect(() => {
-    if (modalProps.visible) {
+    if (modalProps.open) {
       // open
       form.resetFields(); // Note that it will cause the form to remount to initiate a select request
       if (inlongStreamId) {
         getStreamData();
       }
     }
-  }, [modalProps.visible]);
+  }, [modalProps.open]);
 
   return (
     <Modal

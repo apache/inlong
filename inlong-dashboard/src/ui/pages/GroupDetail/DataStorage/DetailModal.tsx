@@ -117,7 +117,7 @@ const Comp: React.FC<DetailModalProps> = ({
   }, [Entity, streamDetail, form, id]);
 
   useUpdateEffect(() => {
-    if (modalProps.visible) {
+    if (modalProps.open) {
       // open
       if (id) {
         getGroupData();
@@ -130,7 +130,7 @@ const Comp: React.FC<DetailModalProps> = ({
       form.resetFields();
       setSinkType('');
     }
-  }, [modalProps.visible]);
+  }, [modalProps.open]);
 
   const formContent = useMemo(() => {
     if (Entity) {
@@ -174,7 +174,7 @@ const Comp: React.FC<DetailModalProps> = ({
       width={1200}
       {...modalProps}
       footer={[
-        <Button key="cancel" onClick={modalProps.onCancel}>
+        <Button key="cancel" onClick={e => modalProps.onCancel(e)}>
           {t('pages.GroupDetail.Sink.Cancel')}
         </Button>,
         <Button key="save" type="primary" onClick={() => onOk(false)}>

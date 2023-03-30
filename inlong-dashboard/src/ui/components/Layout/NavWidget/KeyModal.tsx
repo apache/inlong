@@ -105,10 +105,10 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   };
 
   useUpdateEffect(() => {
-    if (modalProps.visible) {
+    if (modalProps.open) {
       getData();
     }
-  }, [modalProps.visible]);
+  }, [modalProps.open]);
 
   useUpdateEffect(() => {
     if (userId !== null) {

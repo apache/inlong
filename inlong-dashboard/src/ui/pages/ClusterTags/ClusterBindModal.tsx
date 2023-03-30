@@ -48,11 +48,11 @@ const Comp: React.FC<Props> = ({ clusterTag, ...modalProps }) => {
   };
 
   useUpdateEffect(() => {
-    if (modalProps.visible) {
+    if (modalProps.open) {
       // open
       form.resetFields();
     }
-  }, [modalProps.visible]);
+  }, [modalProps.open]);
 
   const getCreateFormContent = useCallback(
     () => [

@@ -86,7 +86,7 @@ const Comp: React.FC<Props> = ({
   };
 
   useUpdateEffect(() => {
-    if (modalProps.visible) {
+    if (modalProps.open) {
       // open
       if (id) {
         getData(id);
@@ -97,7 +97,7 @@ const Comp: React.FC<Props> = ({
     } else {
       form.resetFields();
     }
-  }, [modalProps.visible]);
+  }, [modalProps.open]);
 
   const formContent = useMemo(() => {
     return Entity ? new Entity().renderRow() : [];

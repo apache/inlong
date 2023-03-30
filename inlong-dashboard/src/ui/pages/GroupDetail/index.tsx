@@ -115,7 +115,7 @@ const Comp: React.FC = () => {
     });
 
     if (sourceData.total < 1 && sinkData.total < 1) {
-      message.warn(t('pages.GroupDetail.Info.SubmittedWarn'));
+      message.warning(t('pages.GroupDetail.Info.SubmittedWarn'));
       return;
     }
     await request({

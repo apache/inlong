@@ -77,17 +77,13 @@ const PageContainer: React.FC<PageContainerProps> = ({
       header={{
         title: '',
         breadcrumb: breadcrumbData?.length && {
-          routes: breadcrumbData.map(item => ({
+          items: breadcrumbData.map(item => ({
             path: item.path,
-            breadcrumbName: item.name,
+            title: item.name,
           })),
-          itemRender: (route, params, routes) => {
+          itemRender: (route: any, params, routes) => {
             const last = routes.indexOf(route) === routes.length - 1;
-            return last ? (
-              <span>{route.breadcrumbName}</span>
-            ) : (
-              <Link to={route.path}>{route.breadcrumbName}</Link>
-            );
+            return last ? <span>{route.title}</span> : <Link to={route.path}>{route.title}</Link>;
           },
         },
       }}
