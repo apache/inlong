@@ -17,38 +17,19 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
-import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
 import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getCanalData;
-import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getCanalOpType;
 import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getDebeziumOpType;
 import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getMetaData;
 import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getMysqlType;
 import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getOpType;
 import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getPkNames;
 import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getSqlType;
-import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getComment;
-import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getDefaultValue;
-import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getNullable;
-import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.getPosition;
 
-import akka.stream.scaladsl.ScalaSessionAPI;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
-import io.debezium.relational.history.TableChanges.TableChange;
-import java.util.LinkedHashMap;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.alter.Alter;
-import net.sf.jsqlparser.statement.alter.AlterExpression;
-import net.sf.jsqlparser.statement.alter.AlterExpression.ColumnDataType;
-import net.sf.jsqlparser.statement.create.table.ColDataType;
-import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
-import net.sf.jsqlparser.statement.create.table.CreateTable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericArrayData;
@@ -59,30 +40,14 @@ import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.base.util.RecordUtils;
-import org.apache.inlong.sort.ddl.Column;
-import org.apache.inlong.sort.ddl.Position;
-import org.apache.inlong.sort.ddl.enums.AlterType;
-import org.apache.inlong.sort.ddl.enums.IndexType;
-import org.apache.inlong.sort.ddl.enums.PositionType;
-import org.apache.inlong.sort.ddl.expressions.AlterColumn;
-import org.apache.inlong.sort.ddl.indexes.Index;
-import org.apache.inlong.sort.ddl.operations.AlterOperation;
-import org.apache.inlong.sort.ddl.operations.CreateTableOperation;
-import org.apache.inlong.sort.ddl.operations.Operation;
-import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJson.Source;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Defines the supported metadata columns for {@link MySqlTableSource}.
@@ -469,8 +434,6 @@ public enum MySqlReadableMetadata {
                 }
             });
 
-
-
     private final String key;
     private final DataType dataType;
     private final MetadataConverter converter;
@@ -481,7 +444,6 @@ public enum MySqlReadableMetadata {
         this.dataType = dataType;
         this.converter = converter;
     }
-
 
     public String getKey() {
         return key;

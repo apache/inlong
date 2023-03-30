@@ -17,51 +17,145 @@
 
 package org.apache.inlong.sort.ddl.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import net.sf.jsqlparser.statement.alter.AlterExpression.ColumnDataType;
+import net.sf.jsqlparser.statement.create.table.ColDataType;
+import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
+import org.apache.inlong.sort.ddl.Column;
+import org.apache.inlong.sort.ddl.Column.ColumnBuilder;
 import org.apache.inlong.sort.ddl.Position;
 import org.apache.inlong.sort.ddl.enums.PositionType;
 
+/**
+ * Utils for parse from statement in sqlParser to a Column object.
+ */
 public class ColumnUtils {
 
-    public static String getDefaultValue(List<String> specs) {
-        if (specs == null) {
-            return null;
+    public static final String DEFAULT = "DEFAULT";
+    public static final String NULL = "null";
+    public static final String NOT = "not";
+    public static final String COMMENT = "COMMENT";
+    public static final String AFTER = "AFTER";
+
+    /**
+     * parse column definition to a Column object
+     * this method is used for alter operation where a first flag is passed
+     * to determine whether the column is in the first position of one table.
+     */
+    public static Column parseColumnWithPosition(boolean isFirst,
+        Map<String, Integer> sqlType,
+        ColumnDefinition columnDefinition) {
+
+        ColDataType colDataType = columnDefinition.getColDataType();
+
+        List<String> definitions = new ArrayList<>();
+        if (colDataType.getArgumentsStringList() != null) {
+            definitions.addAll(colDataType.getArgumentsStringList());
         }
-        int index = getIndexOfSpecificString(specs, "DEFAULT");
-        return index != -1 ? specs.get(index + 1) : null;
+
+        List<String> columnSpecs = columnDefinition.getColumnSpecs();
+
+        ColumnBuilder columnBuilder = Column.builder();
+        columnBuilder.name(columnDefinition.getColumnName())
+            .definition(definitions).isNullable(parseNullable(columnSpecs))
+            .defaultValue(parseDefaultValue(columnSpecs))
+            .jdbcType(sqlType.get(columnDefinition.getColumnName()))
+            .comment(parseComment(columnSpecs));
+
+        if (isFirst) {
+            // the column is in the first position of one table
+            columnBuilder.position(new Position(PositionType.FIRST, null));
+        } else {
+            columnBuilder.position(parsePosition(columnSpecs));
+        }
+
+        return columnBuilder.build();
     }
 
-    public static boolean getNullable(List<String> specs) {
-        if (specs == null) {
-            return true;
-        }
-        int index = getIndexOfSpecificString(specs, "null");
-        return index <= 0 || !specs.get(index - 1).equalsIgnoreCase("not");
+    /**
+     * parse column definitions to Column list.
+     * this method is used for createTable operation.
+     * @param sqlType the sql type map
+     * @param columnDefinitions the column definition list
+     * @return the column list
+     */
+    public static List<Column> parseColumns(Map<String, Integer> sqlType,
+        List<ColumnDefinition> columnDefinitions) {
+        List<Column> columns = new ArrayList<>();
+        columnDefinitions.forEach(columnDefinition -> {
+            columns.add(parseColumnWithPosition(false, sqlType, columnDefinition));
+        });
+        return columns;
     }
 
-    public static String getComment(List<String> specs) {
-        if (specs == null) {
-            return null;
-        }
-        int index = getIndexOfSpecificString(specs, "COMMENT");
-        return index != -1 ? specs.get(index + 1) : null;
+    public static String parseDefaultValue(List<String> specs) {
+        return parseAdjacentString(specs, DEFAULT, false);
     }
 
-    public static Position getPosition(List<String> specs) {
-        if (specs == null) {
-            return null;
-        }
-        int index = getIndexOfSpecificString(specs, "AFTER");
-        return index != -1 ? new Position(PositionType.AFTER, specs.get(index + 1)) : null;
+    public static boolean parseNullable(List<String> specs) {
+        return !parseAdjacentString(specs, NULL, true).equalsIgnoreCase(NOT);
     }
 
-    public static int getIndexOfSpecificString(List<String> specs, String specificString) {
-        for (int i = 0; i < specs.size(); i++) {
-            if (specs.get(i).equalsIgnoreCase(specificString)) {
-                return i;
+    public static String parseComment(List<String> specs) {
+        return removeContinuousQuotes(parseAdjacentString(specs, COMMENT, false));
+    }
+
+    public static Position parsePosition(List<String> specs) {
+        String afterColumn = parseAdjacentString(specs, AFTER, false);
+        if (!afterColumn.isEmpty()) {
+            return new Position(PositionType.AFTER, afterColumn);
+        }
+        return null;
+    }
+
+    /**
+     * get the string before or after the specific string in a list
+     * @param stringList the string list
+     * @param specificString the specific string
+     * @param front is front of the specific string
+     * @return the string before or after the specific string
+     */
+    public static String parseAdjacentString(List<String> stringList,
+        String specificString, boolean front) {
+
+        if (stringList == null || stringList.isEmpty()) {
+            return "";
+        }
+
+        for (int i = 0; i < stringList.size(); i++) {
+            if (stringList.get(i).equalsIgnoreCase(specificString)) {
+                if (front && i > 0) {
+                    return stringList.get(i - 1);
+                } else if (i < stringList.size() - 1) {
+                    return stringList.get(i + 1);
+                }
             }
         }
-        return -1;
+        return "";
+
+    }
+
+    /**
+     * remove the continuous quotes in the string
+     * input: "comment" -> output: comment
+     * @param str the input string
+     * @return the string without continuous quotes
+     */
+    public static String removeContinuousQuotes(String str) {
+        if (str == null || str.length() < 2) {
+            return str;
+        }
+        int start = 0;
+        int end = str.length() - 1;
+        while (start <= end && str.charAt(start) == '\'') {
+            start++;
+        }
+        while (end >= start && str.charAt(end) == '\'') {
+            end--;
+        }
+        return str.substring(start, end + 1);
     }
 
 }
