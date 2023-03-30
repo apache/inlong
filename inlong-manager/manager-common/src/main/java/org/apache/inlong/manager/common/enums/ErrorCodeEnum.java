@@ -127,7 +127,7 @@ public enum ErrorCodeEnum {
     WORKFLOW_DELETE_RECORD_FAILED(4002, "Workflow delete record failure"),
     WORKFLOW_START_RECORD_FAILED(4003, "Workflow start record failure"),
     WORKFLOW_SUSPEND_RECORD_FAILED(4004, "Workflow suspend record failure"),
-    WORKFLOW_RESTART_RECORD_FAILED(4004, "Workflow restart record failure"),
+    WORKFLOW_RESTART_RECORD_FAILED(4005, "Workflow restart record failure"),
 
     CONSUMER_GROUP_DUPLICATED(2600, "The consumer group already exists"),
     CONSUMER_GROUP_CREATE_FAILED(2601, "Failed to create TubeMQ consumer group"),
