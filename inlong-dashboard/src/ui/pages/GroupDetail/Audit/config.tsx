@@ -21,7 +21,7 @@ import React from 'react';
 import { Button } from 'antd';
 import dayjs from 'dayjs';
 import i18n from '@/i18n';
-import { sinks } from '@/metas/sinks';
+import { sinks } from '@/plugins/sinks';
 
 export const timeStaticsDimList = [
   {

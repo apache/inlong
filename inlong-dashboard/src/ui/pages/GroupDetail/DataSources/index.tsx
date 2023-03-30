@@ -37,7 +37,7 @@ import i18n from '@/i18n';
 import request from '@/core/utils/request';
 import { pickObjectArray } from '@/core/utils';
 import { CommonInterface } from '../common';
-import { sources } from '@/metas/sources';
+import { sources } from '@/plugins/sources';
 
 interface Props extends CommonInterface {
   inlongStreamId?: string;

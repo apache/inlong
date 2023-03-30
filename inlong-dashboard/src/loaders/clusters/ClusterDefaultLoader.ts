@@ -18,7 +18,7 @@
  */
 
 import { Loader } from '@/loaders/Loader';
-import { MetaExportWithBackendList } from '@/metas/types';
+import { MetaExportWithBackendList } from '@/plugins/types';
 
 export class ClusterDefaultLoader implements Loader {
   loadPluginList<T>(

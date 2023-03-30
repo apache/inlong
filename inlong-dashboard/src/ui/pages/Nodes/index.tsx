@@ -23,7 +23,7 @@ import i18n from '@/i18n';
 import HighTable from '@/ui/components/HighTable';
 import { PageContainer } from '@/ui/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
-import { dao } from '@/metas/nodes';
+import { dao } from '@/plugins/nodes';
 import { useDefaultMeta, useLoadMeta, NodeMetaType } from '@/metas';
 import DetailModal from './DetailModal';
 

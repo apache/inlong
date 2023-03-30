@@ -35,7 +35,7 @@ import { useDefaultMeta, useLoadMeta, SinkMetaType } from '@/metas';
 import request from '@/core/utils/request';
 import { pickObjectArray } from '@/core/utils';
 import { CommonInterface } from '../common';
-import { sinks } from '@/metas/sinks';
+import { sinks } from '@/plugins/sinks';
 
 interface Props extends CommonInterface {
   inlongStreamId?: string;

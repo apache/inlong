@@ -28,7 +28,7 @@ import { useRequest, useHistory } from '@/ui/hooks';
 import { defaultSize } from '@/configs/pagination';
 import { GroupLogs } from '@/ui/components/GroupLogs';
 import { dashCardList, useColumns } from './config';
-import { statusList } from '@/metas/groups/common/status';
+import { statusList } from '@/plugins/groups/common/status';
 import { useDefaultMeta } from '@/metas';
 
 const Comp: React.FC = () => {

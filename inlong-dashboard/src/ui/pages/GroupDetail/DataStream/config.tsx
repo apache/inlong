@@ -18,7 +18,7 @@
  */
 
 import i18n from '@/i18n';
-import { statusList } from '@/metas/streams/common/status';
+import { statusList } from '@/plugins/streams/common/status';
 
 export const getFilterFormContent = (defaultValues = {} as any) => [
   {

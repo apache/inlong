@@ -23,7 +23,7 @@ import i18n from '@/i18n';
 import HighTable from '@/ui/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/ui/hooks';
-import { clusters } from '@/metas/clusters';
+import { clusters } from '@/plugins/clusters';
 import ClusterBindModal from './ClusterBindModal';
 import request from '@/core/utils/request';
 

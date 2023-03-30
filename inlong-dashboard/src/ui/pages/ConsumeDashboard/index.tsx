@@ -26,7 +26,7 @@ import { useRequest, useHistory } from '@/ui/hooks';
 import request from '@/core/utils/request';
 import { defaultSize } from '@/configs/pagination';
 import { dashCardList, useColumns } from './config';
-import { statusList, lastConsumerStatusList } from '@/metas/consumes/common/status';
+import { statusList, lastConsumerStatusList } from '@/plugins/consumes/common/status';
 import i18n from '@/i18n';
 import { useDefaultMeta } from '@/metas';
 
