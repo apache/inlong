@@ -20,12 +20,14 @@ package org.apache.inlong.sort.formats.json.canal;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
+import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 @Builder
 @JsonInclude(Include.NON_NULL)
+@Data
 public class CanalJson {
 
     @JsonProperty("data")

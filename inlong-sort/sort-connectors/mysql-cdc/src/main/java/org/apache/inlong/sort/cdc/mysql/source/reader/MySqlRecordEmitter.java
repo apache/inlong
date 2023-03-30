@@ -111,12 +111,17 @@ public final class MySqlRecordEmitter<T>
             TableChanges changes = TABLE_CHANGE_SERIALIZER.deserialize(tableChanges, true);
             for (TableChange tableChange : changes) {
                 splitState.asBinlogSplitState().recordSchema(tableChange.getId(), tableChange);
+                if (includeSchemaChanges) {
+                    outputDdlElement(element, output, splitState, tableChange);
+                }
             }
-            if (includeSchemaChanges) {
-                BinlogOffset position = getBinlogPosition(element);
-                splitState.asBinlogSplitState().setStartingOffset(position);
-                emitElement(element, output, null);
+
+            // for create table ddl, there's no table change events
+            // still we need to generate a ddl message
+            if (tableChanges.isEmpty()) {
+                outputDdlElement(element, output, splitState, null);
             }
+
         } else if (isDataChangeRecord(element)) {
             if (splitState.isBinlogSplitState()) {
                 BinlogOffset position = getBinlogPosition(element);
@@ -173,6 +178,13 @@ public final class MySqlRecordEmitter<T>
         if (splitState.isSnapshotSplitState() && includeIncremental) {
             toSnapshotRecord(element);
         }
+    }
+
+    private void outputDdlElement(SourceRecord element, SourceOutput<T> output, MySqlSplitState splitState,
+            TableChange tableChange) throws Exception {
+        BinlogOffset position = getBinlogPosition(element);
+        splitState.asBinlogSplitState().setStartingOffset(position);
+        emitElement(element, output, tableChange);
     }
 
     private void updateStartingOffsetForSplit(MySqlSplitState splitState, SourceRecord element) {
