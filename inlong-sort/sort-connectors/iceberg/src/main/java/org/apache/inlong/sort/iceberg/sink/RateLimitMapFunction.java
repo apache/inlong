@@ -21,8 +21,14 @@ import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.RateLimiter;
 
+/**
+ * Function that limit the rate.
+ */
 public class RateLimitMapFunction<T> extends RichMapFunction<T, T> {
 
+    /**
+     * Rate limit per second for all subtasks added up.
+     */
     private final double totalLimit;
     private transient RateLimiter rateLimiter;
 
