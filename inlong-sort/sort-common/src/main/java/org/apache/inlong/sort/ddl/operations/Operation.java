@@ -33,11 +33,11 @@ import org.apache.inlong.sort.ddl.enums.OperationType;
 @NoArgsConstructor
 public abstract class Operation {
 
-    @JsonProperty("type")
-    private OperationType type;
+    @JsonProperty("operationType")
+    private OperationType operationType;
 
-    public Operation(OperationType type) {
-        this.type = type;
+    public Operation(@JsonProperty("operationType") OperationType type) {
+        this.operationType = type;
     }
 
 }

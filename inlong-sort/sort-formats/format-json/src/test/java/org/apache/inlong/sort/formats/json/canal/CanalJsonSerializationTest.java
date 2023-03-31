@@ -27,6 +27,7 @@ import org.apache.inlong.sort.ddl.enums.AlterType;
 import org.apache.inlong.sort.ddl.enums.PositionType;
 import org.apache.inlong.sort.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.ddl.operations.AlterOperation;
+import org.apache.inlong.sort.ddl.operations.Operation;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,11 @@ public class CanalJsonSerializationTest {
             String writeValueAsString = OBJECT_MAPPER.writeValueAsString(canalJson);
             LOG.info(writeValueAsString);
             CanalJson canalJson1 = objectMapper.readValue(writeValueAsString, CanalJson.class);
+
+            String ss = OBJECT_MAPPER.writeValueAsString(alterOperation);
+            LOG.info(ss);
+            Operation operation = objectMapper.readValue(ss, Operation.class);
+
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

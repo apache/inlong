@@ -58,10 +58,11 @@ public class ColumnUtils {
         List<String> columnSpecs = columnDefinition.getColumnSpecs();
 
         ColumnBuilder columnBuilder = Column.builder();
-        columnBuilder.name(columnDefinition.getColumnName())
+        String columnName = removeContinuousBackQuotes(columnDefinition.getColumnName());
+        columnBuilder.name(columnName)
             .definition(definitions).isNullable(parseNullable(columnSpecs))
             .defaultValue(parseDefaultValue(columnSpecs))
-            .jdbcType(sqlType.get(columnDefinition.getColumnName()))
+            .jdbcType(sqlType.get(columnName))
             .comment(parseComment(columnSpecs));
 
         if (isFirst) {
@@ -91,7 +92,7 @@ public class ColumnUtils {
     }
 
     public static String parseDefaultValue(List<String> specs) {
-        return parseAdjacentString(specs, DEFAULT, false);
+        return removeContinuousQuotes(parseAdjacentString(specs, DEFAULT, false));
     }
 
     public static boolean parseNullable(List<String> specs) {
@@ -103,7 +104,7 @@ public class ColumnUtils {
     }
 
     public static Position parsePosition(List<String> specs) {
-        String afterColumn = parseAdjacentString(specs, AFTER, false);
+        String afterColumn = removeContinuousBackQuotes(parseAdjacentString(specs, AFTER, false));
         if (!afterColumn.isEmpty()) {
             return new Position(PositionType.AFTER, afterColumn);
         }
@@ -138,24 +139,31 @@ public class ColumnUtils {
     }
 
     /**
-     * remove the continuous quotes in the string
-     * input: "comment" -> output: comment
-     * @param str the input string
-     * @return the string without continuous quotes
+     * remove the continuous char in the string from both sides.
+     * @param str the input string, target the char to be removed
+     * @return the string without continuous chars from both sides
      */
-    public static String removeContinuousQuotes(String str) {
+    public static String removeContinuousChar(String str, char target) {
         if (str == null || str.length() < 2) {
             return str;
         }
         int start = 0;
         int end = str.length() - 1;
-        while (start <= end && str.charAt(start) == '\'') {
+        while (start <= end && str.charAt(start) == target) {
             start++;
         }
-        while (end >= start && str.charAt(end) == '\'') {
+        while (end >= start && str.charAt(end) == target) {
             end--;
         }
         return str.substring(start, end + 1);
+    }
+
+    public static String removeContinuousQuotes(String str) {
+        return removeContinuousChar(str, '\'');
+    }
+
+    public static String removeContinuousBackQuotes(String str) {
+        return removeContinuousChar(str, '`');
     }
 
 }

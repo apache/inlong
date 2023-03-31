@@ -21,6 +21,8 @@ import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getSqlType;
 import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.parseColumnWithPosition;
 import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.parseColumns;
 import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.parseComment;
+import static org.apache.inlong.sort.ddl.Utils.ColumnUtils.removeContinuousBackQuotes;
+
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +51,7 @@ import org.slf4j.LoggerFactory;
 public class OperationUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(RowDataDebeziumDeserializeSchema.class);
-    public static final String PRIMARY_KEY = "PRIMARY_KEY";
+    public static final String PRIMARY_KEY = "PRIMARY KEY";
     public static final String NORMAL_INDEX = "NORMAL_INDEX";
     public static final String FIRST = "FIRST";
 
@@ -119,11 +121,14 @@ public class OperationUtils {
         CreateTableOperation createTableOperation = new CreateTableOperation();
         List<ColumnDefinition> columnDefinitions = statement.getColumnDefinitions();
 
+        if (statement.getLikeTable() != null) {
+            createTableOperation.setLikeTable(parseLikeTable(statement));
+            return createTableOperation;
+        }
+
         createTableOperation.setColumns(parseColumns(sqlType, columnDefinitions));
         createTableOperation.setIndexes(parseIndexes(statement));
-        createTableOperation.setLikeTable(parseLikeTable(statement));
         createTableOperation.setComment(parseComment(statement.getTableOptionsStrings()));
-
         return createTableOperation;
     }
 
@@ -134,12 +139,14 @@ public class OperationUtils {
      * @return list of indexes
      */
     private static List<Index> parseIndexes(CreateTable statement) {
+
         if (statement.getIndexes() == null) {
             return new ArrayList<>();
         }
-        return  statement.getIndexes().stream().map(perIndex -> {
+        List<Index> indexList = new ArrayList<>();
+
+        for (net.sf.jsqlparser.statement.create.table.Index perIndex : statement.getIndexes()) {
             Index index = new Index();
-            index.setIndexName(perIndex.getName());
             switch (perIndex.getType()) {
                 case PRIMARY_KEY:
                     index.setIndexType(IndexType.PRIMARY_KEY);
@@ -147,13 +154,19 @@ public class OperationUtils {
                 case NORMAL_INDEX:
                     index.setIndexType(IndexType.NORMAL_INDEX);
                     break;
-                    default:
-                        LOG.error("unsupported index type {}", perIndex.getType());
-                        break;
+                default:
+                    LOG.error("unsupported index type {}", perIndex.getType());
+                    break;
             }
-            index.setIndexColumns(perIndex.getColumnsNames());
-            return index;
-        }).collect(Collectors.toList());
+            List<String> columns = new ArrayList<>();
+            perIndex.getColumnsNames().forEach(columnName ->
+                columns.add(removeContinuousBackQuotes(columnName)));
+            index.setIndexName(removeContinuousBackQuotes(perIndex.getName()));
+            index.setIndexColumns(columns);
+            indexList.add(index);
+        }
+
+        return indexList;
 
     }
 
