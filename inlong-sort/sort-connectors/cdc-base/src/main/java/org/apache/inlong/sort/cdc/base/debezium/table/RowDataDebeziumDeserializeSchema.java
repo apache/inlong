@@ -796,7 +796,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
      */
     private GenericRowData extractGhostRecord(GenericRowData data) throws Exception {
         String ddl = ((Map<String, String>)data.getField(0)).get(DDL_FIELD_NAME);
-        // According ghost table regex to find ghost table
         if (this.ghostTableRegex.startsWith(CARET) && this.ghostTableRegex.endsWith(DOLLAR)) {
             this.ghostTableRegex = this.ghostTableRegex.substring(1, this.ghostTableRegex.length() - 1);
         }
