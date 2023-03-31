@@ -132,6 +132,7 @@ const Comp: React.FC<Props> = ({ id, defaultType, ...modalProps }) => {
         content={content}
         form={form}
         onValuesChange={(c, values) => setType(values.type)}
+        initialValues={id ? savedData : {}}
         useMaxWidth
       />
     </Modal>
