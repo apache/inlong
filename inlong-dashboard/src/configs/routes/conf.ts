@@ -22,33 +22,33 @@ import type { RouteProps } from '.';
 const conf: RouteProps[] = [
   {
     path: '/login',
-    component: () => import('@/pages/Login'),
+    component: () => import('@/ui/pages/Login'),
   },
   {
     path: '/group',
-    component: () => import('@/pages/GroupDashboard'),
+    component: () => import('@/ui/pages/GroupDashboard'),
     childRoutes: [
       {
         path: '/create/:id?',
-        component: () => import('@/pages/GroupDetail'),
+        component: () => import('@/ui/pages/GroupDetail'),
       },
       {
         path: '/detail/:id',
-        component: () => import('@/pages/GroupDetail'),
+        component: () => import('@/ui/pages/GroupDetail'),
       },
     ],
   },
   {
     path: '/consume',
-    component: () => import('@/pages/ConsumeDashboard'),
+    component: () => import('@/ui/pages/ConsumeDashboard'),
     childRoutes: [
       {
         path: '/create/:id?',
-        component: () => import('@/pages/ConsumeDetail'),
+        component: () => import('@/ui/pages/ConsumeDetail'),
       },
       {
         path: '/detail/:id',
-        component: () => import('@/pages/ConsumeDetail'),
+        component: () => import('@/ui/pages/ConsumeDetail'),
       },
     ],
   },
@@ -57,48 +57,48 @@ const conf: RouteProps[] = [
     childRoutes: [
       {
         path: '/:type?',
-        component: () => import('@/pages/Process'),
+        component: () => import('@/ui/pages/Process'),
         childRoutes: [
           {
             path: '/:id',
-            component: () => import('@/pages/ProcessDetail'),
+            component: () => import('@/ui/pages/ProcessDetail'),
           },
         ],
       },
       {
         path: '/detail/:id',
-        component: () => import('@/pages/ProcessDetail'),
+        component: () => import('@/ui/pages/ProcessDetail'),
       },
     ],
   },
   {
     path: '/user',
-    component: () => import('@/pages/UserManagement'),
+    component: () => import('@/ui/pages/UserManagement'),
   },
   {
     path: '/approval',
-    component: () => import('@/pages/ProcessManagement'),
+    component: () => import('@/ui/pages/ProcessManagement'),
   },
   {
     path: '/clusters',
-    component: () => import('@/pages/Clusters'),
+    component: () => import('@/ui/pages/Clusters'),
     childRoutes: [
       {
         path: '/node',
-        component: () => import('@/pages/Clusters/NodeManage'),
+        component: () => import('@/ui/pages/Clusters/NodeManage'),
       },
     ],
   },
   {
     path: '/clusterTags',
-    component: () => import('@/pages/ClusterTags'),
+    component: () => import('@/ui/pages/ClusterTags'),
   },
   {
     path: '/node',
-    component: () => import('@/pages/Nodes'),
+    component: () => import('@/ui/pages/Nodes'),
   },
   {
-    component: () => import('@/pages/Error/404'),
+    component: () => import('@/ui/pages/Error/404'),
   },
 ];
 

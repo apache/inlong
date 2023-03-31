@@ -18,7 +18,7 @@
  */
 
 import { Loader } from '@/loaders/Loader';
-import { MetaExportWithBackendList } from '@/metas/types';
+import { MetaExportWithBackendList } from '@/plugins/types';
 
 export class ConsumeDefaultLoader implements Loader {
   loadPluginList<T>(

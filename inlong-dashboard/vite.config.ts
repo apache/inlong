@@ -53,28 +53,10 @@ export default defineConfig({
     }),
     react(),
     tsConfigPaths(),
-    vitePluginImp({
-      libList: [
-        {
-          libName: 'antd',
-          style: name => `antd/es/${name}/style`,
-        },
-      ],
-    }),
     dynamicImport(),
     svgr(),
     eslintPlugin({
       include: ['src/**/*.js', 'src/**/*.jsx', 'src/**/*.ts', 'src/**/*.tsx'],
     }),
   ],
-  css: {
-    preprocessorOptions: {
-      less: {
-        javascriptEnabled: true,
-        modifyVars: {
-          hack: `true; @import "${path.resolve('src/themes/antd.var.less')}";`,
-        },
-      },
-    },
-  },
 });

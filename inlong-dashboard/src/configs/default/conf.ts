@@ -18,10 +18,10 @@
  */
 import { PageLoading } from '@ant-design/pro-layout';
 import i18n from '@/i18n';
-import Provider from '@/components/Provider';
-import Layout from '@/components/Layout';
+import Provider from '@/ui/components/Provider';
+import Layout from '@/ui/components/Layout';
 import { message } from 'antd';
-import type { SuccessResponse } from '@/utils/request';
+import type { SuccessResponse } from '@/core/utils/request';
 
 const conf = {
   title: '',

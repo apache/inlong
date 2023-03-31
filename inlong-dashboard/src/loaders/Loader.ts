@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { MetaExportWithBackendList } from '@/metas/types';
+import { MetaExportWithBackendList } from '@/plugins/types';
 
 export abstract class Loader {
   abstract loadPluginList<T>(

@@ -18,7 +18,7 @@
  */
 
 import { Loader } from '@/loaders/Loader';
-import { MetaExportWithBackendList } from '@/metas/types';
+import { MetaExportWithBackendList } from '@/plugins/types';
 
 export class StreamDefaultLoader implements Loader {
   loadPluginList<T>(
