@@ -82,7 +82,7 @@
         <retrofit.version>2.9.0</retrofit.version>
 
         <spring.boot.version>2.6.6</spring.boot.version>
-        <spring.version>5.3.20</spring.version>
+        <spring.version>5.3.26</spring.version>
         <spring.autoconfigure.version>2.4.3</spring.autoconfigure.version>
         <spring.plugin.version>2.6.6</spring.plugin.version>
         <spring.fox.version>3.0.0</spring.fox.version>
