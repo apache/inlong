@@ -37,9 +37,10 @@ export class NodeDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    props: {
+    props: values => ({
       maxLength: 128,
-    },
+      disabled: Boolean(values.id),
+    }),
   })
   @ColumnDecorator()
   @I18n('meta.Nodes.Name')
@@ -49,14 +50,15 @@ export class NodeDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     type: nodes.length > 3 ? 'select' : 'radio',
     initialValue: defaultValue,
     rules: [{ required: true }],
-    props: {
+    props: values => ({
+      disabled: Boolean(values.id),
       options: nodes
         .filter(item => item.value)
         .map(item => ({
           label: item.label,
           value: item.value,
         })),
-    },
+    }),
   })
   @ColumnDecorator({
     render: type => nodes.find(c => c.value === type)?.label || type,

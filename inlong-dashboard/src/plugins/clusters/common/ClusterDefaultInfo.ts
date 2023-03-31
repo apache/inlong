@@ -37,9 +37,10 @@ export class ClusterDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    props: {
+    props: values => ({
       maxLength: 128,
-    },
+      disabled: Boolean(values.id),
+    }),
   })
   @ColumnDecorator()
   @I18n('pages.Clusters.Name')
@@ -49,14 +50,15 @@ export class ClusterDefaultInfo implements DataWithBackend, RenderRow, RenderLis
     type: clusters.length > 3 ? 'select' : 'radio',
     initialValue: defaultValue,
     rules: [{ required: true }],
-    props: {
+    props: values => ({
+      disabled: Boolean(values.id),
       options: clusters
         .filter(item => item.value)
         .map(item => ({
           label: item.label,
           value: item.value,
         })),
-    },
+    }),
   })
   @ColumnDecorator({
     render: type => clusters.find(c => c.value === type)?.label || type,
