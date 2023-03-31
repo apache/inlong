@@ -81,6 +81,7 @@ import java.util.function.Function;
 import static org.apache.iceberg.TableProperties.UPSERT_ENABLED;
 import static org.apache.iceberg.TableProperties.UPSERT_ENABLED_DEFAULT;
 import static org.apache.iceberg.TableProperties.WRITE_DISTRIBUTION_MODE;
+import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_RATE_LIMIT;
 
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
@@ -429,9 +430,12 @@ public class FlinkSink {
                     distributeDataStream(
                             rowDataInput, equalityFieldIds, table.spec(), table.schema(), flinkRowType);
 
+            // Add rate limit if necessary
+            DataStream<RowData> inputWithRateLimit = appendWithRateLimit(distributeStream);
+
             // Add parallel writers that append rows to files
             SingleOutputStreamOperator<WriteResult> writerStream =
-                    appendWriter(distributeStream, flinkRowType, equalityFieldIds);
+                    appendWriter(inputWithRateLimit, flinkRowType, equalityFieldIds);
 
             // Add single-parallelism committer that commits files
             // after successful checkpoint or end of input
@@ -446,8 +450,11 @@ public class FlinkSink {
                     "Please use forRowData() or forMapperOutputType() to initialize the input DataStream.");
             DataStream<RowData> rowDataInput = inputCreator.apply(uidPrefix);
 
+            // Add rate limit if necessary
+            DataStream<RowData> inputWithRateLimit = appendWithRateLimit(rowDataInput);
+
             // Add parallel writers that append rows to files
-            SingleOutputStreamOperator<MultipleWriteResult> writerStream = appendMultipleWriter(rowDataInput);
+            SingleOutputStreamOperator<MultipleWriteResult> writerStream = appendMultipleWriter(inputWithRateLimit);
 
             // Add single-parallelism committer that commits files
             // after successful checkpoint or end of input
@@ -522,6 +529,22 @@ public class FlinkSink {
                 resultStream = resultStream.uid(uidPrefix + "-dummysink");
             }
             return resultStream;
+        }
+
+        private <T> DataStream<T> appendWithRateLimit(DataStream<T> input) {
+            if (tableOptions.get(WRITE_RATE_LIMIT) <= 0) {
+                return input;
+            }
+
+            SingleOutputStreamOperator<T> inputWithRateLimit = input
+                    .map(new RateLimitMapFunction(tableOptions.get(WRITE_RATE_LIMIT)))
+                    .name("rate_limit")
+                    .setParallelism(input.getParallelism());
+
+            if (uidPrefix != null) {
+                ((SingleOutputStreamOperator) inputWithRateLimit).uid(uidPrefix + "_rate_limit");
+            }
+            return inputWithRateLimit;
         }
 
         private SingleOutputStreamOperator<Void> appendCommitter(SingleOutputStreamOperator<WriteResult> writerStream) {
