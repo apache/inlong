@@ -341,11 +341,11 @@ public final class Constants {
             .booleanType()
             .defaultValue(false)
             .withDescription(
-                    "Whether capture DDL changes of gh-ost, default value is 'false'.");
+                    "Whether parse ddl changes of gh-ost, default value is 'false'.");
     public static final ConfigOption<String> GH_OST_TABLE_REGEX = ConfigOptions
             .key("gh-ost.table.regex")
             .stringType()
             .defaultValue("^_(.*)_(gho|ghc|del|new|old)$")
             .withDescription(
-                    "Extract the original table name from the ghost table.");
+                    "Matcher the original table name from the ddl of gh-ost.");
 }
