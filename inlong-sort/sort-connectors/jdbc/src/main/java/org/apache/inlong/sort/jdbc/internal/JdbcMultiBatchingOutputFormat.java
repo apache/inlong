@@ -527,7 +527,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             } catch (Exception e) {
                 tableException = e;
                 LOG.warn("Flush all data for tableIdentifier:{} get err:", tableIdentifier, e);
-                getAndSetPkFromErrMsg(tableIdentifier, e.getMessage());
+                getAndSetPkFromErrMsg(e.getMessage(), tableIdentifier);
                 updateOneExecutor(true, tableIdentifier);
                 try {
                     Thread.sleep(1000);
