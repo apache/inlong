@@ -336,7 +336,7 @@ public final class Constants {
             .defaultValue(10240L)
             .withDescription(
                     "The flush max bytes, over this number in batch, will flush data. The default value is 10KB.");
-    public static final ConfigOption<Boolean> GH_OST_DDL_CHANGE= ConfigOptions
+    public static final ConfigOption<Boolean> GH_OST_DDL_CHANGE = ConfigOptions
             .key("gh-ost.ddl.change")
             .booleanType()
             .defaultValue(false)
