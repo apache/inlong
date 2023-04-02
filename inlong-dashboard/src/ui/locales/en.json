@@ -728,5 +728,12 @@
   "pages.ApprovalManagement.Creator": "Creator Name",
   "pages.ApprovalManagement.Modifier": "Modifier Name",
   "pages.ApprovalManagement.CreateProcess": "Create Process",
-  "pages.Nodes.TestConnection": "Test Connection"
+  "pages.Nodes.TestConnection": "Test Connection",
+  "pages.Sort.EngineType": "Engine",
+  "pages.Sort.EngineVersion": "Engine Version",
+  "pages.Sort.ResourceType": "Resource Management",
+  "pages.Sort.yarnRestHost": "Yarn Rest Host",
+  "pages.Sort.yarnRestPort": "Yarn Rest Port",
+  "pages.Sort.Parallelism": "Parallelism",
+  "pages.Sort.AuditProxy": "Audit Proxy"
 }

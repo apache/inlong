@@ -729,5 +729,12 @@
   "pages.ApprovalManagement.Creator": "创建人",
   "pages.ApprovalManagement.Modifier": "修改人",
   "pages.ApprovalManagement.CreateProcess": "新建流程",
-  "pages.Nodes.TestConnection": "测试连接"
+  "pages.Nodes.TestConnection": "测试连接",
+  "pages.Sort.EngineType": "引擎",
+  "pages.Sort.EngineVersion": "引擎版本",
+  "pages.Sort.ResourceType": "资源管理",
+  "pages.Sort.yarnRestHost": "YarnRestHost",
+  "pages.Sort.yarnRestPort": "YarnRestPort",
+  "pages.Sort.Parallelism": "并行度",
+  "pages.Sort.AuditProxy": "审计代理地址"
 }
