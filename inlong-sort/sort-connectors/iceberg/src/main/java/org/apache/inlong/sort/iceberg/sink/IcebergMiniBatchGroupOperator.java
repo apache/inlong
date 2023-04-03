@@ -54,12 +54,14 @@ public class IcebergMiniBatchGroupOperator extends TableStreamOperator<RowData>
 
     private transient StreamRecordCollector<RowData> collector;
     private transient Map<Tuple2<String, RowData>, RowData> inputBuffer;
+    private transient Map<Tuple2<String, RowData>, List<RowData>> inputBufferForNotAgg;
     private transient RowDataWrapper wrapper;
 
     private final FieldGetter[] fieldsGetter;
     private final int[] equalityFieldIndex; // the position ordered of equality field in row schema
     private final PartitionKey partitionKey; // partition key helper
     private final Schema rowSchema; // the whole field schema
+    private final boolean preAggregation;
 
     /**
      * Initialize field index.
@@ -73,7 +75,8 @@ public class IcebergMiniBatchGroupOperator extends TableStreamOperator<RowData>
             FieldGetter[] fieldsGetter,
             Schema deleteSchema,
             Schema rowSchema,
-            PartitionKey partitionKey) {
+            PartitionKey partitionKey,
+            boolean preAggregation) {
         this.fieldsGetter = fieldsGetter;
         // note: here because `NestedField` does not override equals function, so can not indexOf by `NestedField`
         this.equalityFieldIndex = deleteSchema.columns().stream()
@@ -87,6 +90,7 @@ public class IcebergMiniBatchGroupOperator extends TableStreamOperator<RowData>
                 .toArray();
         this.partitionKey = partitionKey;
         this.rowSchema = rowSchema;
+        this.preAggregation = preAggregation;
         // do some check, check whether index is legal. can not be null and unique, and number in fields range.
         Preconditions.checkArgument(
                 Arrays.stream(equalityFieldIndex)
@@ -103,6 +107,7 @@ public class IcebergMiniBatchGroupOperator extends TableStreamOperator<RowData>
         this.collector = new StreamRecordCollector<>(output);
         this.wrapper = new RowDataWrapper(FlinkSchemaUtil.convert(rowSchema), rowSchema.asStruct());
         this.inputBuffer = new HashMap<>();
+        this.inputBufferForNotAgg = new HashMap<>();
     }
 
     @Override
@@ -114,10 +119,21 @@ public class IcebergMiniBatchGroupOperator extends TableStreamOperator<RowData>
                 .toArray(Object[]::new));
         partitionKey.partition(wrapper.wrap(row));
 
-        if (RowDataUtil.isAccumulateMsg(row)) {
-            inputBuffer.put(new Tuple2<>(partitionKey.toPath(), primaryKey), row);
+        if (preAggregation) {
+            if (RowDataUtil.isAccumulateMsg(row)) {
+                inputBuffer.put(new Tuple2<>(partitionKey.toPath(), primaryKey), row);
+            } else {
+                inputBuffer.remove(new Tuple2<>(partitionKey.toPath(), primaryKey));
+            }
         } else {
-            inputBuffer.remove(new Tuple2<>(partitionKey.toPath(), primaryKey));
+            inputBufferForNotAgg.compute(new Tuple2<>(partitionKey.toPath(), primaryKey), (k, v) -> {
+                List<RowData> list = v;
+                if (list == null) {
+                    list = new ArrayList<>();
+                }
+                list.add(row);
+                return list;
+            });
         }
     }
 
@@ -142,6 +158,14 @@ public class IcebergMiniBatchGroupOperator extends TableStreamOperator<RowData>
         LOG.info("Flushing IcebergMiniBatchGroupOperator.");
         // Emit the rows group by partition
         // scan range key, this range key contains all one partition data
+        if (preAggregation) {
+            flushPreAgg();
+        } else {
+            flushNonAgg();
+        }
+    }
+
+    private void flushPreAgg() throws Exception {
         if (!inputBuffer.isEmpty()) {
             // Emit the rows group by partition
             Map<String, List<RowData>> map0 = inputBuffer.entrySet()
@@ -158,6 +182,44 @@ public class IcebergMiniBatchGroupOperator extends TableStreamOperator<RowData>
                                     }
 
                                     oldList.add(record.getValue());
+                                    return oldList;
+                                });
+                                return map;
+                            },
+                            (map1, map2) -> {
+                                for (String key : map2.keySet()) {
+                                    if (!map1.containsKey(key)) {
+                                        map1.put(key, map2.get(key));
+                                    } else {
+                                        map1.get(key).addAll(map2.get(key));
+                                    }
+                                }
+                                return map1;
+                            });
+            map0.values()
+                    .forEach(
+                            list -> list.forEach(record -> collector.collect(record)));
+        }
+        inputBuffer.clear();
+    }
+
+    private void flushNonAgg() throws Exception {
+        if (!inputBufferForNotAgg.isEmpty()) {
+            // Emit the rows group by partition
+            Map<String, List<RowData>> map0 = inputBufferForNotAgg.entrySet()
+                    .stream()
+                    .<Map<String, List<RowData>>>reduce(
+                            new HashMap<>(),
+                            (map, record) -> {
+                                String partition = record.getKey().f0;
+                                map.compute(partition, (String par, List<RowData> oldList) -> {
+                                    if (oldList == null) {
+                                        List<RowData> list = new ArrayList<>();
+                                        list.addAll(record.getValue());
+                                        return list;
+                                    }
+
+                                    oldList.addAll(record.getValue());
                                     return oldList;
                                 });
                                 return map;

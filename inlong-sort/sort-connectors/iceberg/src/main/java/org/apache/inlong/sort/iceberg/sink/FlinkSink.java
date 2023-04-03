@@ -83,6 +83,7 @@ import java.util.stream.IntStream;
 
 import static org.apache.iceberg.TableProperties.WRITE_DISTRIBUTION_MODE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_ENABLE;
+import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_PRE_AGG_ENABLE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_RATE_LIMIT;
 
 /**
@@ -568,10 +569,12 @@ public class FlinkSink {
             PartitionKey partitionKey = new PartitionKey(table.spec(), table.schema());
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
+            boolean preAggregation = tableOptions.get(WRITE_MINI_BATCH_PRE_AGG_ENABLE) && !equalityFieldIds.isEmpty();
             SingleOutputStreamOperator<RowData> inputWithMiniBatchGroup = input
                     .transform("mini_batch_group",
                             input.getType(),
-                            new IcebergMiniBatchGroupOperator(fieldGetters, deleteSchema, writeSchema, partitionKey))
+                            new IcebergMiniBatchGroupOperator(
+                                    fieldGetters, deleteSchema, writeSchema, partitionKey, preAggregation))
                     .setParallelism(parallelism);
             if (uidPrefix != null) {
                 inputWithMiniBatchGroup.uid(uidPrefix + "mini_batch_group");
