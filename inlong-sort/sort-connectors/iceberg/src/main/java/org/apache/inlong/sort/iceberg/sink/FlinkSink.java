@@ -29,6 +29,7 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.sink.DiscardingSink;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.RowData.FieldGetter;
 import org.apache.flink.table.data.util.DataFormatConverters;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
@@ -36,6 +37,7 @@ import org.apache.flink.types.Row;
 import org.apache.iceberg.DataFile;
 import org.apache.iceberg.DistributionMode;
 import org.apache.iceberg.PartitionField;
+import org.apache.iceberg.PartitionKey;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.SerializableTable;
@@ -56,7 +58,6 @@ import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 import org.apache.iceberg.types.TypeUtil;
-import org.apache.iceberg.util.PropertyUtil;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
@@ -77,10 +78,11 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.apache.iceberg.TableProperties.UPSERT_ENABLED;
-import static org.apache.iceberg.TableProperties.UPSERT_ENABLED_DEFAULT;
 import static org.apache.iceberg.TableProperties.WRITE_DISTRIBUTION_MODE;
+import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_ENABLE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_RATE_LIMIT;
 
 /**
@@ -164,7 +166,6 @@ public class FlinkSink {
         private boolean upsert = false;
         private List<String> equalityFieldColumns = null;
         private String uidPrefix = null;
-        private ReadableConfig readableConfig = new Configuration();
         private final Map<String, String> writeOptions = Maps.newHashMap();
         private FlinkWriteConf flinkWriteConf = null;
         private String inlongMetric = null;
@@ -174,7 +175,7 @@ public class FlinkSink {
         private MultipleSinkOption multipleSinkOption = null;
         private DirtyOptions dirtyOptions;
         private @Nullable DirtySink<Object> dirtySink;
-        private ReadableConfig tableOptions;
+        private ReadableConfig tableOptions = new Configuration();
 
         private Builder() {
         }
@@ -256,11 +257,6 @@ public class FlinkSink {
         public Builder overwrite(boolean newOverwrite) {
             this.overwrite = newOverwrite;
             writeOptions.put(FlinkWriteOptions.OVERWRITE_MODE.key(), Boolean.toString(newOverwrite));
-            return this;
-        }
-
-        public Builder flinkConf(ReadableConfig config) {
-            this.readableConfig = config;
             return this;
         }
 
@@ -416,7 +412,7 @@ public class FlinkSink {
                 }
             }
 
-            flinkWriteConf = new FlinkWriteConf(table, writeOptions, readableConfig);
+            flinkWriteConf = new FlinkWriteConf(table, writeOptions, tableOptions);
 
             // Find out the equality field id list based on the user-provided equality field column names.
             List<Integer> equalityFieldIds = checkAndGetEqualityFieldIds();
@@ -430,12 +426,9 @@ public class FlinkSink {
                     distributeDataStream(
                             rowDataInput, equalityFieldIds, table.spec(), table.schema(), flinkRowType);
 
-            // Add rate limit if necessary
-            DataStream<RowData> inputWithRateLimit = appendWithRateLimit(distributeStream);
-
             // Add parallel writers that append rows to files
             SingleOutputStreamOperator<WriteResult> writerStream =
-                    appendWriter(inputWithRateLimit, flinkRowType, equalityFieldIds);
+                    appendWriter(distributeStream, flinkRowType, equalityFieldIds);
 
             // Add single-parallelism committer that commits files
             // after successful checkpoint or end of input
@@ -536,15 +529,54 @@ public class FlinkSink {
                 return input;
             }
 
+            int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             SingleOutputStreamOperator<T> inputWithRateLimit = input
                     .map(new RateLimitMapFunction(tableOptions.get(WRITE_RATE_LIMIT)))
                     .name("rate_limit")
-                    .setParallelism(input.getParallelism());
+                    .setParallelism(parallelism);
 
             if (uidPrefix != null) {
                 ((SingleOutputStreamOperator) inputWithRateLimit).uid(uidPrefix + "_rate_limit");
             }
             return inputWithRateLimit;
+        }
+
+        /**
+         * This operator is used to buffer a mini batch data group by field before writing to save memory resources.
+         *
+         * This operator must have the same degree of parallelism as the writer operator to ensure that the data of
+         * the same batch of equality fields in a checkpoint period will only be processed once by a certain writer
+         * subtask (rather than processed multiple times).
+         *
+         * @param input
+         * @return
+         */
+        private DataStream<RowData> appendWithMiniBatchGroup(DataStream<RowData> input,
+                RowType flinkType,
+                Set<Integer> equalityFieldIds) {
+            if (!tableOptions.get(WRITE_MINI_BATCH_ENABLE)) {
+                return input;
+            }
+
+            FieldGetter[] fieldGetters =
+                    IntStream.range(0, flinkType.getFieldCount())
+                            .mapToObj(i -> RowData.createFieldGetter(flinkType.getTypeAt(i), i))
+                            .toArray(RowData.FieldGetter[]::new);
+            Schema writeSchema = TypeUtil.reassignIds(
+                    FlinkSchemaUtil.convert(FlinkSchemaUtil.toSchema(flinkType)), table.schema());
+            Schema deleteSchema = TypeUtil.select(table.schema(), equalityFieldIds);
+            PartitionKey partitionKey = new PartitionKey(table.spec(), table.schema());
+
+            int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
+            SingleOutputStreamOperator<RowData> inputWithMiniBatchGroup = input
+                    .transform("mini_batch_group",
+                            input.getType(),
+                            new IcebergMiniBatchGroupOperator(fieldGetters, deleteSchema, writeSchema, partitionKey))
+                    .setParallelism(parallelism);
+            if (uidPrefix != null) {
+                inputWithMiniBatchGroup.uid(uidPrefix + "mini_batch_group");
+            }
+            return inputWithMiniBatchGroup;
         }
 
         private SingleOutputStreamOperator<Void> appendCommitter(SingleOutputStreamOperator<WriteResult> writerStream) {
@@ -584,8 +616,7 @@ public class FlinkSink {
                 List<Integer> equalityFieldIds) {
             // Fallback to use upsert mode parsed from table properties if don't specify in job level.
             // Only if not appendMode, upsert can be valid.
-            boolean upsertMode = (flinkWriteConf.upsertMode() || PropertyUtil.propertyAsBoolean(table.properties(),
-                    UPSERT_ENABLED, UPSERT_ENABLED_DEFAULT)) && !appendMode;
+            boolean upsertMode = flinkWriteConf.upsertMode() && !appendMode;
 
             // Validate the equality fields and partition fields if we enable the upsert mode.
             if (upsertMode) {
@@ -602,12 +633,17 @@ public class FlinkSink {
                 }
             }
 
+            // Add rate limit if necessary
+            DataStream<RowData> inputWithRateLimit = appendWithRateLimit(input);
+            DataStream<RowData> inputWithMiniBatch = appendWithMiniBatchGroup(
+                    inputWithRateLimit, flinkRowType, equalityFieldIds.stream().collect(Collectors.toSet()));
+
             IcebergProcessOperator<RowData, WriteResult> streamWriter = createStreamWriter(
                     table, flinkRowType, equalityFieldIds, flinkWriteConf, appendMode, inlongMetric,
-                    auditHostAndPorts, dirtyOptions, dirtySink);
+                    auditHostAndPorts, dirtyOptions, dirtySink, tableOptions.get(WRITE_MINI_BATCH_ENABLE));
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
-            SingleOutputStreamOperator<WriteResult> writerStream = input
+            SingleOutputStreamOperator<WriteResult> writerStream = inputWithMiniBatch
                     .transform(operatorName(ICEBERG_STREAM_WRITER_NAME),
                             TypeInformation.of(WriteResult.class),
                             streamWriter)
@@ -742,7 +778,8 @@ public class FlinkSink {
             String inlongMetric,
             String auditHostAndPorts,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            boolean miniBatchMode) {
         // flink A, iceberg a
         Preconditions.checkArgument(table != null, "Iceberg table should't be null");
 
@@ -756,7 +793,8 @@ public class FlinkSink {
                         flinkWriteConf.dataFileFormat(),
                         equalityFieldIds,
                         flinkWriteConf.upsertMode(),
-                        appendMode);
+                        appendMode,
+                        miniBatchMode);
 
         return new IcebergProcessOperator<>(new IcebergSingleStreamWriter<>(
                 table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts,
