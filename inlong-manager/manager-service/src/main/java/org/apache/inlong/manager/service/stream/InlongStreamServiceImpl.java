@@ -97,6 +97,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongStreamServiceImpl.class);
     private static final String PARSE_FIELD_CSV_SPLITTER = "\t|\\s|,";
+    private static final int PARSE_FIELD_CSV_MAX_COLUMNS = 3;
+    private static final int PARSE_FIELD_CSV_MIN_COLUMNS = 2;
 
     @Autowired
     private InlongStreamEntityMapper streamMapper;
@@ -768,8 +770,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                 continue;
             }
 
-            String[] cols = line.split(PARSE_FIELD_CSV_SPLITTER, 3);
-            if (cols.length < 2) {
+            String[] cols = line.split(PARSE_FIELD_CSV_SPLITTER, PARSE_FIELD_CSV_MAX_COLUMNS);
+            if (cols.length < PARSE_FIELD_CSV_MIN_COLUMNS) {
                 throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
                         "At least two fields are required, line number is " + (i + 1));
             }
