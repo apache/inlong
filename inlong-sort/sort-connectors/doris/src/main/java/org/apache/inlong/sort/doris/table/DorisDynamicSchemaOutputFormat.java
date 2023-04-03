@@ -688,7 +688,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         try {
             // support csv and json format
             String format = executionOptions.getStreamLoadProp().getProperty(FORMAT_KEY, FORMAT_JSON_VALUE);
-            loadValue = serialize(values, format);
+            loadValue = serialize(tableIdentifier, values, format);
             respContent = load(tableIdentifier, loadValue);
             try {
                 if (null != metricData && null != respContent) {
@@ -785,7 +785,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
      * @return string
      * @throws JsonProcessingException
      */
-    private String serialize(List values, String format) throws JsonProcessingException {
+    private String serialize(String tableIdentifier, List values, String format) throws JsonProcessingException {
         if (FORMAT_CSV_VALUE.equalsIgnoreCase(format)) {
             LOG.info("doris data format: {}", format);
             // set columns, and format json data to csv
@@ -822,6 +822,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
             return csvData.toString();
         } else {
+            // Dynamic set COLUMNS_KEY for tableIdentifier every time for multiple sink scenario
+            if (multipleSink) {
+                executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
+            }
             return OBJECT_MAPPER.writeValueAsString(values);
         }
     }
