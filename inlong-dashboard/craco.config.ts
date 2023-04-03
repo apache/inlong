@@ -28,6 +28,16 @@ dotenv.config();
 const config: CracoConfig = {
   plugins: [
     {
+      plugin: CracoLess,
+      options: {
+        lessLoaderOptions: {
+          lessOptions: {
+            javascriptEnabled: true,
+          },
+        },
+      },
+    },
+    {
       plugin: CracoAliasPlugin,
       options: {
         source: 'tsconfig',
