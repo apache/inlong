@@ -94,7 +94,7 @@ public class RedisSinkOperator extends AbstractSinkOperator {
                 checkClusterNodes(clusterNodes);
                 break;
             case SENTINEL:
-                String sentinelMasterName = sinkRequest.getSentinelMasterName();
+                String sentinelMasterName = sinkRequest.getMasterName();
                 expectNotEmpty(sentinelMasterName, "Redis MasterName of Sentinel cluster must not null!");
                 String sentinelsInfo = sinkRequest.getSentinelsInfo();
                 expectNotEmpty(sentinelsInfo, "Redis sentinelsInfo of Sentinel cluster must not null!");

@@ -84,7 +84,7 @@ public class RedisLoadNode extends LoadNode implements InlongMetric, Serializabl
     private String host;
     private Integer port;
     private String clusterNodes;
-    private String sentinelMasterName;
+    private String masterName;
     private String sentinelsInfo;
     private Integer database;
     private String password;
@@ -117,7 +117,7 @@ public class RedisLoadNode extends LoadNode implements InlongMetric, Serializabl
             @Nullable @JsonProperty("host") String host,
             @Nullable @JsonProperty("port") Integer port,
             @Nullable @JsonProperty("clusterNodes") String clusterNodes,
-            @Nullable @JsonProperty("sentinelMasterName") String sentinelMasterName,
+            @Nullable @JsonProperty("masterName") String masterName,
             @Nullable @JsonProperty("sentinelsInfo") String sentinelsInfo,
             @Nullable @JsonProperty("database") Integer database,
             @Nullable @JsonProperty("password") String password,
@@ -137,7 +137,7 @@ public class RedisLoadNode extends LoadNode implements InlongMetric, Serializabl
         this.host = host;
         this.port = port;
         this.clusterNodes = clusterNodes;
-        this.sentinelMasterName = sentinelMasterName;
+        this.masterName = masterName;
         this.sentinelsInfo = sentinelsInfo;
         this.database = database;
         this.password = password;
@@ -172,7 +172,7 @@ public class RedisLoadNode extends LoadNode implements InlongMetric, Serializabl
                 options.put(CLUSTER_PASSWORD, password);
             }
         } else {
-            options.put(MASTER_NAME, sentinelMasterName);
+            options.put(MASTER_NAME, masterName);
             options.put(SENTINELS_INFO, sentinelsInfo);
             if (StringUtils.isNotBlank(password)) {
                 options.put(SENTINELS_PASSWORD, password);

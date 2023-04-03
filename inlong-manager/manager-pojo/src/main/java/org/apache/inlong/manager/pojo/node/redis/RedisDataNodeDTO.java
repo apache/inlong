@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.pojo.node.redis;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,11 +37,46 @@ import javax.validation.constraints.NotNull;
 @Data
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("Redis data node info")
 public class RedisDataNodeDTO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisDataNodeDTO.class);
+    /**
+     * Redis cluster mode
+     */
+    @ApiModelProperty(value = "Redis cluster mode")
+    private String clusterMode;
 
+    /**
+     * Redis host
+     */
+    @ApiModelProperty(value = "Redis host")
+    private String host;
+
+    /**
+     * Redis port
+     */
+    @ApiModelProperty(value = "Redis port")
+    private Integer port;
+
+    /**
+     * Redis sentinel master name
+     */
+    @ApiModelProperty(value = "Redis sentinel master name")
+    private String masterName;
+
+    /**
+     * Redis sentinel info
+     */
+    @ApiModelProperty(value = "Redis sentinel info")
+    private String sentinelsInfo;
+
+    /**
+     * Redis cluster nodes
+     */
+    @ApiModelProperty(value = "Redis cluster nodes")
+    private String clusterNodes;
     /**
      * Get the dto instance from the request
      */

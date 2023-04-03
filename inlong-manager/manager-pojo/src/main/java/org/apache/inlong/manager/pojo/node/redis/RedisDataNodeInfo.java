@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.pojo.node.redis;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -35,6 +36,42 @@ import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 @JsonTypeDefine(value = DataNodeType.REDIS)
 @ApiModel("Redis data node info")
 public class RedisDataNodeInfo extends DataNodeInfo {
+
+    /**
+     * Redis cluster mode
+     */
+    @ApiModelProperty(value = "Redis cluster mode")
+    private String clusterMode;
+
+    /**
+     * Redis host
+     */
+    @ApiModelProperty(value = "Redis host")
+    private String host;
+
+    /**
+     * Redis port
+     */
+    @ApiModelProperty(value = "Redis port")
+    private Integer port;
+
+    /**
+     * Redis sentinel master name
+     */
+    @ApiModelProperty(value = "Redis sentinel master name")
+    private String masterName;
+
+    /**
+     * Redis sentinel info
+     */
+    @ApiModelProperty(value = "Redis sentinel info")
+    private String sentinelsInfo;
+
+    /**
+     * Redis cluster nodes
+     */
+    @ApiModelProperty(value = "Redis cluster nodes")
+    private String clusterNodes;
 
     public RedisDataNodeInfo() {
         this.setType(DataNodeType.REDIS);

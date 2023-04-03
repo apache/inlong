@@ -423,7 +423,7 @@ public class LoadNodeUtils {
         String host = redisSink.getHost();
         Integer port = redisSink.getPort();
         String clusterNodes = redisSink.getClusterNodes();
-        String sentinelMasterName = redisSink.getSentinelMasterName();
+        String masterName = redisSink.getMasterName();
         String sentinelsInfo = redisSink.getSentinelsInfo();
         Integer database = redisSink.getDatabase();
         String password = redisSink.getPassword();
@@ -456,7 +456,7 @@ public class LoadNodeUtils {
                 host,
                 port,
                 clusterNodes,
-                sentinelMasterName,
+                masterName,
                 sentinelsInfo,
                 database,
                 password,

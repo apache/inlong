@@ -85,7 +85,7 @@ public class RedisSinkDTO {
     private Integer port;
 
     @ApiModelProperty("The master name of Redis sentinel cluster")
-    private String sentinelMasterName;
+    private String masterName;
 
     private String sentinelsInfo;
 
