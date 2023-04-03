@@ -61,7 +61,7 @@ services:
       - FLINK_PORT=8081
       - AUDIT_PROXY_URL=audit:10081
 
-  webisite:
+  dashboard:
     image: inlong/dashboard:${VERSION_TAG}
     container_name: dashboard
     depends_on:
