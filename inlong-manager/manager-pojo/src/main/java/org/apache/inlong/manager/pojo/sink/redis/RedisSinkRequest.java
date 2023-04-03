@@ -82,7 +82,7 @@ public class RedisSinkRequest extends SinkRequest {
     private Integer port;
 
     @ApiModelProperty("The master name of Redis sentinel cluster")
-    private String sentinelMasterName;
+    private String masterName;
 
     @ApiModelProperty("The sentinels info of Redis sentinel cluster")
     private String sentinelsInfo;

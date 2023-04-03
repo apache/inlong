@@ -92,8 +92,8 @@ public class RedisDataNodeOperator extends AbstractDataNodeOperator {
 
                 break;
             case SENTINEL:
-                String sentinelMasterName = redisDataNodeRequest.getSentinelMasterName();
-                Preconditions.expectNotBlank(sentinelMasterName, "Redis sentinelMasterName cannot be empty");
+                String sentinelMasterName = redisDataNodeRequest.getMasterName();
+                Preconditions.expectNotBlank(sentinelMasterName, "Redis sentinel masterName cannot be empty");
                 String sentinelsInfo = redisDataNodeRequest.getSentinelsInfo();
                 Preconditions.expectNotBlank(sentinelsInfo, "Redis sentinelsInfo cannot be empty");
                 break;

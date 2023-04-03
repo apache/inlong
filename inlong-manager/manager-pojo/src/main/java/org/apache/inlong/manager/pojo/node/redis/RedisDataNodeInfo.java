@@ -59,7 +59,7 @@ public class RedisDataNodeInfo extends DataNodeInfo {
      * Redis sentinel master name
      */
     @ApiModelProperty(value = "Redis sentinel master name")
-    private String sentinelMasterName;
+    private String masterName;
 
     /**
      * Redis sentinel info
