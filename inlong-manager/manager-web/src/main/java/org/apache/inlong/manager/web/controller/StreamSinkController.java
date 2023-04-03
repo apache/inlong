@@ -121,7 +121,6 @@ public class StreamSinkController {
 
     @RequestMapping(value = "/sink/parseFields", method = RequestMethod.POST)
     @ApiOperation(value = "parse stream sink fields from statement")
-    @ApiImplicitParam(name = "parseFieldRequest", dataTypeClass = ParseFieldRequest.class, required = true)
     public Response<List<SinkField>> parseFields(@RequestBody ParseFieldRequest parseFieldRequest) {
         return Response.success(sinkService.parseFields(parseFieldRequest));
     }
