@@ -153,6 +153,7 @@ const HighSelect: React.FC<HighSelectProps> = ({
   const SelectComponent = (
     <Select
       {...rest}
+      loading={loading}
       showSearch={showSearch}
       placeholder={
         showSearch

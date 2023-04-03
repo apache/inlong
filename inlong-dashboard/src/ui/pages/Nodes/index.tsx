@@ -40,7 +40,7 @@ const Comp: React.FC = () => {
   });
 
   const [detailModal, setDetailModal] = useState<Record<string, unknown>>({
-    visible: false,
+    open: false,
   });
 
   const { data, loading, run: getList } = useListNodeDao({ options });
@@ -48,7 +48,7 @@ const Comp: React.FC = () => {
   const { runAsync: destory } = useDeleteNodeDao();
 
   const onEdit = ({ id }) => {
-    setDetailModal({ visible: true, id });
+    setDetailModal({ open: true, id });
   };
 
   const onDelete = useCallback(
@@ -146,7 +146,7 @@ const Comp: React.FC = () => {
           onFilter,
         }}
         suffix={
-          <Button type="primary" onClick={() => setDetailModal({ visible: true })}>
+          <Button type="primary" onClick={() => setDetailModal({ open: true })}>
             {i18n.t('basic.Create')}
           </Button>
         }
@@ -163,12 +163,12 @@ const Comp: React.FC = () => {
       <DetailModal
         {...detailModal}
         defaultType={options.type}
-        open={detailModal.visible as boolean}
+        open={detailModal.open as boolean}
         onOk={async () => {
           await getList();
-          setDetailModal({ visible: false });
+          setDetailModal({ open: false });
         }}
-        onCancel={() => setDetailModal({ visible: false })}
+        onCancel={() => setDetailModal({ open: false })}
       />
     </PageContainer>
   );

@@ -52,7 +52,7 @@ const Comp: React.FC = () => {
   });
 
   const [nodeEditModal, setNodeEditModal] = useState<Record<string, unknown>>({
-    visible: false,
+    open: false,
   });
 
   const {
@@ -73,7 +73,7 @@ const Comp: React.FC = () => {
   );
 
   const onEdit = ({ id }) => {
-    setNodeEditModal({ visible: true, id });
+    setNodeEditModal({ open: true, id });
   };
 
   const onDelete = useCallback(
@@ -166,7 +166,7 @@ const Comp: React.FC = () => {
           onFilter,
         }}
         suffix={
-          <Button type="primary" onClick={() => setNodeEditModal({ visible: true })}>
+          <Button type="primary" onClick={() => setNodeEditModal({ open: true })}>
             {i18n.t('pages.Clusters.Node.Create')}
           </Button>
         }
@@ -184,12 +184,12 @@ const Comp: React.FC = () => {
         type={type}
         clusterId={+clusterId}
         {...nodeEditModal}
-        open={nodeEditModal.visible as boolean}
+        open={nodeEditModal.open as boolean}
         onOk={async () => {
           await getList();
-          setNodeEditModal({ visible: false });
+          setNodeEditModal({ open: false });
         }}
-        onCancel={() => setNodeEditModal({ visible: false })}
+        onCancel={() => setNodeEditModal({ open: false })}
       />
     </PageContainer>
   );

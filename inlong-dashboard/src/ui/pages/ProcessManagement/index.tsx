@@ -37,7 +37,7 @@ const Comp: React.FC = () => {
   });
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
-    visible: false,
+    open: false,
   });
 
   const {
@@ -56,7 +56,7 @@ const Comp: React.FC = () => {
 
   const onEdit = ({ id }) => {
     setCreateModal({
-      visible: true,
+      open: true,
       id,
     });
   };
@@ -103,7 +103,7 @@ const Comp: React.FC = () => {
         <Card>
           <HighTable
             suffix={
-              <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
+              <Button type="primary" onClick={() => setCreateModal({ open: true })}>
                 {t('pages.ApprovalManagement.CreateProcess')}
               </Button>
             }
@@ -125,12 +125,12 @@ const Comp: React.FC = () => {
 
       <ApprovalDetailModal
         {...createModal}
-        open={createModal.visible as boolean}
+        open={createModal.open as boolean}
         onOk={async () => {
           await getList();
-          setCreateModal({ visible: false });
+          setCreateModal({ open: false });
         }}
-        onCancel={() => setCreateModal({ visible: false })}
+        onCancel={() => setCreateModal({ open: false })}
       />
     </PageContainer>
   );

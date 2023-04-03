@@ -31,11 +31,11 @@ const Comp: React.FC = () => {
   const userName = useSelector<State, State['userName']>(state => state.userName);
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
-    visible: false,
+    open: false,
   });
 
   const [keyModal, setKeyModal] = useState<Record<string, unknown>>({
-    visible: false,
+    open: false,
   });
 
   const runLogout = async () => {
@@ -47,12 +47,12 @@ const Comp: React.FC = () => {
     {
       label: t('components.Layout.NavWidget.PersonalKey'),
       key: 'mykey',
-      onClick: () => setKeyModal({ visible: true }),
+      onClick: () => setKeyModal({ open: true }),
     },
     {
       label: t('components.Layout.NavWidget.EditPassword'),
       key: 'password',
-      onClick: () => setCreateModal({ visible: true }),
+      onClick: () => setCreateModal({ open: true }),
     },
     {
       label: t('components.Layout.NavWidget.Logout'),
@@ -68,19 +68,19 @@ const Comp: React.FC = () => {
       </Dropdown>
       <PasswordModal
         {...createModal}
-        open={createModal.visible as boolean}
-        onCancel={() => setCreateModal({ visible: false })}
+        open={createModal.open as boolean}
+        onCancel={() => setCreateModal({ open: false })}
         onOk={async () => {
           runLogout();
-          setCreateModal({ visible: false });
+          setCreateModal({ open: false });
         }}
       />
       <KeyModal
         {...keyModal}
-        open={keyModal.visible as boolean}
-        onCancel={() => setKeyModal({ visible: false })}
+        open={keyModal.open as boolean}
+        onCancel={() => setKeyModal({ open: false })}
         onOk={async () => {
-          setKeyModal({ visible: false });
+          setKeyModal({ open: false });
         }}
       />
     </>

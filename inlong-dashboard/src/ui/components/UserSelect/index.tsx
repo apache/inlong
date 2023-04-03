@@ -126,6 +126,7 @@ const UserSelect: React.FC<UserSelectProps> = ({
               ...item,
               label: item.name,
               value: item.name,
+              disabled: item.value === userName,
             })),
         },
       }}
@@ -133,15 +134,6 @@ const UserSelect: React.FC<UserSelectProps> = ({
       filterOption={false}
       value={currentValue}
       onChange={onValueChange}
-      tagRender={props => (
-        <Tag
-          closable={props.value === userName ? currentUserClosable : true}
-          onClose={props.onClose}
-          style={{ fontSize: '14px', background: '#f5f5f5', border: 'none' }}
-        >
-          {props.label}
-        </Tag>
-      )}
     />
   );
 };
