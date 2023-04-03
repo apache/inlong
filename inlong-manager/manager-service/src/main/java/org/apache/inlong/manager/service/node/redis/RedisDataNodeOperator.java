@@ -87,7 +87,8 @@ public class RedisDataNodeOperator extends AbstractDataNodeOperator {
                 Integer port = redisDataNodeRequest.getPort();
                 expectTrue(
                         port != null && port > 1 && port < PORT_MAX_VALUE,
-                        "The port of the redis server must be greater than 0 and less than 65535!");
+                        "The port of the redis server must be greater than 1 and less than " + PORT_MAX_VALUE +
+                                "!");
 
                 break;
             case SENTINEL:
