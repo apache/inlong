@@ -179,10 +179,8 @@ public class InlongStreamController {
 
     @RequestMapping(value = "/stream/parseFields", method = RequestMethod.POST)
     @ApiOperation(value = "Parse inlong stream fields from statement")
-    @ApiImplicitParam(name = "parseFieldRequest", dataTypeClass = ParseFieldRequest.class, required = true)
-
-    public Response<List<StreamField>> parseFields(@RequestBody ParseFieldRequest request) {
-        return Response.success(streamService.parseFields(request));
+    public Response<List<StreamField>> parseFields(@RequestBody ParseFieldRequest parseFieldRequest) {
+        return Response.success(streamService.parseFields(parseFieldRequest));
     }
 
 }
