@@ -41,7 +41,7 @@ const Comp: React.FC = () => {
   });
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
-    visible: false,
+    open: false,
   });
 
   const {
@@ -62,7 +62,7 @@ const Comp: React.FC = () => {
   );
 
   const onEdit = ({ id }) => {
-    setCreateModal({ visible: true, id });
+    setCreateModal({ open: true, id });
   };
 
   const onDelete = useCallback(
@@ -174,7 +174,7 @@ const Comp: React.FC = () => {
           onFilter,
         }}
         suffix={
-          <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
+          <Button type="primary" onClick={() => setCreateModal({ open: true })}>
             {i18n.t('pages.Clusters.Create')}
           </Button>
         }
@@ -191,12 +191,12 @@ const Comp: React.FC = () => {
       <CreateModal
         {...createModal}
         defaultType={options.type}
-        open={createModal.visible as boolean}
+        open={createModal.open as boolean}
         onOk={async () => {
           await getList();
-          setCreateModal({ visible: false });
+          setCreateModal({ open: false });
         }}
-        onCancel={() => setCreateModal({ visible: false })}
+        onCancel={() => setCreateModal({ open: false })}
       />
     </PageContainer>
   );

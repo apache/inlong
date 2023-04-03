@@ -44,7 +44,7 @@ const Comp: React.FC = () => {
   });
 
   const [groupLogs, setGroupLogs] = useState({
-    visible: false,
+    open: false,
     inlongGroupId: '',
   });
 
@@ -82,7 +82,7 @@ const Comp: React.FC = () => {
   };
 
   const openModal = ({ inlongGroupId }) => {
-    setGroupLogs({ visible: true, inlongGroupId: inlongGroupId });
+    setGroupLogs({ open: true, inlongGroupId: inlongGroupId });
   };
 
   const onRestart = ({ inlongGroupId }) => {
@@ -216,8 +216,8 @@ const Comp: React.FC = () => {
 
       <GroupLogs
         {...groupLogs}
-        onOk={() => setGroupLogs({ visible: false, inlongGroupId: '' })}
-        onCancel={() => setGroupLogs({ visible: false, inlongGroupId: '' })}
+        onOk={() => setGroupLogs({ open: false, inlongGroupId: '' })}
+        onCancel={() => setGroupLogs({ open: false, inlongGroupId: '' })}
       />
     </PageContainer>
   );

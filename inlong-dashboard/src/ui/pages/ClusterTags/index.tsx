@@ -19,6 +19,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { Button, Card, List, Col, Row, Descriptions, Input, Modal, message } from 'antd';
+import { CheckOutlined } from '@ant-design/icons';
 import { PageContainer } from '@/ui/components/PageContainer';
 import { useRequest } from '@/ui/hooks';
 import i18n from '@/i18n';
@@ -37,7 +38,7 @@ const Comp: React.FC = () => {
   const [tagId, setTagId] = useState<number>();
 
   const [tagDetailModal, setTagDetailModal] = useState<Record<string, unknown>>({
-    visible: false,
+    open: false,
   });
 
   const {
@@ -76,7 +77,7 @@ const Comp: React.FC = () => {
   };
 
   const onEdit = useCallback(({ id }) => {
-    setTagDetailModal({ visible: true, id });
+    setTagDetailModal({ open: true, id });
   }, []);
 
   const onDelete = useCallback(
@@ -101,66 +102,70 @@ const Comp: React.FC = () => {
     <PageContainer useDefaultBreadcrumb={false} useDefaultContainer={false}>
       <Row gutter={20}>
         <Col style={{ flex: '0 0 350px' }}>
-          <List
-            size="small"
-            itemLayout="horizontal"
-            loading={loading}
-            pagination={{
-              size: 'small',
-              onChange: onListPageChange,
-              pageSize: 20,
-              total: data?.total,
-            }}
-            dataSource={data?.list}
-            header={
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 16px' }}>
-                <Input.Search
-                  style={{ flex: '0 1 150px' }}
-                  onSearch={keyword =>
-                    setOptions(prev => ({
-                      ...prev,
-                      keyword,
-                    }))
-                  }
-                />
-                <Button type="primary" onClick={() => setTagDetailModal({ visible: true })}>
-                  {i18n.t('basic.Create')}
-                </Button>
-              </div>
-            }
-            renderItem={(item: Record<string, any>) => (
-              <List.Item
-                actions={[
-                  {
-                    title: i18n.t('basic.Edit'),
-                    action: onEdit,
-                  },
-                  {
-                    title: i18n.t('basic.Delete'),
-                    action: onDelete,
-                  },
-                ].map((k, idx) => (
-                  <Button
-                    key={idx}
-                    type="link"
-                    size="small"
-                    style={{ padding: 0 }}
-                    onClick={e => {
-                      e.stopPropagation();
-                      k.action(item);
-                    }}
-                  >
-                    {k.title}
+          <Card style={{ height: '100%' }}>
+            <List
+              size="small"
+              itemLayout="horizontal"
+              loading={loading}
+              pagination={{
+                size: 'small',
+                onChange: onListPageChange,
+                pageSize: 20,
+                total: data?.total,
+              }}
+              dataSource={data?.list}
+              header={
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Input.Search
+                    style={{ flex: '0 1 150px' }}
+                    onSearch={keyword =>
+                      setOptions(prev => ({
+                        ...prev,
+                        keyword,
+                      }))
+                    }
+                  />
+                  <Button type="primary" onClick={() => setTagDetailModal({ open: true })}>
+                    {i18n.t('basic.Create')}
                   </Button>
-                ))}
-                className={`${styles.listItem} ${tagId === item.id ? 'is-selected' : ''}`}
-                onClick={() => setTagId(item.id)}
-              >
-                {item.clusterTag}
-              </List.Item>
-            )}
-            style={{ background: '#fff', height: '100%' }}
-          />
+                </div>
+              }
+              renderItem={(item: Record<string, any>) => (
+                <List.Item
+                  actions={[
+                    {
+                      title: i18n.t('basic.Edit'),
+                      action: onEdit,
+                    },
+                    {
+                      title: i18n.t('basic.Delete'),
+                      action: onDelete,
+                    },
+                  ].map((k, idx) => (
+                    <Button
+                      key={idx}
+                      type="link"
+                      size="small"
+                      style={{ padding: 0 }}
+                      onClick={e => {
+                        e.stopPropagation();
+                        k.action(item);
+                      }}
+                    >
+                      {k.title}
+                    </Button>
+                  ))}
+                  className={styles.listItem}
+                  onClick={() => setTagId(item.id)}
+                >
+                  {tagId === item.id && (
+                    <CheckOutlined style={{ position: 'absolute', left: 0, top: '35%' }} />
+                  )}
+                  {item.clusterTag}
+                </List.Item>
+              )}
+            />
+          </Card>
         </Col>
 
         <Col style={{ flex: '1' }}>
@@ -186,12 +191,12 @@ const Comp: React.FC = () => {
 
       <TagDetailModal
         {...tagDetailModal}
-        open={tagDetailModal.visible as boolean}
+        open={tagDetailModal.open as boolean}
         onOk={async () => {
           await getList();
-          setTagDetailModal({ visible: false });
+          setTagDetailModal({ open: false });
         }}
-        onCancel={() => setTagDetailModal({ visible: false })}
+        onCancel={() => setTagDetailModal({ open: false })}
       />
     </PageContainer>
   );

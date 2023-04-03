@@ -45,13 +45,13 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
   });
 
   const [streamItemModal, setStreamItemModal] = useState({
-    visible: false,
+    open: false,
     inlongStreamId: '',
     inlongGroupId,
   });
 
   const [groupLogs, setGroupLogs] = useState({
-    visible: false,
+    open: false,
     inlongGroupId,
     inlongStreamId: '',
   });
@@ -97,18 +97,18 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
   const onCreate = () => {
     setStreamItemModal(prev => ({
       ...prev,
-      visible: true,
+      open: true,
       inlongStreamId: '',
     }));
   };
 
   const onEdit = record => {
-    setStreamItemModal(prev => ({ ...prev, visible: true, inlongStreamId: record.inlongStreamId }));
+    setStreamItemModal(prev => ({ ...prev, open: true, inlongStreamId: record.inlongStreamId }));
   };
 
   const openModal = record => {
     setGroupLogs({
-      visible: true,
+      open: true,
       inlongGroupId: inlongGroupId,
       inlongStreamId: record.inlongStreamId,
     });
@@ -248,15 +248,15 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
         mqType={mqType}
         onOk={async () => {
           await getList();
-          setStreamItemModal(prev => ({ ...prev, visible: false }));
+          setStreamItemModal(prev => ({ ...prev, open: false }));
         }}
-        onCancel={() => setStreamItemModal(prev => ({ ...prev, visible: false }))}
+        onCancel={() => setStreamItemModal(prev => ({ ...prev, open: false }))}
       />
 
       <GroupLogs
         {...groupLogs}
-        onOk={() => setGroupLogs({ visible: false, inlongGroupId: '', inlongStreamId: '' })}
-        onCancel={() => setGroupLogs({ visible: false, inlongGroupId: '', inlongStreamId: '' })}
+        onOk={() => setGroupLogs({ open: false, inlongGroupId: '', inlongStreamId: '' })}
+        onCancel={() => setGroupLogs({ open: false, inlongGroupId: '', inlongStreamId: '' })}
       />
     </>
   );

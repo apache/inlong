@@ -58,7 +58,7 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
   });
 
   const [clusterBindModal, setClusterBindModal] = useState<Record<string, unknown>>({
-    visible: false,
+    open: false,
   });
 
   const {
@@ -172,7 +172,7 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
           onFilter,
         }}
         suffix={
-          <Button type="primary" onClick={() => setClusterBindModal({ visible: true })}>
+          <Button type="primary" onClick={() => setClusterBindModal({ open: true })}>
             {i18n.t('pages.ClusterTags.BindCluster')}
           </Button>
         }
@@ -189,12 +189,12 @@ const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
       <ClusterBindModal
         {...clusterBindModal}
         clusterTag={clusterTag}
-        open={clusterBindModal.visible as boolean}
+        open={clusterBindModal.open as boolean}
         onOk={async () => {
           await getList();
-          setClusterBindModal({ visible: false });
+          setClusterBindModal({ open: false });
         }}
-        onCancel={() => setClusterBindModal({ visible: false })}
+        onCancel={() => setClusterBindModal({ open: false })}
       />
     </>
   );

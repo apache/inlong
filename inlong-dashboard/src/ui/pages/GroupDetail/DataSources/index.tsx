@@ -58,7 +58,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   const [options, setOptions] = useState(defaultOptions);
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
-    visible: false,
+    open: false,
   });
 
   const {
@@ -81,7 +81,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   );
 
   const onEdit = useCallback(({ id }) => {
-    setCreateModal({ visible: true, id });
+    setCreateModal({ open: true, id });
   }, []);
 
   const onDelete = useCallback(
@@ -243,7 +243,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         style={{ height: '100%' }}
         extra={[
           !readonly && (
-            <Button key="create" type="link" onClick={() => setCreateModal({ visible: true })}>
+            <Button key="create" type="link" onClick={() => setCreateModal({ open: true })}>
               {i18n.t('pages.GroupDetail.Sources.Create')}
             </Button>
           ),
@@ -324,12 +324,12 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         defaultType={options.sourceType}
         inlongGroupId={inlongGroupId}
         inlongStreamId={inlongStreamId}
-        open={createModal.visible as boolean}
+        open={createModal.open as boolean}
         onOk={async () => {
           await getList();
-          setCreateModal({ visible: false });
+          setCreateModal({ open: false });
         }}
-        onCancel={() => setCreateModal({ visible: false })}
+        onCancel={() => setCreateModal({ open: false })}
       />
     </>
   );
