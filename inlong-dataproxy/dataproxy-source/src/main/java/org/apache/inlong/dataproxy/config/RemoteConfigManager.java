@@ -207,7 +207,7 @@ public class RemoteConfigManager implements IRepository {
             String returnStr = EntityUtils.toString(response.getEntity());
 
             if (response.getStatusLine().getStatusCode() != 200) {
-                LOGGER.info("failed to request {}, the response is", url, returnStr);
+                LOGGER.info("failed to request {}, the response is {}", url, returnStr);
                 return false;
             }
 
