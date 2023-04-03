@@ -787,8 +787,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             }
 
             String comment = null;
-            if (cols.length == 3) {
-                comment = cols[2];
+            if (cols.length == PARSE_FIELD_CSV_MAX_COLUMNS) {
+                comment = cols[PARSE_FIELD_CSV_MAX_COLUMNS - 1];
             }
 
             StreamField field = new StreamField();

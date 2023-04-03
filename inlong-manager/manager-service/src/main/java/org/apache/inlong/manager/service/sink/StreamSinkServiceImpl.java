@@ -754,8 +754,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             String fieldType = cols[1];
 
             String comment = null;
-            if (cols.length == 3) {
-                comment = cols[2];
+            if (cols.length == PARSE_FIELD_CSV_MAX_COLUMNS) {
+                comment = cols[PARSE_FIELD_CSV_MIN_COLUMNS - 1];
             }
 
             SinkField field = new SinkField();
