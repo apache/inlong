@@ -28,6 +28,9 @@ import org.apache.inlong.sort.ddl.enums.OperationType;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = AlterOperation.class, name = "alterOperation"),
         @JsonSubTypes.Type(value = CreateTableOperation.class, name = "createTableOperation"),
+        @JsonSubTypes.Type(value = DropTableOperation.class, name = "dropTableOperation"),
+        @JsonSubTypes.Type(value = TruncateTableOperation.class, name = "truncateTableOperation"),
+        @JsonSubTypes.Type(value = RenameTableOperation.class, name = "renameTableOperation")
 })
 @Data
 @NoArgsConstructor

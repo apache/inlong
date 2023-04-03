@@ -31,8 +31,11 @@ import java.util.stream.Collectors;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.alter.Alter;
+import net.sf.jsqlparser.statement.alter.RenameTableStatement;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.drop.Drop;
+import net.sf.jsqlparser.statement.truncate.Truncate;
 import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.ddl.enums.AlterType;
 import org.apache.inlong.sort.ddl.enums.IndexType;
@@ -40,7 +43,10 @@ import org.apache.inlong.sort.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.ddl.indexes.Index;
 import org.apache.inlong.sort.ddl.operations.AlterOperation;
 import org.apache.inlong.sort.ddl.operations.CreateTableOperation;
+import org.apache.inlong.sort.ddl.operations.DropTableOperation;
 import org.apache.inlong.sort.ddl.operations.Operation;
+import org.apache.inlong.sort.ddl.operations.RenameTableOperation;
+import org.apache.inlong.sort.ddl.operations.TruncateTableOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +82,14 @@ public class OperationUtils {
             } else if (statement instanceof CreateTable) {
                 return parseCreateTableOperation(
                     (CreateTable) statement, tableSchema);
-            } else {
+            } else if (statement instanceof Drop) {
+                return new DropTableOperation();
+            } else if (statement instanceof Truncate) {
+                return new TruncateTableOperation();
+            } else if (statement instanceof RenameTableStatement) {
+                return new RenameTableOperation();
+            }
+            else {
                 LOG.warn("doesn't support sql {}, statement {}", sql, statement);
             }
         } catch (Exception e) {
