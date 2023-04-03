@@ -486,7 +486,7 @@
   "meta.Nodes.Redis.ClusterModeHelper": "请选择 Redis 集群模式",
   "meta.Nodes.Redis.PortHelper": "请设置Redis服务器的端口, 默认: 6379",
   "meta.Nodes.Redis.Port": "端口",
-  "meta.Nodes.Redis.SentinelMasterName": "主节点名称",
+  "meta.Nodes.Redis.MasterName": "哨兵主节点名称",
   "meta.Nodes.Redis.SentinelsInfo": "哨兵信息",
   "meta.Nodes.Redis.ClusterNodes": "集群节点",
   "meta.Nodes.Redis.Host": "Host",

@@ -90,8 +90,8 @@ export default class RedisNode extends NodeInfo implements DataWithBackend, Rend
     }),
     visible: values => values!.clusterMode === 'sentinel',
   })
-  @I18n('meta.Nodes.Redis.SentinelMasterName')
-  sentinelMasterName: String;
+  @I18n('meta.Nodes.Redis.MasterName')
+  masterName: String;
 
   @FieldDecorator({
     type: 'input',
