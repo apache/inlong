@@ -17,6 +17,11 @@
 
 package org.apache.inlong.manager.common.consts;
 
+import com.google.common.collect.Sets;
+
+import java.util.Set;
+import java.util.regex.Pattern;
+
 /**
  * Global constant for the Inlong system.
  */
@@ -48,6 +53,8 @@ public class InlongConstants {
     public static final String PERCENT = "%";
 
     public static final String QUESTION_MARK = "?";
+
+    public static final String NEW_LINE = "\n";
 
     public static final String ADMIN_USER = "admin";
 
@@ -150,7 +157,13 @@ public class InlongConstants {
 
     public static final String STATEMENT_TYPE_SQL = "sql";
     public static final String STATEMENT_TYPE_JSON = "json";
+    public static final String STATEMENT_TYPE_CSV = "csv";
 
     public static final String SORT_TYPE_INFO_SUFFIX = "TypeInfo";
+
+    public static final Pattern PATTERN_NORMAL_CHARACTERS = Pattern.compile("^[a-zA-Z0-9_]*$");
+
+    public static final Set<String> STREAM_FORMAT_TYPES =
+            Sets.newHashSet("string", "int", "long", "float", "double", "date", "timestamp");
 
 }

@@ -82,7 +82,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
+import static org.apache.inlong.manager.common.consts.InlongConstants.PATTERN_NORMAL_CHARACTERS;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
 
 /**
  * Implementation of sink service interface
@@ -91,6 +93,9 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_
 public class StreamSinkServiceImpl implements StreamSinkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSinkServiceImpl.class);
+    private static final String PARSE_FIELD_CSV_SPLITTER = "\t|\\s|,";
+    private static final int PARSE_FIELD_CSV_MAX_COLUMNS = 3;
+    private static final int PARSE_FIELD_CSV_MIN_COLUMNS = 2;
 
     @Autowired
     private SinkOperatorFactory operatorFactory;
@@ -708,8 +713,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             Map<String, String> fieldsMap;
             if (STATEMENT_TYPE_JSON.equals(method)) {
                 fieldsMap = parseFieldsByJson(statement);
-            } else {
+            } else if (STATEMENT_TYPE_SQL.equals(method)) {
                 fieldsMap = parseFieldsBySql(statement);
+            } else {
+                return parseFieldsByCsv(statement);
             }
             return fieldsMap.entrySet().stream().map(entry -> {
                 SinkField field = new SinkField();
@@ -723,6 +730,41 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
                     String.format("parse sink fields error : %s", e.getMessage()));
         }
+    }
+
+    private List<SinkField> parseFieldsByCsv(String statement) {
+        String[] lines = statement.split(InlongConstants.NEW_LINE);
+        List<SinkField> fields = new ArrayList<>();
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            if (StringUtils.isBlank(line)) {
+                continue;
+            }
+
+            String[] cols = line.split(PARSE_FIELD_CSV_SPLITTER, PARSE_FIELD_CSV_MAX_COLUMNS);
+            if (cols.length < PARSE_FIELD_CSV_MIN_COLUMNS) {
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                        "At least two fields are required, line number is " + (i + 1));
+            }
+            String fieldName = cols[0];
+            if (!PATTERN_NORMAL_CHARACTERS.matcher(fieldName).matches()) {
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Field names in line " + (i + 1) +
+                        " can only contain letters, underscores or numbers");
+            }
+            String fieldType = cols[1];
+
+            String comment = null;
+            if (cols.length == PARSE_FIELD_CSV_MAX_COLUMNS) {
+                comment = cols[PARSE_FIELD_CSV_MAX_COLUMNS - 1];
+            }
+
+            SinkField field = new SinkField();
+            field.setFieldName(fieldName);
+            field.setFieldType(fieldType);
+            field.setFieldComment(comment);
+            fields.add(field);
+        }
+        return fields;
     }
 
     private Map<String, String> parseFieldsBySql(String sql) throws JSQLParserException {
