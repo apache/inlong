@@ -81,6 +81,7 @@ import java.util.function.Function;
 import static org.apache.iceberg.TableProperties.UPSERT_ENABLED;
 import static org.apache.iceberg.TableProperties.UPSERT_ENABLED_DEFAULT;
 import static org.apache.iceberg.TableProperties.WRITE_DISTRIBUTION_MODE;
+import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_ENABLE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_RATE_LIMIT;
 
 /**
@@ -430,12 +431,9 @@ public class FlinkSink {
                     distributeDataStream(
                             rowDataInput, equalityFieldIds, table.spec(), table.schema(), flinkRowType);
 
-            // Add rate limit if necessary
-            DataStream<RowData> inputWithRateLimit = appendWithRateLimit(distributeStream);
-
             // Add parallel writers that append rows to files
             SingleOutputStreamOperator<WriteResult> writerStream =
-                    appendWriter(inputWithRateLimit, flinkRowType, equalityFieldIds);
+                    appendWriter(distributeStream, flinkRowType, equalityFieldIds);
 
             // Add single-parallelism committer that commits files
             // after successful checkpoint or end of input
@@ -547,6 +545,31 @@ public class FlinkSink {
             return inputWithRateLimit;
         }
 
+        /**
+         * This operator is used to buffer a mini batch data group by field before writing to save memory resources.
+         *
+         * This operator must have the same degree of parallelism as the writer operator to ensure that the data of
+         * the same batch of equality fields in a checkpoint period will only be processed once by a certain writer
+         * subtask (rather than processed multiple times).
+         *
+         * @param input
+         * @return
+         */
+        private DataStream<RowData> appendWithMiniBatchGroup(DataStream<RowData> input, RowType flinkRowType) {
+            if (!tableOptions.get(WRITE_MINI_BATCH_ENABLE)) {
+                return input;
+            }
+
+            SingleOutputStreamOperator<RowData> inputWithMiniBatchGroup = input
+                    .transform("mini_batch_group",
+                            input.getType(),
+                            new IcebergMiniBatchGroupOperator(table.spec(), table.schema(), flinkRowType));
+            if (uidPrefix != null) {
+                inputWithMiniBatchGroup.uid(uidPrefix + "mini_batch_group");
+            }
+            return inputWithMiniBatchGroup;
+        }
+
         private SingleOutputStreamOperator<Void> appendCommitter(SingleOutputStreamOperator<WriteResult> writerStream) {
             IcebergProcessOperator<WriteResult, Void> filesCommitter = new IcebergProcessOperator<>(
                     new IcebergSingleFileCommiter(
@@ -602,12 +625,16 @@ public class FlinkSink {
                 }
             }
 
+            // Add rate limit if necessary
+            DataStream<RowData> inputWithRateLimit = appendWithRateLimit(input);
+            DataStream<RowData> inputWithMiniBatch = appendWithMiniBatchGroup(inputWithRateLimit, flinkRowType);
+
             IcebergProcessOperator<RowData, WriteResult> streamWriter = createStreamWriter(
                     table, flinkRowType, equalityFieldIds, flinkWriteConf, appendMode, inlongMetric,
-                    auditHostAndPorts, dirtyOptions, dirtySink);
+                    auditHostAndPorts, dirtyOptions, dirtySink, tableOptions.get(WRITE_MINI_BATCH_ENABLE));
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
-            SingleOutputStreamOperator<WriteResult> writerStream = input
+            SingleOutputStreamOperator<WriteResult> writerStream = inputWithMiniBatch
                     .transform(operatorName(ICEBERG_STREAM_WRITER_NAME),
                             TypeInformation.of(WriteResult.class),
                             streamWriter)
@@ -742,7 +769,8 @@ public class FlinkSink {
             String inlongMetric,
             String auditHostAndPorts,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            boolean miniBatchMode) {
         // flink A, iceberg a
         Preconditions.checkArgument(table != null, "Iceberg table should't be null");
 
@@ -756,7 +784,8 @@ public class FlinkSink {
                         flinkWriteConf.dataFileFormat(),
                         equalityFieldIds,
                         flinkWriteConf.upsertMode(),
-                        appendMode);
+                        appendMode,
+                        miniBatchMode);
 
         return new IcebergProcessOperator<>(new IcebergSingleStreamWriter<>(
                 table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts,

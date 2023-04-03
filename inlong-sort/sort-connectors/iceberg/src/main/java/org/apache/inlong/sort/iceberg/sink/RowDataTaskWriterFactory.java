@@ -56,6 +56,7 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
     private final List<Integer> equalityFieldIds;
     private final boolean upsert;
     private final boolean appendMode;
+    private final boolean miniBatchMode;
     private final FileAppenderFactory<RowData> appenderFactory;
 
     private transient OutputFileFactory outputFileFactory;
@@ -67,7 +68,8 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
             FileFormat format,
             List<Integer> equalityFieldIds,
             boolean upsert,
-            boolean appendMode) {
+            boolean appendMode,
+            boolean miniBatchMode) {
         this.table = table;
         this.schema = scheam;
         this.flinkSchema = flinkSchema;
@@ -78,6 +80,7 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
         this.equalityFieldIds = equalityFieldIds;
         this.upsert = upsert;
         this.appendMode = appendMode;
+        this.miniBatchMode = miniBatchMode;
 
         if (equalityFieldIds == null || equalityFieldIds.isEmpty() || appendMode) {
             this.appenderFactory = new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec);
@@ -120,7 +123,7 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
                         targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert);
             } else {
                 return new PartitionedDeltaWriter(spec, format, appenderFactory, outputFileFactory, io,
-                        targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert);
+                        targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert, miniBatchMode);
             }
         }
     }

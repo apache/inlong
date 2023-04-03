@@ -31,8 +31,10 @@ import org.apache.iceberg.util.Tasks;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
@@ -41,7 +43,7 @@ class PartitionedDeltaWriter extends BaseDeltaTaskWriter {
 
     private final PartitionKey partitionKey;
 
-    private final Map<PartitionKey, RowDataDeltaWriter> writers = Maps.newHashMap();
+    private final Map<PartitionKey, RowDataDeltaWriter> writers;
 
     PartitionedDeltaWriter(PartitionSpec spec,
             FileFormat format,
@@ -52,10 +54,25 @@ class PartitionedDeltaWriter extends BaseDeltaTaskWriter {
             Schema schema,
             RowType flinkSchema,
             List<Integer> equalityFieldIds,
-            boolean upsert) {
+            boolean upsert,
+            boolean isLRU) {
         super(spec, format, appenderFactory, fileFactory, io, targetFileSize, schema, flinkSchema, equalityFieldIds,
                 upsert);
         this.partitionKey = new PartitionKey(spec, schema);
+        this.writers = isLRU ? new LinkedHashMap<PartitionKey, RowDataDeltaWriter>() {
+
+            @Override
+            protected boolean removeEldestEntry(Entry<PartitionKey, RowDataDeltaWriter> eldest) {
+                if (size() > 1) {
+                    try {
+                        eldest.getValue().close();
+                    } catch (IOException e) {
+                        PartitionedDeltaWriter.this.setFailure(e); // todo:这里把异常隐藏了，能不能提前检测并且暴露
+                    }
+                }
+                return size() > 1;
+            }
+        } : Maps.newHashMap();
     }
 
     @Override

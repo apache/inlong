@@ -139,6 +139,12 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
                     .withDescription("Write record rate limit per second to"
                             + " prevent traffic jitter and improve stability, default 0 (no limit)");
 
+    public static final ConfigOption<Boolean> WRITE_MINI_BATCH_ENABLE =
+            ConfigOptions.key("write.mini-batch.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether to buffer some data to sort before write to files(reduce memory loss)");
+
     private final FlinkCatalog catalog;
 
     public FlinkDynamicTableFactory() {
@@ -305,6 +311,7 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         options.add(WRITE_COMPACT_INTERVAL);
         options.add(WRITE_DISTRIBUTION_MODE);
         options.add(WRITE_RATE_LIMIT);
+        options.add(WRITE_MINI_BATCH_ENABLE);
         return options;
     }
 
