@@ -116,22 +116,14 @@ public class RedisDataNodeOperator extends AbstractDataNodeOperator {
                     String.format("Failed to build extParams for Redis node: %s", e.getMessage()));
         }
     }
+
     @Override
     public Boolean testConnection(DataNodeRequest request) {
         RedisDataNodeRequest redisDataNodeRequest = (RedisDataNodeRequest) request;
-
-        String host = redisDataNodeRequest.getHost();
-        int port = redisDataNodeRequest.getPort();
-        String password = redisDataNodeRequest.getPassword();
-        int database = redisDataNodeRequest.getDatabase();
-
-        RedisResourceClient redisResourceClient = new RedisResourceClient(host, port, password, database);
         try {
-            redisResourceClient.testConnection();
-            return true;
+            return RedisResourceClient.testConnection(redisDataNodeRequest);
         } catch (Exception e) {
-            String errMsg = String.format("redis connection failed for host=%s, port=%s", host,
-                    port);
+            String errMsg = String.format("redis connection failed: %s ", e.getMessage());
 
             throw new BusinessException(errMsg);
         }

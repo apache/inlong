@@ -17,64 +17,129 @@
 
 package org.apache.inlong.manager.service.resource.sink.redis;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import lombok.Builder;
+import org.apache.hadoop.hbase.exceptions.IllegalArgumentIOException;
+import org.apache.inlong.manager.pojo.node.redis.RedisDataNodeRequest;
+import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.JedisSentinelPool;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A client for interacting with Redis resources.
  */
-public class RedisResourceClient implements AutoCloseable {
+public class RedisResourceClient {
 
-    private final JedisPool jedisPool;
+    private static final String REDIS_TEST_KEY = "__inLong_test_key__";
+    private static final String REDIS_TEST_VALUE = "__inLong_test_value__";
+    private static final String HOST_PORT_SEPARATOR = ":";
+    private static final String NODE_LINE_SEPARATOR = ",|;";
 
     /**
-     * Constructs a new RedisResourceClient with the given host, port, and password.
+     * Test the connection to Redis.
      *
-     * @param host     the Redis server host
-     * @param port     the Redis server port
-     * @param password the Redis server password
-     * @param database the Redis server database
+     * @param request RedisDataNodeRequest
+     * @throws IOException if there is an error testing the connection
      */
-    public RedisResourceClient(String host, int port, String password, int database) {
-
-        GenericObjectPoolConfig poolConfig = new GenericObjectPoolConfig();
-        poolConfig.setMaxTotal(10);
-        poolConfig.setMaxIdle(5);
-        poolConfig.setMinIdle(1);
-        poolConfig.setTestOnBorrow(true);
-        poolConfig.setTestOnReturn(true);
-        poolConfig.setTestWhileIdle(true);
-        poolConfig.setMinEvictableIdleTimeMillis(60000);
-        poolConfig.setTimeBetweenEvictionRunsMillis(30000);
-        poolConfig.setNumTestsPerEvictionRun(-1);
-        this.jedisPool = new JedisPool(poolConfig, host, port, 5000, password, database);
-    }
-
-    /**
-     * Closes the RedisResourceClient and releases any resources associated with it.
-     */
-    public void close() {
-        jedisPool.close();
-    }
-
-    /**
-     * Gets a Jedis resource from the RedisResourceClient's JedisPool.
-     *
-     * @return a Jedis resource
-     */
-    public Jedis getResource() {
-        return jedisPool.getResource();
-    }
-
-    /**
-     * Tests the connection to the Redis server.
-     *
-     * @return true if the connection is successful, false otherwise
-     */
-    public boolean testConnection() {
-        try (Jedis jedis = getResource()) {
-            return jedis.ping().equals("PONG");
+    public static boolean testConnection(RedisDataNodeRequest request) throws IOException {
+        String clusterMode = request.getClusterMode();
+        switch (clusterMode) {
+            case "standalone":
+                return RedisStandaloneTester.builder().host(request.getHost()).port(request.getPort()).build()
+                        .testConnection();
+            case "cluster":
+                return RedisClusterTester.builder().nodes(request.getClusterNodes()).build().testConnection();
+            case "sentinel":
+                return RedisSentinelTester.builder().masterName(request.getMasterName())
+                        .sentinelsInfo(request.getSentinelsInfo()).build().testConnection();
+            default:
+                throw new IllegalArgumentIOException("Unknown cluster mode: " + clusterMode);
         }
     }
+
+    /**
+     * Interface for testing Redis connection.
+     */
+    interface RedisTester {
+
+        /**
+         * Test the connection to Redis.
+         *
+         * @throws IOException if there is an error testing the connection
+         */
+        boolean testConnection() throws IOException;
+    }
+
+    /**
+     * Builder for Redis Cluster Tester.
+     */
+    @Builder
+    static class RedisClusterTester implements RedisTester {
+
+        private String nodes;
+
+        @Override
+        public boolean testConnection() throws IOException {
+            String result;
+            Set<HostAndPort> hostPorts = Arrays.stream(nodes.split(NODE_LINE_SEPARATOR)).map(s -> {
+                String[] split = s.split(HOST_PORT_SEPARATOR);
+                int port = Integer.parseInt(split[1]);
+                return new HostAndPort(split[0], port);
+            }).collect(Collectors.toSet());
+            try (JedisCluster jedisCluster = new JedisCluster(hostPorts)) {
+                jedisCluster.set(REDIS_TEST_KEY, REDIS_TEST_VALUE);
+                result = jedisCluster.get(REDIS_TEST_KEY);
+            }
+            return REDIS_TEST_VALUE.equals(result);
+        }
+    }
+
+    /**
+     * Builder for Redis Sentinel Tester.
+     */
+    @Builder
+    static class RedisSentinelTester implements RedisTester {
+
+        private String masterName;
+        private String sentinelsInfo;
+
+        @Override
+        public boolean testConnection() throws IOException {
+            Set<String> sentinels = new HashSet<>(Arrays.asList(sentinelsInfo.split(NODE_LINE_SEPARATOR)));
+            String result;
+            try (JedisSentinelPool pool = new JedisSentinelPool(masterName, sentinels)) {
+                Jedis jedis = pool.getResource();
+                jedis.set(REDIS_TEST_KEY, REDIS_TEST_VALUE);
+                result = jedis.get(REDIS_TEST_KEY);
+            }
+            return REDIS_TEST_VALUE.equals(result);
+        }
+    }
+
+    /**
+     * Builder for Redis Standalone Tester.
+     */
+    @Builder
+    static class RedisStandaloneTester implements RedisTester {
+
+        private String host;
+        private int port;
+
+        @Override
+        public boolean testConnection() throws IOException {
+            String result;
+            try (Jedis jedis = new Jedis(host, port)) {
+                jedis.set(REDIS_TEST_KEY, REDIS_TEST_VALUE);
+                result = jedis.get(REDIS_TEST_KEY);
+            }
+            return REDIS_TEST_VALUE.equals(result);
+        }
+    }
+
 }
