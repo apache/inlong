@@ -788,10 +788,10 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
     }
 
     /**
-     * Extract ghost ddl record
+     * Extract ddl record from gh-ost ddl statements
      *
-     * @param data
-     * @return
+     * @param data a record with sql statement
+     * @return ddl record
      * @throws Exception
      */
     private GenericRowData extractGhostRecord(GenericRowData data) throws Exception {
