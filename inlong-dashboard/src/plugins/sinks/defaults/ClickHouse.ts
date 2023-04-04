@@ -203,7 +203,7 @@ export default class ClickHouseSink
 
   @FieldDecorator({
     type: 'input',
-    initialValue: 'Log',
+    initialValue: 'MergeTree',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
