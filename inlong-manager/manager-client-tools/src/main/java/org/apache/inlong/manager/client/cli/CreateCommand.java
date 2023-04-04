@@ -130,6 +130,12 @@ public class CreateCommand extends AbstractCommand {
             streamInfo.setIgnoreParseError(
                     Optional.ofNullable(streamInfo.getIgnoreParseError()).orElse(DEFAULT_IGNORE_PARSE_ERROR));
 
+            // field
+            streamInfo.getFieldList().forEach(field -> {
+                field.setInlongGroupId(inlongGroupId);
+                field.setInlongStreamId(inlongStreamId);
+            });
+
             // source
             streamInfo.getSourceList().forEach(source -> {
                 source.setInlongGroupId(inlongGroupId);
