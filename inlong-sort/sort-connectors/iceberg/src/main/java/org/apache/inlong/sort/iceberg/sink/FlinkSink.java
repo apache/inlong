@@ -29,6 +29,7 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.sink.DiscardingSink;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.RowData.FieldGetter;
 import org.apache.flink.table.data.util.DataFormatConverters;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
@@ -77,6 +78,8 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.apache.iceberg.TableProperties.UPSERT_ENABLED;
 import static org.apache.iceberg.TableProperties.UPSERT_ENABLED_DEFAULT;
@@ -555,15 +558,31 @@ public class FlinkSink {
          * @param input
          * @return
          */
-        private DataStream<RowData> appendWithMiniBatchGroup(DataStream<RowData> input, RowType flinkRowType) {
+        private DataStream<RowData> appendWithMiniBatchGroup(DataStream<RowData> input,
+                RowType flinkType,
+                Set<Integer> equalityFieldIds) {
             if (!tableOptions.get(WRITE_MINI_BATCH_ENABLE)) {
                 return input;
             }
 
+            FieldGetter[] fieldGetters =
+                    IntStream.range(0, flinkType.getFieldCount())
+                            .mapToObj(i -> RowData.createFieldGetter(flinkType.getTypeAt(i), i))
+                            .toArray(RowData.FieldGetter[]::new);
+            Schema writeSchema = TypeUtil.reassignIds(
+                    FlinkSchemaUtil.convert(FlinkSchemaUtil.toSchema(flinkType)), table.schema());
+            Schema partitionSchema = table.schema()
+                    .select(
+                            table.spec().fields()
+                                    .stream()
+                                    .map(PartitionField::name)
+                                    .collect(Collectors.toSet()));
+            Schema deleteSchema = TypeUtil.select(table.schema(), equalityFieldIds);
             SingleOutputStreamOperator<RowData> inputWithMiniBatchGroup = input
                     .transform("mini_batch_group",
                             input.getType(),
-                            new IcebergMiniBatchGroupOperator(table.spec(), table.schema(), flinkRowType));
+                            new IcebergMiniBatchGroupOperator(fieldGetters, partitionSchema, deleteSchema,
+                                    writeSchema));
             if (uidPrefix != null) {
                 inputWithMiniBatchGroup.uid(uidPrefix + "mini_batch_group");
             }
@@ -627,7 +646,8 @@ public class FlinkSink {
 
             // Add rate limit if necessary
             DataStream<RowData> inputWithRateLimit = appendWithRateLimit(input);
-            DataStream<RowData> inputWithMiniBatch = appendWithMiniBatchGroup(inputWithRateLimit, flinkRowType);
+            DataStream<RowData> inputWithMiniBatch = appendWithMiniBatchGroup(
+                    inputWithRateLimit, flinkRowType, equalityFieldIds.stream().collect(Collectors.toSet()));
 
             IcebergProcessOperator<RowData, WriteResult> streamWriter = createStreamWriter(
                     table, flinkRowType, equalityFieldIds, flinkWriteConf, appendMode, inlongMetric,
