@@ -64,7 +64,7 @@ export default class RedisNode extends NodeInfo implements DataWithBackend, Rend
     visible: values => values!.clusterMode === 'standalone',
   })
   @I18n('meta.Nodes.Redis.Host')
-  host: String;
+  host: string;
 
   @FieldDecorator({
     type: 'inputnumber',
@@ -91,7 +91,7 @@ export default class RedisNode extends NodeInfo implements DataWithBackend, Rend
     visible: values => values!.clusterMode === 'sentinel',
   })
   @I18n('meta.Nodes.Redis.MasterName')
-  masterName: String;
+  masterName: string;
 
   @FieldDecorator({
     type: 'input',
@@ -104,7 +104,7 @@ export default class RedisNode extends NodeInfo implements DataWithBackend, Rend
     visible: values => values!.clusterMode === 'sentinel',
   })
   @I18n('meta.Nodes.Redis.SentinelsInfo')
-  sentinelsInfo: String;
+  sentinelsInfo: string;
 
   @FieldDecorator({
     type: 'input',
@@ -117,5 +117,5 @@ export default class RedisNode extends NodeInfo implements DataWithBackend, Rend
     visible: values => values!.clusterMode === 'cluster',
   })
   @I18n('meta.Nodes.Redis.ClusterNodes')
-  clusterNodes: String;
+  clusterNodes: string;
 }
