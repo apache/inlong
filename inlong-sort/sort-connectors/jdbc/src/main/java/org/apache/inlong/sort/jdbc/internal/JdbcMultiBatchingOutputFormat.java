@@ -656,10 +656,8 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             } catch (Exception e) {
                 tableException = e;
                 LOG.warn("Flush all data for tableIdentifier:{} get err:", tableIdentifier, e);
-                if (dirtySinkHelper.getDirtySink() == null) {
-                    getAndSetPkFromErrMsg(tableIdentifier, e.getMessage());
-                    updateOneExecutor(true, tableIdentifier);
-                }
+                getAndSetPkFromErrMsg(tableIdentifier, e.getMessage());
+                updateOneExecutor(true, tableIdentifier);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
