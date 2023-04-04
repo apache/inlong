@@ -243,4 +243,16 @@ export default class PulsarGroup
   })
   @I18n('Retention Size')
   retentionSize: number;
+
+  @FieldDecorator({
+    type: 'inputnumber',
+    initialValue: 0,
+    extra: i18n.t('meta.Group.Pulsar.MaxMarkDeleteRateExtra'),
+    props: {
+      min: 0,
+      precision: 1,
+    },
+  })
+  @I18n('Max Mark Delete Rate')
+  maxMarkDeleteRate: number;
 }
