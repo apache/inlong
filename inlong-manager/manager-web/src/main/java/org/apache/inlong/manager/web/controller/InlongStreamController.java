@@ -195,7 +195,6 @@ public class InlongStreamController {
 
     @RequestMapping(value = "/stream/parseFieldsByExcel", method = RequestMethod.POST)
     @ApiOperation(value = "Parse inlong stream fields by update excel file", httpMethod = "POST")
-    @ApiImplicitParam(name = "parseFieldRequest", dataTypeClass = ParseFieldRequest.class, required = true)
     public Response<List<StreamField>> parseFieldsByExcel(@RequestParam("file") MultipartFile file) {
         return Response.success(streamService.parseFields(file));
     }
@@ -211,10 +210,10 @@ public class InlongStreamController {
 
         try {
             ServletOutputStream outputStream = response.getOutputStream();
-            ExcelTool.write2Excel(StreamField.class, null, outputStream);
+            ExcelTool.write(StreamField.class, outputStream);
 
-        } catch (IOException | InstantiationException | IllegalAccessException e) {
-            log.error("", e);
+        } catch (IOException e) {
+            log.error("Can not properly download Excel file", e);
         }
     }
 

@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.common.tool.excel.validator;
 
 /**
-
  * Interface for validating Excel rows
  */
 public interface ExcelRowValidator<T> {

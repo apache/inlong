@@ -18,7 +18,9 @@
 package org.apache.inlong.manager.pojo.stream;
 
 import org.apache.inlong.manager.common.tool.excel.validator.ExcelCellValidator;
-import org.apache.poi.hssf.usermodel.DVConstraint;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FIELD_TYPES;
 
@@ -32,15 +34,17 @@ public class StreamFieldTypeExcelValidator implements ExcelCellValidator<String>
 
     /**
      * Returns the constraint for the validator
+     *
      * @return DVConstraint
      */
     @Override
-    public org.apache.poi.hssf.usermodel.DVConstraint constraint() {
-        return DVConstraint.createExplicitListConstraint(STREAM_FIELD_TYPES.toArray(new String[0]));
+    public List<String> constraint() {
+        return new ArrayList<>(STREAM_FIELD_TYPES);
     }
 
     /**
      * Validates the given object
+     *
      * @param o The object to validate
      * @return boolean
      */
@@ -54,6 +58,7 @@ public class StreamFieldTypeExcelValidator implements ExcelCellValidator<String>
 
     /**
      * Returns the invalid tip for the validator
+     *
      * @return String
      */
     @Override

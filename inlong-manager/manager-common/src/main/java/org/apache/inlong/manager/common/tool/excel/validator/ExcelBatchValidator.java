@@ -20,15 +20,14 @@ package org.apache.inlong.manager.common.tool.excel.validator;
 import java.util.List;
 
 /**
-
  * Interface for validating a batch of Excel data.
  */
 public interface ExcelBatchValidator<T> {
 
     /**
      * Validates a batch of Excel data.
-     * @param var1 The list of data to validate.
+     * @param data The list of data to validate.
      * @return True if the data is valid, false otherwise.
      */
-    boolean onBatch(List<T> var1);
+    boolean onBatch(List<T> data);
 }

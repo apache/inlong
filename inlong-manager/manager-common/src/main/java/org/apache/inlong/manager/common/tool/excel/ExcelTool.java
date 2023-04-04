@@ -17,6 +17,38 @@
 
 package org.apache.inlong.manager.common.tool.excel;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.tool.excel.annotation.ExcelField;
+import org.apache.inlong.manager.common.tool.excel.meta.ClassFieldMeta;
+import org.apache.inlong.manager.common.tool.excel.meta.ClassMeta;
+import org.apache.inlong.manager.common.tool.excel.template.ExcelImportTemplate;
+import org.apache.inlong.manager.common.tool.excel.validator.ExcelCellValidator;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
+import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFDataValidation;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,48 +56,39 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.tool.excel.annotation.ExcelEntity;
-import org.apache.inlong.manager.common.tool.excel.annotation.ExcelField;
-import org.apache.inlong.manager.common.tool.excel.meta.ClassFieldMeta;
-import org.apache.inlong.manager.common.tool.excel.meta.ClassMeta;
-import org.apache.inlong.manager.common.tool.excel.template.ExcelImportTemplate;
-import org.apache.inlong.manager.common.tool.excel.validator.ExcelBatchValidator;
-import org.apache.inlong.manager.common.tool.excel.validator.ExcelCellValidator;
-import org.apache.inlong.manager.common.tool.excel.validator.ExcelRowValidator;
-import org.apache.poi.hssf.usermodel.DVConstraint;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFDataValidation;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
-import org.apache.poi.ss.util.CellRangeAddressList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.manager.common.util.Preconditions.expectTrue;
 
+/**
+ * Utility class for working with Excel files.
+ */
 public class ExcelTool {
 
+    private static final int CONSTRAINT_MAX_LENGTH = 255;
+    private static final int DEFAULT_ROW_COUNT = 30;
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelTool.class);
+    private static final int DEFAULT_COLUMN_WIDTH = 10000;
+    private static final short DEFAULT_FONT_SIZE = 16;
 
     /**
-     * Get the excel head of the given class
-     * @param e1Class the class to get the excel head from
-     * @return a list of the excel head
+     * Extracts the header row from a given class and returns it as a list of strings.
+     *
+     * @param e1Class the class to extract the header from
+     * @return a list of header strings
      */
-    public static <E> List<String> getExcelHead(Class<E> e1Class) {
+    public static <E> List<String> extractHeader(Class<E> e1Class) {
         List<String> list = new LinkedList<>();
         Field[] fields = e1Class.getDeclaredFields();
         if (fields.length > 0) {
-
             for (Field field : fields) {
                 field.setAccessible(true);
                 ExcelField excel = field.getAnnotation(ExcelField.class);
@@ -74,350 +97,382 @@ public class ExcelTool {
                     list.add(excelName);
                 }
             }
-
-            return list.size() > 0 ? list : null;
+            return list.size() > 0 ? list : Collections.emptyList();
         } else {
-            return null;
+            return Collections.emptyList();
         }
     }
 
     /**
-     * Write the given objects to an excel document
-     * @param objects the objects to write
-     * @param eClass the class of the objects
-     * @param out the output stream to write to
-     * @return true if write was successful
+     * Writes the given content to an excel document.
+     *
+     * @param contents the list of contents to write
+     * @param out      the output stream to write to
      * @throws IOException if there is an error writing to the output stream
-     * @throws InstantiationException if there is an error instantiating the objects
-     * @throws IllegalAccessException if there is an error accessing the objects
      */
-    public static <E> boolean write2ExcelDoc(List<E> objects, Class<E> eClass, OutputStream out)
-            throws IOException, InstantiationException, IllegalAccessException {
-        if (objects != null && objects.size() != 0) {
-            List<Map<String, Object>> list = write2List(objects);
-            write2Excel(eClass, list, out);
-            return true;
-        } else {
-            throw new IllegalArgumentException("DTO can not be empty!");
+    public static <T> void write(List<T> contents, OutputStream out) throws IOException {
+        Preconditions.expectNotEmpty(contents, "Content can not be empty!");
+        T t = contents.get(0);
+        Class<?> clazz = t.getClass();
+        List<String> heads = extractHeader(clazz);
+
+        Field[] fields = clazz.getDeclaredFields();
+        XSSFWorkbook hwb = new XSSFWorkbook();
+        XSSFSheet sheet = hwb.createSheet("Sheet 1");
+
+        for (int index = 0; index < heads.size(); index++) {
+            sheet.setColumnWidth(index, DEFAULT_COLUMN_WIDTH);
         }
+        XSSFCellStyle headerCellStyle = createHeaderCellStyle(hwb);
+        fillSheetHeader(sheet.createRow(0), heads, headerCellStyle);
+        fillSheetValidation(clazz, sheet, fields);
+        List<Map<String, String>> maps = write2List(contents);
+        XSSFCellStyle contentStyle = createContentCellStyle(hwb);
+        fillSheetContent(maps, heads, sheet, contentStyle);
+
+        hwb.write(out);
+        out.close();
+        LOGGER.info("Database export succeeded");
+    }
+
+    private static XSSFCellStyle createHeaderCellStyle(XSSFWorkbook workbook) {
+        XSSFCellStyle style = workbook.createCellStyle();
+        style.setFillForegroundColor(IndexedColors.BLUE_GREY.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        XSSFFont font = workbook.createFont();
+        font.setFontName("Arial");
+        font.setFontHeightInPoints(DEFAULT_FONT_SIZE);
+        font.setBold(true);
+        font.setColor(IndexedColors.WHITE.getIndex());
+        style.setFont(font);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+        return style;
+    }
+
+    private static XSSFCellStyle createContentCellStyle(XSSFWorkbook workbook) {
+        XSSFCellStyle style = workbook.createCellStyle();
+        style.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        XSSFFont font = workbook.createFont();
+        font.setFontName("Arial");
+        font.setFontHeightInPoints(DEFAULT_FONT_SIZE);
+        font.setBold(true);
+        style.setFont(font);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+        return style;
     }
 
     /**
-     * Write the given content to an excel document
-     * @param tClass the class of the content
-     * @param content the content to write
-     * @param out the output stream to write to
-     * @throws IOException if there is an error writing to the output stream
-     * @throws IllegalAccessException if there is an error accessing the content
-     * @throws InstantiationException if there is an error instantiating the content
+     * Fills the output stream with the provided class meta.
      */
-    public static <T> void write2Excel(Class<T> tClass, List<Map<String, Object>> content, OutputStream out)
-            throws IOException, IllegalAccessException, InstantiationException {
-        List<String> heads = getExcelHead(tClass);
-        if (heads != null && !heads.isEmpty()) {
-            int countColumnNum = heads.size();
-            HSSFWorkbook hwb = new HSSFWorkbook();
-            HSSFSheet sheet = hwb.createSheet("Sheet 1");
-            HSSFRow firstRow = sheet.createRow(0);
-            HSSFCell[] firstCell = new HSSFCell[countColumnNum];
-            String[] names = new String[0];
-            names = heads.toArray(names);
+    public static <T> void write(Class<T> clazz, OutputStream out) throws IOException {
+        List<String> heads = extractHeader(clazz);
+        if (heads.isEmpty()) {
+            throw new IllegalArgumentException("Excel head must not be empty!");
+        }
+        Field[] fields = clazz.getDeclaredFields();
 
-            for (int j = 0; j < countColumnNum; ++j) {
-                firstCell[j] = firstRow.createCell(j);
-                firstCell[j].setCellValue(new HSSFRichTextString(names[j]));
-            }
+        XSSFWorkbook hwb = new XSSFWorkbook();
+        XSSFSheet sheet = hwb.createSheet("Sheet 1");
 
-            Field[] fields = tClass.getDeclaredFields();
-            int validColumnId = 0;
+        for (int index = 0; index < heads.size(); index++) {
+            sheet.setColumnWidth(index, DEFAULT_COLUMN_WIDTH);
+        }
+        XSSFCellStyle headerCellStyle = createHeaderCellStyle(hwb);
+        fillSheetHeader(sheet.createRow(0), heads, headerCellStyle);
+        fillSheetValidation(clazz, sheet, fields);
+        //
+        CellStyle contentCellStyle = createContentCellStyle(hwb);
+        fillEmptySheetContent(sheet, heads.size(), contentCellStyle);
 
-            for (Field field : fields) {
-                field.setAccessible(true);
-                ExcelCellValidator<?> validator = null;
-                ExcelField annotation = field.getAnnotation(ExcelField.class);
-                if (annotation != null) {
-                    ++validColumnId;
-                    Class<?> validatorClass = annotation.validator();
-                    if (validatorClass != ExcelCellValidator.class) {
-                        Object vao = validatorClass.newInstance();
-                        if (vao instanceof ExcelCellValidator) {
-                            validator = (ExcelCellValidator<?>) vao;
-                        }
-                    }
+        hwb.write(out);
+        out.close();
+        LOGGER.info("Database export succeeded");
+    }
 
-                }
+    private static void fillEmptySheetContent(XSSFSheet sheet, int colCount, CellStyle contentCellStyle) {
+        IntStream.range(1, DEFAULT_ROW_COUNT)
+                .forEach(index -> {
+                    XSSFRow row = sheet.createRow(index);
+                    IntStream.range(0, colCount)
+                            .forEach(
+                                    colIndex -> {
+                                        XSSFCell cell = row.createCell(colIndex);
+                                        cell.setCellStyle(contentCellStyle);
+                                    });
+                });
+    }
 
-                if (validator != null) {
-                    DVConstraint constraint = validator.constraint();
-                    if (constraint != null) {
-                        String[] explicitListValues = constraint.getExplicitListValues();
-                        if (explicitListValues != null && explicitListValues.length > 0) {
-                            StringBuilder sb = new StringBuilder(explicitListValues.length * 16);
+    /**
+     * Fills the content rows of a given sheet with the provided content maps and headers.
+     */
+    private static void fillSheetContent(List<Map<String, String>> contents, List<String> heads, XSSFSheet sheet,
+            XSSFCellStyle contentStyle) {
+        Optional.ofNullable(contents)
+                .ifPresent(c -> IntStream.range(0, c.size())
+                        .forEach(lineId -> {
+                            Map<String, String> line = contents.get(lineId);
+                            Row row = sheet.createRow(lineId + 1);
+                            IntStream.range(0, heads.size()).forEach(colId -> {
+                                String title = heads.get(colId);
+                                String ov = line.get(title);
+                                String value = ov == null ? "" : ov;
+                                Cell cell = row.createCell(colId);
+                                cell.setCellValue(value);
+                                cell.setCellStyle(contentStyle);
+                            });
+                        }));
+    }
 
-                            for (int i = 0; i < explicitListValues.length; ++i) {
-                                if (i > 0) {
-                                    sb.append('\u0000');
+    /**
+     * Fills the validation constraints for a given sheet based on the provided class and fields.
+     *
+     * @param clazz  the class to use for validation constraints
+     * @param sheet  the sheet to fill with validation constraints
+     * @param fields the fields to use for validation constraints
+     */
+    private static <T> void fillSheetValidation(Class<T> clazz, XSSFSheet sheet, Field[] fields) {
+        List<Pair<String, ExcelField>> excelFields = Arrays.stream(fields).map(field -> {
+            field.setAccessible(true);
+            return Pair.of(field.getName(), field.getAnnotation(ExcelField.class));
+        }).filter(p -> p.getRight() != null).collect(Collectors.toList());
+
+        IntStream.range(0, excelFields.size())
+                .forEach(index -> {
+                    Pair<String, ExcelField> se = excelFields.get(index);
+                    Class<? extends ExcelCellValidator> validator = se.getRight().validator();
+
+                    Optional<List<String>> optionalList = Optional.ofNullable(validator)
+                            .filter(v -> v != ExcelCellValidator.class)
+                            .map(v -> {
+                                try {
+                                    return (ExcelCellValidator<?>) v.newInstance();
+                                } catch (InstantiationException | IllegalAccessException e) {
+                                    LOGGER.error("Can not properly create ExcelCellValidator", e);
+                                    return null;
                                 }
-
-                                sb.append(explicitListValues[i]);
-                            }
-
-                            if (sb.toString().length() > 255) {
-                                throw new IllegalArgumentException("field '" + field.getName() + "' in class '"
-                                        + tClass.getCanonicalName()
+                            })
+                            .map(ExcelCellValidator::constraint);
+                    List<String> valueOfCol = optionalList.orElseGet(Collections::emptyList);
+                    if (valueOfCol.isEmpty()) {
+                        return;
+                    }
+                    if (String.join("\n", valueOfCol).length() > CONSTRAINT_MAX_LENGTH) {
+                        throw new IllegalArgumentException(
+                                "field '" + se.getLeft() + "' in class '" + clazz.getCanonicalName()
                                         + "' valid message length must be less than 255 characters");
-                            }
-
-                            CellRangeAddressList regions =
-                                    new CellRangeAddressList(1, 255, validColumnId - 1, validColumnId - 1);
-                            HSSFDataValidation dataValidation = new HSSFDataValidation(regions, constraint);
-                            sheet.addValidationData(dataValidation);
-                        }
                     }
-                }
 
-            }
+                    CellRangeAddressList regions = new CellRangeAddressList(1, CONSTRAINT_MAX_LENGTH, index, index);
+                    XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper(sheet);
+                    XSSFDataValidationConstraint explicitListConstraint = (XSSFDataValidationConstraint) dvHelper
+                            .createExplicitListConstraint(valueOfCol.toArray(new String[0]));
+                    XSSFDataValidation dataValidation =
+                            (XSSFDataValidation) dvHelper.createValidation(explicitListConstraint, regions);
+                    sheet.addValidationData(dataValidation);
+                });
+    }
 
-            if (content != null) {
-                for (int i = 0; i < content.size(); ++i) {
-                    HSSFRow row = sheet.createRow(i + 1);
-                    Map<String, Object> objectMap = content.get(i);
-
-                    for (int i1 = 0; i1 < heads.size(); ++i1) {
-                        HSSFCell xh = row.createCell(i1);
-                        String title = heads.get(i1);
-                        Object ov = objectMap.get(title);
-                        String value = "";
-                        if (ov != null) {
-                            if (!(ov instanceof String)) {
-                                value = String.valueOf(ov);
-                            } else {
-                                value = (String) ov;
-                            }
-                        }
-
-                        xh.setCellValue(value);
-                    }
-                }
-            }
-
-            hwb.write(out);
-            out.close();
-            LOGGER.info("Database export succeeded");
-        } else {
-            throw new IllegalArgumentException("head tile can not be empty!");
-        }
+    private static void fillSheetHeader(XSSFRow row, List<String> heads, XSSFCellStyle style) {
+        IntStream.range(0, heads.size()).forEach(index -> {
+            XSSFCell cell = row.createCell(index);
+            cell.setCellValue(new XSSFRichTextString(heads.get(index)));
+            cell.setCellStyle(style);
+        });
     }
 
     /**
-     * Write the given objects to a list
-     * @param objects the objects to write
-     * @return a list of the objects
+     * Convert a list of objects to a list of maps, where each map represents an object's fields and values.
+     *
+     * @param objects The list of objects to be converted.
+     * @param <E>     The type of the objects to be converted.
+     * @return A list of maps, where each map represents an object's fields and values.
      */
-    public static <E> List<Map<String, Object>> write2List(List<E> objects) {
-        Map<Field, String> fieldMap = new HashMap<>(objects.size());
-        Map<Field, ExcelCellDataTransfer> dataTransferEnumMap = new HashMap<>();
+    public static <E> List<Map<String, String>> write2List(List<E> objects) {
         E e1 = objects.get(0);
         Class<?> e1Class = e1.getClass();
         Field[] fields = e1Class.getDeclaredFields();
-        if (fields.length == 0) {
-            return null;
-        } else {
+        expectTrue(fields.length > 0, "No method was found in the class '" + e1Class.getSimpleName() + "'");
 
-            for (Field field : fields) {
-                field.setAccessible(true);
-                ExcelField excel = field.getAnnotation(ExcelField.class);
-                if (excel != null) {
-                    String excelName = excel.name();
-                    fieldMap.put(field, excelName);
-                    ExcelCellDataTransfer excelCellDataTransfer = excel.x2oTransfer();
-                    dataTransferEnumMap.put(field, excelCellDataTransfer);
-                }
-            }
+        List<Triple<Field, String, ExcelCellDataTransfer>> fieldMeta = Arrays.stream(fields).map(field -> {
+            field.setAccessible(true);
+            return Pair.of(field, field.getAnnotation(ExcelField.class));
+        }).filter(p -> p.getRight() != null)
+                .map(p -> Triple.of(p.getLeft(), p.getRight().name(), p.getRight().x2oTransfer()))
+                .collect(Collectors.toList());
 
-            List<Map<String, Object>> list = new ArrayList<>();
+        return objects.stream()
+                .map(obj -> fieldMeta.stream().map(fm -> {
+                    Object fieldValue;
+                    try {
+                        fieldValue = fm.getLeft().get(obj);
+                    } catch (IllegalAccessException e) {
+                        return null;
+                    }
+                    String value = fm.getRight().parse2Text(fieldValue);
+                    String name = fm.getMiddle();
+                    return Pair.of(name, value);
+                })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toMap(Pair::getKey, Pair::getValue)))
+                .collect(Collectors.toList());
+    }
 
-            for (E object : objects) {
-                Map<String, Object> map = new HashMap<>();
-                Class<?> objectClass = object.getClass();
-                Field[] declaredFields = objectClass.getDeclaredFields();
-                for (Field field : declaredFields) {
-                    field.setAccessible(true);
-                    String name = fieldMap.get(field);
-                    if (name != null) {
-                        Object value = null;
+    /**
+     * Read data from an Excel file and convert it to a list of objects of the specified class.
+     *
+     * @param is     The input stream of the Excel file.
+     * @param eClass The class of the objects to be converted.
+     * @param <E>    The type of the objects to be converted.
+     * @return A list of objects of the specified class.
+     * @throws IOException            If an I/O error occurs.
+     * @throws IllegalAccessException If the class or its nullary constructor is not accessible.
+     * @throws InstantiationException If the class that declares the underlying field is an interface or is abstract.
+     */
+    public static <E extends ExcelImportTemplate> List<E> read(InputStream is, Class<E> eClass)
+            throws IOException, IllegalAccessException, InstantiationException, NoSuchMethodException {
+        ClassMeta<E> classMeta = ClassMeta.of(eClass);
+        int fieldCount = classMeta.fieldCount();
 
-                        try {
-                            value = field.get(object);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
+        expectTrue(fieldCount > 0, "The class contains at least one field with a @ExcelField annotation");
+        XSSFWorkbook hssfWorkbook = new XSSFWorkbook(is);
+        List<E> result = new LinkedList<>();
+        for (int numSheet = 0; numSheet < hssfWorkbook.getNumberOfSheets(); ++numSheet) {
+            XSSFSheet sheet = hssfWorkbook.getSheetAt(numSheet);
+            if (sheet != null) {
+                XSSFRow firstRow = sheet.getRow(0);
+
+                int[] valueCountInHead = {0};
+                IntStream.range(0, fieldCount)
+                        .forEach(colIndex -> Optional
+                                .ofNullable(firstRow.getCell(colIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK))
+                                .ifPresent(cell -> {
+                                    classMeta.setFieldPosition(cell.getStringCellValue(), valueCountInHead[0]++);
+                                }));
+
+                expectTrue(valueCountInHead[0] == fieldCount,
+                        "The first line field must be the same number of @ExcelMeta annotated fields in the class");
+
+                int lastRowNum = sheet.getLastRowNum();
+                List<E> currentResult = new ArrayList<>(lastRowNum);
+
+                for (int rowNum = 1; rowNum <= lastRowNum; ++rowNum) {
+                    XSSFRow row = sheet.getRow(rowNum);
+                    if (row == null) {
+                        continue;
+                    }
+                    E instance = eClass.newInstance();
+                    StringBuilder validateInfo = new StringBuilder();
+                    boolean hasValueInRow = false;
+                    for (int i = 0; i < fieldCount; ++i) {
+                        ClassFieldMeta fieldMeta = classMeta.field(i);
+                        ExcelCellDataTransfer cellDataTransfer = fieldMeta.getCellDataTransfer();
+                        XSSFCell cell = row.getCell(i, MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                        if (cell == null) {
+                            continue;
                         }
-
-                        if (value != null) {
-                            ExcelCellDataTransfer excelCellDataTransfer =
-                                    dataTransferEnumMap.get(field);
-                            value = excelCellDataTransfer.parse2Text(value);
-                            map.put(name, value);
-                        }
+                        hasValueInRow = true;
+                        Object value = parseCellValue(cellDataTransfer, cell);
+                        validateCellValue(classMeta, instance, validateInfo, fieldMeta, value);
+                        fieldMeta.getFiled().set(instance, value);
+                    }
+                    if (hasValueInRow) {
+                        currentResult.add(instance);
+                        Optional.ofNullable(classMeta.getRowValidator()).ifPresent(rv -> rv.onNext(instance));
                     }
                 }
-
-                if (!map.isEmpty()) {
-                    list.add(map);
-                }
+                Optional.ofNullable(classMeta.getBatchValidator()).ifPresent(bv -> bv.onBatch(currentResult));
+                result.addAll(currentResult);
             }
+        }
+        return result;
+    }
 
-            return list;
+    /**
+     * Validate the cell value of a given field in the Excel sheet
+     *
+     * @param classMeta    the meta information of the Excel import template class
+     * @param instance     the instance of the Excel import template class
+     * @param validateInfo the StringBuilder to store validation information
+     * @param fieldMeta    the meta information of the field to validate
+     * @param value        the value of the field to validate
+     * @throws IllegalAccessException if the field is inaccessible
+     */
+    private static <E extends ExcelImportTemplate> void validateCellValue(
+            ClassMeta<E> classMeta,
+            E instance,
+            StringBuilder validateInfo,
+            ClassFieldMeta fieldMeta,
+            Object value) throws IllegalAccessException {
+        boolean validate = true;
+        ExcelCellValidator cellValidator = fieldMeta.getCellValidator();
+        if (value != null && cellValidator != null) {
+            boolean validate1 = cellValidator.validate(value);
+            if (!validate1) {
+                validate = false;
+                validateInfo.append(cellValidator.getInvalidTip()).append(InlongConstants.SEMICOLON);
+            }
+        }
+
+        if (!validate) {
+            Method validMethod = classMeta.getExcelDataValidMethod();
+            try {
+                classMeta.getExcelDataValidateInfoMethod().invoke(instance, validateInfo.toString());
+                validMethod.invoke(instance, false);
+            } catch (InvocationTargetException e1) {
+                LOGGER.error("Can not properly set value", e1);
+            }
         }
     }
 
     /**
-     * Read the given input stream and return a list of objects
-     * @param is the input stream to read
-     * @param eClass the class of the objects to return
-     * @return a list of the objects
-     * @throws IOException if there is an error reading the input stream
-     * @throws IllegalAccessException if there is an error accessing the class
-     * @throws InstantiationException if there is an error instantiating the class
+     * Parse the cell value of a given field in the Excel sheet
+     *
+     * @param cellDataTransfer the data transfer type of the cell
+     * @param cell             the cell to parse
+     * @return the parsed cell value
      */
-    public static <E extends ExcelImportTemplate> List<E> read(InputStream is, Class<E> eClass)
-            throws IOException, IllegalAccessException, InstantiationException {
-        ClassMeta<E> classMeta = ClassMeta.of(eClass);
-        int fieldCount = classMeta.fieldCount();
-        ExcelBatchValidator<E> batchValidator = classMeta.getBatchValidator();
-        ExcelRowValidator<E> rowValidator = classMeta.getRowValidator();
-        if (fieldCount == 0) {
-            throw new IllegalArgumentException("There is no fields with '" + ExcelField.class.getCanonicalName()
-                    + "' annotation in class  '" + eClass.getCanonicalName() + "'");
-        } else {
-            HSSFWorkbook hssfWorkbook = new HSSFWorkbook(is);
-            List<E> result = new LinkedList<>();
-
-            for (int numSheet = 0; numSheet < hssfWorkbook.getNumberOfSheets(); ++numSheet) {
-                HSSFSheet hssfSheet = hssfWorkbook.getSheetAt(numSheet);
-                if (hssfSheet != null) {
-                    HSSFRow row = hssfSheet.getRow(0);
-                    int valueCountInHead = 0;
-
-                    int lastRowNum;
-                    for (lastRowNum = 0; lastRowNum < fieldCount; ++lastRowNum) {
-                        HSSFCell cell = row.getCell(lastRowNum, MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                        if (cell != null) {
-                            String titleName = cell.getStringCellValue();
-                            classMeta.setFieldPosition(titleName, valueCountInHead);
-                            ++valueCountInHead;
-                        }
-                    }
-
-                    if (valueCountInHead != 0) {
-                        if (valueCountInHead != fieldCount) {
-                            throw new IllegalArgumentException("the first line in sheet " + (numSheet + 1)
-                                    + "doesn't match the target bean: '" + eClass.getCanonicalName() + "'");
-                        }
-
-                        lastRowNum = hssfSheet.getLastRowNum();
-                        List<E> currentResult = new ArrayList<>(lastRowNum);
-
-                        for (int rowNum = 1; rowNum <= lastRowNum; ++rowNum) {
-                            boolean hasValueInRow = false;
-                            HSSFRow hssfRow = hssfSheet.getRow(rowNum);
-                            if (hssfRow != null) {
-                                E e = eClass.newInstance();
-                                boolean validate = true;
-                                StringBuilder validateInfo = new StringBuilder();
-
-                                for (int i = 0; i < fieldCount; ++i) {
-                                    ClassFieldMeta fieldMeta = classMeta.field(i);
-                                    ExcelCellDataTransfer cellDataTransfer = fieldMeta.getCellDataTransfer();
-                                    ExcelCellValidator cellValidator = fieldMeta.getCellValidator();
-                                    Field field = fieldMeta.getFiled();
-                                    HSSFCell cell = hssfRow.getCell(i, MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                                    if (cell != null) {
-                                        hasValueInRow = true;
-                                        Object o = null;
-                                        if (cellDataTransfer == ExcelCellDataTransfer.DATE) {
-                                            CellType cellTypeEnum = cell.getCellTypeEnum();
-                                            if (cellTypeEnum == CellType.STRING) {
-                                                String cellValue = cell.getStringCellValue();
-                                                o = cellDataTransfer.parseFromText(cellValue);
-                                            } else if (cellTypeEnum == CellType.NUMERIC) {
-                                                o = cell.getDateCellValue();
-                                            }
-                                        } else {
-                                            String value = getCellStringValue(cell);
-                                            o = value;
-                                            if (cellDataTransfer != ExcelCellDataTransfer.NONE) {
-                                                o = cellDataTransfer.parseFromText(value);
-                                            }
-                                        }
-
-                                        if (o != null && cellValidator != null) {
-                                            boolean validate1 = cellValidator.validate(o);
-                                            if (!validate1) {
-                                                validate = false;
-                                                validateInfo.append(cellValidator.getInvalidTip()).append("; ");
-                                            }
-                                        }
-
-                                        if (!validate) {
-                                            Method validMethod = classMeta.getExcelDataValidMethod();
-
-                                            try {
-                                                classMeta.getExcelDataValidateInfoMethod().invoke(e,
-                                                        validateInfo.toString());
-                                                validMethod.invoke(e, false);
-                                            } catch (InvocationTargetException e1) {
-                                                e1.printStackTrace();
-                                            }
-                                        }
-
-                                        field.set(e, o);
-                                    }
-                                }
-
-                                if (hasValueInRow) {
-                                    currentResult.add(e);
-                                    if (rowValidator != null) {
-                                        rowValidator.onNext(e);
-                                    }
-                                }
-                            }
-                        }
-
-                        if (batchValidator != null) {
-                            batchValidator.onBatch(currentResult);
-                        }
-
-                        result.addAll(currentResult);
-                    }
-                }
+    private static Object parseCellValue(ExcelCellDataTransfer cellDataTransfer, XSSFCell cell) {
+        Object o = null;
+        if (cellDataTransfer == ExcelCellDataTransfer.DATE) {
+            CellType cellTypeEnum = cell.getCellTypeEnum();
+            if (cellTypeEnum == CellType.STRING) {
+                String cellValue = cell.getStringCellValue();
+                o = cellDataTransfer.parseFromText(cellValue);
+            } else if (cellTypeEnum == CellType.NUMERIC) {
+                o = cell.getDateCellValue();
             }
-
-            return result;
+        } else {
+            String value = parseCellValue(cell);
+            o = value;
+            if (cellDataTransfer != ExcelCellDataTransfer.NONE) {
+                o = cellDataTransfer.parseFromText(value);
+            }
         }
+        return o;
     }
 
-    private static <E> Map<String, Field> getClassFieldMap(Class<E> eClass) {
-        Map<String, Field> fieldMap = new HashMap<>();
-        Field[] fields = eClass.getDeclaredFields();
-        if (fields.length > 0) {
-
-            for (Field field : fields) {
-                field.setAccessible(true);
-                ExcelField excel = field.getAnnotation(ExcelField.class);
-                if (excel != null) {
-                    String excelName = excel.name();
-                    fieldMap.put(excelName, field);
-                }
-            }
-
-            return fieldMap;
-        } else {
-            throw new IllegalArgumentException("It is not have fields in class '" + eClass.getCanonicalName() + "'");
-        }
-    }
-
-    private static String getCellStringValue(Cell cell) {
+    /**
+     * Parse the cell value of a given field in the Excel sheet
+     *
+     * @param cell the cell to parse
+     * @return the parsed cell value
+     */
+    private static String parseCellValue(Cell cell) {
         String cellvalue;
         if (cell != null) {
             cell.setCellType(1);
@@ -433,128 +488,5 @@ public class ExcelTool {
         }
 
         return cellvalue;
-    }
-
-    public static <E> List<Map<String, Object>> read2MapList(InputStream is, Class<E> eClass)
-            throws IOException, IllegalAccessException, InstantiationException {
-        LinkedList<Map<String, Object>> result = new LinkedList<>();
-        Map<String, Field> fieldMap = getClassFieldMap(eClass);
-        if (fieldMap.size() == 0) {
-            throw new IllegalArgumentException("There is no fields with '" + ExcelField.class.getCanonicalName()
-                    + "' annotation in class  '" + eClass.getCanonicalName() + "'");
-        } else {
-            HSSFWorkbook hssfWorkbook = new HSSFWorkbook(is);
-
-            for (int numSheet = 0; numSheet < hssfWorkbook.getNumberOfSheets(); ++numSheet) {
-                HSSFSheet hssfSheet = hssfWorkbook.getSheetAt(numSheet);
-                if (hssfSheet != null) {
-                    Field[] fields = new Field[fieldMap.size()];
-                    HSSFRow row = hssfSheet.getRow(0);
-                    int valueCountInHead = 0;
-
-                    for (int i = 0; i < fieldMap.size(); ++i) {
-                        HSSFCell cell = row.getCell(i, MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                        if (cell != null) {
-                            ++valueCountInHead;
-                            String value = cell.getStringCellValue();
-                            Field field = fieldMap.get(value);
-                            fields[i] = field;
-                        }
-                    }
-
-                    if (valueCountInHead != 0) {
-                        if (valueCountInHead != fieldMap.size()) {
-                            throw new IllegalArgumentException("the first line in sheet " + (numSheet + 1)
-                                    + "doesn't match the target bean: '" + eClass.getCanonicalName() + "'");
-                        }
-
-                        ExcelEntity excelEntity = eClass.getAnnotation(ExcelEntity.class);
-                        ExcelBatchValidator batchValidator = null;
-                        ExcelRowValidator oneRowValidator = null;
-                        if (excelEntity != null) {
-                            Class<?> batchValidatorClass = excelEntity.batchValidator();
-                            if (batchValidatorClass != ExcelBatchValidator.class) {
-                                batchValidator = (ExcelBatchValidator<?>) batchValidatorClass.newInstance();
-                            }
-
-                            Class<?> oneRowValidatorClass = excelEntity.oneRowValidator();
-                            if (oneRowValidatorClass != ExcelRowValidator.class) {
-                                oneRowValidator = (ExcelRowValidator<?>) oneRowValidatorClass.newInstance();
-                            }
-                        }
-
-                        for (int rowNum = 1; rowNum <= hssfSheet.getLastRowNum(); ++rowNum) {
-                            boolean hasValueInRow = false;
-                            HSSFRow hssfRow = hssfSheet.getRow(rowNum);
-                            if (hssfRow != null) {
-                                HashMap<String, Object> rowMap = new HashMap<>();
-                                boolean valid = true;
-                                StringBuilder validateInfo = new StringBuilder();
-
-                                for (int i = 0; i < fields.length; ++i) {
-                                    Field field = fields[i];
-                                    field.setAccessible(true);
-                                    ExcelField excel = field.getAnnotation(ExcelField.class);
-                                    ExcelCellDataTransfer transfer = excel.x2oTransfer();
-                                    ExcelCellValidator excelDataValidator = null;
-                                    Class<?> validatorClass = excel.validator();
-                                    Object o = validatorClass.newInstance();
-                                    if (o instanceof ExcelCellValidator) {
-                                        excelDataValidator = (ExcelCellValidator<?>) o;
-                                    }
-
-                                    HSSFCell cell = hssfRow.getCell(i, MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                                    if (cell != null) {
-                                        hasValueInRow = true;
-                                        o = null;
-                                        if (transfer == ExcelCellDataTransfer.DATE) {
-                                            CellType cellTypeEnum = cell.getCellTypeEnum();
-                                            if (cellTypeEnum == CellType.STRING) {
-                                                String cellValue = cell.getStringCellValue();
-                                                o = transfer.parseFromText(cellValue);
-                                            } else if (cellTypeEnum == CellType.NUMERIC) {
-                                                o = cell.getDateCellValue();
-                                            }
-                                        } else {
-                                            String value = getCellStringValue(cell);
-                                            o = value;
-                                            if (transfer != ExcelCellDataTransfer.NONE) {
-                                                o = transfer.parseFromText(value);
-                                            }
-                                        }
-
-                                        rowMap.put(field.getName(), o);
-                                        if (excelDataValidator != null && !excelDataValidator.validate(o)) {
-                                            valid = false;
-                                            if (validateInfo.length() > 0) {
-                                                validateInfo.append(",");
-                                            }
-
-                                            validateInfo.append(excelDataValidator.getInvalidTip());
-                                        }
-                                    }
-                                }
-
-                                if (hasValueInRow) {
-                                    rowMap.put("excel_data_valid", valid);
-                                    rowMap.put("excel_data_validate_info", validateInfo.toString());
-                                    result.add(rowMap);
-                                }
-
-                                if (oneRowValidator != null) {
-                                    oneRowValidator.onNext(rowMap);
-                                }
-                            }
-                        }
-
-                        if (batchValidator != null) {
-                            batchValidator.onBatch(result);
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
     }
 }

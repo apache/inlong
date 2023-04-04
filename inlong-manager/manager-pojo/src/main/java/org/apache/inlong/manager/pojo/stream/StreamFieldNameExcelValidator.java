@@ -19,7 +19,8 @@ package org.apache.inlong.manager.pojo.stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.tool.excel.validator.ExcelCellValidator;
-import org.apache.poi.hssf.usermodel.DVConstraint;
+
+import java.util.List;
 
 /**
  * This class is used to validate the field name in the excel file.
@@ -34,11 +35,9 @@ public class StreamFieldNameExcelValidator implements ExcelCellValidator<String>
 
     /**
      * Get the constraint of the validator.
-     *
-    
      */
     @Override
-    public DVConstraint constraint() {
+    public List<String> constraint() {
         return null;
     }
 
@@ -46,7 +45,6 @@ public class StreamFieldNameExcelValidator implements ExcelCellValidator<String>
      * Validate the field name.
      *
      * @param o the field name to be validated
-    
      */
     @Override
     public boolean validate(String o) {
@@ -55,8 +53,6 @@ public class StreamFieldNameExcelValidator implements ExcelCellValidator<String>
 
     /**
      * Get the invalid tip of the validator.
-     *
-    
      */
     @Override
     public String getInvalidTip() {

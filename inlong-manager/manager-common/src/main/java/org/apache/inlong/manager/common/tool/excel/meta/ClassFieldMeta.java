@@ -28,7 +28,6 @@ import java.lang.reflect.Field;
 public class ClassFieldMeta implements Serializable {
 
     /**
-    
      * The name of the field
      */
     private String name;

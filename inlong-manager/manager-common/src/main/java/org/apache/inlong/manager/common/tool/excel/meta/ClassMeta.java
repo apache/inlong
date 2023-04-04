@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.tool.excel.validator.ExcelRowValidator;
 import org.apache.inlong.manager.common.tool.excel.ExcelCellDataTransfer;
 
 import lombok.Data;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -99,66 +100,45 @@ public class ClassMeta<T extends ExcelImportTemplate> {
 
     /**
      * Create a ClassMeta object from a given template class.
+     *
      * @param templateClass the template class
-     * @param <T> the type of the Excel import template
+     * @param <T>           the type of the Excel import template
      * @return the ClassMeta object
      */
-    public static <T extends ExcelImportTemplate> ClassMeta<T> of(Class<T> templateClass) {
-        ClassMeta<T> meta = new ClassMeta();
+    public static <T extends ExcelImportTemplate> ClassMeta<T> of(Class<T> templateClass)
+            throws InstantiationException, IllegalAccessException, NoSuchMethodException {
+        ClassMeta<T> meta = new ClassMeta<>();
         ExcelEntity excelEntity = templateClass.getAnnotation(ExcelEntity.class);
         if (excelEntity != null) {
             meta.name = excelEntity.name();
-            Class<? extends ExcelRowValidator> oneRowValidatorClass = excelEntity.oneRowValidator();
-            Class<? extends ExcelBatchValidator> batchValidatorClass = excelEntity.batchValidator();
-
-            try {
-                if (oneRowValidatorClass != ExcelRowValidator.class) {
-                    meta.rowValidator = (ExcelRowValidator) oneRowValidatorClass.newInstance();
-                }
-
-                if (batchValidatorClass != ExcelBatchValidator.class) {
-                    meta.batchValidator = (ExcelBatchValidator) batchValidatorClass.newInstance();
-                }
-            } catch (IllegalAccessException | InstantiationException var18) {
-                var18.printStackTrace();
+            if (excelEntity.oneRowValidator() != ExcelRowValidator.class) {
+                meta.rowValidator = (ExcelRowValidator) excelEntity.oneRowValidator().newInstance();
+            }
+            if (excelEntity.batchValidator() != ExcelBatchValidator.class) {
+                meta.batchValidator = (ExcelBatchValidator) excelEntity.batchValidator().newInstance();
             }
         }
 
         Field[] fields = templateClass.getDeclaredFields();
-        int fieldsLength = fields.length;
-
-        for (int index = 0; index < fieldsLength; ++index) {
-            Field field = fields[index];
+        for (Field field : fields) {
             field.setAccessible(true);
-            ExcelField excelField = (ExcelField) field.getAnnotation(ExcelField.class);
+            ExcelField excelField = field.getAnnotation(ExcelField.class);
             if (excelField != null) {
-                String name = field.getName();
-                Class<?> type = field.getType();
-                String excelName = excelField.name();
                 Class<? extends ExcelCellValidator> validatorClass = excelField.validator();
                 ExcelCellDataTransfer excelCellDataTransfer = excelField.x2oTransfer();
                 ExcelCellValidator excelCellValidator = null;
                 if (validatorClass != ExcelCellValidator.class) {
-                    try {
-                        excelCellValidator = (ExcelCellValidator) validatorClass.newInstance();
-                    } catch (IllegalAccessException | InstantiationException var17) {
-                        var17.printStackTrace();
-                    }
+                    excelCellValidator = validatorClass.newInstance();
                 }
-
-                meta.addField(name, excelName, field, type, excelCellValidator, excelCellDataTransfer);
+                meta.addField(field.getName(), excelField.name(), field, field.getType(), excelCellValidator,
+                        excelCellDataTransfer);
             }
         }
 
-        try {
-            Method excelDataValid = templateClass.getMethod("setExcelDataValid", Boolean.TYPE);
-            Method excelDataValidateInfo = templateClass.getMethod("setExcelDataValidate", String.class);
-            meta.setExcelDataValidMethod(excelDataValid);
-            meta.setExcelDataValidateInfoMethod(excelDataValidateInfo);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-
+        Method excelDataValid = templateClass.getMethod("setExcelDataValid", Boolean.TYPE);
+        Method excelDataValidateInfo = templateClass.getMethod("setExcelDataValidate", String.class);
+        meta.setExcelDataValidMethod(excelDataValid);
+        meta.setExcelDataValidateInfoMethod(excelDataValidateInfo);
         return meta;
     }
 
@@ -190,6 +170,7 @@ public class ClassMeta<T extends ExcelImportTemplate> {
 
     /**
      * Get the number of fields in the class.
+     *
      * @return the number of fields
      */
     public int fieldCount() {
@@ -198,8 +179,9 @@ public class ClassMeta<T extends ExcelImportTemplate> {
 
     /**
      * Set the position of a field in the Excel sheet.
+     *
      * @param titleName the name of the field in the Excel sheet
-     * @param position the position of the field in the Excel sheet
+     * @param position  the position of the field in the Excel sheet
      */
     public void setFieldPosition(String titleName, int position) {
         this.isSorted = false;
@@ -212,6 +194,7 @@ public class ClassMeta<T extends ExcelImportTemplate> {
 
     /**
      * Get the metadata of a field at a given position.
+     *
      * @param position the position of the field
      * @return the metadata of the field
      */

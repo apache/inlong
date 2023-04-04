@@ -18,10 +18,9 @@
 package org.apache.inlong.manager.common.tool.excel.validator;
 
 import java.io.Serializable;
-import org.apache.poi.hssf.usermodel.DVConstraint;
+import java.util.List;
 
 /**
-
  * Interface for validating Excel cell values
  */
 public interface ExcelCellValidator<T> extends Serializable {
@@ -29,7 +28,7 @@ public interface ExcelCellValidator<T> extends Serializable {
     /**
      * Returns the data validation constraint for the cell
      */
-    DVConstraint constraint();
+    List<String> constraint();
 
     /**
      * Validates the cell value

@@ -49,7 +49,7 @@ public class StreamField extends BaseExcelImportTemplate implements Serializable
     @ApiModelProperty(value = "inlong stream id", required = true)
     private String inlongStreamId;
 
-    @ExcelField(name = "Field name", validator = StreamFieldTypeExcelValidator.class)
+    @ExcelField(name = "Field name")
     @ApiModelProperty(value = "Field name", required = true)
     private String fieldName;
 
