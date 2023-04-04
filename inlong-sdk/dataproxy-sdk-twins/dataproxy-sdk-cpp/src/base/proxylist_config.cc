@@ -590,7 +590,7 @@ namespace dataproxy_sdk
                 {
                     url = g_config.proxy_URL_ + "/" + groupid2cluster.first;
                 }
-                std::string post_data = "ip=" + g_config.ser_ip_ + "&version=" + constants::kTDBusCAPIVersion;
+                std::string post_data = "ip=" + g_config.ser_ip_ + "&version=" + constants::kTDBusCAPIVersion + "&protocolType=" + constants::kProtocolType;
                 LOG_WARN("get inlong_group_id:%s proxy cfg url:%s, post_data:%s", groupid2cluster.first.c_str(), url.c_str(), post_data.c_str());
 
                 // request proxylist from mananer, if failed multi-times, read from local cache file
