@@ -94,6 +94,7 @@ namespace dataproxy_sdk
         static const char kBasicAuthPrefix[] = "Basic";
         static const char kBasicAuthSeparator[] = " ";
         static const char kBasicAuthJoiner[] = ":";
+        static const char kProtocolType [] = "TCP";
 
     } // namespace constants
 
