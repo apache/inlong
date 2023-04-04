@@ -377,6 +377,7 @@
   "meta.Group.Pulsar.RetentionTimeExtra": "The save time of the message in the ack state, the message will be deleted when this value is exceeded (up to 14 days)",
   "meta.Group.Pulsar.TtlExtra": "The time-to-live time of the message, messages exceeding this value will be marked as ack (retained for up to 14 days)",
   "meta.Group.Pulsar.RetentionSizeExtra": "Message capacity in ack state, messages exceeding this value will be deleted (-1 means never delete)",
+  "meta.Group.Pulsar.MaxMarkDeleteRateExtra": "Rate limit for mark delete operations",
   "meta.Group.TubeMq.NumberOfAccess": "Number of Access",
   "meta.Group.TubeMq.TenThousand/Day": "Ten Thousand / Day",
   "meta.Group.TubeMq.AccessSize": "Access Size",

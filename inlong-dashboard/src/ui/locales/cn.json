@@ -377,6 +377,7 @@
   "meta.Group.Pulsar.RetentionTimeExtra": "处于ack状态的消息的保存时⻓，超过此值时消息会被删除（最多保留14天）",
   "meta.Group.Pulsar.TtlExtra": "消息的 time-to-live 时⻓，超过此值的消息会被标记为ack（最多保留14天）",
   "meta.Group.Pulsar.RetentionSizeExtra": "处于 ack 状态的消息容量，超过此值的消息会被删除（-1表示永不删除）",
+  "meta.Group.Pulsar.MaxMarkDeleteRateExtra": "标记删除操作的限制速率",
   "meta.Group.TubeMq.NumberOfAccess": "按天接入条数",
   "meta.Group.TubeMq.TenThousand/Day": "万条/天",
   "meta.Group.TubeMq.AccessSize": "按天接入大小",
