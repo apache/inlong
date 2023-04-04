@@ -546,6 +546,23 @@ public class LoadNodeUtils {
      */
     public static ElasticsearchLoadNode createLoadNode(ElasticsearchSink elasticsearchSink,
             List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations, Map<String, String> properties) {
+        Format format = null;
+        if (elasticsearchSink.getSinkMultipleEnable() != null && elasticsearchSink.getSinkMultipleEnable()
+                && StringUtils.isNotBlank(
+                        elasticsearchSink.getSinkMultipleFormat())) {
+            DataTypeEnum dataType = DataTypeEnum.forType(elasticsearchSink.getSinkMultipleFormat());
+            switch (dataType) {
+                case CANAL:
+                    format = new CanalJsonFormat();
+                    break;
+                case DEBEZIUM_JSON:
+                    format = new DebeziumJsonFormat();
+                    break;
+                default:
+                    throw new IllegalArgumentException(
+                            String.format("Unsupported dataType=%s for elasticsearch", dataType));
+            }
+        }
         return new ElasticsearchLoadNode(
                 elasticsearchSink.getSinkName(),
                 elasticsearchSink.getSinkName(),
@@ -561,7 +578,10 @@ public class LoadNodeUtils {
                 elasticsearchSink.getPassword(),
                 elasticsearchSink.getDocumentType(),
                 elasticsearchSink.getPrimaryKey(),
-                elasticsearchSink.getEsVersion());
+                elasticsearchSink.getEsVersion(),
+                elasticsearchSink.getSinkMultipleEnable(),
+                format,
+                elasticsearchSink.getIndexPattern());
     }
 
     /**

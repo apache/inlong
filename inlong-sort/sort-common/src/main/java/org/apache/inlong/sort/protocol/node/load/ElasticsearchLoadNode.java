@@ -28,6 +28,7 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
@@ -73,6 +74,18 @@ public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Ser
     @JsonProperty("version")
     private int version;
 
+    @Nullable
+    @JsonProperty("sinkMultipleEnable")
+    private Boolean sinkMultipleEnable = false;
+
+    @Nullable
+    @JsonProperty("sinkMultipleFormat")
+    private Format sinkMultipleFormat;
+
+    @Nullable
+    @JsonProperty("indexPattern")
+    private String indexPattern;
+
     @JsonCreator
     public ElasticsearchLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -88,7 +101,10 @@ public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Ser
             @Nonnull @JsonProperty("password") String password,
             @Nonnull @JsonProperty("documentType") String documentType,
             @Nonnull @JsonProperty("primaryKey") String primaryKey,
-            @JsonProperty("version") int version) {
+            @JsonProperty("version") int version,
+            @Nullable @JsonProperty("sinkMultipleEnable") Boolean sinkMultipleEnable,
+            @Nullable @JsonProperty("sinkMultipleFormat") Format sinkMultipleFormat,
+            @Nullable @JsonProperty("indexPattern") String indexPattern) {
         super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
         this.password = Preconditions.checkNotNull(password, "password is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
@@ -97,6 +113,10 @@ public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Ser
         this.documentType = documentType;
         this.primaryKey = primaryKey;
         this.version = version;
+        this.sinkMultipleEnable = sinkMultipleEnable;
+        this.sinkMultipleFormat = sinkMultipleFormat;
+        this.indexPattern = indexPattern;
+
     }
 
     /**

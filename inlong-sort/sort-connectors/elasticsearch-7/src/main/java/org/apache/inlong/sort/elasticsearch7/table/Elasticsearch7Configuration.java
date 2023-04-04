@@ -31,6 +31,7 @@ import org.elasticsearch.action.DocWriteRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.FAILURE_HANDLER_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
 
