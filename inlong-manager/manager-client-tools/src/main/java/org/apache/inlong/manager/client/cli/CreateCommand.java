@@ -84,7 +84,7 @@ public class CreateCommand extends AbstractCommand {
                 // first extract group config from the file passed in
                 CreateGroupConf groupConf = JsonUtils.parseObject(content, CreateGroupConf.class);
                 assert groupConf != null;
-                setInitConfigInfo(groupConf);
+                setDefaultConfigInfo(groupConf);
 
                 // get the corresponding inlong group, aka the task to execute
                 InlongClient inlongClient = ClientUtils.getClient();
@@ -112,7 +112,7 @@ public class CreateCommand extends AbstractCommand {
          *
          * @param groupConf group conf
          */
-        private void setInitConfigInfo(CreateGroupConf groupConf) {
+        private void setDefaultConfigInfo(CreateGroupConf groupConf) {
             String inlongGroupId = groupConf.getGroupInfo().getInlongGroupId();
             String inlongStreamId = groupConf.getStreamInfo().getInlongStreamId();
             // group
