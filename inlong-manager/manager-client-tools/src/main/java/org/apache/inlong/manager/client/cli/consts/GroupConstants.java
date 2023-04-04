@@ -15,21 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.cli.pojo;
+package org.apache.inlong.manager.client.cli.consts;
 
-import lombok.Data;
-import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+public class GroupConstants {
 
-/**
- * The config of group, including inlong stream, stream source, stream sink, etc.
- */
-@Data
-public class CreateGroupConf {
+    public static final int DEFAULT_LIGHTWEIGHT = 0;
 
-    private InlongGroupInfo groupInfo;
-    private InlongStreamInfo streamInfo;
-    private MultiDependencyTransform streamTransform;
+    public static final String DEFAULT_DATA_ENCODING = "UTF-8";
+
+    // int value of '|'
+    public static final String DEFAULT_DATA_SEPARATOR = "124";
+
+    public static final boolean DEFAULT_IGNORE_PARSE_ERROR = true;
 
 }
