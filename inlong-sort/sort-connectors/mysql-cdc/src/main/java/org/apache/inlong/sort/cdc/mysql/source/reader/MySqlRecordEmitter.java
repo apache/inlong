@@ -116,12 +116,6 @@ public final class MySqlRecordEmitter<T>
                 }
             }
 
-            // for create table ddl, there's no table change events
-            // still we need to generate a ddl message
-            if (tableChanges.isEmpty()) {
-                outputDdlElement(element, output, splitState, null);
-            }
-
         } else if (isDataChangeRecord(element)) {
             if (splitState.isBinlogSplitState()) {
                 BinlogOffset position = getBinlogPosition(element);
