@@ -63,7 +63,7 @@ public class StreamSourceController {
     @ApiOperation(value = "Get stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<StreamSource> get(@PathVariable Integer id) {
-        return Response.success(sourceService.get(id));
+        return Response.success(sourceService.get(id, LoginUserUtils.getLoginUser()));
     }
 
     @RequestMapping(value = "/source/list", method = RequestMethod.POST)
