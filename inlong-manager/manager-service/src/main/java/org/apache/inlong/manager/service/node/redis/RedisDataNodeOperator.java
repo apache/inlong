@@ -32,6 +32,7 @@ import org.apache.inlong.manager.pojo.node.redis.RedisDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.redis.RedisDataNodeRequest;
 import org.apache.inlong.manager.pojo.sink.redis.RedisClusterMode;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
+import org.apache.inlong.manager.service.resource.sink.redis.RedisResourceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,6 +114,18 @@ public class RedisDataNodeOperator extends AbstractDataNodeOperator {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
                     String.format("Failed to build extParams for Redis node: %s", e.getMessage()));
+        }
+    }
+
+    @Override
+    public Boolean testConnection(DataNodeRequest request) {
+        RedisDataNodeRequest redisDataNodeRequest = (RedisDataNodeRequest) request;
+        try {
+            return RedisResourceClient.testConnection(redisDataNodeRequest);
+        } catch (Exception e) {
+            String errMsg = String.format("redis connection failed: %s ", e.getMessage());
+
+            throw new BusinessException(errMsg);
         }
     }
 
