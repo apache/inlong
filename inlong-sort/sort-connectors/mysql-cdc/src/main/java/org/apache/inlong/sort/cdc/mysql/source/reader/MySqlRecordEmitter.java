@@ -124,7 +124,9 @@ public final class MySqlRecordEmitter<T>
                 if (ddl.toUpperCase().startsWith(DDL_OP_DROP)) {
                     String tableName = org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getTableName(element);
                     String dbName = org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getDbName(element);
-                    TableId tableId = org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getTabelId(dbName, tableName);
+                    TableId tableId = org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getTabelId(
+                            dbName,
+                            tableName);
                     // If this table is one of the captured tables, output the ddl element.
                     if (splitState.getMySQLSplit().getTableSchemas().containsKey(tableId)) {
                         outputDdlElement(element, output, splitState, null);
