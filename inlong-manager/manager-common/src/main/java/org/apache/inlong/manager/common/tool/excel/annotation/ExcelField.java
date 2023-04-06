@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.common.tool.excel.annotation;
 
 import org.apache.inlong.manager.common.tool.excel.ExcelCellDataTransfer;
-import org.apache.inlong.manager.common.tool.excel.validator.ExcelCellValidator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -41,9 +40,4 @@ public @interface ExcelField {
      * Data transfer method from Excel to Object
      */
     ExcelCellDataTransfer x2oTransfer() default ExcelCellDataTransfer.NONE;
-
-    /**
-     * Validator for the field
-     */
-    Class<? extends ExcelCellValidator> validator() default ExcelCellValidator.class;
 }

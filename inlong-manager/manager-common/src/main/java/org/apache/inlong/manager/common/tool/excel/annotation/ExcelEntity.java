@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.common.tool.excel.annotation;
 
-import org.apache.inlong.manager.common.tool.excel.validator.ExcelBatchValidator;
-import org.apache.inlong.manager.common.tool.excel.validator.ExcelRowValidator;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -36,14 +33,4 @@ public @interface ExcelEntity {
      * Name of the Excel entity
      */
     String name();
-
-    /**
-     * Batch validator for Excel entity
-     */
-    Class<? extends ExcelBatchValidator> batchValidator() default ExcelBatchValidator.class;
-
-    /**
-     * Row validator for Excel entity
-     */
-    Class<? extends ExcelRowValidator> oneRowValidator() default ExcelRowValidator.class;
 }
