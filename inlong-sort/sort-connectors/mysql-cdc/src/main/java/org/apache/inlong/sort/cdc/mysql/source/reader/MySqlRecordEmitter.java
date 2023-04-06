@@ -118,12 +118,12 @@ public final class MySqlRecordEmitter<T>
                 }
             }
 
-            // For drop table ddl, there's no table change events.
+            // for drop table ddl, there's no table change events
             if (tableChanges.isEmpty()) {
                 String ddl = historyRecord.document().getString(Fields.DDL_STATEMENTS);
                 if (ddl.toUpperCase().startsWith(DDL_OP_DROP)) {
                     TableId tableId = RecordUtils.getTableId(element);
-                    // If this table is one of the captured tables, output the ddl element.
+                    // if this table is one of the captured tables, output the ddl element
                     if (splitState.getMySQLSplit().getTableSchemas().containsKey(tableId)) {
                         outputDdlElement(element, output, splitState, null);
                     }
