@@ -44,8 +44,7 @@ public class ColumnFilterUtil {
         Tables.ColumnNameFilter columnFilter;
         if (columnIncludeList != null) {
             columnFilter = Tables.ColumnNameFilterFactory.createIncludeListFilter(columnIncludeList, columnFilterMode);
-        }
-        else {
+        } else {
             columnFilter = Tables.ColumnNameFilterFactory.createExcludeListFilter(columnExcludeList, columnFilterMode);
         }
 
@@ -58,12 +57,11 @@ public class ColumnFilterUtil {
         TableEditor tableEditor = table.edit();
         table.columns()
                 .stream()
-                .filter(column ->
-                        !columnNameFilter.matches(
-                                table.id().catalog(),
-                                table.id().schema(),
-                                table.id().table(),
-                                column.name()))
+                .filter(column -> !columnNameFilter.matches(
+                        table.id().catalog(),
+                        table.id().schema(),
+                        table.id().table(),
+                        column.name()))
                 .forEach(column -> tableEditor.removeColumn(column.name()));
 
         return new TableChanges.TableChange(oldTableChange.getType(), tableEditor.create());
