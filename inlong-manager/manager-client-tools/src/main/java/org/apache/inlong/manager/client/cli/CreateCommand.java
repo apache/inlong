@@ -29,16 +29,25 @@ import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.validator.UserTypeValidator;
-import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
+import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
+import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
+
+import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_DATA_ENCODING;
+import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_DATA_SEPARATOR;
+import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_IGNORE_PARSE_ERROR;
+import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_LIGHTWEIGHT;
+import static org.apache.inlong.manager.common.consts.InlongConstants.ADMIN_USER;
 
 /**
  * Create resource by json file.
@@ -67,41 +76,77 @@ public class CreateCommand extends AbstractCommand {
         @Parameter(names = {"-f", "--file"}, converter = FileConverter.class, description = "json file")
         private File file;
 
-        @Parameter(names = {"-s"}, description = "optional log string to create file")
-        private String input;
-
         @Override
         void run() {
             try {
-                String content;
-                if (input != null) {
-                    content = input;
-                } else {
-                    content = ClientUtils.readFile(file);
-                }
+                String content = ClientUtils.readFile(file);
+
                 // first extract group config from the file passed in
                 CreateGroupConf groupConf = JsonUtils.parseObject(content, CreateGroupConf.class);
                 assert groupConf != null;
+                setDefaultConfigInfo(groupConf);
+
                 // get the corresponding inlong group, aka the task to execute
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());
                 InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamInfo());
                 // put in parameters:source and sink,stream fields, then initialize
-                streamBuilder.fields(groupConf.getStreamFieldList());
-                streamBuilder.source(groupConf.getStreamSource());
-                streamBuilder.sink(groupConf.getStreamSink());
-                streamBuilder.transform(groupConf.getStreamTransform());
+                streamBuilder.fields(groupConf.getStreamInfo().getFieldList());
+                groupConf.getStreamInfo().getSourceList().forEach(streamBuilder::source);
+                groupConf.getStreamInfo().getSinkList().forEach(streamBuilder::sink);
+                if (groupConf.getStreamTransform() != null) {
+                    streamBuilder.transform(groupConf.getStreamTransform());
+                }
                 streamBuilder.initOrUpdate();
                 // initialize the new stream group
                 InlongGroupContext context = group.init();
-                if (!SimpleGroupStatus.STARTED.equals(context.getStatus())) {
-                    throw new Exception("Start group failed, current status: " + context.getStatus());
-                }
-                System.out.println("Start group success!");
+                System.out.println("Create group success, current status: " + context.getStatus());
             } catch (Exception e) {
                 System.out.println("Create group failed!");
                 System.out.println(e.getMessage());
             }
+        }
+
+        /**
+         * Set default value for group conf
+         *
+         * @param groupConf group conf
+         */
+        private void setDefaultConfigInfo(CreateGroupConf groupConf) {
+            String inlongGroupId = groupConf.getGroupInfo().getInlongGroupId();
+            String inlongStreamId = groupConf.getStreamInfo().getInlongStreamId();
+            // group
+            groupConf.getGroupInfo().setInCharges(ADMIN_USER);
+            groupConf.getGroupInfo().setLightweight(DEFAULT_LIGHTWEIGHT);
+            groupConf.getGroupInfo().setSortConf(new FlinkSortConf());
+
+            // stream
+            InlongStreamInfo streamInfo = groupConf.getStreamInfo();
+            groupConf.getStreamInfo().setInlongGroupId(inlongGroupId);
+            streamInfo.setDataType(Optional.ofNullable(streamInfo.getDataType()).orElse(DataFormat.CSV.getName()));
+            streamInfo.setDataEncoding(Optional.ofNullable(streamInfo.getDataEncoding()).orElse(DEFAULT_DATA_ENCODING));
+            streamInfo.setDataSeparator(
+                    Optional.ofNullable(streamInfo.getDataSeparator()).orElse(DEFAULT_DATA_SEPARATOR));
+            streamInfo.setIgnoreParseError(
+                    Optional.ofNullable(streamInfo.getIgnoreParseError()).orElse(DEFAULT_IGNORE_PARSE_ERROR));
+
+            // field
+            streamInfo.getFieldList().forEach(field -> {
+                field.setInlongGroupId(inlongGroupId);
+                field.setInlongStreamId(inlongStreamId);
+            });
+
+            // source
+            streamInfo.getSourceList().forEach(source -> {
+                source.setInlongGroupId(inlongGroupId);
+                source.setInlongStreamId(inlongStreamId);
+            });
+
+            // sink
+            streamInfo.getSinkList().forEach(sink -> {
+                sink.setInlongGroupId(inlongGroupId);
+                sink.setInlongStreamId(inlongStreamId);
+            });
         }
     }
 
