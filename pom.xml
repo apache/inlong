@@ -207,6 +207,7 @@
         <kudu.version>1.16.0</kudu.version>
         <tomcat.version>8.5.53</tomcat.version>
         <jedis.version>2.9.0</jedis.version>
+        <poi.version>3.16</poi.version>
     </properties>
 
     <dependencyManagement>
@@ -1545,6 +1546,16 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-client</artifactId>
                 <version>${kubernetes.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
