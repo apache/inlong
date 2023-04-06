@@ -23,6 +23,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.tool.excel.annotation.ExcelEntity;
+import org.apache.inlong.manager.common.tool.excel.annotation.ExcelField;
+
+import java.io.Serializable;
 
 /**
  * Stream filed, including field name, field type, etc.
@@ -32,7 +36,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Stream field configuration")
-public class StreamField {
+@ExcelEntity(name = "StreamField excel template")
+public class StreamField implements Serializable {
 
     @ApiModelProperty("Field index")
     private Integer id;
@@ -43,12 +48,15 @@ public class StreamField {
     @ApiModelProperty(value = "inlong stream id", required = true)
     private String inlongStreamId;
 
+    @ExcelField(name = "Field name")
     @ApiModelProperty(value = "Field name", required = true)
     private String fieldName;
 
+    @ExcelField(name = "Field type")
     @ApiModelProperty(value = "Field type", required = true)
     private String fieldType;
 
+    @ExcelField(name = "Field comment")
     @ApiModelProperty("Field comment")
     private String fieldComment;
 
