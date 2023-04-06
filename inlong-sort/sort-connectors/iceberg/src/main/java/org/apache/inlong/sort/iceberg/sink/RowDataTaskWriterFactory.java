@@ -122,8 +122,13 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
                 return new UnpartitionedDeltaWriter(spec, format, appenderFactory, outputFileFactory, io,
                         targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert);
             } else {
-                return new PartitionedDeltaWriter(spec, format, appenderFactory, outputFileFactory, io,
-                        targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert, miniBatchMode);
+                if (miniBatchMode) {
+                    return new GroupedPartitionedDeltaWriter(spec, format, appenderFactory, outputFileFactory, io,
+                            targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert);
+                } else {
+                    return new PartitionedDeltaWriter(spec, format, appenderFactory, outputFileFactory, io,
+                            targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert);
+                }
             }
         }
     }

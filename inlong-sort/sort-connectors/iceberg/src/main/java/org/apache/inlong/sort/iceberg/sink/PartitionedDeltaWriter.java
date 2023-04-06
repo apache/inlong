@@ -28,26 +28,20 @@ import org.apache.iceberg.io.FileIO;
 import org.apache.iceberg.io.OutputFileFactory;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.util.Tasks;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 class PartitionedDeltaWriter extends BaseDeltaTaskWriter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PartitionedDeltaWriter.class);
-
     private final PartitionKey partitionKey;
 
-    private final Map<PartitionKey, RowDataDeltaWriter> writers;
+    private final Map<PartitionKey, RowDataDeltaWriter> writers = Maps.newHashMap();
 
     PartitionedDeltaWriter(PartitionSpec spec,
             FileFormat format,
@@ -58,26 +52,10 @@ class PartitionedDeltaWriter extends BaseDeltaTaskWriter {
             Schema schema,
             RowType flinkSchema,
             List<Integer> equalityFieldIds,
-            boolean upsert,
-            boolean isLRU) {
+            boolean upsert) {
         super(spec, format, appenderFactory, fileFactory, io, targetFileSize, schema, flinkSchema, equalityFieldIds,
                 upsert);
         this.partitionKey = new PartitionKey(spec, schema);
-        this.writers = isLRU ? new LinkedHashMap<PartitionKey, RowDataDeltaWriter>() {
-
-            @Override
-            protected boolean removeEldestEntry(Entry<PartitionKey, RowDataDeltaWriter> eldest) {
-                if (size() > 1) {
-                    try {
-                        LOG.info("Eliminated writer for partition {}", eldest.getKey().toPath());
-                        eldest.getValue().close();
-                    } catch (IOException e) {
-                        PartitionedDeltaWriter.this.setFailure(e); // todo:这里把异常隐藏了，能不能提前检测并且暴露
-                    }
-                }
-                return size() > 1;
-            }
-        } : Maps.newHashMap();
     }
 
     @Override
