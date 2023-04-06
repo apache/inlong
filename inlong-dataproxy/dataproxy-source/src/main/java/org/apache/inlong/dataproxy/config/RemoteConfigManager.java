@@ -205,6 +205,12 @@ public class RemoteConfigManager implements IRepository {
             LOGGER.info("start to request {} to get config info with params {}", url, request);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             String returnStr = EntityUtils.toString(response.getEntity());
+
+            if (response.getStatusLine().getStatusCode() != 200) {
+                LOGGER.info("failed to request {}, the response is {}", url, returnStr);
+                return false;
+            }
+
             LOGGER.info("end to request {} to get config info:{}", url, returnStr);
             // get groupId <-> topic and m value.
 
