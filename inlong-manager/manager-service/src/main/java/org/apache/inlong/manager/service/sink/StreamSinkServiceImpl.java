@@ -814,18 +814,26 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String groupId = groupEntity.getInlongGroupId();
         String streamId = streamEntity.getInlongStreamId();
         String defaultOperator = groupEntity.getInCharges().split(InlongConstants.COMMA)[0];
+
         // add fields for StreamSinkField
         List<StreamSinkEntity> sinkEntityList = sinkMapper.selectByRelatedId(groupId, streamId);
         sinkEntityList.forEach(sink -> {
             String sinkType = sink.getSinkType();
             List<SinkField> toAddFields = fieldsRequest.getFields().stream().map(streamField -> {
                 SinkField sinkField = new SinkField();
-                sinkField.setSinkType(sink.getSinkType());
-                sinkField.setFieldName(streamField.getFieldName());
-                sinkField.setFieldType(fieldTypeUtils.getSinkField(sinkType, streamField.getFieldType()));
-                sinkField.setFieldComment(streamField.getFieldComment());
-                sinkField.setSourceFieldName(streamField.getFieldName());
-                sinkField.setSourceFieldType(fieldTypeUtils.getStreamField(sourceType, streamField.getFieldType()));
+                try {
+                    sinkField.setSinkType(sink.getSinkType());
+                    sinkField.setFieldName(streamField.getFieldName());
+                    sinkField.setFieldType(fieldTypeUtils.getField(sinkType, streamField.getFieldType(), true));
+                    sinkField.setFieldComment(streamField.getFieldComment());
+                    sinkField.setSourceFieldName(streamField.getFieldName());
+                    sinkField.setSourceFieldType(
+                            fieldTypeUtils.getField(sourceType, streamField.getFieldType(), false));
+                } catch (Exception e) {
+                    LOGGER.error("sink field {} convert error for sinkId {}", sinkField.getFieldName(), sink.getId());
+                    throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                            String.format("field convert error for sinkId=%s", sink.getId()));
+                }
                 return sinkField;
             }).collect(Collectors.toList());
             List<StreamSinkFieldEntity> existsFieldList = sinkFieldMapper.selectBySinkId(sink.getId());
@@ -852,6 +860,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 this.update(request, defaultOperator);
             }
         });
+
         boolean streamSuccess = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus());
         if (streamSuccess && isNeedAddField.get()) {
             startProcessForSink(groupId, streamId, defaultOperator);

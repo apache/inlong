@@ -844,7 +844,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     @Override
     public void addFieldForStream(AddFieldsRequest fieldsRequest, String sourceType, InlongGroupEntity groupEntity,
-            InlongStreamEntity streamEntity) {
+            InlongStreamEntity streamEntity) throws Exception {
         String groupId = groupEntity.getInlongGroupId();
         String streamId = streamEntity.getInlongStreamId();
         // add fields for InlongStreamField
@@ -860,7 +860,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         List<StreamField> tobeAddFields = fieldsRequest.getFields();
         for (StreamField fieldInfo : tobeAddFields) {
             String tobeAddFieldName = fieldInfo.getFieldName().toLowerCase(Locale.ROOT);
-            fieldInfo.setFieldType(fieldTypeUtils.getStreamField(sourceType, fieldInfo.getFieldType()));
+            fieldInfo.setFieldType(fieldTypeUtils.getField(sourceType, fieldInfo.getFieldType(), false));
             if (existsNames.contains(tobeAddFieldName)) {
                 LOGGER.error("field {} already exist for streamId {}", fieldInfo.getFieldName(), streamId);
             } else {

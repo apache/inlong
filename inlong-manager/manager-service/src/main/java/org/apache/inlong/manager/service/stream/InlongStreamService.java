@@ -252,6 +252,6 @@ public interface InlongStreamService {
      * @param streamEntity stream info
      */
     void addFieldForStream(AddFieldsRequest fieldsRequest, String sourceType, InlongGroupEntity groupEntity,
-            InlongStreamEntity streamEntity);
+            InlongStreamEntity streamEntity) throws Exception;
 
 }
