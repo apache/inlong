@@ -18,7 +18,6 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Tag } from 'antd';
 import type { DefaultOptionType } from 'antd/es/select';
 import { State } from '@/core/stores';
 import { useSelector } from '@/ui/hooks';
