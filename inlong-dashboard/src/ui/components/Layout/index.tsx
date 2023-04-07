@@ -17,7 +17,8 @@
  * under the License.
  */
 
-import { SmileOutlined, SmileTwoTone } from '@ant-design/icons';
+import { Tooltip } from 'antd';
+import { StarOutlined, BulbOutlined } from '@ant-design/icons';
 import { config } from '@/configs/default';
 import menusTree from '@/configs/menus';
 import defaultSettings from './defaultSettings';
@@ -35,12 +36,6 @@ import type { MenuProps } from 'antd/es/menu';
 import { State } from '@/core/stores';
 import NavWidget from './NavWidget';
 import LocaleSelect from './NavWidget/LocaleSelect';
-
-const renderMenuItem = (menus: MenuDataItem[]): MenuDataItem[] =>
-  menus.map(({ icon, children, ...item }) => ({
-    ...item,
-    children: children && renderMenuItem(children),
-  }));
 
 const BasicLayout: React.FC = props => {
   const location = useLocation();
@@ -65,8 +60,6 @@ const BasicLayout: React.FC = props => {
       setSelectedKeys([(select as MenuDataItem)['key'] as string]);
     }
   }, [breadcrumbMap, pathname]);
-
-  const menuDataRender = useCallback(() => renderMenuItem(menuData), [menuData]);
 
   const menuItemRender = useCallback((menuItemProps, defaultDom) => {
     if (menuItemProps.isUrl || !menuItemProps.path) {
@@ -101,15 +94,22 @@ const BasicLayout: React.FC = props => {
         {...settings}
         title={config.title}
         logo={<img src={config.logo} style={{ height: 50 }} alt="Logo" />}
-        menuDataRender={menuDataRender}
         menuItemRender={menuItemRender}
+        route={{
+          path: '/',
+          routes: menuData,
+        }}
         navTheme={navTheme}
         menuProps={menuProps}
         actionsRender={() => [
           navTheme === 'realDark' ? (
-            <SmileOutlined onClick={() => setNavTheme(settings.navTheme)} />
+            <Tooltip title="Dark">
+              <StarOutlined onClick={() => setNavTheme(settings.navTheme)} />
+            </Tooltip>
           ) : (
-            <SmileTwoTone onClick={() => setNavTheme('realDark')} />
+            <Tooltip title="Light">
+              <BulbOutlined onClick={() => setNavTheme('realDark')} />
+            </Tooltip>
           ),
           <LocaleSelect />,
           <NavWidget />,

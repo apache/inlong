@@ -17,20 +17,32 @@
  * under the License.
  */
 
+import React from 'react';
 import i18n from '@/i18n';
+import {
+  ApiOutlined,
+  SettingOutlined,
+  DatabaseOutlined,
+  DeploymentUnitOutlined,
+  SafetyOutlined,
+  ShopOutlined,
+} from '@ant-design/icons';
 import type { MenuItemType } from '.';
 
 const conf: MenuItemType[] = [
   {
     path: '/group',
     name: i18n.t('configs.menus.Groups'),
+    icon: <ApiOutlined />,
   },
   {
     path: '/consume',
     name: i18n.t('configs.menus.Subscribe'),
+    icon: <ShopOutlined />,
   },
   {
     name: i18n.t('configs.menus.Clusters'),
+    icon: <DeploymentUnitOutlined />,
     children: [
       {
         path: '/clusters',
@@ -45,13 +57,16 @@ const conf: MenuItemType[] = [
   {
     path: '/node',
     name: i18n.t('configs.menus.Nodes'),
+    icon: <DatabaseOutlined />,
   },
   {
     path: '/process',
     name: i18n.t('configs.menus.Process'),
+    icon: <SafetyOutlined />,
   },
   {
     name: i18n.t('configs.menus.SystemManagement'),
+    icon: <SettingOutlined />,
     isAdmin: true,
     children: [
       {

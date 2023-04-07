@@ -19,7 +19,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { Button, Card, List, Col, Row, Descriptions, Input, Modal, message } from 'antd';
-import { CheckOutlined } from '@ant-design/icons';
+import { RightOutlined } from '@ant-design/icons';
 import { PageContainer } from '@/ui/components/PageContainer';
 import { useRequest } from '@/ui/hooks';
 import i18n from '@/i18n';
@@ -159,7 +159,7 @@ const Comp: React.FC = () => {
                   onClick={() => setTagId(item.id)}
                 >
                   {tagId === item.id && (
-                    <CheckOutlined style={{ position: 'absolute', left: 0, top: '35%' }} />
+                    <RightOutlined style={{ position: 'absolute', left: 0, top: '35%' }} />
                   )}
                   {item.clusterTag}
                 </List.Item>
