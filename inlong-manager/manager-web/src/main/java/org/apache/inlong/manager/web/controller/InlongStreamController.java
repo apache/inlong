@@ -196,7 +196,7 @@ public class InlongStreamController {
     public void downloadFieldsImportTemplate(HttpServletResponse response) {
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
         String fileName = String.format("InLong-stream-fields-template-%s.xlsx", date);
-        response.setHeader("Content-disposition",
+        response.setHeader("Content-Disposition",
                 "attachment;filename=" + fileName);
         response.setContentType("multipart/form-data");
 

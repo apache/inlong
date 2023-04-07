@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.common.tool.excel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,31 +30,28 @@ public enum ExcelCellDataTransfer {
 
         final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        String parse2Text(Object o) {
-            if (o == null) {
+        String parse2Text(Object cellValue) {
+            if (cellValue == null) {
                 return null;
-            } else if (o instanceof Date) {
-                Date date = (Date) o;
+            } else if (cellValue instanceof Date) {
+                Date date = (Date) cellValue;
                 return this.simpleDateFormat.format(date);
             } else {
-                return String.valueOf(o);
+                return String.valueOf(cellValue);
             }
         }
 
-        Object parseFromText(String so) {
-            if (so != null && so.length() > 0) {
-                String s = so;
+        Object parseFromText(String cellValue) {
+            if (cellValue != null && cellValue.length() > 0) {
                 Date date = null;
-
                 try {
-                    date = this.simpleDateFormat.parse(s);
-                } catch (ParseException var5) {
-                    var5.printStackTrace();
+                    date = this.simpleDateFormat.parse(cellValue);
+                } catch (ParseException e) {
+                    LOGGER.error("Can not properly parse value in Date type: " + cellValue, e);
                 }
-
                 return date;
             } else {
-                return so;
+                return cellValue;
             }
         }
     },
@@ -65,12 +65,14 @@ public enum ExcelCellDataTransfer {
             return s;
         }
     };
+    protected static final Logger LOGGER = LoggerFactory.getLogger(ExcelCellDataTransfer.class);
 
     private ExcelCellDataTransfer() {
     }
+
     /**
-    * Parse the given object to text.
-    */
+     * Parse the given object to text.
+     */
 
     abstract String parse2Text(Object o);
 

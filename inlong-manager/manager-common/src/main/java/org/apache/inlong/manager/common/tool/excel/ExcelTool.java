@@ -107,19 +107,20 @@ public class ExcelTool {
             throw new IllegalArgumentException(
                     "At least one field must be marked as Excel Field by annotation @ExcelField in class " + clazz);
         }
-        XSSFWorkbook hwb = new XSSFWorkbook();
-        XSSFSheet sheet = hwb.createSheet("Sheet 1");
+        try (XSSFWorkbook hwb = new XSSFWorkbook()) {
+            XSSFSheet sheet = hwb.createSheet("Sheet 1");
 
-        for (int index = 0; index < heads.size(); index++) {
-            sheet.setColumnWidth(index, DEFAULT_COLUMN_WIDTH);
-        }
-        fillSheetHeader(sheet.createRow(0), heads);
-        //
-        if (CollectionUtils.isNotEmpty(maps)) {
-            fillSheetContent(sheet, heads, maps);
-        }
+            for (int index = 0; index < heads.size(); index++) {
+                sheet.setColumnWidth(index, DEFAULT_COLUMN_WIDTH);
+            }
+            fillSheetHeader(sheet.createRow(0), heads);
+            // Fill content if data exist.
+            if (CollectionUtils.isNotEmpty(maps)) {
+                fillSheetContent(sheet, heads, maps);
+            }
 
-        hwb.write(out);
+            hwb.write(out);
+        }
         out.close();
         LOGGER.info("Database export succeeded");
     }
@@ -128,8 +129,7 @@ public class ExcelTool {
      * Fills the output stream with the provided class meta.
      */
     public static <T> void write(Class<T> clazz, OutputStream out) throws IOException {
-        Preconditions.expectTrue(clazz != null, "Class can not be empty!");
-
+        Preconditions.expectNotNull(clazz, "Class can not be empty!");
         doWrite(null, clazz, out);
     }
 
@@ -144,8 +144,8 @@ public class ExcelTool {
                             Row row = sheet.createRow(lineId + 1);
                             IntStream.range(0, heads.size()).forEach(colId -> {
                                 String title = heads.get(colId);
-                                String ov = line.get(title);
-                                String value = ov == null ? "" : ov;
+                                String originValue = line.get(title);
+                                String value = originValue == null ? "" : originValue;
                                 Cell cell = row.createCell(colId);
                                 cell.setCellValue(value);
                             });
