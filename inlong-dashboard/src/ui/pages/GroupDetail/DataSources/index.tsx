@@ -18,7 +18,7 @@
  */
 
 import React, { useState, forwardRef, useMemo, useCallback } from 'react';
-import { Badge, Button, Card, Modal, List, Tag, Radio, message } from 'antd';
+import { Badge, Button, Card, Modal, List, Tag, Segmented, message } from 'antd';
 import { PaginationConfig } from 'antd/lib/pagination';
 import {
   UnorderedListOutlined,
@@ -247,22 +247,26 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
               {i18n.t('pages.GroupDetail.Sources.Create')}
             </Button>
           ),
-          <Radio.Group
+
+          <Segmented
             key="mode"
-            onChange={e => {
-              setMode(e.target.value);
+            onChange={(value: string) => {
+              setMode(value);
               setOptions(defaultOptions);
             }}
+            options={[
+              {
+                value: 'list',
+                icon: <UnorderedListOutlined />,
+              },
+              {
+                value: 'table',
+                icon: <TableOutlined />,
+              },
+            ]}
             defaultValue={mode}
             size="small"
-          >
-            <Radio.Button value="list">
-              <UnorderedListOutlined />
-            </Radio.Button>
-            <Radio.Button value="table">
-              <TableOutlined />
-            </Radio.Button>
-          </Radio.Group>,
+          />,
         ]}
       >
         {mode === 'list' ? (

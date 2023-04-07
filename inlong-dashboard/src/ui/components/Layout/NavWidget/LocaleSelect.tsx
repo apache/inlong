@@ -19,7 +19,7 @@
 
 import React from 'react';
 import { Dropdown, Menu } from 'antd';
-import { GlobalOutlined } from '@ant-design/icons';
+import { TranslationOutlined } from '@ant-design/icons';
 import { useSelector, useLocation } from '@/ui/hooks';
 import { State } from '@/core/stores';
 import { localesConfig } from '@/configs/locales';
@@ -51,7 +51,7 @@ const SelectLang = () => {
 
   return (
     <Dropdown dropdownRender={() => langMenu} placement="bottomRight">
-      <GlobalOutlined />
+      <TranslationOutlined />
     </Dropdown>
   );
 };
