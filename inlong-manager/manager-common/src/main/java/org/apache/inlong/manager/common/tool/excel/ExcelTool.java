@@ -19,6 +19,7 @@ package org.apache.inlong.manager.common.tool.excel;
 
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.inlong.manager.common.tool.excel.annotation.ExcelEntity;
@@ -145,7 +146,7 @@ public class ExcelTool {
                             IntStream.range(0, heads.size()).forEach(colId -> {
                                 String title = heads.get(colId);
                                 String originValue = line.get(title);
-                                String value = originValue == null ? "" : originValue;
+                                String value = StringUtils.isNotBlank(originValue) ? originValue : "";
                                 Cell cell = row.createCell(colId);
                                 cell.setCellValue(value);
                             });
@@ -167,10 +168,10 @@ public class ExcelTool {
      * @return A list of maps, where each map represents an object's fields and values.
      */
     public static <E> List<Map<String, String>> write2List(List<E> objects) {
-        E e1 = objects.get(0);
-        Class<?> e1Class = e1.getClass();
-        Field[] fields = e1Class.getDeclaredFields();
-        expectTrue(fields.length > 0, "No method was found in the class '" + e1Class.getSimpleName() + "'");
+        E firstInstance = objects.get(0);
+        Class<?> firstClass = firstInstance.getClass();
+        Field[] fields = firstClass.getDeclaredFields();
+        expectTrue(fields.length > 0, "No method was found in the class '" + firstClass.getSimpleName() + "'");
 
         List<Triple<Field, String, ExcelCellDataTransfer>> fieldMeta = Arrays.stream(fields).map(field -> {
             field.setAccessible(true);

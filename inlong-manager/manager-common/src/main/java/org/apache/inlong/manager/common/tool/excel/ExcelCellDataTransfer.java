@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.common.tool.excel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ public enum ExcelCellDataTransfer {
         }
 
         Object parseFromText(String cellValue) {
-            if (cellValue != null && cellValue.length() > 0) {
+            if (StringUtils.isNotBlank(cellValue)) {
                 Date date = null;
                 try {
                     date = this.simpleDateFormat.parse(cellValue);
