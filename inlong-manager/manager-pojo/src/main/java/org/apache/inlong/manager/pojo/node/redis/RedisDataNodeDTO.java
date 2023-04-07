@@ -82,6 +82,12 @@ public class RedisDataNodeDTO {
      */
     public static RedisDataNodeDTO getFromRequest(RedisDataNodeRequest request) throws Exception {
         return RedisDataNodeDTO.builder()
+                .clusterMode(request.getClusterMode())
+                .host(request.getHost())
+                .port(request.getPort())
+                .masterName(request.getMasterName())
+                .sentinelsInfo(request.getSentinelsInfo())
+                .clusterNodes(request.getClusterNodes())
                 .build();
     }
 
