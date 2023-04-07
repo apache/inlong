@@ -151,7 +151,6 @@ export default class OracleSource
 
   @FieldDecorator({
     type: 'input',
-    rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),

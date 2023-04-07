@@ -141,7 +141,6 @@ export default class SQLServerSource
 
   @FieldDecorator({
     type: 'input',
-    rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),
