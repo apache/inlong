@@ -23,6 +23,7 @@ import io.debezium.data.Envelope;
 import io.debezium.document.Array;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.HistoryRecord;
+import io.debezium.relational.history.HistoryRecord.Fields;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.flink.api.connector.source.SourceOutput;
@@ -42,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+import static org.apache.inlong.sort.base.Constants.DDL_OP_DROP;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getFetchTimestamp;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getHistoryRecord;
@@ -113,6 +115,18 @@ public final class MySqlRecordEmitter<T>
                 splitState.asBinlogSplitState().recordSchema(tableChange.getId(), tableChange);
                 if (includeSchemaChanges) {
                     outputDdlElement(element, output, splitState, tableChange);
+                }
+            }
+
+            // for drop table ddl, there's no table change events
+            if (tableChanges.isEmpty()) {
+                String ddl = historyRecord.document().getString(Fields.DDL_STATEMENTS);
+                if (ddl.toUpperCase().startsWith(DDL_OP_DROP)) {
+                    TableId tableId = RecordUtils.getTableId(element);
+                    // if this table is one of the captured tables, output the ddl element
+                    if (splitState.getMySQLSplit().getTableSchemas().containsKey(tableId)) {
+                        outputDdlElement(element, output, splitState, null);
+                    }
                 }
             }
 
