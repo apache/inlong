@@ -23,7 +23,10 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.tool.excel.ExcelTool;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -40,6 +43,7 @@ import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -191,21 +195,24 @@ public class InlongStreamController {
         return Response.success(streamService.parseFields(parseFieldRequest));
     }
 
-    @RequestMapping(value = "/stream/fieldsImportTemplate", method = RequestMethod.GET)
-    @ApiOperation(value = "Download fields import template")
-    public void downloadFieldsImportTemplate(HttpServletResponse response) {
+    @RequestMapping(value = "/stream/fieldsImportTemplate", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @ApiOperation(value = "Download fields import template", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public Response<Boolean> downloadFieldsImportTemplate(HttpServletResponse response) {
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
         String fileName = String.format("InLong-stream-fields-template-%s.xlsx", date);
         response.setHeader("Content-Disposition",
                 "attachment;filename=" + fileName);
-        response.setContentType("multipart/form-data");
+        response.setHeader(HttpHeaders.CONTENT_TYPE,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
         try {
             ServletOutputStream outputStream = response.getOutputStream();
             ExcelTool.write(StreamField.class, outputStream);
-
+            return Response.success(true);
         } catch (IOException e) {
             log.error("Can not properly download Excel file", e);
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    String.format("can not properly download template file: %s", e.getMessage()));
         }
     }
 
