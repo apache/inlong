@@ -57,11 +57,11 @@ public class UserRequest extends PageRequest {
     private String keyword;
 
     @ApiModelProperty(value = "User password")
-    @Length(min = 1, max = 64, message = "length must be between 1 and 64")
+    @Length(min = 6, max = 64, message = "length must be between 6 and 64")
     private String password;
 
     @ApiModelProperty(value = "New password, is required if needs updated")
-    @Length(min = 1, max = 64, message = "length must be between 1 and 64")
+    @Length(min = 6, max = 64, message = "length must be between 6 and 64")
     private String newPassword;
 
     @ApiModelProperty("Secret key")
