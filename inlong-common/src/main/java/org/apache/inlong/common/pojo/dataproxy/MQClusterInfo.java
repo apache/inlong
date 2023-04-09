@@ -17,6 +17,7 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
+import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import java.util.Map;
 /**
  * MQ cluster info.
  */
+@ToString
 public class MQClusterInfo {
 
     private String url;
