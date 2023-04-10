@@ -185,10 +185,9 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
     private ElasticsearchSinkFunction<RowData, DocWriteRequest<?>> createSinkFunction(
             SerializationSchema<RowData> format,
             Context context) {
-
         if (multipleSink) {
             return new MultipleRowElasticsearchSinkFunction(
-                    null, // this is deprecated in es 7+
+                    config.getDocumentType(), // this is deprecated in es 7+
                     format,
                     XContentType.JSON,
                     REQUEST_FACTORY,
@@ -204,7 +203,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
 
         return new RowElasticsearchSinkFunction(
                 IndexGeneratorFactory.createIndexGenerator(config.getIndex(), schema),
-                null, // this is deprecated in es 7+
+                config.getDocumentType(), // this is deprecated in es 7+
                 format,
                 XContentType.JSON,
                 REQUEST_FACTORY,
