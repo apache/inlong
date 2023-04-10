@@ -27,7 +27,6 @@ import org.apache.flink.table.connector.format.EncodingFormat;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.types.RowKind;
 import org.apache.flink.util.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -51,14 +50,10 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
-
-import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
 
 /**
  * A {@link DynamicTableSink} that describes how to create a {@link ElasticsearchSink} from a
@@ -70,7 +65,6 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
     @VisibleForTesting
     private final static Elasticsearch6RequestFactory REQUEST_FACTORY = new Elasticsearch6RequestFactory();
 
-    private static final Logger LOG = LoggerFactory.getLogger(Elasticsearch6DynamicSink.class);
     private final EncodingFormat<SerializationSchema<RowData>> format;
     private final TableSchema schema;
     private final Elasticsearch6Configuration config;
@@ -82,7 +76,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
     private final String multipleFormat;
     private final String indexPattern;
     private final SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy;
-    private final Boolean appendMode;
+
     // --------------------------------------------------------------
     // Hack to make configuration testing possible.
     //
@@ -103,11 +97,10 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             boolean multipleSink,
             String multipleFormat,
             String indexPattern,
-            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy,
-            boolean appendMode) {
+            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy) {
         this(format, config, schema, (ElasticsearchSink.Builder::new),
                 inlongMetric, auditHostAndPorts, dirtySinkHelper, multipleSink, multipleFormat, indexPattern,
-                schemaUpdateExceptionPolicy, appendMode);
+                schemaUpdateExceptionPolicy);
     }
 
     Elasticsearch6DynamicSink(
@@ -121,8 +114,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
             boolean multipleSink,
             String multipleFormat,
             String indexPattern,
-            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy,
-            boolean appendMode) {
+            SchemaUpdateExceptionPolicy schemaUpdateExceptionPolicy) {
         this.format = format;
         this.schema = schema;
         this.config = config;
@@ -134,22 +126,11 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
         this.multipleFormat = multipleFormat;
         this.indexPattern = indexPattern;
         this.schemaUpdateExceptionPolicy = schemaUpdateExceptionPolicy;
-        this.appendMode = appendMode;
     }
 
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
-        if (appendMode) {
-            LOG.warn("Elastic Search sink receive all changelog record. "
-                    + "Regard any other record as insert-only record.");
-            return ChangelogMode.all();
-        } else {
-            ChangelogMode.Builder builder = ChangelogMode.newBuilder();
-            for (RowKind kind : requestedMode.getContainedKinds()) {
-                builder.addContainedKind(kind);
-            }
-            return builder.build();
-        }
+        return ChangelogMode.all();
     }
 
     // --------------------------------------------------------------
@@ -208,7 +189,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
 
         if (multipleSink) {
             return new MultipleRowElasticsearchSinkFunction(
-                    config.getDocumentType(), // this is deprecated in es 7+
+                    null, // this is deprecated in es 7+
                     format,
                     XContentType.JSON,
                     REQUEST_FACTORY,
@@ -224,7 +205,7 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
 
         return new RowElasticsearchSinkFunction(
                 IndexGeneratorFactory.createIndexGenerator(config.getIndex(), schema),
-                config.getDocumentType(), // this is deprecated in es 7+
+                null, // this is deprecated in es 7+
                 format,
                 XContentType.JSON,
                 REQUEST_FACTORY,
