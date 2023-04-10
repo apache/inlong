@@ -71,8 +71,17 @@ export default class MQTTSource
   topic: string;
 
   @FieldDecorator({
-    type: 'inputnumber',
+    type: 'input',
     rules: [{ required: true }],
+    props: values => ({
+      disabled: values?.status === 101,
+    }),
+  })
+  @I18n('Client ID')
+  clientId: string;
+
+  @FieldDecorator({
+    type: 'inputnumber',
     initialValue: 1,
     props: values => ({
       disabled: values?.status === 101,
@@ -85,17 +94,6 @@ export default class MQTTSource
 
   @FieldDecorator({
     type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: values?.status === 101,
-    }),
-  })
-  @I18n('Client ID')
-  clientId: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),

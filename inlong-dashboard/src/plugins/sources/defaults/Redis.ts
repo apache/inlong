@@ -21,7 +21,6 @@ import { DataWithBackend } from '@/plugins/DataWithBackend';
 import { RenderRow } from '@/plugins/RenderRow';
 import { RenderList } from '@/plugins/RenderList';
 import { SourceInfo } from '../common/SourceInfo';
-import i18n from '@/i18n';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
@@ -32,17 +31,6 @@ export default class RedisSource
   implements DataWithBackend, RenderRow, RenderList
 {
   @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: values?.status === 101,
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sources.Redis.Hostname')
-  hostname: string;
-
-  @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
     props: values => ({
@@ -52,20 +40,6 @@ export default class RedisSource
   })
   @I18n('meta.Sources.Redis.Database')
   database: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    initialValue: 6379,
-    props: values => ({
-      min: 1,
-      max: 65535,
-      disabled: values?.status === 101,
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sources.Redis.Port')
-  port: number;
 
   @FieldDecorator({
     type: 'input',
@@ -87,16 +61,6 @@ export default class RedisSource
   })
   @I18n('meta.Sources.Redis.Password')
   password: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: values?.status === 101,
-    }),
-  })
-  @I18n('meta.Sources.Redis.PrimaryKey')
-  primaryKey: string;
 
   @FieldDecorator({
     type: 'select',
@@ -130,7 +94,6 @@ export default class RedisSource
   @FieldDecorator({
     type: 'select',
     rules: [{ required: true }],
-    initialValue: 'cluster',
     props: values => ({
       disabled: values?.status === 101,
       options: [
@@ -154,9 +117,10 @@ export default class RedisSource
 
   @FieldDecorator({
     type: 'input',
-    rules: [{ required: true }],
+    visible: values => values.redisMode === 'cluster',
     props: values => ({
       disabled: values?.status === 101,
+      placeholder: '127.0.0.1:6379,127.0.0.1:6378',
     }),
   })
   @I18n('meta.Sources.Redis.ClusterNodes')
@@ -164,17 +128,7 @@ export default class RedisSource
 
   @FieldDecorator({
     type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: values?.status === 101,
-    }),
-  })
-  @I18n('meta.Sources.Redis.MasterName')
-  masterName: string;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
+    visible: values => values.redisMode === 'sentinel',
     props: values => ({
       disabled: values?.status === 101,
     }),
@@ -184,7 +138,7 @@ export default class RedisSource
 
   @FieldDecorator({
     type: 'input',
-    rules: [{ required: true }],
+    visible: values => values.redisMode === 'sentinel',
     props: values => ({
       disabled: values?.status === 101,
     }),
@@ -193,112 +147,46 @@ export default class RedisSource
   additionalKey: string;
 
   @FieldDecorator({
+    type: 'input',
+    visible: values => values.redisMode === 'standalone',
+    props: values => ({
+      disabled: values?.status === 101,
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sources.Redis.Hostname')
+  host: string;
+
+  @FieldDecorator({
     type: 'inputnumber',
-    rules: [{ required: true }],
+    visible: values => values.redisMode === 'standalone',
+    initialValue: 6379,
+    props: values => ({
+      min: 1,
+      max: 65535,
+      disabled: values?.status === 101,
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sources.Redis.Port')
+  port: number;
+
+  @FieldDecorator({
+    type: 'input',
+    props: values => ({
+      disabled: values?.status === 101,
+    }),
+  })
+  @I18n('meta.Sources.Redis.PrimaryKey')
+  primaryKey: string;
+
+  @FieldDecorator({
+    type: 'inputnumber',
+    initialValue: 1000,
     props: values => ({
       disabled: values?.status === 101,
     }),
   })
   @I18n('meta.Sources.Redis.Timeout')
   timeout: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: values?.status === 101,
-    }),
-  })
-  @I18n('meta.Sources.Redis.SoTimeout')
-  soTimeout: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: values?.status === 101,
-    }),
-  })
-  @I18n('meta.Sources.Redis.MaxTotal')
-  maxTotal: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: values?.status === 101,
-    }),
-  })
-  @I18n('meta.Sources.Redis.MaxIdle')
-  maxIdle: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: values?.status === 101,
-    }),
-  })
-  @I18n('meta.Sources.Redis.MinIdle')
-  minIdle: number;
-
-  @FieldDecorator({
-    type: 'radio',
-    rules: [{ required: true }],
-    initialValue: false,
-    props: values => ({
-      disabled: values?.status === 101,
-      options: [
-        {
-          label: i18n.t('basic.Yes'),
-          value: true,
-        },
-        {
-          label: i18n.t('basic.No'),
-          value: false,
-        },
-      ],
-    }),
-  })
-  @I18n('meta.Sources.Redis.LookupAsync')
-  lookupAsync: boolean;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    initialValue: 1,
-    visible: record => record.lookupAsync === true,
-    props: values => ({
-      min: 1,
-      disabled: values?.status === 101,
-    }),
-  })
-  @I18n('meta.Sources.Redis.LookupCacheMaxRows')
-  lookupCacheMaxRows: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    initialValue: 1,
-    visible: record => record.lookupAsync === true,
-    props: values => ({
-      disabled: values?.status === 101,
-      min: 1,
-    }),
-  })
-  @I18n('meta.Sources.Redis.LookupCacheTtl')
-  lookupCacheTtl: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    initialValue: 1,
-    visible: record => record.lookupAsync === true,
-    props: values => ({
-      disabled: values?.status === 101,
-      min: 1,
-    }),
-  })
-  @I18n('meta.Sources.Redis.LookupMaxRetries')
-  lookupMaxRetries: number;
 }
