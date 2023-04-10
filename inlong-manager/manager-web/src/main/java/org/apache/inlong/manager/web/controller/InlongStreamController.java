@@ -22,7 +22,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.tool.excel.ExcelTool;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
@@ -38,6 +43,7 @@ import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,11 +52,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
  * Inlong stream control layer
  */
+@Slf4j
 @RestController
 @RequestMapping("/api")
 @Api(tags = "Inlong-Stream-API")
@@ -181,6 +193,26 @@ public class InlongStreamController {
     @ApiOperation(value = "Parse inlong stream fields from statement")
     public Response<List<StreamField>> parseFields(@RequestBody ParseFieldRequest parseFieldRequest) {
         return Response.success(streamService.parseFields(parseFieldRequest));
+    }
+
+    @RequestMapping(value = "/stream/fieldsImportTemplate", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @ApiOperation(value = "Download fields import template", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void downloadFieldsImportTemplate(HttpServletResponse response) {
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+        String fileName = String.format("InLong-stream-fields-template-%s.xlsx", date);
+        response.setHeader("Content-Disposition",
+                "attachment;filename=" + fileName);
+        response.setHeader(HttpHeaders.CONTENT_TYPE,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        try {
+            ServletOutputStream outputStream = response.getOutputStream();
+            ExcelTool.write(StreamField.class, outputStream);
+        } catch (IOException e) {
+            log.error("Can not properly download Excel file", e);
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    String.format("can not properly download template file: %s", e.getMessage()));
+        }
     }
 
 }
