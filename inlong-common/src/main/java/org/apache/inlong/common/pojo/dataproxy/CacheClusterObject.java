@@ -26,6 +26,7 @@ import java.util.Map;
 public class CacheClusterObject {
 
     private String name;
+    private String token;
     private String zone;
     private Map<String, String> params = new HashMap<>();
 
@@ -63,6 +64,24 @@ public class CacheClusterObject {
      */
     public void setZone(String zone) {
         this.zone = zone;
+    }
+
+    /**
+     * get token
+     *
+     * @return the token
+     */
+    public String getToken() {
+        return token;
+    }
+
+    /**
+     * set token
+     *
+     * @param token the token to set
+     */
+    public void setToken(String token) {
+        this.token = token;
     }
 
     /**

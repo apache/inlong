@@ -24,6 +24,7 @@ public class CacheCluster {
 
     private String clusterName;
     private String type;
+    private String token;
     private String clusterTags;
     private String extTag;
     private String extParams;
@@ -62,6 +63,24 @@ public class CacheCluster {
      */
     public void setType(String type) {
         this.type = type;
+    }
+
+    /**
+     * get token
+     *
+     * @return the token
+     */
+    public String getToken() {
+        return token;
+    }
+
+    /**
+     * set token
+     *
+     * @param token the token to set
+     */
+    public void setToken(String token) {
+        this.token = token;
     }
 
     /**

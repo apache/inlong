@@ -284,6 +284,7 @@ public class DataProxyConfigRepository implements IRepository {
                             CacheClusterObject obj = new CacheClusterObject();
                             obj.setName(cacheCluster.getClusterName());
                             obj.setZone(cacheCluster.getExtTag());
+                            obj.setToken(cacheCluster.getToken());
                             obj.setParams(fromJsonToMap(cacheCluster.getExtParams()));
                             cacheClusters.add(obj);
                         }
