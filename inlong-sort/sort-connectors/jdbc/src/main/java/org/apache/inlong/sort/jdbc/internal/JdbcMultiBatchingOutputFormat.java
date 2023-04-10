@@ -484,7 +484,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                 executor = (TableMetricStatementExecutor) subExecutor.get(exec);
             }
         } catch (Exception e) {
-            LOG.error("parse executor failed" + e);
+            LOG.error("parse executor failed", e);
         }
 
         try {
@@ -501,10 +501,10 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
             if (executor != null) {
                 executor.setDirtyMetaData(dirtyLabel, dirtyLogTag, dirtyIdentifier);
             } else {
-                LOG.error("null executor");
+                LOG.error("executor is null, can not set metaData");
             }
         } catch (Exception e) {
-            LOG.error("filling dirty metadata failed" + e);
+            LOG.error("filling dirty metadata failed", e);
         }
     }
 
@@ -683,7 +683,7 @@ public class JdbcMultiBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatc
                                 try {
                                     outputMetrics(tableIdentifier);
                                 } catch (Exception e) {
-                                    LOG.error("JDBC table metric calculation exception" + e);
+                                    LOG.error("JDBC table metric calculation exception", e);
                                     outputMetrics(tableIdentifier, (long) tableIdRecordList.size(),
                                             totalDataSize, false);
                                 }
