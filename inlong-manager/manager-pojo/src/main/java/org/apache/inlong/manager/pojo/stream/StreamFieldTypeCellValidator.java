@@ -15,35 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.tool.excel.annotation;
+package org.apache.inlong.manager.pojo.stream;
 
-import org.apache.inlong.manager.common.tool.excel.ExcelCellDataTransfer;
 import org.apache.inlong.manager.common.tool.excel.validator.ExcelCellValidator;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FIELD_TYPES;
 
 /**
- * Annotation for Excel field
+ * This class is used to validate the stream field type in the business product.
  */
-@Target({ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ExcelField {
+public class StreamFieldTypeCellValidator implements ExcelCellValidator<String> {
 
-    /**
-     * Name of the field in Excel
-     */
-    String name();
+    public StreamFieldTypeCellValidator() {
+        // do nothing
+    }
 
-    /**
-     * Data transfer method from Excel to Object
-     */
-    ExcelCellDataTransfer x2oTransfer() default ExcelCellDataTransfer.NONE;
+    @Override
+    public List<String> constraint() {
+        return new ArrayList<>(STREAM_FIELD_TYPES);
+    }
 
-    /**
-     * Validator for the field
-     */
-    Class<? extends ExcelCellValidator> validator() default ExcelCellValidator.class;
 }

@@ -25,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.tool.excel.annotation.ExcelEntity;
 import org.apache.inlong.manager.common.tool.excel.annotation.ExcelField;
+import org.apache.inlong.manager.common.tool.excel.validator.NonEmptyCellValidator;
 
 import java.io.Serializable;
 
@@ -48,11 +49,11 @@ public class StreamField implements Serializable {
     @ApiModelProperty(value = "inlong stream id", required = true)
     private String inlongStreamId;
 
-    @ExcelField(name = "Field name")
+    @ExcelField(name = "Field name", validator = NonEmptyCellValidator.class)
     @ApiModelProperty(value = "Field name", required = true)
     private String fieldName;
 
-    @ExcelField(name = "Field type")
+    @ExcelField(name = "Field type", validator = StreamFieldTypeCellValidator.class)
     @ApiModelProperty(value = "Field type", required = true)
     private String fieldType;
 
