@@ -21,7 +21,9 @@ import com.ververica.cdc.connectors.mysql.source.utils.RecordUtils;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.document.Array;
+import io.debezium.relational.ColumnFilterMode;
 import io.debezium.relational.TableId;
+import io.debezium.relational.Tables;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.HistoryRecord.Fields;
 import io.debezium.relational.history.TableChanges;
@@ -32,6 +34,8 @@ import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.base.util.ColumnFilterUtil;
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.apache.inlong.sort.cdc.mysql.source.metrics.MySqlSourceReaderMetrics;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
@@ -74,6 +78,7 @@ public final class MySqlRecordEmitter<T>
     private final MySqlSourceReaderMetrics sourceReaderMetrics;
     private final boolean includeSchemaChanges;
     private final OutputCollector<T> outputCollector;
+    private final Tables.ColumnNameFilter columnNameFilter;
     private volatile long binlogPos = 0L;
     private volatile long binlogFileNum = 0L;
     private volatile Boolean iSnapShot = false;
@@ -88,12 +93,14 @@ public final class MySqlRecordEmitter<T>
     public MySqlRecordEmitter(
             DebeziumDeserializationSchema<T> debeziumDeserializationSchema,
             MySqlSourceReaderMetrics sourceReaderMetrics,
-            boolean includeSchemaChanges, boolean includeIncremental) {
+            MySqlSourceConfig sourceConfig) {
         this.debeziumDeserializationSchema = debeziumDeserializationSchema;
         this.sourceReaderMetrics = sourceReaderMetrics;
-        this.includeSchemaChanges = includeSchemaChanges;
+        this.includeSchemaChanges = sourceConfig.isIncludeSchemaChanges();
         this.outputCollector = new OutputCollector<>();
-        this.includeIncremental = includeIncremental;
+        this.includeIncremental = sourceConfig.isIncludeIncremental();
+        this.columnNameFilter = ColumnFilterUtil.createColumnFilter(
+                sourceConfig.getDbzConfiguration(), ColumnFilterMode.CATALOG);
     }
 
     @Override
@@ -114,7 +121,8 @@ public final class MySqlRecordEmitter<T>
             for (TableChange tableChange : changes) {
                 splitState.asBinlogSplitState().recordSchema(tableChange.getId(), tableChange);
                 if (includeSchemaChanges) {
-                    outputDdlElement(element, output, splitState, tableChange);
+                    TableChange newTableChange = ColumnFilterUtil.createTableChange(tableChange, columnNameFilter);
+                    outputDdlElement(element, output, splitState, newTableChange);
                 }
             }
 
@@ -153,6 +161,7 @@ public final class MySqlRecordEmitter<T>
 
             updateSnapshotRecord(element, splitState);
 
+            TableChange newTableChange = ColumnFilterUtil.createTableChange(tableSchema, columnNameFilter);
             debeziumDeserializationSchema.deserialize(
                     element,
                     new Collector<T>() {
@@ -173,7 +182,7 @@ public final class MySqlRecordEmitter<T>
                             // do nothing
                         }
                     },
-                    tableSchema);
+                    newTableChange);
         } else if (isHeartbeatEvent(element)) {
             updateStartingOffsetForSplit(splitState, element);
         } else {

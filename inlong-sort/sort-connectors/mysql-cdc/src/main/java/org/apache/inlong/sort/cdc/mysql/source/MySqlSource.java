@@ -164,8 +164,7 @@ public class MySqlSource<T>
                 new MySqlRecordEmitter<>(
                         deserializationSchema,
                         sourceReaderMetrics,
-                        sourceConfig.isIncludeSchemaChanges(),
-                        sourceConfig.isIncludeIncremental()),
+                        sourceConfig),
                 readerContext.getConfiguration(),
                 mySqlSourceReaderContext,
                 sourceConfig, sourceReaderMetrics);
