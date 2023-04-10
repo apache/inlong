@@ -27,6 +27,7 @@ import java.util.Map;
 public class CacheClusterConfig {
 
     private String clusterName;
+    private String token;
     private Map<String, String> params = new HashMap<>();
 
     /**
@@ -45,6 +46,24 @@ public class CacheClusterConfig {
      */
     public void setClusterName(String clusterName) {
         this.clusterName = clusterName;
+    }
+
+    /**
+     * get token
+     *
+     * @return the token
+     */
+    public String getToken() {
+        return token;
+    }
+
+    /**
+     * set token
+     *
+     * @param token the token to set
+     */
+    public void setToken(String token) {
+        this.token = token;
     }
 
     /**

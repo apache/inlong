@@ -119,6 +119,9 @@ public class PulsarHandler implements MessageQueueHandler {
         try {
             String serviceUrl = config.getParams().get(KEY_SERVICE_URL);
             String authentication = config.getParams().get(KEY_AUTHENTICATION);
+            if (StringUtils.isEmpty(authentication)) {
+                authentication = config.getToken();
+            }
             Context context = sinkContext.getProducerContext();
             ClientBuilder builder = PulsarClient.builder();
             if (StringUtils.isNotEmpty(authentication)) {
