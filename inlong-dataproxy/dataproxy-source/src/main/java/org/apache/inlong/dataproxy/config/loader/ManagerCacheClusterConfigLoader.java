@@ -47,6 +47,7 @@ public class ManagerCacheClusterConfigLoader implements CacheClusterConfigLoader
         for (CacheClusterObject obj : dataProxyCluster.getCacheClusterSet().getCacheClusters()) {
             CacheClusterConfig config = new CacheClusterConfig();
             config.setClusterName(obj.getName());
+            config.setToken(obj.getToken());
             config.getParams().putAll(obj.getParams());
             configList.add(config);
         }
