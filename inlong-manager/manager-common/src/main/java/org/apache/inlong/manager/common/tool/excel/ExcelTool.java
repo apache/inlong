@@ -176,45 +176,50 @@ public class ExcelTool {
      * @param fields the fields to use for validation constraints
      */
     private static <T> void fillSheetValidation(Class<T> clazz, XSSFSheet sheet, Field[] fields) {
-        List<Pair<String, ExcelField>> excelFields = Arrays.stream(fields).map(field -> {
+        List<Pair<String, ExcelField>> excelFields = new ArrayList<>();
+
+        for (Field field : fields) {
             field.setAccessible(true);
-            return Pair.of(field.getName(), field.getAnnotation(ExcelField.class));
-        }).filter(p -> p.getRight() != null).collect(Collectors.toList());
+            ExcelField excelField = field.getAnnotation(ExcelField.class);
+            if (excelField != null) {
+                excelFields.add(Pair.of(field.getName(), excelField));
+            }
+        }
 
-        IntStream.range(0, excelFields.size())
-                .forEach(index -> {
-                    Pair<String, ExcelField> se = excelFields.get(index);
-                    Class<? extends ExcelCellValidator> validator = se.getRight().validator();
+        int bound = excelFields.size();
+        for (int index = 0; index < bound; index++) {
+            Pair<String, ExcelField> se = excelFields.get(index);
+            Class<? extends ExcelCellValidator> validator = se.getRight().validator();
 
-                    Optional<List<String>> optionalList = Optional.ofNullable(validator)
-                            .filter(v -> v != ExcelCellValidator.class)
-                            .map(v -> {
-                                try {
-                                    return (ExcelCellValidator<?>) v.newInstance();
-                                } catch (InstantiationException | IllegalAccessException e) {
-                                    LOGGER.error("Can not properly create ExcelCellValidator", e);
-                                    return null;
-                                }
-                            })
-                            .map(ExcelCellValidator::constraint);
-                    List<String> valueOfCol = optionalList.orElseGet(Collections::emptyList);
-                    if (valueOfCol.isEmpty()) {
-                        return;
-                    }
-                    if (String.join("\n", valueOfCol).length() > CONSTRAINT_MAX_LENGTH) {
-                        throw new IllegalArgumentException(
-                                "field '" + se.getLeft() + "' in class '" + clazz.getCanonicalName()
-                                        + "' valid message length must be less than 255 characters");
-                    }
+            Optional<List<String>> optionalList = Optional.ofNullable(validator)
+                    .filter(v -> v != ExcelCellValidator.class)
+                    .map(v -> {
+                        try {
+                            return (ExcelCellValidator<?>) v.newInstance();
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            LOGGER.error("Can not properly create ExcelCellValidator", e);
+                            return null;
+                        }
+                    })
+                    .map(ExcelCellValidator::constraint);
+            List<String> valueOfCol = optionalList.orElseGet(Collections::emptyList);
+            if (valueOfCol.isEmpty()) {
+                continue;
+            }
+            if (String.join("\n", valueOfCol).length() > CONSTRAINT_MAX_LENGTH) {
+                throw new IllegalArgumentException(
+                        "field '" + se.getLeft() + "' in class '" + clazz.getCanonicalName()
+                                + "' valid message length must be less than 255 characters");
+            }
 
-                    CellRangeAddressList regions = new CellRangeAddressList(1, CONSTRAINT_MAX_LENGTH, index, index);
-                    XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper(sheet);
-                    XSSFDataValidationConstraint explicitListConstraint = (XSSFDataValidationConstraint) dvHelper
-                            .createExplicitListConstraint(valueOfCol.toArray(new String[0]));
-                    XSSFDataValidation dataValidation =
-                            (XSSFDataValidation) dvHelper.createValidation(explicitListConstraint, regions);
-                    sheet.addValidationData(dataValidation);
-                });
+            CellRangeAddressList regions = new CellRangeAddressList(1, CONSTRAINT_MAX_LENGTH, index, index);
+            XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper(sheet);
+            XSSFDataValidationConstraint explicitListConstraint = (XSSFDataValidationConstraint) dvHelper
+                    .createExplicitListConstraint(valueOfCol.toArray(new String[0]));
+            XSSFDataValidation dataValidation =
+                    (XSSFDataValidation) dvHelper.createValidation(explicitListConstraint, regions);
+            sheet.addValidationData(dataValidation);
+        }
     }
 
     /**
