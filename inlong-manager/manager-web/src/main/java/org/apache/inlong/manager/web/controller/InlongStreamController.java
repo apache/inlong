@@ -197,7 +197,7 @@ public class InlongStreamController {
 
     @RequestMapping(value = "/stream/fieldsImportTemplate", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @ApiOperation(value = "Download fields import template", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public Response<Boolean> downloadFieldsImportTemplate(HttpServletResponse response) {
+    public void downloadFieldsImportTemplate(HttpServletResponse response) {
         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
         String fileName = String.format("InLong-stream-fields-template-%s.xlsx", date);
         response.setHeader("Content-Disposition",
@@ -208,7 +208,6 @@ public class InlongStreamController {
         try {
             ServletOutputStream outputStream = response.getOutputStream();
             ExcelTool.write(StreamField.class, outputStream);
-            return Response.success(true);
         } catch (IOException e) {
             log.error("Can not properly download Excel file", e);
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
