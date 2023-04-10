@@ -29,6 +29,7 @@
     <select id="selectCacheCluster" resultType="org.apache.inlong.manager.pojo.dataproxy.CacheCluster">
         select name as cluster_name,
                type,
+               token,
                cluster_tags,
                ext_tag,
                ext_params
