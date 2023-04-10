@@ -36,6 +36,7 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 
 import java.io.Serializable;
@@ -160,9 +161,10 @@ public abstract class ElasticsearchSinkBase<T, Request, Builder, Listener, BulkI
      * Bulk processor to buffer and send requests to Elasticsearch, created using the client.
      */
     private transient BulkProcessor bulkProcessor;
-    private SinkMetricData sinkMetricData;
+    private SinkTableMetricData sinkMetricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
+    private final boolean multipleSink;
 
     public ElasticsearchSinkBase(
             ElasticsearchApiCallBridge<Request, Builder, Listener, BulkItemResponse, BulkProcessor, C> callBridge,
@@ -171,13 +173,15 @@ public abstract class ElasticsearchSinkBase<T, Request, Builder, Listener, BulkI
             ActionRequestFailureHandler<Request> failureHandler,
             String inlongMetric,
             DirtySinkHelper<Object> dirtySinkHelper,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            boolean multipleSink) {
         this.inlongMetric = inlongMetric;
         this.dirtySinkHelper = dirtySinkHelper;
         this.callBridge = checkNotNull(callBridge);
         this.elasticsearchSinkFunction = checkNotNull(elasticsearchSinkFunction);
         this.failureHandler = checkNotNull(failureHandler);
         this.auditHostAndPorts = auditHostAndPorts;
+        this.multipleSink = multipleSink;
         // we eagerly check if the user-provided sink function and failure handler is serializable;
         // otherwise, if they aren't serializable, users will merely get a non-informative error
         // message
@@ -266,7 +270,10 @@ public abstract class ElasticsearchSinkBase<T, Request, Builder, Listener, BulkI
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
-            sinkMetricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
+            sinkMetricData = new SinkTableMetricData(metricOption, getRuntimeContext().getMetricGroup());
+            if (multipleSink) {
+                sinkMetricData.registerSubMetricsGroup(metricState);
+            }
         }
         dirtySinkHelper.open(parameters);
         Listener listener = createListener();

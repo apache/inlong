@@ -83,14 +83,16 @@ public class ElasticsearchSink<T>
             RestClientFactory restClientFactory,
             String inlongMetric,
             DirtySinkHelper<Object> dirtySinkHelper,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            boolean multipleSink) {
         super(new Elasticsearch6ApiCallBridge(httpHosts, restClientFactory),
                 bulkRequestsConfig,
                 elasticsearchSinkFunction,
                 failureHandler,
                 inlongMetric,
                 dirtySinkHelper,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                multipleSink);
     }
 
     @Override
@@ -131,6 +133,7 @@ public class ElasticsearchSink<T>
         private String inlongMetric = null;
         private DirtySinkHelper<Object> dirtySinkHelper;
         private String auditHostAndPorts;
+        private boolean multipleSink;
 
         /**
          * Creates a new {@code ElasticsearchSink} that connects to the cluster using a {@link
@@ -286,6 +289,10 @@ public class ElasticsearchSink<T>
             this.restClientFactory = Preconditions.checkNotNull(restClientFactory);
         }
 
+        public void setMultipleSink(boolean multipleSink) {
+            this.multipleSink = multipleSink;
+        }
+
         /**
          * Creates the Elasticsearch sink.
          * Use {@link DirtySinkFailureHandler} when need sink dirty data
@@ -304,7 +311,8 @@ public class ElasticsearchSink<T>
                     restClientFactory,
                     inlongMetric,
                     dirtySinkHelper,
-                    auditHostAndPorts);
+                    auditHostAndPorts,
+                    multipleSink);
         }
 
         @Override
