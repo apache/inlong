@@ -188,8 +188,8 @@ public class ExcelTool {
 
         int bound = excelFields.size();
         for (int index = 0; index < bound; index++) {
-            Pair<String, ExcelField> se = excelFields.get(index);
-            Class<? extends ExcelCellValidator> validator = se.getRight().validator();
+            Pair<String, ExcelField> excelFieldPair = excelFields.get(index);
+            Class<? extends ExcelCellValidator> validator = excelFieldPair.getRight().validator();
 
             Optional<List<String>> optionalList = Optional.ofNullable(validator)
                     .filter(v -> v != ExcelCellValidator.class)
@@ -208,7 +208,7 @@ public class ExcelTool {
             }
             if (String.join("\n", valueOfCol).length() > CONSTRAINT_MAX_LENGTH) {
                 throw new IllegalArgumentException(
-                        "field '" + se.getLeft() + "' in class '" + clazz.getCanonicalName()
+                        "field '" + excelFieldPair.getLeft() + "' in class '" + clazz.getCanonicalName()
                                 + "' valid message length must be less than 255 characters");
             }
 
