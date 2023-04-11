@@ -112,11 +112,7 @@ public class KafkaSink extends AbstractSink {
 
     @Override
     public void write(Message message) {
-        if (message == null) {
-            return;
-        }
-
-        if (message instanceof EndMessage) {
+        if (message == null || message instanceof EndMessage) {
             return;
         }
 
