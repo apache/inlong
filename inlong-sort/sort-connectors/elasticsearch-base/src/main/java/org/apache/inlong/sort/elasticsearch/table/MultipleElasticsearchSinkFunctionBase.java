@@ -28,6 +28,7 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.formats.json.JsonRowDataSerializationSchema;
 
+import java.util.HashSet;
 import java.util.UUID;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.util.Preconditions;
@@ -36,6 +37,7 @@ import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
 import org.apache.inlong.sort.elasticsearch.RequestIndexer;
@@ -74,9 +76,11 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
     // open and store an index generator for each new index.
     private Map<String, IndexGenerator> indexGeneratorMap;
     // table level metrics
-    private SinkMetricData sinkMetricData;
+    private SinkTableMetricData sinkMetricData;
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
     private transient SerializationSchema<RowData> serializationSchema;
+    // a hashset containing indices which are skipped due to exceptions.
+    private final HashSet<String> errorSet = new HashSet<>();
 
     public MultipleElasticsearchSinkFunctionBase(
             @Nullable String docType, // this is deprecated in es 7+
@@ -106,12 +110,12 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
     @Override
     public void open(RuntimeContext ctx, SinkMetricData sinkMetricData) {
         indexGeneratorMap = new HashMap<>();
-        this.sinkMetricData = sinkMetricData;
+        this.sinkMetricData = (SinkTableMetricData) sinkMetricData;
     }
 
-    private void sendMetrics(byte[] document) {
+    private void sendMetrics(byte[] document, String index) {
         if (sinkMetricData != null) {
-            sinkMetricData.invoke(1, document.length);
+            sinkMetricData.outputMetrics(index, 1, document.length);
         }
     }
 
@@ -125,7 +129,7 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
 
     @Override
     public void process(RowData element, RuntimeContext ctx, RequestIndexer<Request> indexer) {
-        JsonNode rootNode = null;
+        JsonNode rootNode;
         // parse rootnode
         try {
             jsonDynamicSchemaFormat =
@@ -155,10 +159,15 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
             document = serializationSchema.serialize(data);
         } catch (Exception e) {
             LOGGER.error(String.format("Serialize error, raw data: %s", data), e);
-            dirtySinkHelper.invoke(data, DirtyType.SERIALIZE_ERROR, e);
-            if (sinkMetricData != null) {
-                sinkMetricData.invokeDirty(1, data.toString().getBytes(StandardCharsets.UTF_8).length);
-            }
+            handleDirty(data, DirtyType.SERIALIZE_ERROR, e, null);
+            return;
+        }
+        final String index;
+        try {
+            index = parseIndex(data, rootNode);
+        } catch (Exception e) {
+            LOGGER.error(String.format("Generate index error, raw data: %s", data), e);
+            handleDirty(data, DirtyType.INDEX_GENERATE_ERROR, e, null);
             return;
         }
         final String key;
@@ -168,24 +177,42 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
             key = UUID.nameUUIDFromBytes(physicalData.toString().getBytes(StandardCharsets.UTF_8)).toString();
         } catch (Exception e) {
             LOGGER.error(String.format("Generate index id error, raw data: %s", data), e);
-            dirtySinkHelper.invoke(data, DirtyType.INDEX_ID_GENERATE_ERROR, e);
-            if (sinkMetricData != null) {
-                sinkMetricData.invokeDirty(1, document.length);
-            }
+            handleDirty(data, DirtyType.INDEX_ID_GENERATE_ERROR, e, index);
             return;
         }
-        final String index;
-        try {
-            index = parseIndex(data, rootNode);
-        } catch (Exception e) {
-            LOGGER.error(String.format("Generate index error, raw data: %s", data), e);
-            dirtySinkHelper.invoke(data, DirtyType.INDEX_GENERATE_ERROR, e);
-            if (sinkMetricData != null) {
-                sinkMetricData.invokeDirty(1, document.length);
-            }
+        // if the index is contained in errorset, then skip this record.
+        if (errorSet.contains(index)) {
             return;
         }
         addDocument(data, key, index, document, indexer);
+    }
+
+    private void handleDirty(RowData rowData, DirtyType dirtyType, Exception e, String index) {
+        // skip the index in which the error has occurred
+        if (SchemaUpdateExceptionPolicy.STOP_PARTIAL == schemaUpdateExceptionPolicy) {
+            if (index != null) {
+                errorSet.add(index);
+            } else {
+                return;
+            }
+        }
+
+        // keep retry the entire task until it succeeds
+        if (SchemaUpdateExceptionPolicy.THROW_WITH_STOP == schemaUpdateExceptionPolicy) {
+            throw new RuntimeException(String.format("Writing records %s failed, restarting task",
+                    rowData), e);
+        }
+
+        // dirty data & archive
+        if (SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE == schemaUpdateExceptionPolicy) {
+            dirtySinkHelper.invoke(rowData, dirtyType, e);
+            if (sinkMetricData != null && index != null) {
+                sinkMetricData.outputDirtyMetrics(index, 1,
+                        rowData.toString().getBytes(StandardCharsets.UTF_8).length);
+            } else {
+                sinkMetricData.invokeDirty(1, rowData.toString().getBytes(StandardCharsets.UTF_8).length);
+            }
+        }
     }
 
     private String parseIndex(RowData rowData, JsonNode rootNode)
@@ -219,13 +246,13 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
                     request = requestFactory.createUpdateRequest(index, docType, key, contentType, document);
                     if (addRouting(request, element, document)) {
                         indexer.add(request);
-                        sendMetrics(document);
+                        sendMetrics(document, index);
                     }
                 } else {
                     request = requestFactory.createIndexRequest(index, docType, key, contentType, document);
                     if (addRouting(request, element, document)) {
                         indexer.add(request);
-                        sendMetrics(document);
+                        sendMetrics(document, index);
                     }
                 }
                 break;
@@ -233,19 +260,16 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
                 request = requestFactory.createDeleteRequest(index, docType, key);
                 if (addRouting(request, element, document)) {
                     indexer.add(request);
-                    sendMetrics(document);
+                    sendMetrics(document, index);
                 }
                 break;
             case UPDATE_BEFORE:
-                sendMetrics(document);
+                sendMetrics(document, index);
                 break;
             default:
                 LOGGER.error(String.format("The type of element should be 'RowData' only, raw data: %s", element));
-                dirtySinkHelper.invoke(element, DirtyType.UNSUPPORTED_DATA_TYPE,
-                        new RuntimeException("The type of element should be 'RowData' only."));
-                if (sinkMetricData != null) {
-                    sinkMetricData.invokeDirty(1, document.length);
-                }
+                handleDirty(element, DirtyType.UNSUPPORTED_DATA_TYPE,
+                        new RuntimeException("The type of element should be 'RowData' only."), index);
         }
     }
 
@@ -256,10 +280,7 @@ public abstract class MultipleElasticsearchSinkFunctionBase<Request, ContentType
                 handleRouting(request, routing);
             } catch (Exception e) {
                 LOGGER.error(String.format("Routing error, raw data: %s", row), e);
-                dirtySinkHelper.invoke(row, DirtyType.INDEX_ROUTING_ERROR, e);
-                if (sinkMetricData != null) {
-                    sinkMetricData.invokeDirty(1, document.length);
-                }
+                handleDirty(row, DirtyType.INDEX_ROUTING_ERROR, e, null);
                 return false;
             }
         }

@@ -224,6 +224,30 @@ public class SinkTableMetricData extends SinkMetricData implements SinkSubMetric
     }
 
     /**
+     * output metrics
+     *
+     * @param index the index name of record
+     * @param rowCount the row count of records
+     * @param rowSize the row size of records
+     */
+    public void outputMetrics(String index, long rowCount, long rowSize) {
+        if (StringUtils.isBlank(index)) {
+            invoke(rowCount, rowSize);
+            return;
+        }
+        SinkMetricData subSinkMetricData;
+        if (subSinkMetricMap.containsKey(index)) {
+            subSinkMetricData = subSinkMetricMap.get(index);
+        } else {
+            subSinkMetricData = buildSubSinkMetricData(new String[]{index}, this);
+            subSinkMetricMap.put(index, subSinkMetricData);
+        }
+        // sink metric and sub sink metric output metrics
+        this.invoke(rowCount, rowSize);
+        subSinkMetricData.invoke(rowCount, rowSize);
+    }
+
+    /**
      * output dirty metrics with estimate
      *
      * @param database the database name of record
@@ -330,6 +354,30 @@ public class SinkTableMetricData extends SinkMetricData implements SinkSubMetric
         } else {
             subSinkMetricData = buildSubSinkMetricData(new String[]{database, table}, this);
             subSinkMetricMap.put(identify, subSinkMetricData);
+        }
+        // sink metric and sub sink metric output metrics
+        this.invokeDirty(rowCount, rowSize);
+        subSinkMetricData.invokeDirty(rowCount, rowSize);
+    }
+
+    /**
+     * output dirty metrics
+     *
+     * @param index the table name of record
+     * @param rowCount the row count of records
+     * @param rowSize the row size of records
+     */
+    public void outputDirtyMetrics(String index, long rowCount, long rowSize) {
+        if (StringUtils.isBlank(index)) {
+            invokeDirty(rowCount, rowSize);
+            return;
+        }
+        SinkMetricData subSinkMetricData;
+        if (subSinkMetricMap.containsKey(index)) {
+            subSinkMetricData = subSinkMetricMap.get(index);
+        } else {
+            subSinkMetricData = buildSubSinkMetricData(new String[]{index}, this);
+            subSinkMetricMap.put(index, subSinkMetricData);
         }
         // sink metric and sub sink metric output metrics
         this.invokeDirty(rowCount, rowSize);
