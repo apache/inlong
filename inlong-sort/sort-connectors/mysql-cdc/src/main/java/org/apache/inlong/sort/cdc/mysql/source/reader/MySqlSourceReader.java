@@ -235,12 +235,22 @@ public class MySqlSourceReader<T>
 
     private MySqlBinlogSplit discoverTableSchemasForBinlogSplit(MySqlBinlogSplit split) {
         final String splitId = split.splitId();
-        if (split.getTableSchemas().isEmpty()) {
+        if (split.getTableSchemas().isEmpty() || sourceConfig.isScanNewlyAddedTableEnabled()) {
             try (MySqlConnection jdbc =
                     DebeziumUtils.createMySqlConnection(sourceConfig.getDbzConfiguration())) {
-                Map<TableId, TableChanges.TableChange> tableSchemas =
-                        TableDiscoveryUtils.discoverCapturedTableSchemas(sourceConfig, jdbc);
-                LOG.info("The table schema discovery for binlog split {} success", splitId);
+                Map<TableId, TableChanges.TableChange> tableSchemas;
+                if (split.getTableSchemas().isEmpty()) {
+                    tableSchemas =
+                            TableDiscoveryUtils.discoverSchemaForCapturedTableSchemas(sourceConfig, jdbc);
+                    LOG.info("The table schema discovery for binlog split {} success", splitId);
+                } else {
+                    List<TableId> existedTables = new ArrayList<>(split.getTableSchemas().keySet());
+                    tableSchemas =
+                            TableDiscoveryUtils.discoverSchemaForNewAddedTables(existedTables, sourceConfig, jdbc);
+                    LOG.info(
+                            "The table schema discovery for new added tables of binlog split {} success",
+                            split.splitId());
+                }
                 return MySqlBinlogSplit.fillTableSchemas(split, tableSchemas);
             } catch (SQLException e) {
                 LOG.error("Failed to obtains table schemas due to {}", e.getMessage());
