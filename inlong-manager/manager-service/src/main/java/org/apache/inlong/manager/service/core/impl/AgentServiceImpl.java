@@ -522,7 +522,7 @@ public class AgentServiceImpl implements AgentService {
                 } else if (MQType.KAFKA.equals(mqType)) {
                     DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
                     topicConfig.setInlongGroupId(groupId);
-                    topicConfig.setTopic(groupId + DOT + streamId);
+                    topicConfig.setTopic(groupEntity.getMqResource() + DOT + streamEntity.getMqResource());
                     dataConfig.setTopicInfo(topicConfig);
                 }
             } else {
