@@ -145,6 +145,12 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
                     .defaultValue(false)
                     .withDescription("Whether to buffer some data to sort before write to files(reduce memory loss)");
 
+    public static final ConfigOption<Integer> WRITE_PARALLELISM =
+            ConfigOptions.key("write.parallelism")
+                    .intType()
+                    .noDefaultValue()
+                    .withDescription("writer parallelism");
+
     private final FlinkCatalog catalog;
 
     public FlinkDynamicTableFactory() {

@@ -37,6 +37,7 @@ import org.apache.flink.types.Row;
 import org.apache.iceberg.DataFile;
 import org.apache.iceberg.DistributionMode;
 import org.apache.iceberg.PartitionField;
+import org.apache.iceberg.PartitionKey;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.SerializableTable;
@@ -537,10 +538,11 @@ public class FlinkSink {
                 return input;
             }
 
+            int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             SingleOutputStreamOperator<T> inputWithRateLimit = input
                     .map(new RateLimitMapFunction(tableOptions.get(WRITE_RATE_LIMIT)))
                     .name("rate_limit")
-                    .setParallelism(input.getParallelism());
+                    .setParallelism(parallelism);
 
             if (uidPrefix != null) {
                 ((SingleOutputStreamOperator) inputWithRateLimit).uid(uidPrefix + "_rate_limit");
@@ -571,18 +573,15 @@ public class FlinkSink {
                             .toArray(RowData.FieldGetter[]::new);
             Schema writeSchema = TypeUtil.reassignIds(
                     FlinkSchemaUtil.convert(FlinkSchemaUtil.toSchema(flinkType)), table.schema());
-            Schema partitionSchema = table.schema()
-                    .select(
-                            table.spec().fields()
-                                    .stream()
-                                    .map(PartitionField::name)
-                                    .collect(Collectors.toSet()));
             Schema deleteSchema = TypeUtil.select(table.schema(), equalityFieldIds);
+            PartitionKey partitionKey = new PartitionKey(table.spec(), table.schema());
+
+            int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             SingleOutputStreamOperator<RowData> inputWithMiniBatchGroup = input
                     .transform("mini_batch_group",
                             input.getType(),
-                            new IcebergMiniBatchGroupOperator(fieldGetters, partitionSchema, deleteSchema,
-                                    writeSchema));
+                            new IcebergMiniBatchMemGroupOperator(fieldGetters, deleteSchema, writeSchema, partitionKey))
+                    .setParallelism(parallelism);
             if (uidPrefix != null) {
                 inputWithMiniBatchGroup.uid(uidPrefix + "mini_batch_group");
             }
