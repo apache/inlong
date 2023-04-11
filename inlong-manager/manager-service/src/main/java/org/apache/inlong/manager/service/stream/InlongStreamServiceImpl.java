@@ -85,7 +85,7 @@ import java.util.stream.Collectors;
 import static org.apache.inlong.manager.common.consts.InlongConstants.PATTERN_NORMAL_CHARACTERS;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
-import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FORMAT_TYPES;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FIELD_TYPES;
 import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.packExtParams;
 import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.unpackExtParams;
 
@@ -781,9 +781,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                         " can only contain letters, underscores or numbers");
             }
             String fieldType = cols[1];
-            if (!STREAM_FORMAT_TYPES.contains(fieldType)) {
+            if (!STREAM_FIELD_TYPES.contains(fieldType)) {
                 throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "The field type in line" + (i + 1) +
-                        " must be one of " + STREAM_FORMAT_TYPES);
+                        " must be one of " + STREAM_FIELD_TYPES);
             }
 
             String comment = null;

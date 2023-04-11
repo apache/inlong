@@ -24,10 +24,15 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.inlong.manager.common.tool.excel.annotation.ExcelEntity;
 import org.apache.inlong.manager.common.tool.excel.annotation.ExcelField;
+import org.apache.inlong.manager.common.tool.excel.validator.ExcelCellValidator;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFDataValidation;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -59,6 +64,7 @@ import static org.apache.inlong.manager.common.util.Preconditions.expectTrue;
  */
 public class ExcelTool {
 
+    private static final int CONSTRAINT_MAX_LENGTH = 255;
     private ExcelTool() {
 
     }
@@ -115,6 +121,9 @@ public class ExcelTool {
                 sheet.setColumnWidth(index, DEFAULT_COLUMN_WIDTH);
             }
             fillSheetHeader(sheet.createRow(0), heads);
+            // Fill validation
+            Field[] fields = clazz.getDeclaredFields();
+            fillSheetValidation(clazz, sheet, fields);
             // Fill content if data exist.
             if (CollectionUtils.isNotEmpty(maps)) {
                 fillSheetContent(sheet, heads, maps);
@@ -158,6 +167,59 @@ public class ExcelTool {
             XSSFCell cell = row.createCell(index);
             cell.setCellValue(new XSSFRichTextString(heads.get(index)));
         });
+    }
+    /**
+     * Fills the validation constraints for a given sheet based on the provided class and fields.
+     *
+     * @param clazz  the class to use for validation constraints
+     * @param sheet  the sheet to fill with validation constraints
+     * @param fields the fields to use for validation constraints
+     */
+    private static <T> void fillSheetValidation(Class<T> clazz, XSSFSheet sheet, Field[] fields) {
+        List<Pair<String, ExcelField>> excelFields = new ArrayList<>();
+
+        for (Field field : fields) {
+            field.setAccessible(true);
+            ExcelField excelField = field.getAnnotation(ExcelField.class);
+            if (excelField != null) {
+                excelFields.add(Pair.of(field.getName(), excelField));
+            }
+        }
+
+        int bound = excelFields.size();
+        for (int index = 0; index < bound; index++) {
+            Pair<String, ExcelField> excelFieldPair = excelFields.get(index);
+            Class<? extends ExcelCellValidator> validator = excelFieldPair.getRight().validator();
+
+            Optional<List<String>> optionalList = Optional.ofNullable(validator)
+                    .filter(v -> v != ExcelCellValidator.class)
+                    .map(v -> {
+                        try {
+                            return (ExcelCellValidator<?>) v.newInstance();
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            LOGGER.error("Can not properly create ExcelCellValidator", e);
+                            return null;
+                        }
+                    })
+                    .map(ExcelCellValidator::constraint);
+            List<String> valueOfCol = optionalList.orElseGet(Collections::emptyList);
+            if (valueOfCol.isEmpty()) {
+                continue;
+            }
+            if (String.join("\n", valueOfCol).length() > CONSTRAINT_MAX_LENGTH) {
+                throw new IllegalArgumentException(
+                        "field '" + excelFieldPair.getLeft() + "' in class '" + clazz.getCanonicalName()
+                                + "' valid message length must be less than 255 characters");
+            }
+
+            CellRangeAddressList regions = new CellRangeAddressList(1, CONSTRAINT_MAX_LENGTH, index, index);
+            XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper(sheet);
+            XSSFDataValidationConstraint explicitListConstraint = (XSSFDataValidationConstraint) dvHelper
+                    .createExplicitListConstraint(valueOfCol.toArray(new String[0]));
+            XSSFDataValidation dataValidation =
+                    (XSSFDataValidation) dvHelper.createValidation(explicitListConstraint, regions);
+            sheet.addValidationData(dataValidation);
+        }
     }
 
     /**
