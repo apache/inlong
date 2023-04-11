@@ -176,20 +176,21 @@ public class KafkaSink extends AbstractSink {
                 try {
                     cache.forEach((batchKey, packProxyMessage) -> {
                         BatchProxyMessage batchProxyMessage = packProxyMessage.fetchBatch();
-                        if (batchProxyMessage != null) {
-                            try {
-                                kafkaSendQueue.put(batchProxyMessage);
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.info(
-                                            "send group id {}, message key {},with message size {}, the job id is {}, "
-                                                    + "read source is {} sendTime is {}",
-                                            inlongGroupId, batchKey,
-                                            batchProxyMessage.getDataList().size(), jobInstanceId, sourceName,
-                                            batchProxyMessage.getDataTime());
-                                }
-                            } catch (Exception e) {
-                                LOGGER.error("flush job[{}] data to send queue exception", jobInstanceId, e);
+                        if (batchProxyMessage == null) {
+                            return;
+                        }
+                        try {
+                            kafkaSendQueue.put(batchProxyMessage);
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug(
+                                        "send group id {}, message key {},with message size {}, the job id is {}, "
+                                                + "read source is {} sendTime is {}",
+                                        inlongGroupId, batchKey,
+                                        batchProxyMessage.getDataList().size(), jobInstanceId, sourceName,
+                                        batchProxyMessage.getDataTime());
                             }
+                        } catch (Exception e) {
+                            LOGGER.error("flush job[{}] data to send queue exception", jobInstanceId, e);
                         }
                     });
                     AgentUtils.silenceSleepInMs(batchFlushInterval);
