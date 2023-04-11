@@ -24,15 +24,22 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.inlong.manager.common.tool.excel.annotation.ExcelEntity;
 import org.apache.inlong.manager.common.tool.excel.annotation.ExcelField;
+import org.apache.inlong.manager.common.tool.excel.annotation.Font;
+import org.apache.inlong.manager.common.tool.excel.annotation.Style;
 import org.apache.inlong.manager.common.tool.excel.validator.ExcelCellValidator;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFDataValidation;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationConstraint;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -49,13 +56,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.apache.inlong.manager.common.util.Preconditions.expectTrue;
 
@@ -65,32 +70,20 @@ import static org.apache.inlong.manager.common.util.Preconditions.expectTrue;
 public class ExcelTool {
 
     private static final int CONSTRAINT_MAX_LENGTH = 255;
+
     private ExcelTool() {
 
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelTool.class);
-    private static final int DEFAULT_COLUMN_WIDTH = 10000;
+    private static final String DEFAULT_SHEET_NAME = "Sheet 1";
+    private static final int DEFAULT_ROW_COUNT = 30;
 
     /**
      * Extracts the header row from a given class and returns it as a list of strings.
      */
-    public static <E> List<String> extractHeader(Class<E> e1Class) {
-        List<String> list = new LinkedList<>();
-        Field[] fields = e1Class.getDeclaredFields();
-        if (fields.length > 0) {
-            for (Field field : fields) {
-                field.setAccessible(true);
-                ExcelField excel = field.getAnnotation(ExcelField.class);
-                if (excel != null) {
-                    String excelName = excel.name();
-                    list.add(excelName);
-                }
-            }
-            return !list.isEmpty() ? list : Collections.emptyList();
-        } else {
-            return Collections.emptyList();
-        }
+    public static List<String> extractHeader(List<Pair<Field, ExcelField>> fieldMetas) {
+        return fieldMetas.stream().map(fieldMeta -> fieldMeta.getRight().name()).collect(Collectors.toList());
     }
 
     /**
@@ -109,30 +102,49 @@ public class ExcelTool {
 
     public static <T> void doWrite(List<Map<String, String>> maps, Class<T> clazz, OutputStream out)
             throws IOException {
-        List<String> heads = extractHeader(clazz);
-        if (heads.isEmpty()) {
+        Field[] fields = clazz.getDeclaredFields();
+        List<Pair<Field, ExcelField>> fieldMetas = extractFieldMetas(fields);
+        if (fieldMetas.isEmpty()) {
             throw new IllegalArgumentException(
                     "At least one field must be marked as Excel Field by annotation @ExcelField in class " + clazz);
         }
+        List<String> headNames = extractHeader(fieldMetas);
         try (XSSFWorkbook hwb = new XSSFWorkbook()) {
-            XSSFSheet sheet = hwb.createSheet("Sheet 1");
-
-            for (int index = 0; index < heads.size(); index++) {
-                sheet.setColumnWidth(index, DEFAULT_COLUMN_WIDTH);
+            // Set sheet name
+            ExcelEntity excelEntity = clazz.getAnnotation(ExcelEntity.class);
+            String sheetName = excelEntity.name();
+            if (StringUtils.isBlank(sheetName)) {
+                sheetName = DEFAULT_SHEET_NAME;
             }
-            fillSheetHeader(sheet.createRow(0), heads);
+            XSSFSheet sheet = hwb.createSheet(sheetName);
+            // Set width of column
+            for (int index = 0; index < fieldMetas.size(); index++) {
+                Pair<Field, ExcelField> fieldMeta = fieldMetas.get(index);
+                sheet.setColumnWidth(index, fieldMeta.getRight().style().width());
+            }
+            // Fill header with cellStyle
+            fillSheetHeader(sheet.createRow(0), headNames);
             // Fill validation
-            Field[] fields = clazz.getDeclaredFields();
-            fillSheetValidation(clazz, sheet, fields);
+            fillSheetValidation(sheet, fieldMetas, clazz.getCanonicalName());
             // Fill content if data exist.
+            List<XSSFCellStyle> contentStyles = createContentCellStyle(hwb, fieldMetas);
             if (CollectionUtils.isNotEmpty(maps)) {
-                fillSheetContent(sheet, heads, maps);
+                fillSheetContent(sheet, headNames, maps, contentStyles);
+            } else {
+                fillEmptySheetContent(sheet, headNames.size(), contentStyles);
             }
-
             hwb.write(out);
         }
         out.close();
         LOGGER.info("Database export succeeded");
+    }
+
+    private static List<Pair<Field, ExcelField>> extractFieldMetas(Field[] fields) {
+        return Arrays.stream(fields)
+                .peek(field -> field.setAccessible(true))
+                .map(field -> Pair.of(field, field.getAnnotation(ExcelField.class)))
+                .filter(fieldMeta -> fieldMeta.getRight() != null)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -143,52 +155,109 @@ public class ExcelTool {
         doWrite(null, clazz, out);
     }
 
+    private static List<XSSFCellStyle> createContentCellStyle(XSSFWorkbook workbook,
+            List<Pair<Field, ExcelField>> fieldMetas) {
+        return fieldMetas.stream().map(fieldMeta -> {
+            XSSFCellStyle style = workbook.createCellStyle();
+            ExcelField excelField = fieldMeta.getRight();
+            Style excelStyle = excelField.style();
+            Font excelFont = excelField.font();
+            // Set foreground color
+            style.setFillForegroundColor(excelStyle.bgColor().getIndex());
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            // Set font
+            XSSFFont font = workbook.createFont();
+            font.setFontName(excelFont.name());
+            font.setColor(excelFont.color().getIndex());
+            font.setFontHeightInPoints(excelFont.size());
+            font.setBold(excelFont.bold());
+            font.setItalic(excelFont.italic());
+            style.setFont(font);
+            // Set border
+            BorderStyle borderBottom = excelStyle.bottomBorderStyle();
+            BorderStyle borderTop = excelStyle.topBorderStyle();
+            BorderStyle borderLeft = excelStyle.leftBorderStyle();
+            BorderStyle borderRight = excelStyle.rightBorderStyle();
+            BorderStyle borderAll = excelStyle.allBorderStyle();
+            if (borderAll != BorderStyle.NONE) {
+                borderBottom = borderTop = borderLeft = borderRight = borderAll;
+            }
+            style.setBorderBottom(borderBottom);
+            style.setBorderTop(borderTop);
+            style.setBorderLeft(borderLeft);
+            style.setBorderRight(borderRight);
+            // Set border color
+            IndexedColors bottomBorderColor = excelStyle.bottomBorderColor();
+            IndexedColors topBorderColor = excelStyle.topBorderColor();
+            IndexedColors leftBorderColor = excelStyle.leftBorderColor();
+            IndexedColors rightBorderColor = excelStyle.rightBorderColor();
+            IndexedColors allBorderColor = excelStyle.allBorderColor();
+            if (allBorderColor != IndexedColors.BLACK) {
+                bottomBorderColor = topBorderColor = leftBorderColor = rightBorderColor = allBorderColor;
+            }
+            style.setBottomBorderColor(bottomBorderColor.getIndex());
+            style.setTopBorderColor(topBorderColor.getIndex());
+            style.setLeftBorderColor(leftBorderColor.getIndex());
+            style.setRightBorderColor(rightBorderColor.getIndex());
+            return style;
+        }).collect(Collectors.toList());
+
+    }
+
+    private static void fillEmptySheetContent(XSSFSheet sheet, int colCount, List<XSSFCellStyle> contentCellStyles) {
+        for (int index = 1; index < DEFAULT_ROW_COUNT; index++) {
+            XSSFRow row = sheet.createRow(index);
+            for (int colIndex = 0; colIndex < colCount; colIndex++) {
+                XSSFCell cell = row.createCell(colIndex);
+                cell.setCellStyle(contentCellStyles.get(colIndex));
+            }
+        }
+    }
+
     /**
      * Fills the content rows of a given sheet with the provided content maps and headers.
      */
-    private static void fillSheetContent(XSSFSheet sheet, List<String> heads, List<Map<String, String>> contents) {
+    private static void fillSheetContent(XSSFSheet sheet, List<String> heads, List<Map<String, String>> contents,
+            List<XSSFCellStyle> contentStyles) {
         Optional.ofNullable(contents)
-                .ifPresent(c -> IntStream.range(0, c.size())
-                        .forEach(lineId -> {
-                            Map<String, String> line = contents.get(lineId);
-                            Row row = sheet.createRow(lineId + 1);
-                            IntStream.range(0, heads.size()).forEach(colId -> {
-                                String title = heads.get(colId);
-                                String originValue = line.get(title);
-                                String value = StringUtils.isNotBlank(originValue) ? originValue : "";
-                                Cell cell = row.createCell(colId);
-                                cell.setCellValue(value);
-                            });
-                        }));
+                .ifPresent(content -> {
+                    int rowSize = content.size();
+                    for (int lineId = 0; lineId < rowSize; lineId++) {
+                        Map<String, String> line = contents.get(lineId);
+                        Row row = sheet.createRow(lineId + 1);
+                        int headSize = heads.size();
+                        for (int colId = 0; colId < headSize; colId++) {
+                            String title = heads.get(colId);
+                            String originValue = line.get(title);
+                            String value = StringUtils.isNotBlank(originValue) ? originValue : "";
+                            Cell cell = row.createCell(colId);
+                            cell.setCellValue(value);
+                            cell.setCellStyle(contentStyles.get(colId));
+                        }
+                    }
+                });
     }
 
     private static void fillSheetHeader(XSSFRow row, List<String> heads) {
-        IntStream.range(0, heads.size()).forEach(index -> {
+        int headSize = heads.size();
+        for (int index = 0; index < headSize; index++) {
             XSSFCell cell = row.createCell(index);
             cell.setCellValue(new XSSFRichTextString(heads.get(index)));
-        });
-    }
-    /**
-     * Fills the validation constraints for a given sheet based on the provided class and fields.
-     *
-     * @param clazz  the class to use for validation constraints
-     * @param sheet  the sheet to fill with validation constraints
-     * @param fields the fields to use for validation constraints
-     */
-    private static <T> void fillSheetValidation(Class<T> clazz, XSSFSheet sheet, Field[] fields) {
-        List<Pair<String, ExcelField>> excelFields = new ArrayList<>();
-
-        for (Field field : fields) {
-            field.setAccessible(true);
-            ExcelField excelField = field.getAnnotation(ExcelField.class);
-            if (excelField != null) {
-                excelFields.add(Pair.of(field.getName(), excelField));
-            }
         }
+    }
 
-        int bound = excelFields.size();
+    /**
+     * Fills the validation constraints for a given sheet based on the provided class and fieldMetas.
+     *
+     * @param sheet      the sheet to fill with validation constraints
+     * @param fieldMetas the fieldMetas to use for validation constraints
+     * @param className  the class to use for validation constraints
+     */
+    private static void fillSheetValidation(XSSFSheet sheet, List<Pair<Field, ExcelField>> fieldMetas,
+            String className) {
+        int bound = fieldMetas.size();
         for (int index = 0; index < bound; index++) {
-            Pair<String, ExcelField> excelFieldPair = excelFields.get(index);
+            Pair<Field, ExcelField> excelFieldPair = fieldMetas.get(index);
             Class<? extends ExcelCellValidator> validator = excelFieldPair.getRight().validator();
 
             Optional<List<String>> optionalList = Optional.ofNullable(validator)
@@ -208,7 +277,7 @@ public class ExcelTool {
             }
             if (String.join("\n", valueOfCol).length() > CONSTRAINT_MAX_LENGTH) {
                 throw new IllegalArgumentException(
-                        "field '" + excelFieldPair.getLeft() + "' in class '" + clazz.getCanonicalName()
+                        "field '" + excelFieldPair.getLeft().getName() + "' in class '" + className
                                 + "' valid message length must be less than 255 characters");
             }
 

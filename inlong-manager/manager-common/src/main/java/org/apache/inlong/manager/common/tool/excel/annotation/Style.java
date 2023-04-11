@@ -17,36 +17,39 @@
 
 package org.apache.inlong.manager.common.tool.excel.annotation;
 
-import org.apache.inlong.manager.common.tool.excel.ExcelCellDataTransfer;
-import org.apache.inlong.manager.common.tool.excel.validator.ExcelCellValidator;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.IndexedColors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Annotation for Excel field
- */
-@Target({ElementType.FIELD})
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ExcelField {
+public @interface Style {
 
-    /**
-     * Name of the field in Excel
-     */
-    String name();
+    IndexedColors bgColor() default IndexedColors.BLACK;
 
-    /**
-     * Data transfer method from Excel to Object
-     */
-    ExcelCellDataTransfer x2oTransfer() default ExcelCellDataTransfer.NONE;
-    /**
-     * Validator for the field
-     */
-    Class<? extends ExcelCellValidator> validator() default ExcelCellValidator.class;
+    IndexedColors allBorderColor() default IndexedColors.BLACK;
 
-    Font font() default @Font;
+    BorderStyle allBorderStyle() default BorderStyle.NONE;
 
-    Style style() default @Style;
+    IndexedColors bottomBorderColor() default IndexedColors.BLACK;
+
+    IndexedColors topBorderColor() default IndexedColors.BLACK;
+
+    IndexedColors leftBorderColor() default IndexedColors.BLACK;
+
+    IndexedColors rightBorderColor() default IndexedColors.BLACK;
+
+    BorderStyle bottomBorderStyle() default BorderStyle.NONE;
+
+    BorderStyle topBorderStyle() default BorderStyle.NONE;
+
+    BorderStyle leftBorderStyle() default BorderStyle.NONE;
+
+    BorderStyle rightBorderStyle() default BorderStyle.NONE;
+
+    int width() default 5000;
 }

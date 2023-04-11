@@ -17,36 +17,24 @@
 
 package org.apache.inlong.manager.common.tool.excel.annotation;
 
-import org.apache.inlong.manager.common.tool.excel.ExcelCellDataTransfer;
-import org.apache.inlong.manager.common.tool.excel.validator.ExcelCellValidator;
+import org.apache.poi.ss.usermodel.IndexedColors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Annotation for Excel field
- */
-@Target({ElementType.FIELD})
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ExcelField {
+public @interface Font {
 
-    /**
-     * Name of the field in Excel
-     */
-    String name();
+    short size() default 12;
 
-    /**
-     * Data transfer method from Excel to Object
-     */
-    ExcelCellDataTransfer x2oTransfer() default ExcelCellDataTransfer.NONE;
-    /**
-     * Validator for the field
-     */
-    Class<? extends ExcelCellValidator> validator() default ExcelCellValidator.class;
+    IndexedColors color() default IndexedColors.BLACK;
 
-    Font font() default @Font;
+    String name() default "Arial";
 
-    Style style() default @Style;
+    boolean bold() default false;
+
+    boolean italic() default false;
 }

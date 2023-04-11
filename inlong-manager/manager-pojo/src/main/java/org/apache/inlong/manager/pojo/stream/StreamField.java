@@ -25,7 +25,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.tool.excel.annotation.ExcelEntity;
 import org.apache.inlong.manager.common.tool.excel.annotation.ExcelField;
+import org.apache.inlong.manager.common.tool.excel.annotation.Font;
+import org.apache.inlong.manager.common.tool.excel.annotation.Style;
 import org.apache.inlong.manager.common.tool.excel.validator.NonEmptyCellValidator;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.IndexedColors;
 
 import java.io.Serializable;
 
@@ -37,7 +41,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Stream field configuration")
-@ExcelEntity(name = "StreamField excel template")
+@ExcelEntity(name = "InLong-StreamField-Template")
 public class StreamField implements Serializable {
 
     @ApiModelProperty("Field index")
@@ -49,15 +53,19 @@ public class StreamField implements Serializable {
     @ApiModelProperty(value = "inlong stream id", required = true)
     private String inlongStreamId;
 
-    @ExcelField(name = "Field name", validator = NonEmptyCellValidator.class)
+    @ExcelField(name = "Field name", validator = NonEmptyCellValidator.class,
+
+            font = @Font(size = 16), style = @Style(bgColor = IndexedColors.LIGHT_TURQUOISE, width = 9000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN))
     @ApiModelProperty(value = "Field name", required = true)
     private String fieldName;
 
-    @ExcelField(name = "Field type", validator = StreamFieldTypeCellValidator.class)
+    @ExcelField(name = "Field type", validator = StreamFieldTypeCellValidator.class,
+
+            font = @Font(size = 16), style = @Style(bgColor = IndexedColors.LIGHT_TURQUOISE, width = 6000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN))
     @ApiModelProperty(value = "Field type", required = true)
     private String fieldType;
 
-    @ExcelField(name = "Field comment")
+    @ExcelField(name = "Field comment", font = @Font(size = 16), style = @Style(bgColor = IndexedColors.LIGHT_TURQUOISE, width = 10000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN))
     @ApiModelProperty("Field comment")
     private String fieldComment;
 
