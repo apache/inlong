@@ -112,36 +112,37 @@ public class KafkaSink extends AbstractSink {
 
     @Override
     public void write(Message message) {
+        if (message == null) {
+            return;
+        }
+
+        if (message instanceof EndMessage) {
+            return;
+        }
+
         try {
-            if (message != null) {
-                if (!(message instanceof EndMessage)) {
-                    ProxyMessage proxyMessage = new ProxyMessage(message);
-                    // add proxy message to cache.
-                    cache.compute(proxyMessage.getBatchKey(),
-                            (s, packProxyMessage) -> {
-                                if (packProxyMessage == null) {
-                                    packProxyMessage =
-                                            new PackProxyMessage(jobInstanceId, jobConf, inlongGroupId, inlongStreamId);
-                                    packProxyMessage.generateExtraMap(proxyMessage.getDataKey());
-                                    packProxyMessage.addTopicAndDataTime(topic, System.currentTimeMillis());
-                                }
-                                // add message to package proxy
-                                packProxyMessage.addProxyMessage(proxyMessage);
-                                return packProxyMessage;
-                            });
-                    // increment the count of successful sinks
-                    sinkMetric.sinkSuccessCount.incrementAndGet();
-                } else {
-                    // increment the count of failed sinks
-                    sinkMetric.sinkFailCount.incrementAndGet();
-                }
-            }
+            ProxyMessage proxyMessage = new ProxyMessage(message);
+            // add proxy message to cache.
+            cache.compute(proxyMessage.getBatchKey(),
+                    (s, packProxyMessage) -> {
+                        if (packProxyMessage == null) {
+                            packProxyMessage =
+                                    new PackProxyMessage(jobInstanceId, jobConf, inlongGroupId, inlongStreamId);
+                            packProxyMessage.generateExtraMap(proxyMessage.getDataKey());
+                            packProxyMessage.addTopicAndDataTime(topic, System.currentTimeMillis());
+                        }
+                        // add message to package proxy
+                        packProxyMessage.addProxyMessage(proxyMessage);
+                        return packProxyMessage;
+                    });
+            // increment the count of successful sinks
+            sinkMetric.sinkSuccessCount.incrementAndGet();
         } catch (Exception e) {
+            sinkMetric.sinkFailCount.incrementAndGet();
             LOGGER.error("write job[{}] data to cache error", jobInstanceId, e);
         } catch (Throwable t) {
             ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
         }
-
     }
 
     @Override
