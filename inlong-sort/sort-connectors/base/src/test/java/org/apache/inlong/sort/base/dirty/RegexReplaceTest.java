@@ -21,19 +21,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
-
 @Slf4j
 public class RegexReplaceTest {
 
     @Test
-    public void testRegexReplacement() throws IOException {
-        String[] identifier = new String[2];
-        identifier[0] = "yizhouyang";
-        identifier[1] = "table2";
-        String pattern = "${database}-${table}-${DIRTY_MESSAGE}";
-        String answer = DirtySinkHelper.regexReplace(pattern, DirtyType.BATCH_LOAD_ERROR, "mock message", identifier[0],
-                identifier[1], null);
-        Assert.assertEquals("yizhouyang-table2-mock message", answer);
+    public void testRegexReplacement() {
+        String database = "database1";
+        String table = "table2";
+        String pattern = "${source.table}-${source.database}-${DIRTY_MESSAGE}";
+        String answer = DirtySinkHelper.regexReplace(pattern, DirtyType.BATCH_LOAD_ERROR, "mock message", database,
+                table, null);
+        Assert.assertEquals("table2-database1-mock message", answer);
     }
 }
