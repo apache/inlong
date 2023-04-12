@@ -24,6 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.validation.InEnumInt;
@@ -61,19 +62,19 @@ public class UserRequest extends PageRequest {
     private String password;
 
     @ApiModelProperty(value = "New password, is required if needs updated")
-    @Length(min = 6, max = 64, message = "length must be between 6 and 64")
+    @Length(groups = UpdateValidation.class, min = 6, max = 64, message = "length must be between 6 and 64")
     private String newPassword;
 
     @ApiModelProperty("Secret key")
-    @Length(min = 1, max = 256, message = "length must be between 1 and 256")
+    @Length(groups = UpdateValidation.class, min = 1, max = 256, message = "length must be between 1 and 256")
     private String secretKey;
 
     @ApiModelProperty("Public key")
-    @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
+    @Length(groups = UpdateValidation.class, min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String publicKey;
 
     @ApiModelProperty("Private key")
-    @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
+    @Length(groups = UpdateValidation.class, min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String privateKey;
 
     @ApiModelProperty("Encryption key version")
@@ -94,7 +95,6 @@ public class UserRequest extends PageRequest {
     private Integer version;
 
     @ApiModelProperty(value = "Extension json info")
-    @Length(min = 1, max = 163840, message = "length must be between 1 and 163840")
     private String extParams;
 
 }

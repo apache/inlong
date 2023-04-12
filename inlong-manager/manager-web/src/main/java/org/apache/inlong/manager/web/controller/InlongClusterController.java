@@ -90,6 +90,7 @@ public class InlongClusterController {
     @ApiOperation(value = "List cluster tags")
     public Response<PageResult<ClusterTagResponse>> listTag(@RequestBody ClusterTagPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
+        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
         return Response.success(clusterService.listTag(request));
     }
 
