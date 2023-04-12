@@ -18,7 +18,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Skeleton, Modal, message } from 'antd';
+import { Button, Spin, Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
@@ -52,7 +52,7 @@ const Comp: React.FC<DetailModalProps> = ({
   // A: Avoid the table of the fields triggering the monitoring of the column change.
   const [sinkType, setSinkType] = useState('');
 
-  const { Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
+  const { loading: pluginLoading, Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
 
   const { data: groupData, run: getGroupData } = useRequest(`/group/get/${inlongGroupId}`, {
     manual: true,
@@ -137,7 +137,7 @@ const Comp: React.FC<DetailModalProps> = ({
       const row = new Entity().renderRow();
       return row.map(item => ({
         ...item,
-        col: item.type === EditableTable ? 24 : 12,
+        col: item.name === 'sinkType' || item.type === EditableTable ? 24 : 12,
       }));
     }
 
@@ -187,12 +187,10 @@ const Comp: React.FC<DetailModalProps> = ({
         ),
       ]}
     >
-      {loading ? (
-        <Skeleton active />
-      ) : (
+      <Spin spinning={loading || pluginLoading}>
         <FormGenerator
           labelCol={{ flex: '0 0 200px' }}
-          wrapperCol={{ flex: 1 }}
+          wrapperCol={{ flex: '1' }}
           col={12}
           content={formContent}
           form={form}
@@ -201,7 +199,7 @@ const Comp: React.FC<DetailModalProps> = ({
             setSinkType(values.sinkType);
           }}
         />
-      )}
+      </Spin>
     </Modal>
   );
 };

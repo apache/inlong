@@ -143,10 +143,20 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
     [realTimeValues, form, viewOnly],
   );
 
+  useEffect(() => {
+    const reset = form?.resetFields;
+    if (reset) {
+      form.resetFields = (...args) => {
+        reset(...args);
+        setRealTimeValues(props.initialValues || {});
+      };
+    }
+  }, [form]);
+
   // A real-time value is generated when it is first mounted, because the initialValue may be defined on the FormItem
   useEffect(() => {
     if (props.initialValues) {
-      setRealTimeValues(props.initialValues);
+      setRealTimeValues(prev => ({ ...prev, ...props.initialValues }));
     } else if (form) {
       const timmer = setTimeout(() => {
         const { getFieldsValue } = form;

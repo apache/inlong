@@ -20,6 +20,7 @@
 import { DataWithBackend } from '@/plugins/DataWithBackend';
 import { RenderRow } from '@/plugins/RenderRow';
 import { RenderList } from '@/plugins/RenderList';
+import CheckCard from '@/ui/components/CheckCard';
 import { statusList, genStatusTag } from './status';
 import { sources, defaultValue } from '..';
 
@@ -50,19 +51,7 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   readonly inlongStreamId: string;
 
   @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: Boolean(values.id),
-      maxLength: 128,
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sources.Name')
-  sourceName: string;
-
-  @FieldDecorator({
-    type: sources.length > 3 ? 'select' : 'radio',
+    type: CheckCard,
     rules: [{ required: true }],
     initialValue: defaultValue,
     props: values => ({
@@ -81,6 +70,19 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   })
   @I18n('meta.Sources.Type')
   sourceType: string;
+
+  @FieldDecorator({
+    type: 'input',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: Boolean(values.id),
+      maxLength: 128,
+    }),
+    visible: values => Boolean(values.sourceType),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sources.Name')
+  sourceName: string;
 
   @FieldDecorator({
     type: 'select',
