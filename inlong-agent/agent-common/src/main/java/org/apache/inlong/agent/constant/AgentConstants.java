@@ -171,12 +171,26 @@ public class AgentConstants {
     public static final String DEFAULT_COMPRESSION_TYPE = "NONE";
 
     public static final String PULSAR_CLIENT_PRODUCER_NUM = "agent.sink.pulsar.producer.num";
+    public static final String KAFKA_SINK_PRODUCER_NUM = "agent.sink.kafka.producer.num";
     public static final int DEFAULT_PRODUCER_NUM = 3;
 
     public static final String PULSAR_CLIENT_ENABLE_ASYNC_SEND = "agent.sink.pulsar.enbale.async.send";
+    public static final String KAFKA_PRODUCER_ENABLE_ASYNC_SEND = "agent.sink.kafka.enbale.async.send";
     public static final boolean DEFAULT_ENABLE_ASYNC_SEND = true;
 
     public static final String PULSAR_SINK_SEND_QUEUE_SIZE = "agent.sink.pulsar.send.queue.size";
+    public static final String KAFKA_SINK_SEND_QUEUE_SIZE = "agent.sink.kafka.send.queue.size";
     public static final int DEFAULT_SEND_QUEUE_SIZE = 20000;
+
+    public static final String DEFAULT_KAFKA_SINK_SEND_ACKS = "1";
+    public static final long DEFAULT_KAFKA_SINK_SYNC_SEND_TIMEOUT_MS = 3000;
+
+    public static final String DEFAULT_KAFKA_SINK_SEND_COMPRESSION_TYPE = "none";
+
+    public static final String DEFAULT_KAFKA_SINK_SEND_KEY_SERIALIZER =
+            "org.apache.kafka.common.serialization.StringSerializer";
+
+    public static final String DEFAULT_KAFKA_SINK_SEND_VALUE_SERIALIZER =
+            "org.apache.kafka.common.serialization.ByteArraySerializer";
 
 }

@@ -39,6 +39,7 @@ public class JobProfileDto {
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
     public static final String PULSAR_SINK = "org.apache.inlong.agent.plugin.sinks.PulsarSink";
+    public static final String KAFKA_SINK = "org.apache.inlong.agent.plugin.sinks.KafkaSink";
 
     /**
      * file source
@@ -412,6 +413,8 @@ public class JobProfileDto {
             job.setTopicInfo(GSON.toJson(dataConfig.getTopicInfo()));
             if (mqType.equals(MQType.PULSAR)) {
                 job.setSink(PULSAR_SINK);
+            } else if (mqType.equals(MQType.KAFKA)) {
+                job.setSink(KAFKA_SINK);
             } else {
                 throw new IllegalArgumentException("input dataConfig" + dataConfig + "is invalid please check");
             }

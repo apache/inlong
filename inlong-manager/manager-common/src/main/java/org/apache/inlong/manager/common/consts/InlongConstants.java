@@ -40,6 +40,8 @@ public class InlongConstants {
      */
     public static final String COMMA = ",";
 
+    public static final String DOT = ".";
+
     public static final String BLANK = " ";
 
     public static final String SLASH = "/";

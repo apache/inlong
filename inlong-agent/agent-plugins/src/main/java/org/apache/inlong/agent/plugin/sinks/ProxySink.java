@@ -82,12 +82,10 @@ public class ProxySink extends AbstractSink {
                             });
                     // increment the count of successful sinks
                     sinkMetric.sinkSuccessCount.incrementAndGet();
-                } else {
-                    // increment the count of failed sinks
-                    sinkMetric.sinkFailCount.incrementAndGet();
                 }
             }
         } catch (Exception e) {
+            sinkMetric.sinkFailCount.incrementAndGet();
             LOGGER.error("write message to Proxy sink error", e);
         } catch (Throwable t) {
             ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);

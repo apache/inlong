@@ -84,6 +84,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.DOT;
+
 /**
  * Agent service layer implementation
  */
@@ -476,9 +478,8 @@ public class AgentServiceImpl implements AgentService {
                 // add mq cluster setting
                 List<MQClusterInfo> mqSet = new ArrayList<>();
                 List<String> clusterTagList = Collections.singletonList(groupEntity.getInlongClusterTag());
-                List<String> typeList = Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR);
                 ClusterPageRequest pageRequest = ClusterPageRequest.builder()
-                        .typeList(typeList)
+                        .type(groupEntity.getMqType())
                         .clusterTagList(clusterTagList)
                         .build();
                 List<InlongClusterEntity> mqClusterList = clusterMapper.selectByCondition(pageRequest);
@@ -517,6 +518,11 @@ public class AgentServiceImpl implements AgentService {
                     DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
                     topicConfig.setInlongGroupId(groupId);
                     topicConfig.setTopic(mqResource);
+                    dataConfig.setTopicInfo(topicConfig);
+                } else if (MQType.KAFKA.equals(mqType)) {
+                    DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
+                    topicConfig.setInlongGroupId(groupId);
+                    topicConfig.setTopic(groupEntity.getMqResource() + DOT + streamEntity.getMqResource());
                     dataConfig.setTopicInfo(topicConfig);
                 }
             } else {
