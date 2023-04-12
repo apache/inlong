@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Builder for ClickHouse SQL string
@@ -66,7 +67,10 @@ public class ClickHouseSqlBuilder {
         }
         // Construct columns and partition columns
         sql.append(buildCreateColumnsSql(table.getFieldInfoList()));
-        if (StringUtils.isNotEmpty(table.getEngine())) {
+        if (StringUtils.isNotBlank(table.getEngine()) && Objects.equals("ReplicatedMergeTree", table.getEngine())) {
+            sql.append(
+                    " ENGINE = ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/{table}/data', '{replica}')");
+        } else if (StringUtils.isNotBlank(table.getEngine())) {
             sql.append(" ENGINE = ").append(table.getEngine());
         } else {
             sql.append(" ENGINE = MergeTree()");
