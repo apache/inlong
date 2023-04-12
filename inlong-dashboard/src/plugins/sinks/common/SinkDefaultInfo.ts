@@ -21,6 +21,7 @@ import { DataWithBackend } from '@/plugins/DataWithBackend';
 import { RenderRow } from '@/plugins/RenderRow';
 import { RenderList } from '@/plugins/RenderList';
 import i18n from '@/i18n';
+import CheckCard from '@/ui/components/CheckCard';
 import { statusList, genStatusTag } from './status';
 import { sinks, defaultValue } from '..';
 
@@ -51,29 +52,12 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   readonly inlongStreamId: string;
 
   @FieldDecorator({
-    type: 'input',
-    rules: [
-      { required: true },
-      {
-        pattern: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
-        message: i18n.t('meta.Sinks.SinkNameRule'),
-      },
-    ],
-    props: values => ({
-      disabled: !!values.id,
-      maxLength: 128,
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.SinkName')
-  sinkName: string;
-
-  @FieldDecorator({
-    type: sinks.length > 3 ? 'select' : 'radio',
+    type: CheckCard,
     label: i18n.t('meta.Sinks.SinkType'),
     rules: [{ required: true }],
     initialValue: defaultValue,
     props: values => ({
+      span: 4,
       dropdownMatchSelectWidth: false,
       disabled: !!values.id,
       options: sinks
@@ -91,11 +75,31 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   sinkType: string;
 
   @FieldDecorator({
+    type: 'input',
+    rules: [
+      { required: true },
+      {
+        pattern: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
+        message: i18n.t('meta.Sinks.SinkNameRule'),
+      },
+    ],
+    props: values => ({
+      disabled: !!values.id,
+      maxLength: 128,
+    }),
+    visible: values => Boolean(values.sinkType),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.SinkName')
+  sinkName: string;
+
+  @FieldDecorator({
     type: 'textarea',
     props: {
       showCount: true,
       maxLength: 300,
     },
+    visible: values => Boolean(values.sinkType),
   })
   @I18n('meta.Sinks.Description')
   description: string;

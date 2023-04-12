@@ -192,6 +192,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
       ].concat(
         pickObjectArray(['sourceType', 'status'], entityFields).map(item => ({
           ...item,
+          type: 'select',
           visible: true,
           initialValue: defaultValues[item.name],
         })),

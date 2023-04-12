@@ -18,7 +18,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { Modal, message } from 'antd';
+import { Modal, Spin, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/ui/hooks';
@@ -48,7 +48,7 @@ const Comp: React.FC<Props> = ({
 
   const [type, setType] = useState(defaultValue);
 
-  const { Entity } = useLoadMeta<SourceMetaType>('source', type);
+  const { loading, Entity } = useLoadMeta<SourceMetaType>('source', type);
 
   const { data, run: getData } = useRequest(
     id => ({
@@ -111,13 +111,15 @@ const Comp: React.FC<Props> = ({
         width={666}
         onOk={onOk}
       >
-        <FormGenerator
-          content={formContent}
-          onValuesChange={(c, values) => setType(values.sourceType)}
-          initialValues={id ? data : { inlongGroupId }}
-          form={form}
-          useMaxWidth
-        />
+        <Spin spinning={loading}>
+          <FormGenerator
+            content={formContent}
+            onValuesChange={(c, values) => setType(values.sourceType)}
+            initialValues={id ? data : { inlongGroupId }}
+            form={form}
+            useMaxWidth
+          />
+        </Spin>
       </Modal>
     </>
   );
