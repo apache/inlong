@@ -241,7 +241,7 @@ export default class ClickHouseSink
 
   @FieldDecorator({
     type: 'inputnumber',
-    visible: values => values.engine === 'MergeTree',
+    visible: values => values.engine === 'MergeTree' || values.engine === 'ReplicatedMergeTree',
     suffix: {
       type: 'select',
       name: 'ttlUnit',
