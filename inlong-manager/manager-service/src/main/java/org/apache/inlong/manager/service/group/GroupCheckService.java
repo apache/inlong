@@ -19,10 +19,13 @@ package org.apache.inlong.manager.service.group;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +40,8 @@ public class GroupCheckService {
 
     @Autowired
     private InlongGroupEntityMapper groupMapper;
+    @Autowired
+    private UserEntityMapper userMapper;
 
     /**
      * Check whether the inlong group status is temporary
@@ -50,8 +55,10 @@ public class GroupCheckService {
             throw new BusinessException(String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
         }
 
+        UserEntity userEntity = userMapper.selectByName(operator);
         List<String> managers = Arrays.asList(inlongGroupEntity.getInCharges().split(","));
-        Preconditions.expectTrue(managers.contains(operator),
+        Preconditions.expectTrue(
+                managers.contains(operator) || UserTypeEnum.ADMIN.getCode().equals(userEntity.getAccountType()),
                 String.format(ErrorCodeEnum.USER_IS_NOT_MANAGER.getMessage(), operator, managers));
 
         GroupStatus status = GroupStatus.forCode(inlongGroupEntity.getStatus());
