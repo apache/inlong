@@ -207,7 +207,7 @@
         <kudu.version>1.16.0</kudu.version>
         <tomcat.version>8.5.53</tomcat.version>
         <jedis.version>2.9.0</jedis.version>
-        <poi.version>3.16</poi.version>
+        <poi.version>5.2.3</poi.version>
     </properties>
 
     <dependencyManagement>
