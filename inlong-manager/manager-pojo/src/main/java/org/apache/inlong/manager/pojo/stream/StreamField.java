@@ -53,19 +53,15 @@ public class StreamField implements Serializable {
     @ApiModelProperty(value = "inlong stream id", required = true)
     private String inlongStreamId;
 
-    @ExcelField(name = "Field name", validator = NonEmptyCellValidator.class,
-
-            font = @Font(size = 16), style = @Style(bgColor = IndexedColors.LIGHT_TURQUOISE, width = 9000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN))
+    @ExcelField(name = "Field name", validator = NonEmptyCellValidator.class, font = @Font(size = 16), style = @Style(bgColor = IndexedColors.LIGHT_TURQUOISE, width = 9000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN), headerFont = @Font(size = 20, color = IndexedColors.WHITE), headerStyle = @Style(bgColor = IndexedColors.DARK_BLUE, width = 9000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN))
     @ApiModelProperty(value = "Field name", required = true)
     private String fieldName;
 
-    @ExcelField(name = "Field type", validator = StreamFieldTypeCellValidator.class,
-
-            font = @Font(size = 16), style = @Style(bgColor = IndexedColors.LIGHT_TURQUOISE, width = 6000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN))
+    @ExcelField(name = "Field type", validator = StreamFieldTypeCellValidator.class, font = @Font(size = 16), style = @Style(bgColor = IndexedColors.LIGHT_TURQUOISE, width = 6000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN), headerFont = @Font(size = 20, color = IndexedColors.WHITE), headerStyle = @Style(bgColor = IndexedColors.DARK_BLUE, width = 9000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN))
     @ApiModelProperty(value = "Field type", required = true)
     private String fieldType;
 
-    @ExcelField(name = "Field comment", font = @Font(size = 16), style = @Style(bgColor = IndexedColors.LIGHT_TURQUOISE, width = 10000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN))
+    @ExcelField(name = "Field comment", font = @Font(size = 16), style = @Style(bgColor = IndexedColors.LIGHT_TURQUOISE, width = 10000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN), headerFont = @Font(size = 20, color = IndexedColors.WHITE), headerStyle = @Style(bgColor = IndexedColors.DARK_BLUE, width = 9000, allBorderColor = IndexedColors.BLUE, allBorderStyle = BorderStyle.THIN))
     @ApiModelProperty("Field comment")
     private String fieldComment;
 

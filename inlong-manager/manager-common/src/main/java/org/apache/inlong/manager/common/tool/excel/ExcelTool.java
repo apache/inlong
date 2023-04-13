@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.common.util.Preconditions.expectTrue;
@@ -123,11 +124,14 @@ public class ExcelTool {
                 sheet.setColumnWidth(index, fieldMeta.getRight().style().width());
             }
             // Fill header with cellStyle
-            fillSheetHeader(sheet.createRow(0), headNames);
+            List<XSSFCellStyle> headerStyles =
+                    createContentCellStyle(hwb, fieldMetas, ExcelField::headerStyle, ExcelField::headerFont);
+            fillSheetHeader(sheet.createRow(0), headNames, headerStyles);
             // Fill validation
             fillSheetValidation(sheet, fieldMetas, clazz.getCanonicalName());
             // Fill content if data exist.
-            List<XSSFCellStyle> contentStyles = createContentCellStyle(hwb, fieldMetas);
+            List<XSSFCellStyle> contentStyles =
+                    createContentCellStyle(hwb, fieldMetas, ExcelField::style, ExcelField::font);
             if (CollectionUtils.isNotEmpty(maps)) {
                 fillSheetContent(sheet, headNames, maps, contentStyles);
             } else {
@@ -156,12 +160,14 @@ public class ExcelTool {
     }
 
     private static List<XSSFCellStyle> createContentCellStyle(XSSFWorkbook workbook,
-            List<Pair<Field, ExcelField>> fieldMetas) {
+            List<Pair<Field, ExcelField>> fieldMetas,
+            Function<ExcelField, Style> styleGenerator,
+            Function<ExcelField, Font> fontGenerator) {
         return fieldMetas.stream().map(fieldMeta -> {
             XSSFCellStyle style = workbook.createCellStyle();
             ExcelField excelField = fieldMeta.getRight();
-            Style excelStyle = excelField.style();
-            Font excelFont = excelField.font();
+            Style excelStyle = styleGenerator.apply(excelField);
+            Font excelFont = fontGenerator.apply(excelField);
             // Set foreground color
             style.setFillForegroundColor(excelStyle.bgColor().getIndex());
             style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
@@ -238,11 +244,12 @@ public class ExcelTool {
                 });
     }
 
-    private static void fillSheetHeader(XSSFRow row, List<String> heads) {
+    private static void fillSheetHeader(XSSFRow row, List<String> heads, List<XSSFCellStyle> headerStyles) {
         int headSize = heads.size();
         for (int index = 0; index < headSize; index++) {
             XSSFCell cell = row.createCell(index);
             cell.setCellValue(new XSSFRichTextString(heads.get(index)));
+            cell.setCellStyle(headerStyles.get(index));
         }
     }
 

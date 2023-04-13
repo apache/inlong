@@ -49,4 +49,8 @@ public @interface ExcelField {
     Font font() default @Font;
 
     Style style() default @Style;
+
+    Font headerFont() default @Font;
+
+    Style headerStyle() default @Style;
 }
