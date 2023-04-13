@@ -46,4 +46,7 @@ public class ClusterTagPageRequest extends PageRequest {
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
+    @ApiModelProperty(value = "Whether the current user is in the administrator role", hidden = true)
+    private Boolean isAdminRole;
+
 }

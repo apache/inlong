@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.user;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -31,9 +33,24 @@ import org.apache.inlong.manager.common.util.DateUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.util.RSAUtils;
 import org.apache.inlong.manager.common.util.SHAUtils;
+import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
+import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
+import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.UserEntity;
+import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongClusterTagEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserLoginLockStatus;
 import org.apache.inlong.manager.pojo.user.UserLoginRequest;
@@ -54,6 +71,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -76,6 +94,16 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserEntityMapper userMapper;
+    @Autowired
+    private InlongGroupEntityMapper groupMapper;
+    @Autowired
+    private InlongClusterEntityMapper clusterMapper;
+    @Autowired
+    private InlongClusterTagEntityMapper clusterTagMapper;
+    @Autowired
+    private DataNodeEntityMapper dataNodeMapper;
+    @Autowired
+    private InlongConsumeEntityMapper consumeMapper;
 
     @Override
     public Integer save(UserRequest request, String currentUser) {
@@ -256,6 +284,12 @@ public class UserServiceImpl implements UserService {
                 "Current user is not a manager and does not have permission to delete users");
         Preconditions.expectTrue(!Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to delete himself");
+        String userName = entity.getName();
+        removeInChargeForGroup(userName, currentUser);
+        removeInChargeForCluster(userName, currentUser);
+        removeInChargeForClusterTag(userName, currentUser);
+        removeInChargeForDataNode(userName, currentUser);
+        removeInChargeForConsume(userName, currentUser);
         userMapper.deleteById(userId);
 
         LOGGER.debug("success to delete user by id={}, current user={}", userId, currentUser);
@@ -312,6 +346,118 @@ public class UserServiceImpl implements UserService {
         boolean isInCharge = Preconditions.inSeparatedString(user, inCharges, InlongConstants.COMMA);
         Preconditions.expectTrue(isInCharge || UserTypeEnum.ADMIN.getCode().equals(userEntity.getAccountType()),
                 errMsg);
+    }
+
+    public void removeInChargeForGroup(String user, String operator) {
+        InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
+        pageRequest.setCurrentUser(user);
+        pageRequest.setIsAdminRole(false);
+        for (InlongGroupEntity groupEntity : groupMapper.selectByCondition(pageRequest)) {
+            if (Objects.equals(groupEntity.getCreator(), user)) {
+                groupEntity.setCreator("admin");
+            }
+            Set<String> inChargeSet = Sets.newHashSet(groupEntity.getInCharges().split(InlongConstants.COMMA));
+            inChargeSet.remove(user);
+            String updateInCharge = Joiner.on(",").join(inChargeSet);
+            groupEntity.setInCharges(updateInCharge);
+            groupEntity.setModifier(operator);
+            int rowCount = groupMapper.updateByIdentifierSelective(groupEntity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                        String.format("record has already updated with group id=%s, curVersion=%d",
+                                groupEntity.getInlongGroupId(), groupEntity.getVersion()));
+            }
+        }
+    }
+
+    public void removeInChargeForCluster(String user, String operator) {
+        ClusterPageRequest pageRequest = new ClusterPageRequest();
+        pageRequest.setCurrentUser(user);
+        pageRequest.setIsAdminRole(false);
+        for (InlongClusterEntity clusterEntity : clusterMapper.selectByCondition(pageRequest)) {
+            if (Objects.equals(clusterEntity.getCreator(), user)) {
+                clusterEntity.setCreator("admin");
+            }
+            Set<String> inChargeSet = Sets.newHashSet(clusterEntity.getInCharges().split(InlongConstants.COMMA));
+            inChargeSet.remove(user);
+            String updateInCharge = Joiner.on(",").join(inChargeSet);
+            clusterEntity.setInCharges(updateInCharge);
+            clusterEntity.setModifier(operator);
+            int rowCount = clusterMapper.updateByIdSelective(clusterEntity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                        String.format("cluster has already updated with name=%s, type=%s, curVersion=%d",
+                                clusterEntity.getName(), clusterEntity.getType(), clusterEntity.getVersion()));
+            }
+        }
+    }
+
+    public void removeInChargeForClusterTag(String user, String operator) {
+        ClusterTagPageRequest pageRequest = new ClusterTagPageRequest();
+        pageRequest.setCurrentUser(user);
+        pageRequest.setIsAdminRole(false);
+        for (InlongClusterTagEntity clusterTagEntity : clusterTagMapper.selectByCondition(pageRequest)) {
+            if (Objects.equals(clusterTagEntity.getCreator(), user)) {
+                clusterTagEntity.setCreator("admin");
+            }
+            Set<String> inChargeSet = Sets.newHashSet(clusterTagEntity.getInCharges().split(InlongConstants.COMMA));
+            inChargeSet.remove(user);
+            String updateInCharge = Joiner.on(",").join(inChargeSet);
+            clusterTagEntity.setInCharges(updateInCharge);
+            clusterTagEntity.setModifier(operator);
+            int rowCount = clusterTagMapper.updateByIdSelective(clusterTagEntity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                        String.format("cluster tag has already updated with name=%s, curVersion=%s",
+                                clusterTagEntity.getClusterTag(), clusterTagEntity.getVersion()));
+            }
+        }
+    }
+
+    public void removeInChargeForDataNode(String user, String operator) {
+        DataNodePageRequest pageRequest = new DataNodePageRequest();
+        pageRequest.setCurrentUser(user);
+        pageRequest.setIsAdminRole(false);
+        for (DataNodeEntity dataNodeEntity : dataNodeMapper.selectByCondition(pageRequest)) {
+            if (Objects.equals(dataNodeEntity.getCreator(), user)) {
+                dataNodeEntity.setCreator("admin");
+            }
+            Set<String> inChargeSet = Sets.newHashSet(dataNodeEntity.getInCharges().split(InlongConstants.COMMA));
+            inChargeSet.remove(user);
+            String updateInCharge = Joiner.on(",").join(inChargeSet);
+            dataNodeEntity.setInCharges(updateInCharge);
+            dataNodeEntity.setModifier(operator);
+            int rowCount = dataNodeMapper.updateByIdSelective(dataNodeEntity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED,
+                        String.format(
+                                "failure to update data node with name=%s, type=%s, request version=%d, updated row=%d",
+                                dataNodeEntity.getName(), dataNodeEntity.getType(), dataNodeEntity.getVersion(),
+                                rowCount));
+            }
+        }
+    }
+
+    public void removeInChargeForConsume(String user, String operator) {
+        InlongConsumePageRequest pageRequest = new InlongConsumePageRequest();
+        pageRequest.setCurrentUser(user);
+        pageRequest.setIsAdminRole(false);
+        for (InlongConsumeEntity consumeEntity : consumeMapper.selectByCondition(pageRequest)) {
+            if (Objects.equals(consumeEntity.getCreator(), user)) {
+                consumeEntity.setCreator("admin");
+            }
+            Set<String> inChargeSet = Sets.newHashSet(consumeEntity.getInCharges().split(InlongConstants.COMMA));
+            inChargeSet.remove(user);
+            String updateInCharge = Joiner.on(",").join(inChargeSet);
+            consumeEntity.setInCharges(updateInCharge);
+            consumeEntity.setModifier(operator);
+            int rowCount = consumeMapper.updateByIdSelective(consumeEntity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                LOGGER.error("inlong consume has already updated, id={}, curVersion={}",
+                        consumeEntity.getId(), consumeEntity.getVersion());
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            }
+        }
     }
 
 }

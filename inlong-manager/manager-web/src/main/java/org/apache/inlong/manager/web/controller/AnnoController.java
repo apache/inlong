@@ -22,9 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserLoginRequest;
 import org.apache.inlong.manager.pojo.user.UserRequest;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.apache.inlong.manager.service.user.UserService;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,6 +54,7 @@ public class AnnoController {
     }
 
     @PostMapping("/anno/register")
+    @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Integer> register(@Validated @RequestBody UserRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(userService.save(request, currentUser));
