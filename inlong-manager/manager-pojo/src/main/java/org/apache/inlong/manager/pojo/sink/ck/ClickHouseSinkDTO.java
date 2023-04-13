@@ -94,6 +94,9 @@ public class ClickHouseSinkDTO {
     @ApiModelProperty(value = "The unit of message's time-to-live duration")
     private String ttlUnit;
 
+    @ApiModelProperty(value = "The cluster is used to create distributed tables in each node")
+    private String cluster;
+
     @ApiModelProperty("Table primary key")
     private String primaryKey;
 
@@ -130,6 +133,7 @@ public class ClickHouseSinkDTO {
                 .partitionBy(request.getPartitionBy())
                 .ttl(request.getTtl())
                 .ttlUnit(request.getTtlUnit())
+                .cluster(request.getCluster())
                 .primaryKey(request.getPrimaryKey())
                 .orderBy(request.getOrderBy())
                 .encryptVersion(encryptVersion)
@@ -158,6 +162,7 @@ public class ClickHouseSinkDTO {
         tableInfo.setPrimaryKey(ckInfo.getPrimaryKey());
         tableInfo.setTtl(ckInfo.getTtl());
         tableInfo.setTtlUnit(ckInfo.getTtlUnit());
+        tableInfo.setCluster(ckInfo.getCluster());
         tableInfo.setFieldInfoList(fieldInfoList);
 
         return tableInfo;

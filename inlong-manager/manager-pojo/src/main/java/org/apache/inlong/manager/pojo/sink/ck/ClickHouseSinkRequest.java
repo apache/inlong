@@ -90,6 +90,9 @@ public class ClickHouseSinkRequest extends SinkRequest {
     @ApiModelProperty(value = "The unit of message's time-to-live duration")
     private String ttlUnit;
 
+    @ApiModelProperty(value = "The cluster is used to create distributed tables in each node")
+    private String cluster;
+
     @ApiModelProperty("Table primary key")
     private String primaryKey;
 
