@@ -70,21 +70,21 @@ public class CanalJson {
 
     @JsonCreator
     public CanalJson(@Nullable @JsonProperty("data") List<Map<String, Object>> data,
-        @JsonProperty("es") long es,
-        @JsonProperty("table") String table,
-        @JsonProperty("type") String type,
-        @JsonProperty("database") String database,
-        @JsonProperty("ts") long ts,
-        @JsonProperty("sql") String sql,
-        @Nullable @JsonProperty("mysqlType") Map<String, String> mysqlType,
-        @Nullable @JsonProperty("sqlType") Map<String, Integer> sqlType,
-        @JsonProperty("isDdl") boolean isDdl,
-        @Nullable @JsonProperty("pkNames") List<String> pkNames,
-        @JsonProperty("schema") String schema,
-        @Nullable @JsonProperty("oracleType") Map<String, String> oracleType,
-        @JsonProperty("operation") Operation operation,
-        @JsonProperty("incremental") Boolean incremental,
-        @JsonProperty("dataSourceName") String dataSourceName) {
+            @JsonProperty("es") long es,
+            @JsonProperty("table") String table,
+            @JsonProperty("type") String type,
+            @JsonProperty("database") String database,
+            @JsonProperty("ts") long ts,
+            @JsonProperty("sql") String sql,
+            @Nullable @JsonProperty("mysqlType") Map<String, String> mysqlType,
+            @Nullable @JsonProperty("sqlType") Map<String, Integer> sqlType,
+            @JsonProperty("isDdl") boolean isDdl,
+            @Nullable @JsonProperty("pkNames") List<String> pkNames,
+            @JsonProperty("schema") String schema,
+            @Nullable @JsonProperty("oracleType") Map<String, String> oracleType,
+            @JsonProperty("operation") Operation operation,
+            @JsonProperty("incremental") Boolean incremental,
+            @JsonProperty("dataSourceName") String dataSourceName) {
         this.data = data;
         this.es = es;
         this.table = table;

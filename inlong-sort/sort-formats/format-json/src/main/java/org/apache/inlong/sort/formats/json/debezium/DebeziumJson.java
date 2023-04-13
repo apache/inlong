@@ -57,14 +57,14 @@ public class DebeziumJson {
     private String dataSourceName;
 
     public DebeziumJson(@JsonProperty("before") Map<String, String> before,
-        @JsonProperty("after") Map<String, Object> after,
-        @JsonProperty("source") Source source,
-        @JsonProperty("tableChange") TableChange tableChange,
-        @JsonProperty("tsMs") long tsMs, @JsonProperty("op") String op,
-        @JsonProperty("incremental") boolean incremental,
-        @JsonProperty("ddl") String ddl,
-        @JsonProperty("operation") Operation operation,
-        @JsonProperty("dataSourceName") String dataSourceName) {
+            @JsonProperty("after") Map<String, Object> after,
+            @JsonProperty("source") Source source,
+            @JsonProperty("tableChange") TableChange tableChange,
+            @JsonProperty("tsMs") long tsMs, @JsonProperty("op") String op,
+            @JsonProperty("incremental") boolean incremental,
+            @JsonProperty("ddl") String ddl,
+            @JsonProperty("operation") Operation operation,
+            @JsonProperty("dataSourceName") String dataSourceName) {
         this.before = before;
         this.after = after;
         this.source = source;
