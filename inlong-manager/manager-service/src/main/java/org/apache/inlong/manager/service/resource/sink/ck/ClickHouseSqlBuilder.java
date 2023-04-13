@@ -54,7 +54,7 @@ public class ClickHouseSqlBuilder {
         // Support _ beginning with underscore
         String dbTableName = table.getDbName() + "." + table.getTableName();
         sql.append("CREATE TABLE ").append(dbTableName);
-        if (StringUtils.isNotBlank(table.getCluster())){
+        if (StringUtils.isNotBlank(table.getCluster())) {
             sql.append(" ON CLUSTER ").append(table.getCluster());
         }
         // add ttl columns
