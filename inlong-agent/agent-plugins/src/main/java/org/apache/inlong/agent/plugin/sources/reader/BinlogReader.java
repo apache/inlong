@@ -258,6 +258,10 @@ public class BinlogReader extends AbstractReader {
         return instanceId;
     }
 
+    public void setReadSource(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
     @Override
     public void setReadTimeout(long mill) {
     }

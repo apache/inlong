@@ -39,7 +39,8 @@ public class BinlogSource extends AbstractSource {
     @Override
     public List<Reader> split(JobProfile conf) {
         super.init(conf);
-        Reader binlogReader = new BinlogReader();
+        BinlogReader binlogReader = new BinlogReader();
+        binlogReader.setReadSource(conf.getInstanceId());
         List<Reader> readerList = new ArrayList<>();
         readerList.add(binlogReader);
         sourceMetric.sourceSuccessCount.incrementAndGet();
