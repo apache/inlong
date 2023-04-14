@@ -240,6 +240,15 @@ export default class ClickHouseSink
   primaryKey: string;
 
   @FieldDecorator({
+    type: 'input',
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @I18n('meta.Sinks.ClickHouse.Cluster')
+  cluster: string;
+
+  @FieldDecorator({
     type: 'inputnumber',
     visible: values => values.engine === 'MergeTree' || values.engine === 'ReplicatedMergeTree',
     suffix: {

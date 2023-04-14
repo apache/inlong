@@ -166,6 +166,7 @@
   "meta.Sinks.ClickHouse.OrderBy": "OrderBy",
   "meta.Sinks.ClickHouse.PartitionBy": "PartitionBy",
   "meta.Sinks.ClickHouse.PrimaryKey": "PrimaryKey",
+  "meta.Sinks.ClickHouse.Cluster": "Cluster",
   "meta.Sinks.ClickHouse.CompressionCode": "CompressionCode",
   "meta.Sinks.ClickHouse.TtlExpr": "TtlExpr",
   "meta.Sinks.ES.IndexName": "IndexName",
