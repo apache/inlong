@@ -38,6 +38,7 @@ public class ClickHouseTableInfo {
     private String primaryKey;
     private Integer ttl;
     private String ttlUnit;
+    private String cluster;
 
     private List<ClickHouseFieldInfo> fieldInfoList;
 }
