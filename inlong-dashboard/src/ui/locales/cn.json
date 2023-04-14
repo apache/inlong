@@ -166,6 +166,7 @@
   "meta.Sinks.ClickHouse.OrderBy": "排序",
   "meta.Sinks.ClickHouse.PartitionBy": "分区",
   "meta.Sinks.ClickHouse.PrimaryKey": "主键",
+  "meta.Sinks.ClickHouse.Cluster": "集群",
   "meta.Sinks.ClickHouse.CompressionCode": "压缩格式",
   "meta.Sinks.ClickHouse.TtlExpr": "生命周期",
   "meta.Sinks.ES.IndexName": "索引名称",
