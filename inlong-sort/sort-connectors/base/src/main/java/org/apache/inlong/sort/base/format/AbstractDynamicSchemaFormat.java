@@ -42,6 +42,8 @@ public abstract class AbstractDynamicSchemaFormat<T> {
 
     public static final Pattern PATTERN = Pattern.compile("\\$\\{\\s*([\\w.-]+)\\s*}", Pattern.CASE_INSENSITIVE);
 
+    public static final String OPERATION = "operation";
+
     /**
      * Extract values by key from the raw data
      *
@@ -124,6 +126,22 @@ public abstract class AbstractDynamicSchemaFormat<T> {
      * @return The flag of whether is ddl
      */
     public abstract boolean extractDDLFlag(T data);
+
+    /**
+     * Extract ddl statement
+     *
+     * @param data The raw data
+     * @return A ddl statement
+     */
+    public abstract String extractDDL(T data);
+
+    /**
+     * Extract operation
+     *
+     * @param data The raw data
+     * @return A operation replace a ddl
+     */
+    public abstract T extractOperation(T data);
 
     public RowType extractSchema(T data) {
         return extractSchema(data, extractPrimaryKeyNames(data));

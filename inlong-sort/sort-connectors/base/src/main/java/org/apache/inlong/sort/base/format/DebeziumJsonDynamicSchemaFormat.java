@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
 
-    private static final String DDL_FLAG = "ddl";
+    private static final String DDL = "ddl";
     private static final String SCHEMA = "schema";
     private static final String SQL_TYPE = "sqlType";
     private static final String AFTER = "after";
@@ -186,11 +186,29 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
 
     @Override
     public boolean extractDDLFlag(JsonNode data) {
+        String ddl = extractDDL(data);
+        return ddl != null && !ddl.trim().isEmpty();
+    }
+
+    @Override
+    public String extractDDL(JsonNode data) {
         JsonNode payload = data.get(PAYLOAD);
         if (payload == null) {
-            return data.has(DDL_FLAG) && data.get(DDL_FLAG).asBoolean(false);
+            if (data.has(DDL)) {
+                return data.get(DDL).asText();
+            }
+            return null;
         }
-        return extractDDLFlag(payload);
+        return extractDDL(payload);
+    }
+
+    @Override
+    public JsonNode extractOperation(JsonNode data) {
+        JsonNode payload = data.get(PAYLOAD);
+        if (payload == null) {
+            return data.get(OPERATION);
+        }
+        return extractOperation(payload);
     }
 
     public RowType extractSchemaFromExtractInfo(JsonNode data, List<String> pkNames) {

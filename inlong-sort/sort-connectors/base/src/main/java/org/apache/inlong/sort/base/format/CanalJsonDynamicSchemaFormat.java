@@ -42,6 +42,7 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     private static final String OP_INSERT = "INSERT";
     private static final String OP_UPDATE = "UPDATE";
     private static final String OP_DELETE = "DELETE";
+    private static final String DDL = "sql";
 
     protected CanalJsonDynamicSchemaFormat(Map<String, String> props) {
         super(props);
@@ -101,6 +102,19 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     @Override
     public boolean extractDDLFlag(JsonNode data) {
         return data.has(DDL_FLAG) && data.get(DDL_FLAG).asBoolean(false);
+    }
+
+    @Override
+    public String extractDDL(JsonNode data) {
+        if (extractDDLFlag(data) && data.has(DDL)) {
+            return data.get(DDL).asText();
+        }
+        return null;
+    }
+
+    @Override
+    public JsonNode extractOperation(JsonNode data) {
+        return data.get(OPERATION);
     }
 
     @Override
