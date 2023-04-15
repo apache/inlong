@@ -24,9 +24,11 @@ import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeBindGroupRequest;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.stream.AddFieldsRequest;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,4 +76,11 @@ public class AgentController {
     public Response<Boolean> bindGroup(@RequestBody AgentClusterNodeBindGroupRequest request) {
         return Response.success(agentService.bindGroup(request));
     }
+
+    @PostMapping("/agent/addFields")
+    @ApiOperation(value = "Report the newly fields")
+    public Response<Boolean> reportNewFields(@Validated @RequestBody AddFieldsRequest request) {
+        return Response.success(agentService.addFields(request));
+    }
+
 }

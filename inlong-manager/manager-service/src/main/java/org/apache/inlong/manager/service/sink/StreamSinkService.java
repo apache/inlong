@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.sink;
 
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -27,6 +29,7 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.stream.AddFieldsRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
@@ -253,4 +256,15 @@ public interface StreamSinkService {
      * @return list of sink field
      */
     List<SinkField> parseFields(ParseFieldRequest parseFieldRequest);
+
+    /**
+     * Add field for stream sink
+     *
+     * @param fieldsRequest field info
+     * @param sourceType stream source type
+     * @param groupEntity group info
+     * @param streamEntity stream info
+     */
+    void addFieldForSink(AddFieldsRequest fieldsRequest, String sourceType, InlongGroupEntity groupEntity,
+            InlongStreamEntity streamEntity);
 }
