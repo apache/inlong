@@ -30,6 +30,7 @@ import org.apache.inlong.manager.common.tool.excel.validator.ExcelCellValidator;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
@@ -48,14 +49,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -225,23 +227,23 @@ public class ExcelTool {
      */
     private static void fillSheetContent(XSSFSheet sheet, List<String> heads, List<Map<String, String>> contents,
             List<XSSFCellStyle> contentStyles) {
-        Optional.ofNullable(contents)
-                .ifPresent(content -> {
-                    int rowSize = content.size();
-                    for (int lineId = 0; lineId < rowSize; lineId++) {
-                        Map<String, String> line = contents.get(lineId);
-                        Row row = sheet.createRow(lineId + 1);
-                        int headSize = heads.size();
-                        for (int colId = 0; colId < headSize; colId++) {
-                            String title = heads.get(colId);
-                            String originValue = line.get(title);
-                            String value = StringUtils.isNotBlank(originValue) ? originValue : "";
-                            Cell cell = row.createCell(colId);
-                            cell.setCellValue(value);
-                            cell.setCellStyle(contentStyles.get(colId));
-                        }
-                    }
-                });
+        if (CollectionUtils.isEmpty(contents)) {
+            return;
+        }
+        int rowSize = contents.size();
+        for (int lineId = 0; lineId < rowSize; lineId++) {
+            Map<String, String> line = contents.get(lineId);
+            Row row = sheet.createRow(lineId + 1);
+            int headSize = heads.size();
+            for (int colId = 0; colId < headSize; colId++) {
+                String title = heads.get(colId);
+                String originValue = line.get(title);
+                String value = StringUtils.isNotBlank(originValue) ? originValue : "";
+                Cell cell = row.createCell(colId);
+                cell.setCellValue(value);
+                cell.setCellStyle(contentStyles.get(colId));
+            }
+        }
     }
 
     private static void fillSheetHeader(XSSFRow row, List<String> heads, List<XSSFCellStyle> headerStyles) {
@@ -335,8 +337,128 @@ public class ExcelTool {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Read data from an Excel file and convert it to a list of objects of the specified class.
+     *
+     * @param is    The input stream of the Excel file.
+     * @param clazz The class of the objects to be converted.
+     * @param <E>   The type of the objects to be converted.
+     * @return A list of objects of the specified class.
+     * @throws IOException            If an I/O error occurs.
+     * @throws IllegalAccessException If the class or its nullable constructor is not accessible.
+     * @throws InstantiationException If the class that declares the underlying field is an interface or is abstract.
+     */
+    public static <E> List<E> read(InputStream is, Class<E> clazz)
+            throws IOException, IllegalAccessException, InstantiationException, NoSuchMethodException {
+        ClassMeta<E> classMeta = ClassMeta.of(clazz);
+        int fieldCount = classMeta.fieldCount();
+
+        expectTrue(fieldCount > 0, "The class contains at least one field with a @ExcelField annotation");
+        XSSFWorkbook hssfWorkbook = new XSSFWorkbook(is);
+        List<E> result = new LinkedList<>();
+        for (int sheetIndex = 0; sheetIndex < hssfWorkbook.getNumberOfSheets(); ++sheetIndex) {
+            XSSFSheet sheet = hssfWorkbook.getSheetAt(sheetIndex);
+            if (sheet != null) {
+                XSSFRow headerRow = sheet.getRow(0);
+                // According to the name of the header row, determine the column
+                for (int colIndex = 0; colIndex < fieldCount + 10 && !classMeta.matchedAll(); colIndex++) {
+                    XSSFCell cell = headerRow.getCell(colIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                    if (cell != null) {
+                        classMeta.setFieldLocation(cell.getStringCellValue(), colIndex);
+                    }
+                }
+                expectTrue(classMeta.matchedAll(),
+                        "The first line field must be the same number of @ExcelMeta annotated fields in the class");
+
+                int lastRowNum = sheet.getLastRowNum();
+                List<E> currentResult = new ArrayList<>(lastRowNum);
+
+                for (int rowNum = 1; rowNum <= lastRowNum; ++rowNum) {
+                    XSSFRow row = sheet.getRow(rowNum);
+                    if (row == null) {
+                        continue;
+                    }
+                    E instance = null;
+                    boolean hasValueInRow = false;
+                    for (Map.Entry<Integer, FieldMeta> entry : classMeta.positionFieldMetaMap.entrySet()) {
+                        Integer colIndex = entry.getKey();
+                        FieldMeta fieldMeta = entry.getValue();
+                        XSSFCell cell = row.getCell(colIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                        if (cell == null) {
+                            continue;
+                        }
+                        hasValueInRow = true;
+                        ExcelCellDataTransfer cellDataTransfer = fieldMeta.getCellDataTransfer();
+                        Object value = parseCellValue(cellDataTransfer, cell);
+                        if (instance == null) {
+                            instance = clazz.newInstance();
+                        }
+                        fieldMeta.getField().setAccessible(true);
+                        fieldMeta.getField().set(instance, value);
+
+                    }
+                    if (hasValueInRow) {
+                        currentResult.add(instance);
+                    }
+                }
+                result.addAll(currentResult);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Parse the cell value of a given field in the Excel sheet
+     *
+     * @param cellDataTransfer the data transfer type of the cell
+     * @param cell             the cell to parse
+     * @return the parsed cell value
+     */
+    private static Object parseCellValue(ExcelCellDataTransfer cellDataTransfer, XSSFCell cell) {
+        Object o = null;
+        if (cellDataTransfer == ExcelCellDataTransfer.DATE) {
+            CellType cellTypeEnum = cell.getCellType();
+            if (cellTypeEnum == CellType.STRING) {
+                String cellValue = cell.getStringCellValue();
+                o = cellDataTransfer.parseFromText(cellValue);
+            } else if (cellTypeEnum == CellType.NUMERIC) {
+                o = cell.getDateCellValue();
+            }
+        } else {
+            String value = parseCellValue(cell);
+            o = value;
+            if (cellDataTransfer != ExcelCellDataTransfer.NONE) {
+                o = cellDataTransfer.parseFromText(value);
+            }
+        }
+        return o;
+    }
+
+    /**
+     * Parse the cell value of a given field in the Excel sheet
+     *
+     * @param cell the cell to parse
+     * @return the parsed cell value
+     */
+    private static String parseCellValue(Cell cell) {
+        String cellValue;
+        if (cell != null) {
+            cell.setCellType(CellType.STRING);
+            cellValue = cell.getStringCellValue();
+            if (!StringUtils.isEmpty(cellValue)) {
+                cellValue = cellValue.trim();
+                cellValue = cellValue.replace("\n", "");
+                cellValue = cellValue.replace("\r", "");
+                cellValue = cellValue.replace("\\", "/");
+            }
+        } else {
+            cellValue = "";
+        }
+        return cellValue;
+    }
+
     @Data
-    static class ClassFieldMeta implements Serializable {
+    static class FieldMeta implements Serializable {
 
         /**
          * The name of the field
@@ -361,12 +483,12 @@ public class ExcelTool {
         /**
          * The field object
          */
-        private transient Field filed;
+        private transient Field field;
 
         /**
          * The meta of class file.
          */
-        public ClassFieldMeta() {
+        public FieldMeta() {
             // build meta
         }
     }
@@ -390,17 +512,17 @@ public class ExcelTool {
         /**
          * The metadata of the fields in the class.
          */
-        private List<ClassFieldMeta> classFieldMetas;
+        private List<FieldMeta> classFieldMetas;
 
         /**
          * The mapping of field names to their metadata.
          */
-        private Map<String, ClassFieldMeta> fieldNameMetaMap;
+        private Map<String, FieldMeta> fieldNameMetaMap;
 
         /**
          * The mapping of Excel names to their metadata.
          */
-        private Map<String, ClassFieldMeta> excelNameMetaMap;
+        private Map<String, FieldMeta> excelNameMetaMap;
 
         /**
          * Whether the fields have been sorted.
@@ -410,17 +532,7 @@ public class ExcelTool {
         /**
          * The mapping of positions to their metadata.
          */
-        private Map<Integer, ClassFieldMeta> positionFieldMetaMap;
-
-        /**
-         * The method to set whether the Excel data is valid.
-         */
-        private Method excelDataValidMethod;
-
-        /**
-         * The method to set the validation information of the Excel data.
-         */
-        private Method excelDataValidateInfoMethod;
+        private Map<Integer, FieldMeta> positionFieldMetaMap = new HashMap<>();
 
         private ClassMeta() {
         }
@@ -428,16 +540,16 @@ public class ExcelTool {
         /**
          * Create a ClassMeta object from a given template class.
          */
-        public static <T> ClassMeta<T> of(Class<T> templateClass)
+        public static <T> ClassMeta<T> of(Class<T> clazz)
                 throws InstantiationException, IllegalAccessException, NoSuchMethodException {
             ClassMeta<T> meta = new ClassMeta<>();
-            meta.setTClass(templateClass);
-            ExcelEntity excelEntity = templateClass.getAnnotation(ExcelEntity.class);
+            meta.setTClass(clazz);
+            ExcelEntity excelEntity = clazz.getAnnotation(ExcelEntity.class);
             if (excelEntity != null) {
                 meta.name = excelEntity.name();
             }
 
-            Field[] fields = templateClass.getDeclaredFields();
+            Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 ExcelField excelField = field.getAnnotation(ExcelField.class);
                 if (excelField != null) {
@@ -447,14 +559,10 @@ public class ExcelTool {
                 }
             }
 
-            Method excelDataValid = templateClass.getMethod("setExcelDataValid", Boolean.TYPE);
-            Method excelDataValidateInfo = templateClass.getMethod("setExcelDataValidate", String.class);
-            meta.setExcelDataValidMethod(excelDataValid);
-            meta.setExcelDataValidateInfoMethod(excelDataValidateInfo);
             return meta;
         }
 
-        private void addField(String name, String excelName, Field field, Class<?> fieldType,
+        private void addField(String fieldName, String excelName, Field field, Class<?> fieldType,
                 ExcelCellDataTransfer cellDataTransfer) {
             if (this.classFieldMetas == null) {
                 this.classFieldMetas = new ArrayList<>();
@@ -468,13 +576,13 @@ public class ExcelTool {
                 this.fieldNameMetaMap = new HashMap<>();
             }
 
-            ClassFieldMeta fieldMeta = new ClassFieldMeta();
-            fieldMeta.setName(name);
+            FieldMeta fieldMeta = new FieldMeta();
+            fieldMeta.setName(fieldName);
             fieldMeta.setExcelName(excelName);
             fieldMeta.setFieldType(fieldType);
             fieldMeta.setCellDataTransfer(cellDataTransfer);
-            fieldMeta.setFiled(field);
-            this.fieldNameMetaMap.put(name, fieldMeta);
+            fieldMeta.setField(field);
+            this.fieldNameMetaMap.put(fieldName, fieldMeta);
             this.excelNameMetaMap.put(excelName, fieldMeta);
             this.classFieldMetas.add(fieldMeta);
         }
@@ -482,9 +590,22 @@ public class ExcelTool {
         /**
          * Get the metadata of a field at a given position.
          */
-        public ClassFieldMeta field(int position) {
+        public FieldMeta field(int position) {
             return this.positionFieldMetaMap.get(position);
         }
 
+        public int fieldCount() {
+            return classFieldMetas == null ? 0 : classFieldMetas.size();
+        }
+
+        public boolean matchedAll() {
+            return positionFieldMetaMap.size() == this.excelNameMetaMap.size();
+        }
+
+        public void setFieldLocation(String excelName, int colIndex) {
+            if (this.excelNameMetaMap.containsKey(excelName)) {
+                positionFieldMetaMap.put(colIndex, excelNameMetaMap.get(excelName));
+            }
+        }
     }
 }

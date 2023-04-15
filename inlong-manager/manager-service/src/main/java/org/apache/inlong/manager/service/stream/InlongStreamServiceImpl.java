@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.tool.excel.ExcelTool;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -72,6 +73,10 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.ColDataType;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -756,6 +761,29 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                     String.format("parse stream fields error : %s", e.getMessage()));
         }
     }
+
+    @Override
+    public List<StreamField> parseFields(MultipartFile file) {
+        InputStream inputStream;
+        try {
+            inputStream = file.getInputStream();
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER, "Can not properly read update file");
+        }
+        List<StreamField> data = null;
+        try {
+            data = ExcelTool.read(inputStream, StreamField.class);
+        } catch (IOException | IllegalAccessException | InstantiationException | NoSuchMethodException e) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "Can not properly parse excel, message: " + e.getClass().getName() + ":" + e.getMessage());
+        }
+        if (CollectionUtils.isEmpty(data)) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "The content of uploaded Excel file is empty, please check!");
+        }
+        return data;
+    }
+
     /**
      * Parse fields from CSV format
      * @param statement CSV statement
