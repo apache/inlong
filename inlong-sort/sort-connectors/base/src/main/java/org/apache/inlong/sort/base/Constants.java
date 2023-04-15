@@ -136,8 +136,6 @@ public final class Constants {
 
     public static final String DDL_FIELD_NAME = "ddl";
 
-    public static final String DDL_OP_DROP = "DROP";
-
     public static final ConfigOption<String> INLONG_METRIC =
             ConfigOptions.key("inlong.metric.labels")
                     .stringType()
