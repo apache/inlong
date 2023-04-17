@@ -51,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -193,6 +194,15 @@ public class InlongStreamController {
     @ApiOperation(value = "Parse inlong stream fields from statement")
     public Response<List<StreamField>> parseFields(@RequestBody ParseFieldRequest parseFieldRequest) {
         return Response.success(streamService.parseFields(parseFieldRequest));
+    }
+
+    @RequestMapping(value = "/stream/parseFieldsByExcel", method = RequestMethod.POST)
+    @ApiOperation(value = "Parse inlong stream fields by update excel file", httpMethod = "POST")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "file", value = "file object", required = true, dataType = "__FILE", dataTypeClass = MultipartFile.class, paramType = "query")
+    })
+    public Response<List<StreamField>> parseFieldsByExcel(@RequestParam(value = "file") MultipartFile file) {
+        return Response.success(streamService.parseFields(file));
     }
 
     @RequestMapping(value = "/stream/fieldsImportTemplate", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
