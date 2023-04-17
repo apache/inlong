@@ -99,7 +99,7 @@ public class OracleConnectionUtils {
                             String schemaName = rs.getString(1);
                             String tableName = rs.getString(2);
                             TableId tableId =
-                                    new TableId(jdbcConnection.database(), schemaName, tableName);
+                                    new TableId(jdbcConnection.database().toUpperCase(), schemaName, tableName);
                             tableIdSet.add(tableId);
                         }
                     });
