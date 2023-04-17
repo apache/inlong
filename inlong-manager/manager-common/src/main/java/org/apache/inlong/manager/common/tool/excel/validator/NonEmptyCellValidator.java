@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.common.tool.excel.validator;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,6 +36,16 @@ public class NonEmptyCellValidator implements ExcelCellValidator<String> {
      */
     @Override
     public List<String> constraint() {
-        return null;
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean validate(String value) {
+        return StringUtils.isNotBlank(value);
+    }
+
+    @Override
+    public String getInvalidTip() {
+        return "Value can not be empty!";
     }
 }
