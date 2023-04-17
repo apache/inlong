@@ -20,8 +20,7 @@ package org.apache.inlong.sort.base;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
-
+import static org.apache.inlong.common.constant.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
 
 /**
  * connector base option constant

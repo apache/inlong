@@ -18,9 +18,9 @@
 package org.apache.inlong.sort.configuration;
 
 import java.time.Duration;
-import static org.apache.inlong.sort.configuration.ConfigOptions.key;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
 
+import static org.apache.inlong.common.constant.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
+import static org.apache.inlong.sort.configuration.ConfigOptions.key;
 
 /**
  * Constants used in sort

@@ -28,5 +28,6 @@ public class Constants {
 
     // default kafka topic is {groupId}.{streamId}
     public static final String DEFAULT_KAFKA_TOPIC_FORMAT = "%s.%s";
+    public static final String METRICS_AUDIT_PROXY_HOSTS_KEY = "metrics.audit.proxy.hosts";
 
 }
