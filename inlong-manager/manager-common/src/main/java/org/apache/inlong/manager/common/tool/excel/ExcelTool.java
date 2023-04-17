@@ -415,11 +415,12 @@ public class ExcelTool {
                         currentResult.add(instance);
                     }
                     if (colValidateResult.length() > 0) {
-                        String lineValidateResult = "Error in Row " + (rowNum + 1) + ", " + colValidateResult;
+                        String lineValidateResult =
+                                String.format("Error in Row: %d, %s", (rowNum + 1), colValidateResult);
                         validateResult.add(lineValidateResult);
                     }
                 }
-                Preconditions.expectBlank(validateResult, ErrorCodeEnum.INVALID_PARAMETER,
+                Preconditions.expectEmpty(validateResult, ErrorCodeEnum.INVALID_PARAMETER,
                         String.join("\n", validateResult));
                 result.addAll(currentResult);
             }
@@ -487,12 +488,8 @@ public class ExcelTool {
             FieldMeta fieldMeta,
             Object value) {
         ExcelCellValidator cellValidator = fieldMeta.getCellValidator();
-        if (cellValidator != null) {
-            if (!cellValidator.validate(value)) {
-                return Optional.of(cellValidator.getInvalidTip());
-            } else {
-                return Optional.empty();
-            }
+        if (cellValidator != null && !cellValidator.validate(value)) {
+            return Optional.of(cellValidator.getInvalidTip());
         } else {
             return Optional.empty();
         }

@@ -155,12 +155,7 @@ public class Preconditions {
         }
     }
 
-    public static void expectBlank(String obj, ErrorCodeEnum errorCodeEnum, String errMsg) {
-        if (StringUtils.isNotBlank(obj)) {
-            throw new BusinessException(errorCodeEnum, errMsg);
-        }
-    }
-    public static void expectBlank(List<String> obj, ErrorCodeEnum errorCodeEnum, String errMsg) {
+    public static void expectEmpty(List<String> obj, ErrorCodeEnum errorCodeEnum, String errMsg) {
         if (CollectionUtils.isNotEmpty(obj)) {
             throw new BusinessException(errorCodeEnum, errMsg);
         }
