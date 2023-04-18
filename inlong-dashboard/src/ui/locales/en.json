@@ -41,6 +41,8 @@
   "meta.Sources.Db.AllMigration": "AllMigration",
   "meta.Sources.Db.TableWhiteList": "Table WhiteList",
   "meta.Sources.Db.TableWhiteListHelp": "The whitelist should be a comma-separated list of regular expressions that match the fully-qualified names of tables to be monitored. Fully-qualified names for tables are of the form <databaseName>.<tableName>, the dbName and tableName can be configured with regular expressions. For example: test_db.order*, inlong_db*.user*, means to collect all tables starting with order in the test_db database + all tables starting with user under all databases starting with inlong_db.",
+  "meta.Sources.Db.DatabaseWhiteList": "Database WhiteList",
+  "meta.Sources.Db.DatabaseWhiteListHelp": "A list of databases to be collected, supporting regular expressions, separated by commas, for example: db1,test_db, databases not in the list will be excluded. If not set, all databases are monitored.",
   "meta.Sources.Mongodb.Hosts": "Hosts",
   "meta.Sources.Mongodb.Username": "Username",
   "meta.Sources.Mongodb.Password": "Password",
