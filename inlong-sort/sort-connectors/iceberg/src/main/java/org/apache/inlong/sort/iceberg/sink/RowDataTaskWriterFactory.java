@@ -56,6 +56,7 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
     private final List<Integer> equalityFieldIds;
     private final boolean upsert;
     private final boolean appendMode;
+    private final boolean miniBatchMode;
     private final FileAppenderFactory<RowData> appenderFactory;
 
     private transient OutputFileFactory outputFileFactory;
@@ -67,7 +68,8 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
             FileFormat format,
             List<Integer> equalityFieldIds,
             boolean upsert,
-            boolean appendMode) {
+            boolean appendMode,
+            boolean miniBatchMode) {
         this.table = table;
         this.schema = scheam;
         this.flinkSchema = flinkSchema;
@@ -78,6 +80,7 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
         this.equalityFieldIds = equalityFieldIds;
         this.upsert = upsert;
         this.appendMode = appendMode;
+        this.miniBatchMode = miniBatchMode;
 
         if (equalityFieldIds == null || equalityFieldIds.isEmpty() || appendMode) {
             this.appenderFactory = new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec);
@@ -110,8 +113,13 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
                 return new UnpartitionedWriter<>(
                         spec, format, appenderFactory, outputFileFactory, io, targetFileSizeBytes);
             } else {
-                return new RowDataPartitionedFanoutWriter(spec, format, appenderFactory, outputFileFactory,
-                        io, targetFileSizeBytes, schema, flinkSchema);
+                if (miniBatchMode) {
+                    return new RowDataGroupedPartitionedFanoutWriter(spec, format, appenderFactory, outputFileFactory,
+                            io, targetFileSizeBytes, schema, flinkSchema);
+                } else {
+                    return new RowDataPartitionedFanoutWriter(spec, format, appenderFactory, outputFileFactory,
+                            io, targetFileSizeBytes, schema, flinkSchema);
+                }
             }
         } else {
             // Initialize a task writer to write both INSERT and equality DELETE.
@@ -119,8 +127,13 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
                 return new UnpartitionedDeltaWriter(spec, format, appenderFactory, outputFileFactory, io,
                         targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert);
             } else {
-                return new PartitionedDeltaWriter(spec, format, appenderFactory, outputFileFactory, io,
-                        targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert);
+                if (miniBatchMode) {
+                    return new GroupedPartitionedDeltaWriter(spec, format, appenderFactory, outputFileFactory, io,
+                            targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert);
+                } else {
+                    return new PartitionedDeltaWriter(spec, format, appenderFactory, outputFileFactory, io,
+                            targetFileSizeBytes, schema, flinkSchema, equalityFieldIds, upsert);
+                }
             }
         }
     }
@@ -131,6 +144,27 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
         private final RowDataWrapper rowDataWrapper;
 
         RowDataPartitionedFanoutWriter(
+                PartitionSpec spec, FileFormat format, FileAppenderFactory<RowData> appenderFactory,
+                OutputFileFactory fileFactory, FileIO io, long targetFileSize, Schema schema,
+                RowType flinkSchema) {
+            super(spec, format, appenderFactory, fileFactory, io, targetFileSize);
+            this.partitionKey = new PartitionKey(spec, schema);
+            this.rowDataWrapper = new RowDataWrapper(flinkSchema, schema.asStruct());
+        }
+
+        @Override
+        protected PartitionKey partition(RowData row) {
+            partitionKey.partition(rowDataWrapper.wrap(row));
+            return partitionKey;
+        }
+    }
+
+    private static class RowDataGroupedPartitionedFanoutWriter extends GroupedPartitionedFanoutWriter<RowData> {
+
+        private final PartitionKey partitionKey;
+        private final RowDataWrapper rowDataWrapper;
+
+        RowDataGroupedPartitionedFanoutWriter(
                 PartitionSpec spec, FileFormat format, FileAppenderFactory<RowData> appenderFactory,
                 OutputFileFactory fileFactory, FileIO io, long targetFileSize, Schema schema,
                 RowType flinkSchema) {

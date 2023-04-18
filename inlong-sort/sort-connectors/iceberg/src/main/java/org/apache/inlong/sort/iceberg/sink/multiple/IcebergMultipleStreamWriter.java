@@ -219,7 +219,8 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                     fileFormat,
                     equalityFieldIds,
                     upsertMode,
-                    appendMode);
+                    appendMode,
+                    false);
 
             if (multipleWriters.get(tableId) == null) {
                 StringBuilder subWriterInlongMetric = new StringBuilder(inlongMetric);
