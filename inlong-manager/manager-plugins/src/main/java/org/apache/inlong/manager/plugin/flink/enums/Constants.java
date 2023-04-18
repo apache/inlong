@@ -40,7 +40,6 @@ public class Constants {
 
     public static final String DRAIN = "flink.drain";
 
-    public static final String METRICS_AUDIT_PROXY_HOSTS_KEY = "metrics.audit.proxy.hosts";
 
     // dataflow
     public static final String SOURCE_INFO = "source_info";
