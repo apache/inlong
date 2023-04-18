@@ -24,6 +24,10 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.protocol.ddl.enums.PositionType;
 
+/**
+ * Position represents the position of a column in a table.
+ * It can be either before or after a specific column.
+ */
 @JsonInclude(Include.NON_NULL)
 @Data
 public class Position {

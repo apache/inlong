@@ -29,6 +29,10 @@ import org.apache.inlong.sort.protocol.ddl.expressions.Column;
 import org.apache.inlong.sort.protocol.ddl.enums.OperationType;
 import org.apache.inlong.sort.protocol.ddl.indexes.Index;
 
+/**
+ * CreateTableOperation represents a create table operation
+ * it can be "create table like" or "create table with columns and indexes"
+ */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("createTableOperation")
 @JsonInclude(Include.NON_NULL)

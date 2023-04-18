@@ -25,6 +25,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Column represents a column in a table.
+ */
 @Data
 @Builder
 @JsonInclude(Include.NON_NULL)

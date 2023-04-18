@@ -25,6 +25,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.ddl.enums.OperationType;
 
+/**
+ * TruncateTableOperation represents a truncate operation on table
+ */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("truncateTableOperation")
 @JsonInclude(Include.NON_NULL)

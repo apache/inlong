@@ -178,7 +178,7 @@ public class MetaDataUtils {
             if (RecordUtils.isDdlRecord(messageStruct)) {
                 String sql = (String) field.get(DDL_FIELD_NAME);
                 canalJson.setSql(sql);
-                canalJson.setOperation(generateOperation(sql, tableSchema));
+                canalJson.setOperation(generateOperation(sql, getSqlType(tableSchema)));
                 canalJson.setDdl(true);
                 canalJson.setData(dataList);
             } else {
@@ -218,7 +218,7 @@ public class MetaDataUtils {
             if (RecordUtils.isDdlRecord(messageStruct)) {
                 String sql = (String) field.get(DDL_FIELD_NAME);
                 debeziumJson.setDdl(sql);
-                debeziumJson.setOperation(generateOperation(sql, tableSchema));
+                debeziumJson.setOperation(generateOperation(sql, getSqlType(tableSchema)));
                 debeziumJson.setAfter(new HashMap<>());
             } else {
                 debeziumJson.setAfter(field);

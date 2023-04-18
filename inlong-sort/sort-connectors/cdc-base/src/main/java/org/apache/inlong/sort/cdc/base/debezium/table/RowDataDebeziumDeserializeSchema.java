@@ -746,6 +746,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             emit(record, insert, tableSchema, out);
         } catch (Exception e) {
             LOG.error("Failed to extract DDL record {}", record, e);
+            throw new RuntimeException(e);
         }
 
     }

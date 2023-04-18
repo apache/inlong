@@ -25,6 +25,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.ddl.enums.OperationType;
 
+/**
+ * DropTableOperation represents a drop operation on table
+ */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("dropTableOperation")
 @JsonInclude(Include.NON_NULL)

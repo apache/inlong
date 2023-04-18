@@ -17,13 +17,11 @@
 
 package org.apache.inlong.sort.cdc.mysql.utils;
 
-import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getSqlType;
 import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.parseColumnWithPosition;
 import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.parseColumns;
 import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.parseComment;
 import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.reformatName;
 
-import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,10 +62,10 @@ public class OperationUtils {
     /**
      * generate operation from sql and table schema.
      * @param sql sql from binlog
-     * @param tableSchema table schema
+     * @param sqlType table sql types
      * @return Operation
      */
-    public static Operation generateOperation(String sql, TableChange tableSchema) {
+    public static Operation generateOperation(String sql, Map<String, Integer> sqlType) {
         try {
             // now sqlParser don't support first position
             // remove it first and add it later
@@ -78,10 +76,10 @@ public class OperationUtils {
             Statement statement = CCJSqlParserUtil.parse(sql);
             if (statement instanceof Alter) {
                 return parseAlterOperation(
-                        (Alter) statement, tableSchema, endsWithFirst);
+                        (Alter) statement, sqlType, endsWithFirst);
             } else if (statement instanceof CreateTable) {
                 return parseCreateTableOperation(
-                        (CreateTable) statement, tableSchema);
+                        (CreateTable) statement, sqlType);
             } else if (statement instanceof Drop) {
                 return new DropTableOperation();
             } else if (statement instanceof Truncate) {
@@ -100,14 +98,13 @@ public class OperationUtils {
     /**
      * parse alter operation from Alter from sqlParser.
      * @param statement alter statement
-     * @param tableSchema table schema
+     * @param sqlType sql types
      * @param isFirst whether the column is first
      * @return AlterOperation
      */
     private static AlterOperation parseAlterOperation(Alter statement,
-            TableChange tableSchema, boolean isFirst) {
+            Map<String, Integer> sqlType, boolean isFirst) {
 
-        Map<String, Integer> sqlType = getSqlType(tableSchema);
         List<AlterColumn> alterColumns = new ArrayList<>();
         statement.getAlterExpressions().forEach(alterExpression -> {
             switch (alterExpression.getOperation()) {
@@ -149,13 +146,11 @@ public class OperationUtils {
     /**
      * parse create table operation from CreateTable from sqlParser.
      * @param statement create table statement
-     * @param tableSchema table schema
      * @return CreateTableOperation
      */
     private static CreateTableOperation parseCreateTableOperation(
-            CreateTable statement, TableChange tableSchema) {
+            CreateTable statement, Map<String, Integer> sqlType) {
 
-        Map<String, Integer> sqlType = getSqlType(tableSchema);
         CreateTableOperation createTableOperation = new CreateTableOperation();
         List<ColumnDefinition> columnDefinitions = statement.getColumnDefinitions();
 
