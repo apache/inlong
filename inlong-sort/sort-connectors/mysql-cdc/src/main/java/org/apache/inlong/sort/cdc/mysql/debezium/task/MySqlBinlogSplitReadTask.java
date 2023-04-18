@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.task;
 
+import com.github.shyiko.mysql.binlog.BinaryLogClient;
+import com.github.shyiko.mysql.binlog.BinaryLogClient.EventListener;
 import com.github.shyiko.mysql.binlog.event.Event;
 import io.debezium.DebeziumException;
 import io.debezium.connector.mysql.MySqlConnection;
@@ -28,6 +30,7 @@ import io.debezium.connector.mysql.MySqlTaskContext;
 import io.debezium.pipeline.ErrorHandler;
 import io.debezium.relational.TableId;
 import io.debezium.util.Clock;
+import java.util.List;
 import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl;
 import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
 import org.apache.inlong.sort.cdc.mysql.debezium.reader.SnapshotSplitReader.SnapshotBinlogSplitChangeEventSourceContextImpl;
@@ -52,6 +55,7 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
     private final SignalEventDispatcher signalEventDispatcher;
     private final ErrorHandler errorHandler;
     private ChangeEventSourceContext context;
+    private final MySqlTaskContext taskContext;
 
     /**
      * Constructor of MySqlBinlogSplitReadTask.
@@ -80,14 +84,39 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
         this.eventDispatcher = dispatcher;
         this.offsetContext = offsetContext;
         this.errorHandler = errorHandler;
+        this.taskContext = taskContext;
+
         this.signalEventDispatcher =
                 new SignalEventDispatcher(
                         offsetContext.getPartition(), topic, eventDispatcher.getQueue());
     }
 
+    /**
+     * Clear reusedBinaryLogClient's eventListeners and lifecycleListeners of the last run to
+     * fix hung up of snapshot phase.
+     */
     @Override
     public void execute(ChangeEventSourceContext context) throws InterruptedException {
         this.context = context;
+
+        final BinaryLogClient client = taskContext.getBinaryLogClient();
+        final List<EventListener> eventListeners = client.getEventListeners();
+        final List<BinaryLogClient.LifecycleListener> lifecycleListeners =
+                client.getLifecycleListeners();
+
+        eventListeners.forEach(
+                listener -> {
+                    if (eventListeners.indexOf(listener) != eventListeners.size() - 1) {
+                        client.unregisterEventListener(listener);
+                    }
+                });
+        lifecycleListeners.forEach(
+                listener -> {
+                    if (lifecycleListeners.indexOf(listener) != lifecycleListeners.size() - 1) {
+                        client.unregisterLifecycleListener(listener);
+                    }
+                });
+
         super.execute(context);
     }
 
