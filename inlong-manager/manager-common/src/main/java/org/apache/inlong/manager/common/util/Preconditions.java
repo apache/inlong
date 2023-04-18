@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.common.util;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -24,6 +25,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -153,6 +155,12 @@ public class Preconditions {
         }
     }
 
+    public static void expectEmpty(List<String> obj, ErrorCodeEnum errorCodeEnum, String errMsg) {
+        if (CollectionUtils.isNotEmpty(obj)) {
+            throw new BusinessException(errorCodeEnum, errMsg);
+        }
+    }
+
     public static void expectNotNull(Object obj, ErrorCodeEnum errorCodeEnum) {
         if (obj == null) {
             throw new BusinessException(errorCodeEnum);
@@ -191,5 +199,4 @@ public class Preconditions {
         Set<String> set = new HashSet<>(Arrays.asList(separatedStr.split(separator)));
         return set.contains(target);
     }
-
 }

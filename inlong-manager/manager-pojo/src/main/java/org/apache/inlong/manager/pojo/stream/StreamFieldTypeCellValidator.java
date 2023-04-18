@@ -33,9 +33,21 @@ public class StreamFieldTypeCellValidator implements ExcelCellValidator<String> 
         // do nothing
     }
 
+    private final String invalidateTip = String.format("StreamField type must be one of %s", STREAM_FIELD_TYPES);
+
     @Override
     public List<String> constraint() {
         return new ArrayList<>(STREAM_FIELD_TYPES);
+    }
+
+    @Override
+    public boolean validate(String value) {
+        return STREAM_FIELD_TYPES.contains(value);
+    }
+
+    @Override
+    public String getInvalidTip() {
+        return invalidateTip;
     }
 
 }

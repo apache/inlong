@@ -29,4 +29,16 @@ public interface ExcelCellValidator<T> extends Serializable {
      * Returns the data validation constraint for the cell
      */
     List<String> constraint();
+
+    /**
+     * Validates the cell value
+     * @param value the cell value to validate
+     * @return true if the value is valid, false otherwise
+     */
+    boolean validate(T value);
+
+    /**
+     * Returns the error message to display if the cell value is invalid
+     */
+    String getInvalidTip();
 }

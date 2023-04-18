@@ -22,6 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.tool.excel.annotation.ExcelEntity;
 import org.apache.inlong.manager.common.tool.excel.annotation.ExcelField;
 import org.apache.inlong.manager.common.tool.excel.annotation.Font;
@@ -372,35 +373,55 @@ public class ExcelTool {
 
                 int lastRowNum = sheet.getLastRowNum();
                 List<E> currentResult = new ArrayList<>(lastRowNum);
-
+                List<String> validateResult = new ArrayList<>(lastRowNum);
                 for (int rowNum = 1; rowNum <= lastRowNum; ++rowNum) {
                     XSSFRow row = sheet.getRow(rowNum);
                     if (row == null) {
                         continue;
                     }
+                    // Mark the row only if all cells are not null
+                    Map<Integer, FieldMeta> positionFieldMetaMap = classMeta.positionFieldMetaMap;
+                    boolean rowNotNull = positionFieldMetaMap.keySet()
+                            .stream()
+                            .map(colIndex -> row.getCell(colIndex,
+                                    Row.MissingCellPolicy.RETURN_BLANK_AS_NULL) != null)
+                            .reduce(false, (left, right) -> left || right);
+
+                    // Skip if all columns are null
+                    if (!rowNotNull) {
+                        continue;
+                    }
+
                     E instance = null;
+                    StringBuilder colValidateResult = new StringBuilder();
                     boolean hasValueInRow = false;
-                    for (Map.Entry<Integer, FieldMeta> entry : classMeta.positionFieldMetaMap.entrySet()) {
+                    for (Map.Entry<Integer, FieldMeta> entry : positionFieldMetaMap.entrySet()) {
                         Integer colIndex = entry.getKey();
                         FieldMeta fieldMeta = entry.getValue();
                         XSSFCell cell = row.getCell(colIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                        if (cell == null) {
-                            continue;
-                        }
+
                         hasValueInRow = true;
                         ExcelCellDataTransfer cellDataTransfer = fieldMeta.getCellDataTransfer();
                         Object value = parseCellValue(cellDataTransfer, cell);
                         if (instance == null) {
                             instance = clazz.newInstance();
                         }
+                        validateCellValue(fieldMeta, value).ifPresent(info -> colValidateResult.append("Column ")
+                                .append(colIndex + 1).append(":").append(info).append(";"));
                         fieldMeta.getField().setAccessible(true);
                         fieldMeta.getField().set(instance, value);
-
                     }
                     if (hasValueInRow) {
                         currentResult.add(instance);
                     }
+                    if (colValidateResult.length() > 0) {
+                        String lineValidateResult =
+                                String.format("Error in Row: %d, %s", (rowNum + 1), colValidateResult);
+                        validateResult.add(lineValidateResult);
+                    }
                 }
+                Preconditions.expectEmpty(validateResult, ErrorCodeEnum.INVALID_PARAMETER,
+                        String.join("\n", validateResult));
                 result.addAll(currentResult);
             }
         }
@@ -457,6 +478,23 @@ public class ExcelTool {
         return cellValue;
     }
 
+    /**
+     * Validate the cell value of a given field in the Excel sheet
+     *
+     * @param fieldMeta the meta information of the field to validate
+     * @param value     the value of the field to validate
+     */
+    private static Optional<String> validateCellValue(
+            FieldMeta fieldMeta,
+            Object value) {
+        ExcelCellValidator cellValidator = fieldMeta.getCellValidator();
+        if (cellValidator != null && !cellValidator.validate(value)) {
+            return Optional.of(cellValidator.getInvalidTip());
+        } else {
+            return Optional.empty();
+        }
+    }
+
     @Data
     static class FieldMeta implements Serializable {
 
@@ -479,6 +517,11 @@ public class ExcelTool {
          * The data transfer for the cell
          */
         private ExcelCellDataTransfer cellDataTransfer;
+
+        /**
+         * The validator for the cell
+         */
+        private ExcelCellValidator<?> cellValidator;
 
         /**
          * The field object
@@ -553,9 +596,14 @@ public class ExcelTool {
             for (Field field : fields) {
                 ExcelField excelField = field.getAnnotation(ExcelField.class);
                 if (excelField != null) {
+                    Class<? extends ExcelCellValidator> validatorClass = excelField.validator();
                     ExcelCellDataTransfer excelCellDataTransfer = excelField.x2oTransfer();
+                    ExcelCellValidator excelCellValidator = null;
+                    if (validatorClass != ExcelCellValidator.class) {
+                        excelCellValidator = validatorClass.newInstance();
+                    }
                     meta.addField(field.getName(), excelField.name(), field, field.getType(),
-                            excelCellDataTransfer);
+                            excelCellDataTransfer, excelCellValidator);
                 }
             }
 
@@ -563,7 +611,7 @@ public class ExcelTool {
         }
 
         private void addField(String fieldName, String excelName, Field field, Class<?> fieldType,
-                ExcelCellDataTransfer cellDataTransfer) {
+                ExcelCellDataTransfer cellDataTransfer, ExcelCellValidator cellValidator) {
             if (this.classFieldMetas == null) {
                 this.classFieldMetas = new ArrayList<>();
             }
@@ -581,6 +629,7 @@ public class ExcelTool {
             fieldMeta.setExcelName(excelName);
             fieldMeta.setFieldType(fieldType);
             fieldMeta.setCellDataTransfer(cellDataTransfer);
+            fieldMeta.setCellValidator(cellValidator);
             fieldMeta.setField(field);
             this.fieldNameMetaMap.put(fieldName, fieldMeta);
             this.excelNameMetaMap.put(excelName, fieldMeta);
