@@ -145,6 +145,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
       },
       ...pickObjectArray(['sinkType', 'status'], entityFields).map(item => ({
         ...item,
+        type: 'select',
         visible: true,
         initialValue: defaultValues[item.name],
       })),
