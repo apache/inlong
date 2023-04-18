@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.configuration;
 
 import java.time.Duration;
+
+import static org.apache.inlong.common.constant.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
 import static org.apache.inlong.sort.configuration.ConfigOptions.key;
 
 /**
@@ -299,7 +301,7 @@ public class Constants {
                             + "default is 'groupId=xxx&streamId=xxx&nodeId=xxx'");
 
     public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS =
-            ConfigOptions.key("metrics.audit.proxy.hosts")
+            ConfigOptions.key(METRICS_AUDIT_PROXY_HOSTS_KEY)
                     .noDefaultValue()
                     .withDescription("Audit proxy host address for reporting audit metrics. \n"
                             + "e.g. 127.0.0.1:10081,0.0.0.1:10081");

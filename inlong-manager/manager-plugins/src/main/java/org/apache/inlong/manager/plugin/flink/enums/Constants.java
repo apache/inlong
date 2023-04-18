@@ -40,8 +40,6 @@ public class Constants {
 
     public static final String DRAIN = "flink.drain";
 
-    public static final String METRICS_AUDIT_PROXY_HOSTS = "metrics.audit.proxy.hosts";
-
     // dataflow
     public static final String SOURCE_INFO = "source_info";
 
@@ -79,9 +77,9 @@ public class Constants {
     public static final String SEPARATOR = ":";
 
     /**
-     * Generate the Job name through {@link ProcessForm}: <br/> 
-     * When the ProcessForm is {@link GroupResourceProcessForm}, the format of the job name is 'InLong-Sort-{Group ID}', 
-     * otherwise take the  {@link Constants#DEFAULT_SORT_JOB_NAME}: 'InLong-Sort-Job'. 
+     * Generate the Job name through {@link ProcessForm}: <br/>
+     * When the ProcessForm is {@link GroupResourceProcessForm}, the format of the job name is 'InLong-Sort-{Group ID}',
+     * otherwise take the  {@link Constants#DEFAULT_SORT_JOB_NAME}: 'InLong-Sort-Job'.
      */
     public static Function<ProcessForm, String> SORT_JOB_NAME_GENERATOR =
             (ProcessForm processForm) -> Optional.of(processForm)

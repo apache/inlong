@@ -20,6 +20,7 @@ package org.apache.inlong.sort.base;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+import static org.apache.inlong.common.constant.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
 
 /**
  * connector base option constant
@@ -144,7 +145,7 @@ public final class Constants {
                             + "default is 'groupId=xxx&streamId=xxx&nodeId=xxx'");
 
     public static final ConfigOption<String> INLONG_AUDIT =
-            ConfigOptions.key("metrics.audit.proxy.hosts")
+            ConfigOptions.key(METRICS_AUDIT_PROXY_HOSTS_KEY)
                     .stringType()
                     .noDefaultValue()
                     .withDescription("Audit proxy host address for reporting audit metrics. \n"
