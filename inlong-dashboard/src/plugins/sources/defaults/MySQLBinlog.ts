@@ -149,7 +149,6 @@ export default class TubeMqSource
   @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sources.Db.DatabaseWhiteListHelp'),
-    rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),
