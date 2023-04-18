@@ -41,6 +41,8 @@
   "meta.Sources.Db.AllMigration": "是否整库迁移",
   "meta.Sources.Db.TableWhiteList": "表名白名单",
   "meta.Sources.Db.TableWhiteListHelp": "白名单应该是一个以逗号分隔的正则表达式列表，与要监控的表的完全限定名称相匹配。表的完全限定名称的格式为 <dbName>.<tableName>，其中 dbName 和 tablename 都可以配置正则表达式。比如：test_db.table*,inlong_db*.user*，表示采集 test_db 库中以 table 开头的所有表 + 以 inlong_db 开头的所有库下的以 user 开头的所有表。",
+  "meta.Sources.Db.DatabaseWhiteList": "库名白名单",
+  "meta.Sources.Db.DatabaseWhiteListHelp": "需要采集的数据库列表，支持正则表达式，用逗号隔开，例如：db1,test_db，不在该列表中的数据库将被排除。如果未设置，则监视所有数据库。",
   "meta.Sources.Mongodb.Hosts": "服务器主机",
   "meta.Sources.Mongodb.Username": "用户名",
   "meta.Sources.Mongodb.Password": "密码",

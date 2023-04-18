@@ -145,4 +145,16 @@ export default class TubeMqSource
   })
   @I18n('meta.Sources.Db.TableWhiteList')
   tableWhiteList: boolean;
+
+  @FieldDecorator({
+    type: 'input',
+    tooltip: i18n.t('meta.Sources.Db.DatabaseWhiteListHelp'),
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: values?.status === 101,
+    }),
+    visible: values => values?.allMigration,
+  })
+  @I18n('meta.Sources.Db.DatabaseWhiteList')
+  databaseWhiteList: string;
 }
