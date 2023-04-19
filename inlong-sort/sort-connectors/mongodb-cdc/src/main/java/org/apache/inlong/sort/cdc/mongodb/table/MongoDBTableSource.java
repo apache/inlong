@@ -81,6 +81,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
     private final String inlongAudit;
     private final String rowValidator;
     private final boolean sourceMultipleEnable;
+    private final boolean changelogNormalizeEnabled;
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
@@ -113,7 +114,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
             String inlongMetric,
             String inlongAudit,
             String rowFilter,
-            Boolean sourceMultipleEnable) {
+            Boolean sourceMultipleEnable,
+            Boolean changelogNormalizeEnabled) {
         this.physicalSchema = physicalSchema;
         this.hosts = checkNotNull(hosts);
         this.username = username;
@@ -137,11 +139,12 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
         this.inlongAudit = inlongAudit;
         this.rowValidator = rowFilter;
         this.sourceMultipleEnable = sourceMultipleEnable;
+        this.changelogNormalizeEnabled = changelogNormalizeEnabled;
     }
 
     @Override
     public ChangelogMode getChangelogMode() {
-        if (this.sourceMultipleEnable) {
+        if (this.sourceMultipleEnable || !changelogNormalizeEnabled) {
             return ChangelogMode.all();
         } else {
             return ChangelogMode.newBuilder()
@@ -286,7 +289,8 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
                         inlongMetric,
                         inlongAudit,
                         rowValidator,
-                        sourceMultipleEnable);
+                        sourceMultipleEnable,
+                        changelogNormalizeEnabled);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;
