@@ -144,7 +144,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
 
     @Override
     public ChangelogMode getChangelogMode() {
-        if (this.sourceMultipleEnable  || !changelogNormalizeEnabled) {
+        if (this.sourceMultipleEnable || !changelogNormalizeEnabled) {
             return ChangelogMode.all();
         } else {
             return ChangelogMode.newBuilder()
