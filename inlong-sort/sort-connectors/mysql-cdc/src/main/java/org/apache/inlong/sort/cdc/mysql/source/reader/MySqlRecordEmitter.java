@@ -27,8 +27,15 @@ import io.debezium.relational.Tables;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
+import java.util.Map.Entry;
+import java.util.Set;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.alter.RenameTableStatement;
 import org.apache.flink.api.connector.source.SourceOutput;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
@@ -46,6 +53,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
+import static org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getFetchTimestamp;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getHistoryRecord;
@@ -57,6 +66,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isHighWa
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isSchemaChangeEvent;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isWatermarkEvent;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.toSnapshotRecord;
+import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.reformatName;
 
 /**
  * The {@link RecordEmitter} implementation for {@link MySqlSourceReader}.
@@ -87,6 +97,7 @@ public final class MySqlRecordEmitter<T>
     private volatile long snapProcessTime = 0L;
 
     private boolean includeIncremental;
+    public final ObjectMapper objectMapper = new ObjectMapper();
 
     public MySqlRecordEmitter(
             DebeziumDeserializationSchema<T> debeziumDeserializationSchema,
@@ -126,8 +137,9 @@ public final class MySqlRecordEmitter<T>
 
             if (tableChanges.isEmpty()) {
                 TableId tableId = RecordUtils.getTableId(element);
-                // if this table is one of the captured tables, output the ddl element
-                if (splitState.getMySQLSplit().getTableSchemas().containsKey(tableId)) {
+                // if this table is one of the captured tables, output the ddl element.
+                if (splitState.getMySQLSplit().getTableSchemas().containsKey(tableId)
+                        || shouldOutputRenameDdl(element, tableId)) {
                     outputDdlElement(element, output, splitState, null);
                 }
             }
@@ -183,6 +195,34 @@ public final class MySqlRecordEmitter<T>
             // unknown element
             LOG.info("Meet unknown element {}, just skip.", element);
         }
+    }
+
+    /**
+     * if rename operation is "rename a to b" where a is the captured table
+     * this method extract table names a and b, if any of table name is the captured table
+     * we should output ddl element
+     */
+    private boolean shouldOutputRenameDdl(SourceRecord element, TableId tableId) {
+        try {
+            String ddl = objectMapper.readTree(((Struct) element.value()).get(HISTORY_RECORD_FIELD).toString())
+                    .get(DDL_FIELD_NAME).asText();
+            Statement statement = CCJSqlParserUtil.parse(ddl);
+            if (statement instanceof RenameTableStatement) {
+                RenameTableStatement renameTableStatement = (RenameTableStatement) statement;
+                Set<Entry<Table, Table>> tableNames = renameTableStatement.getTableNames();
+                for (Entry<Table, Table> entry : tableNames) {
+                    Table oldTable = entry.getKey();
+                    Table newTable = entry.getValue();
+                    if (reformatName(oldTable.getName()).equals(tableId.table()) ||
+                            reformatName(newTable.getName()).equals(tableId.table())) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("parse ddl error {}", element, e);
+        }
+        return false;
     }
 
     private void updateSnapshotRecord(SourceRecord element, MySqlSplitState splitState) {
