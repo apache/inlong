@@ -123,8 +123,6 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
             final String ddl;
             switch (version) {
                 case 1:
-                    ddl = in.readUTF();
-                    break;
                 case 2:
                 case 3:
                 case 4:

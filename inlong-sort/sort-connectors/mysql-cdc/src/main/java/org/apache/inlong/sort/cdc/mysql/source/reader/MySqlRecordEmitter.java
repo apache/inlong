@@ -39,6 +39,7 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.alter.RenameTableStatement;
 import org.apache.flink.api.connector.source.SourceOutput;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.flink.runtime.operators.shipping.OutputCollector;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.base.enums.ReadPhase;
@@ -265,7 +266,7 @@ public final class MySqlRecordEmitter<T>
                     if (matchTableInSqlRegex.startsWith(CARET) && matchTableInSqlRegex.endsWith(DOLLAR)) {
                         matchTableInSqlRegex = matchTableInSqlRegex.substring(1, matchTableInSqlRegex.length() - 1);
                     }
-                    tableDdls.put(tableId, ddl.replaceAll(matchTableInSqlRegex, tableName));
+                    mySqlBinlogSplitState.recordTableDdl(tableId, ddl.replaceAll(matchTableInSqlRegex, tableName));
                 }
             }
         }
@@ -279,9 +280,10 @@ public final class MySqlRecordEmitter<T>
             if (matcher.find()) {
                 tableName = matcher.group(1);
                 String dbName = org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getDbName(element);
-                TableId tableId =
-                        org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getTabelId(dbName, tableName);
-                String ddl = tableDdls.get(tableId);
+                TableId tableId = org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getTableId(
+                        dbName,
+                        tableName);
+                String ddl = splitState.asBinlogSplitState().getTableDdls().get(tableId);
                 Struct value = (Struct) element.value();
                 // Update source.table and historyRecord
                 value.getStruct(Fields.SOURCE).put(TABLE_NAME, tableName);
