@@ -18,10 +18,7 @@
 package org.apache.inlong.sort.cdc.base.debezium.table;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.base.Constants.CARET;
 import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
-import static org.apache.inlong.sort.base.Constants.DDL_OP_ALTER;
-import static org.apache.inlong.sort.base.Constants.DOLLAR;
 import static org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
 
 import io.debezium.data.Envelope;
@@ -47,8 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.data.DecimalData;
@@ -61,7 +56,6 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.filter.RowValidator;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.util.RecordUtils;
@@ -120,9 +114,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
 
     private ZoneId serverTimeZone;
 
-    private boolean ghostDdlChange;
-    private String ghostTableRegex;
-
     public final ObjectMapper objectMapper = new ObjectMapper();
 
     RowDataDebeziumDeserializeSchema(
@@ -133,9 +124,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             ZoneId serverTimeZone,
             boolean appendSource,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory,
-            boolean migrateAll,
-            boolean ghostDdlChange,
-            String ghostTableRegex) {
+            boolean migrateAll) {
         this.hasMetadata = checkNotNull(metadataConverters).length > 0;
         this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters, migrateAll);
         this.migrateAll = migrateAll;
@@ -148,8 +137,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         this.resultTypeInfo = checkNotNull(resultTypeInfo);
         this.rowKindValidator = rowValidator;
         this.appendSource = checkNotNull(appendSource);
-        this.ghostDdlChange = ghostDdlChange;
-        this.ghostTableRegex = ghostTableRegex;
     }
 
     /**
@@ -755,12 +742,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             GenericRowData insert = (GenericRowData) physicalConverter.convert(
                     objectMapper.readTree(value.get(HISTORY_RECORD_FIELD).toString()).get(DDL_FIELD_NAME).asText(),
                     null);
-            if (ghostDdlChange) {
-                insert = extractGhostRecord(insert);
-                if (insert == null) {
-                    return;
-                }
-            }
             insert.setRowKind(RowKind.INSERT);
             emit(record, insert, tableSchema, out);
         } catch (Exception e) {
@@ -785,33 +766,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         Schema beforeSchema = valueSchema.field(Envelope.FieldName.BEFORE).schema();
         Struct before = value.getStruct(Envelope.FieldName.BEFORE);
         return (GenericRowData) physicalConverter.convert(before, beforeSchema);
-    }
-
-    /**
-     * Extract ddl record from gh-ost ddl statements
-     *
-     * @param data a record with sql statement
-     * @return ddl record
-     * @throws Exception
-     */
-    private GenericRowData extractGhostRecord(GenericRowData data) throws Exception {
-        String ddl = ((Map<String, String>) data.getField(0)).get(DDL_FIELD_NAME);
-        if (this.ghostTableRegex.startsWith(CARET) && this.ghostTableRegex.endsWith(DOLLAR)) {
-            this.ghostTableRegex = this.ghostTableRegex.substring(1, this.ghostTableRegex.length() - 1);
-        }
-        Pattern ghostTablePattern = Pattern.compile(this.ghostTableRegex);
-        Matcher ghostMatcher = ghostTablePattern.matcher(ddl);
-        if (ghostMatcher.find()) {
-            // Just need Alter statement
-            if (ddl.toUpperCase().contains(DDL_OP_ALTER)) {
-                String originTable = ghostMatcher.group(1);
-                return (GenericRowData) physicalConverter
-                        .convert(ddl.replaceAll(this.ghostTableRegex, originTable), null);
-            } else {
-                return null;
-            }
-        }
-        return data;
     }
 
     private void emit(SourceRecord inRecord, RowData physicalRow,
@@ -849,8 +803,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         private ZoneId serverTimeZone = ZoneId.of("UTC");
         private boolean appendSource = false;
         private boolean migrateAll = false;
-        private boolean ghostDdlChange = false;
-        private String ghostTableRegex = Constants.GH_OST_TABLE_REGEX.defaultValue();
         private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
                 DeserializationRuntimeConverterFactory.DEFAULT;
 
@@ -895,16 +847,6 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             return this;
         }
 
-        public Builder setGhostDdlChange(boolean ghostDdlChange) {
-            this.ghostDdlChange = ghostDdlChange;
-            return this;
-        }
-
-        public Builder setGhostTableRegex(String ghostTableRegex) {
-            this.ghostTableRegex = ghostTableRegex;
-            return this;
-        }
-
         public RowDataDebeziumDeserializeSchema build() {
             return new RowDataDebeziumDeserializeSchema(
                     physicalRowType,
@@ -914,9 +856,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
                     serverTimeZone,
                     appendSource,
                     userDefinedConverterFactory,
-                    migrateAll,
-                    ghostDdlChange,
-                    ghostTableRegex);
+                    migrateAll);
         }
     }
 }
