@@ -22,7 +22,6 @@ import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.document.Array;
 import io.debezium.relational.ColumnFilterMode;
-import io.debezium.relational.Table;
 import io.debezium.relational.TableId;
 import io.debezium.relational.Tables;
 import io.debezium.relational.history.HistoryRecord;
@@ -35,6 +34,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.alter.RenameTableStatement;
 import org.apache.flink.api.connector.source.SourceOutput;
@@ -262,14 +262,13 @@ public final class MySqlRecordEmitter<T>
             MySqlBinlogSplitState mySqlBinlogSplitState = splitState.asBinlogSplitState();
             if (ddl.toUpperCase().startsWith(DDL_OP_ALTER)
                     && mySqlBinlogSplitState.getTableSchemas().containsKey(tableId)) {
-                    String matchTableInSqlRegex = ghostTableRegex;
-                    if (matchTableInSqlRegex.startsWith(CARET) && matchTableInSqlRegex.endsWith(DOLLAR)) {
-                        matchTableInSqlRegex = matchTableInSqlRegex.substring(1, matchTableInSqlRegex.length() - 1);
-                    }
-                    mySqlBinlogSplitState.recordTableDdl(
-                            tableId,
-                            ddl.replace(GHOST_TAG,"").replaceAll("\\s+", " ").
-                                    replaceAll(matchTableInSqlRegex, tableName));
+                String matchTableInSqlRegex = ghostTableRegex;
+                if (matchTableInSqlRegex.startsWith(CARET) && matchTableInSqlRegex.endsWith(DOLLAR)) {
+                    matchTableInSqlRegex = matchTableInSqlRegex.substring(1, matchTableInSqlRegex.length() - 1);
+                }
+                mySqlBinlogSplitState.recordTableDdl(
+                        tableId,
+                        ddl.replace(GHOST_TAG, "").replaceAll("\\s+", " ").replaceAll(matchTableInSqlRegex, tableName));
             }
         }
     }
