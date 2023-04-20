@@ -103,13 +103,22 @@ public final class RocksDBKVBuffer<T, R> implements Closeable, KVBuffer<T, R>, S
     @Override
     public void clear() {
         checkClosed();
-        lazyGetRocksDb().dropColumnFamily(ROCKSDB_COL_FAMILY);
-        lazyGetRocksDb().addColumnFamily(ROCKSDB_COL_FAMILY);
+        // todo: Here use close to mock clear.Because drop column family and recreate column family has memory leak bug.
+        // In rocksdb 5.x after dropColumnFamily and close, it will wait rocksdb release memory and disk itself.
+        // So if open a same columnFamily, it will cause memory leak. So you could not close and recreate a
+        // column family as soon as possible.In rocksdb 6.x it is ok.
+        if (null != rocksDb) {
+            LOG.info("Close rocksdb dir in {}", diskMapPath);
+            rocksDb.close();
+        }
+        rocksDb = null;
+        this.cleanup(false);
     }
 
     @Override
     public void close() {
         if (null != rocksDb) {
+            LOG.info("Close rocksdb dir in {}", diskMapPath);
             rocksDb.close();
         }
         rocksDb = null;
@@ -153,7 +162,6 @@ public final class RocksDBKVBuffer<T, R> implements Closeable, KVBuffer<T, R>, S
                         File diskMapPathFile = new File(diskMapPath);
                         FileIOUtils.deleteDirectory(diskMapPathFile);
                         FileIOUtils.mkdir(diskMapPathFile);
-                        diskMapPathFile.deleteOnExit();
                     } catch (IOException e) {
                         LOG.warn("Open rocksdb dir occur error", e);
                         throw new RuntimeException(e);

@@ -67,6 +67,7 @@
             <artifactId>libfb303</artifactId>
         </dependency>
         <dependency>
+            <!-- Real environment rocksdb version depends on rocksdbjni.so in flink -->
             <groupId>org.rocksdb</groupId>
             <artifactId>rocksdbjni</artifactId>
             <scope>provided</scope>

@@ -140,6 +140,8 @@ public class TestMiniBatchOperator {
         setupOperator(nonPreAggUnPartition());
         List<RowData> rowDataList = testHarness.extractOutputValues();
 
+        processBatchData(2L);
+
         Assert.assertEquals("Non pre-aggregation data size must be same with input size",
                 rowDataList.size(), INPUT_DATA.length);
         Assert.assertTrue("input should be same with output",
@@ -153,12 +155,14 @@ public class TestMiniBatchOperator {
     }
 
     private void setupOperator(PartitionGroupBuffer buffer) throws Exception {
-        long checkpointId = 1L;
         IcebergMiniBatchGroupOperator operator = new IcebergMiniBatchGroupOperator(buffer);
         testHarness = new OneInputStreamOperatorTestHarness<>(operator, 1, 1, 0);
         testHarness.setup();
         testHarness.open();
+        processBatchData(1L);
+    }
 
+    private void processBatchData(long checkpointId) throws Exception {
         for (RowData row : INPUT_DATA) {
             testHarness.processElement(row, 1L);
         }

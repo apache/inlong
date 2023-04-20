@@ -108,7 +108,7 @@ public class RocksDBDAO<K, V> {
 
                 @Override
                 protected void log(InfoLogLevel infoLogLevel, String logMsg) {
-                    LOG.info("From Rocks DB : " + logMsg);
+                    LOG.info("From Rocks DB(" + rocksDBBasePath + ") : " + logMsg);
                 }
             });
             final List<ColumnFamilyDescriptor> managedColumnFamilies = loadManagedColumnFamilies(dbOptions);
