@@ -349,7 +349,7 @@ public final class Constants {
     public static final ConfigOption<String> GH_OST_TABLE_REGEX = ConfigOptions
             .key("gh-ost.table.regex")
             .stringType()
-            .defaultValue("^_(.*)_(gho|ghc|del|new|old)$")
+            .defaultValue("^_(.*)_(gho|ghc|del)$")
             .withDescription(
                     "Matcher the original table name from the ddl of gh-ost.");
 }
