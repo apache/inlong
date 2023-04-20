@@ -23,6 +23,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 
+/**
+ * A tool class for safely creating and deleting directories that wraps exception information.
+ */
 public class FileIOUtils {
 
     public static void deleteDirectory(File directory) throws IOException {
