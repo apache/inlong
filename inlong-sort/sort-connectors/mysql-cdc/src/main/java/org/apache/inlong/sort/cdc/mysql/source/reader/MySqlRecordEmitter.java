@@ -60,7 +60,6 @@ import java.util.Map;
 
 import static org.apache.inlong.sort.base.Constants.CARET;
 import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
-import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
 import static org.apache.inlong.sort.base.Constants.DDL_OP_ALTER;
 import static org.apache.inlong.sort.base.Constants.DOLLAR;
 import static org.apache.inlong.sort.base.Constants.TABLE_NAME;
