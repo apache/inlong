@@ -48,6 +48,7 @@ public class ShiroConfig {
     @Bean
     public WebSecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) inlongShiro.getWebSecurityManager();
+        securityManager.setSessionManager(new DefaultWebSessionManager());
         securityManager.setRealms(shiroRealms());
         return securityManager;
     }
