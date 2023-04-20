@@ -476,13 +476,4 @@ public class RecordUtils {
         return source.getString(TABLE_NAME);
     }
 
-    public static String getDbName(SourceRecord element) {
-        Struct value = (Struct) element.value();
-        Struct source = value.getStruct(FieldName.SOURCE);
-        return source.getString(DATABASE_NAME);
-    }
-
-    public static TableId getTabelId(String dbName, String tableName) {
-        return new TableId(dbName, null, tableName);
-    }
 }
