@@ -30,7 +30,6 @@ import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.Map.Entry;
 import java.util.Set;
-import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
@@ -232,7 +231,7 @@ public final class MySqlRecordEmitter<T>
                     }
                 }
             }
-        } catch (JSQLParserException e) {
+        } catch (Exception e) {
             LOG.error("parse ddl error {}", historyRecord, e);
         }
         return false;

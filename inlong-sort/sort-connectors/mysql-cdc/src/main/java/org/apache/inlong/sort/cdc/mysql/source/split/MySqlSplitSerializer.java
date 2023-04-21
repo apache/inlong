@@ -117,6 +117,9 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
     public static Map<TableId, String> readTableDdls(int version, DataInputDeserializer in)
             throws IOException {
         Map<TableId, String> tableDdls = new HashMap<>();
+        if (in.available() <= 0) {
+            return tableDdls;
+        }
         final int size = in.readInt();
         for (int i = 0; i < size; i++) {
             TableId tableId = TableId.parse(in.readUTF());
