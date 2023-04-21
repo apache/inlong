@@ -130,6 +130,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                 auditIds.add(auditService.getAuditId(sink.getSinkType(), false));
             }
             for (StreamSource source : sources) {
+                source.setFieldList(inlongStream.getFieldList());
                 Map<String, Object> properties = source.getProperties();
                 properties.putIfAbsent("metrics.audit.key", String.join("&", auditIds));
             }
@@ -148,7 +149,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                     relations = NodeRelationUtils.createNodeRelations(sources, sinks);
                 }
             } else {
-                relations = NodeRelationUtils.createNodeRelations(inlongStream);
+                relations = NodeRelationUtils.createNodeRelations(sources, sinks);
             }
 
             // create extract-transform-load nodes

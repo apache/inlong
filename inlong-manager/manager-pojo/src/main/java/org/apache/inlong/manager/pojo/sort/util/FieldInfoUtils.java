@@ -54,6 +54,7 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 
 import lombok.extern.slf4j.Slf4j;
+
 import java.math.BigDecimal;
 import java.util.List;
 
