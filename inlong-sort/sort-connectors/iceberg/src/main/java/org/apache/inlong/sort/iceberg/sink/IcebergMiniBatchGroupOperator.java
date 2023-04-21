@@ -81,7 +81,7 @@ public class IcebergMiniBatchGroupOperator extends TableStreamOperator<RowData>
         LOG.info("Flushing IcebergMiniBatchGroupOperator.");
         // Emit the rows group by partition
         // scan range key, this range key contains all one partition data
-        partitionGroupBuffer.scanPartitions().forEach(tuple -> collector.collect(tuple.f1));
+        partitionGroupBuffer.scanPartitions(tuple -> collector.collect(tuple.f1));
         partitionGroupBuffer.clear();
     }
 }

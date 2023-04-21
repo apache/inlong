@@ -27,11 +27,8 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Iterator;
-import java.util.Spliterators;
 import java.util.UUID;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * This class provides a disk spillable only kv buffer implementation.
@@ -87,17 +84,18 @@ public final class RocksDBKVBuffer<T, R> implements Closeable, KVBuffer<T, R>, S
         return lazyGetRocksDb().get(ROCKSDB_COL_FAMILY, key);
     }
 
+    /**
+     * Perform a range search according to the prefix of the key, and the KV data of all keys matching the
+     * prefix will be returned
+     * @note This stream must be closed after use, otherwise it will cause a memory leak
+     *
+     * @param keyPrefix key prefix binary data
+     * @return
+     */
     @Override
     public Stream<Tuple2<T, R>> scan(byte[] keyPrefix) {
         checkClosed();
         return lazyGetRocksDb().prefixSearch(ROCKSDB_COL_FAMILY, keyPrefix);
-    }
-
-    @Override
-    public Stream<R> valueStream() {
-        checkClosed();
-        Iterator<R> iterator = lazyGetRocksDb().iterator(ROCKSDB_COL_FAMILY);
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
     }
 
     @Override

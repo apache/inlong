@@ -79,11 +79,6 @@ public interface KVBuffer<K, V> {
     Stream<Tuple2<K, V>> scan(byte[] keyPrefix);
 
     /**
-     * @returns a stream of the values stored in the buffer.
-     */
-    Stream<V> valueStream();
-
-    /**
      * Removes all of the KV pair from this buffer (optional operation).
      * The Buffer will be empty after this call returns.
      */

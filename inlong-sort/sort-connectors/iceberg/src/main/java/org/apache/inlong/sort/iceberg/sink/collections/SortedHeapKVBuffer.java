@@ -59,11 +59,6 @@ public class SortedHeapKVBuffer<T, R> implements KVBuffer<T, R>, Serializable {
     }
 
     @Override
-    public Stream<R> valueStream() {
-        return map.values().stream();
-    }
-
-    @Override
     public void clear() {
         map.clear();
     }

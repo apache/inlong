@@ -42,12 +42,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Spliterators;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Data access objects for storing and retrieving objects in Rocks DB.
@@ -299,43 +300,18 @@ public class RocksDBDAO<K, V> {
 
     /**
      * Perform a prefix search and return stream of key-value pairs retrieved.
+     * @note This stream must be closed after use, otherwise it will cause a memory leak
      *
      * @param columnFamilyName Column Family Name
      * @param prefix Prefix Key
      */
     public Stream<Tuple2<K, V>> prefixSearch(String columnFamilyName, byte[] prefix) {
         Preconditions.checkArgument(!closed);
-        List<Tuple2<K, V>> results = new LinkedList<>();
-        try {
-            final long startTime = System.currentTimeMillis();
-            long timeTakenMicro = 0;
-            try (final RocksIterator it = getRocksDB().newIterator(managedHandlesMap.get(columnFamilyName))) {
-                it.seek(prefix);
-                while (it.isValid() && prefixMatch(it.key(), prefix)) {
-                    long beginTs = System.nanoTime();
-                    V val = deserializeValue(it.value());
-                    timeTakenMicro += ((System.nanoTime() - beginTs) / 1000);
-                    results.add(Tuple2.of(deserializeKey(it.key()), val));
-                    it.next();
-                }
-            }
-
-            LOG.info("Prefix Search for (query=" + prefix + ") on " + columnFamilyName + ". Total Time Taken (msec)="
-                    + (System.currentTimeMillis() - startTime) + ". Serialization Time taken(micro)=" + timeTakenMicro
-                    + ", num entries=" + results.size());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return results.stream();
-    }
-
-    /**
-     * Return Iterator of key-value pairs from RocksIterator.
-     *
-     * @param columnFamilyName Column Family Name
-     */
-    public Iterator<V> iterator(String columnFamilyName) {
-        return new IteratorWrapper<>(getRocksDB().newIterator(managedHandlesMap.get(columnFamilyName)), this);
+        final RocksIterator it = getRocksDB().newIterator(managedHandlesMap.get(columnFamilyName));
+        Iterator<Tuple2<K, V>> conditionalIt = new ConditionalIteratorWrapper<>(it, this, prefix);
+        return StreamSupport
+                .stream(Spliterators.spliteratorUnknownSize(conditionalIt, 0), false)
+                .onClose(() -> it.close());
     }
 
     /**
@@ -465,7 +441,11 @@ public class RocksDBDAO<K, V> {
         return valueSerializer.deserialize(inputBuffer);
     }
 
-    private boolean prefixMatch(byte[] key, byte[] prefix) {
+    String getRocksDBBasePath() {
+        return rocksDBBasePath;
+    }
+
+    private static boolean prefixMatch(byte[] key, byte[] prefix) {
         int i = 0;
         while (i < prefix.length && i < key.length) {
             if (prefix[i] != key[i]) {
@@ -476,19 +456,15 @@ public class RocksDBDAO<K, V> {
         return i == prefix.length;
     }
 
-    String getRocksDBBasePath() {
-        return rocksDBBasePath;
-    }
-
     /**
      * {@link Iterator} wrapper for RocksDb Iterator {@link RocksIterator}.
      */
-    private static class IteratorWrapper<R> implements Iterator<R> {
+    private static class IteratorWrapper<T, R> implements Iterator<Tuple2<T, R>> {
 
-        private final RocksIterator iterator;
-        private final RocksDBDAO<?, R> dao;
+        protected final RocksIterator iterator;
+        protected final RocksDBDAO<T, R> dao;
 
-        public IteratorWrapper(final RocksIterator iterator, final RocksDBDAO<?, R> dao) {
+        public IteratorWrapper(final RocksIterator iterator, final RocksDBDAO<T, R> dao) {
             this.iterator = iterator;
             this.dao = dao;
             iterator.seekToFirst();
@@ -500,18 +476,40 @@ public class RocksDBDAO<K, V> {
         }
 
         @Override
-        public R next() {
+        public Tuple2<T, R> next() {
             if (!hasNext()) {
                 throw new IllegalStateException("next() called on rocksDB with no more valid entries");
             }
+            T key = null;
             R val = null;
             try {
+                key = dao.deserializeKey(iterator.key());
                 val = dao.deserializeValue(iterator.value());
             } catch (IOException e) {
                 throw new IllegalStateException("deserialize err", e);
             }
             iterator.next();
-            return val;
+            return new Tuple2<>(key, val);
+        }
+
+        public void close() {
+            iterator.close();
+        }
+    }
+
+    private static class ConditionalIteratorWrapper<T, R> extends IteratorWrapper<T, R> {
+
+        private byte[] keyPrefix;
+
+        public ConditionalIteratorWrapper(final RocksIterator iterator, final RocksDBDAO<T, R> dao, byte[] keyPrefix) {
+            super(iterator, dao);
+            this.keyPrefix = keyPrefix;
+            iterator.seek(keyPrefix);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return iterator.isValid() && prefixMatch(iterator.key(), keyPrefix);
         }
     }
 

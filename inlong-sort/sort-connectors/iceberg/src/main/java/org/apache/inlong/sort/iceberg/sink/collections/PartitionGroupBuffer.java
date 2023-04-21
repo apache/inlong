@@ -49,6 +49,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -73,15 +74,15 @@ public abstract class PartitionGroupBuffer implements Serializable {
 
     public abstract RowData add(RowData row);
 
-    public Stream<Tuple2<?, RowData>> scanPartitions() throws IOException {
+    public void scanPartitions(Consumer<Tuple2<?, RowData>> consumer) throws IOException {
         DataOutputSerializer outputBuffer = new DataOutputSerializer(4096);
-        Stream<Tuple2<?, RowData>> stream = Stream.empty();
         for (String partition : allPartition) {
             StringSerializer.INSTANCE.serialize(partition, outputBuffer);
-            stream = Stream.concat(stream, buffer.scan(outputBuffer.getCopyOfBuffer()));
+            try (Stream<? extends Tuple2<?, RowData>> stream = buffer.scan(outputBuffer.getCopyOfBuffer())) {
+                stream.forEach(tuple -> consumer.accept(tuple));
+            }
             outputBuffer.clear();
         }
-        return stream;
     }
 
     public void close() throws IOException {
