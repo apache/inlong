@@ -110,7 +110,7 @@ public class TransformNodeUtils {
         transformNode.setName(transformResponse.getTransformName());
         // Filter constant fields
         List<FieldInfo> fieldInfos = transformResponse.getFieldList().stream()
-                .filter(s -> s.getFieldValue() == null)
+                .filter(s -> s.getFieldValue() != null)
                 .map(FieldInfoUtils::parseStreamField).collect(Collectors.toList());
         transformNode.setFields(fieldInfos);
         transformNode.setFieldRelations(FieldRelationUtils.createFieldRelations(transformResponse, constantFieldMap));
