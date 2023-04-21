@@ -156,7 +156,7 @@ public class UserServiceImpl implements UserService {
         Preconditions.expectNotNull(entity, "User not exists with id " + userId);
         UserEntity curUser = userMapper.selectByName(currentUser);
         Preconditions.expectTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
-                        || Objects.equals(entity.getName(), currentUser),
+                || Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to get other users' info");
 
         UserInfo result = new UserInfo();
