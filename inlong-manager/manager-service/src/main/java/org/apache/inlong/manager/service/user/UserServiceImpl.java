@@ -58,7 +58,13 @@ import org.apache.inlong.manager.pojo.user.UserRequest;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.session.mgt.eis.SessionDAO;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.subject.support.DefaultSubjectContext;
+import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +73,7 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -276,7 +283,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean delete(Integer userId, String currentUser) {
         Preconditions.expectNotNull(userId, "User id should not be empty");
-
         // Whether the current user is an administrator
         UserEntity curUser = userMapper.selectByName(currentUser);
         UserEntity entity = userMapper.selectById(userId);
@@ -291,7 +297,7 @@ public class UserServiceImpl implements UserService {
         removeInChargeForDataNode(userName, currentUser);
         removeInChargeForConsume(userName, currentUser);
         userMapper.deleteById(userId);
-
+        removeUserFromSession(userId, currentUser);
         LOGGER.debug("success to delete user by id={}, current user={}", userId, currentUser);
         return true;
     }
@@ -456,6 +462,30 @@ public class UserServiceImpl implements UserService {
                 LOGGER.error("inlong consume has already updated, id={}, curVersion={}",
                         consumeEntity.getId(), consumeEntity.getVersion());
                 throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            }
+        }
+    }
+
+    public void removeUserFromSession(Integer userId, String operator) {
+        DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) SecurityUtils.getSecurityManager();
+        DefaultWebSessionManager sessionManager = (DefaultWebSessionManager) securityManager.getSessionManager();
+        SessionDAO sessionDAO = sessionManager.getSessionDAO();
+        Collection<Session> sessions = sessionDAO.getActiveSessions();
+        if (sessions.size() >= 1) {
+            UserInfo user = null;
+            for (Session onlineSession : sessions) {
+                Object attribute = onlineSession.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
+                if (attribute == null) {
+                    continue;
+                }
+                user = (UserInfo) ((SimplePrincipalCollection) attribute).getPrimaryPrincipal();
+                if (user == null) {
+                    continue;
+                }
+                if (Objects.equals(user.getId(), userId)) {
+                    sessionDAO.delete(onlineSession);
+                    LOGGER.info("success remove user from session by id={}, current user={}", user.getId(), operator);
+                }
             }
         }
     }
