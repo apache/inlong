@@ -744,7 +744,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             if (STATEMENT_TYPE_JSON.equals(method)) {
                 fieldsMap = parseFieldsByJson(statement);
             } else if (STATEMENT_TYPE_SQL.equals(method)) {
-                fieldsMap = parseFieldsBySql(statement);
+                return parseFieldsBySql(statement);
             } else {
                 return parseFieldsByCsv(statement);
             }
@@ -827,10 +827,10 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         }
         return fields;
     }
-    private Map<String, String> parseFieldsBySql(String sql) throws JSQLParserException {
+    private List<StreamField> parseFieldsBySql(String sql) throws JSQLParserException {
         CCJSqlParserManager pm = new CCJSqlParserManager();
         Statement statement = pm.parse(new StringReader(sql));
-        LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+        List<StreamField> fields = new ArrayList<>();
         if (statement instanceof CreateTable) {
             CreateTable createTable = (CreateTable) statement;
             List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
@@ -848,7 +848,26 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                             "Unrecognized SQL field type, line: " + (i + 1) + ", type: " + sqlDataType);
                 }
                 String type = clazz.getSimpleName().toLowerCase();
-                fields.put(columnName, type);
+                // get field comment
+                List<String> columnSpecs = definition.getColumnSpecs();
+                int commentIndex = -1;
+                for (int csIndex = 0; columnSpecs != null && csIndex < columnSpecs.size(); csIndex++) {
+                    String spec = columnSpecs.get(csIndex);
+                    if (spec.toUpperCase().startsWith("COMMENT")) {
+                        commentIndex = csIndex;
+                        break;
+                    }
+                }
+                String comment = null;
+                if (-1 != commentIndex && columnSpecs.size() > commentIndex + 1) {
+                    comment = columnSpecs.get(commentIndex + 1).replaceAll("['\"]", "");
+                }
+
+                StreamField streamField = new StreamField();
+                streamField.setFieldName(columnName);
+                streamField.setFieldType(type);
+                streamField.setFieldComment(comment);
+                fields.add(streamField);
             }
         } else {
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
