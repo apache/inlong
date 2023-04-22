@@ -39,12 +39,16 @@ public class InlongStreamTest extends ServiceBaseTest {
 
     @Test
     public void testParseStreamFieldsByJson() {
-        String streamFieldsJson = "{\"name0\":\"string\",\"name1\":\"string\"}";
+        String streamFieldsJson =
+                "[{\"name\":\"name0\",\"type\":\"string\",\"desc\":\"desc0\"},{\"name\":\"name1\",\"type\":\"string\"}]";
         List<StreamField> expectStreamFields = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             StreamField field = new StreamField();
             field.setFieldName("name" + i);
             field.setFieldType("string");
+            if (i == 0) {
+                field.setFieldComment("desc0");
+            }
             expectStreamFields.add(field);
         }
         StreamField[] expectResult = expectStreamFields.toArray(new StreamField[0]);
@@ -57,12 +61,16 @@ public class InlongStreamTest extends ServiceBaseTest {
 
     @Test
     public void testParseSinkFieldsByJson() {
-        String sinkFieldsJson = "{\"sinkFieldName0\":\"string\",\"sinkFieldName1\":\"string\"}";
+        String sinkFieldsJson =
+                "[{\"name\":\"sinkFieldName0\",\"type\":\"string\",\"desc\":\"desc0\"},{\"name\":\"sinkFieldName1\",\"type\":\"string\"}]";
         List<SinkField> expectSinkFields = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             SinkField field = new SinkField();
             field.setFieldName("sinkFieldName" + i);
             field.setFieldType("string");
+            if (i == 0) {
+                field.setFieldComment("desc0");
+            }
             expectSinkFields.add(field);
         }
         SinkField[] expectResult = expectSinkFields.toArray(new SinkField[0]);

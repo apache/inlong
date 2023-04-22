@@ -167,5 +167,8 @@ public class InlongConstants {
 
     public static final Set<String> STREAM_FIELD_TYPES =
             Sets.newHashSet("string", "int", "long", "float", "double", "date", "timestamp");
+    public static final String STREAM_FILED_JSON_NAME_PROP = "name";
+    public static final String STREAM_FILED_JSON_TYPE_PROP = "type";
+    public static final String STREAM_FILED_JSON_COMMENT_PROP = "desc";
 
 }

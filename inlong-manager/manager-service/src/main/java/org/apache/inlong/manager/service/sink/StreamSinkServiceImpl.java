@@ -85,6 +85,9 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACK
 import static org.apache.inlong.manager.common.consts.InlongConstants.PATTERN_NORMAL_CHARACTERS;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FILED_JSON_COMMENT_PROP;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FILED_JSON_NAME_PROP;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FILED_JSON_TYPE_PROP;
 
 /**
  * Implementation of sink service interface
@@ -712,7 +715,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
             Map<String, String> fieldsMap;
             if (STATEMENT_TYPE_JSON.equals(method)) {
-                fieldsMap = parseFieldsByJson(statement);
+                return parseFieldsByJson(statement);
             } else if (STATEMENT_TYPE_SQL.equals(method)) {
                 return parseFieldsBySql(statement);
             } else {
@@ -810,11 +813,19 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         return fields;
     }
 
-    private Map<String, String> parseFieldsByJson(String statement) throws JsonProcessingException {
-        // Use LinkedHashMap deserialization to keep the order of the fields
-        return objectMapper.readValue(statement,
-                new TypeReference<LinkedHashMap<String, String>>() {
-                });
+    private List<SinkField> parseFieldsByJson(String statement) throws JsonProcessingException {
+        return objectMapper.readValue(statement, new TypeReference<List<Map<String, String>>>() {
+        }).stream().map(line -> {
+            String name = line.get(STREAM_FILED_JSON_NAME_PROP);
+            String type = line.get(STREAM_FILED_JSON_TYPE_PROP);
+            String desc = line.get(STREAM_FILED_JSON_COMMENT_PROP);
+            Map.Entry<String, String> next = line.entrySet().iterator().next();
+            SinkField streamField = new SinkField();
+            streamField.setFieldName(name);
+            streamField.setFieldType(type);
+            streamField.setFieldComment(desc);
+            return streamField;
+        }).collect(Collectors.toList());
     }
 
     private void checkSinkRequestParams(SinkRequest request) {
