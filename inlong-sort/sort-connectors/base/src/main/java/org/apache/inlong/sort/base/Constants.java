@@ -114,6 +114,18 @@ public final class Constants {
      * It is used for metric data to build schema identify
      */
     public static final String SEMICOLON = ".";
+
+    /**
+     * The caret symbol (^) at the start of a regular expression to indicate
+     * that a match must occur at the beginning of the searched text.
+     */
+    public static final String CARET = "^";
+
+    /**
+     * The dollar symbol ($) at the end of a regular expression to indicate
+     * that a match must occur at the ending of the searched text.
+     */
+    public static final String DOLLAR = "$";
     /**
      * It is used for metric data to spilt schema identify
      */
@@ -136,6 +148,12 @@ public final class Constants {
     public static final String AUTO_DESERIALIZE_FALSE = "autoDeserialize=false";
 
     public static final String DDL_FIELD_NAME = "ddl";
+
+    public static final String DDL_OP_ALTER = "ALTER";
+
+    public static final String DDL_OP_DROP = "DROP";
+
+    public static final String GHOST_TAG = "/* gh-ost */";
 
     public static final ConfigOption<String> INLONG_METRIC =
             ConfigOptions.key("inlong.metric.labels")
@@ -322,4 +340,16 @@ public final class Constants {
             .defaultValue(10240L)
             .withDescription(
                     "The flush max bytes, over this number in batch, will flush data. The default value is 10KB.");
+    public static final ConfigOption<Boolean> GH_OST_DDL_CHANGE = ConfigOptions
+            .key("gh-ost.ddl.change")
+            .booleanType()
+            .defaultValue(false)
+            .withDescription(
+                    "Whether parse ddl changes of gh-ost, default value is 'false'.");
+    public static final ConfigOption<String> GH_OST_TABLE_REGEX = ConfigOptions
+            .key("gh-ost.table.regex")
+            .stringType()
+            .defaultValue("^_(.*)_(gho|ghc|del)$")
+            .withDescription(
+                    "Matcher the original table name from the ddl of gh-ost.");
 }

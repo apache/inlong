@@ -56,6 +56,7 @@ public class AllMigrateTest {
         option.put("migrate-all", "true");
         option.put("include-incremental", "true");
         option.put("include-schema-change", "true");
+        option.put("gh-ost.ddl.change", "true");
         List<String> tables = new ArrayList(10);
         tables.add("test.*");
         List<FieldInfo> fields = Collections.singletonList(

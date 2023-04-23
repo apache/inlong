@@ -275,4 +275,14 @@ public class MySqlSourceBuilder<T> {
         this.configFactory.includeIncremental(includeIncremental);
         return this;
     }
+
+    public MySqlSourceBuilder<T> ghostDdlChange(boolean ghostDdlChange) {
+        this.configFactory.ghostDdlChange(ghostDdlChange);
+        return this;
+    }
+
+    public MySqlSourceBuilder<T> ghostTableRegex(String ghostTableRegex) {
+        this.configFactory.ghostTableRegex(ghostTableRegex);
+        return this;
+    }
 }

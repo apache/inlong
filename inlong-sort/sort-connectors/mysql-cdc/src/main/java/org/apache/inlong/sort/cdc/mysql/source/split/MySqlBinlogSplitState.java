@@ -34,12 +34,14 @@ public class MySqlBinlogSplitState extends MySqlSplitState {
     private BinlogOffset startingOffset;
     @Nullable
     private BinlogOffset endingOffset;
+    private Map<TableId, String> tableDdls;
 
     public MySqlBinlogSplitState(MySqlBinlogSplit split) {
         super(split);
         this.startingOffset = split.getStartingOffset();
         this.endingOffset = split.getEndingOffset();
         this.tableSchemas = split.getTableSchemas();
+        this.tableDdls = split.getTableDdls();
     }
 
     @Nullable
@@ -77,7 +79,8 @@ public class MySqlBinlogSplitState extends MySqlSplitState {
                 binlogSplit.asBinlogSplit().getFinishedSnapshotSplitInfos(),
                 getTableSchemas(),
                 binlogSplit.getTotalFinishedSplitSize(),
-                binlogSplit.isSuspended());
+                binlogSplit.isSuspended(),
+                binlogSplit.getTableDdls());
     }
 
     @Override
@@ -90,5 +93,13 @@ public class MySqlBinlogSplitState extends MySqlSplitState {
                 + ", split="
                 + split
                 + '}';
+    }
+
+    public Map<TableId, String> getTableDdls() {
+        return tableDdls;
+    }
+
+    public void recordTableDdl(TableId tableId, String ddl) {
+        this.tableDdls.put(tableId, ddl);
     }
 }

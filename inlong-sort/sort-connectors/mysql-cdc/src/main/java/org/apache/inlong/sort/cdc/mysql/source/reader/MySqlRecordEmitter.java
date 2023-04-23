@@ -25,6 +25,7 @@ import io.debezium.relational.ColumnFilterMode;
 import io.debezium.relational.TableId;
 import io.debezium.relational.Tables;
 import io.debezium.relational.history.HistoryRecord;
+import io.debezium.relational.history.HistoryRecord.Fields;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.Map.Entry;
@@ -33,9 +34,9 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.alter.RenameTableStatement;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.connector.source.SourceOutput;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
@@ -53,8 +54,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
-import static org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.GhostUtils.collectGhostDdl;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.GhostUtils.updateGhostDdlElement;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getFetchTimestamp;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getHistoryRecord;
@@ -97,7 +98,8 @@ public final class MySqlRecordEmitter<T>
     private volatile long snapProcessTime = 0L;
 
     private boolean includeIncremental;
-    public final ObjectMapper objectMapper = new ObjectMapper();
+    private boolean ghostDdlChange;
+    private String ghostTableRegex;
 
     public MySqlRecordEmitter(
             DebeziumDeserializationSchema<T> debeziumDeserializationSchema,
@@ -110,6 +112,8 @@ public final class MySqlRecordEmitter<T>
         this.includeIncremental = sourceConfig.isIncludeIncremental();
         this.columnNameFilter = ColumnFilterUtil.createColumnFilter(
                 sourceConfig.getDbzConfiguration(), ColumnFilterMode.CATALOG);
+        this.ghostDdlChange = sourceConfig.isGhostDdlChange();
+        this.ghostTableRegex = sourceConfig.getGhostTableRegex();
     }
 
     @Override
@@ -131,6 +135,9 @@ public final class MySqlRecordEmitter<T>
                 splitState.asBinlogSplitState().recordSchema(tableChange.getId(), tableChange);
                 if (includeSchemaChanges) {
                     TableChange newTableChange = ColumnFilterUtil.createTableChange(tableChange, columnNameFilter);
+                    if (ghostDdlChange) {
+                        updateGhostDdlElement(element, splitState, historyRecord, ghostTableRegex);
+                    }
                     outputDdlElement(element, output, splitState, newTableChange);
                 }
             }
@@ -139,8 +146,11 @@ public final class MySqlRecordEmitter<T>
                 TableId tableId = RecordUtils.getTableId(element);
                 // if this table is one of the captured tables, output the ddl element.
                 if (splitState.getMySQLSplit().getTableSchemas().containsKey(tableId)
-                        || shouldOutputRenameDdl(element, tableId)) {
+                        || shouldOutputRenameDdl(historyRecord, tableId)) {
                     outputDdlElement(element, output, splitState, null);
+                }
+                if (ghostDdlChange) {
+                    collectGhostDdl(element, splitState, historyRecord, ghostTableRegex);
                 }
             }
 
@@ -200,12 +210,14 @@ public final class MySqlRecordEmitter<T>
     /**
      * if rename operation is "rename a to b" where a is the captured table
      * this method extract table names a and b, if any of table name is the captured table
-     * we should output ddl element
+     * we should output ddl element.
      */
-    private boolean shouldOutputRenameDdl(SourceRecord element, TableId tableId) {
+    private boolean shouldOutputRenameDdl(HistoryRecord historyRecord, TableId tableId) {
+        String ddl = historyRecord.document().getString(Fields.DDL_STATEMENTS);
+        if (StringUtils.isBlank(ddl)) {
+            return false;
+        }
         try {
-            String ddl = objectMapper.readTree(((Struct) element.value()).get(HISTORY_RECORD_FIELD).toString())
-                    .get(DDL_FIELD_NAME).asText();
             Statement statement = CCJSqlParserUtil.parse(ddl);
             if (statement instanceof RenameTableStatement) {
                 RenameTableStatement renameTableStatement = (RenameTableStatement) statement;
@@ -220,7 +232,7 @@ public final class MySqlRecordEmitter<T>
                 }
             }
         } catch (Exception e) {
-            LOG.error("parse ddl error {}", element, e);
+            LOG.error("parse ddl error {}", historyRecord, e);
         }
         return false;
     }

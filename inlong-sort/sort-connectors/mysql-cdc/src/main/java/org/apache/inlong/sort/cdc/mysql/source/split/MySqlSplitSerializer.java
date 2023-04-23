@@ -104,6 +104,41 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
         return tableSchemas;
     }
 
+    public static void writeTableDdls(
+            Map<TableId, String> tableDdls, DataOutputSerializer out) throws IOException {
+        final int size = tableDdls.size();
+        out.writeInt(size);
+        for (Map.Entry<TableId, String> entry : tableDdls.entrySet()) {
+            out.writeUTF(entry.getKey().toString());
+            out.writeUTF(entry.getValue());
+        }
+    }
+
+    public static Map<TableId, String> readTableDdls(int version, DataInputDeserializer in)
+            throws IOException {
+        Map<TableId, String> tableDdls = new HashMap<>();
+        if (in.available() <= 0) {
+            return tableDdls;
+        }
+        final int size = in.readInt();
+        for (int i = 0; i < size; i++) {
+            TableId tableId = TableId.parse(in.readUTF());
+            final String ddl;
+            switch (version) {
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    ddl = in.readUTF();
+                    break;
+                default:
+                    throw new IOException("Unknown version: " + version);
+            }
+            tableDdls.put(tableId, ddl);
+        }
+        return tableDdls;
+    }
+
     private static void writeFinishedSplitsInfo(
             List<FinishedSnapshotSplitInfo> finishedSplitsInfo, DataOutputSerializer out)
             throws IOException {
@@ -228,6 +263,7 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
             writeTableSchemas(binlogSplit.getTableSchemas(), out);
             out.writeInt(binlogSplit.getTotalFinishedSplitSize());
             out.writeBoolean(binlogSplit.isSuspended());
+            writeTableDdls(binlogSplit.getTableDdls(), out);
             final byte[] result = out.getCopyOfBuffer();
             out.clear();
             // optimization: cache the serialized from, so we avoid the byte work during repeated
@@ -296,10 +332,12 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
             Map<TableId, TableChange> tableChangeMap = readTableSchemas(version, in);
             int totalFinishedSplitSize = finishedSplitsInfo.size();
             boolean isSuspended = false;
+            Map<TableId, String> tableDdls = null;
             if (version >= 3) {
                 totalFinishedSplitSize = in.readInt();
                 if (version > 3) {
                     isSuspended = in.readBoolean();
+                    tableDdls = readTableDdls(version, in);
                 }
             }
             in.releaseArrays();
@@ -310,7 +348,8 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
                     finishedSplitsInfo,
                     tableChangeMap,
                     totalFinishedSplitSize,
-                    isSuspended);
+                    isSuspended,
+                    tableDdls);
         } else if (splitKind == METRIC_SPLIT_FLAG) {
             long numBytesIn = 0L;
             long numRecordsIn = 0L;

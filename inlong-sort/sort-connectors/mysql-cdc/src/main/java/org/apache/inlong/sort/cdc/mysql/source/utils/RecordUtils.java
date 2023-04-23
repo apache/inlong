@@ -49,8 +49,10 @@ import java.util.stream.Collectors;
 
 import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl.HISTORY_RECORD_FIELD;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.DATABASE_NAME;
 import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.SIGNAL_EVENT_VALUE_SCHEMA_NAME;
 import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.SPLIT_ID_KEY;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.TABLE_NAME;
 import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.WATERMARK_KIND;
 
 /**
@@ -466,5 +468,21 @@ public class RecordUtils {
             return Optional.of(SignalEventDispatcher.WatermarkKind.valueOf(value.getString(WATERMARK_KIND)));
         }
         return Optional.empty();
+    }
+
+    public static String getTableName(SourceRecord element) {
+        Struct value = (Struct) element.value();
+        Struct source = value.getStruct(FieldName.SOURCE);
+        return source.getString(TABLE_NAME);
+    }
+
+    public static String getDbName(SourceRecord element) {
+        Struct value = (Struct) element.value();
+        Struct source = value.getStruct(FieldName.SOURCE);
+        return source.getString(DATABASE_NAME);
+    }
+
+    public static TableId getTableId(String dbName, String tableName) {
+        return new TableId(dbName, null, tableName);
     }
 }
