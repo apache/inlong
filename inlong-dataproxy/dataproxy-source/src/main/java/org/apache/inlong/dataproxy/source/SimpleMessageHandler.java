@@ -233,17 +233,6 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
         String groupId = message.getGroupId();
         String streamId = message.getStreamId();
         if (null != groupId) {
-            String from = commonAttrMap.get(AttributeConstants.FROM);
-            if ("dc".equals(from)) {
-                String dcInterfaceId = message.getStreamId();
-                if (StringUtils.isNotEmpty(dcInterfaceId)
-                        && configManager.getDcMappingProperties()
-                                .containsKey(dcInterfaceId.trim())) {
-                    groupId = configManager.getDcMappingProperties()
-                            .get(dcInterfaceId.trim()).trim();
-                    message.setGroupId(groupId);
-                }
-            }
 
             String value = getTopic(groupId, streamId);
             if (StringUtils.isNotEmpty(value)) {
@@ -315,15 +304,6 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             if (SLA_METRIC_GROUPID.equals(groupId)) {
                 commonAttrMap.put(SLA_METRIC_DATA, "true");
                 message.setTopic(SLA_METRIC_DATA);
-            }
-
-            if (groupId != null && streamId != null) {
-                String tubeSwtichKey = groupId + AttrConstants.SEPARATOR + streamId;
-                if (configManager.getTubeSwitchProperties().get(tubeSwtichKey) != null
-                        && "false".equals(configManager.getTubeSwitchProperties()
-                                .get(tubeSwtichKey).trim())) {
-                    continue;
-                }
             }
 
             if (!"pb".equals(attrMap.get(AttributeConstants.MESSAGE_TYPE))

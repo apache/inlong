@@ -72,9 +72,6 @@ public class ConfigManager {
     private final MxPropertiesHolder mxConfig = new MxPropertiesHolder("mx.properties");
 
     private final GroupIdPropertiesHolder groupIdConfig = new GroupIdPropertiesHolder("groupid_mapping.properties");
-    private final PropertiesConfigHolder dcConfig = new PropertiesConfigHolder("dc_mapping.properties");
-    private final PropertiesConfigHolder transferConfig = new PropertiesConfigHolder("transfer.properties");
-    private final PropertiesConfigHolder tubeSwitchConfig = new PropertiesConfigHolder("tube_switch.properties");
     private final PropertiesConfigHolder weightHolder = new PropertiesConfigHolder("weight.properties");
     private final FileConfigHolder blackListConfig = new FileConfigHolder("blacklist.properties");
     // source report configure holder
@@ -228,18 +225,6 @@ public class ConfigManager {
         } else {
             return false;
         }
-    }
-
-    public Map<String, String> getDcMappingProperties() {
-        return dcConfig.getHolder();
-    }
-
-    public Map<String, String> getTransferProperties() {
-        return transferConfig.getHolder();
-    }
-
-    public Map<String, String> getTubeSwitchProperties() {
-        return tubeSwitchConfig.getHolder();
     }
 
     public Map<String, Map<String, String>> getMxPropertiesMaps() {

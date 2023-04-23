@@ -404,18 +404,6 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
             } else {
-                // get configured group Id
-                String from = commonAttrMap.get(AttributeConstants.FROM);
-                if ("dc".equals(from)) {
-                    String dcInterfaceId = message.getStreamId();
-                    if (StringUtils.isNotEmpty(dcInterfaceId)
-                            && configManager.getDcMappingProperties()
-                                    .containsKey(dcInterfaceId.trim())) {
-                        groupId = configManager.getDcMappingProperties()
-                                .get(dcInterfaceId.trim()).trim();
-                        message.setGroupId(groupId);
-                    }
-                }
                 // get configured m value
                 Map<String, String> mxValue =
                         configManager.getMxPropertiesMaps().get(groupId);
