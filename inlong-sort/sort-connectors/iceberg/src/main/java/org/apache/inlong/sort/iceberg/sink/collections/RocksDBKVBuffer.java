@@ -108,9 +108,9 @@ public final class RocksDBKVBuffer<T, R> implements Closeable, KVBuffer<T, R>, S
         if (null != rocksDb) {
             LOG.info("Close rocksdb dir in {}", diskMapPath);
             rocksDb.close();
+            cleanup(false);
         }
         rocksDb = null;
-        this.cleanup(false);
     }
 
     @Override
@@ -118,10 +118,11 @@ public final class RocksDBKVBuffer<T, R> implements Closeable, KVBuffer<T, R>, S
         if (null != rocksDb) {
             LOG.info("Close rocksdb dir in {}", diskMapPath);
             rocksDb.close();
+            cleanup(false);
         }
         rocksDb = null;
         closed = true;
-        this.cleanup(false);
+
     }
 
     private void checkClosed() {
