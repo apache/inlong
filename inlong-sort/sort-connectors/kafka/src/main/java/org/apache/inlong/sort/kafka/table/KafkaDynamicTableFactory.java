@@ -61,7 +61,14 @@ import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
 
 import javax.annotation.Nullable;
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Pattern;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS_PREFIX;
@@ -239,7 +246,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 .equals(tableOptions.getOptional(SINK_PARTITIONER).get())) {
             InLongFixedPartitionPartitioner<RowData> inLongFixedPartitionPartitioner =
                     new InLongFixedPartitionPartitioner<>(tableOptions.getOptional(PATTERN_PARTITION_MAP)
-                                    .orElse(null),
+                            .orElse(null),
                             tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN)
                                     .orElse(null));
             inLongFixedPartitionPartitioner.setSinkMultipleFormat(tableOptions.getOptional(SINK_MULTIPLE_FORMAT)

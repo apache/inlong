@@ -58,7 +58,6 @@ public class InLongFixedPartitionPartitioner<T> extends FlinkKafkaPartitioner<T>
 
     private final int defaultPartitionId;
 
-
     public InLongFixedPartitionPartitioner(String patternPartitionMapConfig, String partitionPattern) {
         this.patternPartitionMap = configToMap(patternPartitionMapConfig);
         this.regexPatternMap = new HashMap<>();
