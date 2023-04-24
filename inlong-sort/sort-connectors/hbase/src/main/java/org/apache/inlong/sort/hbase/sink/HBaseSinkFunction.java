@@ -52,6 +52,7 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.CalculateObjectSizeUtils;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -249,13 +250,13 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             try {
                 mutation = Preconditions.checkNotNull(mutationConverter.convertToMutation(value));
                 rowSize++;
-                dataSize = dataSize + value.toString().getBytes(StandardCharsets.UTF_8).length;
+                dataSize = dataSize + CalculateObjectSizeUtils.getDataSize(value);
             } catch (Exception e) {
                 LOGGER.error("Convert to mutation error", e);
                 if (!dirtyOptions.ignoreDirty()) {
                     throw new RuntimeException(e);
                 }
-                sinkMetricData.invokeDirty(1, value.toString().getBytes(StandardCharsets.UTF_8).length);
+                sinkMetricData.invokeDirtyWithEstimate(value);
                 if (dirtySink != null) {
                     DirtyData.Builder<Object> builder = DirtyData.builder();
                     try {

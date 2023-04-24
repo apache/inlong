@@ -38,6 +38,7 @@ import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataSize;
 
 /**
  * A collection class for handling sub metrics of table schema type
@@ -405,13 +406,11 @@ public class SinkTableMetricData extends SinkMetricData implements SinkSubMetric
      * @param data the dirty data
      */
     public void outputDirtyMetricsWithEstimate(String database, String table, Object data) {
-        long size = data == null ? 0L : data.toString().getBytes(StandardCharsets.UTF_8).length;
-        outputDirtyMetrics(database, table, 1, size);
+        outputDirtyMetrics(database, table, 1, getDataSize(data));
     }
 
     public void outputDirtyMetricsWithEstimate(Object data) {
-        long size = data.toString().getBytes(StandardCharsets.UTF_8).length;
-        invokeDirty(1, size);
+        invokeDirty(1, getDataSize(data));
     }
 
     @Override

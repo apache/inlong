@@ -25,7 +25,6 @@ import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
@@ -36,6 +35,7 @@ import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT_PER_SECOND;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
+import static org.apache.inlong.sort.base.util.CalculateObjectSizeUtils.getDataSize;
 
 /**
  * A collection class for handling metrics
@@ -253,13 +253,11 @@ public class SinkMetricData implements MetricData {
     }
 
     public void invokeWithEstimate(Object o) {
-        long size = o.toString().getBytes(StandardCharsets.UTF_8).length;
-        invoke(1, size);
+        invoke(1, getDataSize(o));
     }
 
     public void invokeDirtyWithEstimate(Object o) {
-        long size = o.toString().getBytes(StandardCharsets.UTF_8).length;
-        invokeDirty(1, size);
+        invokeDirty(1, getDataSize(o));
     }
 
     public void invoke(long rowCount, long rowSize) {
