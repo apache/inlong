@@ -168,4 +168,19 @@ public class InlongConstants {
     public static final Set<String> STREAM_FIELD_TYPES =
             Sets.newHashSet("string", "int", "long", "float", "double", "date", "timestamp");
 
+    /**
+     * The name prop when batch parsing fields in JSON mode
+     */
+    public static final String BATCH_PARSING_FILED_JSON_NAME_PROP = "name";
+
+    /**
+     * The type prop when batch parsing fields in JSON mode
+     */
+    public static final String BATCH_PARSING_FILED_JSON_TYPE_PROP = "type";
+
+    /**
+     * The comment prop when batch parsing fields in JSON mode
+     */
+    public static final String BATCH_PARSING_FILED_JSON_COMMENT_PROP = "desc";
+
 }

@@ -39,12 +39,16 @@ public class InlongStreamTest extends ServiceBaseTest {
 
     @Test
     public void testParseStreamFieldsByJson() {
-        String streamFieldsJson = "{\"name0\":\"string\",\"name1\":\"string\"}";
+        String streamFieldsJson =
+                "[{\"name\":\"name0\",\"type\":\"string\",\"desc\":\"desc0\"},{\"name\":\"name1\",\"type\":\"string\"}]";
         List<StreamField> expectStreamFields = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             StreamField field = new StreamField();
             field.setFieldName("name" + i);
             field.setFieldType("string");
+            if (i == 0) {
+                field.setFieldComment("desc0");
+            }
             expectStreamFields.add(field);
         }
         StreamField[] expectResult = expectStreamFields.toArray(new StreamField[0]);
@@ -57,12 +61,16 @@ public class InlongStreamTest extends ServiceBaseTest {
 
     @Test
     public void testParseSinkFieldsByJson() {
-        String sinkFieldsJson = "{\"sinkFieldName0\":\"string\",\"sinkFieldName1\":\"string\"}";
+        String sinkFieldsJson =
+                "[{\"name\":\"sinkFieldName0\",\"type\":\"string\",\"desc\":\"desc0 content\"},{\"name\":\"sinkFieldName1\",\"type\":\"string\"}]";
         List<SinkField> expectSinkFields = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             SinkField field = new SinkField();
             field.setFieldName("sinkFieldName" + i);
             field.setFieldType("string");
+            if (i == 0) {
+                field.setFieldComment("desc0 content");
+            }
             expectSinkFields.add(field);
         }
         SinkField[] expectResult = expectSinkFields.toArray(new SinkField[0]);
@@ -75,14 +83,14 @@ public class InlongStreamTest extends ServiceBaseTest {
 
     @Test
     public void testParseStreamFieldsBySql() {
-        String streamFieldsSql = "CREATE TABLE my_table (name0 VARCHAR(50) comment 'desc0', name1 VARCHAR(50))";
+        String streamFieldsSql = "CREATE TABLE my_table (name0 VARCHAR(50) comment 'desc0 content', name1 VARCHAR(50))";
         List<StreamField> expectStreamFields = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             StreamField field = new StreamField();
             field.setFieldName("name" + i);
             field.setFieldType("string");
             if (i == 0) {
-                field.setFieldComment("desc0");
+                field.setFieldComment("desc0 content");
             }
             expectStreamFields.add(field);
         }
@@ -97,14 +105,14 @@ public class InlongStreamTest extends ServiceBaseTest {
     @Test
     public void testParseSinkFieldsBySql() {
         String sinkFieldsSql =
-                "CREATE TABLE my_table (sinkFieldName0 VARCHAR(50) comment 'desc0', sinkFieldName1 VARCHAR(50))";
+                "CREATE TABLE my_table (sinkFieldName0 VARCHAR(50) comment 'desc0 content', sinkFieldName1 VARCHAR(50))";
         List<SinkField> expectSinkFields = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             SinkField field = new SinkField();
             field.setFieldName("sinkFieldName" + i);
             field.setFieldType("varchar");
             if (i == 0) {
-                field.setFieldComment("desc0");
+                field.setFieldComment("desc0 content");
             }
             expectSinkFields.add(field);
         }
