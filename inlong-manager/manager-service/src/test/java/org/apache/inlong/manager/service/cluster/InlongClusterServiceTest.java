@@ -73,7 +73,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     public Integer savePulsarCluster(String clusterTag, String clusterName, String adminUrl) {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setClusterTags(clusterTag);
-        request.setDisplayName(clusterName);
+        request.setName(clusterName);
         request.setType(ClusterType.PULSAR);
         request.setAdminUrl(adminUrl);
         request.setInCharges(GLOBAL_OPERATOR);
@@ -98,7 +98,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setId(id);
         request.setType(clusterType);
-        request.setDisplayName(name);
+        request.setName(name);
         request.setClusterTags(clusterTag);
         request.setAdminUrl(adminUrl);
         request.setInCharges(GLOBAL_OPERATOR);
@@ -214,7 +214,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(adminUrl, pulsarCluster.getAdminUrl());
 
         // update cluster
-        String clusterNameUpdate = "default_pulsar_2";
+        String clusterNameUpdate = "default_pulsar";
         String clusterTagUpdate = "default_cluster_2";
         String adminUrlUpdate = "http://127.0.0.1:8088";
         Boolean updateSuccess =

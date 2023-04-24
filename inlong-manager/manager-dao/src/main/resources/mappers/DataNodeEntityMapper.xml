@@ -140,7 +140,7 @@
             <if test="name != null">
                 name = #{name, jdbcType=VARCHAR},
             </if>
-            <if test="dataNodeDisplayName !=null">
+            <if test="displayName !=null">
                 display_name = #{displayName, jdbcType=VARCHAR},
             </if>
             <if test="type != null">
