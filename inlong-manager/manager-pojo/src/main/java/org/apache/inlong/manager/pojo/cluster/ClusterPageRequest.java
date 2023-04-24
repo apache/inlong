@@ -48,6 +48,9 @@ public class ClusterPageRequest extends PageRequest {
     @ApiModelProperty(value = "Cluster name")
     private String name;
 
+    @ApiModelProperty(value = "Cluster display name, just for display")
+    private String displayName;
+
     @ApiModelProperty(value = "Parent cluster ID, used for cluster node")
     private Integer parentId;
 

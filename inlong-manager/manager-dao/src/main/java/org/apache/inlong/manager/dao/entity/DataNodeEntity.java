@@ -31,6 +31,7 @@ public class DataNodeEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     private Integer id;
     private String name;
+    private String displayName;
     private String type;
     private String url;
     private String username;

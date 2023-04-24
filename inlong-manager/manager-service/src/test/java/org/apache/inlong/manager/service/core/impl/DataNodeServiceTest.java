@@ -77,7 +77,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
             Integer version) {
         HiveDataNodeRequest request = new HiveDataNodeRequest();
         request.setId(id);
-        request.setName(nodeName);
+        request.setDisplayName(nodeName);
         request.setType(type);
         request.setUrl(url);
         request.setUsername(username);

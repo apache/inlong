@@ -23,6 +23,7 @@
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="display_name" property="displayName"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="cluster_tags" jdbcType="VARCHAR" property="clusterTags"/>
@@ -41,35 +42,35 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, url, cluster_tags, ext_tag, token, ext_params, description, heartbeat,
+        id, name, display_name, type, url, cluster_tags, ext_tag, token, ext_params, description, heartbeat,
         in_charges, status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
-        insert into inlong_cluster (id, name, type,
+        insert into inlong_cluster (id, name, display_name, type,
                                     url, cluster_tags, ext_tag,
                                     token, ext_params, description,
                                     heartbeat, in_charges,
                                     status, creator, modifier)
-        values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
-                #{url,jdbcType=VARCHAR}, #{clusterTags,jdbcType=VARCHAR}, #{extTag,jdbcType=VARCHAR},
-                #{token,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR}, #{description, jdbcType=VARCHAR},
-                #{heartbeat,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR},
+                #{type,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{clusterTags,jdbcType=VARCHAR},
+                #{extTag,jdbcType=VARCHAR}, #{token,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
+                #{description, jdbcType=VARCHAR}, #{heartbeat,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR},
                 #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
 
     <insert id="insertOnDuplicateKeyUpdate" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
-        insert into inlong_cluster (id, name, type,
+        insert into inlong_cluster (id, name, display_name, type,
                                     url, cluster_tags, ext_tag,
                                     token, ext_params, heartbeat,
                                     in_charges, status,
                                     creator, modifier)
-        values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
-                #{url,jdbcType=VARCHAR}, #{clusterTags,jdbcType=VARCHAR}, #{extTag,jdbcType=VARCHAR},
-                #{token,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR}, #{heartbeat,jdbcType=LONGVARCHAR},
-                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+        values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR},
+                #{type,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{clusterTags,jdbcType=VARCHAR},
+                #{extTag,jdbcType=VARCHAR},#{token,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
+                #{heartbeat,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
         ON DUPLICATE KEY UPDATE cluster_tags = VALUES(cluster_tags),
                                 ext_tag      = VALUES(ext_tag),
@@ -155,6 +156,7 @@
             </if>
             <if test="keyword != null and keyword != ''">
                 and (name like CONCAT('%', #{keyword}, '%')
+                or display_name like CONCAT('%', #{keyword}, '%')
                 or cluster_tags like CONCAT('%', #{keyword}, '%')
                 or ext_tag like CONCAT('%', #{keyword}, '%')
                 )
@@ -182,7 +184,7 @@
         </where>
         order by modify_time desc
     </select>
-    <select id="selectAllClusters" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo" >
+    <select id="selectAllClusters" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo">
         select name,
                type,
                url,
@@ -195,20 +197,21 @@
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         update inlong_cluster
-        set name         = #{name,jdbcType=VARCHAR},
-            type         = #{type,jdbcType=VARCHAR},
-            url          = #{url,jdbcType=VARCHAR},
-            cluster_tags = #{clusterTags,jdbcType=VARCHAR},
-            ext_tag      = #{extTag,jdbcType=VARCHAR},
-            token        = #{token,jdbcType=VARCHAR},
-            ext_params   = #{extParams,jdbcType=LONGVARCHAR},
-            description  = #{description,jdbcType=VARCHAR},
-            heartbeat    = #{heartbeat,jdbcType=LONGVARCHAR},
-            in_charges   = #{inCharges,jdbcType=VARCHAR},
-            status       = #{status,jdbcType=INTEGER},
-            is_deleted   = #{isDeleted,jdbcType=INTEGER},
-            modifier     = #{modifier,jdbcType=VARCHAR},
-            version      = #{version,jdbcType=INTEGER} + 1
+        set name                 = #{name,jdbcType=VARCHAR},
+            display_name         = #{displayName,jdbcType=VARCHAR},
+            type                 = #{type,jdbcType=VARCHAR},
+            url                  = #{url,jdbcType=VARCHAR},
+            cluster_tags         = #{clusterTags,jdbcType=VARCHAR},
+            ext_tag              = #{extTag,jdbcType=VARCHAR},
+            token                = #{token,jdbcType=VARCHAR},
+            ext_params           = #{extParams,jdbcType=LONGVARCHAR},
+            description          = #{description,jdbcType=VARCHAR},
+            heartbeat            = #{heartbeat,jdbcType=LONGVARCHAR},
+            in_charges           = #{inCharges,jdbcType=VARCHAR},
+            status               = #{status,jdbcType=INTEGER},
+            is_deleted           = #{isDeleted,jdbcType=INTEGER},
+            modifier             = #{modifier,jdbcType=VARCHAR},
+            version              = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
           and version = #{version,jdbcType=INTEGER}
     </update>
@@ -217,6 +220,9 @@
         <set>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="displayName != null">
+                display_name = #{displayName,jdbcType=VARCHAR},
             </if>
             <if test="type != null">
                 type = #{type,jdbcType=VARCHAR},

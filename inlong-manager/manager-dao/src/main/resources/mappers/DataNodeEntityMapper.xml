@@ -23,6 +23,7 @@
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="display_name" jdbcType="VARCHAR" property="displayName"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
@@ -39,20 +40,21 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, url, username, token, ext_params, description, in_charges, status, is_deleted,
+        id, name, display_name, type, url, username, token, ext_params, description, in_charges, status, is_deleted,
         creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
-        insert into data_node (id, name, type,
+        insert into data_node (id, name, display_name, type,
                                url, username, token,
                                ext_params, description, in_charges,
                                status, creator, modifier)
-        values (#{id, jdbcType=INTEGER}, #{name, jdbcType=VARCHAR}, #{type, jdbcType=VARCHAR},
-                #{url, jdbcType=VARCHAR}, #{username, jdbcType=VARCHAR}, #{token, jdbcType=VARCHAR},
-                #{extParams,jdbcType=LONGVARCHAR}, #{description, jdbcType=VARCHAR}, #{inCharges, jdbcType=VARCHAR},
-                #{status, jdbcType=INTEGER}, #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
+        values (#{id, jdbcType=INTEGER}, #{name, jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR},
+                #{type, jdbcType=VARCHAR}, #{url, jdbcType=VARCHAR}, #{username, jdbcType=VARCHAR},
+                #{token, jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR}, #{description, jdbcType=VARCHAR},
+                #{inCharges, jdbcType=VARCHAR}, #{status, jdbcType=INTEGER}, #{creator, jdbcType=VARCHAR},
+                #{modifier, jdbcType=VARCHAR})
     </insert>
 
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -87,6 +89,7 @@
             <if test="keyword != null and keyword != ''">
                 and (
                 name like CONCAT('%', #{keyword}, '%')
+                or display_name like CONCAT('%', #{keyword}, '%')
                 or type like CONCAT('%', #{keyword}, '%')
                 or url like CONCAT('%', #{keyword}, '%')
                 )
@@ -115,18 +118,19 @@
     </select>
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         update data_node
-        set name        = #{name, jdbcType=VARCHAR},
-            type        = #{type, jdbcType=VARCHAR},
-            url         = #{url, jdbcType=VARCHAR},
-            username    = #{username, jdbcType=VARCHAR},
-            token       = #{token, jdbcType=VARCHAR},
-            ext_params  = #{extParams, jdbcType=LONGVARCHAR},
-            description = #{description,jdbcType=VARCHAR},
-            in_charges  = #{inCharges, jdbcType=VARCHAR},
-            status      = #{status, jdbcType=INTEGER},
-            is_deleted  = #{isDeleted, jdbcType=INTEGER},
-            modifier    = #{modifier, jdbcType=VARCHAR},
-            version     = #{version, jdbcType=INTEGER} + 1
+        set name         = #{name, jdbcType=VARCHAR},
+            display_name = #{displayName, jdbcType=VARCHAR},
+            type         = #{type, jdbcType=VARCHAR},
+            url          = #{url, jdbcType=VARCHAR},
+            username     = #{username, jdbcType=VARCHAR},
+            token        = #{token, jdbcType=VARCHAR},
+            ext_params   = #{extParams, jdbcType=LONGVARCHAR},
+            description  = #{description,jdbcType=VARCHAR},
+            in_charges   = #{inCharges, jdbcType=VARCHAR},
+            status       = #{status, jdbcType=INTEGER},
+            is_deleted   = #{isDeleted, jdbcType=INTEGER},
+            modifier     = #{modifier, jdbcType=VARCHAR},
+            version      = #{version, jdbcType=INTEGER} + 1
         where id = #{id, jdbcType=INTEGER}
           and version = #{version, jdbcType=INTEGER}
     </update>
@@ -135,6 +139,9 @@
         <set>
             <if test="name != null">
                 name = #{name, jdbcType=VARCHAR},
+            </if>
+            <if test="dataNodeDisplayName !=null">
+                display_name = #{displayName, jdbcType=VARCHAR},
             </if>
             <if test="type != null">
                 type = #{type, jdbcType=VARCHAR},

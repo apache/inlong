@@ -73,7 +73,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     public Integer savePulsarCluster(String clusterTag, String clusterName, String adminUrl) {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setClusterTags(clusterTag);
-        request.setName(clusterName);
+        request.setDisplayName(clusterName);
         request.setType(ClusterType.PULSAR);
         request.setAdminUrl(adminUrl);
         request.setInCharges(GLOBAL_OPERATOR);
@@ -98,7 +98,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setId(id);
         request.setType(clusterType);
-        request.setName(name);
+        request.setDisplayName(name);
         request.setClusterTags(clusterTag);
         request.setAdminUrl(adminUrl);
         request.setInCharges(GLOBAL_OPERATOR);

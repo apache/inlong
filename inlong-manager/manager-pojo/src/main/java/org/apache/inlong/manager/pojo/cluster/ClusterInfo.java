@@ -45,6 +45,9 @@ public abstract class ClusterInfo {
     @ApiModelProperty(value = "Cluster name")
     private String name;
 
+    @ApiModelProperty(value = "Cluster display name, just for display")
+    private String displayName;
+
     @ApiModelProperty(value = "Cluster type, including TUBEMQ, PULSAR, KAFKA, DATAPROXY, etc.")
     private String type;
 

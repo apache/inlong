@@ -24,8 +24,6 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.Pattern;
-
 /**
  * Data node paging query conditions
  */
@@ -39,9 +37,10 @@ public class DataNodePageRequest extends PageRequest {
     private String type;
 
     @ApiModelProperty(value = "Data node name")
-    @Length(min = 1, max = 128, message = "length must be between 1 and 128")
-    @Pattern(regexp = "^[A-Za-z0-9_-]{1,128}$", message = "only supports letters, numbers, '-', or '_'")
     private String name;
+
+    @ApiModelProperty(value = "Data node display name, just for display")
+    private String displayName;
 
     @ApiModelProperty(value = "Keywords, name, url, etc.")
     private String keyword;

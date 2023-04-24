@@ -68,7 +68,7 @@ public class StreamSinkController {
     @ApiOperation(value = "Get stream sink")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<StreamSink> get(@PathVariable Integer id) {
-        return Response.success(sinkService.get(id));
+        return Response.success(sinkService.get(id, LoginUserUtils.getLoginUser()));
     }
 
     @RequestMapping(value = "/sink/list", method = RequestMethod.POST)
