@@ -76,18 +76,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
 import static org.apache.inlong.manager.common.consts.InlongConstants.PATTERN_NORMAL_CHARACTERS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_CSV;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
-import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FILED_JSON_COMMENT_PROP;
-import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FILED_JSON_NAME_PROP;
-import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FILED_JSON_TYPE_PROP;
+import static org.apache.inlong.manager.common.consts.InlongConstants.BATCH_PARSING_FILED_JSON_COMMENT_PROP;
+import static org.apache.inlong.manager.common.consts.InlongConstants.BATCH_PARSING_FILED_JSON_NAME_PROP;
+import static org.apache.inlong.manager.common.consts.InlongConstants.BATCH_PARSING_FILED_JSON_TYPE_PROP;
 
 /**
  * Implementation of sink service interface
@@ -96,7 +97,7 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FIL
 public class StreamSinkServiceImpl implements StreamSinkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSinkServiceImpl.class);
-    private static final String PARSE_FIELD_CSV_SPLITTER = "\t|\\s|,";
+    private static final Pattern PARSE_FIELD_CSV_SPLITTER = Pattern.compile("[\t\\s,]");
     private static final int PARSE_FIELD_CSV_MAX_COLUMNS = 3;
     private static final int PARSE_FIELD_CSV_MIN_COLUMNS = 2;
 
@@ -294,7 +295,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
 
         List<SinkBriefInfo> summaryList = sinkMapper.selectSummary(groupId, streamId);
-        LOGGER.debug("success to list sink summary by groupId=" + groupId + ", streamId=" + streamId);
+        LOGGER.debug("success to list sink summary by groupId={}, streamId={}", groupId, streamId);
+
         return summaryList;
     }
 
@@ -713,25 +715,21 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             String method = parseFieldRequest.getMethod();
             String statement = parseFieldRequest.getStatement();
 
-            Map<String, String> fieldsMap;
-            if (STATEMENT_TYPE_JSON.equals(method)) {
-                return parseFieldsByJson(statement);
-            } else if (STATEMENT_TYPE_SQL.equals(method)) {
-                return parseFieldsBySql(statement);
-            } else {
-                return parseFieldsByCsv(statement);
+            switch (method) {
+                case STATEMENT_TYPE_JSON:
+                    return parseFieldsByJson(statement);
+                case STATEMENT_TYPE_SQL:
+                    return parseFieldsBySql(statement);
+                case STATEMENT_TYPE_CSV:
+                    return parseFieldsByCsv(statement);
+                default:
+                    throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                            String.format("Unsupported parse mode: %s", method));
             }
-            return fieldsMap.entrySet().stream().map(entry -> {
-                SinkField field = new SinkField();
-                field.setFieldName(entry.getKey());
-                field.setFieldType(entry.getValue());
-                return field;
-            }).collect(Collectors.toList());
 
         } catch (Exception e) {
-            LOGGER.error("parse sink fields error", e);
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    String.format("parse sink fields error : %s", e.getMessage()));
+                    String.format("parse sink fields error: %s", e.getMessage()));
         }
     }
 
@@ -744,7 +742,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 continue;
             }
 
-            String[] cols = line.split(PARSE_FIELD_CSV_SPLITTER, PARSE_FIELD_CSV_MAX_COLUMNS);
+            String[] cols = PARSE_FIELD_CSV_SPLITTER.split(line, PARSE_FIELD_CSV_MAX_COLUMNS);
             if (cols.length < PARSE_FIELD_CSV_MIN_COLUMNS) {
                 throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
                         "At least two fields are required, line number is " + (i + 1));
@@ -774,21 +772,28 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         CCJSqlParserManager pm = new CCJSqlParserManager();
         Statement statement = pm.parse(new StringReader(sql));
         List<SinkField> fields = new ArrayList<>();
-        if (statement instanceof CreateTable) {
-            CreateTable createTable = (CreateTable) statement;
-            List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
-            // get column definition
-            for (ColumnDefinition definition : columnDefinitions) {
-                // get field name
-                String columnName = definition.getColumnName();
-                ColDataType colDataType = definition.getColDataType();
-                String sqlDataType = colDataType.getDataType();
-                // get field type
-                String realDataType = StringUtils.substringBefore(sqlDataType, LEFT_BRACKET).toLowerCase();
-                // get field comment
-                List<String> columnSpecs = definition.getColumnSpecs();
+        if (!(statement instanceof CreateTable)) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "The SQL statement must be a table creation statement");
+        }
+        CreateTable createTable = (CreateTable) statement;
+        List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
+        // get column definition
+        for (ColumnDefinition definition : columnDefinitions) {
+            // get field name
+            String columnName = definition.getColumnName();
+            ColDataType colDataType = definition.getColDataType();
+            String sqlDataType = colDataType.getDataType();
+            SinkField sinkField = new SinkField();
+            sinkField.setFieldName(columnName);
+            // get field type
+            String realDataType = StringUtils.substringBefore(sqlDataType, LEFT_BRACKET).toLowerCase();
+            sinkField.setFieldType(realDataType);
+            // get field comment
+            List<String> columnSpecs = definition.getColumnSpecs();
+            if (CollectionUtils.isNotEmpty(columnSpecs)) {
                 int commentIndex = -1;
-                for (int csIndex = 0; columnSpecs != null && csIndex < columnSpecs.size(); csIndex++) {
+                for (int csIndex = 0; csIndex < columnSpecs.size(); csIndex++) {
                     String spec = columnSpecs.get(csIndex);
                     if (spec.toUpperCase().startsWith("COMMENT")) {
                         commentIndex = csIndex;
@@ -799,16 +804,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 if (-1 != commentIndex && columnSpecs.size() > commentIndex + 1) {
                     comment = columnSpecs.get(commentIndex + 1).replaceAll("['\"]", "");
                 }
-
-                SinkField sinkField = new SinkField();
-                sinkField.setFieldName(columnName);
-                sinkField.setFieldType(realDataType);
                 sinkField.setFieldComment(comment);
-                fields.add(sinkField);
             }
-        } else {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "The SQL statement must be a table creation statement");
+
+            fields.add(sinkField);
         }
         return fields;
     }
@@ -816,15 +815,14 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private List<SinkField> parseFieldsByJson(String statement) throws JsonProcessingException {
         return objectMapper.readValue(statement, new TypeReference<List<Map<String, String>>>() {
         }).stream().map(line -> {
-            String name = line.get(STREAM_FILED_JSON_NAME_PROP);
-            String type = line.get(STREAM_FILED_JSON_TYPE_PROP);
-            String desc = line.get(STREAM_FILED_JSON_COMMENT_PROP);
-            Map.Entry<String, String> next = line.entrySet().iterator().next();
-            SinkField streamField = new SinkField();
-            streamField.setFieldName(name);
-            streamField.setFieldType(type);
-            streamField.setFieldComment(desc);
-            return streamField;
+            String name = line.get(BATCH_PARSING_FILED_JSON_NAME_PROP);
+            String type = line.get(BATCH_PARSING_FILED_JSON_TYPE_PROP);
+            String desc = line.get(BATCH_PARSING_FILED_JSON_COMMENT_PROP);
+            SinkField sinkField = new SinkField();
+            sinkField.setFieldName(name);
+            sinkField.setFieldType(type);
+            sinkField.setFieldComment(desc);
+            return sinkField;
         }).collect(Collectors.toList());
     }
 

@@ -81,19 +81,19 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.PATTERN_NORMAL_CHARACTERS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_CSV;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_JSON;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STATEMENT_TYPE_SQL;
 import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FIELD_TYPES;
-import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FILED_JSON_COMMENT_PROP;
-import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FILED_JSON_NAME_PROP;
-import static org.apache.inlong.manager.common.consts.InlongConstants.STREAM_FILED_JSON_TYPE_PROP;
+import static org.apache.inlong.manager.common.consts.InlongConstants.BATCH_PARSING_FILED_JSON_COMMENT_PROP;
+import static org.apache.inlong.manager.common.consts.InlongConstants.BATCH_PARSING_FILED_JSON_NAME_PROP;
+import static org.apache.inlong.manager.common.consts.InlongConstants.BATCH_PARSING_FILED_JSON_TYPE_PROP;
 import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.packExtParams;
 import static org.apache.inlong.manager.pojo.stream.InlongStreamExtParam.unpackExtParams;
 
@@ -743,21 +743,17 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             String method = parseFieldRequest.getMethod();
             String statement = parseFieldRequest.getStatement();
 
-            Map<String, String> fieldsMap;
-            if (STATEMENT_TYPE_JSON.equals(method)) {
-                return parseFieldsByJson(statement);
-            } else if (STATEMENT_TYPE_SQL.equals(method)) {
-                return parseFieldsBySql(statement);
-            } else {
-                return parseFieldsByCsv(statement);
+            switch (method) {
+                case STATEMENT_TYPE_JSON:
+                    return parseFieldsByJson(statement);
+                case STATEMENT_TYPE_SQL:
+                    return parseFieldsBySql(statement);
+                case STATEMENT_TYPE_CSV:
+                    return parseFieldsByCsv(statement);
+                default:
+                    throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                            String.format("Unsupported parse field mode: %s", method));
             }
-            return fieldsMap.entrySet().stream().map(entry -> {
-                StreamField field = new StreamField();
-                field.setFieldName(entry.getKey());
-                field.setFieldType(entry.getValue());
-                return field;
-            }).collect(Collectors.toList());
-
         } catch (Exception e) {
             LOGGER.error("parse inlong stream fields error", e);
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
@@ -834,27 +830,35 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         CCJSqlParserManager pm = new CCJSqlParserManager();
         Statement statement = pm.parse(new StringReader(sql));
         List<StreamField> fields = new ArrayList<>();
-        if (statement instanceof CreateTable) {
-            CreateTable createTable = (CreateTable) statement;
-            List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
-            // get column definition
-            for (int i = 0; i < columnDefinitions.size(); i++) {
-                ColumnDefinition definition = columnDefinitions.get(i);
-                // get field name
-                String columnName = definition.getColumnName();
-                ColDataType colDataType = definition.getColDataType();
-                String sqlDataType = colDataType.getDataType();
-                // convert SQL type to Java type
-                Class<?> clazz = FieldInfoUtils.sqlTypeToJavaType(sqlDataType);
-                if (clazz == Object.class) {
-                    throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                            "Unrecognized SQL field type, line: " + (i + 1) + ", type: " + sqlDataType);
-                }
-                String type = clazz.getSimpleName().toLowerCase();
-                // get field comment
-                List<String> columnSpecs = definition.getColumnSpecs();
+        if (!(statement instanceof CreateTable)) {
+            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                    "The SQL statement must be a table creation statement");
+        }
+        CreateTable createTable = (CreateTable) statement;
+        List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
+        // get column definition
+        for (int i = 0; i < columnDefinitions.size(); i++) {
+            ColumnDefinition definition = columnDefinitions.get(i);
+            StreamField streamField = new StreamField();
+            // get field name
+            String columnName = definition.getColumnName();
+            streamField.setFieldName(columnName);
+
+            ColDataType colDataType = definition.getColDataType();
+            String sqlDataType = colDataType.getDataType();
+            // convert SQL type to Java type
+            Class<?> clazz = FieldInfoUtils.sqlTypeToJavaType(sqlDataType);
+            if (clazz == Object.class) {
+                throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
+                        "Unrecognized SQL field type, line: " + (i + 1) + ", type: " + sqlDataType);
+            }
+            String type = clazz.getSimpleName().toLowerCase();
+            streamField.setFieldType(type);
+            // get field comment
+            List<String> columnSpecs = definition.getColumnSpecs();
+            if (CollectionUtils.isNotEmpty(columnSpecs)) {
                 int commentIndex = -1;
-                for (int csIndex = 0; columnSpecs != null && csIndex < columnSpecs.size(); csIndex++) {
+                for (int csIndex = 0; csIndex < columnSpecs.size(); csIndex++) {
                     String spec = columnSpecs.get(csIndex);
                     if (spec.toUpperCase().startsWith("COMMENT")) {
                         commentIndex = csIndex;
@@ -865,16 +869,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                 if (-1 != commentIndex && columnSpecs.size() > commentIndex + 1) {
                     comment = columnSpecs.get(commentIndex + 1).replaceAll("['\"]", "");
                 }
-
-                StreamField streamField = new StreamField();
-                streamField.setFieldName(columnName);
-                streamField.setFieldType(type);
                 streamField.setFieldComment(comment);
-                fields.add(streamField);
             }
-        } else {
-            throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
-                    "The SQL statement must be a table creation statement");
+            fields.add(streamField);
         }
         return fields;
     }
@@ -882,10 +879,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     private List<StreamField> parseFieldsByJson(String statement) throws JsonProcessingException {
         return objectMapper.readValue(statement, new TypeReference<List<Map<String, String>>>() {
         }).stream().map(line -> {
-            String name = line.get(STREAM_FILED_JSON_NAME_PROP);
-            String type = line.get(STREAM_FILED_JSON_TYPE_PROP);
-            String desc = line.get(STREAM_FILED_JSON_COMMENT_PROP);
-            Map.Entry<String, String> next = line.entrySet().iterator().next();
+            String name = line.get(BATCH_PARSING_FILED_JSON_NAME_PROP);
+            String type = line.get(BATCH_PARSING_FILED_JSON_TYPE_PROP);
+            String desc = line.get(BATCH_PARSING_FILED_JSON_COMMENT_PROP);
             StreamField streamField = new StreamField();
             streamField.setFieldName(name);
             streamField.setFieldType(type);
