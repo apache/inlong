@@ -48,6 +48,7 @@ public abstract class ClusterRequest {
     private Integer id;
 
     @ApiModelProperty(value = "Cluster name")
+    @Pattern(regexp = "^[A-Za-z0-9_-]{1,128}$", message = "only supports letters, numbers, '-', or '_'")
     private String name;
 
     @ApiModelProperty(value = "Cluster display name, just for display")
