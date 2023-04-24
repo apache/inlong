@@ -131,7 +131,7 @@ class DataNodeControllerTest extends WebBaseTest {
 
         DataNodeRequest request = getHiveDataNodeRequest();
         request.setId(nodeEntity.getId());
-        request.setName("test447777");
+        request.setName("test");
         request.setVersion(nodeEntity.getVersion());
         MvcResult mvcResult = postForSuccessMvcResult("/api/node/update", request);
 
