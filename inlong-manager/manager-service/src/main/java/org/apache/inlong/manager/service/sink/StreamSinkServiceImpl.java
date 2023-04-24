@@ -714,7 +714,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             if (STATEMENT_TYPE_JSON.equals(method)) {
                 fieldsMap = parseFieldsByJson(statement);
             } else if (STATEMENT_TYPE_SQL.equals(method)) {
-                fieldsMap = parseFieldsBySql(statement);
+                return parseFieldsBySql(statement);
             } else {
                 return parseFieldsByCsv(statement);
             }
@@ -767,10 +767,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         return fields;
     }
 
-    private Map<String, String> parseFieldsBySql(String sql) throws JSQLParserException {
+    private List<SinkField> parseFieldsBySql(String sql) throws JSQLParserException {
         CCJSqlParserManager pm = new CCJSqlParserManager();
         Statement statement = pm.parse(new StringReader(sql));
-        LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+        List<SinkField> fields = new ArrayList<>();
         if (statement instanceof CreateTable) {
             CreateTable createTable = (CreateTable) statement;
             List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
@@ -782,7 +782,26 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 String sqlDataType = colDataType.getDataType();
                 // get field type
                 String realDataType = StringUtils.substringBefore(sqlDataType, LEFT_BRACKET).toLowerCase();
-                fields.put(columnName, realDataType);
+                // get field comment
+                List<String> columnSpecs = definition.getColumnSpecs();
+                int commentIndex = -1;
+                for (int csIndex = 0; columnSpecs != null && csIndex < columnSpecs.size(); csIndex++) {
+                    String spec = columnSpecs.get(csIndex);
+                    if (spec.toUpperCase().startsWith("COMMENT")) {
+                        commentIndex = csIndex;
+                        break;
+                    }
+                }
+                String comment = null;
+                if (-1 != commentIndex && columnSpecs.size() > commentIndex + 1) {
+                    comment = columnSpecs.get(commentIndex + 1).replaceAll("['\"]", "");
+                }
+
+                SinkField sinkField = new SinkField();
+                sinkField.setFieldName(columnName);
+                sinkField.setFieldType(realDataType);
+                sinkField.setFieldComment(comment);
+                fields.add(sinkField);
             }
         } else {
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
