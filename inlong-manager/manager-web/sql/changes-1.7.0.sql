@@ -28,3 +28,9 @@ DROP INDEX `stream_id_index` ON `inlong_stream_ext`;
 DROP INDEX `stream_group_id_index` ON `inlong_stream`;
 DROP INDEX `unique_inlong_stream` ON `inlong_stream`;
 ALTER TABLE `inlong_stream` ADD UNIQUE KEY `unique_inlong_stream` (`inlong_group_id`, `inlong_stream_id`, `is_deleted`);
+
+ALTER TABLE `data_node`
+    ADD COLUMN `display_name`  varchar(128) DEFAULT NULL COMMENT 'Data node display name';
+
+ALTER TABLE `inlong_cluster`
+    ADD COLUMN `display_name`  varchar(128) DEFAULT NULL COMMENT 'Cluster display name';

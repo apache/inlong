@@ -32,6 +32,7 @@ public class InlongClusterEntity implements Serializable {
 
     private Integer id;
     private String name;
+    private String displayName;
     private String type;
     private String url;
     private String clusterTags;

@@ -45,6 +45,9 @@ public abstract class DataNodeInfo {
     @ApiModelProperty(value = "Data node name")
     private String name;
 
+    @ApiModelProperty(value = "Data node display name, just for display")
+    private String displayName;
+
     @ApiModelProperty(value = "Data node type, including MYSQL, HIVE, KAFKA, ES, etc.")
     private String type;
 

@@ -48,10 +48,12 @@ public abstract class DataNodeRequest {
     private Integer id;
 
     @ApiModelProperty(value = "Data node name")
-    @NotBlank(groups = {SaveValidation.class, UpdateByKeyValidation.class}, message = "node name cannot be blank")
-    @Length(min = 1, max = 128, message = "length must be between 1 and 128")
     @Pattern(regexp = "^[A-Za-z0-9_-]{1,128}$", message = "only supports letters, numbers, '-', or '_'")
     private String name;
+
+    @ApiModelProperty(value = "Data node display name, just for display")
+    @Length(min = 1, max = 128, message = "length must be between 1 and 128")
+    private String displayName;
 
     @ApiModelProperty(value = "Data node type, including MYSQL, HIVE, KAFKA, ES, etc.")
     @NotBlank(message = "node type cannot be blank")

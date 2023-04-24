@@ -115,7 +115,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(listDataNode.getTotal(), 1);
 
         // test update data node
-        String newNodeName = "hiveNode2";
+        String newNodeName = "hiveNode1";
         String newType = DataNodeType.HIVE;
         String newUrl = "127.0.0.1:8083";
         String newUsername = "admin2";

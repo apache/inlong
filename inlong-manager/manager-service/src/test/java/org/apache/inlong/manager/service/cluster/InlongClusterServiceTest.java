@@ -214,7 +214,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(adminUrl, pulsarCluster.getAdminUrl());
 
         // update cluster
-        String clusterNameUpdate = "default_pulsar_2";
+        String clusterNameUpdate = "default_pulsar";
         String clusterTagUpdate = "default_cluster_2";
         String adminUrlUpdate = "http://127.0.0.1:8088";
         Boolean updateSuccess =
