@@ -52,6 +52,7 @@ public abstract class ClusterRequest {
     private String name;
 
     @ApiModelProperty(value = "Cluster display name, just for display")
+    @Length(min = 1, max = 128, message = "length must be between 1 and 128")
     private String displayName;
 
     @ApiModelProperty(value = "Cluster type, including TUBEMQ, PULSAR, KAFKA, DATAPROXY, etc.")
