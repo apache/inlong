@@ -169,22 +169,24 @@ const EditableTable = ({
   };
 
   const onAppendByParseField = (fields: RowType[]) => {
-    const newRecord: RecordType[] = fields?.map(field => {
-      const obj: { name: string; type: string; desc: string } = { ...field };
-      obj._etid = Math.random().toString();
-      return obj as RecordType;
-    });
+    const newRecord: RecordType[] = fields?.map((field: RowType) => ({
+      _etid: Math.random().toString(),
+      name: field.name,
+      type: field.type,
+      desc: field.desc,
+    }));
     const newData = data.concat(newRecord);
     setData(newData);
     triggerChange(newData);
   };
 
   const onOverrideByParseField = (fields: RowType[]) => {
-    const newData: RecordType[] = fields?.map(field => {
-      const obj: { name: string; type: string; desc: string } = { ...field };
-      obj._etid = Math.random().toString();
-      return obj as RecordType;
-    });
+    const newData = fields?.map(field => ({
+      _etid: Math.random().toString(),
+      name: field.name,
+      type: field.type,
+      desc: field.desc,
+    }));
 
     setData(newData);
     triggerChange(newData);
