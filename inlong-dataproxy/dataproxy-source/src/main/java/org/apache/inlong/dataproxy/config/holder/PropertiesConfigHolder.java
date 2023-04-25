@@ -49,7 +49,7 @@ public class PropertiesConfigHolder extends ConfigHolder {
     }
 
     @Override
-    public void loadFromFileToHolder() {
+    public boolean loadFromFileToHolder() {
         readWriteLock.readLock().lock();
         try {
             Map<String, String> tmpHolder = loadProperties();
@@ -58,6 +58,7 @@ public class PropertiesConfigHolder extends ConfigHolder {
         } finally {
             readWriteLock.readLock().unlock();
         }
+        return true;
     }
 
     /**

@@ -18,10 +18,12 @@
 package org.apache.inlong.dataproxy.source.tcp;
 
 import org.apache.flume.Event;
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.SourceContext;
+import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.sdk.commons.protocol.EventUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
@@ -326,13 +328,31 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
+        // check max allowed connection count
         if (sourceContext.getAllChannels().size() - 1 >= sourceContext.getMaxConnections()) {
-            LOG.warn("refuse to connect , and connections="
-                    + (sourceContext.getAllChannels().size() - 1)
-                    + ", maxConnections="
-                    + sourceContext.getMaxConnections() + ",channel is " + ctx.channel());
             ctx.channel().disconnect();
             ctx.channel().close();
+            LOG.warn("{} refuse to connect = {} , connections = {}, maxConnections = {}",
+                    sourceContext.getSource().getName(), ctx.channel(),
+                    (sourceContext.getAllChannels().size() - 1), sourceContext.getMaxConnections());
+            return;
         }
+        // check illegal ip
+        if (ConfigManager.getInstance().needChkIllegalIP()) {
+            String strRemoteIp = AddressUtils.getChannelRemoteIP(ctx.channel());
+            if (strRemoteIp != null
+                    && ConfigManager.getInstance().isIllegalIP(strRemoteIp)) {
+                ctx.channel().disconnect();
+                ctx.channel().close();
+                LOG.error(strRemoteIp + " is Illegal IP, so refuse it !");
+                return;
+            }
+        }
+        // add legal channel
+        sourceContext.getAllChannels().add(ctx.channel());
+        ctx.fireChannelActive();
+        LOG.info("{} added new channel = {}, current connections = {}, maxConnections = {}",
+                sourceContext.getSource().getName(), ctx.channel(),
+                (sourceContext.getAllChannels().size() - 1), sourceContext.getMaxConnections());
     }
 }

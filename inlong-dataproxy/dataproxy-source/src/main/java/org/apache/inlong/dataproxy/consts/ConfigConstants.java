@@ -104,6 +104,7 @@ public class ConfigConstants {
     public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
     public static final String SOURCE_NO_TOPIC_ACCEPT = "source.topic.notfound.accept";
     public static final String SINK_NO_TOPIC_RESEND = "sink.topic.notfound.resend";
+    public static final String ENABLE_WHITELIST = "proxy.enable.whitelist";
 
     public static final String DECODER_BODY = "body";
     public static final String DECODER_TOPICKEY = "topic_key";

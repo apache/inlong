@@ -40,7 +40,7 @@ public class MxPropertiesHolder extends PropertiesConfigHolder {
      * load m from file
      */
     @Override
-    public void loadFromFileToHolder() {
+    public boolean loadFromFileToHolder() {
         super.loadFromFileToHolder();
         try {
             for (Map.Entry<String, String> entry : getHolder().entrySet()) {
@@ -49,6 +49,7 @@ public class MxPropertiesHolder extends PropertiesConfigHolder {
         } catch (Exception e) {
             LOG.error("loadConfig error :", e);
         }
+        return true;
     }
 
     public Map<String, Map<String, String>> getMxPropertiesMaps() {

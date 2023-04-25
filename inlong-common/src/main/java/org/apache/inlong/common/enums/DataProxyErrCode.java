@@ -25,6 +25,7 @@ public enum DataProxyErrCode {
     SUCCESS(0, "Ok"),
 
     SINK_SERVICE_UNREADY(1, "Service not ready"),
+    ILLEGAL_VISIT_IP(10, "Illegal visit ip"),
 
     MISS_REQUIRED_GROUPID_ARGUMENT(100, "Parameter groupId is required"),
     MISS_REQUIRED_STREAMID_ARGUMENT(101, "Parameter streamId is required"),

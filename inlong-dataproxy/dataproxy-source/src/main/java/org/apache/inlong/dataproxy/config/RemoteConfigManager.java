@@ -98,7 +98,7 @@ public class RemoteConfigManager implements IRepository {
      */
     @SuppressWarnings("unchecked")
     public static RemoteConfigManager getInstance() {
-        LOGGER.info("create repository for {}" + RemoteConfigManager.class.getSimpleName());
+        LOGGER.info("create repository for {}", RemoteConfigManager.class.getSimpleName());
         if (isInit && instance != null) {
             return instance;
         }

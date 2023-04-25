@@ -30,7 +30,8 @@ import org.apache.http.util.EntityUtils;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
-import org.apache.inlong.dataproxy.config.holder.FileConfigHolder;
+import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
+import org.apache.inlong.dataproxy.config.holder.IPVisitConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.GroupIdPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.MQClusterConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.MxPropertiesHolder;
@@ -65,6 +66,7 @@ public class ConfigManager {
     public static final List<ConfigHolder> CONFIG_HOLDER_LIST = new ArrayList<>();
     private static volatile boolean isInit = false;
     private static ConfigManager instance = null;
+    private static volatile boolean enableWhitList = false;
 
     private final PropertiesConfigHolder commonConfig = new PropertiesConfigHolder("common.properties");
     private final MQClusterConfigHolder mqClusterConfigHolder = new MQClusterConfigHolder("mq_cluster.properties");
@@ -73,7 +75,8 @@ public class ConfigManager {
 
     private final GroupIdPropertiesHolder groupIdConfig = new GroupIdPropertiesHolder("groupid_mapping.properties");
     private final PropertiesConfigHolder weightHolder = new PropertiesConfigHolder("weight.properties");
-    private final FileConfigHolder blackListConfig = new FileConfigHolder("blacklist.properties");
+    private final IPVisitConfigHolder blackListConfig = new IPVisitConfigHolder(true, "blacklist.properties");
+    private final IPVisitConfigHolder whiteListConfig = new IPVisitConfigHolder(false, "whitelist.properties");
     // source report configure holder
     private final SourceReportConfigHolder sourceReportConfigHolder = new SourceReportConfigHolder();
     // mq clusters ready
@@ -92,6 +95,11 @@ public class ConfigManager {
                 for (ConfigHolder holder : CONFIG_HOLDER_LIST) {
                     holder.loadFromFileToHolder();
                 }
+                // get enable whitelist status
+                String strEnable =
+                        instance.getCommonProperties().get(ConfigConstants.ENABLE_WHITELIST);
+                enableWhitList = StringUtils.isNotBlank(strEnable)
+                        && "TRUE".equalsIgnoreCase(strEnable);
                 ReloadConfigWorker reloadProperties = ReloadConfigWorker.create(instance);
                 reloadProperties.setDaemon(true);
                 reloadProperties.start();
@@ -119,6 +127,21 @@ public class ConfigManager {
 
     public Map<String, String> getMxProperties() {
         return mxConfig.getHolder();
+    }
+
+    public void regIPVisitConfigChgCallback(ConfigUpdateCallback callback) {
+        blackListConfig.addUpdateCallback(callback);
+        whiteListConfig.addUpdateCallback(callback);
+    }
+
+    public boolean needChkIllegalIP() {
+        return (!blackListConfig.isEmptyConfig() || enableWhitList);
+    }
+
+    public boolean isIllegalIP(String strRemoteIP) {
+        return strRemoteIP == null
+                || blackListConfig.isContain(strRemoteIP)
+                || (enableWhitList && !whiteListConfig.isContain(strRemoteIP));
     }
 
     public boolean addMxProperties(Map<String, String> result) {
@@ -315,8 +338,7 @@ public class ConfigManager {
 
         private void checkLocalFile() {
             for (ConfigHolder holder : CONFIG_HOLDER_LIST) {
-                boolean isChanged = holder.checkAndUpdateHolder();
-                if (isChanged) {
+                if (holder.checkAndUpdateHolder()) {
                     holder.executeCallbacks();
                 }
             }

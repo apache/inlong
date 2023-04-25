@@ -42,7 +42,7 @@ public class MQClusterConfigHolder extends PropertiesConfigHolder {
      * load from file
      */
     @Override
-    public void loadFromFileToHolder() {
+    public boolean loadFromFileToHolder() {
         super.loadFromFileToHolder();
         Map<String, String> tmpUrl2token = new HashMap<>();
         for (Map.Entry<String, String> entry : getHolder().entrySet()) {
@@ -57,6 +57,7 @@ public class MQClusterConfigHolder extends PropertiesConfigHolder {
         }
         // for disaster
         clusterConfig.putAll(getHolder());
+        return true;
     }
 
     public Map<String, String> getUrl2token() {

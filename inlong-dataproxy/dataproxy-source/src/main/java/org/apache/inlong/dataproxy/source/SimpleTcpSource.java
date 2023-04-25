@@ -23,24 +23,18 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.group.ChannelGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.UnsupportedEncodingException;
+
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
-import org.apache.commons.io.IOUtils;
+
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.EventLoopUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,25 +46,16 @@ import org.slf4j.LoggerFactory;
 public class SimpleTcpSource extends BaseSource
         implements
             Configurable,
+            ConfigUpdateCallback,
             EventDrivenSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleTcpSource.class);
-
-    public static ArrayList<String> blacklist = new ArrayList<String>();
-
-    private static final String blacklistFilePath = "blacklist.properties";
 
     private static int TRAFFIC_CLASS_TYPE_0 = 0;
 
     private static int TRAFFIC_CLASS_TYPE_96 = 96;
 
     private static int HIGH_WATER_MARK_DEFAULT_VALUE = 64 * 1024;
-
-    private static int DEFAULT_SLEEP_TIME_MS = 5 * 1000;
-
-    private static long propsLastModified;
-
-    private CheckBlackListThread checkBlackListThread;
 
     private boolean tcpNoDelay = true;
 
@@ -86,105 +71,12 @@ public class SimpleTcpSource extends BaseSource
 
     public SimpleTcpSource() {
         super();
-
-    }
-
-    /**
-     * check black list
-     * @param blacklist
-     * @param allChannels
-     */
-    public static void checkBlackList(ArrayList blacklist, ChannelGroup allChannels) {
-        if (blacklist != null) {
-            Iterator<Channel> it = allChannels.iterator();
-            while (it.hasNext()) {
-                Channel channel = it.next();
-                String strRemoteIP = null;
-                SocketAddress remoteSocketAddress = channel.remoteAddress();
-                if (null != remoteSocketAddress) {
-                    strRemoteIP = remoteSocketAddress.toString();
-                    try {
-                        strRemoteIP = strRemoteIP.substring(1, strRemoteIP.indexOf(':'));
-                    } catch (Exception ee) {
-                        logger.warn("fail to get the remote IP, and strIP={},remoteSocketAddress={}", strRemoteIP,
-                                remoteSocketAddress);
-                    }
-                }
-                if (strRemoteIP != null && blacklist.contains(strRemoteIP)) {
-                    logger.error(strRemoteIP + " is in blacklist, so disconnect it !");
-                    channel.disconnect();
-                    channel.close();
-                    allChannels.remove(channel);
-                }
-            }
-        }
-    }
-
-    private ArrayList<String> load(String fileName) {
-        ArrayList<String> arrayList = new ArrayList<String>();
-        if (fileName == null) {
-            logger.error("fail to loadProperties, filename is null");
-            return arrayList;
-        }
-        FileReader reader = null;
-        BufferedReader br = null;
-        try {
-            reader = new FileReader("conf/" + fileName);
-            br = new BufferedReader(reader);
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                arrayList.add(line);
-            }
-        } catch (UnsupportedEncodingException e) {
-            logger.error("fail to loadPropery, file ={}, and e= {}", fileName, e);
-        } catch (Exception e) {
-            logger.error("fail to loadProperty, file ={}, and e= {}", fileName, e);
-        } finally {
-            IOUtils.closeQuietly(reader);
-            IOUtils.closeQuietly(br);
-        }
-        return arrayList;
-    }
-
-    private class CheckBlackListThread extends Thread {
-
-        private boolean shutdown = false;
-
-        public void shutdouwn() {
-            shutdown = true;
-        }
-
-        @Override
-        public void run() {
-            logger.info("CheckBlackListThread thread {} start.", Thread.currentThread().getName());
-            while (!shutdown) {
-                try {
-                    File blacklistFile = new File("conf/" + blacklistFilePath);
-                    if (blacklistFile.lastModified() > propsLastModified) {
-                        blacklist = load(blacklistFilePath);
-                        propsLastModified = blacklistFile.lastModified();
-                        SimpleDateFormat formator = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        logger.info("blacklist.properties:{}\n{}",
-                                formator.format(new Date(blacklistFile.lastModified())), blacklist);
-                    }
-                    Thread.sleep(DEFAULT_SLEEP_TIME_MS);
-                    checkBlackList(blacklist, allChannels);
-                } catch (InterruptedException e) {
-                    logger.info("ConfigReloader thread exit!");
-                    return;
-                } catch (Throwable t) {
-                    logger.error("ConfigReloader thread error!", t);
-                }
-            }
-        }
+        ConfigManager.getInstance().regIPVisitConfigChgCallback(this);
     }
 
     @Override
     public synchronized void startSource() {
         logger.info("start " + this.getName());
-        checkBlackListThread = new CheckBlackListThread();
-        checkBlackListThread.start();
-        // ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
 
         logger.info("Set max workers : {} ;", maxThreads);
 
@@ -232,7 +124,6 @@ public class SimpleTcpSource extends BaseSource
 
     @Override
     public synchronized void stop() {
-        checkBlackListThread.shutdouwn();
         super.stop();
     }
 
@@ -274,4 +165,33 @@ public class SimpleTcpSource extends BaseSource
     public String getProtocolName() {
         return "tcp";
     }
+
+    @Override
+    public void update() {
+        // check current all links
+        if (ConfigManager.getInstance().needChkIllegalIP()) {
+            int cnt = 0;
+            Channel channel;
+            String strRemoteIP;
+            long startTime = System.currentTimeMillis();
+            Iterator<Channel> iterator = allChannels.iterator();
+            while (iterator.hasNext()) {
+                channel = iterator.next();
+                strRemoteIP = AddressUtils.getChannelRemoteIP(channel);
+                if (strRemoteIP == null) {
+                    continue;
+                }
+                if (ConfigManager.getInstance().isIllegalIP(strRemoteIP)) {
+                    channel.disconnect();
+                    channel.close();
+                    allChannels.remove(channel);
+                    cnt++;
+                    logger.error(strRemoteIP + " is Illegal IP, so disconnect it !");
+                }
+            }
+            logger.info("Channel check, {} disconnects {} Illegal channels, waist {} ms",
+                    getName(), cnt, (System.currentTimeMillis() - startTime));
+        }
+    }
+
 }
