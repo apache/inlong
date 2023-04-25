@@ -125,6 +125,7 @@
                                     <artifact>org.apache.inlong:sort-connector-*</artifact>
                                     <includes>
                                         <include>org/apache/inlong/**</include>
+                                        <include>io/debezium/connector/oracle/**</include>
                                         <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
                                     </includes>
                                 </filter>
