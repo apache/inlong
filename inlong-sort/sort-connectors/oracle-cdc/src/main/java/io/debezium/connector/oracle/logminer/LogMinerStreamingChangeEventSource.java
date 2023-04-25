@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A {@link StreamingChangeEventSource} based on Oracle's LogMiner utility. The event handler loop
  * is executed in a separate executor, and add method afterHandleScn.
- * Copy from 'debezium-connector-oracle' to fix cannot capture ddl changes made by connector user.
+ * Copy from 'debezium-connector-oracle 1.6.4-Final' to fix cannot capture ddl changes made by connector user.
  */
 public class LogMinerStreamingChangeEventSource
         implements
