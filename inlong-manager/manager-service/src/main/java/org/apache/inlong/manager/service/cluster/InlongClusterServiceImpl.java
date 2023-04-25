@@ -1170,8 +1170,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         List<DataProxyNodeInfo> nodeList = new ArrayList<>();
         for (InlongClusterNodeEntity nodeEntity : nodeEntities) {
             if (Objects.equals(nodeEntity.getStatus(), NodeStatus.HEARTBEAT_TIMEOUT.getStatus())) {
-                LOGGER.debug("data proxy is heart time out by parentId={}, ip={}", nodeEntity.getParentId(),
-                        nodeEntity.getIp());
+                LOGGER.debug("data proxy is heart time out by parentId={}, ip={}, port={}", nodeEntity.getParentId(),
+                        nodeEntity.getIp(), nodeEntity.getPort());
                 continue;
             }
             DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
