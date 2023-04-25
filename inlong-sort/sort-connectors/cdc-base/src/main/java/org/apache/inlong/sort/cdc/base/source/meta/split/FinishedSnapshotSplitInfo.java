@@ -19,7 +19,6 @@ package org.apache.inlong.sort.cdc.base.source.meta.split;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-import com.ververica.cdc.connectors.base.utils.SerializerUtils;
 import io.debezium.relational.TableId;
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,6 +28,7 @@ import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetDeserializerSerializer;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
+import org.apache.inlong.sort.cdc.base.util.SerializerUtils;
 
 /** The information used to describe a finished snapshot split.
  * Copy from com.ververica:flink-cdc-base:2.3.0.
@@ -138,6 +138,9 @@ public class FinishedSnapshotSplitInfo implements OffsetDeserializerSerializer {
     }
 
     public byte[] serialize(final DataOutputSerializer out) throws IOException {
+        boolean useCatalogBeforeSchema =
+                SerializerUtils.shouldUseCatalogBeforeSchema(this.getTableId());
+        out.writeBoolean(useCatalogBeforeSchema);
         out.writeUTF(this.getTableId().toString());
         out.writeUTF(this.getSplitId());
         out.writeUTF(SerializerUtils.rowToSerializedString(this.getSplitStart()));

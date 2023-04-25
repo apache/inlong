@@ -36,6 +36,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SchemalessSnapshotSplit
 import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer;
+import org.apache.inlong.sort.cdc.base.util.SerializerUtils;
 
 /** The {@link SimpleVersionedSerializer Serializer} for the {@link PendingSplitsState}.
  * Copy from com.ververica:flink-cdc-base:2.3.0.
@@ -359,6 +360,8 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
         final int size = tableIds.size();
         out.writeInt(size);
         for (TableId tableId : tableIds) {
+            boolean useCatalogBeforeSchema = SerializerUtils.shouldUseCatalogBeforeSchema(tableId);
+            out.writeBoolean(useCatalogBeforeSchema);
             out.writeUTF(tableId.toString());
         }
     }
@@ -367,8 +370,9 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
         List<TableId> tableIds = new ArrayList<>();
         final int size = in.readInt();
         for (int i = 0; i < size; i++) {
+            boolean useCatalogBeforeSchema = in.readBoolean();
             String tableIdStr = in.readUTF();
-            tableIds.add(TableId.parse(tableIdStr));
+            tableIds.add(TableId.parse(tableIdStr, useCatalogBeforeSchema));
         }
         return tableIds;
     }

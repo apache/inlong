@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import org.apache.flink.annotation.Experimental;
+import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.source.assigner.splitter.ChunkSplitter;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
@@ -36,7 +37,10 @@ import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
  * Copy from com.ververica:flink-cdc-base:2.3.0.
  */
 @Experimental
-public interface DataSourceDialect<C extends SourceConfig> extends Serializable {
+public interface DataSourceDialect<C extends SourceConfig>
+        extends
+            Serializable,
+            CheckpointListener {
 
     /** Get the name of dialect. */
     String getName();
@@ -68,4 +72,14 @@ public interface DataSourceDialect<C extends SourceConfig> extends Serializable 
 
     /** The task context used for fetch task to fetch data from external systems. */
     FetchTask.Context createFetchTaskContext(SourceSplitBase sourceSplitBase, C sourceConfig);
+
+    /**
+     * We have an empty default implementation here because most dialects do not have to implement
+     * the method.
+     *
+     * @see CheckpointListener#notifyCheckpointComplete(long)
+     */
+    @Override
+    default void notifyCheckpointComplete(long checkpointId) throws Exception {
+    }
 }

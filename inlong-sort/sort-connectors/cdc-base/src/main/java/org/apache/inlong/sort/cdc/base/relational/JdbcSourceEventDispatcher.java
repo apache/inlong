@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.cdc.base.relational;
 
-import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isMysqlConnector;
-
 import io.debezium.config.CommonConnectorConfig;
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.document.DocumentWriter;
@@ -62,7 +60,8 @@ import org.slf4j.LoggerFactory;
  */
 public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JdbcSourceEventDispatcher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(
+            com.ververica.cdc.connectors.base.relational.JdbcSourceEventDispatcher.class);
 
     public static final String HISTORY_RECORD_FIELD = "historyRecord";
     public static final String SERVER_ID_KEY = "server_id";
@@ -71,14 +70,14 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
 
     private static final DocumentWriter DOCUMENT_WRITER = DocumentWriter.defaultWriter();
 
-    public final ChangeEventQueue<DataChangeEvent> queue;
-    public final HistorizedDatabaseSchema historizedSchema;
-    public final DataCollectionFilters.DataCollectionFilter<TableId> filter;
-    public final CommonConnectorConfig connectorConfig;
-    public final TopicSelector<TableId> topicSelector;
-    public final Schema schemaChangeKeySchema;
-    public final Schema schemaChangeValueSchema;
-    public final String topic;
+    private final ChangeEventQueue<DataChangeEvent> queue;
+    private final HistorizedDatabaseSchema historizedSchema;
+    private final DataCollectionFilters.DataCollectionFilter<TableId> filter;
+    private final CommonConnectorConfig connectorConfig;
+    private final TopicSelector<TableId> topicSelector;
+    private final Schema schemaChangeKeySchema;
+    private final Schema schemaChangeValueSchema;
+    private final String topic;
 
     public JdbcSourceEventDispatcher(
             CommonConnectorConfig connectorConfig,
@@ -139,10 +138,8 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
             TableId dataCollectionId, SchemaChangeEventEmitter schemaChangeEventEmitter)
             throws InterruptedException {
         if (dataCollectionId != null && !filter.isIncluded(dataCollectionId)) {
-            // TODO `HistorizedSchema.storeOnlyCapturedTables` first appeared in io.debezium.core: 1.6.4-final,
             // which conflicts with io.debezium.core: 15.4-final of cdc-base,
             // so we implement this method separately in the sub-module.
-            // if (historizedSchema == null || historizedSchema.storeOnlyCapturedTables()) {
             if (historizedSchema == null || historizedSchema.storeOnlyMonitoredTables()) {
                 LOG.trace("Filtering schema change event for {}", dataCollectionId);
                 return;
@@ -168,10 +165,8 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
             }
         }
         if (!anyNonfilteredEvent) {
-            // TODO `HistorizedSchema.storeOnlyCapturedTables` first appeared in io.debezium.core: 1.6.4-final,
             // which conflicts with io.debezium.core: 15.4-final of cdc-base,
             // so we implement this method separately in the sub-module.
-            // if (historizedSchema == null || historizedSchema.storeOnlyCapturedTables()) {
             if (historizedSchema == null || historizedSchema.storeOnlyMonitoredTables()) {
                 LOG.trace("Filtering schema change event for {}", dataCollectionIds);
                 return;
@@ -182,7 +177,7 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
     }
 
     /** A {@link SchemaChangeEventEmitter.Receiver} implementation for {@link SchemaChangeEvent}. */
-    public final class SchemaChangeEventReceiver implements SchemaChangeEventEmitter.Receiver {
+    private final class SchemaChangeEventReceiver implements SchemaChangeEventEmitter.Receiver {
 
         private Struct schemaChangeRecordKey(SchemaChangeEvent event) {
             Struct result = new Struct(schemaChangeKeySchema);
@@ -191,16 +186,14 @@ public class JdbcSourceEventDispatcher extends EventDispatcher<TableId> {
         }
 
         private Struct schemaChangeRecordValue(SchemaChangeEvent event) throws IOException {
+            Struct sourceInfo = event.getSource();
             Map<String, Object> source = new HashMap<>();
-            if (isMysqlConnector(event.getSource())) {
-                Struct sourceInfo = event.getSource();
-                String fileName = sourceInfo.getString(BINLOG_FILENAME_OFFSET_KEY);
-                Long pos = sourceInfo.getInt64(BINLOG_POSITION_OFFSET_KEY);
-                Long serverId = sourceInfo.getInt64(SERVER_ID_KEY);
-                source.put(SERVER_ID_KEY, serverId);
-                source.put(BINLOG_FILENAME_OFFSET_KEY, fileName);
-                source.put(BINLOG_POSITION_OFFSET_KEY, pos);
-            }
+            String fileName = sourceInfo.getString(BINLOG_FILENAME_OFFSET_KEY);
+            Long pos = sourceInfo.getInt64(BINLOG_POSITION_OFFSET_KEY);
+            Long serverId = sourceInfo.getInt64(SERVER_ID_KEY);
+            source.put(SERVER_ID_KEY, serverId);
+            source.put(BINLOG_FILENAME_OFFSET_KEY, fileName);
+            source.put(BINLOG_POSITION_OFFSET_KEY, pos);
             HistoryRecord historyRecord =
                     new HistoryRecord(
                             source,
