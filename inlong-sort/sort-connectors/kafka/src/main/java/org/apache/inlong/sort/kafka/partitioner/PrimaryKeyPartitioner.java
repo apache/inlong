@@ -17,10 +17,16 @@
 
 package org.apache.inlong.sort.kafka.partitioner;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The PrimaryKey Partitioner is used to extract primary key from single table messages:
@@ -29,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PrimaryKeyPartitioner<T> extends FlinkKafkaPartitioner<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RawDataHashPartitioner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PrimaryKeyPartitioner.class);
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -43,8 +49,21 @@ public class PrimaryKeyPartitioner<T> extends FlinkKafkaPartitioner<T> {
         Preconditions.checkArgument(
                 partitions != null && partitions.length > 0,
                 "Partitions of the target topic is empty.");
+        //single table currently support: avro/csv/json/canal
         try {
-            return partitions[(key.hashCode() & Integer.MAX_VALUE) % partitions.length];
+            //used for avro/csv/json formats
+            if (key != null) {
+                return partitions[(Arrays.hashCode(key) & Integer.MAX_VALUE) % partitions.length];
+            } else {
+                //used for canal-json formats, since single table does not support debezium-json for now.
+                AbstractDynamicSchemaFormat dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat("canal-json");
+                List<String> values = dynamicSchemaFormat.extractPrimaryKeyValues(value);
+                if (values == null || values.isEmpty()) {
+                    return 0;
+                }
+                return partitions[(StringUtils.join(values, "").hashCode()
+                        & Integer.MAX_VALUE) % partitions.length];
+            }
         } catch (Exception e) {
             LOG.warn("Extract partition failed", e);
         }
@@ -54,11 +73,11 @@ public class PrimaryKeyPartitioner<T> extends FlinkKafkaPartitioner<T> {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof RawDataHashPartitioner;
+        return o instanceof PrimaryKeyPartitioner;
     }
 
     @Override
     public int hashCode() {
-        return RawDataHashPartitioner.class.hashCode();
+        return PrimaryKeyPartitioner.class.hashCode();
     }
 }
