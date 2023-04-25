@@ -46,8 +46,8 @@ const NodeSelect: React.FC<NodeSelectProps> = _props => {
       requestParams: {
         formatResult: result =>
           result?.list?.map(item => ({
-            label: item.name,
-            value: item.name,
+            label: item.displayName,
+            value: item.displayName,
           })),
       },
     },

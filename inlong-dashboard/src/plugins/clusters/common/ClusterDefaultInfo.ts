@@ -44,7 +44,7 @@ export class ClusterDefaultInfo implements DataWithBackend, RenderRow, RenderLis
   })
   @ColumnDecorator()
   @I18n('pages.Clusters.Name')
-  name: string;
+  displayName: string;
 
   @FieldDecorator({
     type: clusters.length > 3 ? 'select' : 'radio',

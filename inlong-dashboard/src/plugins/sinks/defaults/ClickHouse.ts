@@ -202,11 +202,25 @@ export default class ClickHouseSink
   partitionFields: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: 'select',
     initialValue: 'MergeTree',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: 'MergeTree',
+          value: 'MergeTree',
+        },
+        {
+          label: 'Log',
+          value: 'Log',
+        },
+        {
+          label: 'ReplicatedMergeTree',
+          value: 'ReplicatedMergeTree',
+        },
+      ],
     }),
   })
   @I18n('meta.Sinks.ClickHouse.Engine')

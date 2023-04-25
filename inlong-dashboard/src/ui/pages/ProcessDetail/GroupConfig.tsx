@@ -21,6 +21,7 @@ import React, { useMemo } from 'react';
 import { Divider, Table } from 'antd';
 import i18n from '@/i18n';
 import { useLoadMeta, GroupMetaType } from '@/plugins';
+import { sinks } from '@/plugins/sinks';
 
 export const useGroupFormContent = ({ mqType = '', isFinished, isViwer }) => {
   const { Entity } = useLoadMeta<GroupMetaType>('group', mqType);
@@ -86,7 +87,8 @@ export const getFormContent = ({
             {
               title: i18n.t('pages.ApprovalDetail.GroupConfig.DataStorages'),
               dataIndex: 'sinkList',
-              render: text => text.map(item => item.sinkType).join(','),
+              render: text =>
+                text.map(item => sinks.find(c => c.value === item.sinkType)?.label).join(','),
             },
           ]}
           dataSource={formData?.streamInfoList || []}

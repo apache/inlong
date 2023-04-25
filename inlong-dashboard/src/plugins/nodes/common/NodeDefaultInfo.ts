@@ -44,7 +44,7 @@ export class NodeDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   })
   @ColumnDecorator()
   @I18n('meta.Nodes.Name')
-  name: string;
+  displayName: string;
 
   @FieldDecorator({
     type: nodes.length > 3 ? 'select' : 'radio',
