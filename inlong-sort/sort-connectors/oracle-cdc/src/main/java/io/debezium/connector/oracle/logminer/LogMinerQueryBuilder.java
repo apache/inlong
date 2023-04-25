@@ -28,8 +28,7 @@ import java.util.regex.Pattern;
  * A builder that is responsible for producing the query to be executed against the LogMiner view.
  *
  * @author Chris Cranford
- *
- * Copy from debezium-connector-oracle to fix cannot capture changes made by connector user
+ * Copy from 'debezium-connector-oracle' to fix cannot capture ddl changes made by connector user.
  */
 public class LogMinerQueryBuilder {
 
