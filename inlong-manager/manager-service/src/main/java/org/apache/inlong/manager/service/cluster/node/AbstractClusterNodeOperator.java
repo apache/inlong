@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.cluster.node;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
@@ -49,6 +50,7 @@ public abstract class AbstractClusterNodeOperator implements InlongClusterNodeOp
 
         entity.setCreator(operator);
         entity.setModifier(operator);
+        entity.setStatus(NodeStatus.HEARTBEAT_TIMEOUT.getStatus());
         clusterNodeMapper.insert(entity);
 
         return entity.getId();
