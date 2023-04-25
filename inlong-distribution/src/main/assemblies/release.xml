@@ -174,17 +174,17 @@
         <fileSet>
             <directory>../inlong-audit/audit-release/target/apache-inlong-audit-${project.version}-bin/sql</directory>
             <outputDirectory>../docker/docker-compose/sql</outputDirectory>
-            <excludes>
-                <exclude>apache_inlong_audit_clickhouse.sql</exclude>
-            </excludes>
+            <includes>
+                <include>apache_inlong_audit.sql</include>
+            </includes>
         </fileSet>
         <!-- package sql file for docker compose-->
         <fileSet>
             <directory>../inlong-manager/manager-web/target/apache-inlong-manager-web-${project.version}-bin/sql</directory>
             <outputDirectory>../docker/docker-compose/sql</outputDirectory>
-            <excludes>
-                <exclude>changes-1.5.0.sql</exclude>
-            </excludes>
+            <includes>
+                <include>apache_inlong_manager.sql</include>
+            </includes>
         </fileSet>
     </fileSets>
 
