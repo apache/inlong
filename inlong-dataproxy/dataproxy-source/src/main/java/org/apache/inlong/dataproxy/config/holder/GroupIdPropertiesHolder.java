@@ -44,7 +44,7 @@ public class GroupIdPropertiesHolder extends PropertiesConfigHolder {
     }
 
     @Override
-    public void loadFromFileToHolder() {
+    public boolean loadFromFileToHolder() {
         super.loadFromFileToHolder();
         try {
             Map<String, String> tmpGroupIdMappingProperties =
@@ -71,6 +71,7 @@ public class GroupIdPropertiesHolder extends PropertiesConfigHolder {
         } catch (Exception e) {
             LOG.error("loadConfig error :", e);
         }
+        return true;
     }
 
     public Map<String, String> getGroupIdMappingProperties() {

@@ -19,7 +19,6 @@ package org.apache.inlong.dataproxy.source;
 
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_DATA;
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_GROUPID;
-import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -56,6 +55,7 @@ import org.apache.inlong.dataproxy.exception.MessageIDException;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
+import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.slf4j.Logger;
@@ -138,22 +138,6 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
         this.metricItemSet = source.getMetricItemSet();
     }
 
-    private String getRemoteIp(Channel channel) {
-        String strRemoteIp = DEFAULT_REMOTE_IP_VALUE;
-        SocketAddress remoteSocketAddress = channel.remoteAddress();
-        if (null != remoteSocketAddress) {
-            strRemoteIp = remoteSocketAddress.toString();
-            try {
-                strRemoteIp = strRemoteIp.substring(1, strRemoteIp.indexOf(':'));
-            } catch (Exception ee) {
-                logger.warn("fail to get the remote IP, and strIP={},remoteSocketAddress={}",
-                        strRemoteIp,
-                        remoteSocketAddress);
-            }
-        }
-        return strRemoteIp;
-    }
-
     private byte[] newBinMsg(byte[] orgBinMsg, String extraAttr) {
         final int BIN_MSG_TOTALLEN_OFFSET = 0;
         final int BIN_MSG_TOTALLEN_SIZE = 4;
@@ -199,33 +183,32 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
         return dataBuf.array();
     }
 
-    public boolean checkBlackIp(Channel channel) {
-        String strRemoteIp = getRemoteIp(channel);
-        if (strRemoteIp != null && blacklist != null && blacklist.contains(strRemoteIp)) {
-            logger.error(strRemoteIp + " is in blacklist, so refuse it !");
-            channel.disconnect();
-            channel.close();
-            allChannels.remove(channel);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        // check max allowed connection count
         if (allChannels.size() - 1 >= maxConnections) {
-            logger.warn("refuse to connect , and connections=" + (allChannels.size() - 1)
-                    + ", maxConnections="
-                    + maxConnections + ",channel is " + ctx.channel());
             ctx.channel().disconnect();
             ctx.channel().close();
+            logger.warn("{} refuse to connect = {} , connections = {}, maxConnections = {}",
+                    source.getName(), ctx.channel(), (allChannels.size() - 1), maxConnections);
+            return;
         }
-        if (!checkBlackIp(ctx.channel())) {
-            logger.info("connections={},maxConnections={}", allChannels.size() - 1, maxConnections);
-            allChannels.add(ctx.channel());
-            ctx.fireChannelActive();
+        // check illegal ip
+        if (ConfigManager.getInstance().needChkIllegalIP()) {
+            String strRemoteIp = AddressUtils.getChannelRemoteIP(ctx.channel());
+            if (strRemoteIp != null
+                    && ConfigManager.getInstance().isIllegalIP(strRemoteIp)) {
+                ctx.channel().disconnect();
+                ctx.channel().close();
+                logger.error(strRemoteIp + " is Illegal IP, so refuse it !");
+                return;
+            }
         }
+        // add legal channel
+        allChannels.add(ctx.channel());
+        ctx.fireChannelActive();
+        logger.info("{} added new channel, current connections = {}, maxConnections = {}",
+                source.getName(), (allChannels.size() - 1), maxConnections);
     }
 
     private void checkGroupIdInfo(ProxyMessage message, Map<String, String> commonAttrMap,
@@ -559,7 +542,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             return;
         }
         Channel remoteChannel = ctx.channel();
-        String strRemoteIP = getRemoteIp(remoteChannel);
+        String strRemoteIP = AddressUtils.getChannelRemoteIP(remoteChannel);
         ByteBuf cb = (ByteBuf) msg;
         try {
             int len = cb.readableBytes();

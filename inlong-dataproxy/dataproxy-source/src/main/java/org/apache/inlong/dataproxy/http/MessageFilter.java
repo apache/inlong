@@ -61,6 +61,16 @@ public class MessageFilter implements Filter {
         if (pathInfo.startsWith("/")) {
             pathInfo = pathInfo.substring(1);
         }
+        // check illegal ip
+        String strRemoteIP = req.getRemoteAddr();
+        if (ConfigManager.getInstance().needChkIllegalIP()
+                && ConfigManager.getInstance().isIllegalIP(strRemoteIP)) {
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.ILLEGAL_VISIT_IP.getErrCode(),
+                    DataProxyErrCode.ILLEGAL_VISIT_IP.getErrMsg() + " " + strRemoteIP);
+            return;
+        }
+        // process heartbeat request
         if ("heartbeat".equals(pathInfo)) {
             returnRspPackage(resp, req.getCharacterEncoding(),
                     DataProxyErrCode.SUCCESS.getErrCode(),

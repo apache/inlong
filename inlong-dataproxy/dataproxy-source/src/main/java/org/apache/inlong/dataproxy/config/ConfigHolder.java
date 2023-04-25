@@ -75,8 +75,10 @@ public abstract class ConfigHolder {
 
     /**
      * load from file to holder
+     *
+     * @return - true if configure updated
      */
-    public abstract void loadFromFileToHolder();
+    public abstract boolean loadFromFileToHolder();
 
     /**
      * check updater
@@ -89,9 +91,8 @@ public abstract class ConfigHolder {
             if (configFile != null) {
                 this.lastModifyTime = configFile.lastModified();
             }
-            LOG.info("file {} has changed, reload from local file agent", getFileName());
-            loadFromFileToHolder();
-            return true;
+            LOG.info("File {} has changed, reload from local file agent", getFileName());
+            return loadFromFileToHolder();
         }
         return false;
     }
