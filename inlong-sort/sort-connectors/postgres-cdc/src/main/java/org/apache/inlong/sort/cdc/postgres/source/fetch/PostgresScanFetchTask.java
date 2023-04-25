@@ -86,8 +86,6 @@ public class PostgresScanFetchTask implements FetchTask<SourceSplitBase> {
     public void execute(Context context) throws Exception {
         LOG.info("Execute ScanFetchTask for split: {}", split);
         PostgresSourceFetchTaskContext ctx = (PostgresSourceFetchTaskContext) context;
-        LOG.info("lk_test Execute ScanFetchTask ctx.getOffsetContext: {}", ctx.getOffsetContext());
-
         taskRunning = true;
 
         SnapshotSplitReadTask snapshotSplitReadTask =
@@ -131,7 +129,7 @@ public class PostgresScanFetchTask implements FetchTask<SourceSplitBase> {
         // optimization that skip the WAL read when the low watermark >= high watermark
         final boolean backfillRequired =
                 backfillSplit.getEndingOffset().isAtOrAfter(backfillSplit.getStartingOffset());
-        // lk_test TODO maybe has bug
+        //TODO maybe has bug
         LOG.info("in executeBackfillTask get getEndingOffset:{}, getStartingOffset:{}, backfillRequired:{}",
                 backfillSplit.getEndingOffset(), backfillSplit.getStartingOffset(), backfillRequired);
         if (backfillRequired) {
