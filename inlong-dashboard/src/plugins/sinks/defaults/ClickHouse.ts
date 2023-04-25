@@ -203,18 +203,18 @@ export default class ClickHouseSink
 
   @FieldDecorator({
     type: 'select',
-    initialValue: 'MergeTree',
+    initialValue: 'Log',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       options: [
         {
-          label: 'MergeTree',
-          value: 'MergeTree',
-        },
-        {
           label: 'Log',
           value: 'Log',
+        },
+        {
+          label: 'MergeTree',
+          value: 'MergeTree',
         },
         {
           label: 'ReplicatedMergeTree',
