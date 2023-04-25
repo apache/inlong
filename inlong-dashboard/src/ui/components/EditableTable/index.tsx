@@ -171,9 +171,7 @@ const EditableTable = ({
   const onAppendByParseField = (fields: RowType[]) => {
     const newRecord: RecordType[] = fields?.map((field: RowType) => ({
       _etid: Math.random().toString(),
-      name: field.name,
-      type: field.type,
-      desc: field.desc,
+      ...field,
     }));
     const newData = data.concat(newRecord);
     setData(newData);
@@ -183,9 +181,7 @@ const EditableTable = ({
   const onOverrideByParseField = (fields: RowType[]) => {
     const newData = fields?.map(field => ({
       _etid: Math.random().toString(),
-      name: field.name,
-      type: field.type,
-      desc: field.desc,
+      ...field,
     }));
 
     setData(newData);
@@ -326,6 +322,7 @@ const EditableTable = ({
         dataSource={data}
         columns={tableColumns}
         rowKey="_etid"
+        key={'table'}
         footer={
           editing && canAdd
             ? () => (

@@ -31,17 +31,15 @@ import {
   ForkOutlined,
   FormOutlined,
   PlayCircleOutlined,
-  PlusOutlined,
-  ReloadOutlined,
   UploadOutlined,
 } from '@ant-design/icons';
 import { useRequest } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 
 export interface RowType {
-  name: string;
-  type: string;
-  desc: string;
+  fieldName: string;
+  fieldType: string;
+  fieldComment: string;
 }
 
 interface FieldParseModuleProps {
@@ -69,7 +67,6 @@ const FieldParseModule: React.FC<FieldParseModuleProps> = ({
   };
 
   const handleFormat = () => {
-    // 实现handleFormat函数，对statement按照selectFormat的格式进行代码格式化。
     switch (selectedFormat) {
       case 'json':
         setStatement(JSON.stringify(JSON.parse(statement), null, 2));
@@ -158,6 +155,7 @@ const FieldParseModule: React.FC<FieldParseModuleProps> = ({
     {
       manual: true,
       onSuccess: res => {
+        console.log('parse fields success.');
         setPreviewData(res);
       },
     },
@@ -227,28 +225,19 @@ user_age,int,age of user`);
         open={visible}
         onCancel={handleCancel}
         footer={[
-          <Space
-            key="footer_space"
-            size={'small'}
-            style={{ width: '100%', gap: '0' }}
-            direction={'vertical'}
-          >
-            <Divider key="divider" style={{ marginBottom: '2' }} />
+          <Space key="footer_space" size={'small'} style={{ width: '100%' }} direction={'vertical'}>
             <Space key={'footer_content_space'}>
               <Button
                 key={'doAppend'}
                 type="primary"
-                icon={<PlusOutlined />}
                 disabled={previewData === null || previewData.length === 0}
                 onClick={handleAppend}
               >
-                Append
                 {t('components.FieldParseModule.Append')}
               </Button>
               <Button
                 key={'doOverwrite'}
                 type="primary"
-                icon={<ReloadOutlined />}
                 disabled={previewData === null || previewData.length === 0}
                 onClick={handleOverride}
               >
@@ -263,7 +252,6 @@ user_age,int,age of user`);
             key={'mode_radio_group'}
             onChange={e => setSelectedFormat(e.target.value)}
             value={selectedFormat}
-            style={{ marginBottom: 10 }}
           >
             <Radio.Button
               key={'module_json'}
@@ -307,7 +295,7 @@ user_age,int,age of user`);
             </Radio.Button>
           </Radio.Group>
         </div>
-        <div style={{ marginBottom: 10 }}>
+        <div>
           {['json', 'sql', 'csv'].includes(selectedFormat) && (
             <Input.TextArea
               key={'statement_content'}
@@ -322,7 +310,6 @@ user_age,int,age of user`);
             <>
               <Button
                 key={'format_button'}
-                style={{ marginLeft: 10 }}
                 icon={<FormOutlined />}
                 onClick={handleFormat}
                 disabled={statement?.length === 0}
@@ -332,7 +319,6 @@ user_age,int,age of user`);
               </Button>
               <Button
                 key={'clear_button'}
-                style={{ marginLeft: 10 }}
                 onClick={() => {
                   setStatement('');
                   setPreviewData(null);
@@ -343,13 +329,7 @@ user_age,int,age of user`);
               >
                 {t('components.FieldParseModule.Empty')}
               </Button>
-              <Button
-                key={'pasta_button'}
-                style={{ marginLeft: 10 }}
-                onClick={onPasta}
-                icon={<CopyOutlined />}
-                size={'small'}
-              >
+              <Button key={'pasta_button'} onClick={onPasta} icon={<CopyOutlined />} size={'small'}>
                 {t('components.FieldParseModule.PasteTemplate')}
               </Button>
               <Divider key={'divider_button'} type={'vertical'} />
@@ -367,14 +347,13 @@ user_age,int,age of user`);
         </div>
 
         {selectedFormat === 'excel' && (
-          <div style={{ marginBottom: 10 }}>
+          <div>
             <Button
               key="upload"
               type={'primary'}
               onClick={() => uploadExcel()}
               icon={<UploadOutlined />}
               size={'small'}
-              style={{ marginRight: 10 }}
             >
               {t('components.FieldParseModule.Upload')}
             </Button>
@@ -389,8 +368,14 @@ user_age,int,age of user`);
           </div>
         )}
 
-        <div style={{ marginTop: 10 }}>
-          <Table key="previewTable" columns={columns} dataSource={previewData} pagination={false} />
+        <div>
+          <Table
+            key="previewTable"
+            rowKey="name"
+            columns={columns}
+            dataSource={previewData}
+            pagination={false}
+          />
         </div>
       </Modal>
     </>
