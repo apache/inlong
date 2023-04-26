@@ -24,6 +24,7 @@ import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.connectors.kafka.config.StartupMode;
+import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.streaming.connectors.kafka.table.KafkaOptions;
 import org.apache.flink.streaming.connectors.kafka.table.KafkaSinkSemantic;
 import org.apache.flink.streaming.connectors.kafka.table.SinkBufferFlushMode;
@@ -48,20 +49,25 @@ import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
+import org.apache.inlong.sort.kafka.partitioner.PrimaryKeyPartitioner;
+import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS_PREFIX;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FORMAT;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.PROPS_BOOTSTRAP_SERVERS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SINK_BUFFER_FLUSH_INTERVAL;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SINK_BUFFER_FLUSH_MAX_ROWS;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SINK_PARTITIONER;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.TOPIC;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.VALUE_FIELDS_INCLUDE;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.VALUE_FORMAT;
@@ -74,6 +80,7 @@ import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.kafka.table.KafkaDynamicTableFactory.SINK_PARTITIONER_VALUE_PRIMARY_KEY;
 import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
@@ -191,6 +198,7 @@ public class UpsertKafkaDynamicTableFactory
         options.add(SINK_BUFFER_FLUSH_MAX_ROWS);
         options.add(KAFKA_IGNORE_ALL_CHANGELOG);
         options.add(INLONG_METRIC);
+        options.add(SINK_PARTITIONER);
         return options;
     }
 
@@ -242,6 +250,18 @@ public class UpsertKafkaDynamicTableFactory
                 auditKeys);
     }
 
+    private Optional<FlinkKafkaPartitioner<RowData>> getFlinkKafkaPartitioner(
+            ReadableConfig tableOptions, ClassLoader classLoader) {
+        if (tableOptions.getOptional(SINK_PARTITIONER).isPresent()
+                && SINK_PARTITIONER_VALUE_PRIMARY_KEY.equals(tableOptions.getOptional(SINK_PARTITIONER).get())) {
+            PrimaryKeyPartitioner<RowData> primaryKeyPartitioner = new PrimaryKeyPartitioner<>();
+            return Optional.of(primaryKeyPartitioner);
+        }
+        Optional<FlinkKafkaPartitioner<RowData>> partitioner = KafkaOptions
+                .getFlinkKafkaPartitioner(tableOptions, classLoader);
+        return partitioner;
+    }
+
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
         FactoryUtil.TableFactoryHelper helper =
@@ -277,6 +297,7 @@ public class UpsertKafkaDynamicTableFactory
         final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
         final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         final boolean multipleSink = tableOptions.getOptional(SINK_MULTIPLE_FORMAT).isPresent();
+        final FlinkKafkaPartitioner<RowData> partitioner=getFlinkKafkaPartitioner(tableOptions, context.getClassLoader()).orElse(null);
 
         // use {@link org.apache.kafka.clients.producer.internals.DefaultPartitioner}.
         // it will use hash partition if key is set else in round-robin behaviour.
@@ -291,7 +312,7 @@ public class UpsertKafkaDynamicTableFactory
                 tableOptions.get(TOPIC).get(0),
                 properties,
                 context.getCatalogTable(),
-                null,
+                partitioner,
                 KafkaSinkSemantic.AT_LEAST_ONCE,
                 true,
                 flushMode,
