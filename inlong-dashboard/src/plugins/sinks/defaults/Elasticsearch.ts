@@ -175,7 +175,7 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `ES ${i18n.t('meta.Sinks.ES.FieldName')}`,
+      title: `Elasticsearch${i18n.t('meta.Sinks.ES.FieldName')}`,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
@@ -189,7 +189,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `ES ${i18n.t('meta.Sinks.ES.FieldType')}`,
+      title: `Elasticsearch${i18n.t('meta.Sinks.ES.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: esTypes[0].value,
       type: 'select',
@@ -197,7 +197,7 @@ const getFieldListColumns = sinkValues => {
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
         options: esTypes,
       }),
-      rules: [{ required: true }],
+      rules: [{ required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` }],
     },
     {
       title: 'Analyzer',
@@ -233,7 +233,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'scaled_float',
     },
     {
-      title: `ES ${i18n.t('meta.Sinks.ES.FieldDescription')}`,
+      title: i18n.t('meta.Sinks.ES.FieldDescription'),
       dataIndex: 'fieldComment',
       props: (text, record, idx, isNew) => ({
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,

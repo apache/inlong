@@ -124,6 +124,7 @@
   "meta.Sinks.EnableCreateResource": "是否创建资源",
   "meta.Sinks.EnableCreateResourceHelp": "如果库表已经存在，且无需修改，则选【不创建】，否则请选择【创建】，由系统自动创建资源。",
   "meta.Sinks.DataNodeName": "数据节点",
+  "meta.Sinks.FieldTypeMessage": "请输入字段类型",
   "meta.Sinks.Hive.FileFormat": "落地格式",
   "meta.Sinks.Hive.Day": "天",
   "meta.Sinks.Hive.DataEncoding": "数据编码",
