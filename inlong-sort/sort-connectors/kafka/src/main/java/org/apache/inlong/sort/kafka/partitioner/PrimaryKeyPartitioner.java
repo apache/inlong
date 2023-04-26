@@ -49,13 +49,13 @@ public class PrimaryKeyPartitioner<T> extends FlinkKafkaPartitioner<T> {
         Preconditions.checkArgument(
                 partitions != null && partitions.length > 0,
                 "Partitions of the target topic is empty.");
-        //single table currently support: avro/csv/json/canal
+        // single table currently support: avro/csv/json/canal
         try {
-            //used for avro/csv/json formats
+            // used for avro/csv/json formats
             if (key != null) {
                 return partitions[(Arrays.hashCode(key) & Integer.MAX_VALUE) % partitions.length];
             } else {
-                //used for canal-json formats, since single table does not support debezium-json for now.
+                // used for canal-json formats, since single table does not support debezium-json for now.
                 AbstractDynamicSchemaFormat dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat("canal-json");
                 List<String> values = dynamicSchemaFormat.extractPrimaryKeyValues(value);
                 if (values == null || values.isEmpty()) {

@@ -50,7 +50,6 @@ import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
 import org.apache.inlong.sort.kafka.partitioner.PrimaryKeyPartitioner;
-import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -297,7 +296,8 @@ public class UpsertKafkaDynamicTableFactory
         final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
         final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         final boolean multipleSink = tableOptions.getOptional(SINK_MULTIPLE_FORMAT).isPresent();
-        final FlinkKafkaPartitioner<RowData> partitioner=getFlinkKafkaPartitioner(tableOptions, context.getClassLoader()).orElse(null);
+        final FlinkKafkaPartitioner<RowData> partitioner =
+                getFlinkKafkaPartitioner(tableOptions, context.getClassLoader()).orElse(null);
 
         // use {@link org.apache.kafka.clients.producer.internals.DefaultPartitioner}.
         // it will use hash partition if key is set else in round-robin behaviour.
