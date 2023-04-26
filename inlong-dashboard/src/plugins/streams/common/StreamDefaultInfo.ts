@@ -105,11 +105,11 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           value: 'CSV',
         },
         {
-          label: 'KV',
+          label: 'Key-Value',
           value: 'KV',
         },
         {
-          label: 'AVRO',
+          label: 'Avro',
           value: 'AVRO',
         },
         {
