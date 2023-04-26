@@ -116,6 +116,10 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           label: 'JSON',
           value: 'JSON',
         },
+        {
+          label: 'DEBEZIUM_JSON',
+          value: 'DEBEZIUM_JSON',
+        },
       ],
     }),
     rules: [{ required: true }],
