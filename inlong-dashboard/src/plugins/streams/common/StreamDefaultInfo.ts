@@ -105,11 +105,11 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           value: 'CSV',
         },
         {
-          label: 'KV',
+          label: 'Key-Value',
           value: 'KV',
         },
         {
-          label: 'AVRO',
+          label: 'Avro',
           value: 'AVRO',
         },
         {
@@ -117,7 +117,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           value: 'JSON',
         },
         {
-          label: 'DEBEZIUM_JSON',
+          label: 'Debezium JSON',
           value: 'DEBEZIUM_JSON',
         },
       ],
