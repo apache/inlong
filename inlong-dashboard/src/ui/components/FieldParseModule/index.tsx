@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button, Divider, Input, message, Modal, Radio, Space, Table } from 'antd';
 
 import {
@@ -103,11 +103,11 @@ const FieldParseModule: React.FC<FieldParseModuleProps> = ({
       console.error(error);
     }
   };
+
   const { run: doUpload } = useRequest(data => ({
     url: '/stream/parseFieldsByExcel',
     method: 'POST',
     requestType: 'formData',
-    manual: true,
     data,
     onSuccess: result => {
       console.log('Upload result:', result);
@@ -118,8 +118,17 @@ const FieldParseModule: React.FC<FieldParseModuleProps> = ({
       message.error(error);
     },
   }));
+
+  const handleUploadExcel = useCallback(
+    data => {
+      doUpload(data);
+    },
+    [doUpload],
+  );
+
   const uploadExcel = async () => {
     try {
+      console.log('uploading');
       const fileInput = document.createElement('input');
       fileInput.type = 'file';
       fileInput.accept = '.xlsx';
@@ -130,7 +139,7 @@ const FieldParseModule: React.FC<FieldParseModuleProps> = ({
         }
         const formData = new FormData();
         formData.append('file', file);
-        await doUpload(formData);
+        await handleUploadExcel(formData);
       };
       fileInput.click();
     } catch (error) {
@@ -252,6 +261,7 @@ user_age,int,age of user`);
             key={'mode_radio_group'}
             onChange={e => setSelectedFormat(e.target.value)}
             value={selectedFormat}
+            style={{ marginBottom: 6 }}
           >
             <Radio.Button
               key={'module_json'}
@@ -351,7 +361,7 @@ user_age,int,age of user`);
             <Button
               key="upload"
               type={'primary'}
-              onClick={() => uploadExcel()}
+              onClick={uploadExcel}
               icon={<UploadOutlined />}
               size={'small'}
             >

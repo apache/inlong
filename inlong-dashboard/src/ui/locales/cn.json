@@ -505,7 +505,7 @@
   "meta.Nodes.Kudu.DefaultSocketReadTimeoutMs": "等待Socket默认超时(ms)",
   "meta.Nodes.Kudu.StatisticsDisabled": "禁用统计信息收集",
   "components.EditableTable.NewLine": "新增一行",
-  "components.EditableTable.BatchAddField": "批量解析字段",
+  "components.EditableTable.BatchParseField": "批量解析字段",
   "components.EditableTable.DeleteAll": "删除全部",
   "components.FieldParseModule.BatchAddField": "批量添加",
   "components.FieldParseModule.Append": "追加",

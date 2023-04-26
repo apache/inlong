@@ -342,7 +342,7 @@ const EditableTable = ({
                     onClick={() => setIsParseFieldModalVisible(true)}
                     disabled={!canBatchAdd}
                   >
-                    {t('components.EditableTable.BatchAddField')}
+                    {t('components.EditableTable.BatchParseField')}
                   </Button>
                   <Button
                     key={'delete_all_button'}
