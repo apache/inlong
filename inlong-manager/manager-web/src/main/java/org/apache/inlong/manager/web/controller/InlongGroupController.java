@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
@@ -47,6 +48,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -88,9 +90,12 @@ public class InlongGroupController {
 
     @RequestMapping(value = "/group/countByStatus", method = RequestMethod.GET)
     @ApiOperation(value = "Count inlong group status for current user")
-    public Response<InlongGroupCountResponse> countGroupByUser() {
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "lightweight", dataTypeClass = Integer.class, required = true)
+    })
+    public Response<InlongGroupCountResponse> countGroupByUser(@RequestParam Integer lightweight) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(groupService.countGroupByUser(operator));
+        return Response.success(groupService.countGroupByUser(operator, lightweight));
     }
 
     @GetMapping(value = "/group/getTopic/{groupId}")

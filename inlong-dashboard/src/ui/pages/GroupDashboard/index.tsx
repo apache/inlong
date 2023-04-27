@@ -41,6 +41,7 @@ const Comp: React.FC = () => {
     // mqType: '',
     pageSize: defaultSize,
     pageNum: 1,
+    lightweight: 0,
   });
 
   const [groupLogs, setGroupLogs] = useState({
@@ -50,6 +51,9 @@ const Comp: React.FC = () => {
 
   const { data: summary = {} } = useRequest({
     url: '/group/countByStatus',
+    params: {
+      lightweight: 0,
+    },
   });
 
   const {

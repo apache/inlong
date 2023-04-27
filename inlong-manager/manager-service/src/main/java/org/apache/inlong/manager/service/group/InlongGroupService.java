@@ -29,10 +29,9 @@ import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
-import java.util.List;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Inlong group service layer interface
@@ -90,7 +89,7 @@ public interface InlongGroupService {
      * @param operator name of operator
      * @return inlong group status statistics
      */
-    InlongGroupCountResponse countGroupByUser(String operator);
+    InlongGroupCountResponse countGroupByUser(String operator, Integer lightweight);
 
     /**
      * According to the group id, query the topic to which it belongs
