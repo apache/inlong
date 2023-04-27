@@ -117,7 +117,8 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
                     continue;
                 }
 
-                if (sourceInfo.getSourceType().equalsIgnoreCase(SourceType.FILE)) {
+                if (sourceInfo.getSourceType().equalsIgnoreCase(SourceType.FILE) ||
+                        sourceInfo.getSourceType().equalsIgnoreCase(SourceType.AUTO_PUSH)) {
                     if (StringUtils.isNotBlank(streamInfo.getDataType())) {
                         String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
                         tubeMQSource.setSerializationType(serializationType);
