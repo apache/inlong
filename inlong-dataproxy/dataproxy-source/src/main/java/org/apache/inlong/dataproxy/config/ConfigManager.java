@@ -54,8 +54,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_INTERVAL;
-
 /**
  * Config manager class.
  */
@@ -66,9 +64,7 @@ public class ConfigManager {
     public static final List<ConfigHolder> CONFIG_HOLDER_LIST = new ArrayList<>();
     private static volatile boolean isInit = false;
     private static ConfigManager instance = null;
-    private static volatile boolean enableWhitList = false;
 
-    private final PropertiesConfigHolder commonConfig = new PropertiesConfigHolder("common.properties");
     private final MQClusterConfigHolder mqClusterConfigHolder = new MQClusterConfigHolder("mq_cluster.properties");
     private final PropertiesConfigHolder topicConfig = new PropertiesConfigHolder("topics.properties");
     private final MxPropertiesHolder mxConfig = new MxPropertiesHolder("mx.properties");
@@ -95,11 +91,6 @@ public class ConfigManager {
                 for (ConfigHolder holder : CONFIG_HOLDER_LIST) {
                     holder.loadFromFileToHolder();
                 }
-                // get enable whitelist status
-                String strEnable =
-                        instance.getCommonProperties().get(ConfigConstants.ENABLE_WHITELIST);
-                enableWhitList = StringUtils.isNotBlank(strEnable)
-                        && "TRUE".equalsIgnoreCase(strEnable);
                 ReloadConfigWorker reloadProperties = ReloadConfigWorker.create(instance);
                 reloadProperties.setDaemon(true);
                 reloadProperties.start();
@@ -135,13 +126,14 @@ public class ConfigManager {
     }
 
     public boolean needChkIllegalIP() {
-        return (!blackListConfig.isEmptyConfig() || enableWhitList);
+        return (!blackListConfig.isEmptyConfig()
+                || CommonConfigHolder.getInstance().isEnableWhiteList());
     }
 
     public boolean isIllegalIP(String strRemoteIP) {
         return strRemoteIP == null
                 || blackListConfig.isContain(strRemoteIP)
-                || (enableWhitList && !whiteListConfig.isContain(strRemoteIP));
+                || (CommonConfigHolder.getInstance().isEnableWhiteList() && !whiteListConfig.isContain(strRemoteIP));
     }
 
     public boolean addMxProperties(Map<String, String> result) {
@@ -266,10 +258,6 @@ public class ConfigManager {
         return groupIdConfig.getGroupIdEnableMappingProperties();
     }
 
-    public Map<String, String> getCommonProperties() {
-        return commonConfig.getHolder();
-    }
-
     public PropertiesConfigHolder getTopicConfig() {
         return topicConfig;
     }
@@ -320,16 +308,7 @@ public class ConfigManager {
         }
 
         private long getSleepTime() {
-            String sleepTimeInMsStr = configManager.getCommonProperties().get(CONFIG_CHECK_INTERVAL);
-            long sleepTimeInMs = 10000;
-            try {
-                if (sleepTimeInMsStr != null) {
-                    sleepTimeInMs = Long.parseLong(sleepTimeInMsStr);
-                }
-            } catch (Exception e) {
-                LOG.info("ignored exception ", e);
-            }
-            return sleepTimeInMs + getRandom(0, 5000);
+            return CommonConfigHolder.getInstance().getConfigChkInvlMs() + getRandom(0, 5000);
         }
 
         public void close() {
@@ -431,15 +410,14 @@ public class ConfigManager {
 
         private void checkRemoteConfig() {
             try {
-                String managerHosts = configManager.getCommonProperties().get(ConfigConstants.MANAGER_HOST);
-                String proxyClusterName = configManager.getCommonProperties().get(ConfigConstants.PROXY_CLUSTER_NAME);
-                String proxyClusterTag = configManager.getCommonProperties().get(ConfigConstants.PROXY_CLUSTER_TAG);
-                if (StringUtils.isEmpty(managerHosts) || StringUtils.isEmpty(proxyClusterName)) {
+                List<String> mgrHostPorts = CommonConfigHolder.getInstance().getManagerHosts();
+                String proxyClusterName = CommonConfigHolder.getInstance().getClusterName();
+                String proxyClusterTag = CommonConfigHolder.getInstance().getClusterTag();
+                if (mgrHostPorts.isEmpty() || StringUtils.isEmpty(proxyClusterName)) {
                     return;
                 }
-                String[] hostList = StringUtils.split(managerHosts, ",");
-                for (String host : hostList) {
-                    if (checkWithManager(host, proxyClusterName, proxyClusterTag)) {
+                for (String hostPort : mgrHostPorts) {
+                    if (checkWithManager(hostPort, proxyClusterName, proxyClusterTag)) {
                         break;
                     }
                 }

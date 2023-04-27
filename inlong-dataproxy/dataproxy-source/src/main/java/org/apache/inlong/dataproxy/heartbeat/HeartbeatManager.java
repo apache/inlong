@@ -36,6 +36,7 @@ import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
 import org.apache.inlong.dataproxy.config.AuthUtils;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -53,12 +54,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 @Slf4j
 public class HeartbeatManager implements AbstractHeartbeatManager {
-
-    public static final String DEFAULT_CLUSTER_TAG = "default_cluster";
-    public static final String DEFAULT_CLUSTER_NAME = "default_dataproxy";
-    public static final String DEFAULT_CLUSTER_INCHARGES = "admin";
-    // predefined format of ext tag: {key}={value}
-    public static final String DEFAULT_CLUSTER_EXT_TAG = "default=true";
 
     private final CloseableHttpClient httpClient;
     private final Gson gson;
@@ -88,10 +83,20 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         if (null == heartbeat) {
             return;
         }
-        ConfigManager configManager = ConfigManager.getInstance();
-        final String managerHost = configManager.getCommonProperties().get(ConfigConstants.MANAGER_HOST);
+        List<String> mgrHostPorts = CommonConfigHolder.getInstance().getManagerHosts();
+        if (mgrHostPorts.isEmpty()) {
+            return;
+        }
+        for (String managerHost : mgrHostPorts) {
+            if (sendHeartBeatMsg(managerHost, heartbeat)) {
+                return;
+            }
+        }
+    }
+
+    private boolean sendHeartBeatMsg(String mgrHostPort, HeartbeatMsg heartbeat) {
         final String url =
-                "http://" + managerHost + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_HEARTBEAT_REPORT;
+                "http://" + mgrHostPort + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_HEARTBEAT_REPORT;
         try {
             HttpPost post = new HttpPost(url);
             post.addHeader(HttpHeaders.CONNECTION, "close");
@@ -102,15 +107,18 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             post.setEntity(stringEntity);
             CloseableHttpResponse response = httpClient.execute(post);
             String isSuccess = EntityUtils.toString(response.getEntity());
-            if (StringUtils.isNotEmpty(isSuccess)
-                    && response.getStatusLine().getStatusCode() == 200) {
-                if (log.isDebugEnabled()) {
-                    log.debug("reportHeartbeat url {}, heartbeat: {}, return str {}", url, body, isSuccess);
+            if (response.getStatusLine().getStatusCode() == 200) {
+                if (StringUtils.isNotEmpty(isSuccess)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("reportHeartbeat url {}, heartbeat: {}, return str {}", url, body, isSuccess);
+                    }
                 }
+                return true;
             }
         } catch (Exception ex) {
             log.error("reportHeartbeat failed for url {}", url, ex);
         }
+        return false;
     }
 
     private synchronized CloseableHttpClient constructHttpClient() {
@@ -139,15 +147,10 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getType());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         heartbeatMsg.setLoad(0xffff);
-        Map<String, String> commonProperties = configManager.getCommonProperties();
-        heartbeatMsg.setClusterTag(commonProperties.getOrDefault(
-                ConfigConstants.PROXY_CLUSTER_TAG, DEFAULT_CLUSTER_TAG));
-        heartbeatMsg.setClusterName(commonProperties.getOrDefault(
-                ConfigConstants.PROXY_CLUSTER_NAME, DEFAULT_CLUSTER_NAME));
-        heartbeatMsg.setInCharges(commonProperties.getOrDefault(
-                ConfigConstants.PROXY_CLUSTER_INCHARGES, DEFAULT_CLUSTER_INCHARGES));
-        heartbeatMsg.setExtTag(commonProperties.getOrDefault(
-                ConfigConstants.PROXY_CLUSTER_EXT_TAG, DEFAULT_CLUSTER_EXT_TAG));
+        heartbeatMsg.setClusterTag(CommonConfigHolder.getInstance().getClusterTag());
+        heartbeatMsg.setClusterName(CommonConfigHolder.getInstance().getClusterName());
+        heartbeatMsg.setInCharges(CommonConfigHolder.getInstance().getClusterIncharges());
+        heartbeatMsg.setExtTag(CommonConfigHolder.getInstance().getClusterExtTag());
 
         Map<String, String> groupIdMappings = configManager.getGroupIdMappingProperties();
         Map<String, Map<String, String>> streamIdMappings = configManager.getStreamIdMappingProperties();

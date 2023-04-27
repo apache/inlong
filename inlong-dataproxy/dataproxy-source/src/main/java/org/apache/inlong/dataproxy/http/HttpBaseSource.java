@@ -28,7 +28,7 @@ import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
-import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.utils.ConfStringUtils;
@@ -77,11 +77,7 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
                     statIntervalSec, maxMonitorCnt);
         }
         // register metrics
-        ConfigManager configManager = ConfigManager.getInstance();
-        String clusterId =
-                configManager.getCommonProperties().getOrDefault(
-                        ConfigConstants.PROXY_CLUSTER_NAME,
-                        ConfigConstants.DEFAULT_PROXY_CLUSTER_NAME);
+        String clusterId = CommonConfigHolder.getInstance().getClusterName();
         this.metricItemSet =
                 new DataProxyMetricItemSet(clusterId, this.getName(), String.valueOf(port));
         MetricRegister.register(metricItemSet);

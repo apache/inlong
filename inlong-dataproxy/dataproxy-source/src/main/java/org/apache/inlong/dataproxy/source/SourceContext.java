@@ -23,8 +23,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
@@ -84,8 +83,7 @@ public class SourceContext {
     public SourceContext(AbstractSource source, ChannelGroup allChannels, Context context) {
         this.source = source;
         this.allChannels = allChannels;
-        this.proxyClusterId = CommonPropertiesHolder.get()
-                .getOrDefault(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME, "unknown");
+        this.proxyClusterId = CommonConfigHolder.getInstance().getClusterName();
         this.sourceId = source.getName();
         // metric
         this.metricItemSet = new DataProxyMetricItemSet(sourceId);

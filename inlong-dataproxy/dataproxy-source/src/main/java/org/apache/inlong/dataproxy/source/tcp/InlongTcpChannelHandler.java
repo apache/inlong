@@ -18,8 +18,8 @@
 package org.apache.inlong.dataproxy.source.tcp;
 
 import org.apache.flume.Event;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.SourceContext;
@@ -147,10 +147,10 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
             this.responsePackage(ctx, ResultCode.SUCCUSS, packObject);
         }
         // process
-        if (!CommonPropertiesHolder.isResponseAfterSave()) {
-            this.processAndResponse(ctx, packObject, events);
-        } else {
+        if (CommonConfigHolder.getInstance().isResponseAfterSave()) {
             this.processAndWaitingSave(ctx, packObject, events);
+        } else {
+            this.processAndResponse(ctx, packObject, events);
         }
     }
 
@@ -174,8 +174,8 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
             events.forEach(event -> {
                 this.addMetric(true, event.getBody().length, event);
             });
-            boolean awaitResult = callback.getLatch().await(CommonPropertiesHolder.getMaxResponseTimeout(),
-                    TimeUnit.MILLISECONDS);
+            boolean awaitResult = callback.getLatch().await(
+                    CommonConfigHolder.getInstance().getMaxResAfterSaveTimeout(), TimeUnit.MILLISECONDS);
             if (!awaitResult) {
                 if (!callback.getHasResponsed().getAndSet(true)) {
                     this.responsePackage(ctx, ResultCode.ERR_REJECT, packObject);
