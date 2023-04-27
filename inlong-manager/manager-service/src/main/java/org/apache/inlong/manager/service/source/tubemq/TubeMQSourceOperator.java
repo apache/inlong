@@ -110,17 +110,21 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
             tubeMQSource.setTopic(streamInfo.getMqResource());
             tubeMQSource.setGroupId(streamId);
             tubeMQSource.setMasterRpc(masterRpc);
-            if (StringUtils.isNotBlank(streamInfo.getDataType())) {
-                String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
-                tubeMQSource.setSerializationType(serializationType);
-            }
             tubeMQSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
 
             for (StreamSource sourceInfo : streamSources) {
                 if (!Objects.equals(streamId, sourceInfo.getInlongStreamId())) {
                     continue;
                 }
-                tubeMQSource.setSerializationType(sourceInfo.getSerializationType());
+
+                if (sourceInfo.getSourceType().equalsIgnoreCase(SourceType.FILE)) {
+                    if (StringUtils.isNotBlank(streamInfo.getDataType())) {
+                        String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
+                        tubeMQSource.setSerializationType(serializationType);
+                    }
+                } else {
+                    tubeMQSource.setSerializationType(sourceInfo.getSerializationType());
+                }
             }
             tubeMQSource.setFieldList(streamInfo.getFieldList());
             sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(tubeMQSource);
