@@ -104,26 +104,24 @@ const FieldParseModule: React.FC<FieldParseModuleProps> = ({
     }
   };
 
-  const { run: doUpload } = useRequest(data => ({
-    url: '/stream/parseFieldsByExcel',
-    method: 'POST',
-    requestType: 'formData',
-    data,
-    onSuccess: result => {
-      console.log('Upload result:', result);
-      setPreviewData(result);
+  const { run: doUpload } = useRequest(
+    data => ({
+      url: '/stream/parseFieldsByExcel',
+      method: 'POST',
+      requestType: 'formData',
+      data,
+      onSuccess: result => {
+        console.log('Upload result:', result);
+        setPreviewData(result);
+      },
+      onError: error => {
+        console.log('upload error!');
+        message.error(error);
+      },
+    }),
+    {
+      manual: true,
     },
-    onError: error => {
-      console.log('upload error!');
-      message.error(error);
-    },
-  }));
-
-  const handleUploadExcel = useCallback(
-    data => {
-      doUpload(data);
-    },
-    [doUpload],
   );
 
   const uploadExcel = async () => {
@@ -139,7 +137,7 @@ const FieldParseModule: React.FC<FieldParseModuleProps> = ({
         }
         const formData = new FormData();
         formData.append('file', file);
-        await handleUploadExcel(formData);
+        await doUpload(formData);
       };
       fileInput.click();
     } catch (error) {
