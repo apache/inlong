@@ -27,10 +27,8 @@ import java.nio.charset.StandardCharsets;
 public class CalculateObjectSizeUtils {
 
     /**
-     *
      * {@link BinaryRowData} don't implement the {@link Object#toString} method
      * So, we need use {@link BinaryRowData#getSizeInBytes} to get byte size.
-     *
      */
     public static long getDataSize(Object object) {
         if (object == null) {
