@@ -96,12 +96,10 @@ public class InlongConsumeClient {
      * @return inlong consume list
      */
     public PageResult<InlongConsumeBriefInfo> list(InlongConsumePageRequest request) {
-        Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(request,
-                new TypeReference<Map<String, Object>>() {
-                });
+        Preconditions.expectNotNull(request, "inlong consume request cannot be null");
 
         Response<PageResult<InlongConsumeBriefInfo>> response = ClientUtils.executeHttpCall(
-                inlongConsumeApi.list(requestMap));
+                inlongConsumeApi.list(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
