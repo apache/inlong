@@ -74,8 +74,8 @@ public class PulsarSqlParserTest {
                 format,
                 "earliest",
                 null,
-                null,
-                null);
+                "test",
+                "earliest");
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {

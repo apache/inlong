@@ -50,7 +50,7 @@ public class PulsarExtractNodeTest extends SerializeBaseTest<Node> {
                 format,
                 "earliest",
                 null,
-                null,
-                null);
+                "subscription",
+                "earliest");
     }
 }
