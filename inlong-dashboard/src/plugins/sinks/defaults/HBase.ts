@@ -178,7 +178,7 @@ const getFieldListColumns = sinkValues => {
         options: hbaseFieldTypes,
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
-      rules: [{ required: true }],
+      rules: [{ required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` }],
     },
     {
       title: 'cfName',

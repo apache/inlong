@@ -299,7 +299,7 @@ const getFieldListColumns = sinkValues => {
       width: 130,
       initialValue: hudiFieldTypes[0].value,
       type: 'select',
-      rules: [{ required: true }],
+      rules: [{ required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` }],
       props: (text, record, idx, isNew) => ({
         options: hudiFieldTypes,
         onChange: value => {

@@ -202,7 +202,7 @@ const getFieldListColumns = sinkValues => {
         allowClear: true,
       }),
       rules: [
-        { required: true },
+        { required: true, message: `${i18n.t('meta.Sinks.FieldTypeMessage')}` },
         () => ({
           validator(_, val) {
             if (val) {

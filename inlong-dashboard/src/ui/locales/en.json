@@ -124,6 +124,7 @@
   "meta.Sinks.EnableCreateResource": "EnableCreateResource",
   "meta.Sinks.EnableCreateResourceHelp": "If the library table already exists and does not need to be modified, select [Do not create], otherwise select [Create], and the system will automatically create the resource.",
   "meta.Sinks.DataNodeName": "DataNode",
+  "meta.Sinks.FieldTypeMessage": "Please enter field type",
   "meta.Sinks.Hive.FileFormat": "File format",
   "meta.Sinks.Hive.Day": "Day(s)",
   "meta.Sinks.Hive.DataEncoding": "Data encoding",
