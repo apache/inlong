@@ -60,6 +60,12 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric {
     @JsonProperty("primaryKey")
     private String primaryKey;
 
+    @JsonProperty("scanStartupSubName")
+    private String scanStartupSubName;
+
+    @JsonProperty("scanStartupSubStartOffset")
+    private String scanStartupSubStartOffset;
+
     @JsonCreator
     public PulsarExtractNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -71,7 +77,9 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric {
             @Nonnull @JsonProperty("serviceUrl") String serviceUrl,
             @Nonnull @JsonProperty("format") Format format,
             @Nonnull @JsonProperty("scanStartupMode") String scanStartupMode,
-            @JsonProperty("primaryKey") String primaryKey) {
+            @JsonProperty("primaryKey") String primaryKey,
+            @JsonProperty("scanStartupSubName") String scanStartupSubName,
+            @JsonProperty("scanStartupSubStartOffset") String scanStartupSubStartOffset) {
         super(id, name, fields, watermarkField, properties);
         this.topic = Preconditions.checkNotNull(topic, "pulsar topic is null.");
         this.serviceUrl = Preconditions.checkNotNull(serviceUrl, "pulsar serviceUrl is null.");
@@ -80,6 +88,8 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric {
                 "pulsar scanStartupMode is null.");
         this.adminUrl = adminUrl;
         this.primaryKey = primaryKey;
+        this.scanStartupSubName = scanStartupSubName;
+        this.scanStartupSubStartOffset = scanStartupSubStartOffset;
     }
 
     /**
@@ -104,7 +114,10 @@ public class PulsarExtractNode extends ExtractNode implements InlongMetric {
         options.put("service-url", serviceUrl);
         options.put("topic", topic);
         options.put("scan.startup.mode", scanStartupMode);
-
+        if (scanStartupSubName != null) {
+            options.put("scan.startup.sub-name", scanStartupSubName);
+            options.put("scan.startup.sub-start-offset", scanStartupSubStartOffset);
+        }
         return options;
     }
 

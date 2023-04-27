@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.resource.sort;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -146,6 +147,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                     adjustTransformField(transformResponses, nodeNameSet, mqNodeName);
                     adjustNodeRelations(relations, nodeNameSet, mqNodeName);
                 } else {
+                    Preconditions.expectTrue(sources.size() == 1, "simple transform only support one input node");
+                    Preconditions.expectTrue(sinks.size() == 1, "simple transform only support one output node");
                     relations = NodeRelationUtils.createNodeRelations(sources, sinks);
                 }
             } else {

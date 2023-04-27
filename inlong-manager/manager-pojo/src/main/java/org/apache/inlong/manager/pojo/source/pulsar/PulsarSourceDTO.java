@@ -47,6 +47,9 @@ public class PulsarSourceDTO {
     @ApiModelProperty("Pulsar topic")
     private String topic;
 
+    @ApiModelProperty("Pulsar subscription")
+    private String subscription;
+
     @ApiModelProperty("Pulsar adminUrl")
     private String adminUrl;
 
@@ -83,6 +86,7 @@ public class PulsarSourceDTO {
                 .tenant(request.getTenant())
                 .namespace(request.getNamespace())
                 .topic(request.getTopic())
+                .subscription(request.getSubscription())
                 .primaryKey(request.getPrimaryKey())
                 .scanStartupMode(request.getScanStartupMode())
                 .properties(request.getProperties())

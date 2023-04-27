@@ -58,7 +58,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     /**
      * The name rule for Pulsar subscription: clusterTag_topicName_sinkId_consumer_group
      */
-    private static final String PULSAR_SUBSCRIPTION = "%s_%s_%s_consumer_group";
+    public static final String PULSAR_SUBSCRIPTION = "%s_%s_%s_consumer_group";
 
     @Autowired
     private InlongClusterService clusterService;

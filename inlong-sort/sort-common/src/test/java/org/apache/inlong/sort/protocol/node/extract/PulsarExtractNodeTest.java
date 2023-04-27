@@ -49,6 +49,8 @@ public class PulsarExtractNodeTest extends SerializeBaseTest<Node> {
                 "pulsar://localhost:6650",
                 format,
                 "earliest",
+                null,
+                null,
                 null);
     }
 }
