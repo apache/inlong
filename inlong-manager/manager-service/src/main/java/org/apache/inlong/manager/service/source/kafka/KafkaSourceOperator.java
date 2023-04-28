@@ -128,15 +128,7 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
                     continue;
                 }
 
-                if (sourceInfo.getSourceType().equalsIgnoreCase(SourceType.FILE) ||
-                        sourceInfo.getSourceType().equalsIgnoreCase(SourceType.AUTO_PUSH)) {
-                    if (StringUtils.isNotBlank(streamInfo.getDataType())) {
-                        String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
-                        kafkaSource.setSerializationType(serializationType);
-                    }
-                } else {
-                    kafkaSource.setSerializationType(sourceInfo.getSerializationType());
-                }
+                kafkaSource.setSerializationType(getSerializationType(sourceInfo, streamInfo.getDataType()));
             }
 
             // if the SerializationType is still null, set it to the CSV

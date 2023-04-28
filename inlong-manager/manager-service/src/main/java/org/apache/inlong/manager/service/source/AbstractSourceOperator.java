@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.source;
 import com.github.pagehelper.Page;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -305,5 +306,20 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
         sourceFieldMapper.insertAll(entityList);
         LOGGER.debug("success to save source fields");
+    }
+
+    /**
+     * If the stream source can only use one data type, return the data type that has been set.
+     *
+     * @param streamSource stream source
+     * @param streamDataType stream data type
+     * @return serialization type
+     */
+    protected String getSerializationType(StreamSource streamSource, String streamDataType) {
+        if(StringUtils.isNotBlank(streamSource.getSerializationType())) {
+            return streamSource.getSerializationType();
+        }
+
+        return DataTypeEnum.forType(streamDataType).getType();
     }
 }

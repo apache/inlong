@@ -146,15 +146,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
                     continue;
                 }
 
-                if (sourceInfo.getSourceType().equalsIgnoreCase(SourceType.FILE) ||
-                        sourceInfo.getSourceType().equalsIgnoreCase(SourceType.AUTO_PUSH)) {
-                    if (StringUtils.isNotBlank(streamInfo.getDataType())) {
-                        String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
-                        pulsarSource.setSerializationType(serializationType);
-                    }
-                } else {
-                    pulsarSource.setSerializationType(sourceInfo.getSerializationType());
-                }
+                pulsarSource.setSerializationType(getSerializationType(sourceInfo, streamInfo.getDataType()));
 
                 // currently, only reuse the primary key from Kafka source
                 if (SourceType.KAFKA.equals(sourceInfo.getSourceType())) {
