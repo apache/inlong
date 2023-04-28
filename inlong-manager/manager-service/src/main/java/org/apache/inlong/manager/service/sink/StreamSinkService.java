@@ -116,9 +116,10 @@ public interface StreamSinkService {
      * Paging query stream sink info based on conditions.
      *
      * @param request paging request
+     * @param operator operator
      * @return sink page list
      */
-    PageResult<? extends StreamSink> listByCondition(SinkPageRequest request);
+    PageResult<? extends StreamSink> listByCondition(SinkPageRequest request, String operator);
 
     /**
      * Paging query stream sink info based on conditions.

@@ -53,9 +53,10 @@ public interface InlongConsumeService {
      * Get inlong consume info based on ID
      *
      * @param id inlong consume id
+     * @param currentUser currentUser
      * @return detail of inlong group
      */
-    InlongConsumeInfo get(Integer id);
+    InlongConsumeInfo get(Integer id, String currentUser);
 
     /**
      * Check whether the consumer group exists or not
