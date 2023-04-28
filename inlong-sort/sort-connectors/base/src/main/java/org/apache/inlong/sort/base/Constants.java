@@ -195,13 +195,16 @@ public final class Constants {
                     .stringType()
                     .noDefaultValue()
                     .withDescription(
-                            "Pattern rules and partition maps");
+                            "Pattern rules and partition map string, " +
+                                    "eg: databasePattern1&tablePattern1:partition1,"
+                                    + "databasePattern2&tablePattern2:partition2,"
+                                    + "DEFAULT_PARTITION:partition3");
     public static final ConfigOption<Map<String, String>> DATASOURCE_PARTITION_MAP =
             ConfigOptions.key("datasource.partition.map")
                     .mapType()
                     .noDefaultValue()
                     .withDescription(
-                            "Datasource and partition maps");
+                            "Datasource and partition maps, eg: <datasource1,partition1>");
     public static final ConfigOption<String> SINK_MULTIPLE_DATABASE_PATTERN =
             ConfigOptions.key("sink.multiple.database-pattern")
                     .stringType()

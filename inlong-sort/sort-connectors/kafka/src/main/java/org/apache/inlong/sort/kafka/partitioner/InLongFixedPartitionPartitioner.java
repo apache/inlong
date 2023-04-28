@@ -32,6 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * Fixed partitions according to the given library name and table name rules.
+ * */
 public class InLongFixedPartitionPartitioner<T> extends FlinkKafkaPartitioner<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InLongFixedPartitionPartitioner.class);
@@ -72,6 +75,10 @@ public class InLongFixedPartitionPartitioner<T> extends FlinkKafkaPartitioner<T>
         dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
     }
 
+    /***
+     * Partition mapping is performed according to the library name and table name rules,
+     * and no matching is written to the default partition.
+     * */
     @Override
     public int partition(T record, byte[] key, byte[] value, String targetTopic, int[] partitions) {
         try {
