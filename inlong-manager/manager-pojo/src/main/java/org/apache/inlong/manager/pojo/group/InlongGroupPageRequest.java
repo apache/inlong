@@ -57,6 +57,9 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "The inlong cluster tag list")
     private List<String> clusterTagList;
 
+    @ApiModelProperty(value = "Standard mode: 0, Lightweight: 1")
+    private Integer lightweight;
+
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 

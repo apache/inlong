@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -88,9 +89,11 @@ public class InlongGroupController {
 
     @RequestMapping(value = "/group/countByStatus", method = RequestMethod.GET)
     @ApiOperation(value = "Count inlong group status for current user")
-    public Response<InlongGroupCountResponse> countGroupByUser() {
+    @ApiImplicitParam(name = "lightweight", dataTypeClass = Integer.class, defaultValue = "0")
+    public Response<InlongGroupCountResponse> countGroupByUser(
+            @RequestParam(required = false, defaultValue = "0") Integer lightweight) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(groupService.countGroupByUser(operator));
+        return Response.success(groupService.countGroupByUser(operator, lightweight));
     }
 
     @GetMapping(value = "/group/getTopic/{groupId}")

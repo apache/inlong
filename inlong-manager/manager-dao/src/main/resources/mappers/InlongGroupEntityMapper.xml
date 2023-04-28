@@ -98,6 +98,9 @@
         select count(*) as total, status
         from inlong_group
         where is_deleted = 0
+          <if test="lightweight != null">
+              and lightweight = #{lightweight,jdbcType=TINYINT}
+          </if>
           and (creator = #{username,jdbcType=VARCHAR} or find_in_set(#{username,jdbcType=VARCHAR}, in_charges))
         group by status
     </select>
@@ -153,6 +156,9 @@
                 <foreach collection="clusterTagList" item="tag" index="index" open="(" close=")" separator=",">
                     #{tag}
                 </foreach>
+            </if>
+            <if test="lightweight != null">
+                and lightweight = #{lightweight,jdbcType=TINYINT}
             </if>
         </where>
         <choose>
