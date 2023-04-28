@@ -20,11 +20,15 @@ package org.apache.inlong.sort.iceberg.sink;
 import org.apache.flink.api.common.typeutils.base.StringSerializer;
 import org.apache.inlong.sort.iceberg.sink.collections.RocksDBKVBuffer;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.UUID;
 
 public class TestRocksDBKVBuffer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TestRocksDBKVBuffer.class);
 
     @Test
     public void testRepeatputAndClear() {
@@ -39,7 +43,7 @@ public class TestRocksDBKVBuffer {
     }
 
     public void repeatPutAndClear(RocksDBKVBuffer<String, String> buffer) {
-        System.out.println("---------------------------------------------------------------");
+        LOG.info("---------------------------------------------------------------");
         long count = 1000L; // could increase it to 1000w and monitor total memory
         int beforeCompleteness = 0;
         for (int i = 1; i <= count; i++) {
@@ -47,10 +51,10 @@ public class TestRocksDBKVBuffer {
             int completeness = (int) (i / (count * 1.0 / 100));
             if (completeness > beforeCompleteness) {
                 beforeCompleteness = completeness;
-                System.out.println(String.format("Current completeness %d%%, write count %d", completeness, i));
+                LOG.info(String.format("Current completeness %d%%, write count %d", completeness, i));
             }
         }
         buffer.clear();
-        System.out.println("---------------------------------------------------------------");
+        LOG.info("---------------------------------------------------------------");
     }
 }

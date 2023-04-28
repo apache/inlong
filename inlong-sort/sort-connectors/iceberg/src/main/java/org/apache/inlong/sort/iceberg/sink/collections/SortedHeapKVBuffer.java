@@ -32,7 +32,7 @@ public class SortedHeapKVBuffer<T, R> implements KVBuffer<T, R>, Serializable {
 
     public SortedHeapKVBuffer(KVBuffer.Convertor<T> convertor) {
         this.convertor = convertor;
-        this.map = new TreeMap<>(convertor::compare);
+        this.map = new TreeMap<>(convertor);
     }
 
     @Override

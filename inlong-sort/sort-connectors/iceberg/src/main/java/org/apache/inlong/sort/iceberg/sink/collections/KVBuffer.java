@@ -84,6 +84,10 @@ public interface KVBuffer<K, V> {
      */
     void clear();
 
+    /**
+     * Convertor to convert a key prefix to key range.
+     * @param <K>
+     */
     interface Convertor<K> extends Comparator<K> {
 
         K upper(byte[] keyPrefix);

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.stream.Stream;
 
 /**
  * A tool class for safely creating and deleting directories that wraps exception information.
@@ -30,7 +31,9 @@ public class FileIOUtils {
 
     public static void deleteDirectory(File directory) throws IOException {
         if (directory != null && directory.exists()) {
-            Files.walk(directory.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            try (Stream<Path> files = Files.walk(directory.toPath())) {
+                files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
             directory.delete();
             if (directory.exists()) {
                 throw new IOException("Unable to delete directory " + directory);

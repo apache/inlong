@@ -44,7 +44,7 @@ public final class RocksDBKVBuffer<T, R> implements Closeable, KVBuffer<T, R>, S
     private static final long serialVersionUID = 1L;
     private static final String ROCKSDB_COL_FAMILY = "rocksdb-diskmap";
 
-    private transient RocksDBDAO<T, R> rocksDb;
+    private transient volatile RocksDBDAO<T, R> rocksDb;
     private transient boolean closed = false;
     private transient Thread shutdownThread = null;
     protected String diskMapPath;

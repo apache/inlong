@@ -315,44 +315,6 @@ public class RocksDBDAO<K, V> {
     }
 
     /**
-     * Perform a prefix delete and return stream of key-value pairs retrieved.
-     *
-     * @param columnFamilyName Column Family Name
-     * @param prefix Prefix Key
-     */
-    public void prefixDelete(String columnFamilyName, String prefix) {
-        Preconditions.checkArgument(!closed);
-        LOG.info("Prefix DELETE (query=" + prefix + ") on " + columnFamilyName);
-        final RocksIterator it = getRocksDB().newIterator(managedHandlesMap.get(columnFamilyName));
-        it.seek(prefix.getBytes());
-        // Find first and last keys to be deleted
-        String firstEntry = null;
-        String lastEntry = null;
-        while (it.isValid() && new String(it.key()).startsWith(prefix)) {
-            String result = new String(it.key());
-            it.next();
-            if (firstEntry == null) {
-                firstEntry = result;
-            }
-            lastEntry = result;
-        }
-        it.close();
-
-        if (null != firstEntry) {
-            try {
-                // This will not delete the last entry
-                getRocksDB().deleteRange(managedHandlesMap.get(columnFamilyName), firstEntry.getBytes(),
-                        lastEntry.getBytes());
-                // Delete the last entry
-                getRocksDB().delete(lastEntry.getBytes());
-            } catch (RocksDBException e) {
-                LOG.error("Got exception performing range delete");
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    /**
      * Add a new column family to store.
      *
      * @param columnFamilyName Column family name

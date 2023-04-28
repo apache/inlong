@@ -79,7 +79,7 @@ public abstract class PartitionGroupBuffer implements Serializable {
         for (String partition : allPartition) {
             StringSerializer.INSTANCE.serialize(partition, outputBuffer);
             try (Stream<? extends Tuple2<?, RowData>> stream = buffer.scan(outputBuffer.getCopyOfBuffer())) {
-                stream.forEach(tuple -> consumer.accept(tuple));
+                stream.forEach(consumer);
             }
             outputBuffer.clear();
         }
