@@ -316,7 +316,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
      * @return serialization type
      */
     protected String getSerializationType(StreamSource streamSource, String streamDataType) {
-        if(StringUtils.isNotBlank(streamSource.getSerializationType())) {
+        if (StringUtils.isNotBlank(streamSource.getSerializationType())) {
             return streamSource.getSerializationType();
         }
 
