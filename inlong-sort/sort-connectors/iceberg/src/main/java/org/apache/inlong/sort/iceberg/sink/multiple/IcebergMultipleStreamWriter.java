@@ -49,6 +49,7 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
+import org.apache.inlong.sort.base.util.CalculateObjectSizeUtils;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.iceberg.sink.RowDataTaskWriterFactory;
 import org.slf4j.Logger;
@@ -56,7 +57,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.Closeable;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -258,7 +258,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                 for (RowData data : recordWithSchema.getData()) {
                     String dataBaseName = tableId.namespace().toString();
                     String tableName = tableId.name();
-                    long size = data == null ? 0 : data.toString().getBytes(StandardCharsets.UTF_8).length;
+                    long size = CalculateObjectSizeUtils.getDataSize(data);
 
                     try {
                         multipleWriters.get(tableId).processElement(data);

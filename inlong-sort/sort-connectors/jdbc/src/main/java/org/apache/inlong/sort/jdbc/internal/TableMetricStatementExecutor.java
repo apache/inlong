@@ -26,6 +26,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.CalculateObjectSizeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,7 +114,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
             // approximate since it may be inefficient to iterate over all writtenSize-1 elements.
             long writtenBytes = 0L;
             if (writtenSize > 0) {
-                writtenBytes = (long) batch.get(0).toString().getBytes(StandardCharsets.UTF_8).length * writtenSize;
+                writtenBytes = CalculateObjectSizeUtils.getDataSize(batch.get(0)) * writtenSize;
             }
             batch.clear();
             if (!multipleSink) {
@@ -181,7 +182,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
                 st.addBatch();
                 st.executeBatch();
                 if (!multipleSink) {
-                    sinkMetricData.invoke(1, rowData.toString().getBytes().length);
+                    sinkMetricData.invokeWithEstimate(rowData);
                 } else {
                     metric[0] += 1;
                     metric[1] += rowData.toString().getBytes().length;
@@ -200,13 +201,13 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
             if (dirtySinkHelper != null) {
                 dirtySinkHelper.invoke(rowData.toString(), DirtyType.BATCH_LOAD_ERROR, e);
             }
-            sinkMetricData.invokeDirty(1, rowData.toString().getBytes().length);
+            sinkMetricData.invokeDirtyWithEstimate(rowData);
         } else {
             if (dirtySinkHelper != null) {
                 dirtySinkHelper.invoke(rowData.toString(), DirtyType.BATCH_LOAD_ERROR, label, logtag, identifier, e);
             }
             metric[2] += 1;
-            metric[3] += rowData.toString().getBytes().length;
+            metric[3] += CalculateObjectSizeUtils.getDataSize(rowData);
         }
     }
 

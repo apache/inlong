@@ -44,13 +44,13 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.CalculateObjectSizeUtils;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
@@ -236,7 +236,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
                     element.hasTimestamp() ? element.getTimestamp() : null,
                     currentWatermark);
             rowSize = rowSize + 1;
-            dataSize = dataSize + element.getValue().toString().getBytes(StandardCharsets.UTF_8).length;
+            dataSize = dataSize + CalculateObjectSizeUtils.getDataSize(element.getValue());
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
@@ -245,8 +245,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
                 throw new RuntimeException(e);
             }
             if (sinkMetricData != null) {
-                sinkMetricData.invokeDirty(1L,
-                        element.getValue().toString().getBytes(StandardCharsets.UTF_8).length);
+                sinkMetricData.invokeWithEstimate(element.getValue());
             }
             if (dirtySink != null) {
                 DirtyData.Builder<Object> builder = DirtyData.builder();

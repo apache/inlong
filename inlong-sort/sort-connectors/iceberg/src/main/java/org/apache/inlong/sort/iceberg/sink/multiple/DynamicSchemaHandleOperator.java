@@ -229,7 +229,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             if (!dirtyOptions.ignoreDirty()) {
                 if (metricData != null) {
                     metricData.outputDirtyMetricsWithEstimate(tableId.namespace().toString(),
-                            tableId.name(), rowData.toString());
+                            tableId.name(), rowData);
                 }
             } else {
                 handleDirtyData(rowData.toString(), jsonNode, DirtyType.EXTRACT_ROWDATA_ERROR, e, tableId,
@@ -384,7 +384,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                                             if (metricData != null) {
                                                 metricData.outputDirtyMetricsWithEstimate(
                                                         tableId.namespace().toString(), tableId.name(),
-                                                        rowData.toString());
+                                                        rowData);
                                             }
                                         } else {
                                             handleDirtyData(rowData.toString(), jsonNode,
