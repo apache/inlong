@@ -17,21 +17,18 @@
  * under the License.
  */
 
-import React, { useCallback, useState } from 'react';
-import { Button, Divider, Input, message, Modal, Radio, Space, Table } from 'antd';
+import React, { useState } from 'react';
+import { Button, Divider, Input, Modal, Radio, Space, Table } from 'antd';
 
 import {
   CopyOutlined,
   DatabaseOutlined,
   DeleteOutlined,
-  DownloadOutlined,
   FileAddOutlined,
-  FileExcelOutlined,
   FileOutlined,
   ForkOutlined,
   FormOutlined,
   PlayCircleOutlined,
-  UploadOutlined,
 } from '@ant-design/icons';
 import { useRequest } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
@@ -87,63 +84,6 @@ const FieldParseModule: React.FC<FieldParseModuleProps> = ({
     // Append output value to the original fields list
     onAppend([...previewData]);
     onHide();
-  };
-  const downloadTemplate = async () => {
-    try {
-      const response = await fetch('stream/downloadExcelTemplate');
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(new Blob([blob]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'template.xlsx');
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode?.removeChild(link);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const { run: doUpload } = useRequest(
-    data => ({
-      url: '/stream/parseFieldsByExcel',
-      method: 'POST',
-      requestType: 'formData',
-      data,
-      onSuccess: result => {
-        console.log('Upload result:', result);
-        setPreviewData(result);
-      },
-      onError: error => {
-        console.log('upload error!');
-        message.error(error);
-      },
-    }),
-    {
-      manual: true,
-    },
-  );
-
-  const uploadExcel = async () => {
-    try {
-      console.log('uploading');
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = '.xlsx';
-      fileInput.onchange = async () => {
-        const file = fileInput.files?.[0];
-        if (!file) {
-          return;
-        }
-        const formData = new FormData();
-        formData.append('file', file);
-        await doUpload(formData);
-      };
-      fileInput.click();
-    } catch (error) {
-      console.log('click error!');
-      console.error(error);
-    }
   };
 
   const handleOverride = () => {
@@ -291,16 +231,6 @@ user_age,int,age of user`);
               <FileOutlined />
               CSV
             </Radio.Button>
-            <Radio.Button
-              key={'module_excel'}
-              value="excel"
-              onClick={() => {
-                setPreviewData(null);
-              }}
-            >
-              <FileExcelOutlined />
-              Excel
-            </Radio.Button>
           </Radio.Group>
         </div>
         <div>
@@ -353,28 +283,6 @@ user_age,int,age of user`);
             </>
           )}
         </div>
-
-        {selectedFormat === 'excel' && (
-          <div>
-            <Button
-              key="upload"
-              type={'primary'}
-              onClick={uploadExcel}
-              icon={<UploadOutlined />}
-              size={'small'}
-            >
-              {t('components.FieldParseModule.Upload')}
-            </Button>
-            <Button
-              key="downloadTemplate"
-              onClick={downloadTemplate}
-              icon={<DownloadOutlined />}
-              size={'small'}
-            >
-              {t('components.FieldParseModule.DownloadTemplate')}
-            </Button>
-          </div>
-        )}
 
         <div>
           <Table
