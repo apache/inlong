@@ -98,7 +98,9 @@
         select count(*) as total, status
         from inlong_group
         where is_deleted = 0
-          and lightweight = #{lightweight,jdbcType=TINYINT}
+          <if test="lightweight != null">
+              and lightweight = #{lightweight,jdbcType=TINYINT}
+          </if>
           and (creator = #{username,jdbcType=VARCHAR} or find_in_set(#{username,jdbcType=VARCHAR}, in_charges))
         group by status
     </select>

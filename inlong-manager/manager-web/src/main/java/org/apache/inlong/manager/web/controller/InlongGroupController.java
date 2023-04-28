@@ -19,7 +19,6 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
@@ -90,9 +89,7 @@ public class InlongGroupController {
 
     @RequestMapping(value = "/group/countByStatus", method = RequestMethod.GET)
     @ApiOperation(value = "Count inlong group status for current user")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "lightweight", dataTypeClass = Integer.class, required = true)
-    })
+    @ApiImplicitParam(name = "lightweight", dataTypeClass = Integer.class, defaultValue = "0")
     public Response<InlongGroupCountResponse> countGroupByUser(@RequestParam Integer lightweight) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupService.countGroupByUser(operator, lightweight));
