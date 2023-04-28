@@ -74,7 +74,7 @@ public class StreamSinkController {
     @RequestMapping(value = "/sink/list", method = RequestMethod.POST)
     @ApiOperation(value = "List stream sinks by paginating")
     public Response<PageResult<? extends StreamSink>> listByCondition(@RequestBody SinkPageRequest request) {
-        return Response.success(sinkService.listByCondition(request));
+        return Response.success(sinkService.listByCondition(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/update", method = RequestMethod.POST)
