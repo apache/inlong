@@ -131,10 +131,6 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             pulsarSource.setAdminUrl(adminUrl);
             pulsarSource.setServiceUrl(serviceUrl);
             pulsarSource.setInlongComponent(true);
-            if (StringUtils.isNotBlank(streamInfo.getDataType())) {
-                String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
-                pulsarSource.setSerializationType(serializationType);
-            }
             pulsarSource.setWrapWithInlongMsg(streamInfo.getWrapWithInlongMsg());
             pulsarSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
 
@@ -149,10 +145,9 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
                 if (!Objects.equal(streamId, sourceInfo.getInlongStreamId())) {
                     continue;
                 }
-                if (StringUtils.isEmpty(pulsarSource.getSerializationType())
-                        && StringUtils.isNotEmpty(sourceInfo.getSerializationType())) {
-                    pulsarSource.setSerializationType(sourceInfo.getSerializationType());
-                }
+
+                pulsarSource.setSerializationType(getSerializationType(sourceInfo, streamInfo.getDataType()));
+
                 // currently, only reuse the primary key from Kafka source
                 if (SourceType.KAFKA.equals(sourceInfo.getSourceType())) {
                     pulsarSource.setPrimaryKey(((KafkaSource) sourceInfo).getPrimaryKey());

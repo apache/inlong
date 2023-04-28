@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 
@@ -56,6 +57,7 @@ public class MongoDBSourceRequest extends SourceRequest {
 
     public MongoDBSourceRequest() {
         this.setSourceType(SourceType.MONGODB);
+        this.setSerializationType(DataFormat.DEBEZIUM_JSON.getName());
     }
 
 }
