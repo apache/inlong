@@ -144,8 +144,7 @@ public class DataProxyMetricItem extends MetricItem {
      */
     public static void fillAuditFormatTime(Event event, Map<String, String> dimensions) {
         long msgTime = (event != null) ? AuditUtils.getLogTime(event) : System.currentTimeMillis();
-        long auditFormatTime =
-                msgTime - msgTime % CommonConfigHolder.getInstance().getAuditFormatInvlMs();
+        long auditFormatTime = msgTime - msgTime % CommonConfigHolder.getInstance().getAuditFormatInvlMs();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
     }
 
