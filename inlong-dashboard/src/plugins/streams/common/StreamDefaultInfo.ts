@@ -221,6 +221,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     props: values => ({
       size: 'small',
       canDelete: record => !(record.id && [110, 130].includes(values?.status)),
+      canBatchAdd: true,
       columns: [
         {
           title: i18n.t('meta.Stream.FieldName'),

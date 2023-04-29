@@ -26,6 +26,7 @@ import HighSelect from '@/ui/components/HighSelect';
 import { useUpdateEffect } from '@/ui/hooks';
 import isEqual from 'lodash/isEqual';
 import styles from './index.module.less';
+import FieldParseModule, { RowType } from '@/ui/components/FieldParseModule';
 
 // Row data exposed to the outside
 type RowValueType = Record<string, unknown>;
@@ -49,7 +50,7 @@ export interface ColumnsItemProps {
     | ((val: unknown, rowVal: RowValueType, idx: number, isNew?: boolean) => FormCompProps);
   rules?: FormItemProps['rules'];
   // The value will be erased when invisible
-  visible?: (val: unknown, rowVal: RowValueType) => boolean | boolean;
+  visible?: (val: unknown, rowVal: RowValueType) => boolean;
 }
 
 export interface EditableTableProps
@@ -67,6 +68,7 @@ export interface EditableTableProps
   canDelete?: boolean | ((rowVal: RowValueType, idx: number, isNew?: boolean) => boolean);
   // Can add a new line? Default: true.
   canAdd?: boolean;
+  canBatchAdd?: boolean;
 }
 
 const getRowInitialValue = (columns: EditableTableProps['columns']) =>
@@ -103,6 +105,7 @@ const EditableTable = ({
   required = true,
   canDelete = true,
   canAdd = true,
+  canBatchAdd = false,
   ...rest
 }: EditableTableProps) => {
   if (!id) {
@@ -152,9 +155,35 @@ const EditableTable = ({
   };
 
   const onDeleteRow = ({ _etid }: RecordType) => {
-    const newData = [...data];
+    const newData: RecordType[] = [...data];
     const index = newData.findIndex(item => item._etid === _etid);
     newData.splice(index, 1);
+    setData(newData);
+    triggerChange(newData);
+  };
+
+  const onDeleteAllRow = () => {
+    const newData: RecordType[] = [];
+    setData(newData);
+    triggerChange(newData);
+  };
+
+  const onAppendByParseField = (fields: RowType[]) => {
+    const newRecord: RecordType[] = fields?.map((field: RowType) => ({
+      _etid: Math.random().toString(),
+      ...field,
+    }));
+    const newData = data.concat(newRecord);
+    setData(newData);
+    triggerChange(newData);
+  };
+
+  const onOverrideByParseField = (fields: RowType[]) => {
+    const newData = fields?.map(field => ({
+      _etid: Math.random().toString(),
+      ...field,
+    }));
+
     setData(newData);
     triggerChange(newData);
   };
@@ -274,23 +303,61 @@ const EditableTable = ({
         ),
     } as any);
   }
+  const [isParseFieldModalVisible, setIsParseFieldModalVisible] = useState(false);
 
   return (
-    <Table
-      {...rest}
-      dataSource={data}
-      columns={tableColumns}
-      rowKey="_etid"
-      footer={
-        editing && canAdd
-          ? () => (
-              <Button type="link" style={{ padding: 0 }} onClick={onAddRow}>
-                {t('components.EditableTable.NewLine')}
-              </Button>
-            )
-          : null
-      }
-    />
+    <>
+      <FieldParseModule
+        key={'field-parse-module'}
+        onOverride={onOverrideByParseField}
+        onAppend={onAppendByParseField}
+        visible={isParseFieldModalVisible}
+        onHide={() => {
+          setIsParseFieldModalVisible(false);
+          console.log('on hide');
+        }}
+      />
+      <Table
+        {...rest}
+        dataSource={data}
+        columns={tableColumns}
+        rowKey="_etid"
+        key={'table'}
+        footer={
+          editing && canAdd
+            ? () => (
+                <>
+                  <Button
+                    key={'new_line_button'}
+                    type="link"
+                    style={{ padding: 0 }}
+                    onClick={onAddRow}
+                  >
+                    {t('components.EditableTable.NewLine')}
+                  </Button>
+                  <Button
+                    key={'batch_add_line_button'}
+                    type="link"
+                    style={{ padding: 0 }}
+                    onClick={() => setIsParseFieldModalVisible(true)}
+                    disabled={!canBatchAdd}
+                  >
+                    {t('components.EditableTable.BatchParseField')}
+                  </Button>
+                  <Button
+                    key={'delete_all_button'}
+                    type="link"
+                    style={{ padding: 0 }}
+                    onClick={onDeleteAllRow}
+                  >
+                    {t('components.EditableTable.DeleteAll')}
+                  </Button>
+                </>
+              )
+            : null
+        }
+      />
+    </>
   );
 };
 
