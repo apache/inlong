@@ -36,7 +36,7 @@ import org.apache.inlong.sort.cdc.mongodb.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.cdc.mongodb.debezium.table.MongoDBConnectorDeserializationSchema;
 import org.apache.inlong.sort.cdc.mongodb.source.MongoDBSource;
 import org.apache.inlong.sort.cdc.mongodb.source.MongoDBSourceBuilder;
-import org.apache.inlong.sort.cdc.mongodb.table.filter.RowKindValidator;
+import org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKindValidator;
 
 import javax.annotation.Nullable;
 import java.time.ZoneId;
@@ -165,7 +165,7 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
         DebeziumDeserializationSchema<RowData> deserializer =
                 new MongoDBConnectorDeserializationSchema(
                         physicalDataType, metadataConverters, typeInfo,
-                        localTimeZone, new RowKindValidator(rowValidator), sourceMultipleEnable);
+                        localTimeZone, new MongoDBRowKindValidator(rowValidator), sourceMultipleEnable);
 
         String databaseList = null;
         String collectionList = null;

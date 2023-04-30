@@ -17,15 +17,17 @@
 
 package org.apache.inlong.sort.cdc.mongodb.table.filter;
 
+import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.apache.inlong.sort.base.filter.RowValidator;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
+import static org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKind.toMongoRowKind;
 
 /**
  * row kind validator, only specified row kinds can be valid
@@ -40,13 +42,13 @@ import static org.apache.inlong.sort.base.Constants.DELIMITER;
  * "+R" represents RENAME.
  *
  */
-public class RowKindValidator implements Serializable {
+public class MongoDBRowKindValidator implements RowValidator {
 
-    private final Set<MongoRowKind> rowKindsFiltered = new HashSet<>();
+    private final Set<MongoDBRowKind> rowKindsFiltered = new HashSet<>();
 
     private static final String pattern = "(\\+I|\\+U|-U|-D|-T|-K|\\+R|\\+B)(&(\\+I|\\+U|-U|-D|-T|-K|\\+R|\\+B))*";
 
-    public RowKindValidator(String rowKinds) {
+    public MongoDBRowKindValidator(String rowKinds) {
         if (rowKinds.isEmpty()) {
             return;
         }
@@ -54,12 +56,17 @@ public class RowKindValidator implements Serializable {
                 String.format("rowKinds is not valid, should match the pattern %s,"
                         + " the input value is %s", pattern, rowKinds));
         for (String rowKind : rowKinds.split(DELIMITER)) {
-            Arrays.stream(MongoRowKind.values()).filter(value -> value.shortString().equals(rowKind))
+            Arrays.stream(MongoDBRowKind.values()).filter(value -> value.shortString().equals(rowKind))
                     .findFirst().ifPresent(rowKindsFiltered::add);
         }
     }
 
-    public boolean validate(MongoRowKind rowKind) {
+    public boolean validate(MongoDBRowKind rowKind) {
         return rowKindsFiltered.contains(rowKind);
+    }
+
+    @Override
+    public boolean validate(RowKind rowKind) {
+        return rowKindsFiltered.contains(toMongoRowKind(rowKind));
     }
 }
