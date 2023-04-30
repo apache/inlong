@@ -19,7 +19,6 @@ package org.apache.inlong.dataproxy.config;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -40,7 +39,6 @@ import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.ProxySink;
 import org.apache.inlong.common.pojo.dataproxy.ProxySource;
 import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.HttpUtils;
 import org.slf4j.Logger;
@@ -63,10 +61,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class RemoteConfigManager implements IRepository {
 
-    public static final String KEY_PROXY_CLUSTER_NAME = "proxy.cluster.name";
-    private static final String KEY_PROXY_CLUSTER_TAG = "proxy.cluster.tag";
     private static final char FLUME_SEPARATOR = '.';
-    private static final String KEY_CONFIG_CHECK_INTERVAL = "configCheckInterval";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteConfigManager.class);
     private static final Gson GSON = new Gson();
@@ -80,7 +75,6 @@ public class RemoteConfigManager implements IRepository {
     private long reloadInterval;
     private Timer reloadTimer;
 
-    private IManagerIpListParser ipListParser;
     private CloseableHttpClient httpClient;
 
     // flume properties
@@ -106,15 +100,7 @@ public class RemoteConfigManager implements IRepository {
             if (!isInit) {
                 instance = new RemoteConfigManager();
                 try {
-                    String strReloadInterval = CommonPropertiesHolder.getString(KEY_CONFIG_CHECK_INTERVAL);
-                    instance.reloadInterval = NumberUtils.toLong(strReloadInterval, DEFAULT_HEARTBEAT_INTERVAL_MS);
-
-                    String ipListParserType = CommonPropertiesHolder.getString(IManagerIpListParser.KEY_MANAGER_TYPE,
-                            DefaultManagerIpListParser.class.getName());
-                    Class<? extends IManagerIpListParser> ipListParserClass;
-                    ipListParserClass = (Class<? extends IManagerIpListParser>) Class
-                            .forName(ipListParserType);
-                    instance.ipListParser = ipListParserClass.getDeclaredConstructor().newInstance();
+                    instance.reloadInterval = CommonConfigHolder.getInstance().getConfigChkInvlMs();
 
                     SecureRandom random = new SecureRandom(String.valueOf(System.currentTimeMillis()).getBytes());
                     instance.managerIpListIndex.set(random.nextInt());
@@ -150,14 +136,13 @@ public class RemoteConfigManager implements IRepository {
      */
     public void reload() {
         LOGGER.info("start to reload config");
-        String proxyClusterName = CommonPropertiesHolder.getString(KEY_PROXY_CLUSTER_NAME);
-        String proxyClusterTag = CommonPropertiesHolder.getString(KEY_PROXY_CLUSTER_TAG);
+        String proxyClusterName = CommonConfigHolder.getInstance().getClusterName();
+        String proxyClusterTag = CommonConfigHolder.getInstance().getClusterTag();
         if (StringUtils.isBlank(proxyClusterName) || StringUtils.isBlank(proxyClusterTag)) {
             return;
         }
 
-        this.ipListParser.setCommonProperties(CommonPropertiesHolder.get());
-        List<String> managerIpList = this.ipListParser.getIpList();
+        List<String> managerIpList = CommonConfigHolder.getInstance().getManagerHosts();
         if (managerIpList == null || managerIpList.size() == 0) {
             return;
         }
@@ -263,7 +248,7 @@ public class RemoteConfigManager implements IRepository {
         if (currentClusterConfig != null) {
             return currentClusterConfig.getProxyCluster().getName();
         }
-        return CommonPropertiesHolder.getString(KEY_PROXY_CLUSTER_NAME);
+        return CommonConfigHolder.getInstance().getClusterName();
     }
 
     /**
@@ -274,7 +259,7 @@ public class RemoteConfigManager implements IRepository {
         if (currentClusterConfig != null) {
             return currentClusterConfig.getProxyCluster().getSetName();
         }
-        return CommonPropertiesHolder.getString(KEY_PROXY_CLUSTER_TAG);
+        return CommonConfigHolder.getInstance().getClusterTag();
     }
 
     /**

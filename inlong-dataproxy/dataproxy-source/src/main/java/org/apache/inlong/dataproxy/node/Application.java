@@ -47,8 +47,8 @@ import org.apache.flume.node.StaticZooKeeperConfigurationProvider;
 import org.apache.flume.util.SSLUtil;
 import org.apache.inlong.common.config.IDataProxyConfigHolder;
 import org.apache.inlong.common.metric.MetricObserver;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.heartbeat.HeartbeatManager;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.sdk.commons.admin.AdminTask;
@@ -210,7 +210,7 @@ public class Application {
                 }
             }
             // metrics
-            MetricObserver.init(CommonPropertiesHolder.get());
+            MetricObserver.init(CommonConfigHolder.getInstance().getProperties());
             // audit
             AuditUtils.initAudit();
 
@@ -236,7 +236,7 @@ public class Application {
      * Start by Manager config
      */
     private static void startByManagerConf(CommandLine commandLine) {
-        String proxyName = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
+        String proxyName = CommonConfigHolder.getInstance().getClusterName();
         ManagerPropsConfigProvider configurationProvider = new ManagerPropsConfigProvider(proxyName);
         Application application = new Application();
         application.handleConfigurationEvent(configurationProvider.getConfiguration());
@@ -267,7 +267,7 @@ public class Application {
                 supervisor.supervise(component, new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
             }
             // start admin task
-            this.adminTask = new AdminTask(new Context(CommonPropertiesHolder.get()));
+            this.adminTask = new AdminTask(new Context(CommonConfigHolder.getInstance().getProperties()));
             this.adminTask.start();
             HeartbeatManager heartbeatManager = new HeartbeatManager();
             heartbeatManager.start();

@@ -17,21 +17,16 @@
 
 package org.apache.inlong.dataproxy.metrics.audit;
 
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.InLongMsgVer;
-
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -39,39 +34,21 @@ import java.util.Map;
  */
 public class AuditUtils {
 
-    public static final String AUDIT_KEY_FILE_PATH = "audit.filePath";
-    public static final String AUDIT_DEFAULT_FILE_PATH = "/data/inlong/audit/";
-    public static final String AUDIT_KEY_MAX_CACHE_ROWS = "audit.maxCacheRows";
-    public static final int AUDIT_DEFAULT_MAX_CACHE_ROWS = 2000000;
-    public static final String AUDIT_KEY_PROXYS = "audit.proxys";
-    public static final String AUDIT_KEY_IS_AUDIT = "audit.enable";
-
     public static final int AUDIT_ID_DATAPROXY_READ_SUCCESS = 5;
     public static final int AUDIT_ID_DATAPROXY_SEND_SUCCESS = 6;
-
-    private static boolean IS_AUDIT = true;
 
     /**
      * Init audit
      */
     public static void initAudit() {
-        // IS_AUDIT
-        IS_AUDIT = BooleanUtils.toBoolean(CommonPropertiesHolder.getString(AUDIT_KEY_IS_AUDIT));
-        if (IS_AUDIT) {
+        if (CommonConfigHolder.getInstance().isEnableAudit()) {
             // AuditProxy
-            String strIpPorts = CommonPropertiesHolder.getString(AUDIT_KEY_PROXYS);
-            HashSet<String> proxys = new HashSet<>();
-            if (!StringUtils.isBlank(strIpPorts)) {
-                String[] ipPorts = strIpPorts.split("\\s+");
-                Collections.addAll(proxys, ipPorts);
-            }
-            AuditOperator.getInstance().setAuditProxy(proxys);
+            AuditOperator.getInstance().setAuditProxy(
+                    CommonConfigHolder.getInstance().getAuditProxys());
             // AuditConfig
-            String filePath = CommonPropertiesHolder.getString(AUDIT_KEY_FILE_PATH, AUDIT_DEFAULT_FILE_PATH);
-            int maxCacheRow = NumberUtils.toInt(
-                    CommonPropertiesHolder.getString(AUDIT_KEY_MAX_CACHE_ROWS),
-                    AUDIT_DEFAULT_MAX_CACHE_ROWS);
-            AuditConfig auditConfig = new AuditConfig(filePath, maxCacheRow);
+            AuditConfig auditConfig = new AuditConfig(
+                    CommonConfigHolder.getInstance().getAuditFilePath(),
+                    CommonConfigHolder.getInstance().getAuditMaxCacheRows());
             AuditOperator.getInstance().setAuditConfig(auditConfig);
         }
     }
@@ -80,7 +57,7 @@ public class AuditUtils {
      * Add audit data
      */
     public static void add(int auditID, Event event) {
-        if (!IS_AUDIT || event == null) {
+        if (!CommonConfigHolder.getInstance().isEnableAudit() || event == null) {
             return;
         }
         Map<String, String> headers = event.getHeaders();
@@ -138,7 +115,7 @@ public class AuditUtils {
      * Get AuditFormatTime
      */
     public static long getAuditFormatTime(long msgTime) {
-        return msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        return msgTime - msgTime % CommonConfigHolder.getInstance().getAuditFormatInvlMs();
     }
 
     /**

@@ -47,8 +47,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.apache.inlong.common.metric.MetricValue;
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.common.metric.MetricItemValue;
 import org.apache.inlong.common.metric.MetricListener;
@@ -64,8 +63,6 @@ import io.prometheus.client.exporter.HTTPServer;
  */
 public class PrometheusMetricListener extends Collector implements MetricListener {
 
-    public static final String KEY_PROMETHEUS_HTTP_PORT = "prometheusHttpPort";
-    public static final int DEFAULT_PROMETHEUS_HTTP_PORT = 8080;
     public static final String DEFAULT_DIMENSION_LABEL = "dimension";
     private static final Logger LOG = LoggerFactory.getLogger(PrometheusMetricListener.class);
     protected HTTPServer httpServer;
@@ -79,7 +76,7 @@ public class PrometheusMetricListener extends Collector implements MetricListene
      * Constructor
      */
     public PrometheusMetricListener() {
-        this.metricName = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
+        this.metricName = CommonConfigHolder.getInstance().getClusterName();
         this.metricItem = new DataProxyMetricItem();
         this.metricItem.clusterId = metricName;
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
@@ -109,9 +106,8 @@ public class PrometheusMetricListener extends Collector implements MetricListene
         metricValueMap.put(M_NODE_DURATION, metricItem.nodeDuration);
         metricValueMap.put(M_WHOLE_DURATION, metricItem.wholeDuration);
 
-        int httpPort = CommonPropertiesHolder.getInteger(KEY_PROMETHEUS_HTTP_PORT, DEFAULT_PROMETHEUS_HTTP_PORT);
         try {
-            this.httpServer = new HTTPServer(httpPort);
+            this.httpServer = new HTTPServer(CommonConfigHolder.getInstance().getPrometheusHttpPort());
             this.register();
         } catch (IOException e) {
             LOG.error("exception while register prometheus http server:{},error:{}", metricName, e.getMessage());

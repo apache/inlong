@@ -22,8 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.CacheClusterConfigHolder;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -43,7 +43,6 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     public static final String KEY_NODE_ID = "nodeId";
     public static final String PREFIX_PRODUCER = "producer.";
     public static final String KEY_COMPRESS_TYPE = "compressType";
-    public static final String KEY_CACHE_CLUSTER_SELECTOR = "cacheClusterSelector";
 
     private final BufferQueue<BatchPackProfile> dispatchQueue;
 
@@ -63,18 +62,18 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         super(sinkName, context, channel);
         this.dispatchQueue = dispatchQueue;
         // proxyClusterId
-        this.proxyClusterId = CommonPropertiesHolder.getString(CommonPropertiesHolder.KEY_PROXY_CLUSTER_NAME);
+        this.proxyClusterId = CommonConfigHolder.getInstance().getClusterName();
         // nodeId
-        this.nodeId = CommonPropertiesHolder.getString(KEY_NODE_ID, "127.0.0.1");
+        this.nodeId = CommonConfigHolder.getInstance().getProxyNodeId();
         // compressionType
-        String strCompressionType = CommonPropertiesHolder.getString(KEY_COMPRESS_TYPE,
-                INLONG_COMPRESSED_TYPE.INLONG_SNAPPY.name());
+        String strCompressionType = CommonConfigHolder.getInstance().getMsgCompressType();
         this.compressType = INLONG_COMPRESSED_TYPE.valueOf(strCompressionType);
         // producerContext
         Map<String, String> producerParams = context.getSubProperties(PREFIX_PRODUCER);
         this.producerContext = new Context(producerParams);
         // idTopicHolder
-        Context commonPropertiesContext = new Context(CommonPropertiesHolder.get());
+        Context commonPropertiesContext =
+                new Context(CommonConfigHolder.getInstance().getProperties());
         this.idTopicHolder = new IdTopicConfigHolder();
         this.idTopicHolder.configure(commonPropertiesContext);
         // cacheHolder
@@ -185,7 +184,8 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         final long currentTime = System.currentTimeMillis();
         currentRecord.getEvents().forEach(event -> {
             long msgTime = event.getMsgTime();
-            long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+            long auditFormatTime =
+                    msgTime - msgTime % CommonConfigHolder.getInstance().getAuditFormatInvlMs();
             dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
             DataProxyMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
             if (result) {
@@ -220,7 +220,8 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, mqName);
         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, topic);
         long msgTime = currentRecord.getDispatchTime();
-        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        long auditFormatTime =
+                msgTime - msgTime % CommonConfigHolder.getInstance().getAuditFormatInvlMs();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         DataProxyMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
         long count = currentRecord.getCount();
@@ -244,7 +245,8 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "-");
         long msgTime = System.currentTimeMillis();
-        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        long auditFormatTime =
+                msgTime - msgTime % CommonConfigHolder.getInstance().getAuditFormatInvlMs();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         DataProxyMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
         metricItem.sendFailCount.incrementAndGet();
@@ -279,14 +281,13 @@ public class MessageQueueZoneSinkContext extends SinkContext {
      * createCacheClusterSelector
      */
     public CacheClusterSelector createCacheClusterSelector() {
-        String strSelectorClass = CommonPropertiesHolder.getString(KEY_CACHE_CLUSTER_SELECTOR,
-                AllCacheClusterSelector.class.getName());
+        String strSelectorClass = CommonConfigHolder.getInstance().getCacheClusterSelector();
         try {
             Class<?> selectorClass = ClassUtils.getClass(strSelectorClass);
             Object selectorObject = selectorClass.getDeclaredConstructor().newInstance();
             if (selectorObject instanceof Configurable) {
                 Configurable configurable = (Configurable) selectorObject;
-                configurable.configure(new Context(CommonPropertiesHolder.get()));
+                configurable.configure(new Context(CommonConfigHolder.getInstance().getProperties()));
             }
             if (selectorObject instanceof CacheClusterSelector) {
                 CacheClusterSelector selector = (CacheClusterSelector) selectorObject;

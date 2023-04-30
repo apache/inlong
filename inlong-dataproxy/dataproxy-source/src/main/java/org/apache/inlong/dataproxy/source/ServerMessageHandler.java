@@ -47,6 +47,7 @@ import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.MsgType;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -395,10 +396,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             }
             // check topic configure
             if (StringUtils.isEmpty(configTopic)) {
-                String acceptMsg =
-                        configManager.getCommonProperties().getOrDefault(
-                                ConfigConstants.SOURCE_NO_TOPIC_ACCEPT, "false");
-                if ("true".equalsIgnoreCase(acceptMsg)) {
+                if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
                     configTopic = this.defaultTopic;
                 } else {
                     commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,

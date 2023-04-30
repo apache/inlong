@@ -26,7 +26,7 @@ import org.apache.inlong.common.metric.Dimension;
 import org.apache.inlong.common.metric.MetricDomain;
 import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 
@@ -144,7 +144,7 @@ public class DataProxyMetricItem extends MetricItem {
      */
     public static void fillAuditFormatTime(Event event, Map<String, String> dimensions) {
         long msgTime = (event != null) ? AuditUtils.getLogTime(event) : System.currentTimeMillis();
-        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+        long auditFormatTime = msgTime - msgTime % CommonConfigHolder.getInstance().getAuditFormatInvlMs();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
     }
 

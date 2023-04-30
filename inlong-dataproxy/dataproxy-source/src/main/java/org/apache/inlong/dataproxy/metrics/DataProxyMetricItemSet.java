@@ -24,7 +24,7 @@ import org.apache.flume.Event;
 import org.apache.inlong.common.metric.MetricDomain;
 import org.apache.inlong.common.metric.MetricItemSet;
 import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 
 /**
@@ -116,7 +116,8 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
                 event.getHeaders().get(AttributeConstants.DATA_TIME));
         long msgCount = NumberUtils.toLong(
                 event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
-        long auditFormatTime = dataTime - dataTime % CommonPropertiesHolder.getAuditFormatInterval();
+        long auditFormatTime =
+                dataTime - dataTime % CommonConfigHolder.getInstance().getAuditFormatInvlMs();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         if (isSource) {
             dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, name);

@@ -95,16 +95,6 @@ public class ConfigConstants {
     public static final String L5_ID_KEY = "l5id";
     public static final String SET_KEY = "set";
     public static final String CLUSTER_ID_KEY = "clusterId";
-    public static final String MANAGER_HOST = "manager.hosts";
-    public static final String PROXY_CLUSTER_NAME = "proxy.cluster.name";
-    public static final String DEFAULT_PROXY_CLUSTER_NAME = "DataProxy";
-    public static final String PROXY_CLUSTER_TAG = "proxy.cluster.tag";
-    public static final String PROXY_CLUSTER_EXT_TAG = "proxy.cluster.extTag";
-    public static final String PROXY_CLUSTER_INCHARGES = "proxy.cluster.inCharges";
-    public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
-    public static final String SOURCE_NO_TOPIC_ACCEPT = "source.topic.notfound.accept";
-    public static final String SINK_NO_TOPIC_RESEND = "sink.topic.notfound.resend";
-    public static final String ENABLE_WHITELIST = "proxy.enable.whitelist";
 
     public static final String DECODER_BODY = "body";
     public static final String DECODER_TOPICKEY = "topic_key";

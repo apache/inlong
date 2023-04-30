@@ -21,7 +21,7 @@ import org.apache.commons.lang.ClassUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
@@ -45,10 +45,7 @@ public class SinkContext {
     public static final String KEY_MAX_THREADS = "maxThreads";
     public static final String KEY_PROCESSINTERVAL = "processInterval";
     public static final String KEY_RELOADINTERVAL = "reloadInterval";
-    public static final String KEY_EVENT_HANDLER = "eventHandler";
     public static final String KEY_MESSAGE_QUEUE_HANDLER = "messageQueueHandler";
-    public static final String KEY_MAX_BUFFERQUEUE_SIZE_KB = "maxBufferQueueSizeKb";
-    public static final int DEFAULT_MAX_BUFFERQUEUE_SIZE_KB = 128 * 1024;
 
     protected final String clusterId;
     protected final String sinkName;
@@ -70,7 +67,7 @@ public class SinkContext {
         this.sinkName = sinkName;
         this.sinkContext = context;
         this.channel = channel;
-        this.clusterId = CommonPropertiesHolder.getString(CommonPropertiesHolder.KEY_PROXY_CLUSTER_NAME);
+        this.clusterId = CommonConfigHolder.getInstance().getClusterName();
         this.maxThreads = sinkContext.getInteger(KEY_MAX_THREADS, 10);
         this.processInterval = sinkContext.getInteger(KEY_PROCESSINTERVAL, 100);
         this.reloadInterval = sinkContext.getLong(KEY_RELOADINTERVAL, 60000L);
@@ -199,8 +196,7 @@ public class SinkContext {
      */
     public EventHandler createEventHandler() {
         // IEventHandler
-        String eventHandlerClass = CommonPropertiesHolder.getString(KEY_EVENT_HANDLER,
-                DefaultEventHandler.class.getName());
+        String eventHandlerClass = CommonConfigHolder.getInstance().getEventHandler();
         try {
             Class<?> handlerClass = ClassUtils.getClass(eventHandlerClass);
             Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
@@ -241,9 +237,6 @@ public class SinkContext {
      * @return
      */
     public static BufferQueue<BatchPackProfile> createBufferQueue() {
-        int maxBufferQueueSizeKb = CommonPropertiesHolder.getInteger(KEY_MAX_BUFFERQUEUE_SIZE_KB,
-                DEFAULT_MAX_BUFFERQUEUE_SIZE_KB);
-        BufferQueue<BatchPackProfile> dispatchQueue = new BufferQueue<BatchPackProfile>(maxBufferQueueSizeKb);
-        return dispatchQueue;
+        return new BufferQueue<>(CommonConfigHolder.getInstance().getMaxBufferQueueSizeKb());
     }
 }

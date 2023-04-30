@@ -17,10 +17,9 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -29,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DefaultManagerIpListParser implements IManagerIpListParser {
 
-    private Map<String, String> commonProperties;
+    List<String> managerIpList = new ArrayList<>();
 
     /**
      * setCommonProperties
@@ -38,19 +37,28 @@ public class DefaultManagerIpListParser implements IManagerIpListParser {
      */
     @Override
     public void setCommonProperties(Map<String, String> commonProperties) {
-        this.commonProperties = commonProperties;
+        String managerHosts = commonProperties.get(CommonConfigHolder.KEY_MANAGER_HOSTS);
+        if (StringUtils.isBlank(managerHosts)) {
+            return;
+        }
+        String[] hostPortList = StringUtils.split(managerHosts,
+                CommonConfigHolder.KEY_MANAGER_HOSTS_SEPARATOR);
+        for (String hostport : hostPortList) {
+            if (StringUtils.isBlank(hostport)) {
+                continue;
+            }
+            managerIpList.add(hostport.trim());
+        }
     }
 
     /**
      * getIpList
      * 
-     * @return
+     * @return manager ip-port list
      */
     @Override
     public List<String> getIpList() {
-        String managerHosts = this.commonProperties.get(KEY_MANAGER_HOSTS);
-        String[] hostList = StringUtils.split(managerHosts, SEPARATOR);
-        return Arrays.asList(hostList);
+        return managerIpList;
     }
 
 }
