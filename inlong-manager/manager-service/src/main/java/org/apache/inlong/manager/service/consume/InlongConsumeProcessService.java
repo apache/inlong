@@ -47,12 +47,13 @@ public class InlongConsumeProcessService {
      */
     public WorkflowResult startProcess(Integer id, String operator) {
         consumeService.updateStatus(id, ConsumeStatus.TO_BE_APPROVAL.getCode(), operator);
-        return workflowService.start(ProcessName.APPLY_CONSUME_PROCESS, operator, genApplyConsumeProcessForm(id));
+        return workflowService.start(ProcessName.APPLY_CONSUME_PROCESS, operator,
+                genApplyConsumeProcessForm(id, operator));
     }
 
-    private ApplyConsumeProcessForm genApplyConsumeProcessForm(Integer id) {
+    private ApplyConsumeProcessForm genApplyConsumeProcessForm(Integer id, String operator) {
         ApplyConsumeProcessForm form = new ApplyConsumeProcessForm();
-        form.setConsumeInfo(consumeService.get(id));
+        form.setConsumeInfo(consumeService.get(id, operator));
         return form;
     }
 

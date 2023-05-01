@@ -73,7 +73,7 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(consumeId);
 
         // test get operation
-        InlongConsumeInfo consumeInfo = this.testGet(consumeId);
+        InlongConsumeInfo consumeInfo = this.testGet(consumeId, GLOBAL_OPERATOR);
         Assertions.assertEquals(consumeInfo.getId(), consumeId);
 
         // test list operation
@@ -113,8 +113,8 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
         return consumeService.save(request, GLOBAL_OPERATOR);
     }
 
-    private InlongConsumeInfo testGet(Integer id) {
-        return consumeService.get(id);
+    private InlongConsumeInfo testGet(Integer id, String operator) {
+        return consumeService.get(id, operator);
     }
 
     private PageResult<InlongConsumeBriefInfo> testList() {

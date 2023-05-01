@@ -71,7 +71,7 @@ public class InlongConsumeController {
     @ApiOperation(value = "Get inlong consume")
     @ApiImplicitParam(name = "id", value = "Inlong consume ID", dataTypeClass = Integer.class, required = true)
     public Response<InlongConsumeInfo> get(@PathVariable(name = "id") Integer id) {
-        return Response.success(consumeService.get(id));
+        return Response.success(consumeService.get(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @GetMapping(value = "/consume/countStatus")
