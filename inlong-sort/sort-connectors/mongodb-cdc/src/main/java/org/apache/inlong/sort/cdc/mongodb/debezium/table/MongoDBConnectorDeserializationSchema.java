@@ -179,7 +179,6 @@ public class MongoDBConnectorDeserializationSchema
             case REPLACE:
                 GenericRowData replaceAfter = extractRowData(fullDocument);
                 replaceAfter.setRowKind(RowKind.UPDATE_AFTER);
-                LOG.info("replace record is [{}]", replaceAfter.toString());
                 emit(record, replaceAfter, out);
                 break;
             case INVALIDATE:
@@ -264,11 +263,8 @@ public class MongoDBConnectorDeserializationSchema
 
     private void emit(SourceRecord inRecord, RowData physicalRow, Collector<RowData> collector) {
 
-        LOG.info("rowKindValidator is [{}]", rowKindValidator.toString());
-        LOG.info("inRecord is [{}], physicalRow is [{}]", inRecord.toString(), physicalRow.toString());
         // filter the records that is outside the `rowKind`
         if (!rowKindValidator.validate(physicalRow.getRowKind())) {
-            LOG.info("rowKindValidator failed");
             return;
         }
 
