@@ -186,7 +186,7 @@ public class MongoDBConnectorDeserializationSchema
                 if (!rowKindValidator.validate(MongoDBRowKind.DROP)) {
                     return;
                 }
-                GenericRowData drop = extractMongoDdlData(value,
+                GenericRowData drop = extractMongoDBDdlData(value,
                         MongoDBEnvelope.NAMESPACE_FIELD, OperationType.DROP.getValue());
                 drop.setRowKind(RowKind.INSERT);
                 emitDdlElement(record, drop, out);
@@ -195,7 +195,7 @@ public class MongoDBConnectorDeserializationSchema
                 if (!rowKindValidator.validate(MongoDBRowKind.DROP_DATABASE)) {
                     return;
                 }
-                GenericRowData dropDatabase = extractMongoDdlData(value, MongoDBEnvelope.NAMESPACE_FIELD,
+                GenericRowData dropDatabase = extractMongoDBDdlData(value, MongoDBEnvelope.NAMESPACE_FIELD,
                         OperationType.DROP_DATABASE.getValue());
                 dropDatabase.setRowKind(RowKind.INSERT);
                 emitDdlElement(record, dropDatabase, out);
@@ -205,7 +205,7 @@ public class MongoDBConnectorDeserializationSchema
                     return;
                 }
                 GenericRowData rename =
-                        extractMongoDdlData(value, RecordUtils.DOCUMENT_TO_FIELD, OperationType.RENAME.getValue());
+                        extractMongoDBDdlData(value, RecordUtils.DOCUMENT_TO_FIELD, OperationType.RENAME.getValue());
                 rename.setRowKind(RowKind.INSERT);
                 emitDdlElement(record, rename, out);
                 break;
@@ -220,7 +220,7 @@ public class MongoDBConnectorDeserializationSchema
         this.deserialize(record, out);
     }
 
-    private GenericRowData extractMongoDdlData(Struct value, String keyFiled, String ddlType) {
+    private GenericRowData extractMongoDBDdlData(Struct value, String keyFiled, String ddlType) {
         Struct documentTo = (Struct) value.get(keyFiled);
         String newDb = documentTo.getString(MongoDBEnvelope.NAMESPACE_DATABASE_FIELD);
         String newColl = documentTo.getString(MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD);
