@@ -37,7 +37,6 @@ import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
-import org.apache.zookeeper.Op;
 import org.bson.BsonType;
 import org.bson.BsonValue;
 
