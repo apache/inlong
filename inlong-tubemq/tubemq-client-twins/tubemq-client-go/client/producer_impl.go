@@ -19,12 +19,10 @@ package client
 
 import (
 	"context"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
-	"time"
 
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
@@ -64,7 +62,7 @@ func NewProducer(config *config.Config) (Producer, error) {
 		return nil, err
 	}
 
-	clientID := newProducerClientID()
+	clientID := util.NewClientID("", &clientID, tubeMQClientVersion)
 	pool := multiplexing.NewPool()
 	opts := &transport.Options{}
 	if config.Net.TLS.Enable {
@@ -163,15 +161,6 @@ func (p *producer) processRegisterResponseM2P(rsp *protocol.RegisterResponseM2P)
 	p.brokerCheckSum = rsp.GetBrokerCheckSum()
 	brokerInfos := rsp.GetBrokerInfos()
 	p.updateBrokerInfoList(brokerInfos)
-}
-
-func newProducerClientID() string {
-	return util.GetLocalHost() + "-" +
-		strconv.Itoa(os.Getpid()) + "-" +
-		strconv.Itoa(int(time.Now().Unix()*1000)) + "-" +
-		strconv.Itoa(int(atomic.AddUint64(&clientID, 1))) + "-" +
-		"go-" +
-		tubeMQClientVersion
 }
 
 func (p *producer) needGenMasterCertificateInfo(force bool) bool {
