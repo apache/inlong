@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeBriefInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeCountInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import retrofit2.Call;
@@ -30,9 +31,6 @@ import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
-
-import java.util.Map;
 
 public interface InlongConsumeApi {
 
@@ -45,8 +43,8 @@ public interface InlongConsumeApi {
     @GET("consume/countStatus")
     Call<Response<InlongConsumeCountInfo>> countStatusByUser();
 
-    @GET("consume/list")
-    Call<Response<PageResult<InlongConsumeBriefInfo>>> list(@Query("request") Map<String, Object> request);
+    @POST("consume/list")
+    Call<Response<PageResult<InlongConsumeBriefInfo>>> list(@Body InlongConsumePageRequest request);
 
     @POST("consume/update")
     Call<Response<Integer>> update(@Body InlongConsumeRequest request);

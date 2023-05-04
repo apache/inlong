@@ -80,9 +80,9 @@ public class InlongConsumeController {
         return Response.success(consumeService.countStatus(LoginUserUtils.getLoginUser().getName()));
     }
 
-    @GetMapping("/consume/list")
+    @PostMapping("/consume/list")
     @ApiOperation(value = "List inlong consume by pagination")
-    public Response<PageResult<InlongConsumeBriefInfo>> list(InlongConsumePageRequest request) {
+    public Response<PageResult<InlongConsumeBriefInfo>> list(@RequestBody InlongConsumePageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
         return Response.success(consumeService.list(request));

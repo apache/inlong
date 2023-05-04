@@ -108,7 +108,7 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
                         .build());
 
         stubFor(
-                get(urlMatching("/inlong/manager/api/consume/list.*"))
+                post(urlMatching("/inlong/manager/api/consume/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(responses))))));
 
