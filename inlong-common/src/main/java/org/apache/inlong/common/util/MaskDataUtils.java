@@ -119,7 +119,7 @@ public class MaskDataUtils {
             for (String separator : SEPARATORS) {
                 idxSeparator = StringUtils.indexOf(builder, separator, keywordStart + keywordLength);
                 int delimiterPos = keywordStart + keywordLength;
-                while (isDelimiter(builder.charAt(delimiterPos))) {
+                while (delimiterPos < buffLength && isDelimiter(builder.charAt(delimiterPos))) {
                     delimiterPos++;
                 }
                 if (delimiterPos == idxSeparator) {
@@ -271,7 +271,7 @@ public class MaskDataUtils {
      */
     private static int maskStartPosition(int idxSeparator, String separator, StringBuilder builder) {
         int charPos = idxSeparator + separator.length();
-        while (isDelimiter(builder.charAt(charPos))) {
+        while (charPos < builder.length() && isDelimiter(builder.charAt(charPos))) {
             charPos++;
         }
         return charPos;
