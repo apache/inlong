@@ -174,7 +174,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return clusterService.updateNode(request, GLOBAL_OPERATOR);
     }
 
-    private HeartbeatMsg createHeartbeatMsg(String clusterName, String ip, String port, String type, String protocolType) {
+    private HeartbeatMsg createHeartbeatMsg(String clusterName, String ip, String port, String type,
+            String protocolType) {
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp(ip);
         heartbeatMsg.setPort(port);
@@ -329,7 +330,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Integer port2 = 46801;
         Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port2, ProtocolType.TCP);
         Assertions.assertNotNull(nodeId2);
-
 
         // create an inlong group which use the clusterTag
         String inlongGroupId = "test_cluster_tag_group";
