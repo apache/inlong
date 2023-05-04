@@ -66,7 +66,7 @@ public enum MongoDBRowKind {
         }
     }
 
-    public static MongoDBRowKind toMongoRowKind(RowKind rowKind) {
+    public static MongoDBRowKind toMongoDBRowKind(RowKind rowKind) {
         return fromByteValue(rowKind.toByteValue());
     }
 }

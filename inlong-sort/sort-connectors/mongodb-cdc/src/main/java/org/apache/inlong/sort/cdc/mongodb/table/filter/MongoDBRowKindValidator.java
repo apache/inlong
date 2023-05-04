@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 import org.apache.inlong.sort.base.filter.RowValidator;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
-import static org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKind.toMongoRowKind;
+import static org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKind.toMongoDBRowKind;
 
 /**
  * row kind validator, only specified row kinds can be valid
@@ -67,6 +67,6 @@ public class MongoDBRowKindValidator implements RowValidator {
 
     @Override
     public boolean validate(RowKind rowKind) {
-        return rowKindsFiltered.contains(toMongoRowKind(rowKind));
+        return rowKindsFiltered.contains(toMongoDBRowKind(rowKind));
     }
 }
