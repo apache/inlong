@@ -38,6 +38,7 @@ import org.apache.iceberg.Schema;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.flink.RowDataWrapper;
 import org.apache.iceberg.types.Types.NestedField;
+import org.apache.inlong.sort.iceberg.sink.collections.KVBuffer.Convertor;
 
 import java.io.Closeable;
 import java.io.File;
@@ -53,6 +54,10 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * A buffer that stores data grouped according to partition information, and caches data for
+ * one checkpoint cycle each time.
+ */
 public abstract class PartitionGroupBuffer implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -246,6 +251,9 @@ public abstract class PartitionGroupBuffer implements Serializable {
         }
     }
 
+    /**
+     * A {@link Convertor} that key represent <partition, primary key>
+     */
     public static class PreAggPartitionConvertor implements KVBuffer.Convertor<Tuple2<String, RowData>>, Serializable {
 
         private static final long serialVersionUID = 1L;
@@ -323,6 +331,9 @@ public abstract class PartitionGroupBuffer implements Serializable {
         }
     }
 
+    /**
+     * A {@link Convertor} that key represent <partition, serial number>
+     */
     public static class NonPreAggPartitionConvetor implements KVBuffer.Convertor<Tuple2<String, Long>>, Serializable {
 
         private static final long serialVersionUID = 1L;
