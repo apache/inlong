@@ -53,7 +53,8 @@ const Comp: React.FC = () => {
   } = useRequest(
     {
       url: '/consume/list',
-      params: options,
+      method: 'POST',
+      data: options,
     },
     {
       refreshDeps: [options],
