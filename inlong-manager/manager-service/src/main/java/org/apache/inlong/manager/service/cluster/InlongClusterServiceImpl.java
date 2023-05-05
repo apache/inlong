@@ -39,6 +39,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -1168,6 +1169,11 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // TODO consider the data proxy load and re-balance
         List<DataProxyNodeInfo> nodeList = new ArrayList<>();
         for (InlongClusterNodeEntity nodeEntity : nodeEntities) {
+            if (Objects.equals(nodeEntity.getStatus(), NodeStatus.HEARTBEAT_TIMEOUT.getStatus())) {
+                LOGGER.debug("dataproxy node was timeout, parentId={} ip={} port={}", nodeEntity.getParentId(),
+                        nodeEntity.getIp(), nodeEntity.getPort());
+                continue;
+            }
             DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
             nodeInfo.setId(nodeEntity.getId());
             nodeInfo.setIp(nodeEntity.getIp());

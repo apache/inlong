@@ -174,12 +174,13 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return clusterService.updateNode(request, GLOBAL_OPERATOR);
     }
 
-    private HeartbeatMsg createHeartbeatMsg(String clusterName, String ip, String port, String type) {
+    private HeartbeatMsg createHeartbeatMsg(String clusterName, String ip, String port, String type,
+            String protocolType) {
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp(ip);
         heartbeatMsg.setPort(port);
         heartbeatMsg.setClusterTag("default_cluster");
-        heartbeatMsg.setProtocolType(ProtocolType.HTTP);
+        heartbeatMsg.setProtocolType(protocolType);
         heartbeatMsg.setLoad(0xFFFF);
         heartbeatMsg.setComponentType(type);
         heartbeatMsg.setReportTime(System.currentTimeMillis());
@@ -330,14 +331,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port2, ProtocolType.TCP);
         Assertions.assertNotNull(nodeId2);
 
-        // report heartbeat
-        HeartbeatMsg msg1 = createHeartbeatMsg(clusterName, ip, String.valueOf(port1),
-                ComponentTypeEnum.DataProxy.getType());
-        heartbeatManager.reportHeartbeat(msg1);
-        HeartbeatMsg msg2 = createHeartbeatMsg(clusterName, ip, String.valueOf(port2),
-                ComponentTypeEnum.DataProxy.getType());
-        heartbeatManager.reportHeartbeat(msg2);
-
         // create an inlong group which use the clusterTag
         String inlongGroupId = "test_cluster_tag_group";
         InlongGroupInfo inlongGroup = super.createInlongGroup(inlongGroupId, MQType.PULSAR);
@@ -345,6 +338,13 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         updateGroupInfo.setInlongClusterTag(clusterTag);
         groupService.update(updateGroupInfo.genRequest(), GLOBAL_OPERATOR);
 
+        // report heartbeat
+        HeartbeatMsg msg1 = createHeartbeatMsg(clusterName, ip, String.valueOf(port1),
+                ComponentTypeEnum.DataProxy.getType(), ProtocolType.TCP);
+        heartbeatManager.reportHeartbeat(msg1);
+        HeartbeatMsg msg2 = createHeartbeatMsg(clusterName, ip, String.valueOf(port2),
+                ComponentTypeEnum.DataProxy.getType(), ProtocolType.TCP);
+        heartbeatManager.reportHeartbeat(msg2);
         // get the data proxy nodes, the first port should is p1, second port is p2
         DataProxyNodeResponse nodeResponse = clusterService.getDataProxyNodes(inlongGroupId, ProtocolType.TCP);
         List<DataProxyNodeInfo> nodeInfoList = nodeResponse.getNodeList();
@@ -353,6 +353,13 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(port1, nodeInfoList.get(0).getPort());
         Assertions.assertEquals(port2, nodeInfoList.get(1).getPort());
 
+        // report heartbeat
+        HeartbeatMsg msg3 = createHeartbeatMsg(clusterName, ip, String.valueOf(port1),
+                ComponentTypeEnum.DataProxy.getType(), ProtocolType.HTTP);
+        heartbeatManager.reportHeartbeat(msg3);
+        HeartbeatMsg msg4 = createHeartbeatMsg(clusterName, ip, String.valueOf(port2),
+                ComponentTypeEnum.DataProxy.getType(), ProtocolType.HTTP);
+        heartbeatManager.reportHeartbeat(msg4);
         nodeResponse = clusterService.getDataProxyNodes(inlongGroupId, ProtocolType.HTTP);
         nodeInfoList = nodeResponse.getNodeList();
         nodeInfoList.sort(Comparator.comparingInt(DataProxyNodeInfo::getId));
