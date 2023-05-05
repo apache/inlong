@@ -32,7 +32,8 @@ public class MaskDataUtils {
             "token", "secret_token", "secretToken",
             "secret_id", "secretId",
             "secret_key", "secretKey",
-            "public_key", "publicKey");
+            "public_key", "publicKey",
+            "gateway.url");
     private static final List<String> SEPARATORS = Arrays.asList(":", "=", "\": \"", "\":\"");
     private static final List<Character> STOP_CHARACTERS = Arrays.asList('\'', '"');
     private static final List<Character> KNOWN_DELIMITERS =
@@ -117,8 +118,12 @@ public class MaskDataUtils {
             int idxSeparator;
             for (String separator : SEPARATORS) {
                 idxSeparator = StringUtils.indexOf(builder, separator, keywordStart + keywordLength);
-                if (idxSeparator == keywordStart + keywordLength) {
-                    charPos = maskStartPosition(keywordStart, keywordLength, separator, builder);
+                int delimiterPos = keywordStart + keywordLength;
+                while (delimiterPos < buffLength && isDelimiter(builder.charAt(delimiterPos))) {
+                    delimiterPos++;
+                }
+                if (delimiterPos == idxSeparator) {
+                    charPos = maskStartPosition(idxSeparator, separator, builder);
 
                     int endPos = detectEnd(builder, buffLength, charPos, keywordUsed, keywordLength, separator);
 
@@ -259,19 +264,28 @@ public class MaskDataUtils {
     /**
      * the start position of sensitive data
      *
-     * @param keywordStart the start position of keyword
-     * @param keywordLength the length of keyword
+     * @param idxSeparator the start position of separator character
      * @param separator the separator character of keyword and sensitive data
      * @param builder raw data
      * @return the start position of sensitive data
      */
-    private static int maskStartPosition(int keywordStart, int keywordLength, String separator,
-            StringBuilder builder) {
-        int charPos = keywordStart + keywordLength + separator.length();
-        if (Character.isWhitespace(builder.charAt(charPos))) {
+    private static int maskStartPosition(int idxSeparator, String separator, StringBuilder builder) {
+        int charPos = idxSeparator + separator.length();
+        while (charPos < builder.length() && isDelimiter(builder.charAt(charPos))) {
             charPos++;
         }
         return charPos;
+    }
+
+    /**
+     * mask sensitive message
+     * @param message raw message
+     * @return non-sensitive message
+     */
+    public static String maskSensitiveMessage(String message) {
+        StringBuilder buffer = new StringBuilder(message);
+        mask(buffer);
+        return buffer.toString();
     }
 
 }

@@ -61,4 +61,49 @@ public class MaskDataUtilsTest {
         assertEquals(masked, buffer.toString());
     }
 
+    /**
+     * Remove sensitive message in flink sql
+     */
+    @Test
+    public void testMaskFlinkSql() {
+        String unmasked = "CREATE TABLE `table_1`(\n"
+                + "    PRIMARY KEY (`id`) NOT ENFORCED,\n"
+                + "    `id` INT,\n"
+                + "    `name` STRING,\n"
+                + "    `age` INT)\n"
+                + "    WITH (\n"
+                + "    'inlong.metric.labels' = 'groupId=1&streamId=1&nodeId=1',\n"
+                + "    'connector' = 'mysql-cdc-inlong',\n"
+                + "    'hostname' = 'localhost',\n"
+                + "    'database-name' = 'test',\n"
+                + "    'port' = '3306',\n"
+                + "    'server-id' = '10011',\n"
+                + "    'scan.incremental.snapshot.enabled' = 'true',\n"
+                + "    'username' = 'root',\n"
+                + "    'password' = 'inlong',\n"
+                + "    'table-name' = 'user'\n"
+                + ")";
+
+        String masked = "CREATE TABLE `table_1`(\n"
+                + "    PRIMARY KEY (`id`) NOT ENFORCED,\n"
+                + "    `id` INT,\n"
+                + "    `name` STRING,\n"
+                + "    `age` INT)\n"
+                + "    WITH (\n"
+                + "    'inlong.metric.labels' = 'groupId=1&streamId=1&nodeId=1',\n"
+                + "    'connector' = 'mysql-cdc-inlong',\n"
+                + "    'hostname' = 'localhost',\n"
+                + "    'database-name' = 'test',\n"
+                + "    'port' = '3306',\n"
+                + "    'server-id' = '10011',\n"
+                + "    'scan.incremental.snapshot.enabled' = 'true',\n"
+                + "    'username' = 'root',\n"
+                + "    'password' = '******',\n"
+                + "    'table-name' = 'user'\n"
+                + ")";
+        StringBuilder buffer = new StringBuilder(unmasked);
+        MaskDataUtils.mask(buffer);
+        assertEquals(masked, buffer.toString());
+    }
+
 }

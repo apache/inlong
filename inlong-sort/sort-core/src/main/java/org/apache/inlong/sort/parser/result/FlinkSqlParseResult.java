@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.parser.result;
 
+import static org.apache.inlong.common.util.MaskDataUtils.maskSensitiveMessage;
+
 import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -84,7 +86,7 @@ public class FlinkSqlParseResult implements ParseResult, Serializable {
 
     private void executeCreateTableSqls(List<String> sqls) {
         for (String sql : sqls) {
-            log.info("execute createSql:\n{}", sql);
+            log.info("execute createSql:\n{}", maskSensitiveMessage(sql));
             tableEnv.executeSql(sql);
         }
     }
