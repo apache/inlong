@@ -17,7 +17,9 @@
 
 package org.apache.inlong.sort.cdc.mongodb.table.filter;
 
-public enum MongoRowKind {
+import org.apache.flink.types.RowKind;
+
+public enum MongoDBRowKind {
 
     INSERT("+I", (byte) 0),
     UPDATE_BEFORE("-U", (byte) 1),
@@ -30,7 +32,7 @@ public enum MongoRowKind {
     private final String shortString;
     private final byte value;
 
-    private MongoRowKind(String shortString, byte value) {
+    private MongoDBRowKind(String shortString, byte value) {
         this.shortString = shortString;
         this.value = value;
     }
@@ -43,7 +45,7 @@ public enum MongoRowKind {
         return this.value;
     }
 
-    public static MongoRowKind fromByteValue(byte value) {
+    public static MongoDBRowKind fromByteValue(byte value) {
         switch (value) {
             case 0:
                 return INSERT;
@@ -62,5 +64,9 @@ public enum MongoRowKind {
             default:
                 throw new UnsupportedOperationException("Unsupported byte value '" + value + "' for row kind.");
         }
+    }
+
+    public static MongoDBRowKind toMongoDBRowKind(RowKind rowKind) {
+        return fromByteValue(rowKind.toByteValue());
     }
 }

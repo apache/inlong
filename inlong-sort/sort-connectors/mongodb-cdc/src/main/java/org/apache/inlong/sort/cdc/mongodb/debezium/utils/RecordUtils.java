@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.cdc.mongodb.debezium.utils;
 
 import com.google.common.collect.ImmutableMap;
+import com.mongodb.client.model.changestream.OperationType;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.relational.TableId;
 import java.util.Arrays;
@@ -126,4 +127,14 @@ public class RecordUtils {
         return null;
     }
 
+    /**
+     * Whether the MongoDB event's operation is a dml operation.
+     */
+    public static boolean isDMLOperation(OperationType op) {
+        if (OperationType.INSERT.equals(op) || OperationType.DELETE.equals(op)
+                || OperationType.UPDATE.equals(op) || OperationType.REPLACE.equals(op)) {
+            return true;
+        }
+        return false;
+    }
 }

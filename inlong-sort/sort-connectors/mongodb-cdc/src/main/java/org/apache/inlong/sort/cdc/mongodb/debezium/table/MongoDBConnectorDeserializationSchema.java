@@ -38,8 +38,8 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
-import org.apache.inlong.sort.cdc.mongodb.table.filter.MongoRowKind;
-import org.apache.inlong.sort.cdc.mongodb.table.filter.RowKindValidator;
+import org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKind;
+import org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKindValidator;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -78,6 +78,7 @@ import java.util.Map;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils.isDMLOperation;
 
 public class MongoDBConnectorDeserializationSchema
         implements
@@ -118,14 +119,14 @@ public class MongoDBConnectorDeserializationSchema
     /**
      * Validator to validate the row value.
      */
-    private final RowKindValidator rowKindValidator;
+    private final MongoDBRowKindValidator rowKindValidator;
 
     public MongoDBConnectorDeserializationSchema(
             RowType physicalDataType,
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> resultTypeInfo,
             ZoneId localTimeZone,
-            RowKindValidator rowValidator,
+            MongoDBRowKindValidator rowValidator,
             boolean sourceMultipleEnable) {
         this.hasMetadata = checkNotNull(metadataConverters).length > 0;
         this.sourceMultipleEnable = sourceMultipleEnable;
@@ -144,9 +145,8 @@ public class MongoDBConnectorDeserializationSchema
         OperationType op = operationTypeFor(record);
         BsonDocument documentKey = new BsonDocument();
         BsonDocument fullDocument = new BsonDocument();
-        if (op.equals(OperationType.INSERT)
-                || op.equals(OperationType.DELETE)
-                || op.equals(OperationType.UPDATE)) {
+
+        if (isDMLOperation(op)) {
             documentKey =
                     checkNotNull(
                             extractBsonDocument(
@@ -154,27 +154,19 @@ public class MongoDBConnectorDeserializationSchema
             fullDocument =
                     extractBsonDocument(value, valueSchema, MongoDBEnvelope.FULL_DOCUMENT_FIELD);
         }
+
         switch (op) {
             case INSERT:
-                if (!rowKindValidator.validate(MongoRowKind.INSERT)) {
-                    return;
-                }
                 GenericRowData insert = extractRowData(fullDocument);
                 insert.setRowKind(RowKind.INSERT);
                 emit(record, insert, out);
                 break;
             case DELETE:
-                if (!rowKindValidator.validate(MongoRowKind.DELETE)) {
-                    return;
-                }
                 GenericRowData delete = extractRowData(documentKey);
                 delete.setRowKind(RowKind.DELETE);
                 emit(record, delete, out);
                 break;
             case UPDATE:
-                if (!rowKindValidator.validate(MongoRowKind.UPDATE_AFTER)) {
-                    return;
-                }
                 // It’s null if another operation deletes the document
                 // before the lookup operation happens. Ignored it.
                 if (fullDocument == null) {
@@ -185,40 +177,37 @@ public class MongoDBConnectorDeserializationSchema
                 emit(record, updateAfter, out);
                 break;
             case REPLACE:
-                if (!rowKindValidator.validate(MongoRowKind.UPDATE_BEFORE)) {
-                    return;
-                }
                 GenericRowData replaceAfter = extractRowData(fullDocument);
                 replaceAfter.setRowKind(RowKind.UPDATE_AFTER);
                 emit(record, replaceAfter, out);
                 break;
             case INVALIDATE:
             case DROP:
-                if (!rowKindValidator.validate(MongoRowKind.DROP)) {
+                if (!rowKindValidator.validate(MongoDBRowKind.DROP)) {
                     return;
                 }
-                GenericRowData drop = extractMongoDMLData(value,
+                GenericRowData drop = extractMongoDBDdlData(value,
                         MongoDBEnvelope.NAMESPACE_FIELD, OperationType.DROP.getValue());
                 drop.setRowKind(RowKind.INSERT);
-                emit(record, drop, out);
+                emitDdlElement(record, drop, out);
                 break;
             case DROP_DATABASE:
-                if (!rowKindValidator.validate(MongoRowKind.DROP_DATABASE)) {
+                if (!rowKindValidator.validate(MongoDBRowKind.DROP_DATABASE)) {
                     return;
                 }
-                GenericRowData dropDatabase = extractMongoDMLData(value, MongoDBEnvelope.NAMESPACE_FIELD,
+                GenericRowData dropDatabase = extractMongoDBDdlData(value, MongoDBEnvelope.NAMESPACE_FIELD,
                         OperationType.DROP_DATABASE.getValue());
                 dropDatabase.setRowKind(RowKind.INSERT);
-                emit(record, dropDatabase, out);
+                emitDdlElement(record, dropDatabase, out);
                 break;
             case RENAME:
-                if (!rowKindValidator.validate(MongoRowKind.RENAME)) {
+                if (!rowKindValidator.validate(MongoDBRowKind.RENAME)) {
                     return;
                 }
                 GenericRowData rename =
-                        extractMongoDMLData(value, RecordUtils.DOCUMENT_TO_FIELD, OperationType.RENAME.getValue());
+                        extractMongoDBDdlData(value, RecordUtils.DOCUMENT_TO_FIELD, OperationType.RENAME.getValue());
                 rename.setRowKind(RowKind.INSERT);
-                emit(record, rename, out);
+                emitDdlElement(record, rename, out);
                 break;
             case OTHER:
             default:
@@ -231,7 +220,7 @@ public class MongoDBConnectorDeserializationSchema
         this.deserialize(record, out);
     }
 
-    private GenericRowData extractMongoDMLData(Struct value, String keyFiled, String ddlType) {
+    private GenericRowData extractMongoDBDdlData(Struct value, String keyFiled, String ddlType) {
         Struct documentTo = (Struct) value.get(keyFiled);
         String newDb = documentTo.getString(MongoDBEnvelope.NAMESPACE_DATABASE_FIELD);
         String newColl = documentTo.getString(MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD);
@@ -273,6 +262,24 @@ public class MongoDBConnectorDeserializationSchema
     }
 
     private void emit(SourceRecord inRecord, RowData physicalRow, Collector<RowData> collector) {
+
+        // filter the records that is outside the `rowKind`
+        if (!rowKindValidator.validate(physicalRow.getRowKind())) {
+            return;
+        }
+
+        if (!hasMetadata) {
+            collector.collect(physicalRow);
+            return;
+        }
+
+        appendMetadataCollector.inputRecord = inRecord;
+        appendMetadataCollector.outputCollector = collector;
+        appendMetadataCollector.collect(physicalRow);
+    }
+
+    private void emitDdlElement(SourceRecord inRecord, RowData physicalRow, Collector<RowData> collector) {
+
         if (!hasMetadata) {
             collector.collect(physicalRow);
             return;
