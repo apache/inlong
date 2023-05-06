@@ -1006,6 +1006,16 @@ public class FlinkPulsarSource<T>
                     }
                 }
                 return specificOffsets;
+            case EXTERNAL_SUBSCRIPTION:
+                Map<TopicRange, MessageId> offsetsFromSubs = new HashMap<>();
+                for (TopicRange topic : topics) {
+                    offsetsFromSubs.put(
+                            topic,
+                            metadataReader.getPositionFromSubscription(
+                                    topic, subscriptionPosition));
+                }
+                log.info("offset for each topic: {}", offsetsFromSubs);
+                return offsetsFromSubs;
         }
         return null;
     }
