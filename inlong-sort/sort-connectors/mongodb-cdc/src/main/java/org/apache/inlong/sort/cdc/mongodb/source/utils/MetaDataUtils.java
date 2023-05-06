@@ -158,7 +158,7 @@ public class MetaDataUtils {
                 .name("mongodb_cdc_source")
                 .mysqlType(mongoDbType)
                 .sqlType(getSqlType(rowData))
-                .pkNames(null)
+                .pkNames(Collections.singletonList(MONGODB_DEFAULT_PRIMARY_KEY))
                 .build();
         DebeziumJson debeziumJson = DebeziumJson.builder()
                 .source(source)
