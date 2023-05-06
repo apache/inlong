@@ -65,8 +65,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MongoDBScanFetchTask implements FetchTask<SourceSplitBase> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            com.ververica.cdc.connectors.mongodb.source.reader.fetch.MongoDBScanFetchTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MongoDBScanFetchTask.class);
 
     private final SnapshotSplit snapshotSplit;
     private volatile boolean taskRunning = false;

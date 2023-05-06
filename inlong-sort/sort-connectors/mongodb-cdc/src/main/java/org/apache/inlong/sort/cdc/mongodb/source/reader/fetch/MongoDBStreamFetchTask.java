@@ -82,8 +82,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MongoDBStreamFetchTask implements FetchTask<SourceSplitBase> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            com.ververica.cdc.connectors.mongodb.source.reader.fetch.MongoDBStreamFetchTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MongoDBStreamFetchTask.class);
 
     private final StreamSplit streamSplit;
     private volatile boolean taskRunning = false;
