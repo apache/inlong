@@ -384,7 +384,7 @@ public enum OracleReadableMetaData {
                 .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
                 .oracleType(getOracleType(tableSchema))
                 .table(tableName).ts(ts)
-                .type(getOpType(record)).sqlType(getSqlType(tableSchema)).build();
+                .type(getCanalOpType(data)).sqlType(getSqlType(tableSchema)).build();
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             return StringData.fromString(objectMapper.writeValueAsString(canalJson));
@@ -421,6 +421,24 @@ public enum OracleReadableMetaData {
             opType = OP_DELETE;
         } else {
             opType = OP_UPDATE;
+        }
+        return opType;
+    }
+
+    public static String getCanalOpType(GenericRowData record) {
+        String opType;
+        switch (record.getRowKind()) {
+            case DELETE:
+            case UPDATE_BEFORE:
+                opType = OP_DELETE;
+                break;
+            case INSERT:
+            case UPDATE_AFTER:
+                opType = OP_INSERT;
+                break;
+            default:
+                throw new IllegalStateException("the record only have states in DELETE, "
+                        + "UPDATE_BEFORE, INSERT and UPDATE_AFTER");
         }
         return opType;
     }
