@@ -20,6 +20,7 @@ package org.apache.inlong.sort.cdc.mongodb.debezium.table;
 import com.mongodb.client.model.changestream.OperationType;
 import com.mongodb.internal.HexUtils;
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
+import java.util.LinkedHashMap;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericArrayData;
@@ -809,8 +810,8 @@ public class MongoDBConnectorDeserializationSchema
                 }
                 return row;
             } else {
-                Map<String, Object> data = new HashMap<>();
-                Map<String, String> dataType = new HashMap<>();
+                Map<String, Object> data = new LinkedHashMap<>();
+                Map<String, String> dataType = new LinkedHashMap<>();
                 document.forEach((key, value) -> {
                     try {
                         LogicalType logicalType = RecordUtils.convertLogicType(value);

@@ -70,8 +70,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MongoUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            com.ververica.cdc.connectors.mongodb.source.utils.MongoUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MongoUtils.class);
 
     public static final BsonDouble COMMAND_SUCCEED_FLAG = new BsonDouble(1.0d);
 

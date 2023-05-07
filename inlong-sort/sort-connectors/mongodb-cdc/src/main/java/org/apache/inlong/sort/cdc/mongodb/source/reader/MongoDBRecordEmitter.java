@@ -55,8 +55,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class MongoDBRecordEmitter<T> extends IncrementalSourceRecordEmitter<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            com.ververica.cdc.connectors.mongodb.source.reader.MongoDBRecordEmitter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MongoDBRecordEmitter.class);
 
     public MongoDBRecordEmitter(
             DebeziumDeserializationSchema<T> deserializationSchema,
