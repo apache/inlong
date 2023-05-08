@@ -45,7 +45,7 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.inlong.sort.cdc.base.util.SourceRecordUtils.isHeartbeatEvent;
+import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isHeartbeatEvent;
 
 /**
  * The {@link RecordEmitter} implementation for {@link IncrementalSourceReader}.

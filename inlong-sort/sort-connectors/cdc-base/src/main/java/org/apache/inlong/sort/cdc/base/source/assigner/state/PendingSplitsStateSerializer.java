@@ -19,6 +19,7 @@ package org.apache.inlong.sort.cdc.base.source.assigner.state;
 
 import static org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer.readTableSchemas;
 import static org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer.writeTableSchemas;
+import static org.apache.inlong.sort.cdc.base.util.RecordUtils.shouldUseCatalogBeforeSchema;
 
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
@@ -36,7 +37,7 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SchemalessSnapshotSplit
 import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer;
-import org.apache.inlong.sort.cdc.base.util.SerializerUtils;
+import com.ververica.cdc.connectors.base.utils.SerializerUtils;
 
 /** The {@link SimpleVersionedSerializer Serializer} for the {@link PendingSplitsState}.
  * Copy from com.ververica:flink-cdc-base:2.3.0.
@@ -360,7 +361,7 @@ public class PendingSplitsStateSerializer implements SimpleVersionedSerializer<P
         final int size = tableIds.size();
         out.writeInt(size);
         for (TableId tableId : tableIds) {
-            boolean useCatalogBeforeSchema = SerializerUtils.shouldUseCatalogBeforeSchema(tableId);
+            boolean useCatalogBeforeSchema = shouldUseCatalogBeforeSchema(tableId);
             out.writeBoolean(useCatalogBeforeSchema);
             out.writeUTF(tableId.toString());
         }
