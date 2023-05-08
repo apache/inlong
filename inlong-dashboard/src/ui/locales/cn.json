@@ -519,6 +519,7 @@
   "components.FieldParseModule.PasteTemplate": "粘贴模板",
   "components.FieldParseModule.Parse": "解析",
   "components.FieldParseModule.Upload": "上传",
+  "components.FieldParseModule.OnlyUploadExcelFile": "只能上传 Excel 文件(.xlsx) !",
   "components.FieldParseModule.DownloadTemplate": "下载模板",
   "components.FormGenerator.plugins.PleaseChoose": "请选择",
   "components.FormGenerator.plugins.PleaseInput": "请输入",
