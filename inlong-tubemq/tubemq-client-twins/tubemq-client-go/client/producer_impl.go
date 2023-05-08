@@ -62,7 +62,7 @@ func NewProducer(config *config.Config) (Producer, error) {
 		return nil, err
 	}
 
-	clientID := util.NewClientID("", &clientID, tubeMQClientVersion)
+	clientName := util.NewClientID("", &clientID, tubeMQClientVersion)
 	pool := multiplexing.NewPool()
 	opts := &transport.Options{}
 	if config.Net.TLS.Enable {
@@ -77,7 +77,7 @@ func NewProducer(config *config.Config) (Producer, error) {
 
 	p := &producer{
 		config:          config,
-		clientID:        clientID,
+		clientID:        clientName,
 		selector:        selector,
 		client:          client,
 		unreportedTimes: 0,
