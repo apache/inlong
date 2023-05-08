@@ -252,8 +252,7 @@ public class ExtractNodeUtils {
                 startupMode.getValue(),
                 primaryKey,
                 pulsarSource.getSubscription(),
-                scanStartupSubStartOffset
-                );
+                scanStartupSubStartOffset);
     }
 
     /**

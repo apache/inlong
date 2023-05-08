@@ -147,8 +147,6 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                     adjustTransformField(transformResponses, nodeNameSet, mqNodeName);
                     adjustNodeRelations(relations, nodeNameSet, mqNodeName);
                 } else {
-                    Preconditions.expectTrue(sources.size() == 1, "simple transform only support one input node");
-                    Preconditions.expectTrue(sinks.size() == 1, "simple transform only support one output node");
                     relations = NodeRelationUtils.createNodeRelations(sources, sinks);
                 }
             } else {

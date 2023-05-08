@@ -157,6 +157,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
                 }
                 List<StreamSinkEntity> sinkEntityList = sinkMapper.selectByRelatedId(groupInfo.getInlongGroupId(),
                         streamId);
+                // Issued pulsar subscriptions to sort only supports a stream with only one source and one sink
                 if (sinkEntityList.size() == 1) {
                     String sub = String.format(PULSAR_SUBSCRIPTION, groupInfo.getInlongClusterTag(),
                             pulsarSource.getTopic(),
