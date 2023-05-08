@@ -235,7 +235,11 @@ public class ExtractNodeUtils {
         final String primaryKey = pulsarSource.getPrimaryKey();
         final String serviceUrl = pulsarSource.getServiceUrl();
         final String adminUrl = pulsarSource.getAdminUrl();
+        final String scanStartupSubStartOffset =
+                StringUtils.isNotBlank(pulsarSource.getSubscription()) ? PulsarScanStartupMode.EARLIEST.getValue()
+                        : null;
         Map<String, String> properties = parseProperties(pulsarSource.getProperties());
+
         return new PulsarExtractNode(pulsarSource.getSourceName(),
                 pulsarSource.getSourceName(),
                 fieldInfos,
@@ -246,7 +250,9 @@ public class ExtractNodeUtils {
                 serviceUrl,
                 format,
                 startupMode.getValue(),
-                primaryKey);
+                primaryKey,
+                pulsarSource.getSubscription(),
+                scanStartupSubStartOffset);
     }
 
     /**

@@ -73,6 +73,8 @@ public class PulsarSqlParserTest {
                 "pulsar://localhost:6650",
                 format,
                 "earliest",
+                null,
+                null,
                 null);
     }
 

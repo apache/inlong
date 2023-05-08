@@ -28,7 +28,9 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -50,6 +52,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.inlong.manager.service.resource.queue.pulsar.PulsarResourceOperator.PULSAR_SUBSCRIPTION;
+
 /**
  * Pulsar stream source operator
  */
@@ -66,6 +70,8 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
     private ObjectMapper objectMapper;
     @Autowired
     private InlongClusterService clusterService;
+    @Autowired
+    private StreamSinkEntityMapper sinkMapper;
 
     @Override
     public Boolean accept(String sourceType) {
@@ -131,6 +137,10 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             pulsarSource.setAdminUrl(adminUrl);
             pulsarSource.setServiceUrl(serviceUrl);
             pulsarSource.setInlongComponent(true);
+            if (StringUtils.isNotBlank(streamInfo.getDataType())) {
+                String serializationType = DataTypeEnum.forType(streamInfo.getDataType()).getType();
+                pulsarSource.setSerializationType(serializationType);
+            }
             pulsarSource.setWrapWithInlongMsg(streamInfo.getWrapWithInlongMsg());
             pulsarSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
 
@@ -144,6 +154,15 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             for (StreamSource sourceInfo : streamSources) {
                 if (!Objects.equal(streamId, sourceInfo.getInlongStreamId())) {
                     continue;
+                }
+                List<StreamSinkEntity> sinkEntityList = sinkMapper.selectByRelatedId(groupInfo.getInlongGroupId(),
+                        streamId);
+                // Issued pulsar subscriptions to sort only supports a stream with only one source and one sink
+                if (sinkEntityList.size() == 1) {
+                    String sub = String.format(PULSAR_SUBSCRIPTION, groupInfo.getInlongClusterTag(),
+                            pulsarSource.getTopic(),
+                            sinkEntityList.get(0).getId());
+                    pulsarSource.setSubscription(sub);
                 }
 
                 pulsarSource.setSerializationType(getSerializationType(sourceInfo, streamInfo.getDataType()));
@@ -164,7 +183,11 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
                     pulsarSource.setDataSeparator(String.valueOf((int) ','));
                 }
             }
-            pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
+            if (StringUtils.isNotBlank(pulsarSource.getSubscription())) {
+                pulsarSource.setScanStartupMode(PulsarScanStartupMode.EXTERNAL_SUBSCRIPTION.getValue());
+            } else {
+                pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
+            }
             pulsarSource.setFieldList(streamInfo.getFieldList());
             sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(pulsarSource);
         }

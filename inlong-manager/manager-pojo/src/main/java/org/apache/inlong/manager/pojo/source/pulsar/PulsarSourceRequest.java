@@ -47,6 +47,9 @@ public class PulsarSourceRequest extends SourceRequest {
     @ApiModelProperty("Pulsar topic")
     private String topic;
 
+    @ApiModelProperty("Pulsar subscription")
+    private String subscription;
+
     @ApiModelProperty("Pulsar adminUrl")
     private String adminUrl;
 
