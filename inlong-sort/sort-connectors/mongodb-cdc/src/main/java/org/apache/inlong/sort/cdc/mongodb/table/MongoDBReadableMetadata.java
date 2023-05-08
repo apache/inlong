@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.inlong.sort.cdc.mongodb.debezium.table.MetadataConverter;
@@ -48,7 +49,7 @@ public enum MongoDBReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    return getMetaData(record, MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD);
+                    return StringData.fromString(getMetaData(record, MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD));
                 }
             }),
 
@@ -61,7 +62,8 @@ public enum MongoDBReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    return getMetaData(record, MongoDBEnvelope.NAMESPACE_DATABASE_FIELD);
+                    return StringData.fromString(
+                            getMetaData(record, MongoDBEnvelope.NAMESPACE_DATABASE_FIELD));
                 }
             }),
 
