@@ -61,6 +61,8 @@ import org.apache.iceberg.types.TypeUtil;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
+import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer;
+import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer.BufferType;
 import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleFilesCommiter;
 import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleStreamWriter;
 import org.apache.inlong.sort.iceberg.sink.multiple.IcebergProcessOperator;
@@ -82,7 +84,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.apache.iceberg.TableProperties.WRITE_DISTRIBUTION_MODE;
+import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_BUFFER_TYPE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_ENABLE;
+import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_PRE_AGG_ENABLE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_RATE_LIMIT;
 
 /**
@@ -568,10 +572,16 @@ public class FlinkSink {
             PartitionKey partitionKey = new PartitionKey(table.spec(), table.schema());
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
+            boolean preAggregation = tableOptions.get(WRITE_MINI_BATCH_PRE_AGG_ENABLE) && !equalityFieldIds.isEmpty();
+            BufferType bufferType = tableOptions.get(WRITE_MINI_BATCH_BUFFER_TYPE);
+            PartitionGroupBuffer buffer = preAggregation
+                    ? PartitionGroupBuffer.preAggInstance(
+                            fieldGetters, deleteSchema, writeSchema, partitionKey, bufferType)
+                    : PartitionGroupBuffer.nonPreAggInstance(writeSchema, partitionKey, bufferType);
             SingleOutputStreamOperator<RowData> inputWithMiniBatchGroup = input
                     .transform("mini_batch_group",
                             input.getType(),
-                            new IcebergMiniBatchGroupOperator(fieldGetters, deleteSchema, writeSchema, partitionKey))
+                            new IcebergMiniBatchGroupOperator(buffer))
                     .setParallelism(parallelism);
             if (uidPrefix != null) {
                 inputWithMiniBatchGroup.uid(uidPrefix + "mini_batch_group");

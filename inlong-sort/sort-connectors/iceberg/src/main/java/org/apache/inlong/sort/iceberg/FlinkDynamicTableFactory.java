@@ -47,6 +47,7 @@ import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
+import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer.BufferType;
 
 import java.util.Map;
 import java.util.Set;
@@ -144,6 +145,18 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Whether to buffer some data to sort before write to files(reduce memory loss)");
+
+    public static final ConfigOption<Boolean> WRITE_MINI_BATCH_PRE_AGG_ENABLE =
+            ConfigOptions.key("write.mini-batch.pre-agg.enable")
+                    .booleanType()
+                    .defaultValue(true)
+                    .withDescription("Whether to pre-aggregate data according to the primary key in advance");
+
+    public static final ConfigOption<BufferType> WRITE_MINI_BATCH_BUFFER_TYPE =
+            ConfigOptions.key("write.mini-batch.buffer.type")
+                    .enumType(BufferType.class)
+                    .defaultValue(BufferType.ROCKSDB)
+                    .withDescription("where to temporarily store data in mini-batch");
 
     public static final ConfigOption<Integer> WRITE_PARALLELISM =
             ConfigOptions.key("write.parallelism")
@@ -318,6 +331,8 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         options.add(WRITE_DISTRIBUTION_MODE);
         options.add(WRITE_RATE_LIMIT);
         options.add(WRITE_MINI_BATCH_ENABLE);
+        options.add(WRITE_MINI_BATCH_PRE_AGG_ENABLE);
+        options.add(WRITE_MINI_BATCH_BUFFER_TYPE);
         options.add(WRITE_PARALLELISM);
         return options;
     }
