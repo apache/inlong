@@ -30,6 +30,7 @@ import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -141,6 +142,7 @@ class AgentServiceTest extends ServiceBaseTest {
         sources.stream()
                 .filter(source -> source.getTemplateId() != null)
                 .forEach(source -> sourceService.stop(source.getId(), GLOBAL_OPERATOR));
+        groupMapper.updateStatus(groupId, GroupStatus.SUSPENDED.getCode(), GLOBAL_OPERATOR);
         streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.SUSPENDED.getCode(), GLOBAL_OPERATOR);
     }
 
@@ -152,6 +154,7 @@ class AgentServiceTest extends ServiceBaseTest {
         sources.stream()
                 .filter(source -> source.getTemplateId() != null)
                 .forEach(source -> sourceService.restart(source.getId(), GLOBAL_OPERATOR));
+        groupMapper.updateStatus(groupId, GroupStatus.RESTARTED.getCode(), GLOBAL_OPERATOR);
         streamMapper.updateStatusByIdentifier(groupId, streamId, StreamStatus.RESTARTED.getCode(), GLOBAL_OPERATOR);
     }
 
