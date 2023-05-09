@@ -38,8 +38,8 @@ import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -214,12 +214,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(bindSet)) {
             bindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(ClusterType.AGENT);
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(Objects::nonNull)
+                        ClusterPageRequest pageRequest = new ClusterPageRequest();
+                        pageRequest.setParentId(cluster.getId());
+                        pageRequest.setType(ClusterType.AGENT);
+                        pageRequest.setKeyword(clusterNode);
+                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
+                    }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -238,12 +238,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(unbindSet)) {
             unbindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(ClusterType.AGENT);
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(Objects::nonNull)
+                        ClusterPageRequest pageRequest = new ClusterPageRequest();
+                        pageRequest.setParentId(cluster.getId());
+                        pageRequest.setType(ClusterType.AGENT);
+                        pageRequest.setKeyword(clusterNode);
+                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
+                    }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -337,6 +337,11 @@ public class AgentServiceImpl implements AgentService {
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectTemplateSourceByCluster(needCopiedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentClusterName);
         sourceEntities.forEach(sourceEntity -> {
+            InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sourceEntity.getInlongGroupId());
+            Set<GroupStatus> noNeedAddTask = Sets.newHashSet(GroupStatus.SUSPENDED, GroupStatus.SUSPENDING);
+            if (groupEntity != null && noNeedAddTask.contains(GroupStatus.forCode(groupEntity.getStatus()))) {
+                return;
+            }
             StreamSourceEntity subSource = sourceMapper.selectOneByTemplatedIdAndAgentIp(sourceEntity.getId(),
                     agentIp);
             if (subSource == null) {
@@ -388,7 +393,7 @@ public class AgentServiceImpl implements AgentService {
             if (!matchGroup(sourceEntity, clusterNodeEntity)
                     && !exceptedUnmatchedStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))) {
                 LOGGER.info("Transform task({}) from {} to {} because tag mismatch "
-                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                         sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_STOP.getCode(),
                         agentIp, agentClusterName);
                 sourceMapper.updateStatus(
@@ -396,18 +401,19 @@ public class AgentServiceImpl implements AgentService {
             }
 
             // case: agent tag rebind and match source task again and stream is not in 'SUSPENDED' status
-            InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
-                    sourceEntity.getInlongGroupId(), sourceEntity.getInlongStreamId());
+            InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sourceEntity.getInlongGroupId());
             Set<SourceStatus> exceptedMatchedSourceStatus = Sets.newHashSet(
                     SourceStatus.SOURCE_NORMAL,
                     SourceStatus.TO_BE_ISSUED_ADD,
                     SourceStatus.TO_BE_ISSUED_ACTIVE);
-            Set<StreamStatus> exceptedMatchedStreamStatus = Sets.newHashSet(StreamStatus.SUSPENDED);
+            Set<GroupStatus> exceptedMatchedGroupStatus = Sets.newHashSet(GroupStatus.SUSPENDED,
+                    GroupStatus.SUSPENDING);
             if (matchGroup(sourceEntity, clusterNodeEntity)
+                    && groupEntity != null
                     && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
-                    && !exceptedMatchedStreamStatus.contains(StreamStatus.forCode(streamEntity.getStatus()))) {
+                    && !exceptedMatchedGroupStatus.contains(GroupStatus.forCode(groupEntity.getStatus()))) {
                 LOGGER.info("Transform task({}) from {} to {} because tag rematch "
-                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                         sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(),
                         agentIp, agentClusterName);
                 sourceMapper.updateStatus(
@@ -463,14 +469,13 @@ public class AgentServiceImpl implements AgentService {
 
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        String extParams = entity.getExtParams();
         if (groupEntity != null && streamEntity != null) {
-            String extParams = entity.getExtParams();
             dataConfig.setSyncSend(streamEntity.getSyncSend());
             if (SourceType.FILE.equalsIgnoreCase(streamEntity.getDataType())) {
                 String dataSeparator = streamEntity.getDataSeparator();
                 extParams = (null != dataSeparator ? getExtParams(extParams, dataSeparator) : extParams);
             }
-            dataConfig.setExtParams(extParams);
 
             int dataReportType = groupEntity.getDataReportType();
             dataConfig.setDataReportType(dataReportType);
@@ -529,6 +534,7 @@ public class AgentServiceImpl implements AgentService {
                 LOGGER.warn("set syncSend=[0] as the stream not exists for groupId={}, streamId={}", groupId, streamId);
             }
         }
+        dataConfig.setExtParams(extParams);
         return dataConfig;
     }
 
