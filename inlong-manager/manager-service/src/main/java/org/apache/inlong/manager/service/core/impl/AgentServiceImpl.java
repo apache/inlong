@@ -336,9 +336,9 @@ public class AgentServiceImpl implements AgentService {
         // find those node whose tag match stream_source tag and agent ip match stream_source agent ip
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectTemplateSourceByCluster(needCopiedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentClusterName);
+        Set<GroupStatus> noNeedAddTask = Sets.newHashSet(GroupStatus.SUSPENDED, GroupStatus.SUSPENDING);
         sourceEntities.forEach(sourceEntity -> {
             InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sourceEntity.getInlongGroupId());
-            Set<GroupStatus> noNeedAddTask = Sets.newHashSet(GroupStatus.SUSPENDED, GroupStatus.SUSPENDING);
             if (groupEntity != null && noNeedAddTask.contains(GroupStatus.forCode(groupEntity.getStatus()))) {
                 return;
             }
