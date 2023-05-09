@@ -197,3 +197,4 @@
 | [INLONG-7742](https://github.com/apache/inlong/issues/7742) | [Improve][Tool] Only support inlong-dev-toolkit on MacOS and Linux                                    |
 | [INLONG-7698](https://github.com/apache/inlong/issues/7698) | [Bug][Docker] docker images build faild for tubemq-build                                              |
 | [INLONG-7697](https://github.com/apache/inlong/issues/7697) | [Feature] Reduce the memory usage of JM when split table chunks                                       |
+| [INLONG-7986](https://github.com/apache/inlong/issues/7986) | [Bug] Collect file to Postgresql failed when using docker image for test                              |
