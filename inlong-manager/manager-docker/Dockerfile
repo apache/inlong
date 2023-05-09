@@ -41,12 +41,13 @@ ENV MANAGER_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.
 WORKDIR /opt/inlong-manager
 # add manager tarball
 ARG VERSION
+ARG default_jdbc_connector_url=https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar
 ADD target/manager-web-${VERSION}-bin.tar.gz /opt/inlong-manager
 # add mysql connector
-RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar
+RUN wget -P lib/ ${default_jdbc_connector_url}
 # add sort resource
 ADD target/sort-dist-${VERSION}.jar /opt/inlong-sort/
-RUN cp lib/mysql-connector-java-8.0.27.jar /opt/inlong-sort/connectors/
+RUN wget -P /opt/inlong-sort/connectors/ ${default_jdbc_connector_url}
 ADD target/sort-connector-pulsar-${VERSION}.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-kafka-${VERSION}.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-jdbc-${VERSION}.jar /opt/inlong-sort/connectors/
