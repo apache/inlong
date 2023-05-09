@@ -49,7 +49,8 @@ public enum MongoDBReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    return StringData.fromString(getMetaData(record, MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD));
+                    return StringData.fromString(
+                            getMetaData(record, MongoDBEnvelope.NAMESPACE_COLLECTION_FIELD));
                 }
             }),
 
