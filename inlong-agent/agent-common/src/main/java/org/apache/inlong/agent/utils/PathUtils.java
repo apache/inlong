@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -67,8 +68,15 @@ public class PathUtils {
      */
     public static boolean antPathIncluded(String dirStr, String patternStr) {
         // todo:Determines whether a path is a possible prefix of the path expression
-        List<String> dirArr = Stream.of(dirStr.split(File.separator)).collect(Collectors.toList());
-        List<String> patternDirArr = Stream.of(patternStr.split(File.separator)).collect(Collectors.toList());
+        List<String> dirArr = new LinkedList<>();
+        List<String> patternDirArr = new LinkedList<>();
+        if (File.separator.equals("\\")) {
+            dirArr = Stream.of(dirStr.split("\\\\")).collect(Collectors.toList());
+            patternDirArr = Stream.of(patternStr.split("\\\\")).collect(Collectors.toList());
+        } else {
+            dirArr = Stream.of(dirStr.split(File.separator)).collect(Collectors.toList());
+            patternDirArr = Stream.of(patternStr.split(File.separator)).collect(Collectors.toList());
+        }
         int everything = patternDirArr.indexOf("**");
         if (everything != -1) {
             return antPathMatch(
