@@ -14,24 +14,81 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.apache.inlong.sort.kafka.partitioner.InLongFixedPartitionPartitioner;
 import org.junit.Assert;
 import org.junit.Test;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * The unit tests for {@link InLongFixedPartitionPartitioner}.
  */
 public class InLongFixedPartitionPartitionerTest {
+    private String databasePattern = "${database}";
+    private String tablePattern = "${table}";
+    private AbstractDynamicSchemaFormat dynamicSchemaFormat = new TestDynamicSchemaFormat();
+    class TestDynamicSchemaFormat extends AbstractDynamicSchemaFormat{
+
+        @Override
+        public String extract(Object data, String key) {
+            return null;
+        }
+
+        @Override
+        public List<String> extractPrimaryKeyNames(Object data) {
+            return null;
+        }
+
+        @Override
+        public boolean extractDDLFlag(Object data) {
+            return false;
+        }
+
+        @Override
+        public String extractDDL(Object data) {
+            return null;
+        }
+
+        @Override
+        public Object extractOperation(Object data) {
+            return null;
+        }
+
+        @Override
+        public List<RowData> extractRowData(Object data, RowType rowType) {
+            return null;
+        }
+
+        @Override
+        public Object deserialize(byte[] message) throws IOException {
+            return null;
+        }
+
+        @Override
+        public String parse(Object data, String pattern) throws IOException {
+            if(databasePattern.equals(pattern)) return "db1";
+            if(tablePattern.equals(pattern)) return "tb1";
+            return null;
+        }
+
+        @Override
+        public RowType extractSchema(Object data, List pkNames) {
+            return null;
+        }
+    }
 
     @Test
     public void testFixedPartitionPartitioner() {
-        String patternPartitionMapConfig = "database*&table*:1,DEFAULT_PARTITION:2";
-        String partitionPattern = "${database}_${table}";
+        String patternPartitionMapConfig = "^db.*&^tb.*:1,DEFAULT_PARTITION:2";
+        String partitionPattern = databasePattern + "_" + tablePattern;
         InLongFixedPartitionPartitioner inLongFixedPartitionPartitioner =
                 new InLongFixedPartitionPartitioner(patternPartitionMapConfig, partitionPattern);
-        byte[] value = "{database:db1,table:tb1}".getBytes();
+        inLongFixedPartitionPartitioner.setDynamicSchemaFormat(dynamicSchemaFormat);
         int partition = inLongFixedPartitionPartitioner.partition(null, null,
-                value, null, new int[]{0, 1, 2, 3});
-        Assert.assertEquals(2, partition);
+                null, null, new int[]{0, 1, 2, 3});
+        Assert.assertEquals(1, partition);
     }
 }

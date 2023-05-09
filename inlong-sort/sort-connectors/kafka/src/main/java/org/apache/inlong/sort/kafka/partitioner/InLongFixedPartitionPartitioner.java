@@ -41,6 +41,7 @@ public class InLongFixedPartitionPartitioner<T> extends FlinkKafkaPartitioner<T>
 
     private final Map<String, String> patternPartitionMap;
     private final Map<String, Pattern> regexPatternMap;
+    @Setter
     private AbstractDynamicSchemaFormat dynamicSchemaFormat;
 
     /**
