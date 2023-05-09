@@ -246,10 +246,10 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         // When the source is in a heartbeat timeout state, set nextStatus to preStatus
-        if (Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT, curState)){
+        if (Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT, curState)) {
             curEntity.setStatus(curState.getCode());
             curEntity.setPreviousStatus(nextState.getCode());
-        }else {
+        } else {
             curEntity.setPreviousStatus(curState.getCode());
             curEntity.setStatus(nextState.getCode());
         }
