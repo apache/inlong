@@ -105,9 +105,8 @@
 | [INLONG-6672](https://github.com/apache/inlong/issues/6672) | [Feature][Manager] Add `inlongctl` status management for the group                             |
 
 ### Sort
-|                            ISSUE                            | Summary                                                                                                                             |
-|:-----------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------|
-
+|                            ISSUE                            | Summary                                                                                                                                            |
+|:-----------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------|
 | [INLONG-7958](https://github.com/apache/inlong/issues/7958) | [Bug][Sort] MongoDB's schema becomes unordered after extracting the row data                                                                       |
 | [INLONG-7957](https://github.com/apache/inlong/issues/7957) | [Bug][Sort] The canaljson's type of Oracle CDC and MongoDB CDC is inconsistent with MySQL CDC                                                      |
 | [INLONG-7952](https://github.com/apache/inlong/issues/7952) | [Improve][Sort]  Mask sensitive message of Flink SQL in the logs                                                                                   |
