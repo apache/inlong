@@ -35,6 +35,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Elasticsearch table sink factory testing -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-json</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java_2.12</artifactId>
@@ -108,14 +115,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Elasticsearch table sink factory testing -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-json</artifactId>
-            <version>${flink.version}</version>
-            <scope>test</scope>
-        </dependency>
-
         <!--
             Including Log4j2 dependencies for tests is required for the
             embedded Elasticsearch nodes used in tests to run correctly.
@@ -130,11 +129,6 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-json</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
