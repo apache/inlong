@@ -67,7 +67,7 @@ public class SourceRequest {
     @ApiModelProperty("Source name, unique in one stream")
     @NotBlank(groups = SaveValidation.class, message = "sourceName cannot be blank")
     @Length(min = 1, max = 100, message = "sourceName length must be between 1 and 100")
-    @Pattern(regexp = "^[a-z0-9_-]{1,100}$", message = "sourceName only supports lowercase letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[a-z0-9_.-]{1,100}$", message = "sourceName only supports lowercase letters, numbers, '-', or '_'")
     private String sourceName;
 
     @ApiModelProperty("Ip of the agent running the task")
@@ -85,7 +85,7 @@ public class SourceRequest {
 
     @ApiModelProperty("Inlong cluster node label for filtering stream source collect task")
     @Length(min = 1, max = 128, message = "length must be between 1 and 128")
-    @Pattern(regexp = "^[a-z0-9_-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[a-z0-9_.-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongClusterNodeGroup;
 
     @ApiModelProperty("Data node name")

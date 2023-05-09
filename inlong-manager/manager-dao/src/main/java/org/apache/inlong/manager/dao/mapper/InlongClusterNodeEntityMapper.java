@@ -47,6 +47,11 @@ public interface InlongClusterNodeEntityMapper {
 
     int updateByIdSelective(InlongClusterNodeEntity record);
 
+    /**
+     * Update the status to `nextStatus` by the given id.
+     */
+    int updateStatus(@Param("id") Integer id, @Param("nextStatus") Integer nextStatus, @Param("status") Integer status);
+
     int deleteById(Integer id);
 
 }

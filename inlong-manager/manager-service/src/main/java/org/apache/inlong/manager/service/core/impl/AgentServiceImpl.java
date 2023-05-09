@@ -129,6 +129,8 @@ public class AgentServiceImpl implements AgentService {
             throw new BusinessException("agent request or agent ip was empty, just return");
         }
 
+        preTimeoutTasks(request);
+
         // Update task status, other tasks with status 20x will change to 30x in next request
         if (CollectionUtils.isEmpty(request.getCommandInfo())) {
             LOGGER.info("task result was empty in request: {}, just return", request);
@@ -420,6 +422,24 @@ public class AgentServiceImpl implements AgentService {
                         sourceEntity.getId(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(), false);
             }
         });
+    }
+
+    private void preTimeoutTasks(TaskRequest taskRequest) {
+        // If the agent report succeeds, restore the source status
+        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpAndCluster(
+                Collections.singletonList(SourceStatus.HEARTBEAT_TIMEOUT.getCode()),
+                Lists.newArrayList(SourceType.FILE), taskRequest.getAgentIp(), taskRequest.getClusterName());
+        for (StreamSourceEntity sourceEntity : sourceEntities) {
+            // restore state for all source by ip and type
+            if (sourceEntity.getIsDeleted() != 0) {
+                sourceEntity.setPreviousStatus(sourceEntity.getStatus());
+                sourceEntity.setStatus(SourceStatus.TO_BE_ISSUED_DELETE.getCode());
+            } else {
+                sourceEntity.setStatus(sourceEntity.getPreviousStatus());
+                sourceEntity.setPreviousStatus(SourceStatus.HEARTBEAT_TIMEOUT.getCode());
+            }
+            sourceMapper.updateByPrimaryKeySelective(sourceEntity);
+        }
     }
 
     private InlongClusterNodeEntity selectByIpAndCluster(String clusterName, String ip) {

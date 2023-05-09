@@ -172,6 +172,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
         // re-issue task if necessary
         if (InlongConstants.STANDARD_MODE.equals(groupMode)) {
+            SourceStatus sourceStatus = SourceStatus.forCode(entity.getStatus());
             if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
                 entity.setStatus(SourceStatus.TO_BE_ISSUED_RETRY.getCode());
             } else {
@@ -186,6 +187,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                         // others leave it be
                         break;
                 }
+            }
+            // When the source is in a heartbeat timeout state, set nextStatus to preStatus
+            if (Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT.getCode(), sourceStatus.getCode())) {
+                entity.setPreviousStatus(sourceStatus.getCode());
+                entity.setStatus(SourceStatus.HEARTBEAT_TIMEOUT.getCode());
             }
         }
 
@@ -211,8 +217,14 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     existEntity.getStatus(), existEntity.getId()));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        curEntity.setPreviousStatus(curState.getCode());
-        curEntity.setStatus(nextState.getCode());
+        // When the source is in a heartbeat timeout state, set nextStatus to preStatus
+        if (Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT, curState)) {
+            curEntity.setStatus(curState.getCode());
+            curEntity.setPreviousStatus(nextState.getCode());
+        } else {
+            curEntity.setPreviousStatus(curState.getCode());
+            curEntity.setStatus(nextState.getCode());
+        }
         int rowCount = sourceMapper.updateByPrimaryKeySelective(curEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
@@ -233,8 +245,14 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     existEntity.getStatus(), existEntity.getId()));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        curEntity.setPreviousStatus(curState.getCode());
-        curEntity.setStatus(nextState.getCode());
+        // When the source is in a heartbeat timeout state, set nextStatus to preStatus
+        if (Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT, curState)){
+            curEntity.setStatus(curState.getCode());
+            curEntity.setPreviousStatus(nextState.getCode());
+        }else {
+            curEntity.setPreviousStatus(curState.getCode());
+            curEntity.setStatus(nextState.getCode());
+        }
         int rowCount = sourceMapper.updateByPrimaryKeySelective(curEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
