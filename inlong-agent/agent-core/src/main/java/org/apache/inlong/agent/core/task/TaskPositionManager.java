@@ -22,13 +22,12 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.db.JobProfileDb;
-import org.apache.inlong.agent.message.BatchProxyMessage;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HEARTBEAT_INTERVAL;
@@ -99,12 +98,13 @@ public class TaskPositionManager extends AbstractDaemon {
                         }
                         flushJobProfile(jobId, jobProfile);
                     }
-                    int flushTime = conf.getInt(AGENT_HEARTBEAT_INTERVAL,
-                            DEFAULT_AGENT_FETCHER_INTERVAL);
-                    TimeUnit.SECONDS.sleep(flushTime);
                 } catch (Throwable ex) {
                     LOGGER.error("error caught", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
+                } finally {
+                    int flushTime = conf.getInt(AGENT_HEARTBEAT_INTERVAL,
+                            DEFAULT_AGENT_FETCHER_INTERVAL);
+                    AgentUtils.silenceSleepInSeconds(flushTime);
                 }
             }
         };
@@ -135,16 +135,21 @@ public class TaskPositionManager extends AbstractDaemon {
      *
      * @param size add this size to beforePosition
      */
-    public void updateSinkPosition(BatchProxyMessage batchMsg, String sourcePath, long size) {
+    public void updateSinkPosition(String jobInstanceId, String sourcePath, long size, boolean reset) {
         ConcurrentHashMap<String, Long> positionTemp = new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, Long> position = jobTaskPositionMap.putIfAbsent(batchMsg.getJobId(), positionTemp);
+        ConcurrentHashMap<String, Long> position = jobTaskPositionMap.putIfAbsent(jobInstanceId, positionTemp);
         if (position == null) {
-            JobProfile jobProfile = jobConfDb.getJobById(batchMsg.getJobId());
+            JobProfile jobProfile = jobConfDb.getJobById(jobInstanceId);
             positionTemp.put(sourcePath, jobProfile.getLong(sourcePath + POSITION_SUFFIX, 0));
             position = positionTemp;
         }
-        Long beforePosition = position.getOrDefault(sourcePath, 0L);
-        position.put(sourcePath, beforePosition + size);
+
+        if (!reset) {
+            Long beforePosition = position.getOrDefault(sourcePath, 0L);
+            position.put(sourcePath, beforePosition + size);
+        } else {
+            position.put(sourcePath, size);
+        }
     }
 
     public ConcurrentHashMap<String, Long> getTaskPositionMap(String jobId) {

@@ -17,27 +17,31 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
-import com.google.gson.Gson;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.except.FileException;
-import org.apache.inlong.agent.message.DefaultMessage;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
-import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.Validator;
-import org.apache.inlong.agent.plugin.sources.reader.AbstractReader;
-import org.apache.inlong.agent.plugin.utils.FileDataUtils;
-import org.apache.inlong.agent.plugin.validator.PatternValidator;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_DEFAULT_STATUS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_STATUS;
+import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
+import static org.apache.inlong.agent.constant.MetadataConstants.DATA_CONTENT;
+import static org.apache.inlong.agent.constant.MetadataConstants.DATA_CONTENT_TIME;
+import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_FILE_NAME;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_HOST_NAME;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_SOURCE_IP;
 
+import com.google.gson.Gson;
 import java.io.BufferedReader;
-import java.io.DataInput;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -55,23 +59,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_DEFAULT_STATUS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_STATUS;
-import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
-import static org.apache.inlong.agent.constant.MetadataConstants.DATA_CONTENT;
-import static org.apache.inlong.agent.constant.MetadataConstants.DATA_CONTENT_TIME;
-import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
-import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_FILE_NAME;
-import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_HOST_NAME;
-import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_SOURCE_IP;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.DataCollectType;
+import org.apache.inlong.agent.constant.JobConstants;
+import org.apache.inlong.agent.core.task.TaskPositionManager;
+import org.apache.inlong.agent.except.FileException;
+import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
+import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.Validator;
+import org.apache.inlong.agent.plugin.sources.reader.AbstractReader;
+import org.apache.inlong.agent.plugin.utils.FileDataUtils;
+import org.apache.inlong.agent.plugin.validator.PatternValidator;
+import org.apache.inlong.agent.utils.AgentUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * File reader entrance
@@ -101,17 +107,18 @@ public class FileReaderOperator extends AbstractReader {
     private long timeout;
     private long waitTimeout;
     private long lastTime = 0;
-    private final List<Validator> validators = new ArrayList<>();
+    private List<Validator> validators = new ArrayList<>();
+    public boolean firstStored = false;
 
     private final BlockingQueue<String> queue = new LinkedBlockingQueue<>(CACHE_QUEUE_SIZE);
     private final StringBuffer sb = new StringBuffer();
-    private boolean needMetadata = false;
 
     public FileReaderOperator(File file, int position) {
         this(file, position, "");
     }
 
     public FileReaderOperator(File file, int position, String md5) {
+        LOGGER.info("FileReaderOperator fileName {}, init line is {}, md5 is {}", file.getName(), position, md5);
         this.file = file;
         this.position = position;
         this.md5 = md5;
@@ -170,6 +177,13 @@ public class FileReaderOperator extends AbstractReader {
         return file.getAbsolutePath();
     }
 
+    public String getJobInstanceId() {
+        if (jobConf.hasKey(JobConstants.JOB_INSTANCE_ID)) {
+            return jobConf.get(JobConstants.JOB_INSTANCE_ID);
+        }
+        return null;
+    }
+
     @Override
     public void setReadTimeout(long millis) {
         timeout = millis;
@@ -205,6 +219,7 @@ public class FileReaderOperator extends AbstractReader {
     @Override
     public void init(JobProfile jobConf) {
         try {
+            LOGGER.info("FileReaderOperator init: {}", jobConf.toJsonStr());
             this.jobConf = jobConf;
             super.init(jobConf);
             this.instanceId = jobConf.getInstanceId();
@@ -221,12 +236,25 @@ public class FileReaderOperator extends AbstractReader {
                 readEndpoint = Files.lines(file.toPath()).count();
             }
 
+            this.bytePosition = getStartBytePosition(this.position);
+
+            isFirstStore();
+
+            if (jobConf.hasKey(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE) && DataCollectType.INCREMENT
+                    .equalsIgnoreCase(jobConf.get(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE))
+                    && this.firstStored) {
+                LOGGER.info("FileReaderOperator DataCollectType INCREMENT: start bytePosition {},{}",
+                        file.length(), file.getAbsolutePath());
+                this.bytePosition = (int) file.length();
+
+                storeRocksDB();
+            }
+
             try {
                 resiterMeta(jobConf);
             } catch (Exception ex) {
                 LOGGER.error("init metadata error", ex);
             }
-
             inited = true;
         } catch (Exception ex) {
             throw new FileException("error init stream for " + file.getPath(), ex);
@@ -263,9 +291,6 @@ public class FileReaderOperator extends AbstractReader {
     }
 
     public String metadataMessage(String message) {
-        if (!needMetadata) {
-            return message;
-        }
         long timestamp = System.currentTimeMillis();
         boolean isJson = FileDataUtils.isJSON(message);
         Map<String, String> mergeData = new HashMap<>(metadata);
@@ -285,10 +310,8 @@ public class FileReaderOperator extends AbstractReader {
         String[] env = jobConf.get(JOB_FILE_META_ENV_LIST).split(COMMA);
         Arrays.stream(env).forEach(data -> {
             if (data.equalsIgnoreCase(KUBERNETES)) {
-                needMetadata = true;
                 new KubernetesMetadataProvider(this).getData();
             } else if (data.equalsIgnoreCase(ENV_CVM)) {
-                needMetadata = true;
                 metadata.put(METADATA_HOST_NAME, AgentUtils.getLocalHost());
                 metadata.put(METADATA_SOURCE_IP, AgentUtils.fetchLocalIp());
                 metadata.put(METADATA_FILE_NAME, file.getName());
@@ -303,7 +326,7 @@ public class FileReaderOperator extends AbstractReader {
         // recovering is based on line position.
         List<String> lines = bytePosition == 0 ? readFromLine(position) : readFromPos(bytePosition);
         if (!lines.isEmpty()) {
-            LOGGER.info("path is {}, line is {}, position is {}, data reads size {}",
+            LOGGER.info("path is {}, line is {}, byte position is {}, reads data lines {}",
                     file.getName(), position, bytePosition, lines.size());
         }
         List<String> resultLines = lines;
@@ -329,7 +352,16 @@ public class FileReaderOperator extends AbstractReader {
             }).collect(Collectors.toList());
         }
 
-        resultLines.forEach(line -> queue.offer(line));
+        resultLines.forEach(line -> {
+            try {
+                boolean offerSuc = queue.offer(line, 1, TimeUnit.SECONDS);
+                while (offerSuc != true) {
+                    offerSuc = queue.offer(line, 1, TimeUnit.SECONDS);
+                }
+            } catch (InterruptedException e) {
+                LOGGER.error("fetchData offer failed {}", e.getMessage());
+            }
+        });
         bytePosition += lines.stream()
                 .mapToInt(line -> line.getBytes(StandardCharsets.UTF_8).length + LINE_SEPARATOR_SIZE)
                 .sum();
@@ -342,14 +374,25 @@ public class FileReaderOperator extends AbstractReader {
     private List<String> readFromLine(int lineNum) throws IOException {
         String line = null;
         List<String> lines = new ArrayList<>();
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        int count = 0;
-        while ((line = reader.readLine()) != null) {
-            if (++count > lineNum) {
-                lines.add(line);
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file),
+                    StandardCharsets.UTF_8));
+            int count = 0;
+            while ((line = reader.readLine()) != null) {
+                if (++count > lineNum) {
+                    LOGGER.debug("read from line line-num {},  data {}", lineNum, line);
+                    lines.add(line);
+                }
+                if (lines.size() >= FileReaderOperator.BATCH_READ_SIZE) {
+                    break;
+                }
             }
-            if (lines.size() >= FileReaderOperator.BATCH_READ_SIZE) {
-                break;
+        } catch (Exception e) {
+            LOGGER.error("readFromLine error  {}", e.getMessage());
+        } finally {
+            if (reader != null) {
+                reader.close();
             }
         }
         return lines;
@@ -358,14 +401,89 @@ public class FileReaderOperator extends AbstractReader {
     private List<String> readFromPos(int pos) throws IOException {
         String line = null;
         List<String> lines = new ArrayList<>();
-        DataInput input = new RandomAccessFile(file, "r");
-        input.skipBytes(pos);
-        while ((line = input.readLine()) != null) {
-            lines.add(line);
-            if (lines.size() >= FileReaderOperator.BATCH_READ_SIZE) {
-                break;
+        RandomAccessFile input = null;
+        try {
+            input = new RandomAccessFile(file, "r");
+            input.skipBytes(pos);
+            while ((line = input.readLine()) != null) {
+                String lineChart = new String(line.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+                LOGGER.debug("read from pos pos-num {}, data {}", pos, lineChart);
+                lines.add(lineChart);
+                if (lines.size() >= FileReaderOperator.BATCH_READ_SIZE) {
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("readFromPos error  {}", e.getMessage());
+        } finally {
+            if (input != null) {
+                input.close();
             }
         }
         return lines;
+    }
+
+    private int getStartBytePosition(int lineNum) throws IOException {
+        int startBytePosition = 0;
+        BufferedReader reader = null;
+        try {
+            LOGGER.info("get start line {}", lineNum);
+            String line = null;
+            List<String> lines = new ArrayList<>();
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file),
+                    StandardCharsets.UTF_8));
+            int count = 0;
+            while ((line = reader.readLine()) != null) {
+                if (++count > lineNum) {
+                    LOGGER.info("get startBytePosition end at line {}", count);
+                    break;
+                }
+                startBytePosition = startBytePosition
+                        + line.getBytes(StandardCharsets.UTF_8).length + LINE_SEPARATOR_SIZE;
+            }
+        } catch (Exception e) {
+            LOGGER.error("getStartPositon err {}", e);
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
+        LOGGER.info("getStartPositon bytePosition {}", startBytePosition);
+        return startBytePosition;
+    }
+
+    private void isFirstStore() {
+        if (!jobConf.hasKey(JobConstants.JOB_STORE_TIME)) {
+            LOGGER.info("isFirstStore {},{}", file.getAbsolutePath(), this.firstStored);
+            this.firstStored = true;
+            return;
+        }
+        long jobStoreTime = Long.parseLong(jobConf.get(JobConstants.JOB_STORE_TIME));
+        LOGGER.info("jobStoreTime {},{}", file.getAbsolutePath(), jobStoreTime);
+        long storeTime = AgentConfiguration.getAgentConf().getLong(
+                AgentConstants.AGENT_JOB_STORE_TIME, AgentConstants.DEFAULT_JOB_STORE_TIME);
+
+        if (System.currentTimeMillis() - jobStoreTime > storeTime) {
+            this.firstStored = false;
+        } else {
+            this.firstStored = true;
+        }
+        LOGGER.info("isFirstStore {},{}", file.getAbsolutePath(), this.firstStored);
+    }
+
+    private void storeRocksDB() {
+        try (LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file.getPath()))) {
+            lineNumberReader.skip(Long.MAX_VALUE);
+            int seekPosition = lineNumberReader.getLineNumber();
+
+            String jobInstanceId = getJobInstanceId();
+            if (jobInstanceId != null) {
+                TaskPositionManager.getInstance().updateSinkPosition(
+                        jobInstanceId, getReadSource(), seekPosition, true);
+                LOGGER.info("storeRocksDB {},{}", file.getAbsolutePath(), seekPosition);
+            }
+        } catch (IOException ex) {
+            LOGGER.error("get position error, file absolute path: {}", file.getAbsolutePath());
+        }
     }
 }
