@@ -17,15 +17,16 @@
 
 package org.apache.inlong.sort.kafka.partitioner;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
+import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.RowData.FieldGetter;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -38,37 +39,85 @@ public class PrimaryKeyPartitioner<T> extends FlinkKafkaPartitioner<T> {
     private static final Logger LOG = LoggerFactory.getLogger(PrimaryKeyPartitioner.class);
     private static final long serialVersionUID = 1L;
 
+    /**
+     * schema entry names which will be used to extract fields from schema for hashing.
+     */
+    private String partitionKey;
+
+    /**
+     * the fieldnames of the schema
+     */
+    private String[] fieldNames;
+
+    /**
+     * the value field getters used to extract rowdata
+     */
+    private FieldGetter[] valueFieldGetters;
+
     @Override
     public void open(int parallelInstanceId, int parallelInstances) {
         super.open(parallelInstanceId, parallelInstances);
     }
 
+    /**
+     * precondition: record is of rowData Type, schema and partitionKey are not null
+     */
     @Override
     @SuppressWarnings({"unchecked"})
     public int partition(T record, byte[] key, byte[] value, String targetTopic, int[] partitions) {
         Preconditions.checkArgument(
                 partitions != null && partitions.length > 0,
                 "Partitions of the target topic is empty.");
-        // single table currently support: avro/csv/json/canal
-        try {
-            // used for avro/csv/json formats
-            if (key != null) {
-                return partitions[(Arrays.hashCode(key) & Integer.MAX_VALUE) % partitions.length];
-            } else {
-                // used for canal-json formats, since single table does not support debezium-json for now.
-                AbstractDynamicSchemaFormat dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat("canal-json");
-                List<String> values = dynamicSchemaFormat.extractPrimaryKeyValues(value);
-                if (values == null || values.isEmpty()) {
-                    return 0;
-                }
-                return partitions[(StringUtils.join(values, "").hashCode()
-                        & Integer.MAX_VALUE) % partitions.length];
+        // parse the partition key fields
+        int partition = getPartition((RowData) record, partitions);
+        return partition;
+    }
+
+    public void setPartitionKey(String partitionKey) {
+        this.partitionKey = partitionKey;
+    }
+
+    // input: rowdata, a list of integer of corresponding position within schema, partitions
+    // output: partition number
+    private int getPartition(RowData data, int[] partitions) {
+        List<Integer> pos = getFieldPos();
+        // parse out the List<String> from partitionkey and then get list of positions in schema.
+        long hashCode = 0;
+        for (int i : pos) {
+            Object fieldValue = valueFieldGetters[i].getFieldOrNull(data);
+            if (fieldValue != null) {
+                hashCode += fieldValue.hashCode();
             }
-        } catch (Exception e) {
-            LOG.warn("Extract partition failed", e);
         }
-        // If kafka can't parse, then at least write everything to the first partition.
-        return 0;
+        return partitions[((int) ((hashCode & Integer.MAX_VALUE) % partitions.length))];
+    }
+
+    // output: a list of integer of corresponding position within schema
+    private List<Integer> getFieldPos() {
+        // the positions of the partition keys.
+        List<Integer> positions = new ArrayList<>();
+        if (partitionKey == null) {
+            LOG.error("primaryKeyPartioner:failed to fetch partitionKey");
+            return positions;
+        }
+        // a map storing field names and their position in the schema
+        HashMap<String, Integer> map = new HashMap<>();
+        String[] keys = partitionKey.split(",");
+        for (int i = 0; i < fieldNames.length; i++) {
+            map.put(fieldNames[i], i);
+        }
+        for (String key : keys) {
+            positions.add(map.get(key));
+        }
+        return positions;
+    }
+
+    public void setSchema(TableSchema schema) {
+        this.fieldNames = schema.getFieldNames();
+    }
+
+    public void setValueFieldGetters(FieldGetter[] fieldGetters) {
+        this.valueFieldGetters = fieldGetters;
     }
 
     @Override

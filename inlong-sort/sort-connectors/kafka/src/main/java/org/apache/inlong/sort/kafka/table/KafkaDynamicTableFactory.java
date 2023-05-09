@@ -32,6 +32,7 @@ import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartiti
 import org.apache.flink.streaming.connectors.kafka.table.KafkaOptions;
 import org.apache.flink.streaming.connectors.kafka.table.KafkaSinkSemantic;
 import org.apache.flink.streaming.connectors.kafka.table.SinkBufferFlushMode;
+import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.catalog.CatalogTable;
 import org.apache.flink.table.catalog.ObjectIdentifier;
@@ -123,8 +124,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
     public static final ConfigOption<String> SINK_MULTIPLE_PARTITION_PATTERN =
             ConfigOptions.key("sink.multiple.partition-pattern")
                     .stringType()
-                    .noDefaultValue()
-                    .withDescription("option 'sink.multiple.partition-pattern' used when the partitioner is raw-hash.");
+                    .noDefaultValue();
 
     private static final Set<String> SINK_SEMANTIC_ENUMS =
             new HashSet<>(
@@ -242,7 +242,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
     }
 
     private Optional<FlinkKafkaPartitioner<RowData>> getFlinkKafkaPartitioner(
-            ReadableConfig tableOptions, ClassLoader classLoader) {
+            ReadableConfig tableOptions, ClassLoader classLoader, TableSchema schema) {
         if (tableOptions.getOptional(SINK_PARTITIONER).isPresent()
                 && SINK_PARTITIONER_VALUE_RAW_HASH.equals(tableOptions.getOptional(SINK_PARTITIONER).get())) {
             RawDataHashPartitioner<RowData> rawHashPartitioner = new RawDataHashPartitioner<>();
@@ -253,6 +253,10 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         } else if (tableOptions.getOptional(SINK_PARTITIONER).isPresent()
                 && SINK_PARTITIONER_VALUE_PRIMARY_KEY.equals(tableOptions.getOptional(SINK_PARTITIONER).get())) {
             PrimaryKeyPartitioner<RowData> primaryKeyPartitioner = new PrimaryKeyPartitioner<>();
+            // the pattern is different from the ${} pattern, it is a truncated string of schema fields.
+            primaryKeyPartitioner.setPartitionKey(tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN)
+                    .orElse(null));
+            primaryKeyPartitioner.setSchema(schema);
             return Optional.of(primaryKeyPartitioner);
         }
         Optional<FlinkKafkaPartitioner<RowData>> partitioner = KafkaOptions
@@ -448,7 +452,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 tableOptions.get(TOPIC).get(0),
                 getKafkaProperties(context.getCatalogTable().getOptions()),
                 context.getCatalogTable(),
-                getFlinkKafkaPartitioner(tableOptions, context.getClassLoader()).orElse(null),
+                getFlinkKafkaPartitioner(tableOptions, context.getClassLoader(),
+                        context.getCatalogTable().getSchema()).orElse(null),
                 getSinkSemantic(tableOptions),
                 parallelism,
                 inlongMetric,

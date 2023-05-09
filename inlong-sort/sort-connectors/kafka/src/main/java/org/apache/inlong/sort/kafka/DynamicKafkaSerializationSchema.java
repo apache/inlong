@@ -37,6 +37,7 @@ import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.sub.SinkTopicMetricData;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
+import org.apache.inlong.sort.kafka.partitioner.PrimaryKeyPartitioner;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,6 +162,10 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             multipleSink = true;
             jsonDynamicSchemaFormat =
                     (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
+        }
+
+        if (partitioner instanceof PrimaryKeyPartitioner) {
+            ((PrimaryKeyPartitioner<?>) partitioner).setValueFieldGetters(valueFieldGetters);
         }
     }
 
