@@ -42,8 +42,11 @@ WORKDIR /opt/inlong-manager
 # add manager tarball
 ARG VERSION
 ADD target/manager-web-${VERSION}-bin.tar.gz /opt/inlong-manager
+# add mysql connector
+RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar
 # add sort resource
 ADD target/sort-dist-${VERSION}.jar /opt/inlong-sort/
+RUN cp lib/mysql-connector-java-8.0.27.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-pulsar-${VERSION}.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-kafka-${VERSION}.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-jdbc-${VERSION}.jar /opt/inlong-sort/connectors/
@@ -53,8 +56,6 @@ ENV AUDIT_CK_URL=127.0.0.1:8123
 ENV AUDIT_CK_USERNAME=default
 ENV AUDIT_CK_PASSWD=default
 ENV AUDIT_CK_DBNAME="apache_inlong_audit"
-# add mysql connector
-RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar
 ADD manager-docker.sh bin/
 RUN chmod +x bin/manager-docker.sh
 CMD ["bin/manager-docker.sh"]
