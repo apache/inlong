@@ -30,11 +30,11 @@ keywords:
 # The chart version number should be incremented each time you make changes
 # to the chart and its templates.
 # x.y.z format, x.y keep same with the InLong version
-version: 1.7.0
+version: 1.8.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 1.7.0-SNAPSHOT
+appVersion: 1.8.0-SNAPSHOT
 
 maintainers:
   - name: dockerzhang

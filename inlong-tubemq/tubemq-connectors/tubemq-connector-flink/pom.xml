@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>tubemq-connectors</artifactId>
-        <version>1.7.0-SNAPSHOT</version>
+        <version>1.8.0-SNAPSHOT</version>
     </parent>
     <artifactId>tubemq-connector-flink</artifactId>
     <name>Apache InLong - TubeMQ Connectors-flink</name>
