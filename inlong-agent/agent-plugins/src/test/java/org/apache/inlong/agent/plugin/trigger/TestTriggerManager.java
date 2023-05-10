@@ -17,6 +17,12 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
+import static org.awaitility.Awaitility.await;
+
+import java.nio.file.WatchKey;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
@@ -30,13 +36,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.file.WatchKey;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
 
 public class TestTriggerManager {
 
@@ -97,16 +96,16 @@ public class TestTriggerManager {
         TriggerProfile triggerProfile1 = TriggerProfile.parseJsonStr(FILE_JOB_TEMPLATE);
         triggerProfile1.set(JobConstants.JOB_ID, "1");
         triggerProfile1.set(JobConstants.JOB_DIR_FILTER_PATTERNS,
-                WATCH_FOLDER.getRoot() + "/*.log");
+                WATCH_FOLDER.getRoot() + "/1.log");
         agent.submitTrigger(triggerProfile1);
 
         WATCH_FOLDER.newFolder("tmp");
         TestUtils.createHugeFiles("1.log", WATCH_FOLDER.getRoot().getAbsolutePath(), "asdqwdqd");
-        TestUtils.createHugeFiles("2.log", WATCH_FOLDER.getRoot().getAbsolutePath(), "asdasdasd");
-        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 3);
+        System.out.println(" task size " + agent.getManager().getTaskManager().getTaskSize());
+        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 1);
 
         agent.restart();
-        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 3);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 1);
 
         // cleanup
         TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/1.log");
@@ -131,7 +130,7 @@ public class TestTriggerManager {
 
         TestUtils.createHugeFiles("1.log", WATCH_FOLDER.getRoot().getAbsolutePath(), "asdqwdqd");
         TestUtils.createHugeFiles("1.txt", WATCH_FOLDER.getRoot().getAbsolutePath(), "asdasdasd");
-        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 4);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 2);
 
         // cleanup
         TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/1.log");

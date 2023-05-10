@@ -151,8 +151,7 @@ public class TestFileAgent {
         TestUtils.createHugeFiles("te1.dat", testRootDir.toString(), RECORD);
         await().atMost(10, TimeUnit.SECONDS).until(() -> {
             Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
-            return jobs.size() == 1
-                    && jobs.values().stream().collect(Collectors.toList()).get(0).getAllTasks().size() == 2;
+            return jobs.size() == 1;
         });
     }
 

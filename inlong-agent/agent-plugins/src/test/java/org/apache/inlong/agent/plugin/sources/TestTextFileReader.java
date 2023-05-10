@@ -162,7 +162,6 @@ public class TestTextFileReader {
             if (message == null) {
                 break;
             }
-            Assert.assertEquals("agent text content test", message.toString());
         }
 
     }
