@@ -195,6 +195,9 @@ public class ExtractNodeUtils {
             default:
                 startupMode = KafkaScanStartupMode.LATEST_OFFSET;
         }
+        if (StringUtils.isNotBlank(kafkaSource.getGroupId())) {
+            startupMode = KafkaScanStartupMode.GROUP_OFFSETS;
+        }
         final String primaryKey = kafkaSource.getPrimaryKey();
         String groupId = kafkaSource.getGroupId();
         Map<String, String> properties = parseProperties(kafkaSource.getProperties());
