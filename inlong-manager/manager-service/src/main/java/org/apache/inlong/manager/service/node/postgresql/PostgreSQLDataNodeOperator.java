@@ -99,7 +99,8 @@ public class PostgreSQLDataNodeOperator extends AbstractDataNodeOperator {
                     jdbcUrl, username, password);
             return true;
         } catch (Exception e) {
-            String errMsg = String.format("postgresql connection failed for jdbcUrl=%s, username=%s, password=%s", jdbcUrl,
+            String errMsg = String.format("postgresql connection failed for jdbcUrl=%s, username=%s, password=%s",
+                    jdbcUrl,
                     username, password);
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
