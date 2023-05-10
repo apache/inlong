@@ -38,8 +38,8 @@ import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -336,7 +336,12 @@ public class AgentServiceImpl implements AgentService {
         // find those node whose tag match stream_source tag and agent ip match stream_source agent ip
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectTemplateSourceByCluster(needCopiedStatusList,
                 Lists.newArrayList(SourceType.FILE), agentClusterName);
+        Set<GroupStatus> noNeedAddTask = Sets.newHashSet(GroupStatus.SUSPENDED, GroupStatus.SUSPENDING);
         sourceEntities.forEach(sourceEntity -> {
+            InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sourceEntity.getInlongGroupId());
+            if (groupEntity != null && noNeedAddTask.contains(GroupStatus.forCode(groupEntity.getStatus()))) {
+                return;
+            }
             StreamSourceEntity subSource = sourceMapper.selectOneByTemplatedIdAndAgentIp(sourceEntity.getId(),
                     agentIp);
             if (subSource == null) {
@@ -396,16 +401,17 @@ public class AgentServiceImpl implements AgentService {
             }
 
             // case: agent tag rebind and match source task again and stream is not in 'SUSPENDED' status
-            InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(
-                    sourceEntity.getInlongGroupId(), sourceEntity.getInlongStreamId());
+            InlongGroupEntity groupEntity = groupMapper.selectByGroupId(sourceEntity.getInlongGroupId());
             Set<SourceStatus> exceptedMatchedSourceStatus = Sets.newHashSet(
                     SourceStatus.SOURCE_NORMAL,
                     SourceStatus.TO_BE_ISSUED_ADD,
                     SourceStatus.TO_BE_ISSUED_ACTIVE);
-            Set<StreamStatus> exceptedMatchedStreamStatus = Sets.newHashSet(StreamStatus.SUSPENDED);
+            Set<GroupStatus> exceptedMatchedGroupStatus = Sets.newHashSet(GroupStatus.SUSPENDED,
+                    GroupStatus.SUSPENDING);
             if (matchGroup(sourceEntity, clusterNodeEntity)
+                    && groupEntity != null
                     && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
-                    && !exceptedMatchedStreamStatus.contains(StreamStatus.forCode(streamEntity.getStatus()))) {
+                    && !exceptedMatchedGroupStatus.contains(GroupStatus.forCode(groupEntity.getStatus()))) {
                 LOGGER.info("Transform task({}) from {} to {} because tag rematch "
                         + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                         sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(),
@@ -463,14 +469,13 @@ public class AgentServiceImpl implements AgentService {
 
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        String extParams = entity.getExtParams();
         if (groupEntity != null && streamEntity != null) {
-            String extParams = entity.getExtParams();
             dataConfig.setSyncSend(streamEntity.getSyncSend());
             if (SourceType.FILE.equalsIgnoreCase(streamEntity.getDataType())) {
                 String dataSeparator = streamEntity.getDataSeparator();
                 extParams = (null != dataSeparator ? getExtParams(extParams, dataSeparator) : extParams);
             }
-            dataConfig.setExtParams(extParams);
 
             int dataReportType = groupEntity.getDataReportType();
             dataConfig.setDataReportType(dataReportType);
@@ -529,6 +534,7 @@ public class AgentServiceImpl implements AgentService {
                 LOGGER.warn("set syncSend=[0] as the stream not exists for groupId={}, streamId={}", groupId, streamId);
             }
         }
+        dataConfig.setExtParams(extParams);
         return dataConfig;
     }
 
