@@ -20,6 +20,9 @@ package org.apache.inlong.sort.base;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+
+import java.util.Map;
+
 import static org.apache.inlong.common.constant.Constants.METRICS_AUDIT_PROXY_HOSTS_KEY;
 
 /**
@@ -187,7 +190,21 @@ public final class Constants {
                     .noDefaultValue()
                     .withDescription(
                             "The format of multiple sink, it represents the real format of the raw binary data");
-
+    public static final ConfigOption<String> PATTERN_PARTITION_MAP =
+            ConfigOptions.key("pattern.partition.map")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "Pattern rules and partition map string, " +
+                                    "eg: databasePattern1&tablePattern1:partition1,"
+                                    + "databasePattern2&tablePattern2:partition2,"
+                                    + "DEFAULT_PARTITION:partition3");
+    public static final ConfigOption<Map<String, String>> DATASOURCE_PARTITION_MAP =
+            ConfigOptions.key("datasource.partition.map")
+                    .mapType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "Datasource and partition maps, eg: <datasource1,partition1>");
     public static final ConfigOption<String> SINK_MULTIPLE_DATABASE_PATTERN =
             ConfigOptions.key("sink.multiple.database-pattern")
                     .stringType()

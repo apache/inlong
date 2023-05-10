@@ -56,11 +56,13 @@ import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
+import org.apache.inlong.sort.kafka.partitioner.InLongFixedPartitionPartitioner;
 import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
 
 import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -98,11 +100,8 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.get
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.validateTableSourceOptions;
 import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
-import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
-import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.base.Constants.*;
+import static org.apache.inlong.sort.base.Constants.DATASOURCE_PARTITION_MAP;
 import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
@@ -117,6 +116,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
     public static final String IDENTIFIER = "kafka-inlong";
 
     public static final String SINK_PARTITIONER_VALUE_RAW_HASH = "raw-hash";
+
+    public static final String SINK_PARTITIONER_VALUE_INLONG_FIXED_PARTITION = "inlong-fixed-partition";
 
     public static final ConfigOption<String> SINK_MULTIPLE_PARTITION_PATTERN =
             ConfigOptions.key("sink.multiple.partition-pattern")
@@ -241,9 +242,21 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
 
     private Optional<FlinkKafkaPartitioner<RowData>> getFlinkKafkaPartitioner(
             ReadableConfig tableOptions, ClassLoader classLoader) {
+        if (tableOptions.getOptional(SINK_PARTITIONER).isPresent() && SINK_PARTITIONER_VALUE_INLONG_FIXED_PARTITION
+                .equals(tableOptions.getOptional(SINK_PARTITIONER).get())) {
+            InLongFixedPartitionPartitioner<RowData> inLongFixedPartitionPartitioner =
+                    new InLongFixedPartitionPartitioner<>(tableOptions.getOptional(PATTERN_PARTITION_MAP)
+                            .orElse(null),
+                            tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN)
+                                    .orElse(null));
+            inLongFixedPartitionPartitioner.setSinkMultipleFormat(tableOptions.getOptional(SINK_MULTIPLE_FORMAT)
+                    .orElse(null));
+            return Optional.of(inLongFixedPartitionPartitioner);
+        }
         if (tableOptions.getOptional(SINK_PARTITIONER).isPresent()
                 && SINK_PARTITIONER_VALUE_RAW_HASH.equals(tableOptions.getOptional(SINK_PARTITIONER).get())) {
-            RawDataHashPartitioner<RowData> rawHashPartitioner = new RawDataHashPartitioner<>();
+            RawDataHashPartitioner<RowData> rawHashPartitioner = new RawDataHashPartitioner<>(tableOptions
+                    .getOptional(DATASOURCE_PARTITION_MAP).orElse(Collections.emptyMap()));
             rawHashPartitioner.setSinkMultipleFormat(tableOptions.getOptional(SINK_MULTIPLE_FORMAT).orElse(null));
             rawHashPartitioner.setPartitionPattern(tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN)
                     .orElse(null));
