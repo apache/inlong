@@ -127,6 +127,9 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
             Preconditions.checkArgument(StringUtils.isNotBlank(scanTimestampMillis), "scanTimestampMillis is empty");
             this.scanTimestampMillis = scanTimestampMillis;
         }
+        if (KafkaScanStartupMode.GROUP_OFFSETS == kafkaScanStartupMode) {
+            Preconditions.checkArgument(StringUtils.isNotBlank(groupId), "group is empty when enable group offsets");
+        }
     }
 
     /**
