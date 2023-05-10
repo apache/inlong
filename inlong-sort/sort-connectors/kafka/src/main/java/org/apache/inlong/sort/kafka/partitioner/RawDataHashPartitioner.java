@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * The Raw Data Hash Partitioner is used to extract partition from raw data(bytes array):
@@ -58,6 +59,12 @@ public class RawDataHashPartitioner<T> extends FlinkKafkaPartitioner<T> {
     @SuppressWarnings({"rawtypes"})
     private AbstractDynamicSchemaFormat dynamicSchemaFormat;
 
+    private final Map<String, String> datasourceAndPartitionMap;
+
+    public RawDataHashPartitioner(Map<String, String> datasourceAndPartitionMap) {
+        this.datasourceAndPartitionMap = datasourceAndPartitionMap;
+    }
+
     @Override
     public void open(int parallelInstanceId, int parallelInstances) {
         super.open(parallelInstanceId, parallelInstances);
@@ -82,7 +89,11 @@ public class RawDataHashPartitioner<T> extends FlinkKafkaPartitioner<T> {
             } else {
                 partitionKey = dynamicSchemaFormat.parse(value, partitionPattern);
             }
-            partition = partitions[(partitionKey.hashCode() & Integer.MAX_VALUE) % partitions.length];
+            if (datasourceAndPartitionMap != null && datasourceAndPartitionMap.containsKey(partitionKey)) {
+                partition = Integer.parseInt(datasourceAndPartitionMap.getOrDefault(partitionKey, "0"));
+            } else {
+                partition = partitions[(partitionKey.hashCode() & Integer.MAX_VALUE) % partitions.length];
+            }
         } catch (Exception e) {
             LOG.warn("Extract partition failed", e);
         }
