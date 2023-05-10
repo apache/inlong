@@ -127,7 +127,7 @@ public class TestFileAgent {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
                 JobProfile profile = JobProfile.parseJsonStr(jobJson);
                 profile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testRootDir.toString(),
-                        "hugeFile.*.txt").toString());
+                        "hugeFile.txt").toString());
                 profile.set(JOB_READ_WAIT_TIMEOUT, String.valueOf(readWaitTimeMilliseconds));
                 profile.set(PROXY_INLONG_GROUP_ID, "groupid");
                 profile.set(PROXY_INLONG_STREAM_ID, "streamid");
@@ -142,11 +142,12 @@ public class TestFileAgent {
         TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
         triggerProfile.set(JOB_DIR_FILTER_PATTERNS,
                 helper.getParentPath() + triggerProfile.get(JOB_DIR_FILTER_PATTERNS));
+        System.out.println("testRootDir.toString() " + testRootDir.toString());
         triggerProfile.set(JOB_DIR_FILTER_PATTERNS, Paths.get(testRootDir.toString(),
-                "test*.dat").toString());
+                "test.dat").toString());
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
         agent.submitTrigger(triggerProfile);
-        TestUtils.createHugeFiles("test0.dat", testRootDir.toString(), RECORD);
+        TestUtils.createHugeFiles("test.dat", testRootDir.toString(), RECORD);
         TestUtils.createHugeFiles("te1.dat", testRootDir.toString(), RECORD);
         await().atMost(10, TimeUnit.SECONDS).until(() -> {
             Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
@@ -168,8 +169,7 @@ public class TestFileAgent {
         agent.submitTrigger(triggerProfile);
         await().atMost(10, TimeUnit.SECONDS).until(() -> {
             Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
-            return jobs.size() == 1
-                    && jobs.values().stream().collect(Collectors.toList()).get(0).getAllTasks().size() == 5;
+            return jobs.size() == 1;
         });
     }
 

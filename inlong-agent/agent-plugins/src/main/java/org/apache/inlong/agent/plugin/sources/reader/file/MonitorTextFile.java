@@ -133,6 +133,10 @@ public final class MonitorTextFile {
                 attributesAfter = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
                 currentPath = file.getCanonicalPath();
 
+                if (attributesAfter.fileKey() == null) {
+                    return;
+                }
+
                 // Determine whether the inode has changed
                 if (isInodeChanged(attributesAfter.fileKey().toString())) {
                     resetPosition();

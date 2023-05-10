@@ -140,6 +140,9 @@ public class TaskPositionManager extends AbstractDaemon {
         ConcurrentHashMap<String, Long> position = jobTaskPositionMap.putIfAbsent(jobInstanceId, positionTemp);
         if (position == null) {
             JobProfile jobProfile = jobConfDb.getJobById(jobInstanceId);
+            if (jobProfile == null) {
+                return;
+            }
             positionTemp.put(sourcePath, jobProfile.getLong(sourcePath + POSITION_SUFFIX, 0));
             position = positionTemp;
         }

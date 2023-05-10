@@ -28,6 +28,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +47,8 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
 
 public class TestDateFormatRegex {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestDateFormatRegex.class);
 
     private static AgentBaseTestsHelper helper;
     private static Path testPath;
@@ -81,6 +85,7 @@ public class TestDateFormatRegex {
         PathPattern entity = new PathPattern(helper.getTestRootDir().toString(),
                 Collections.singleton(helper.getTestRootDir().toString() + "/yyyyMMdd.log"), Sets.newHashSet(), "-1d");
         boolean flag = entity.suitable(file.getPath());
+        LOGGER.info("entity {},file {},flag {}", entity, file.getPath(), flag);
         Assert.assertTrue(flag);
     }
 

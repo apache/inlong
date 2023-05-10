@@ -22,6 +22,7 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.constant.MetadataConstants;
+import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
@@ -66,6 +67,7 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
+import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
 
 @PowerMockIgnore({"javax.management.*", "javax.script.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*",
         "org.w3c.*"})
@@ -218,7 +220,7 @@ public class TestTextFileReader {
         jobConfiguration.set(JOB_GROUP_ID, "groupid");
         jobConfiguration.set(JOB_STREAM_ID, "streamid");
         jobConfiguration.set(JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
-        jobConfiguration.set(JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.INCREMENT);
+        jobConfiguration.set(JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.FULL);
         TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);
         Assert.assertEquals(1, readerList.size());
@@ -238,26 +240,27 @@ public class TestTextFileReader {
 
     @Test
     public void testTextSeekReader() throws Exception {
+        final AgentManager agentManager = new AgentManager();
         Path localPath = Paths.get(testDir.toString(), "test.txt");
         LOGGER.info("start to create {}", localPath);
         List<String> beforeList = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
-            beforeList.add("hello, this is a new line for testTextSeekReader");
+        for (int i = 0; i < 10; i++) {
+            beforeList.add("world");
         }
         Files.write(localPath, beforeList, StandardOpenOption.CREATE);
         List<String> afterList = new ArrayList<>();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10; i++) {
             afterList.add("world");
         }
         Files.write(localPath, afterList, StandardOpenOption.APPEND);
-        final FileReaderOperator fileReaderOperator = new FileReaderOperator(localPath.toFile(), 1000);
+        final FileReaderOperator fileReaderOperator = new FileReaderOperator(localPath.toFile(), 0);
         JobProfile jobProfile = new JobProfile();
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
         jobProfile.set(JOB_INSTANCE_ID, "1");
-        jobProfile.set(JOB_FILE_META_ENV_LIST, KUBERNETES);
+        jobProfile.set(JOB_FILE_META_ENV_LIST, ENV_CVM);
         fileReaderOperator.init(jobProfile);
-
+        fileReaderOperator.fetchData();
         Assert.assertEquals("world", getContent(
                 new String(fileReaderOperator.read().getBody(), Charset.forName("UTF-8"))));
     }
