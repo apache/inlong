@@ -77,8 +77,10 @@ public class PrimaryKeyPartitioner<T> extends FlinkKafkaPartitioner<T> {
         this.partitionKey = partitionKey;
     }
 
-    // input: rowdata, a list of integer of corresponding position within schema, partitions
-    // output: partition number
+    /**
+     * input: rowdata,  partitions
+     * output: the hashed partition number
+     */
     private int getPartition(RowData data, int[] partitions) {
         List<Integer> pos = getFieldPos();
         // parse out the List<String> from partitionkey and then get list of positions in schema.
@@ -92,7 +94,9 @@ public class PrimaryKeyPartitioner<T> extends FlinkKafkaPartitioner<T> {
         return partitions[((int) ((hashCode & Integer.MAX_VALUE) % partitions.length))];
     }
 
-    // output: a list of integer of corresponding position within schema
+    /**
+     * output: integer list of partitionKeys' corresponding positions within schema
+     */
     private List<Integer> getFieldPos() {
         // the positions of the partition keys.
         List<Integer> positions = new ArrayList<>();
