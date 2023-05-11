@@ -84,7 +84,7 @@ public class PostgreSQLDataNodeOperator extends AbstractDataNodeOperator {
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT,
-                    String.format("Failed to build extParams for ClickHouse node: %s", e.getMessage()));
+                    String.format("Failed to build extParams for PostgreSQL node: %s", e.getMessage()));
         }
     }
 
