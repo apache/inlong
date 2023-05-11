@@ -57,6 +57,11 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     LoadEntity: () => import('./MySQL'),
   },
   {
+    label: 'PostgreSQL',
+    value: 'POSTGRESQL',
+    LoadEntity: () => import('./PostgreSQL'),
+  },
+  {
     label: 'Redis',
     value: 'REDIS',
     LoadEntity: () => import('./Redis'),
