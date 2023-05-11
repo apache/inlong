@@ -52,7 +52,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     /**
      * The name rule for Kafka consumer group: clusterTag_topicName_consumer_group
      */
-    private static final String KAFKA_CONSUMER_GROUP = "%s_%s_consumer_group";
+    public static final String KAFKA_CONSUMER_GROUP = "%s_%s_consumer_group";
 
     @Autowired
     private KafkaOperator kafkaOperator;

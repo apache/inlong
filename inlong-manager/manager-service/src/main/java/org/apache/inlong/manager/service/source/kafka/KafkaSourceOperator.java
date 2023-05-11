@@ -49,6 +49,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.apache.inlong.manager.service.resource.queue.kafka.KafkaResourceOperators.KAFKA_CONSUMER_GROUP;
+
 /**
  * kafka stream source operator
  */
@@ -120,6 +122,13 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
                         groupInfo.getMqResource(), streamInfo.getMqResource());
             }
             kafkaSource.setTopic(topicName);
+
+            // Issued kafka consumer group to sort
+            if (StringUtils.isBlank(kafkaSource.getGroupId())) {
+                String consumeGroup =
+                        String.format(KAFKA_CONSUMER_GROUP, groupInfo.getInlongClusterTag(), kafkaSource.getTopic());
+                kafkaSource.setGroupId(consumeGroup);
+            }
 
             kafkaSource.setIgnoreParseError(streamInfo.getIgnoreParseError());
 
