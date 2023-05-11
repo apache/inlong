@@ -282,6 +282,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
         InlongClusterEntity cluster = new InlongClusterEntity();
         cluster.setName(clusterName);
+        cluster.setDisplayName(clusterName);
         cluster.setType(type);
         cluster.setClusterTags(clusterTag);
         cluster.setExtTag(extTag);
