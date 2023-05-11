@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
+import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.FileFormat;
@@ -30,17 +31,38 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 
-public class GroupedPartitionedDeltaWriter extends BaseDeltaTaskWriter {
+public class GroupedPartitionedDeltaWriter extends org.apache.inlong.sort.iceberg.sink.trick.BaseDeltaTaskWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(GroupedPartitionedDeltaWriter.class);
+
+    private static final ExecutorService CLOSE_EXECUTOR_SERVICE = new ThreadPoolExecutor(
+            10,
+            20,
+            100L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(100),
+            new ThreadFactoryBuilder().setNameFormat("iceberg-writer-close-thread-%s").build(),
+            new CallerRunsPolicy());
 
     private final PartitionKey partitionKey;
 
     private String latestPartitionPath;
 
     private RowDataDeltaWriter latestWriter;
+
+    private final List<Future> futures = new ArrayList<>();
+
+    private final List<Exception> failures = new ArrayList<>();
 
     GroupedPartitionedDeltaWriter(PartitionSpec spec,
             FileFormat format,
@@ -59,6 +81,7 @@ public class GroupedPartitionedDeltaWriter extends BaseDeltaTaskWriter {
 
     @Override
     public RowDataDeltaWriter route(RowData row) {
+        checkFailure();
         partitionKey.partition(wrapper().wrap(row));
         if (latestPartitionPath != null && partitionKey.toPath().equals(latestPartitionPath)) {
             return latestWriter;
@@ -72,19 +95,40 @@ public class GroupedPartitionedDeltaWriter extends BaseDeltaTaskWriter {
 
     @Override
     public void close() {
-        closeCurrentWriter();
-        latestWriter = null;
-        latestPartitionPath = null;
+        try {
+            closeCurrentWriter();
+            for (Future future : futures) {
+                future.get();
+            }
+            checkFailure();
+            latestWriter = null;
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Interrupted while waiting for tasks to finish", e);
+            throw new RuntimeException(e);
+        }
     }
 
     private void closeCurrentWriter() {
         if (latestWriter != null) {
-            try {
-                latestWriter.close();
-            } catch (IOException e) {
-                LOG.error("Exception occur when closing file {}.", latestPartitionPath);
-                throw new RuntimeException(e);
-            }
+            LOG.debug("Start eliminated writer for partition {}", latestPartitionPath);
+            final RowDataDeltaWriter writer = latestWriter;
+            final String partitionPath = latestPartitionPath;
+            futures.add(CLOSE_EXECUTOR_SERVICE.submit(() -> {
+                try {
+                    writer.close();
+                    LOG.debug("End eliminated writer for partition {}", partitionPath);
+                } catch (IOException | RuntimeException e) {
+                    failures.add(e);
+                }
+            }));
+        }
+    }
+
+    private void checkFailure() {
+        if (!failures.isEmpty()) {
+            throw new RuntimeException(
+                    String.format("Failed to close equality delta writer, %d unclosed files more.", failures.size()),
+                    failures.get(0));
         }
     }
 }
