@@ -64,8 +64,8 @@ public class CommonConstants {
     // the same task must have the same Partition Key if choose sync
     public static final String PROXY_SEND_PARTITION_KEY = "proxy.partitionKey";
 
-    // max size of single batch in bytes, default is 200KB.
-    public static final int DEFAULT_PROXY_PACKAGE_MAX_SIZE = 200000;
+    // max size of single batch in bytes, default is 800KB.
+    public static final int DEFAULT_PROXY_PACKAGE_MAX_SIZE = 800000;
 
     public static final String PROXY_MESSAGE_SEMAPHORE = "proxy.semaphore";
     public static final int DEFAULT_PROXY_MESSAGE_SEMAPHORE = 20000;

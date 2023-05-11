@@ -20,19 +20,31 @@ package org.apache.inlong.agent.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+
 import static org.apache.inlong.agent.utils.PathUtils.antPathIncluded;
 
 public class TestPathUtils {
 
     @Test
     public void testAntPathIncluded() {
-        Assert.assertTrue(antPathIncluded("/a/b/1/3/4/5", "/a/*/1/3/**/1.log"));
-        Assert.assertTrue(antPathIncluded("/a/b/1/3/4/5", "/a/*/1/3/4/5/1.log"));
-        Assert.assertTrue(antPathIncluded("/a/b/1/3/4/5", "/a/?/1/3/4/5/1.log"));
-        Assert.assertTrue(antPathIncluded("/a/b/1/3/4/5", "/a/*/1/3/4/5/6/1.log"));
+        if (File.separator.equals("\\")) {
+            Assert.assertTrue(antPathIncluded("\\a\\b\\1\\3\\4\\5", "\\a\\*\\1\\3\\**\\1.log"));
+            Assert.assertTrue(antPathIncluded("\\a\\b\\1\\3\\4\\5", "\\a\\*\\1\\3\\**\\1.log"));
+            Assert.assertTrue(antPathIncluded("\\a\\b\\1\\3\\4\\5", "\\a\\*\\1\\3\\4\\5\\1.log"));
+            Assert.assertTrue(antPathIncluded("\\a\\b\\1\\3\\4\\5", "\\a\\?\\1\\3\\4\\5\\1.log"));
+            Assert.assertTrue(antPathIncluded("\\a\\b\\1\\3\\4\\5", "\\a\\*\\1\\3\\4\\5\\6\\1.log"));
 
-        Assert.assertFalse(antPathIncluded("/a/b/1/3/4/5", "/a/c/1/3/4/5/6/1.log"));
-        Assert.assertFalse(antPathIncluded("/a/b/1/3/4/5", "/a/*/2/3/4/5/6/1.log"));
+            Assert.assertFalse(antPathIncluded("\\a\\b\\1\\3\\4\\5", "\\a\\c\\1\\3\\4\\5\\6\\1.log"));
+            Assert.assertFalse(antPathIncluded("\\a\\b\\1\\3\\4\\5", "\\a\\*\\2\\3\\4\\5\\6\\1.log"));
+        } else {
+            Assert.assertTrue(antPathIncluded("/a/b/1/3/4/5", "/a/*/1/3/**/1.log"));
+            Assert.assertTrue(antPathIncluded("/a/b/1/3/4/5", "/a/*/1/3/4/5/1.log"));
+            Assert.assertTrue(antPathIncluded("/a/b/1/3/4/5", "/a/?/1/3/4/5/1.log"));
+            Assert.assertTrue(antPathIncluded("/a/b/1/3/4/5", "/a/*/1/3/4/5/6/1.log"));
+
+            Assert.assertFalse(antPathIncluded("/a/b/1/3/4/5", "/a/c/1/3/4/5/6/1.log"));
+            Assert.assertFalse(antPathIncluded("/a/b/1/3/4/5", "/a/*/2/3/4/5/6/1.log"));
+        }
     }
-
 }
