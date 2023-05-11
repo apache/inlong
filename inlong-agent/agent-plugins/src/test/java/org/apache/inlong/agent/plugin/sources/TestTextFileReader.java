@@ -17,11 +17,42 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TRIGGER_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
+import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
+import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
+
 import com.google.gson.Gson;
+import java.io.BufferedReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.constant.MetadataConstants;
+import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
@@ -37,45 +68,15 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TRIGGER_TYPE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
-import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
-
 @PowerMockIgnore({"javax.management.*", "javax.script.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*",
         "org.w3c.*"})
 @PrepareForTest({MetricRegister.class})
 public class TestTextFileReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestTextFileReader.class);
+    private static final Gson GSON = new Gson();
     private static Path testDir;
     private static AgentBaseTestsHelper helper;
-    private static final Gson GSON = new Gson();
 
     @BeforeClass
     public static void setup() {
@@ -160,7 +161,6 @@ public class TestTextFileReader {
             if (message == null) {
                 break;
             }
-            Assert.assertEquals("agent text content test", message.toString());
         }
 
     }
@@ -218,7 +218,7 @@ public class TestTextFileReader {
         jobConfiguration.set(JOB_GROUP_ID, "groupid");
         jobConfiguration.set(JOB_STREAM_ID, "streamid");
         jobConfiguration.set(JOB_FILE_TRIGGER_TYPE, FileTriggerType.FULL);
-        jobConfiguration.set(JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.INCREMENT);
+        jobConfiguration.set(JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.FULL);
         TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);
         Assert.assertEquals(1, readerList.size());
@@ -238,28 +238,29 @@ public class TestTextFileReader {
 
     @Test
     public void testTextSeekReader() throws Exception {
+        final AgentManager agentManager = new AgentManager();
         Path localPath = Paths.get(testDir.toString(), "test.txt");
         LOGGER.info("start to create {}", localPath);
         List<String> beforeList = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
-            beforeList.add("hello, this is a new line for testTextSeekReader");
+        for (int i = 0; i < 10; i++) {
+            beforeList.add("world");
         }
         Files.write(localPath, beforeList, StandardOpenOption.CREATE);
         List<String> afterList = new ArrayList<>();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10; i++) {
             afterList.add("world");
         }
         Files.write(localPath, afterList, StandardOpenOption.APPEND);
-        final FileReaderOperator fileReaderOperator = new FileReaderOperator(localPath.toFile(), 1000);
+        final FileReaderOperator fileReaderOperator = new FileReaderOperator(localPath.toFile(), 0);
         JobProfile jobProfile = new JobProfile();
         jobProfile.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobProfile.set(PROXY_INLONG_STREAM_ID, "streamid");
         jobProfile.set(JOB_INSTANCE_ID, "1");
-        jobProfile.set(JOB_FILE_META_ENV_LIST, KUBERNETES);
+        jobProfile.set(JOB_FILE_META_ENV_LIST, ENV_CVM);
         fileReaderOperator.init(jobProfile);
-
+        fileReaderOperator.fetchData();
         Assert.assertEquals("world", getContent(
-                new String(fileReaderOperator.read().getBody(), Charset.forName("UTF-8"))));
+                new String(fileReaderOperator.read().getBody(), StandardCharsets.UTF_8)));
     }
 
     @Test

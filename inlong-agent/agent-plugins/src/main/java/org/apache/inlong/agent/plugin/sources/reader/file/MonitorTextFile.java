@@ -19,6 +19,7 @@ package org.apache.inlong.agent.plugin.sources.reader.file;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.inlong.agent.common.AgentThreadFactory;
+import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +42,7 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_INT
 public final class MonitorTextFile {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MonitorTextFile.class);
-    /**
-     * monitor thread pool
-      */
+    // monitor thread pool
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
             60L, TimeUnit.SECONDS,
@@ -134,6 +133,10 @@ public final class MonitorTextFile {
                 attributesAfter = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
                 currentPath = file.getCanonicalPath();
 
+                if (attributesAfter.fileKey() == null) {
+                    return;
+                }
+
                 // Determine whether the inode has changed
                 if (isInodeChanged(attributesAfter.fileKey().toString())) {
                     resetPosition();
@@ -152,32 +155,45 @@ public final class MonitorTextFile {
                 path = currentPath;
             }
 
-            if (!fileReaderOperator.hasDataRemaining()) {
-                fileReaderOperator.fetchData();
+            try {
+                if (!fileReaderOperator.hasDataRemaining()) {
+                    fileReaderOperator.fetchData();
+                }
+            } catch (Exception e) {
+                LOGGER.error(String.format("fileReaderOperator file %s error,", file.getName()), e);
             }
         }
 
         /**
-         * Reset the position and bytePosition
+         * reset the position and bytePositionreset the position and bytePosition
          */
         private void resetPosition() {
             LOGGER.info("reset position {}", fileReaderOperator.file.toPath());
             fileReaderOperator.position = 0;
             fileReaderOperator.bytePosition = 0;
+
+            String jobInstanceId = fileReaderOperator.getJobInstanceId();
+            if (jobInstanceId != null) {
+                TaskPositionManager.getInstance().updateSinkPosition(
+                        jobInstanceId, fileReaderOperator.getReadSource(), 0, true);
+            }
         }
 
         /**
          * Determine whether the inode has changed
          *
-         * @param currentFileKey current file key
-         * @return true if the inode changed, otherwise false
+         * @param currentFileKey
+         * @return
          */
         private boolean isInodeChanged(String currentFileKey) {
             if (fileReaderOperator.fileKey == null || currentFileKey == null) {
                 return false;
             }
 
-            return !fileReaderOperator.fileKey.equals(currentFileKey);
+            if (fileReaderOperator.fileKey.equals(currentFileKey)) {
+                return false;
+            }
+            return true;
         }
     }
 }

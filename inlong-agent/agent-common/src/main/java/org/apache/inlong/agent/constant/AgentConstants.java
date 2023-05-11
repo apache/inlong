@@ -193,4 +193,6 @@ public class AgentConstants {
     public static final String DEFAULT_KAFKA_SINK_SEND_VALUE_SERIALIZER =
             "org.apache.kafka.common.serialization.ByteArraySerializer";
 
+    public static final String AGENT_JOB_STORE_TIME = "agent.job.store.time";
+    public static final long DEFAULT_JOB_STORE_TIME = 10 * 60 * 1000;
 }
