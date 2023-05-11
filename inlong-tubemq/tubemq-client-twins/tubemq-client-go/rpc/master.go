@@ -39,6 +39,43 @@ const (
 	masterConsumerClose
 )
 
+// RegisterRequestP2M implements the RegisterRequestP2M interface according to TuebMQ RPC protocol.
+func (c *rpcClient) RegisterRequestP2M(ctx context.Context, metadata *metadata.Metadata,
+	clientID string) (*protocol.RegisterResponseM2P, error) {
+	reqP2M := &protocol.RegisterRequestP2M{
+		ClientId:       proto.String(clientID),
+		HostName:       proto.String(metadata.GetNode().GetAddress()),
+		BrokerCheckSum: proto.Int64(-1),
+	}
+
+	req := codec.NewRPCRequest()
+	req.RpcHeader = &protocol.RpcConnHeader{
+		Flag: proto.Int32(0),
+	}
+	req.RequestHeader = &protocol.RequestHeader{
+		ServiceType: proto.Int32(masterService),
+		ProtocolVer: proto.Int32(2),
+	}
+	req.RequestBody = &protocol.RequestBody{
+		Method:  proto.Int32(masterProducerRegister),
+		Timeout: proto.Int64(c.config.Net.ReadTimeout.Milliseconds()),
+	}
+	req.Body = reqP2M
+
+	rspBody, err := c.doRequest(ctx, metadata.GetNode().GetAddress(), req)
+	if err != nil {
+		return nil, err
+	}
+
+	rspM2P := &protocol.RegisterResponseM2P{}
+	err = proto.Unmarshal(rspBody.Data, rspM2P)
+	if err != nil {
+		return nil, errs.New(errs.RetUnMarshalFailure, err.Error())
+	}
+
+	return rspM2P, nil
+}
+
 // RegisterRequestC2M implements the RegisterRequestRequestC2M interface according to TubeMQ RPC protocol.
 func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo,
 	r *remote.RmtDataCache) (*protocol.RegisterResponseM2C, error) {

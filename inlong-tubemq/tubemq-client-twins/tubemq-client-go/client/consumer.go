@@ -38,8 +38,6 @@ type ConfirmResult struct {
 	PeerInfo       *PeerInfo
 }
 
-var clientID uint64
-
 // Consumer is an interface that abstracts behavior of TubeMQ's consumer
 type Consumer interface {
 	// GetMessage receive a single message.

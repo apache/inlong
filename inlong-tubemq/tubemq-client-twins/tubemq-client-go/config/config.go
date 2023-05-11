@@ -75,6 +75,17 @@ type Config struct {
 		}
 	}
 
+	// Producer is the namespace for configuration related to produce messages,
+	// used by the producer
+	Producer struct {
+		// Masters is the addresses of master.
+		Masters string
+		// Topics of the production.
+		Topics []string
+		// MaxPubInfoReportInterval is maximum interval for the client to report publish information.
+		MaxPubInfoInterval int
+	}
+
 	// Consumer is the namespace for configuration related to consume messages,
 	// used by the consumer
 	Consumer struct {
@@ -183,6 +194,31 @@ func (c *Config) String() string {
 		return err.Error()
 	}
 	return string(bytes)
+}
+
+// ValidateProducer valiates the config of the producer.
+func (c *Config) ValidateProducer() error {
+	if c.Net.Auth.Enable {
+		if len(c.Net.Auth.UserName) == 0 {
+			return errs.New(errs.RetInvalidConfig, "illegal parameter: usrName is empty")
+		}
+		if len(c.Net.Auth.Password) == 0 {
+			return errs.New(errs.RetInvalidConfig, "illegal password: password is empty")
+		}
+	}
+
+	if c.Net.TLS.Enable {
+		if len(c.Net.TLS.CACertFile) == 0 {
+			return errs.New(errs.RetInvalidConfig, "illegal tls CACert file: CACert file is empty")
+		}
+	}
+
+	err := c.validateMaster()
+	if err != nil {
+		return errs.New(errs.RetInvalidConfig, err.Error())
+	}
+
+	return nil
 }
 
 // ValidateConsumer validates the config of the consumer.
@@ -342,6 +378,7 @@ func ParseAddress(address string) (config *Config, err error) {
 		return nil, fmt.Errorf("address format invalid: address: %v, token: %v", address, tokens)
 	}
 
+	c.Producer.Masters = tokens[0]
 	c.Consumer.Masters = tokens[0]
 
 	tokens = strings.Split(tokens[1], "&")
@@ -382,6 +419,7 @@ func getConfigFromToken(config *Config, values []string) error {
 		config.Consumer.Group = values[1]
 	case "topic":
 		config.Consumer.Topics = append(config.Consumer.Topics, values[1])
+		config.Producer.Topics = append(config.Producer.Topics, values[1])
 	case "filters":
 		topicFilters := config.Consumer.TopicFilters
 		if len(config.Consumer.Topics) == 0 {

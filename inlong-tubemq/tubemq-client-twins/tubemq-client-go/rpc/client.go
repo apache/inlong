@@ -39,6 +39,9 @@ const (
 
 // RPCClient is the rpc level client to interact with TubeMQ.
 type RPCClient interface {
+	// RegisterRequestP2M is the rpc request for a producer to register to master.
+	RegisterRequestP2M(ctx context.Context, metadata *metadata.Metadata,
+		clientID string) (*protocol.RegisterResponseM2P, error)
 	// RegisterRequestC2B is the rpc request for a consumer to register to a broker.
 	RegisterRequestC2B(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo,
 		r *remote.RmtDataCache) (*protocol.RegisterResponseB2C, error)
