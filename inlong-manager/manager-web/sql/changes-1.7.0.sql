@@ -34,3 +34,7 @@ ALTER TABLE `data_node`
 
 ALTER TABLE `inlong_cluster`
     ADD COLUMN `display_name`  varchar(128) DEFAULT NULL COMMENT 'Cluster display name';
+
+INSERT INTO `audit_base`(`name`, `type`, `is_sent`, `audit_id`)
+VALUES ('audit_sort_postgres_input', 'POSTGRESQL', 0, '27'),
+       ('audit_sort_postgres_output', 'POSTGRESQL', 1, '28');
