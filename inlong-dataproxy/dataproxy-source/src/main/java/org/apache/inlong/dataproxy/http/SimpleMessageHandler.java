@@ -34,6 +34,7 @@ import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.util.NetworkUtils;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -96,10 +97,15 @@ public class SimpleMessageHandler implements MessageHandler {
         groupId = groupId.trim();
         streamId = streamId.trim();
         // get topicName
-        String topicName = "test";
-        String configedTopicName = getTopic(groupId, streamId);
-        if (StringUtils.isNotBlank(configedTopicName)) {
-            topicName = configedTopicName.trim();
+        String topicName = getTopic(groupId, streamId);
+        if (StringUtils.isBlank(topicName)) {
+            if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
+                topicName = "test";
+            } else {
+                throw new MessageProcessException(strBuff
+                        .append("Topic for message is null, inlongGroupId = ")
+                        .append(groupId).append(", inlongStreamId = ").append(streamId).toString());
+            }
         }
         // get message data time
         final long msgRcvTime = System.currentTimeMillis();
