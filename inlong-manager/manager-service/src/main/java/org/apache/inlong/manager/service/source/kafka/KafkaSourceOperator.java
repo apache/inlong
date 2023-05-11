@@ -29,7 +29,6 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -62,8 +61,6 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
     private ObjectMapper objectMapper;
     @Autowired
     private InlongClusterService clusterService;
-    @Autowired
-    private StreamSinkEntityMapper sinkMapper;
 
     @Override
     public Boolean accept(String sourceType) {
