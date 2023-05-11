@@ -187,6 +187,7 @@
 | [INLONG-7630](https://github.com/apache/inlong/issues/7630) | [Bug][Dashboard] The page flickers when the route is switched                                                  |
 | [INLONG-7004](https://github.com/apache/inlong/issues/7004) | [Feature][Dashboard][Manager] Creating schema of  StreamSource by Statement                                    |
 | [INLONG-7971](https://github.com/apache/inlong/issues/7971) | [Feature][Dashboard] Support batch import fields by Excel                                                      |
+| [INLONG-8001](https://github.com/apache/inlong/issues/8001) | [Feature][Dashboard] Support postgreSQL node management                                                        |
 
 ### Other
 |                            ISSUE                            | Summary                                                                                               |
