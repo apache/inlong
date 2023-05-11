@@ -28,7 +28,6 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -52,7 +51,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.apache.inlong.manager.service.resource.queue.kafka.KafkaResourceOperators.KAFKA_CONSUMER_GROUP;
-import static org.apache.inlong.manager.service.resource.queue.pulsar.PulsarResourceOperator.PULSAR_SUBSCRIPTION;
 
 /**
  * kafka stream source operator
@@ -130,7 +128,8 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
 
             // Issued kafka consumer group to sort
             if (StringUtils.isBlank(kafkaSource.getGroupId())) {
-                String consumeGroup = String.format(KAFKA_CONSUMER_GROUP, groupInfo.getInlongClusterTag(), kafkaSource.getTopic());
+                String consumeGroup =
+                        String.format(KAFKA_CONSUMER_GROUP, groupInfo.getInlongClusterTag(), kafkaSource.getTopic());
                 kafkaSource.setGroupId(consumeGroup);
             }
 
