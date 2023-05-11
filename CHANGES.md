@@ -192,14 +192,15 @@
 | [INLONG-8001](https://github.com/apache/inlong/issues/8001) | [Feature][Dashboard] Support postgreSQL node management                                                        |
 
 ### Other
-|                            ISSUE                            | Summary                                                                                               |
-|:-----------------------------------------------------------:|:------------------------------------------------------------------------------------------------------|
-| [INLONG-7909](https://github.com/apache/inlong/issues/7909) | [Bug]Capture changes made by connector user & document that SYS/SYSTEM changes are not captured       |
-| [INLONG-7892](https://github.com/apache/inlong/issues/7892) | [bug] multiple times generating approval slips                                                        |
-| [INLONG-7876](https://github.com/apache/inlong/issues/7876) | [Improve][CVE] Upgrade org.springframework:spring-core to 5.3.27                                      |
-| [INLONG-7781](https://github.com/apache/inlong/issues/7781) | [Bug] [InLong-SDK] Solve the problem of cpp-sdk send  data by  HTTP protocol                          |
-| [INLONG-7745](https://github.com/apache/inlong/issues/7745) | [Improve][CVE] Spring Framework vulnerable to denial of service via specially crafted SpEL expression |
-| [INLONG-7742](https://github.com/apache/inlong/issues/7742) | [Improve][Tool] Only support inlong-dev-toolkit on MacOS and Linux                                    |
-| [INLONG-7698](https://github.com/apache/inlong/issues/7698) | [Bug][Docker] docker images build faild for tubemq-build                                              |
-| [INLONG-7697](https://github.com/apache/inlong/issues/7697) | [Feature] Reduce the memory usage of JM when split table chunks                                       |
-| [INLONG-7986](https://github.com/apache/inlong/issues/7986) | [Bug] Collect file to Postgresql failed when using docker image for test                              |
+|                            ISSUE                            | Summary                                                                                                 |
+|:-----------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------|
+| [INLONG-7909](https://github.com/apache/inlong/issues/7909) | [Bug]Capture changes made by connector user & document that SYS/SYSTEM changes are not captured         |
+| [INLONG-7892](https://github.com/apache/inlong/issues/7892) | [bug] multiple times generating approval slips                                                          |
+| [INLONG-7876](https://github.com/apache/inlong/issues/7876) | [Improve][CVE] Upgrade org.springframework:spring-core to 5.3.27                                        |
+| [INLONG-7781](https://github.com/apache/inlong/issues/7781) | [Bug] [InLong-SDK] Solve the problem of cpp-sdk send  data by  HTTP protocol                            |
+| [INLONG-7745](https://github.com/apache/inlong/issues/7745) | [Improve][CVE] Spring Framework vulnerable to denial of service via specially crafted SpEL expression   |
+| [INLONG-7742](https://github.com/apache/inlong/issues/7742) | [Improve][Tool] Only support inlong-dev-toolkit on MacOS and Linux                                      |
+| [INLONG-7698](https://github.com/apache/inlong/issues/7698) | [Bug][Docker] docker images build faild for tubemq-build                                                |
+| [INLONG-7697](https://github.com/apache/inlong/issues/7697) | [Feature] Reduce the memory usage of JM when split table chunks                                         |
+| [INLONG-7986](https://github.com/apache/inlong/issues/7986) | [Bug] Collect file to Postgresql failed when using docker image for test                                |
+| [INLONG-7986](https://github.com/apache/inlong/issues/8009) | [Improve] Exclude the useless dependency for pulsar-client to decrease the distribution package size    |
