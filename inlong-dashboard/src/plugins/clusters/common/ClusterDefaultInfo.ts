@@ -39,7 +39,6 @@ export class ClusterDefaultInfo implements DataWithBackend, RenderRow, RenderLis
     rules: [{ required: true }],
     props: values => ({
       maxLength: 128,
-      disabled: Boolean(values.id),
     }),
   })
   @ColumnDecorator()

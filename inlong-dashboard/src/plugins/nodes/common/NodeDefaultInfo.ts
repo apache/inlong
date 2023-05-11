@@ -39,7 +39,6 @@ export class NodeDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     rules: [{ required: true }],
     props: values => ({
       maxLength: 128,
-      disabled: Boolean(values.id),
     }),
   })
   @ColumnDecorator()
