@@ -159,36 +159,36 @@
 | [INLONG-7413](https://github.com/apache/inlong/issues/7413) | [Feature][Audit] Proxy and Store get MQ address from the Manager service                  |
 
 ### Dashboard
-|                            ISSUE                            | Summary                                                                                                         |
-|:-----------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------|
-| [INLONG-7955](https://github.com/apache/inlong/issues/7955) | [Improve][Dashboard] Change the consumption query method from get to post                                       |
-| [INLONG-7929](https://github.com/apache/inlong/issues/7929) | [Bug][Dashboard] The select box cannot be triggered when the form is not entered                                |
-| [INLONG-7918](https://github.com/apache/inlong/issues/7918) | [Improve][Dashboard] File source cluster name is displayed as displayName                                       |
-| [INLONG-7915](https://github.com/apache/inlong/issues/7915) | [Improve][Dashboard] Clickhouse sink engine field optimization                                                  |
-| [INLONG-7871](https://github.com/apache/inlong/issues/7871) | [Improve][Dashboard] MySQL source supports filling in the database name whitelist                               |
-| [INLONG-7852](https://github.com/apache/inlong/issues/7852) | [Improve][Dashboard] Clickhouse supports setting cluster when creating a table                                  |
-| [INLONG-7833](https://github.com/apache/inlong/issues/7833) | [Improve][Dashboard] Process optimization for creating source and sink                                          |
-| [INLONG-7826](https://github.com/apache/inlong/issues/7826) | [Improve][Dashboard] Supports filling in the life cycle when the Clickhouse sink engine is ReplicatedMergeTree  |
-| [INLONG-7802](https://github.com/apache/inlong/issues/7802) | [Improve][Dashboard] Requirements for optimizing data sources                                                   |
-| [INLONG-7796](https://github.com/apache/inlong/issues/7796) | [Improve][Dashboard] Add icon to menu                                                                           |
-| [INLONG-7789](https://github.com/apache/inlong/issues/7789) | [Feature][Dashboard] Support create stream fields by statement                                                  |
-| [INLONG-7785](https://github.com/apache/inlong/issues/7785) | [Improve][Dashboard] Clickhouse sink engine defaults to MergeTree                                               |
-| [INLONG-7772](https://github.com/apache/inlong/issues/7772) | [Improve][Dashboard] Redis sentinel master name normalization in NodeManagement                                 |
-| [INLONG-7758](https://github.com/apache/inlong/issues/7758) | [Bug][Dashboard] Login page display error                                                                       |
-| [INLONG-7756](https://github.com/apache/inlong/issues/7756) | [Bug][Dashboard] Group logs can not display                                                                     |
-| [INLONG-7749](https://github.com/apache/inlong/issues/7749) | [Improve][Dashboard] Support rate limit for pulsar mq mark-delete operation                                     |
-| [INLONG-7738](https://github.com/apache/inlong/issues/7738) | [Improve][Dashboard] The name and type of cluster and node cannot be modified                                   |
-| [INLONG-7734](https://github.com/apache/inlong/issues/7734) | [Feature][Dashboard] Update Dashbaord layout & folder design                                                    |
-| [INLONG-7728](https://github.com/apache/inlong/issues/7728) | [Feature][Dashboard] Extract the cluster properties of Redis NodeManagement                                     |
-| [INLONG-7702](https://github.com/apache/inlong/issues/7702) | [Improve][Dashboard] Add Chinese name for partitionKeys properties of Hudi LoadNode                             |
-| [INLONG-7672](https://github.com/apache/inlong/issues/7672) | [Feature][Dashboard] Support kudu node management                                                               |
-| [INLONG-7668](https://github.com/apache/inlong/issues/7668) | [Feature][Dashboard] InLong source supports restart and freeze operations                                       |
-| [INLONG-7643](https://github.com/apache/inlong/issues/7643) | [Feature][Dashboard] Support specifying buckets when creating kudu resource                                     |
-| [INLONG-7630](https://github.com/apache/inlong/issues/7630) | [Bug][Dashboard] The page flickers when the route is switched                                                   |
-| [INLONG-7004](https://github.com/apache/inlong/issues/7004) | [Feature][Dashboard][Manager] Creating schema of  StreamSource by Statement                                     |
-| [INLONG-7971](https://github.com/apache/inlong/issues/7971) | [Feature][Dashboard] Support batch import fields by Excel                                                       |
-| [INLONG-8001](https://github.com/apache/inlong/issues/8001) | [Feature][Dashboard] Support postgreSQL node management                                                         |
-| [INLONG-8011](https://github.com/apache/inlong/issues/8011) | [Feature][Dashboard] Cluster name and node name can be modified when editing                                    |
+|                            ISSUE                            | Summary                                                                                                        |
+|:-----------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------|
+| [INLONG-7955](https://github.com/apache/inlong/issues/7955) | [Improve][Dashboard] Change the consumption query method from get to post                                      |
+| [INLONG-7929](https://github.com/apache/inlong/issues/7929) | [Bug][Dashboard] The select box cannot be triggered when the form is not entered                               |
+| [INLONG-7918](https://github.com/apache/inlong/issues/7918) | [Improve][Dashboard] File source cluster name is displayed as displayName                                      |
+| [INLONG-7915](https://github.com/apache/inlong/issues/7915) | [Improve][Dashboard] Clickhouse sink engine field optimization                                                 |
+| [INLONG-7871](https://github.com/apache/inlong/issues/7871) | [Improve][Dashboard] MySQL source supports filling in the database name whitelist                              |
+| [INLONG-7852](https://github.com/apache/inlong/issues/7852) | [Improve][Dashboard] Clickhouse supports setting cluster when creating a table                                 |
+| [INLONG-7833](https://github.com/apache/inlong/issues/7833) | [Improve][Dashboard] Process optimization for creating source and sink                                         |
+| [INLONG-7826](https://github.com/apache/inlong/issues/7826) | [Improve][Dashboard] Supports filling in the life cycle when the Clickhouse sink engine is ReplicatedMergeTree |
+| [INLONG-7802](https://github.com/apache/inlong/issues/7802) | [Improve][Dashboard] Requirements for optimizing data sources                                                  |
+| [INLONG-7796](https://github.com/apache/inlong/issues/7796) | [Improve][Dashboard] Add icon to menu                                                                          |
+| [INLONG-7789](https://github.com/apache/inlong/issues/7789) | [Feature][Dashboard] Support create stream fields by statement                                                 |
+| [INLONG-7785](https://github.com/apache/inlong/issues/7785) | [Improve][Dashboard] Clickhouse sink engine defaults to MergeTree                                              |
+| [INLONG-7772](https://github.com/apache/inlong/issues/7772) | [Improve][Dashboard] Redis sentinel master name normalization in NodeManagement                                |
+| [INLONG-7758](https://github.com/apache/inlong/issues/7758) | [Bug][Dashboard] Login page display error                                                                      |
+| [INLONG-7756](https://github.com/apache/inlong/issues/7756) | [Bug][Dashboard] Group logs can not display                                                                    |
+| [INLONG-7749](https://github.com/apache/inlong/issues/7749) | [Improve][Dashboard] Support rate limit for pulsar mq mark-delete operation                                    |
+| [INLONG-7738](https://github.com/apache/inlong/issues/7738) | [Improve][Dashboard] The name and type of cluster and node cannot be modified                                  |
+| [INLONG-7734](https://github.com/apache/inlong/issues/7734) | [Feature][Dashboard] Update Dashbaord layout & folder design                                                   |
+| [INLONG-7728](https://github.com/apache/inlong/issues/7728) | [Feature][Dashboard] Extract the cluster properties of Redis NodeManagement                                    |
+| [INLONG-7702](https://github.com/apache/inlong/issues/7702) | [Improve][Dashboard] Add Chinese name for partitionKeys properties of Hudi LoadNode                            |
+| [INLONG-7672](https://github.com/apache/inlong/issues/7672) | [Feature][Dashboard] Support kudu node management                                                              |
+| [INLONG-7668](https://github.com/apache/inlong/issues/7668) | [Feature][Dashboard] InLong source supports restart and freeze operations                                      |
+| [INLONG-7643](https://github.com/apache/inlong/issues/7643) | [Feature][Dashboard] Support specifying buckets when creating kudu resource                                    |
+| [INLONG-7630](https://github.com/apache/inlong/issues/7630) | [Bug][Dashboard] The page flickers when the route is switched                                                  |
+| [INLONG-7004](https://github.com/apache/inlong/issues/7004) | [Feature][Dashboard][Manager] Creating schema of  StreamSource by Statement                                    |
+| [INLONG-7971](https://github.com/apache/inlong/issues/7971) | [Feature][Dashboard] Support batch import fields by Excel                                                      |
+| [INLONG-8001](https://github.com/apache/inlong/issues/8001) | [Feature][Dashboard] Support postgreSQL node management                                                        |
+| [INLONG-8011](https://github.com/apache/inlong/issues/8011) | [Improve][Dashboard] Cluster name and node name can be modified when editing                                   |
 
 ### Other
 |                            ISSUE                            | Summary                                                                                               |
