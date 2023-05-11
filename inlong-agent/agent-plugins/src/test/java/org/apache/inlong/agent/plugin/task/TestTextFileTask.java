@@ -17,7 +17,28 @@
 
 package org.apache.inlong.agent.plugin.task;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
+import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
+import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
+import static org.powermock.api.support.membermodification.MemberMatcher.field;
+
 import com.google.gson.Gson;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.JobConstants;
@@ -47,46 +68,20 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
-import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
-import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
-import static org.powermock.api.support.membermodification.MemberMatcher.field;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({TaskManager.class, MetricRegister.class})
 @PowerMockIgnore("javax.management.*")
 public class TestTextFileTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestTextFileTask.class);
-
+    public static final TemporaryFolder TMP_FOLDER = new TemporaryFolder();
+    private static final Gson GSON = new Gson();
     private static TaskManager taskManager;
     private static AgentMetricItemSet agentMetricItemSet;
     private static AgentMetricItem agentMetricItem;
-    public static final TemporaryFolder TMP_FOLDER = new TemporaryFolder();
     private static List<String> taskCache;
     private static AtomicLong atomicLong;
     private static AtomicLong atomicCountLong;
-    private static final Gson GSON = new Gson();
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -134,7 +129,7 @@ public class TestTextFileTask {
         return sink;
     }
 
-    /**X
+    /**
      * Test metadata info with env list contains cvm.
      */
     @Test
@@ -156,7 +151,7 @@ public class TestTextFileTask {
         TestUtils.write(file.getAbsolutePath(), sb);
         await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 1);
         sink.getResult().forEach(message -> {
-            String content = new String(message.getBody(), Charset.forName("UTF-8"));
+            String content = new String(message.getBody(), StandardCharsets.UTF_8);
             Map<String, String> logJson = GSON.fromJson(content, Map.class);
             Assert.assertTrue(logJson.containsKey(MetadataConstants.METADATA_SOURCE_IP));
             Assert.assertTrue(logJson.containsKey(MetadataConstants.METADATA_FILE_NAME));
@@ -200,11 +195,10 @@ public class TestTextFileTask {
 
         await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 100);
         String collectData = sink.getResult().stream().map(message -> {
-            String content = new String(message.getBody(), Charset.forName("UTF-8"));
+            String content = new String(message.getBody(), StandardCharsets.UTF_8);
             Map<String, String> logJson = GSON.fromJson(content, Map.class);
             return logJson.get(MetadataConstants.DATA_CONTENT);
         }).collect(Collectors.joining(System.lineSeparator()));
-        // Assert.assertEquals(testData1 + System.lineSeparator() + testData, collectData);
     }
 
     /**
@@ -240,7 +234,7 @@ public class TestTextFileTask {
 
         await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 300);
         String collectData = sink.getResult().stream().map(message -> {
-            String content = new String(message.getBody(), Charset.forName("UTF-8"));
+            String content = new String(message.getBody(), StandardCharsets.UTF_8);
             Map<String, String> logJson = GSON.fromJson(content, Map.class);
             return logJson.get(MetadataConstants.DATA_CONTENT);
         }).collect(Collectors.joining(System.lineSeparator()));
@@ -264,7 +258,6 @@ public class TestTextFileTask {
         jobProfile.set(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.FULL);
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
-        LOGGER.info("sink.getResult().size() {}", sink.getResult().size());
         await().atMost(100, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 100);
     }
 }

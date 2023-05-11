@@ -17,6 +17,29 @@
 
 package org.apache.inlong.agent.plugin;
 
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TRIGGER_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
+import static org.awaitility.Awaitility.await;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
@@ -32,31 +55,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERNS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TRIGGER_TYPE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
-import static org.awaitility.Awaitility.await;
 
 public class TestFileAgent {
 

@@ -39,13 +39,8 @@ import org.slf4j.LoggerFactory;
 
 public class TestTriggerManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestTriggerManager.class);
-
-    private static MiniAgent agent;
-
     @ClassRule
     public static final TemporaryFolder WATCH_FOLDER = new TemporaryFolder();
-
     public static final String FILE_JOB_TEMPLATE = "{\n"
             + "  \"job\": {\n"
             + "    \"fileJob\": {\n"
@@ -74,6 +69,8 @@ public class TestTriggerManager {
             + "    \"splitter\": \"&\"\n"
             + "  }\n"
             + "}";
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestTriggerManager.class);
+    private static MiniAgent agent;
 
     @BeforeClass
     public static void setup() {
