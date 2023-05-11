@@ -28,6 +28,7 @@ import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
@@ -44,7 +45,6 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
-import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
@@ -54,6 +54,8 @@ import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -68,11 +70,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Lazy
 @Component
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
     private static final String AUTO_REGISTERED = "auto registered";
     private static final Gson GSON = new Gson();
+
+    @Value("${source.update.enabled:false}")
+    private Boolean enabled;
 
     @Getter
     private Cache<ComponentHeartbeat, HeartbeatMsg> heartbeatCache;
@@ -179,19 +185,14 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     handlerNum += updateClusterNode(clusterNode, heartbeatMsg);
                     // If the agent report succeeds, restore the source status
                     if (Objects.equals(clusterNode.getType(), ClusterType.AGENT)) {
-                        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpAndCluster(
+                        // If the agent report succeeds, restore the source status
+                        List<Integer> needUpdateIds = sourceMapper.selectNeedUpdateByAgentIpAndCluster(
                                 Collections.singletonList(SourceStatus.HEARTBEAT_TIMEOUT.getCode()),
-                                Lists.newArrayList(SourceType.FILE), heartbeat.getIp(), heartbeatMsg.getClusterName());
-                        for (StreamSourceEntity sourceEntity : sourceEntities) {
-                            // restore state for all source by ip and type
-                            if (sourceEntity.getIsDeleted() != 0) {
-                                sourceEntity.setPreviousStatus(sourceEntity.getStatus());
-                                sourceEntity.setStatus(SourceStatus.TO_BE_ISSUED_DELETE.getCode());
-                            } else {
-                                sourceEntity.setStatus(sourceEntity.getPreviousStatus());
-                                sourceEntity.setPreviousStatus(SourceStatus.HEARTBEAT_TIMEOUT.getCode());
-                            }
-                            sourceMapper.updateByPrimaryKeySelective(sourceEntity);
+                                Lists.newArrayList(SourceType.FILE), heartbeat.getIp(), heartbeat.getClusterName());
+                        // restore state for all source by ip and type
+                        if (CollectionUtils.isNotEmpty(needUpdateIds)) {
+                            sourceMapper.restoreStatusByIds(needUpdateIds, SourceStatus.HEARTBEAT_TIMEOUT.getCode(),
+                                    null);
                         }
                     }
                 }
@@ -247,14 +248,12 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             clusterNode.setStatus(NodeStatus.HEARTBEAT_TIMEOUT.getStatus());
             clusterNodeMapper.updateById(clusterNode);
             // If the agent heartbeat times out, update the source synchronously
-            if (Objects.equals(clusterNode.getType(), ClusterType.AGENT)) {
-                List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpAndCluster(null,
+            if (enabled && Objects.equals(clusterNode.getType(), ClusterType.AGENT)) {
+                List<Integer> needUpdateIds = sourceMapper.selectNeedUpdateByAgentIpAndCluster(null,
                         Lists.newArrayList(SourceType.FILE), clusterNode.getIp(), heartbeatMsg.getClusterName());
-                for (StreamSourceEntity sourceEntity : sourceEntities) {
-                    // set source status to heartbeat timeout for all source by ip and type
-                    sourceEntity.setPreviousStatus(sourceEntity.getStatus());
-                    sourceEntity.setStatus(SourceStatus.HEARTBEAT_TIMEOUT.getCode());
-                    sourceMapper.updateByPrimaryKeySelective(sourceEntity);
+                // set source status to heartbeat timeout for all source by ip and type
+                if (CollectionUtils.isNotEmpty(needUpdateIds)) {
+                    sourceMapper.updateStatusByIds(needUpdateIds, SourceStatus.HEARTBEAT_TIMEOUT.getCode(), null);
                 }
             }
         }

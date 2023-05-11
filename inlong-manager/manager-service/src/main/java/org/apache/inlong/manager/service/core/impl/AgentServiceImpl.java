@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -72,6 +73,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -81,6 +83,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -99,6 +106,15 @@ public class AgentServiceImpl implements AgentService {
     private static final int TASK_FETCH_SIZE = 2;
     private static final Gson GSON = new Gson();
 
+    private final ExecutorService executorService = new ThreadPoolExecutor(
+            5,
+            10,
+            10L,
+            TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(100),
+            new ThreadFactoryBuilder().setNameFormat("async-agent-%s").build(),
+            new CallerRunsPolicy());
+
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -113,6 +129,16 @@ public class AgentServiceImpl implements AgentService {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
+
+    /**
+     * Start the update task
+     */
+    @PostConstruct
+    private void startHeartbeatTask() {
+        UpdateTaskRunnable taskRunnable = new UpdateTaskRunnable();
+        this.executorService.execute(taskRunnable);
+        LOGGER.info("update task status started successfully");
+    }
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
@@ -426,19 +452,12 @@ public class AgentServiceImpl implements AgentService {
 
     private void preTimeoutTasks(TaskRequest taskRequest) {
         // If the agent report succeeds, restore the source status
-        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpAndCluster(
+        List<Integer> needUpdateIds = sourceMapper.selectNeedUpdateByAgentIpAndCluster(
                 Collections.singletonList(SourceStatus.HEARTBEAT_TIMEOUT.getCode()),
                 Lists.newArrayList(SourceType.FILE), taskRequest.getAgentIp(), taskRequest.getClusterName());
-        for (StreamSourceEntity sourceEntity : sourceEntities) {
-            // restore state for all source by ip and type
-            if (sourceEntity.getIsDeleted() != 0) {
-                sourceEntity.setPreviousStatus(sourceEntity.getStatus());
-                sourceEntity.setStatus(SourceStatus.TO_BE_ISSUED_DELETE.getCode());
-            } else {
-                sourceEntity.setStatus(sourceEntity.getPreviousStatus());
-                sourceEntity.setPreviousStatus(SourceStatus.HEARTBEAT_TIMEOUT.getCode());
-            }
-            sourceMapper.updateByPrimaryKeySelective(sourceEntity);
+        // restore state for all source by ip and type
+        if (CollectionUtils.isNotEmpty(needUpdateIds)) {
+            sourceMapper.restoreStatusByIds(needUpdateIds, SourceStatus.HEARTBEAT_TIMEOUT.getCode(), null);
         }
     }
 
@@ -620,6 +639,24 @@ public class AgentServiceImpl implements AgentService {
         Set<String> sourceGroups = Stream.of(
                 sourceEntity.getInlongClusterNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
         return sourceGroups.stream().anyMatch(clusterNodeGroups::contains);
+    }
+
+    /**
+     * update task status when task is_deleted ! = 0
+     */
+    private class UpdateTaskRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    sourceMapper.updateStatusByDeleted(SourceStatus.TO_BE_ISSUED_DELETE.getCode());
+                    Thread.sleep(60 * 1000);
+                } catch (Throwable t) {
+                    LOGGER.error("update task status runnable error", t);
+                }
+            }
+        }
     }
 
 }
