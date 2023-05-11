@@ -22,9 +22,12 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/protocol"
 )
@@ -146,4 +149,18 @@ func Join(m map[string]string, step1 string, step2 string) string {
 		cnt++
 	}
 	return s
+}
+
+func NewClientID(group string, clientID *uint64, tubeMQClientVersion string) string {
+	res := ""
+	if group != "" {
+		res += (group + "_")
+	}
+	res += (GetLocalHost() + "-" +
+		strconv.Itoa(os.Getpid()) + "-" +
+		strconv.Itoa(int(time.Now().Unix()*1000)) + "-" +
+		strconv.Itoa(int(atomic.AddUint64(clientID, 1))) + "-" +
+		"go-" +
+		tubeMQClientVersion)
+	return res
 }
