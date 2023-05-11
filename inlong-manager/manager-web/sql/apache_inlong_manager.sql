@@ -833,7 +833,9 @@ VALUES ('audit_sdk_collect', 'SDK', 0, '1'),
        ('audit_sort_mysql_input', 'MYSQL', 0, '23'),
        ('audit_sort_mysql_output', 'MYSQL', 1, '24'),
        ('audit_sort_kudu_input', 'KUDU', 0, '25'),
-       ('audit_sort_kudu_output', 'KUDU', 1, '26');
+       ('audit_sort_kudu_output', 'KUDU', 1, '26'),
+       ('audit_sort_postgres_input', 'POSTGRESQL', 0, '27'),
+       ('audit_sort_postgres_output', 'POSTGRESQL', 1, '28');
 
 -- ----------------------------
 

@@ -15,23 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.consts;
+package org.apache.inlong.manager.pojo.node.postgresql;
+
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
 /**
- * Constants of data node.
+ * PostgreSQL data node request
  */
-public class DataNodeType {
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = DataNodeType.POSTGRESQL)
+@ApiModel("PostgreSQL data node request")
+public class PostgreSQLDataNodeRequest extends DataNodeRequest {
 
-    public static final String HIVE = "HIVE";
-    public static final String KAFKA = "KAFKA";
-    public static final String ICEBERG = "ICEBERG";
-    public static final String HUDI = "HUDI";
-    public static final String CLICKHOUSE = "CLICKHOUSE";
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
-    public static final String MYSQL = "MYSQL";
-    public static final String STARROCKS = "STARROCKS";
-    public static final String REDIS = "REDIS";
-    public static final String KUDU = "KUDU";
-    public static final String POSTGRESQL = "POSTGRESQL";
-
+    public PostgreSQLDataNodeRequest() {
+        this.setType(DataNodeType.POSTGRESQL);
+    }
 }
