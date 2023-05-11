@@ -20,4 +20,5 @@ package client
 var clientID uint64
 
 type Producer interface {
+	Publish(topics []string)
 }

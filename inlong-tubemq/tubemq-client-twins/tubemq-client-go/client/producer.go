@@ -25,6 +25,7 @@ import (
 	"sync/atomic"
 
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/metadata"
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/multiplexing"
@@ -98,38 +99,45 @@ func (p *producer) register2Master(needChange bool) error {
 	// if needChage, refresh the master list and start trying from the first master address
 	if needChange {
 		p.selector.Refresh(p.config.Producer.Masters)
+	}
+
+	retryCount := 0
+	for {
+		// select the next node and send request
 		node, err := p.selector.Select(p.config.Producer.Masters)
 		if err != nil {
 			return err
 		}
 		p.master = node
-	}
 
-	retryCount := 0
-	for {
+		// send request
 		rsp, err := p.sendRegRequest2Master()
+
 		if err != nil || !rsp.GetSuccess() {
+			// register2Master fail
 			if err != nil {
 				log.Errorf("[PRODUCER]register2Master error %s", err.Error())
 			}
-			if !p.master.HasNext {
-				if err != nil {
-					return err
-				}
-				if rsp != nil {
-					log.Errorf("[PRODUCER] register2Master(%s) failure exist register, client=%s, errCode: %d, errorMsg: %s",
-						p.master.Address, p.clientID, rsp.GetErrCode(), rsp.GetErrMsg())
-				}
-				break
+
+			// invode the rpc method successlly, but rsp code form tubemq server is not 200
+			if rsp != nil {
+				log.Errorf("[PRODUCER] register2Master(%s) failure exist register, client=%s, errCode: %d, errorMsg: %s",
+					p.master.Address, p.clientID, rsp.GetErrCode(), rsp.GetErrMsg())
 			}
+
+			// no more available master address
+			if !p.master.HasNext {
+				log.Errorf("[PRODUCER] register2Master has tryed %s times, all failed!!!", retryCount+1)
+				return errs.New(errs.RetRequestFailure, "No available master address to register, all tries fail!!!")
+			}
+
 			retryCount++
 			log.Warnf("[PRODUCER] register2master(%s) failure, client=%s, retry count=%d",
 				p.master.Address, p.clientID, retryCount)
-			if p.master, err = p.selector.Select(p.config.Consumer.Masters); err != nil {
-				return err
-			}
 			continue
 		}
+
+		// register successlly
 		log.Infof("register2Master response %s", rsp.String())
 		p.masterHBRetry = 0
 		p.processRegisterResponseM2P(rsp)
@@ -187,4 +195,8 @@ func (p *producer) updateBrokerInfoList(brokerInfos []string) {
 		p.brokerMap[strconv.FormatUint(uint64(node.GetID()), 10)] = node
 
 	}
+}
+
+func (p *producer) Publish(topics []string) {
+	println("todo in later commits")
 }
