@@ -20,6 +20,7 @@ package org.apache.inlong.sort.parser;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
 /**
  * Test for {@link FileSystemLoadNode}
  */
-public class FilesystemSqlParserTest {
+public class FilesystemSqlParserTest extends AbstractTestBase {
 
     /**
      * build mysql extract node

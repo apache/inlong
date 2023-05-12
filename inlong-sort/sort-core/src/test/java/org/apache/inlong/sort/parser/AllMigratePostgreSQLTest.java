@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
@@ -48,7 +49,7 @@ import org.junit.Test;
 /**
  * A demo of transferring data between PostgreSQL Server and other database, using postgres-cdc-inlong connector.
  */
-public class AllMigratePostgreSQLTest {
+public class AllMigratePostgreSQLTest extends AbstractTestBase {
 
     private PostgresExtractNode buildAllMigrateExtractNode() {
         List<FieldInfo> fields = Arrays.asList(
