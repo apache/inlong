@@ -20,6 +20,7 @@ package org.apache.inlong.sort.parser;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.jdbc.dialect.ClickHouseDialect;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
 /**
  * Test for  {@link ClickHouseLoadNode} and {@link ClickHouseDialect}
  */
-public class ClickHouseSqlParserTest {
+public class ClickHouseSqlParserTest extends AbstractTestBase {
 
     public MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),

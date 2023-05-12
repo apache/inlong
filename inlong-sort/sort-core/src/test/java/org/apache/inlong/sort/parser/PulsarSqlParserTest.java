@@ -20,6 +20,7 @@ package org.apache.inlong.sort.parser;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
@@ -43,7 +44,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PulsarSqlParserTest {
+public class PulsarSqlParserTest extends AbstractTestBase {
 
     private KafkaLoadNode buildKafkaLoadNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
@@ -45,7 +46,7 @@ import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AllMigrateOracleTest {
+public class AllMigrateOracleTest extends AbstractTestBase {
 
     private OracleExtractNode buildAllMigrateExtractNode() {
         List<FieldInfo> fields = Arrays.asList(

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
@@ -40,9 +41,10 @@ import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class AllMigrateMongoDBTest {
+public class AllMigrateMongoDBTest extends AbstractTestBase {
 
     private MongoExtractNode buildAllMigrateExtractNode() {
         List<FieldInfo> fields = Arrays.asList(
@@ -97,6 +99,7 @@ public class AllMigrateMongoDBTest {
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
+        Assert.assertTrue(result.tryExecute());
     }
 
 }
