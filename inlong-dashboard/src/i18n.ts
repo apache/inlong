@@ -33,7 +33,7 @@ const resources = {
       'configs.menus.SystemManagement': 'System',
       'configs.menus.UserManagement': 'User Management',
       'configs.menus.ProcessManagement': 'Process Management',
-      'configs.menus.Nodes': 'DataNode',
+      'configs.menus.Nodes': 'DataNodes',
     },
   },
   cn: {
