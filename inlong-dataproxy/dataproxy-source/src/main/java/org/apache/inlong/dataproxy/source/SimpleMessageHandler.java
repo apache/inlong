@@ -217,7 +217,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
         String streamId = message.getStreamId();
         if (null != groupId) {
 
-            String value = getTopic(groupId, streamId);
+            String value = configManager.getTopicName(groupId, streamId);
             if (StringUtils.isNotEmpty(value)) {
                 topicInfo.set(value.trim());
             }
@@ -254,7 +254,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                     message.setGroupId(groupId);
                     message.setStreamId(streamId);
 
-                    String value = getTopic(groupId, streamId);
+                    String value = configManager.getTopicName(groupId, streamId);
                     if (StringUtils.isNotEmpty(value)) {
                         topicInfo.set(value.trim());
                     }
@@ -653,30 +653,6 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         logger.error("channel inactive {}", ctx.channel());
         ctx.fireChannelInactive();
-    }
-
-    /**
-     * get topic
-     */
-    private String getTopic(String groupId) {
-        return getTopic(groupId, null);
-    }
-
-    /**
-     * get topic
-     */
-    private String getTopic(String groupId, String streamId) {
-        String topic = null;
-        if (StringUtils.isNotEmpty(groupId)) {
-            if (StringUtils.isNotEmpty(streamId)) {
-                topic = configManager.getTopicProperties().get(groupId + "/" + streamId);
-            }
-            if (StringUtils.isEmpty(topic)) {
-                topic = configManager.getTopicProperties().get(groupId);
-            }
-        }
-        logger.debug("Get topic by groupId = {} , streamId = {}", groupId, streamId);
-        return topic;
     }
 
     /**

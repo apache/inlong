@@ -377,8 +377,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         message.setGroupId(groupId);
                         message.setStreamId(streamId);
                         // get configured topic name
-                        configTopic = MessageUtils.getTopic(
-                                configManager.getTopicProperties(), groupId, streamId);
+                        configTopic = configManager.getTopicName(groupId, streamId);
                     }
                 }
             } else {
@@ -391,8 +390,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     message.getAttributeMap().putAll(mapSplitter.split(this.defaultMXAttr));
                 }
                 // get configured topic name
-                configTopic = MessageUtils.getTopic(
-                        configManager.getTopicProperties(), groupId, streamId);
+                configTopic = configManager.getTopicName(groupId, streamId);
             }
             // check topic configure
             if (StringUtils.isEmpty(configTopic)) {
