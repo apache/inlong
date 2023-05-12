@@ -109,7 +109,7 @@ public class ConfigManager {
      */
     public String getTopicName(String groupId, String streamId) {
         String topic = null;
-        Map<String, String> topicsMap = weightHolder.getHolder();
+        Map<String, String> topicsMap = topicConfig.getHolder();
         if (topicsMap != null && StringUtils.isNotEmpty(groupId)) {
             if (StringUtils.isNotEmpty(streamId)) {
                 topic = topicsMap.get(groupId + "/" + streamId);
