@@ -17,79 +17,56 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.common.enums.MetaField;
-import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
-import org.apache.inlong.sort.protocol.enums.ExtractMode;
 import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
-import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
+import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
+import org.apache.inlong.sort.protocol.node.format.CsvFormat;
+import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+public class AllMigrateMongoDBTest extends AbstractTestBase {
 
-public class AllMigrateWithSpecifyingFieldTest extends AbstractTestBase {
-
-    private MySqlExtractNode buildAllMigrateMySQLExtractNode() {
-
-        Map<String, String> option = new HashMap<>();
-        option.put("migrate-all", "true");
-        // Specify the required fields
-        option.put("debezium.column.include.list", "test.table1.id,test.table1.name");
-
-        List<String> tables = new ArrayList<>(10);
-        tables.add("test.table1");
-
-        List<FieldInfo> fields = Collections.singletonList(
-                new MetaFieldInfo("data", MetaField.DATA_BYTES_CANAL));
-
-        return new MySqlExtractNode("1", "mysql_input", fields,
-                null, option, null,
-                tables, "localhost", "root", "inlong",
-                "test", 3306, null, true, null,
-                ExtractMode.CDC, null, null);
+    private MongoExtractNode buildAllMigrateExtractNode() {
+        List<FieldInfo> fields = Arrays.asList(
+                new MetaFieldInfo("data", MetaField.DATA_CANAL));
+        Map<String, String> options = new HashMap<>();
+        options.put("source.multiple.enable", "true");
+        return new MongoExtractNode("1", "mongodb_input", fields,
+                null, options, "db.test", "localhost:27017",
+                "root", "inlong", "db");
     }
 
-    private MySqlLoadNode buildAllMigrateMySQLLoadNode() {
-        List<FieldInfo> fields = Collections.singletonList(
-                new FieldInfo("data", new VarBinaryFormatInfo()));
-        List<FieldRelation> relations = Collections.singletonList(
-                new FieldRelation(new FieldInfo("data", new VarBinaryFormatInfo()),
-                        new FieldInfo("data", new VarBinaryFormatInfo())));
-
-        Map<String, String> properties = new LinkedHashMap<>();
-        properties.put("sink.multiple.enable", "true");
-        properties.put("sink.multiple.format", "canal-json");
-        properties.put("sink.multiple.schema-update.policy", "try_it_best");
-        properties.put("sink.multiple.database-pattern", "test2");
-        properties.put("sink.multiple.schema-pattern", "");
-        // The target table naming rule
-        properties.put("sink.multiple.table-pattern", "${database}_${table}");
-
-        // in all migrate mode, You can set the table-name parameter value at will
-        String table = "test2.xxx";
-        return new MySqlLoadNode("2", "mysql_output", fields, relations, null, null,
-                null, properties, "jdbc:mysql://localhost:3306", "root", "inlong",
-                table, null);
+    private KafkaLoadNode buildAllMigrateKafkaNode() {
+        List<FieldInfo> fields = Arrays.asList(new FieldInfo("data", new StringFormatInfo()));
+        List<FieldRelation> relations = Arrays
+                .asList(new FieldRelation(new FieldInfo("data", new StringFormatInfo()),
+                        new FieldInfo("data", new StringFormatInfo())));
+        CsvFormat csvFormat = new CsvFormat();
+        csvFormat.setDisableQuoteCharacter(true);
+        return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
+                "test", "localhost:9092",
+                csvFormat, null,
+                null, null);
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -99,12 +76,12 @@ public class AllMigrateWithSpecifyingFieldTest extends AbstractTestBase {
     }
 
     /**
-     * Test all migrate, Synchronize the specified fields from mysql to the target mysql database
+     * Test flink sql parse
      *
      * @throws Exception The exception may throws when execute the case
      */
     @Test
-    public void testAllMigrateMySQLToMySQL() throws Exception {
+    public void testAllMigrate() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
                 .useBlinkPlanner()
@@ -114,8 +91,8 @@ public class AllMigrateWithSpecifyingFieldTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
-        Node inputNode = buildAllMigrateMySQLExtractNode();
-        Node outputNode = buildAllMigrateMySQLLoadNode();
+        Node inputNode = buildAllMigrateExtractNode();
+        Node outputNode = buildAllMigrateKafkaNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));
