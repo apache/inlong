@@ -22,6 +22,7 @@ import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -189,9 +190,11 @@ public interface StreamSourceEntityMapper {
     void updateStatusByDeleted(@Param("status") Integer status);
 
     /**
-     * Physical delete stream sources by group id and stream id
+     * Update the source status when it has been deleted
+     *
+     * @param timeBefore the latest modify time before which to select
      */
-    int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    void updateStatusToTimeout(@Param("timeBefore") Date timeBefore);
 
     /**
      * Physically delete all stream sources based on inlong group ids

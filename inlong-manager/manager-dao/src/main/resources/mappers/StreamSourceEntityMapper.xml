@@ -554,17 +554,17 @@
             and status not in (99, 201, 301)
         </where>
     </update>
-
-    <delete id="deleteByRelatedId">
-        delete
-        from stream_source
-        where
-        is_deleted = 0
-        and inlong_group_id = #{groupId, jdbcType=VARCHAR}
-        <if test="streamId != null and streamId != ''">
-            and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
-        </if>
-    </delete>
+    <update id="updateStatusToTimeout">
+        update stream_source
+        <set>
+            status = 105
+        </set>
+        <where>
+            is_deleted = 0
+            and modify_time &lt;= #{timeBefore, jdbcType=TIMESTAMP}
+            and status in (200, 201, 202, 203, 204, 205, 206, 207, 208)
+        </where>
+    </update>
     <delete id="deleteByInlongGroupIds">
         delete
         from stream_source

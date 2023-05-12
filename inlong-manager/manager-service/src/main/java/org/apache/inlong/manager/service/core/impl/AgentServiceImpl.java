@@ -68,6 +68,7 @@ import org.elasticsearch.common.util.set.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -76,7 +77,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -105,7 +108,6 @@ public class AgentServiceImpl implements AgentService {
     private static final int MODULUS_100 = 100;
     private static final int TASK_FETCH_SIZE = 2;
     private static final Gson GSON = new Gson();
-
     private final ExecutorService executorService = new ThreadPoolExecutor(
             5,
             10,
@@ -114,7 +116,10 @@ public class AgentServiceImpl implements AgentService {
             new ArrayBlockingQueue<>(100),
             new ThreadFactoryBuilder().setNameFormat("async-agent-%s").build(),
             new CallerRunsPolicy());
-
+    @Value("${source.update.enabled:false}")
+    private Boolean enabled;
+    @Value("${source.update.before.seconds:10}")
+    private Integer before;
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -135,9 +140,11 @@ public class AgentServiceImpl implements AgentService {
      */
     @PostConstruct
     private void startHeartbeatTask() {
-        UpdateTaskRunnable taskRunnable = new UpdateTaskRunnable();
-        this.executorService.execute(taskRunnable);
-        LOGGER.info("update task status started successfully");
+        if (enabled) {
+            UpdateTaskRunnable taskRunnable = new UpdateTaskRunnable();
+            this.executorService.execute(taskRunnable);
+            LOGGER.info("update task status started successfully");
+        }
     }
 
     @Override
@@ -242,12 +249,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(bindSet)) {
             bindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(ClusterType.AGENT);
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(Objects::nonNull)
+                        ClusterPageRequest pageRequest = new ClusterPageRequest();
+                        pageRequest.setParentId(cluster.getId());
+                        pageRequest.setType(ClusterType.AGENT);
+                        pageRequest.setKeyword(clusterNode);
+                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
+                    }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -266,12 +273,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(unbindSet)) {
             unbindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(ClusterType.AGENT);
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(Objects::nonNull)
+                        ClusterPageRequest pageRequest = new ClusterPageRequest();
+                        pageRequest.setParentId(cluster.getId());
+                        pageRequest.setType(ClusterType.AGENT);
+                        pageRequest.setKeyword(clusterNode);
+                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
+                    }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -421,7 +428,7 @@ public class AgentServiceImpl implements AgentService {
             if (!matchGroup(sourceEntity, clusterNodeEntity)
                     && !exceptedUnmatchedStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))) {
                 LOGGER.info("Transform task({}) from {} to {} because tag mismatch "
-                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                         sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_STOP.getCode(),
                         agentIp, agentClusterName);
                 sourceMapper.updateStatus(
@@ -441,7 +448,7 @@ public class AgentServiceImpl implements AgentService {
                     && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
                     && !exceptedMatchedGroupStatus.contains(GroupStatus.forCode(groupEntity.getStatus()))) {
                 LOGGER.info("Transform task({}) from {} to {} because tag rematch "
-                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                         sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(),
                         agentIp, agentClusterName);
                 sourceMapper.updateStatus(
@@ -642,7 +649,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     /**
-     * update task status when task is_deleted ! = 0
+     * update task status when task timeout
      */
     private class UpdateTaskRunnable implements Runnable {
 
@@ -650,8 +657,12 @@ public class AgentServiceImpl implements AgentService {
         public void run() {
             while (true) {
                 try {
-                    sourceMapper.updateStatusByDeleted(SourceStatus.TO_BE_ISSUED_DELETE.getCode());
-                    Thread.sleep(60 * 1000);
+                    Calendar calendar = Calendar.getInstance();
+                    int currenSecond = calendar.get(Calendar.SECOND);
+                    calendar.set(Calendar.SECOND, currenSecond - before);
+                    Date daysBefore = calendar.getTime();
+                    sourceMapper.updateStatusToTimeout(daysBefore);
+                    Thread.sleep(before * 1000);
                 } catch (Throwable t) {
                     LOGGER.error("update task status runnable error", t);
                 }

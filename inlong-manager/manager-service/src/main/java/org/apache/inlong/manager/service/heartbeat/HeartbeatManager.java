@@ -54,7 +54,6 @@ import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -76,9 +75,6 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
     private static final String AUTO_REGISTERED = "auto registered";
     private static final Gson GSON = new Gson();
-
-    @Value("${source.update.enabled:false}")
-    private Boolean enabled;
 
     @Getter
     private Cache<ComponentHeartbeat, HeartbeatMsg> heartbeatCache;
@@ -247,15 +243,6 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             }
             clusterNode.setStatus(NodeStatus.HEARTBEAT_TIMEOUT.getStatus());
             clusterNodeMapper.updateById(clusterNode);
-            // If the agent heartbeat times out, update the source synchronously
-            if (enabled && Objects.equals(clusterNode.getType(), ClusterType.AGENT)) {
-                List<Integer> needUpdateIds = sourceMapper.selectNeedUpdateByAgentIpAndCluster(null,
-                        Lists.newArrayList(SourceType.FILE), clusterNode.getIp(), heartbeatMsg.getClusterName());
-                // set source status to heartbeat timeout for all source by ip and type
-                if (CollectionUtils.isNotEmpty(needUpdateIds)) {
-                    sourceMapper.updateStatusByIds(needUpdateIds, SourceStatus.HEARTBEAT_TIMEOUT.getCode(), null);
-                }
-            }
         }
     }
 
