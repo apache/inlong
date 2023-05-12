@@ -1597,13 +1597,13 @@
                 <version>${spotless.version}</version>
                 <configuration>
                     <java>
-                        <!--                        <eclipse>-->
-                        <!--                            <file>codestyle/spotless_inlong_formatter.xml</file>-->
-                        <!--                        </eclipse>-->
-                        <!--                        <licenseHeader>-->
-                        <!--                            <file>codestyle/license-header</file>-->
-                        <!--                        </licenseHeader>-->
-                        <!--                        <removeUnusedImports />-->
+                        <eclipse>
+                            <file>codestyle/spotless_inlong_formatter.xml</file>
+                        </eclipse>
+                        <licenseHeader>
+                            <file>codestyle/license-header</file>
+                        </licenseHeader>
+                        <removeUnusedImports />
                         <replaceRegex>
                             <name>Remove wildcard imports</name>
                             <searchRegex>import\s+[^\*\s]+\*;(\r\n|\r|\n)</searchRegex>
