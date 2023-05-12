@@ -21,7 +21,7 @@
 
 
 # [A one-stop integration framework for massive data](https://inlong.apache.org/)
-[![Build Status](https://travis-ci.org/apache/inlong.svg?branch=master)](https://github.com/apache/inlong/actions)
+[![GitHub Actions](https://github.com/apache/inlong/actions/workflows/ci_build.yml/badge.svg)](https://github.com/apache/inlong/actions)
 [![CodeCov](https://codecov.io/gh/apache/inlong/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/inlong)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.inlong/inlong/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.inlong)
 [![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://inlong.apache.org/download/)
