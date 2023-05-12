@@ -124,4 +124,5 @@ public class AllMigrateWithSpecifyingFieldTest extends AbstractTestBase {
         ParseResult result = parser.parse();
         Assert.assertTrue(result.tryExecute());
     }
+
 }
