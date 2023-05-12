@@ -97,7 +97,7 @@ public class SimpleMessageHandler implements MessageHandler {
         groupId = groupId.trim();
         streamId = streamId.trim();
         // get topicName
-        String topicName = getTopic(groupId, streamId);
+        String topicName = configManager.getTopicName(groupId, streamId);
         if (StringUtils.isBlank(topicName)) {
             if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
                 topicName = "test";
@@ -218,20 +218,6 @@ public class SimpleMessageHandler implements MessageHandler {
 
     @Override
     public void configure(org.apache.flume.Context context) {
-    }
-
-    private String getTopic(String groupId, String streamId) {
-        String topic = null;
-        if (StringUtils.isNotEmpty(groupId)) {
-            if (StringUtils.isNotEmpty(streamId)) {
-                topic = configManager.getTopicProperties().get(groupId + "/" + streamId);
-            }
-            if (StringUtils.isEmpty(topic)) {
-                topic = configManager.getTopicProperties().get(groupId);
-            }
-        }
-        LOG.debug("Get topic by groupId/streamId = {}, topic = {}", groupId + "/" + streamId, topic);
-        return topic;
     }
 
     /**

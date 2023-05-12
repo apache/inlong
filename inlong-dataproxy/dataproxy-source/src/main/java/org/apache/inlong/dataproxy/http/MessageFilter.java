@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.ChannelException;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.slf4j.Logger;
@@ -100,6 +101,15 @@ public class MessageFilter implements Filter {
                     DataProxyErrCode.MISS_REQUIRED_STREAMID_ARGUMENT.getErrMsg());
             return;
         }
+        // get and check topicName
+        String topicName = ConfigManager.getInstance().getTopicName(groupId, streamId);
+        if (StringUtils.isBlank(topicName)
+                && !CommonConfigHolder.getInstance().isNoTopicAccept()) {
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.TOPIC_IS_BLANK.getErrCode(),
+                    DataProxyErrCode.TOPIC_IS_BLANK.getErrMsg());
+            return;
+        }
         // get and check dt
         String dt = req.getParameter(AttributeConstants.DATA_TIME);
         if (StringUtils.isEmpty(dt)) {
@@ -117,6 +127,12 @@ public class MessageFilter implements Filter {
             return;
         }
         // check body length
+        if (body.length() <= 0) {
+            returnRspPackage(resp, req.getCharacterEncoding(),
+                    DataProxyErrCode.EMPTY_MSG.getErrCode(),
+                    "Bad request, body length <= 0");
+            return;
+        }
         if (body.length() > maxMsgLength) {
             returnRspPackage(resp, req.getCharacterEncoding(),
                     DataProxyErrCode.BODY_EXCEED_MAX_LEN.getErrCode(),
