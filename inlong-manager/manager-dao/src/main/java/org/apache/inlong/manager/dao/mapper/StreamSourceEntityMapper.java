@@ -185,16 +185,14 @@ public interface StreamSourceEntityMapper {
     /**
      * Update the source status when it has been deleted
      *
-     * @param status modify the status to this
-     */
-    void updateStatusByDeleted(@Param("status") Integer status);
-
-    /**
-     * Update the source status when it has been deleted
-     *
      * @param timeBefore the latest modify time before which to select
      */
     void updateStatusToTimeout(@Param("timeBefore") Date timeBefore);
+
+    /**
+     * Physical delete stream sources by group id and stream id
+     */
+    int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
      * Physically delete all stream sources based on inlong group ids
