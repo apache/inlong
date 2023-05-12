@@ -104,8 +104,25 @@ public class ConfigManager {
         return weightHolder.getHolder();
     }
 
-    public Map<String, String> getTopicProperties() {
-        return topicConfig.getHolder();
+    /**
+     * get topic by groupId and streamId
+     */
+    public String getTopicName(String groupId, String streamId) {
+        String topic = null;
+        Map<String, String> topicsMap = weightHolder.getHolder();
+        if (topicsMap != null && StringUtils.isNotEmpty(groupId)) {
+            if (StringUtils.isNotEmpty(streamId)) {
+                topic = topicsMap.get(groupId + "/" + streamId);
+            }
+            if (StringUtils.isEmpty(topic)) {
+                topic = topicsMap.get(groupId);
+            }
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Get topic by groupId = {}, streamId = {}, topic = {}",
+                    groupId, streamId, topic);
+        }
+        return topic;
     }
 
     public boolean addTopicProperties(Map<String, String> result) {

@@ -383,26 +383,6 @@ public class MessageUtils {
         return binBuffer;
     }
 
-    /**
-     * get topic
-     */
-    public static String getTopic(Map<String, String> topicsMap, String groupId, String streamId) {
-        String topic = null;
-        if (topicsMap != null && StringUtils.isNotEmpty(groupId)) {
-            if (StringUtils.isNotEmpty(streamId)) {
-                topic = topicsMap.get(groupId + "/" + streamId);
-            }
-            if (StringUtils.isEmpty(topic)) {
-                topic = topicsMap.get(groupId);
-            }
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("Get topic by groupId = {}, streamId = {}, topic = {}",
-                    groupId, streamId, topic);
-        }
-        return topic;
-    }
-
     public static Map<String, String> getXfsAttrs(Map<String, String> headers, String pkgVersion) {
         // common attributes
         Map<String, String> attrs = new HashMap<>();
