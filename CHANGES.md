@@ -191,6 +191,7 @@
 | [INLONG-7971](https://github.com/apache/inlong/issues/7971) | [Feature][Dashboard] Support batch import fields by Excel                                                      |
 | [INLONG-8001](https://github.com/apache/inlong/issues/8001) | [Feature][Dashboard] Support postgreSQL node management                                                        |
 | [INLONG-8011](https://github.com/apache/inlong/issues/8011) | [Improve][Dashboard] Cluster name and node name can be modified when editing                                   |
+| [INLONG-8011](https://github.com/apache/inlong/issues/8022) | [Improve][Dashboard] Node management title text optimization                                                   |
 
 ### Other
 |                            ISSUE                            | Summary                                                                                                 |
