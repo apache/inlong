@@ -173,24 +173,27 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         // re-issue task if necessary
         if (InlongConstants.STANDARD_MODE.equals(groupMode)) {
             SourceStatus sourceStatus = SourceStatus.forCode(entity.getStatus());
+            Integer nextStatus = entity.getStatus();
             if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
-                entity.setStatus(SourceStatus.TO_BE_ISSUED_RETRY.getCode());
+                nextStatus = SourceStatus.TO_BE_ISSUED_RETRY.getCode();
             } else {
                 switch (SourceStatus.forCode(entity.getStatus())) {
                     case SOURCE_NORMAL:
-                        entity.setStatus(SourceStatus.TO_BE_ISSUED_RETRY.getCode());
+                    case HEARTBEAT_TIMEOUT:
+                        nextStatus = SourceStatus.TO_BE_ISSUED_RETRY.getCode();
                         break;
                     case SOURCE_FAILED:
-                        entity.setStatus(SourceStatus.SOURCE_NEW.getCode());
+                        nextStatus = SourceStatus.SOURCE_NEW.getCode();
                         break;
                     default:
                         // others leave it be
                         break;
                 }
             }
+            entity.setStatus(nextStatus);
             // When the source is in a heartbeat timeout state, set nextStatus to preStatus
             if (Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT.getCode(), sourceStatus.getCode())) {
-                entity.setPreviousStatus(sourceStatus.getCode());
+                entity.setPreviousStatus(nextStatus);
                 entity.setStatus(SourceStatus.HEARTBEAT_TIMEOUT.getCode());
             }
         }

@@ -546,8 +546,8 @@
     <update id="updateStatusByDeleted">
         update stream_source
         <set>
-            status = #{status, jdbcType=INTEGER},
             previous_status = status,
+            status = #{status, jdbcType=INTEGER},
         </set>
         <where>
             is_deleted != 0
