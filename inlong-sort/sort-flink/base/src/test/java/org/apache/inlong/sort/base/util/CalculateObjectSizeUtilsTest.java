@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.base.util;
 
+import org.apache.flink.core.memory.MemorySegmentFactory;
 import org.apache.flink.table.data.binary.BinaryRowData;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,6 +26,15 @@ import org.junit.Test;
  * Test for {@link CalculateObjectSizeUtils}
  */
 public class CalculateObjectSizeUtilsTest {
+
+    public static final BinaryRowData EMPTY_ROW;
+
+    static {
+        EMPTY_ROW = new BinaryRowData(0);
+        int size = EMPTY_ROW.getFixedLengthPartSize();
+        byte[] bytes = new byte[size];
+        EMPTY_ROW.pointTo(MemorySegmentFactory.wrap(bytes), 0, size);
+    }
 
     @Test
     public void testGetDataSize() {
@@ -38,9 +48,8 @@ public class CalculateObjectSizeUtilsTest {
         long actual2 = CalculateObjectSizeUtils.getDataSize(data2);
         Assert.assertEquals(expected2, actual2);
 
-        BinaryRowData data3 = new BinaryRowData(0);
         long expected3 = 8L;
-        long actual3 = CalculateObjectSizeUtils.getDataSize(data3);
+        long actual3 = CalculateObjectSizeUtils.getDataSize(EMPTY_ROW);
         Assert.assertEquals(expected3, actual3);
     }
 }
