@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sort;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,4 +42,6 @@ public class SortStatusInfo {
     @ApiModelProperty(value = "Sort status info")
     private SortStatus sortStatus;
 
+    @ApiModelProperty("Extended properties of sort")
+    private Map<String, Object> properties;
 }
