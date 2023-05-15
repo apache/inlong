@@ -114,8 +114,10 @@ public class AgentServiceImpl implements AgentService {
             new ArrayBlockingQueue<>(100),
             new ThreadFactoryBuilder().setNameFormat("async-agent-%s").build(),
             new CallerRunsPolicy());
-    @Value("${source.update.enabled:false}")
-    private Boolean enabled;
+    @Value("${source.update.timeout.enabled:false}")
+    private Boolean updateTaskTimeoutEnabled;
+    @Value("${source.update.error.enabled:false}")
+    private Boolean updateTaskErrorEnabled;
     @Value("${source.update.before.seconds:60}")
     private Integer beforeSeconds;
     @Autowired
@@ -138,10 +140,15 @@ public class AgentServiceImpl implements AgentService {
      */
     @PostConstruct
     private void startHeartbeatTask() {
-        if (enabled) {
+        if (updateTaskTimeoutEnabled) {
             UpdateTaskRunnable taskRunnable = new UpdateTaskRunnable();
             this.executorService.execute(taskRunnable);
             LOGGER.info("update task status started successfully");
+        }
+        if (updateTaskErrorEnabled){
+            UpdateTaskByErrorStatusRunnable updateTaskByErrorStatusRunnable = new UpdateTaskByErrorStatusRunnable();
+            this.executorService.execute(updateTaskByErrorStatusRunnable);
+            LOGGER.info("update task by error status started successfully");
         }
     }
 
@@ -656,6 +663,24 @@ public class AgentServiceImpl implements AgentService {
                 try {
                     sourceMapper.updateStatusToTimeout(beforeSeconds);
                     Thread.sleep(beforeSeconds * 1000);
+                } catch (Throwable t) {
+                    LOGGER.error("update task status runnable error", t);
+                }
+            }
+        }
+    }
+
+    /**
+     * update task which in an incorrect state
+     */
+    private class UpdateTaskByErrorStatusRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    sourceMapper.updateStatusByDeleted();
+                    Thread.sleep(60 * 10000);
                 } catch (Throwable t) {
                     LOGGER.error("update task status runnable error", t);
                 }

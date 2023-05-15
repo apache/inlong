@@ -552,6 +552,17 @@
         </where>
     </update>
 
+    <update id="updateStatusByDeleted">
+        update stream_source
+        <set>
+            previous_status = status,
+            status = 201,
+        </set>
+        <where>
+            is_deleted != 0
+            and status not in (99, 201, 301)
+        </where>
+    </update>
     <delete id="deleteByRelatedId">
         delete
         from stream_source
