@@ -50,6 +50,7 @@
 | [INLONG-8006](https://github.com/apache/inlong/issues/8006) | [Improve][Manager] Set displayname for the auto-registered cluster                             |
 | [INLONG-7999](https://github.com/apache/inlong/issues/7999) | [Improve][Manager] Support PostgreSQL data node                                                |
 | [INLONG-7996](https://github.com/apache/inlong/issues/7996) | [Improve][Manager] Support issued kafka consumer group to sort                                 |
+| [INLONG-7987](https://github.com/apache/inlong/issues/7987) | [Improve][Manager] Add a heartbeat timeout status to the source                                |
 | [INLONG-7981](https://github.com/apache/inlong/issues/7981) | [Bug][Manager] Failed to stop source correctly when suspend a group                            |
 | [INLONG-7948](https://github.com/apache/inlong/issues/7948) | [Improve][Manager] Add user authentication when operate inlong consume                         |
 | [INLONG-7946](https://github.com/apache/inlong/issues/7946) | [Improve][Manager] Add user authentication when bind clusterTag                                |

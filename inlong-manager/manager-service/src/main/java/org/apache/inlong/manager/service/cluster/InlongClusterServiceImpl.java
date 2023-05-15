@@ -1240,7 +1240,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         clusterEntityList.forEach(e -> tagSet.addAll(Arrays.asList(e.getClusterTags().split(InlongConstants.COMMA))));
         List<String> clusterTagList = new ArrayList<>(tagSet);
         InlongGroupPageRequest groupRequest = InlongGroupPageRequest.builder()
-                .status(GroupStatus.CONFIG_SUCCESSFUL.getCode())
+                .statusList(Arrays.asList(GroupStatus.CONFIG_SUCCESSFUL.getCode(), GroupStatus.RESTARTED.getCode()))
                 .clusterTagList(clusterTagList)
                 .build();
 

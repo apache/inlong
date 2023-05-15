@@ -201,7 +201,23 @@
         where id = #{id,jdbcType=INTEGER}
         and version = #{version,jdbcType=INTEGER}
     </update>
-
+    <update id="updateStatus">
+        update inlong_cluster_node
+        <set>
+            <if test="nextStatus != null">
+                status = #{nextStatus,jdbcType=INTEGER}
+            </if>
+        </set>
+        <where>
+            is_deleted = 0
+            <if test="status != null">
+                and status = #{status,jdbcType=INTEGER}
+            </if>
+            <if test="id != null">
+                and id = #{id,jdbcType=INTEGER}
+            </if>
+        </where>
+    </update>
     <delete id="deleteById" parameterType="java.lang.Integer">
         delete
         from inlong_cluster_node

@@ -43,7 +43,7 @@ public class ClusterTagRequest {
     @ApiModelProperty(value = "Cluster tag")
     @NotBlank(groups = SaveValidation.class, message = "clusterTag cannot be blank")
     @Length(min = 1, max = 128, message = "length must be between 1 and 128")
-    @Pattern(regexp = "^[a-z0-9_-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[a-z0-9_.-]{1,128}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String clusterTag;
 
     @ApiModelProperty(value = "Extended params")

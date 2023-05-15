@@ -23,17 +23,21 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.Scheduler;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterStatus;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -42,23 +46,28 @@ import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Lazy
 @Component
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
@@ -75,6 +84,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
+    @Autowired
+    private StreamSourceEntityMapper sourceMapper;
 
     /**
      * Check whether the configuration information carried in the heartbeat has been updated
@@ -88,11 +99,15 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         if (oldHB == null) {
             return true;
         }
-        return oldHB.getNodeGroup() != newHB.getNodeGroup() || oldHB.getLoad() != newHB.getLoad();
+        return !Objects.equals(oldHB.getNodeGroup(), newHB.getNodeGroup()) || !Objects.equals(oldHB.getLoad(),
+                newHB.getLoad());
     }
 
     @PostConstruct
     public void init() {
+        // When the manager restarts, set the heartbeat timeout state of all nodes
+        // and wait for the heartbeat report of the corresponding node
+        clusterNodeMapper.updateStatus(null, NodeStatus.HEARTBEAT_TIMEOUT.getStatus(), NodeStatus.NORMAL.getStatus());
         long expireTime = heartbeatInterval() * 2L;
         Scheduler evictScheduler = Scheduler.forScheduledExecutorService(Executors.newSingleThreadScheduledExecutor());
         heartbeatCache = Caffeine.newBuilder()
@@ -162,6 +177,16 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     handlerNum += insertClusterNode(clusterInfo, heartbeatMsg, clusterInfo.getCreator());
                 } else {
                     handlerNum += updateClusterNode(clusterNode, heartbeatMsg);
+                    // If the agent report succeeds, restore the source status
+                    if (Objects.equals(clusterNode.getType(), ClusterType.AGENT)) {
+                        // If the agent report succeeds, restore the source status
+                        List<Integer> needUpdateIds = sourceMapper.selectHeartbeatTimeoutIds(
+                                Lists.newArrayList(SourceType.FILE), heartbeat.getIp(), heartbeat.getClusterName());
+                        // restore state for all source by ip and type
+                        if (CollectionUtils.isNotEmpty(needUpdateIds)) {
+                            sourceMapper.rollbackTimeoutStatusByIds(needUpdateIds, null);
+                        }
+                    }
                 }
             }
         }
