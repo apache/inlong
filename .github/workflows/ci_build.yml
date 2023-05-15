@@ -95,9 +95,10 @@ jobs:
           name: apache-inlong-${{ env.VERSION }}-bin.tar.gz
           path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-bin.tar.gz
 
-      - name: Upload sort connectors package
+      - name: Upload sort connectors package for flink v1.13
         if: ${{ success() }}
         uses: actions/upload-artifact@v3
         with:
-          name: apache-inlong-${{ env.VERSION }}-sort-connectors.tar.gz
-          path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-sort-connectors.tar.gz
+          name: apache-inlong-${{ env.VERSION }}-sort-connectors-flink-v1.13.tar.gz
+          path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-sort-connectors-flink-v1.13.tar.gz
+
