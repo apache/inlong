@@ -17,6 +17,10 @@
 
 package org.apache.inlong.agent.core.conf;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_SOURCE_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
+
+import java.io.Closeable;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
@@ -31,11 +35,6 @@ import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.Closeable;
-
-import static org.apache.inlong.agent.constant.JobConstants.JOB_SOURCE_TYPE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
 
 /**
  * start http server and get job/agent config via http
@@ -88,7 +87,7 @@ public class ConfigJetty implements Closeable {
             // trigger job is a special kind of job
             if (jobProfile.hasKey(JOB_TRIGGER)) {
                 triggerManager.submitTrigger(
-                        TriggerProfile.parseJsonStr(jobProfile.toJsonStr()));
+                        TriggerProfile.parseJsonStr(jobProfile.toJsonStr()), true);
             } else {
                 TaskTypeEnum taskType = TaskTypeEnum
                         .getTaskType(jobProfile.getInt(JOB_SOURCE_TYPE));
@@ -99,7 +98,7 @@ public class ConfigJetty implements Closeable {
                     case KAFKA:
                     case BINLOG:
                     case SQL:
-                        jobManager.submitJobProfile(jobProfile, true);
+                        jobManager.submitJobProfile(jobProfile, true, true);
                         break;
                     default:
                         LOGGER.error("source type not supported {}", taskType);
@@ -123,9 +122,9 @@ public class ConfigJetty implements Closeable {
     public void deleteJobConf(JobProfile jobProfile) {
         if (jobProfile != null) {
             if (jobProfile.hasKey(JOB_TRIGGER)) {
-                triggerManager.deleteTrigger(TriggerProfile.parseJobProfile(jobProfile).getTriggerId());
+                triggerManager.deleteTrigger(TriggerProfile.parseJobProfile(jobProfile).getTriggerId(), false);
             } else {
-                jobManager.deleteJob(jobProfile.getInstanceId());
+                jobManager.deleteJob(jobProfile.getInstanceId(), false);
             }
         }
     }
