@@ -187,7 +187,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                                 Lists.newArrayList(SourceType.FILE), heartbeat.getIp(), heartbeat.getClusterName());
                         // restore state for all source by ip and type
                         if (CollectionUtils.isNotEmpty(needUpdateIds)) {
-                            sourceMapper.restoreStatusByIds(needUpdateIds, SourceStatus.HEARTBEAT_TIMEOUT.getCode(),
+                            sourceMapper.restoreStatusFromHeartbeatByIds(needUpdateIds,
+                                    SourceStatus.HEARTBEAT_TIMEOUT.getCode(),
                                     null);
                         }
                     }

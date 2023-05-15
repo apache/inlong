@@ -179,7 +179,7 @@ public interface StreamSourceEntityMapper {
      * @param status modify the status to this
      * @param operator operator name
      */
-    void restoreStatusByIds(@Param("idList") List<Integer> idList, @Param("status") Integer status,
+    void restoreStatusFromHeartbeatByIds(@Param("idList") List<Integer> idList, @Param("status") Integer status,
             @Param("operator") String operator);
 
     /**

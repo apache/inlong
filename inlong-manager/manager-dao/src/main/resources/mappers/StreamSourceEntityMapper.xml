@@ -523,7 +523,7 @@
             </if>
         </where>
     </update>
-    <update id="restoreStatusByIds">
+    <update id="restoreStatusFromHeartbeatByIds">
         update stream_source
         <set>
             status = previous_status,
