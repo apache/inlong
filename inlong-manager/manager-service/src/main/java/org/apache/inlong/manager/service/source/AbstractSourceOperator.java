@@ -168,8 +168,6 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         setTargetEntity(request, entity);
         entity.setModifier(operator);
 
-        entity.setPreviousStatus(entity.getStatus());
-
         // re-issue task if necessary
         if (InlongConstants.STANDARD_MODE.equals(groupMode)) {
             SourceStatus sourceStatus = SourceStatus.forCode(entity.getStatus());
@@ -190,12 +188,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                         break;
                 }
             }
-            entity.setStatus(nextStatus);
             // When the source is in a heartbeat timeout state, set nextStatus to preStatus
-            if (Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT.getCode(), sourceStatus.getCode())) {
-                entity.setPreviousStatus(nextStatus);
-                entity.setStatus(SourceStatus.HEARTBEAT_TIMEOUT.getCode());
+            if (!Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT.getCode(), sourceStatus.getCode())) {
+                entity.setPreviousStatus(entity.getStatus());
             }
+            entity.setStatus(nextStatus);
         }
 
         int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);

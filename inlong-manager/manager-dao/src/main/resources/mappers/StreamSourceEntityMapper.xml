@@ -535,6 +535,7 @@
         </set>
         <where>
             is_deleted = 0
+            and status = 105
             <if test="idList != null and idList.size() > 0">
                 and id in
                 <foreach item="item" index="index" collection="idList" open="(" close=")" separator=",">
