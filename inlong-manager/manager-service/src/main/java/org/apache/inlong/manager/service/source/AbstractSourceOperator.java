@@ -167,6 +167,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         // setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
         entity.setModifier(operator);
+        entity.setPreviousStatus(entity.getStatus());
 
         // re-issue task if necessary
         if (InlongConstants.STANDARD_MODE.equals(groupMode)) {
@@ -187,10 +188,6 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                         // others leave it be
                         break;
                 }
-            }
-            // When the source is in a heartbeat timeout state, set nextStatus to preStatus
-            if (!Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT.getCode(), sourceStatus.getCode())) {
-                entity.setPreviousStatus(entity.getStatus());
             }
             entity.setStatus(nextStatus);
         }
@@ -217,10 +214,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     existEntity.getStatus(), existEntity.getId()));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        // When the source is not in a heartbeat timeout state, set curStatus to preStatus
-        if (!Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT, curState)) {
-            curEntity.setPreviousStatus(curState.getCode());
-        }
+        curEntity.setPreviousStatus(curState.getCode());
         curEntity.setStatus(nextState.getCode());
         int rowCount = sourceMapper.updateByPrimaryKeySelective(curEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
@@ -242,10 +236,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     existEntity.getStatus(), existEntity.getId()));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        // When the source is not in a heartbeat timeout state, set curStatus to preStatus
-        if (!Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT, curState)) {
-            curEntity.setPreviousStatus(curState.getCode());
-        }
+        curEntity.setPreviousStatus(curState.getCode());
         curEntity.setStatus(nextState.getCode());
         int rowCount = sourceMapper.updateByPrimaryKeySelective(curEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {

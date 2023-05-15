@@ -128,8 +128,8 @@ public interface StreamSourceEntityMapper {
     /**
      * Query need update tasks by the given status list and type List.
      */
-    List<Integer> selectHeartbeatTimeoutIds(@Param("statusList") List<Integer> statusList,
-            @Param("sourceTypeList") List<String> sourceTypeList, @Param("agentIp") String agentIp,
+    List<Integer> selectHeartbeatTimeoutIds(@Param("sourceTypeList") List<String> sourceTypeList,
+            @Param("agentIp") String agentIp,
             @Param("clusterName") String clusterName);
 
     int updateByPrimaryKeySelective(StreamSourceEntity record);

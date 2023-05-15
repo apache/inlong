@@ -40,7 +40,6 @@ import org.apache.inlong.manager.common.enums.ClusterStatus;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.NodeStatus;
-import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
@@ -59,7 +58,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -183,7 +181,6 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     if (Objects.equals(clusterNode.getType(), ClusterType.AGENT)) {
                         // If the agent report succeeds, restore the source status
                         List<Integer> needUpdateIds = sourceMapper.selectHeartbeatTimeoutIds(
-                                Collections.singletonList(SourceStatus.HEARTBEAT_TIMEOUT.getCode()),
                                 Lists.newArrayList(SourceType.FILE), heartbeat.getIp(), heartbeat.getClusterName());
                         // restore state for all source by ip and type
                         if (CollectionUtils.isNotEmpty(needUpdateIds)) {
