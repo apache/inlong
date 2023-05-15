@@ -519,6 +519,7 @@
   "components.FieldParseModule.PasteTemplate": "Paste template",
   "components.FieldParseModule.Parse": "Parse",
   "components.FieldParseModule.Upload": "Upload",
+  "components.FieldParseModule.OnlyUploadExcelFile": "Only upload Excel File(.xlsx) !",
   "components.FieldParseModule.DownloadTemplate": "Download template",
   "components.FormGenerator.plugins.PleaseChoose": "Please select",
   "components.FormGenerator.plugins.PleaseInput": "Please input",
