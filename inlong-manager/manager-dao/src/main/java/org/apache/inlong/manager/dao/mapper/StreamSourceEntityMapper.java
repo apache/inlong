@@ -182,7 +182,7 @@ public interface StreamSourceEntityMapper {
     /**
      * Update the source status when it has been deleted
      *
-     * @param timeBefore the latest modify time before which to select
+     * @param beforeSeconds the modified time was beforeSeconds seconds ago
      */
     void updateStatusToTimeout(@Param("beforeSeconds") Integer beforeSeconds);
 
