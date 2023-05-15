@@ -77,9 +77,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -459,12 +457,12 @@ public class AgentServiceImpl implements AgentService {
 
     private void preTimeoutTasks(TaskRequest taskRequest) {
         // If the agent report succeeds, restore the source status
-        List<Integer> needUpdateIds = sourceMapper.selectNeedUpdateByAgentIpAndCluster(
+        List<Integer> needUpdateIds = sourceMapper.selectHeartbeatTimeoutIds(
                 Collections.singletonList(SourceStatus.HEARTBEAT_TIMEOUT.getCode()),
                 Lists.newArrayList(SourceType.FILE), taskRequest.getAgentIp(), taskRequest.getClusterName());
         // restore state for all source by ip and type
         if (CollectionUtils.isNotEmpty(needUpdateIds)) {
-            sourceMapper.restoreStatusFromHeartbeatByIds(needUpdateIds, SourceStatus.HEARTBEAT_TIMEOUT.getCode(), null);
+            sourceMapper.rollbackTimeoutStatusByIds(needUpdateIds, SourceStatus.HEARTBEAT_TIMEOUT.getCode(), null);
         }
     }
 
@@ -657,11 +655,7 @@ public class AgentServiceImpl implements AgentService {
         public void run() {
             while (true) {
                 try {
-                    Calendar calendar = Calendar.getInstance();
-                    int currenSecond = calendar.get(Calendar.SECOND);
-                    calendar.set(Calendar.SECOND, currenSecond - before);
-                    Date daysBefore = calendar.getTime();
-                    sourceMapper.updateStatusToTimeout(daysBefore);
+                    sourceMapper.updateStatusToTimeout(-before);
                     Thread.sleep(before * 1000);
                 } catch (Throwable t) {
                     LOGGER.error("update task status runnable error", t);

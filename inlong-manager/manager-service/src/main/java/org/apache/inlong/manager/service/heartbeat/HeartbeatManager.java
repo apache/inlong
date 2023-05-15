@@ -182,12 +182,12 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     // If the agent report succeeds, restore the source status
                     if (Objects.equals(clusterNode.getType(), ClusterType.AGENT)) {
                         // If the agent report succeeds, restore the source status
-                        List<Integer> needUpdateIds = sourceMapper.selectNeedUpdateByAgentIpAndCluster(
+                        List<Integer> needUpdateIds = sourceMapper.selectHeartbeatTimeoutIds(
                                 Collections.singletonList(SourceStatus.HEARTBEAT_TIMEOUT.getCode()),
                                 Lists.newArrayList(SourceType.FILE), heartbeat.getIp(), heartbeat.getClusterName());
                         // restore state for all source by ip and type
                         if (CollectionUtils.isNotEmpty(needUpdateIds)) {
-                            sourceMapper.restoreStatusFromHeartbeatByIds(needUpdateIds,
+                            sourceMapper.rollbackTimeoutStatusByIds(needUpdateIds,
                                     SourceStatus.HEARTBEAT_TIMEOUT.getCode(),
                                     null);
                         }

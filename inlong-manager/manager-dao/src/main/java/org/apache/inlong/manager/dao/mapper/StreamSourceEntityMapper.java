@@ -22,7 +22,6 @@ import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -129,7 +128,7 @@ public interface StreamSourceEntityMapper {
     /**
      * Query need update tasks by the given status list and type List.
      */
-    List<Integer> selectNeedUpdateByAgentIpAndCluster(@Param("statusList") List<Integer> statusList,
+    List<Integer> selectHeartbeatTimeoutIds(@Param("statusList") List<Integer> statusList,
             @Param("sourceTypeList") List<String> sourceTypeList, @Param("agentIp") String agentIp,
             @Param("clusterName") String clusterName);
 
@@ -179,7 +178,7 @@ public interface StreamSourceEntityMapper {
      * @param status modify the status to this
      * @param operator operator name
      */
-    void restoreStatusFromHeartbeatByIds(@Param("idList") List<Integer> idList, @Param("status") Integer status,
+    void rollbackTimeoutStatusByIds(@Param("idList") List<Integer> idList, @Param("status") Integer status,
             @Param("operator") String operator);
 
     /**
@@ -187,7 +186,7 @@ public interface StreamSourceEntityMapper {
      *
      * @param timeBefore the latest modify time before which to select
      */
-    void updateStatusToTimeout(@Param("timeBefore") Date timeBefore);
+    void updateStatusToTimeout(@Param("timeBefore") Integer timeBefore);
 
     /**
      * Physical delete stream sources by group id and stream id

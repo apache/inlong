@@ -342,7 +342,7 @@
             </if>
         </where>
     </select>
-    <select id="selectNeedUpdateByAgentIpAndCluster" resultType="java.lang.Integer">
+    <select id="selectHeartbeatTimeoutIds" resultType="java.lang.Integer">
         select id
         from stream_source
         <where>
@@ -523,7 +523,7 @@
             </if>
         </where>
     </update>
-    <update id="restoreStatusFromHeartbeatByIds">
+    <update id="rollbackTimeoutStatusByIds">
         update stream_source
         <set>
             status = previous_status,
@@ -547,11 +547,12 @@
     <update id="updateStatusToTimeout">
         update stream_source
         <set>
+            previous_status = status,
             status = 105
         </set>
         <where>
             is_deleted = 0
-            and modify_time &lt;= #{timeBefore, jdbcType=TIMESTAMP}
+            and modify_time &lt;= DATE_ADD(NOW(), INTERVAL #{timeBefore, jdbcType=INTEGER} SECOND)
             and status in (200, 201, 202, 203, 204, 205, 206, 207, 208)
         </where>
     </update>

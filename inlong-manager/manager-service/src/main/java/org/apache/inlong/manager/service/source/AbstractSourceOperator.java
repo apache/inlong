@@ -217,14 +217,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     existEntity.getStatus(), existEntity.getId()));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        // When the source is in a heartbeat timeout state, set nextStatus to preStatus
-        if (Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT, curState)) {
-            curEntity.setStatus(curState.getCode());
-            curEntity.setPreviousStatus(nextState.getCode());
-        } else {
+        // When the source is not in a heartbeat timeout state, set curStatus to preStatus
+        if (!Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT, curState)) {
             curEntity.setPreviousStatus(curState.getCode());
-            curEntity.setStatus(nextState.getCode());
         }
+        curEntity.setStatus(nextState.getCode());
         int rowCount = sourceMapper.updateByPrimaryKeySelective(curEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
@@ -245,14 +242,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     existEntity.getStatus(), existEntity.getId()));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        // When the source is in a heartbeat timeout state, set nextStatus to preStatus
-        if (Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT, curState)) {
-            curEntity.setStatus(curState.getCode());
-            curEntity.setPreviousStatus(nextState.getCode());
-        } else {
+        // When the source is not in a heartbeat timeout state, set curStatus to preStatus
+        if (!Objects.equals(SourceStatus.HEARTBEAT_TIMEOUT, curState)) {
             curEntity.setPreviousStatus(curState.getCode());
-            curEntity.setStatus(nextState.getCode());
         }
+        curEntity.setStatus(nextState.getCode());
         int rowCount = sourceMapper.updateByPrimaryKeySelective(curEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
