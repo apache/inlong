@@ -145,7 +145,7 @@ public class AgentServiceImpl implements AgentService {
             this.executorService.execute(taskRunnable);
             LOGGER.info("update task status started successfully");
         }
-        if (updateTaskErrorEnabled){
+        if (updateTaskErrorEnabled) {
             UpdateTaskByErrorStatusRunnable updateTaskByErrorStatusRunnable = new UpdateTaskByErrorStatusRunnable();
             this.executorService.execute(updateTaskByErrorStatusRunnable);
             LOGGER.info("update task by error status started successfully");
