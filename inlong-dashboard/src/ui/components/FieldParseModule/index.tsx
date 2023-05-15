@@ -18,20 +18,24 @@
  */
 
 import React, { useState } from 'react';
-import { Button, Divider, Input, Modal, Radio, Space, Table } from 'antd';
-
+import { Button, Divider, Input, message, Modal, Radio, Space, Table, Upload } from 'antd';
+import type { UploadProps } from 'antd';
 import {
   CopyOutlined,
   DatabaseOutlined,
   DeleteOutlined,
+  DownloadOutlined,
   FileAddOutlined,
+  FileExcelOutlined,
   FileOutlined,
   ForkOutlined,
   FormOutlined,
   PlayCircleOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
 import { useRequest } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
+import { config } from '@/configs/default';
 
 export interface RowType {
   fieldName: string;
@@ -84,6 +88,50 @@ const FieldParseModule: React.FC<FieldParseModuleProps> = ({
     // Append output value to the original fields list
     onAppend([...previewData]);
     onHide();
+  };
+  const downloadTemplate = async () => {
+    try {
+      const response = await fetch(config.requestPrefix + '/stream/fieldsImportTemplate');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'InLong-stream-fields-template.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const uploadProps: UploadProps = {
+    name: 'file',
+    action: config.requestPrefix + '/stream/parseFieldsByExcel',
+    accept: '.xlsx',
+    headers: {
+      authorization: 'authorization-text',
+    },
+    beforeUpload: file => {
+      if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        message.error(t('components.FieldParseModule.OnlyUploadExcelFile'));
+        return false;
+      }
+      return true;
+    },
+    onChange(info) {
+      if (info.file.status !== 'uploading') {
+        console.log(`${info.file} file uploading.`);
+      }
+      if (info.file.status === 'done') {
+        // upload success.
+        let newPreviewData = info.file.response.data;
+        setPreviewData(newPreviewData);
+        console.log(`${info.file.name} file upload success.`);
+      } else if (info.file.status === 'error') {
+        console.log(`${info.file.name} file upload failed.`);
+      }
+    },
   };
 
   const handleOverride = () => {
@@ -231,6 +279,16 @@ user_age,int,age of user`);
               <FileOutlined />
               CSV
             </Radio.Button>
+            <Radio.Button
+              key={'module_excel'}
+              value="excel"
+              onClick={() => {
+                setPreviewData(null);
+              }}
+            >
+              <FileExcelOutlined />
+              Excel
+            </Radio.Button>
           </Radio.Group>
         </div>
         <div>
@@ -283,6 +341,24 @@ user_age,int,age of user`);
             </>
           )}
         </div>
+
+        {selectedFormat === 'excel' && (
+          <div>
+            <Upload {...uploadProps}>
+              <Button key="upload" type={'primary'} icon={<UploadOutlined />} size={'small'}>
+                {t('components.FieldParseModule.Upload')}
+              </Button>
+            </Upload>
+            <Button
+              key="downloadTemplate"
+              onClick={downloadTemplate}
+              icon={<DownloadOutlined />}
+              size={'small'}
+            >
+              {t('components.FieldParseModule.DownloadTemplate')}
+            </Button>
+          </div>
+        )}
 
         <div>
           <Table
