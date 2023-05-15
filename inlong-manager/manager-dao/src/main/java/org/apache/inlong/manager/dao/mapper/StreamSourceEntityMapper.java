@@ -184,7 +184,7 @@ public interface StreamSourceEntityMapper {
      *
      * @param timeBefore the latest modify time before which to select
      */
-    void updateStatusToTimeout(@Param("timeBefore") Integer timeBefore);
+    void updateStatusToTimeout(@Param("beforeSeconds") Integer beforeSeconds);
 
     /**
      * Physical delete stream sources by group id and stream id

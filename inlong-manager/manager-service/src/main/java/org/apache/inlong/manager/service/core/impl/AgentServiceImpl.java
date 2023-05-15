@@ -117,7 +117,7 @@ public class AgentServiceImpl implements AgentService {
     @Value("${source.update.enabled:false}")
     private Boolean enabled;
     @Value("${source.update.before.seconds:60}")
-    private Integer before;
+    private Integer beforeSeconds;
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -654,8 +654,8 @@ public class AgentServiceImpl implements AgentService {
         public void run() {
             while (true) {
                 try {
-                    sourceMapper.updateStatusToTimeout(-before);
-                    Thread.sleep(before * 1000);
+                    sourceMapper.updateStatusToTimeout(beforeSeconds);
+                    Thread.sleep(beforeSeconds * 1000);
                 } catch (Throwable t) {
                     LOGGER.error("update task status runnable error", t);
                 }

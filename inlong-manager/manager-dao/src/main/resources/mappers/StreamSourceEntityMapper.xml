@@ -547,7 +547,7 @@
         </set>
         <where>
             is_deleted = 0
-            and modify_time &lt;= DATE_ADD(NOW(), INTERVAL #{timeBefore, jdbcType=INTEGER} SECOND)
+            and modify_time &lt;= DATE_ADD(NOW(), INTERVAL -#{beforeSeconds, jdbcType=INTEGER} SECOND)
             and status in (200, 201, 202, 203, 204, 205, 206, 207, 208)
         </where>
     </update>
