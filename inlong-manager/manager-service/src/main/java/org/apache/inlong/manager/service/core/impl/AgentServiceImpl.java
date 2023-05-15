@@ -114,10 +114,10 @@ public class AgentServiceImpl implements AgentService {
             new ArrayBlockingQueue<>(100),
             new ThreadFactoryBuilder().setNameFormat("async-agent-%s").build(),
             new CallerRunsPolicy());
-    @Value("${source.update.timeout.enabled:false}")
+    @Value("${source.update.enabled:false}")
     private Boolean updateTaskTimeoutEnabled;
-    @Value("${source.update.error.enabled:false}")
-    private Boolean updateTaskErrorEnabled;
+    @Value("${source.cleansing.enabled:false}")
+    private Boolean sourceCleanEnabled;
     @Value("${source.update.before.seconds:60}")
     private Integer beforeSeconds;
     @Autowired
@@ -145,9 +145,9 @@ public class AgentServiceImpl implements AgentService {
             this.executorService.execute(taskRunnable);
             LOGGER.info("update task status started successfully");
         }
-        if (updateTaskErrorEnabled) {
-            UpdateTaskByErrorStatusRunnable updateTaskByErrorStatusRunnable = new UpdateTaskByErrorStatusRunnable();
-            this.executorService.execute(updateTaskByErrorStatusRunnable);
+        if (sourceCleanEnabled) {
+            TaskCleanRunnable taskCleanRunnable = new TaskCleanRunnable();
+            this.executorService.execute(taskCleanRunnable);
             LOGGER.info("update task by error status started successfully");
         }
     }
@@ -673,7 +673,7 @@ public class AgentServiceImpl implements AgentService {
     /**
      * update task which in an incorrect state
      */
-    private class UpdateTaskByErrorStatusRunnable implements Runnable {
+    private class TaskCleanRunnable implements Runnable {
 
         @Override
         public void run() {
