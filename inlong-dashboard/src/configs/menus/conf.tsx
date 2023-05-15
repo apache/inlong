@@ -41,6 +41,11 @@ const conf: MenuItemType[] = [
     icon: <ShopOutlined />,
   },
   {
+    path: '/node',
+    name: i18n.t('configs.menus.Nodes'),
+    icon: <DatabaseOutlined />,
+  },
+  {
     name: i18n.t('configs.menus.Clusters'),
     icon: <DeploymentUnitOutlined />,
     children: [
@@ -53,11 +58,6 @@ const conf: MenuItemType[] = [
         name: i18n.t('configs.menus.ClusterTags'),
       },
     ],
-  },
-  {
-    path: '/node',
-    name: i18n.t('configs.menus.Nodes'),
-    icon: <DatabaseOutlined />,
   },
   {
     path: '/process',

@@ -33,7 +33,7 @@ const resources = {
       'configs.menus.SystemManagement': 'System',
       'configs.menus.UserManagement': 'User Management',
       'configs.menus.ProcessManagement': 'Process Management',
-      'configs.menus.Nodes': 'Nodes',
+      'configs.menus.Nodes': 'DataNodes',
     },
   },
   cn: {
@@ -46,7 +46,7 @@ const resources = {
       'configs.menus.SystemManagement': '系统管理',
       'configs.menus.UserManagement': '用户管理',
       'configs.menus.ProcessManagement': '流程管理',
-      'configs.menus.Nodes': '节点管理',
+      'configs.menus.Nodes': '数据节点',
     },
   },
 };
