@@ -41,7 +41,6 @@ public class BatchProxyMessage {
     private List<byte[]> dataList;
     private long dataTime;
     private Map<String, String> extraMap;
-    private boolean isSyncSend;
 
     public InLongMsg getInLongMsg() {
         InLongMsg message = InLongMsg.newInLongMsg(true);

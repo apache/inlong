@@ -18,8 +18,6 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.DataCollectType;
-import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.file.FileReaderOperator;
 import org.apache.inlong.agent.plugin.sources.reader.file.TriggerFileReader;
@@ -29,9 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -84,17 +79,6 @@ public class TextFileSource extends AbstractSource {
 
     private int getStartPosition(JobProfile jobConf, File file) {
         int seekPosition;
-        if (jobConf.hasKey(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE) && DataCollectType.INCREMENT
-                .equalsIgnoreCase(jobConf.get(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE))) {
-            try (LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file.getPath()))) {
-                lineNumberReader.skip(Long.MAX_VALUE);
-                seekPosition = lineNumberReader.getLineNumber();
-                return seekPosition;
-            } catch (IOException ex) {
-                LOGGER.error("get position error, file absolute path: {}", file.getAbsolutePath());
-                throw new RuntimeException(ex);
-            }
-        }
         seekPosition = jobConf.getInt(file.getAbsolutePath() + POSITION_SUFFIX, 0);
         return seekPosition;
     }

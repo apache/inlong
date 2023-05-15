@@ -17,6 +17,27 @@
 
 package org.apache.inlong.agent.core.job;
 
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_TIME;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_NUMBER_LIMIT;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_CHECK_INTERVAL;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_TIME;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_NUMBER_LIMIT;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
+import static org.apache.inlong.agent.constant.JobConstants.SQL_JOB_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_COMPONENT_NAME;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -33,27 +54,6 @@ import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_DB_CACHE_TIME;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_NUMBER_LIMIT;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_CHECK_INTERVAL;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_DB_CACHE_TIME;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_NUMBER_LIMIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
-import static org.apache.inlong.agent.constant.JobConstants.SQL_JOB_ID;
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_COMPONENT_NAME;
 
 /**
  * JobManager maintains lots of jobs, and communicate between server and task manager.
@@ -143,7 +143,7 @@ public class JobManager extends AbstractDaemon {
      * @param profile job profile.
      */
     public boolean submitFileJobProfile(JobProfile profile) {
-        return submitJobProfile(profile, false);
+        return submitJobProfile(profile, false, true);
     }
 
     /**
@@ -151,7 +151,7 @@ public class JobManager extends AbstractDaemon {
      *
      * @param profile job profile.
      */
-    public boolean submitJobProfile(JobProfile profile, boolean singleJob) {
+    public boolean submitJobProfile(JobProfile profile, boolean singleJob, boolean isNewJob) {
         if (!isJobValid(profile)) {
             return false;
         }
@@ -161,8 +161,19 @@ public class JobManager extends AbstractDaemon {
         } else {
             profile.set(JOB_INSTANCE_ID, AgentUtils.getUniqId(JOB_ID_PREFIX, jobId, index.incrementAndGet()));
         }
-        LOGGER.info("submit job profile {}", profile.toJsonStr());
-        getJobConfDb().storeJobFirstTime(profile);
+        LOGGER.info("submit job profile {} isNewJob {}", profile.toJsonStr(), isNewJob);
+        if (isNewJob) {
+            jobProfileDb.storeJobFirstTime(profile);
+        } else {
+            JobProfile jobFromDb = jobProfileDb.getJobById(profile.getInstanceId());
+            if (jobFromDb != null) {
+                jobFromDb.set(JOB_VERSION, profile.get(JOB_VERSION));
+                profile = jobFromDb;
+            } else {
+                LOGGER.info("submit job final profile null");
+            }
+        }
+        LOGGER.info("submit job final profile {}", profile.toJsonStr());
         addJob(new Job(profile));
         return true;
     }
@@ -192,13 +203,15 @@ public class JobManager extends AbstractDaemon {
      *
      * @param jobInstancId
      */
-    public boolean deleteJob(String jobInstancId) {
+    public boolean deleteJob(String jobInstancId, boolean isFrozen) {
         LOGGER.info("start to delete job, job id set {}", jobs.keySet());
         JobWrapper jobWrapper = jobs.remove(jobInstancId);
         if (jobWrapper != null) {
-            LOGGER.info("delete job instance with job id {}", jobInstancId);
+            LOGGER.info("delete job instance with job id {} isFrozen {}", jobInstancId, isFrozen);
             jobWrapper.cleanup();
-            getJobConfDb().deleteJob(jobInstancId);
+            if (!isFrozen) {
+                jobProfileDb.deleteJob(jobInstancId);
+            }
             return true;
         }
         return true;
@@ -208,7 +221,7 @@ public class JobManager extends AbstractDaemon {
      * start all accepted jobs.
      */
     private void startJobs() {
-        List<JobProfile> profileList = getJobConfDb().getRestartJobs();
+        List<JobProfile> profileList = jobProfileDb.getRestartJobs();
         for (JobProfile profile : profileList) {
             LOGGER.info("init starting job from db {}", profile.toJsonStr());
             addJob(new Job(profile));
@@ -283,6 +296,7 @@ public class JobManager extends AbstractDaemon {
      * @param jobId job id
      */
     public void markJobAsFailed(String jobId) {
+        LOGGER.info("markJobAsFailed {}", jobId);
         JobWrapper wrapper = jobs.remove(jobId);
         if (wrapper != null) {
             LOGGER.info("job instance {} is failed", jobId);
