@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -67,11 +68,13 @@ import org.elasticsearch.common.util.set.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -81,6 +84,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -98,7 +106,18 @@ public class AgentServiceImpl implements AgentService {
     private static final int MODULUS_100 = 100;
     private static final int TASK_FETCH_SIZE = 2;
     private static final Gson GSON = new Gson();
-
+    private final ExecutorService executorService = new ThreadPoolExecutor(
+            5,
+            10,
+            10L,
+            TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(100),
+            new ThreadFactoryBuilder().setNameFormat("async-agent-%s").build(),
+            new CallerRunsPolicy());
+    @Value("${source.update.enabled:false}")
+    private Boolean enabled;
+    @Value("${source.update.before.seconds:60}")
+    private Integer beforeSeconds;
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -114,6 +133,18 @@ public class AgentServiceImpl implements AgentService {
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
 
+    /**
+     * Start the update task
+     */
+    @PostConstruct
+    private void startHeartbeatTask() {
+        if (enabled) {
+            UpdateTaskRunnable taskRunnable = new UpdateTaskRunnable();
+            this.executorService.execute(taskRunnable);
+            LOGGER.info("update task status started successfully");
+        }
+    }
+
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
         return snapshotOperator.snapshot(request);
@@ -128,6 +159,8 @@ public class AgentServiceImpl implements AgentService {
         if (request == null || StringUtils.isBlank(request.getAgentIp())) {
             throw new BusinessException("agent request or agent ip was empty, just return");
         }
+
+        preTimeoutTasks(request);
 
         // Update task status, other tasks with status 20x will change to 30x in next request
         if (CollectionUtils.isEmpty(request.getCommandInfo())) {
@@ -422,6 +455,16 @@ public class AgentServiceImpl implements AgentService {
         });
     }
 
+    private void preTimeoutTasks(TaskRequest taskRequest) {
+        // If the agent report succeeds, restore the source status
+        List<Integer> needUpdateIds = sourceMapper.selectHeartbeatTimeoutIds(Lists.newArrayList(SourceType.FILE),
+                taskRequest.getAgentIp(), taskRequest.getClusterName());
+        // restore state for all source by ip and type
+        if (CollectionUtils.isNotEmpty(needUpdateIds)) {
+            sourceMapper.rollbackTimeoutStatusByIds(needUpdateIds, null);
+        }
+    }
+
     private InlongClusterNodeEntity selectByIpAndCluster(String clusterName, String ip) {
         InlongClusterEntity clusterEntity = clusterMapper.selectByNameAndType(clusterName, ClusterType.AGENT);
         if (clusterEntity == null) {
@@ -600,6 +643,24 @@ public class AgentServiceImpl implements AgentService {
         Set<String> sourceGroups = Stream.of(
                 sourceEntity.getInlongClusterNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
         return sourceGroups.stream().anyMatch(clusterNodeGroups::contains);
+    }
+
+    /**
+     * update task status when task timeout
+     */
+    private class UpdateTaskRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    sourceMapper.updateStatusToTimeout(beforeSeconds);
+                    Thread.sleep(beforeSeconds * 1000);
+                } catch (Throwable t) {
+                    LOGGER.error("update task status runnable error", t);
+                }
+            }
+        }
     }
 
 }

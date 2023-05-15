@@ -342,6 +342,24 @@
             </if>
         </where>
     </select>
+    <select id="selectHeartbeatTimeoutIds" resultType="java.lang.Integer">
+        select id
+        from stream_source
+        <where>
+            is_deleted = 0
+            and status = 105
+            <if test="sourceTypeList != null and sourceTypeList.size()>0">
+                and source_type in
+                <foreach item="item" index="index" collection="sourceTypeList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="agentIp != null and agentIp != ''">
+                and agent_ip = #{agentIp, jdbcType=VARCHAR}
+            </if>
+            and inlong_cluster_name = #{clusterName, jdbcType=VARCHAR}
+        </where>
+    </select>
     <update id="updateByRelatedId">
         update stream_source
         <set>
@@ -484,9 +502,11 @@
         update stream_source
         <set>
             previous_status = status,
-            status          = #{status, jdbcType=INTEGER},
-            modifier        = #{operator, jdbcType=VARCHAR},
-            version         = version + 1
+            status = #{status, jdbcType=INTEGER},
+            <if test="operator != null and operator !=''">
+                modifier = #{operator, jdbcType=VARCHAR},
+            </if>
+            version = version + 1
         </set>
         <where>
             is_deleted = 0
@@ -496,6 +516,39 @@
                     #{item}
                 </foreach>
             </if>
+        </where>
+    </update>
+    <update id="rollbackTimeoutStatusByIds">
+        update stream_source
+        <set>
+            status = previous_status,
+            previous_status = 105,
+            <if test="operator != null and operator !=''">
+                modifier = #{operator, jdbcType=VARCHAR},
+            </if>
+            version = version + 1
+        </set>
+        <where>
+            is_deleted = 0
+            and status = 105
+            <if test="idList != null and idList.size() > 0">
+                and id in
+                <foreach item="item" index="index" collection="idList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </update>
+    <update id="updateStatusToTimeout">
+        update stream_source
+        <set>
+            previous_status = status,
+            status = 105
+        </set>
+        <where>
+            is_deleted = 0
+            and modify_time &lt;= DATE_ADD(NOW(), INTERVAL -#{beforeSeconds, jdbcType=INTEGER} SECOND)
+            and status in (200, 201, 202, 203, 204, 205, 206, 207, 208)
         </where>
     </update>
 

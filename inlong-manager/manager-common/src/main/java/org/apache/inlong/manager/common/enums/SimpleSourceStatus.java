@@ -44,6 +44,7 @@ public enum SimpleSourceStatus {
             case SOURCE_STOP:
                 return FROZEN;
             case SOURCE_FAILED:
+            case HEARTBEAT_TIMEOUT:
                 return FAILED;
             case TO_BE_ISSUED_DELETE:
             case BEEN_ISSUED_DELETE:

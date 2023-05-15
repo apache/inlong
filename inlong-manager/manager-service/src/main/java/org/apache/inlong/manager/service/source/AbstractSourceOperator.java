@@ -167,26 +167,29 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         // setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
         entity.setModifier(operator);
-
         entity.setPreviousStatus(entity.getStatus());
 
         // re-issue task if necessary
         if (InlongConstants.STANDARD_MODE.equals(groupMode)) {
+            SourceStatus sourceStatus = SourceStatus.forCode(entity.getStatus());
+            Integer nextStatus = entity.getStatus();
             if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
-                entity.setStatus(SourceStatus.TO_BE_ISSUED_RETRY.getCode());
+                nextStatus = SourceStatus.TO_BE_ISSUED_RETRY.getCode();
             } else {
                 switch (SourceStatus.forCode(entity.getStatus())) {
                     case SOURCE_NORMAL:
-                        entity.setStatus(SourceStatus.TO_BE_ISSUED_RETRY.getCode());
+                    case HEARTBEAT_TIMEOUT:
+                        nextStatus = SourceStatus.TO_BE_ISSUED_RETRY.getCode();
                         break;
                     case SOURCE_FAILED:
-                        entity.setStatus(SourceStatus.SOURCE_NEW.getCode());
+                        nextStatus = SourceStatus.SOURCE_NEW.getCode();
                         break;
                     default:
                         // others leave it be
                         break;
                 }
             }
+            entity.setStatus(nextStatus);
         }
 
         int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);

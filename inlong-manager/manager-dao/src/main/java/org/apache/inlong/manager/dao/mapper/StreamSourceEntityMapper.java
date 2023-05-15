@@ -125,6 +125,13 @@ public interface StreamSourceEntityMapper {
     List<Integer> selectNeedUpdateIdsByClusterAndDataNode(@Param("clusterName") String clusterName,
             @Param("nodeName") String nodeName, @Param("sourceType") String sourceType);
 
+    /**
+     * Query need update tasks by the given status list and type List.
+     */
+    List<Integer> selectHeartbeatTimeoutIds(@Param("sourceTypeList") List<String> sourceTypeList,
+            @Param("agentIp") String agentIp,
+            @Param("clusterName") String clusterName);
+
     int updateByPrimaryKeySelective(StreamSourceEntity record);
 
     int updateByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
@@ -163,6 +170,21 @@ public interface StreamSourceEntityMapper {
      */
     void updateStatusByIds(@Param("idList") List<Integer> idList, @Param("status") Integer status,
             @Param("operator") String operator);
+
+    /**
+     * Update the source status
+     *
+     * @param idList source id list
+     * @param operator operator name
+     */
+    void rollbackTimeoutStatusByIds(@Param("idList") List<Integer> idList, @Param("operator") String operator);
+
+    /**
+     * Update the source status when it has been deleted
+     *
+     * @param beforeSeconds the modified time was beforeSeconds seconds ago
+     */
+    void updateStatusToTimeout(@Param("beforeSeconds") Integer beforeSeconds);
 
     /**
      * Physical delete stream sources by group id and stream id

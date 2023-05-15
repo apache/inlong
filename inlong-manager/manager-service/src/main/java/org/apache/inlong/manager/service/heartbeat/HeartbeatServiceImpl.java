@@ -45,6 +45,7 @@ import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
 import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
 import org.apache.inlong.manager.service.core.HeartbeatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -59,6 +60,7 @@ public class HeartbeatServiceImpl implements HeartbeatService {
     private static final Gson GSON = new Gson();
 
     @Autowired
+    @Lazy
     private HeartbeatManager heartbeatManager;
     @Autowired
     private ComponentHeartbeatEntityMapper componentHeartbeatMapper;
