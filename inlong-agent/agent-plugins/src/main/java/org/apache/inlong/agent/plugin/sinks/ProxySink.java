@@ -17,6 +17,16 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FIELD_SPLITTER;
+
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -30,15 +40,6 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FIELD_SPLITTER;
 
 /**
  * sink message data to inlong-dataproxy
@@ -60,36 +61,58 @@ public class ProxySink extends AbstractSink {
 
     @Override
     public void write(Message message) {
-        try {
-            if (message != null) {
-                senderManager.acquireSemaphore(1);
-                message.getHeader().put(CommonConstants.PROXY_KEY_GROUP_ID, inlongGroupId);
-                message.getHeader().put(CommonConstants.PROXY_KEY_STREAM_ID, inlongStreamId);
-                extractStreamFromMessage(message, fieldSplitter);
-                if (!(message instanceof EndMessage)) {
-                    ProxyMessage proxyMessage = new ProxyMessage(message);
-                    // add proxy message to cache.
-                    cache.compute(proxyMessage.getBatchKey(),
-                            (s, packProxyMessage) -> {
-                                if (packProxyMessage == null) {
-                                    packProxyMessage = new PackProxyMessage(jobInstanceId, jobConf, inlongGroupId,
-                                            proxyMessage.getInlongStreamId());
-                                    packProxyMessage.generateExtraMap(proxyMessage.getDataKey());
-                                }
-                                // add message to package proxy
-                                packProxyMessage.addProxyMessage(proxyMessage);
-                                return packProxyMessage;
-                            });
-                    // increment the count of successful sinks
-                    sinkMetric.sinkSuccessCount.incrementAndGet();
-                }
+        boolean suc = false;
+        while (!suc) {
+            suc = putInCache(message);
+            if (!suc) {
+                AgentUtils.silenceSleepInMs(batchFlushInterval);
             }
+        }
+    }
+
+    private boolean putInCache(Message message) {
+        try {
+            if (message == null) {
+                return true;
+            }
+            message.getHeader().put(CommonConstants.PROXY_KEY_GROUP_ID, inlongGroupId);
+            message.getHeader().put(CommonConstants.PROXY_KEY_STREAM_ID, inlongStreamId);
+            extractStreamFromMessage(message, fieldSplitter);
+            if (message instanceof EndMessage) {
+                // increment the count of failed sinks
+                sinkMetric.sinkFailCount.incrementAndGet();
+                return true;
+            }
+            AtomicBoolean suc = new AtomicBoolean(false);
+            ProxyMessage proxyMessage = new ProxyMessage(message);
+            // add proxy message to cache.
+            cache.compute(proxyMessage.getBatchKey(),
+                    (s, packProxyMessage) -> {
+                        if (packProxyMessage == null) {
+                            packProxyMessage = new PackProxyMessage(jobInstanceId, jobConf, inlongGroupId,
+                                    proxyMessage.getInlongStreamId());
+                            packProxyMessage.generateExtraMap(proxyMessage.getDataKey());
+                        }
+                        // add message to package proxy
+                        suc.set(packProxyMessage.addProxyMessage(proxyMessage));
+                        return packProxyMessage;
+                    });
+            if (suc.get()) {
+                // semaphore should be acquired only when the message was put in cache successfully
+                senderManager.acquireSemaphore(1);
+                // increment the count of successful sinks
+                sinkMetric.sinkSuccessCount.incrementAndGet();
+            } else {
+                // increment the count of failed sinks
+                sinkMetric.sinkFailCount.incrementAndGet();
+            }
+            return suc.get();
         } catch (Exception e) {
-            sinkMetric.sinkFailCount.incrementAndGet();
             LOGGER.error("write message to Proxy sink error", e);
         } catch (Throwable t) {
             ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
         }
+        return false;
     }
 
     /**
@@ -125,11 +148,12 @@ public class ProxySink extends AbstractSink {
                         }
 
                     });
-                    AgentUtils.silenceSleepInMs(batchFlushInterval);
                 } catch (Exception ex) {
                     LOGGER.error("error caught", ex);
                 } catch (Throwable t) {
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
+                } finally {
+                    AgentUtils.silenceSleepInMs(batchFlushInterval);
                 }
             }
         };
@@ -145,6 +169,7 @@ public class ProxySink extends AbstractSink {
         senderManager = new SenderManager(jobConf, inlongGroupId, sourceName);
         try {
             senderManager.addMessageSender();
+            senderManager.Start();
         } catch (Throwable ex) {
             LOGGER.error("error while init sender for group id {}", inlongGroupId);
             ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
@@ -161,6 +186,7 @@ public class ProxySink extends AbstractSink {
         }
         shutdown = true;
         executorService.shutdown();
+        senderManager.Stop();
     }
 
     /**

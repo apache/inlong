@@ -42,7 +42,9 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_INT
 public final class MonitorTextFile {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MonitorTextFile.class);
-    // monitor thread pool
+    /**
+     * monitor thread pool
+      */
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
             60L, TimeUnit.SECONDS,
@@ -165,7 +167,7 @@ public final class MonitorTextFile {
         }
 
         /**
-         * reset the position and bytePositionreset the position and bytePosition
+         * Reset the position and bytePosition
          */
         private void resetPosition() {
             LOGGER.info("reset position {}", fileReaderOperator.file.toPath());
@@ -182,18 +184,15 @@ public final class MonitorTextFile {
         /**
          * Determine whether the inode has changed
          *
-         * @param currentFileKey
-         * @return
+         * @param currentFileKey current file key
+         * @return true if the inode changed, otherwise false
          */
         private boolean isInodeChanged(String currentFileKey) {
             if (fileReaderOperator.fileKey == null || currentFileKey == null) {
                 return false;
             }
 
-            if (fileReaderOperator.fileKey.equals(currentFileKey)) {
-                return false;
-            }
-            return true;
+            return !fileReaderOperator.fileKey.equals(currentFileKey);
         }
     }
 }

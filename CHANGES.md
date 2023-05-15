@@ -27,7 +27,9 @@
 |:-----------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------|
 | [INLONG-7847](https://github.com/apache/inlong/issues/7847) | [Bug][Agent] Failed to create MySQL reader                                                                                                         |
 | [INLONG-7783](https://github.com/apache/inlong/issues/7783) | [Feature][Agent] Support sink data tor Kafka                                                                                                       |
-| [INLONG-7752](https://github.com/apache/inlong/issues/7752) | [Bug][Agent] PulsarSink threadPool throw reject exception                                                                                          |
+| [INLONG-7752](https://github.com/apache/inlong/issues/7752) | [Bug][Agent] PulsarSink threadPool throw reject exception                                                                                          |                         
+| [INLONG-7976](https://github.com/apache/inlong/issues/7976) | [Bug][Agent] The data collected by the agent is incomplete                                                                                         |
+| [INLONG-8026](https://github.com/apache/inlong/issues/8026) | [Improve][Agent] Improve the Agent performance                                                                                                     |
 
 ### DataProxy
 |                            ISSUE                            | Summary                                                                                                  |

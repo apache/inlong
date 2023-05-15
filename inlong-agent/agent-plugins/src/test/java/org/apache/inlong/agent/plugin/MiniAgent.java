@@ -93,18 +93,19 @@ public class MiniAgent {
     }
 
     public void submitTrigger(TriggerProfile triggerProfile) {
-        manager.getTriggerManager().submitTrigger(triggerProfile);
+        manager.getTriggerManager().submitTrigger(triggerProfile, true);
         triggerProfileCache.add(triggerProfile);
     }
 
     public void cleanupJobs() {
-        jobProfileCache.forEach(jobProfile -> manager.getJobManager().deleteJob(jobProfile.getInstanceId()));
+        jobProfileCache.forEach(jobProfile -> manager.getJobManager().deleteJob(jobProfile.getInstanceId(), false));
         jobProfileCache.clear();
     }
 
     public void cleanupTriggers() {
         triggerProfileCache
-                .forEach(triggerProfile -> manager.getTriggerManager().deleteTrigger(triggerProfile.getTriggerId()));
+                .forEach(triggerProfile -> manager.getTriggerManager().deleteTrigger(triggerProfile.getTriggerId(),
+                        false));
         triggerProfileCache.clear();
     }
 }
