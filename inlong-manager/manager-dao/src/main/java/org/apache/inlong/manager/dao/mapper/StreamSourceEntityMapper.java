@@ -175,11 +175,9 @@ public interface StreamSourceEntityMapper {
      * Update the source status
      *
      * @param idList source id list
-     * @param status modify the status to this
      * @param operator operator name
      */
-    void rollbackTimeoutStatusByIds(@Param("idList") List<Integer> idList, @Param("status") Integer status,
-            @Param("operator") String operator);
+    void rollbackTimeoutStatusByIds(@Param("idList") List<Integer> idList, @Param("operator") String operator);
 
     /**
      * Update the source status when it has been deleted

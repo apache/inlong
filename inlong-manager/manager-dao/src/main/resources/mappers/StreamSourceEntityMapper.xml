@@ -527,7 +527,7 @@
         update stream_source
         <set>
             status = previous_status,
-            previous_status = #{status, jdbcType=INTEGER},
+            previous_status = 105,
             <if test="operator != null and operator !=''">
                 modifier = #{operator, jdbcType=VARCHAR},
             </if>

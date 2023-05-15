@@ -462,7 +462,7 @@ public class AgentServiceImpl implements AgentService {
                 Lists.newArrayList(SourceType.FILE), taskRequest.getAgentIp(), taskRequest.getClusterName());
         // restore state for all source by ip and type
         if (CollectionUtils.isNotEmpty(needUpdateIds)) {
-            sourceMapper.rollbackTimeoutStatusByIds(needUpdateIds, SourceStatus.HEARTBEAT_TIMEOUT.getCode(), null);
+            sourceMapper.rollbackTimeoutStatusByIds(needUpdateIds, null);
         }
     }
 
