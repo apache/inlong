@@ -31,7 +31,7 @@
     <name>Apache InLong - Sort Flink v1.15</name>
 
     <modules>
-        <module>sort-connectors-v1.15</module>
+        <module>sort-connectors</module>
         <module>sort-flink-dependencies-v1.15</module>
     </modules>
 
@@ -49,13 +49,9 @@
         <flink.scala.binary.version>2.12</flink.scala.binary.version>
         <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
-
         <sqlserver.jdbc.version>7.2.2.jre8</sqlserver.jdbc.version>
-
         <hudi.version>0.12.1</hudi.version>
-
         <thrift.version>0.9.3</thrift.version>
-
     </properties>
 
     <dependencyManagement>
@@ -157,11 +153,13 @@
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-table-api-java-bridge</artifactId>
                 <version>${flink.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-table-runtime</artifactId>
                 <version>${flink.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
@@ -178,11 +176,13 @@
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-streaming-java</artifactId>
                 <version>${flink.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-streaming-scala_${flink.scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
+                <scope>provided</scope>
             </dependency>
 
             <dependency>
