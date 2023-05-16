@@ -39,7 +39,6 @@
 | [INLONG-7769](https://github.com/apache/inlong/issues/7769) | [Bug][DataProxy] NPE when request Inlong Manager failed                                                  |
 | [INLONG-7512](https://github.com/apache/inlong/issues/7512) | [Improve][DataProxy] Update the metrics log level to avoid the log file increasing quickly               |
 | [INLONG-7766](https://github.com/apache/inlong/issues/7766) | [Bug][DataProxySDK] Adjusted frame length exceeds occurred when reporting data through the HTTP protocol |
-| [INLONG-7194](https://github.com/apache/inlong/issues/7194) | [Improve][DataProxy] Migrate index log statistics for the new mq layer                                   |
 
 ### TubeMQ
 |                            ISSUE                            | Summary                                                              |
@@ -155,6 +154,7 @@
 | [INLONG-7970](https://github.com/apache/inlong/issues/7970) | [Bug][Sort] java.lang.ClassCastException: java.lang.String cannot be cast to org.apache.flink.table.data.StringData                                |
 | [INLONG-7747](https://github.com/apache/inlong/issues/7747) | [Umbrella][Sort] Improve memory stability of data ingesting into iceberg                                                                           |
 | [INLONG-6545](https://github.com/apache/inlong/issues/6545) | [Improve][Sort] Accurately parse the schema type and completely match the missing precision information                                            |
+| [INLONG-8029](https://github.com/apache/inlong/issues/8029) | [Improve][Sort] Use fixed subscription name when start a pulsar reader                                                                             |
 
 ### Audit
 |                            ISSUE                            | Summary                                                                                   |
