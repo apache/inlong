@@ -64,7 +64,6 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
-import org.apache.pulsar.shade.org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.elasticsearch.common.util.set.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +152,7 @@ public class AgentServiceImpl implements AgentService {
                     .setNameFormat("scheduled-source-timeout-%d")
                     .setDaemon(true)
                     .build();
-            ScheduledExecutorService executor  = Executors.newSingleThreadScheduledExecutor(factory);
+            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(factory);
             executor.scheduleWithFixedDelay(() -> {
                 try {
                     sourceMapper.updateStatusToTimeout(beforeSeconds);
@@ -169,7 +168,7 @@ public class AgentServiceImpl implements AgentService {
                     .setNameFormat("scheduled-source-deleted-%d")
                     .setDaemon(true)
                     .build();
-            ScheduledExecutorService executor  = Executors.newSingleThreadScheduledExecutor(factory);
+            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(factory);
             executor.scheduleWithFixedDelay(() -> {
                 try {
                     sourceMapper.updateStatusByDeleted();
