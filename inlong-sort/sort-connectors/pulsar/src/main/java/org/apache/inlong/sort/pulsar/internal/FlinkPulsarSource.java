@@ -620,7 +620,8 @@ public class FlinkPulsarSource<T>
                 getRuntimeContext().getUserCodeClassLoader(),
                 streamingRuntime,
                 useMetrics,
-                excludeStartMessageIds);
+                excludeStartMessageIds,
+                getSubscriptionName());
 
         if (!running) {
             return;
@@ -642,7 +643,8 @@ public class FlinkPulsarSource<T>
             ClassLoader userCodeClassLoader,
             StreamingRuntimeContext streamingRuntime,
             boolean useMetrics,
-            Set<TopicRange> excludeStartMessageIds) throws Exception {
+            Set<TopicRange> excludeStartMessageIds,
+            String subscriptionName) throws Exception {
 
         // readerConf.putIfAbsent(PulsarOptions.SUBSCRIPTION_ROLE_OPTION_KEY, getSubscriptionName());
 
@@ -657,6 +659,7 @@ public class FlinkPulsarSource<T>
                 streamingRuntime,
                 clientConfigurationData,
                 readerConf,
+                subscriptionName,
                 pollTimeoutMs,
                 commitMaxRetries,
                 deserializer,
