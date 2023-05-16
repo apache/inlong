@@ -74,6 +74,7 @@
         <jboss.netty.version>3.10.6.Final</jboss.netty.version>
         <scala.binary.version>2.11</scala.binary.version>
         <spark.version>2.4.4</spark.version>
+        <sort.flink.version>v1.13</sort.flink.version>
 
         <simpleclient.httpserver.version>0.14.1</simpleclient.httpserver.version>
         <httpcore.version>4.4.14</httpcore.version>
@@ -91,7 +92,6 @@
 
         <h2.version>2.1.214</h2.version>
         <h2.mysql.version>2.0.0</h2.mysql.version>
-        <debezium.version>1.8.0.Final</debezium.version>
         <rocksdb.version>6.14.6</rocksdb.version>
         <redis-replicator.version>3.6.4</redis-replicator.version>
         <hadoop.version>2.10.2</hadoop.version>
@@ -135,7 +135,6 @@
 
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
         <hive.version>3.1.3</hive.version>
-        <thrift.version>0.9.3</thrift.version>
         <flume.version>1.10.0</flume.version>
         <hbase.version>2.4.12</hbase.version>
 
@@ -148,23 +147,13 @@
         <aws.sdk.version>1.12.346</aws.sdk.version>
         <zookeeper.version>3.6.3</zookeeper.version>
         <pulsar.version>2.8.1</pulsar.version>
-        <pulsar.testcontainers.version>1.15.3</pulsar.testcontainers.version>
         <kafka.version>2.4.1</kafka.version>
         <iceberg.version>1.1.0</iceberg.version>
-        <hudi.version>0.12.3</hudi.version>
         <flink.version>1.13.5</flink.version>
         <flink.minor.version>1.13</flink.minor.version>
-        <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
         <flink.scala.binary.version>2.11</flink.scala.binary.version>
         <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
-        <flink.connector.postgres.cdc.version>2.2.1</flink.connector.postgres.cdc.version>
-        <flink.connector.sqlserver.cdc.version>2.2.1</flink.connector.sqlserver.cdc.version>
-        <flink.pulsar.version>1.13.6.2</flink.pulsar.version>
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
-        <flink.connector.mongodb.cdc.version>2.3.0</flink.connector.mongodb.cdc.version>
-        <flink.connector.oracle.cdc.version>2.3.0</flink.connector.oracle.cdc.version>
-        <flink.connector.doris.version>1.0.3</flink.connector.doris.version>
-        <flink.connector.redis>1.1.0</flink.connector.redis>
         <flink.cdc.base.version>2.3.0</flink.cdc.base.version>
 
         <curator.version>2.12.0</curator.version>
@@ -195,7 +184,6 @@
         <jcommander.version>1.78</jcommander.version>
         <je.version>7.3.7</je.version>
         <tencentcloud.cls.version>1.0.9</tencentcloud.cls.version>
-        <esri-geometry-api.version>2.0.0</esri-geometry-api.version>
         <HikariCP.version>4.0.3</HikariCP.version>
         <caffeine.version>2.9.3</caffeine.version>
         <kafka.clients.version>3.0.0</kafka.clients.version>
@@ -240,17 +228,6 @@
                 <version>${jsqlparser.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP</artifactId>
-                <version>${HikariCP.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.flume.flume-ng-sinks</groupId>
                 <artifactId>flume-hdfs-sink</artifactId>
                 <version>${flume.version}</version>
@@ -269,18 +246,6 @@
                         <artifactId>spotbugs-annotations</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.ververica</groupId>
-                <artifactId>flink-connector-mongodb-cdc</artifactId>
-                <version>${flink.connector.mongodb.cdc.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.bahir</groupId>
-                <artifactId>flink-connector-redis_${flink.scala.binary.version}</artifactId>
-                <version>${flink.connector.redis}</version>
             </dependency>
 
             <!-- hive -->
@@ -373,11 +338,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>org.apache.thrift</groupId>
-                <artifactId>libfb303</artifactId>
-                <version>${thrift.version}</version>
-            </dependency>
 
             <!-- hadoop -->
             <dependency>
@@ -412,22 +372,6 @@
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-reload4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hadoop</groupId>
-                <artifactId>hadoop-minicluster</artifactId>
-                <version>${hadoop.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>xml-apis</groupId>
-                        <artifactId>xml-apis</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.avro</groupId>
-                        <artifactId>avro</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -501,11 +445,6 @@
                 <version>${mybatis.starter.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.mybatis</groupId>
-                <artifactId>mybatis</artifactId>
-                <version>${mybatis.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
@@ -538,51 +477,6 @@
                 <groupId>org.rocksdb</groupId>
                 <artifactId>rocksdbjni</artifactId>
                 <version>${rocksdb.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-api</artifactId>
-                <version>${debezium.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-embedded</artifactId>
-                <version>${debezium.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-connector-mysql</artifactId>
-                <version>${debezium.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-connector-sqlserver</artifactId>
-                <version>${debezium.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-connector-mongodb</artifactId>
-                <version>${debezium.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-connector-postgres</artifactId>
-                <version>${debezium.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-connector-oracle</artifactId>
-                <version>${debezium.version}</version>
             </dependency>
 
             <dependency>
@@ -736,11 +630,6 @@
             <!-- pagehelper -->
             <dependency>
                 <groupId>com.github.pagehelper</groupId>
-                <artifactId>pagehelper</artifactId>
-                <version>${pagehelper.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.pagehelper</groupId>
                 <artifactId>pagehelper-spring-boot-starter</artifactId>
                 <version>${pagehelper.springboot.version}</version>
             </dependency>
@@ -882,12 +771,6 @@
                 <artifactId>pulsar-client-all</artifactId>
                 <version>${pulsar.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>pulsar</artifactId>
-                <version>${pulsar.testcontainers.version}</version>
-                <scope>test</scope>
-            </dependency>
 
             <!-- kafka dependency-->
             <dependency>
@@ -904,52 +787,12 @@
             <!-- flink -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-clients_${flink.scala.binary.version}</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
                 <artifactId>flink-core</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-streaming-java_${flink.scala.binary.version}</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
                 <artifactId>flink-table-common</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-table-runtime-blink_${flink.scala.binary.version}</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-parquet_${flink.scala.binary.version}</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-kafka_${flink.scala.binary.version}</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-hive_${flink.scala.binary.version}</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-hbase-2.2_${flink.scala.binary.version}</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-table-api-java-bridge_${flink.scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
@@ -965,11 +808,6 @@
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-csv</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-orc_${scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
@@ -1008,54 +846,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>org.apache.iceberg</groupId>
-                <artifactId>iceberg-flink-runtime-1.14</artifactId>
-                <version>${iceberg.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-table-planner-blink_${flink.scala.binary.version}</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.ververica</groupId>
-                <artifactId>flink-connector-mysql-cdc</artifactId>
-                <version>${flink.connector.mysql.cdc.version}</version>
-                <!-- mysql-connector-java is LGPL license and needs to be excluded -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>mysql</groupId>
-                        <artifactId>mysql-connector-java</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.ververica</groupId>
-                <artifactId>flink-connector-postgres-cdc</artifactId>
-                <version>${flink.connector.postgres.cdc.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.ververica</groupId>
-                <artifactId>flink-connector-oracle-cdc</artifactId>
-                <version>${flink.connector.oracle.cdc.version}</version>
-                <!-- ojdbc8 is FUTC license and needs to be excluded -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.oracle.ojdbc</groupId>
-                        <artifactId>ojdbc8</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.ververica</groupId>
-                <artifactId>flink-connector-sqlserver-cdc</artifactId>
-                <version>${flink.connector.sqlserver.cdc.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.ververica</groupId>
@@ -1064,27 +854,11 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-jdbc_${flink.scala.binary.version}</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
                 <version>${aws.sdk.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>io.streamnative.connectors</groupId>
-                <artifactId>pulsar-flink-connector_${scala.binary.version}</artifactId>
-                <version>${flink.pulsar.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.streamnative.connectors</groupId>
-                <artifactId>pulsar-flink-connector-origin</artifactId>
-                <version>${flink.pulsar.version}</version>
-            </dependency>
             <dependency>
                 <groupId>io.streamnative.connectors</groupId>
                 <artifactId>flink-protobuf</artifactId>
@@ -1113,13 +887,6 @@
                 <groupId>org.apache.iceberg</groupId>
                 <artifactId>iceberg-core</artifactId>
                 <version>${iceberg.version}</version>
-            </dependency>
-
-            <!-- hudi -->
-            <dependency>
-                <groupId>org.apache.hudi</groupId>
-                <artifactId>hudi-flink1.13-bundle</artifactId>
-                <version>${hudi.version}</version>
             </dependency>
 
             <!-- kudu -->
@@ -1170,40 +937,9 @@
 
             <!-- format -->
             <dependency>
-                <groupId>org.apache.avro</groupId>
-                <artifactId>avro</artifactId>
-                <version>${avro.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.avro</groupId>
-                <artifactId>avro-ipc</artifactId>
-                <version>${avro.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>oro</groupId>
-                <artifactId>oro</artifactId>
-                <version>${oro.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.orc</groupId>
-                <artifactId>orc-core</artifactId>
-                <version>${orc.core.version}</version>
-                <classifier>nohive</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.parquet</groupId>
-                <artifactId>parquet-hadoop</artifactId>
-                <version>${parquet.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.typesafe.akka</groupId>
                 <artifactId>akka-stream_2.11</artifactId>
                 <version>${akka.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>ST4</artifactId>
-                <version>${antlr.verison}</version>
             </dependency>
 
             <!-- protobuf -->
@@ -1261,22 +997,6 @@
                         <artifactId>spotbugs-annotations</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.curator</groupId>
-                <artifactId>curator-framework</artifactId>
-                <version>${curator.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.curator</groupId>
-                <artifactId>curator-recipes</artifactId>
-                <version>${curator.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.curator</groupId>
-                <artifactId>curator-test</artifactId>
-                <version>${curator.version}</version>
-                <scope>test</scope>
             </dependency>
 
             <!-- reflections -->
@@ -1385,12 +1105,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-1.2-api</artifactId>
-                <version>${log4j2.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-jcl</artifactId>
                 <version>${log4j2.version}</version>
             </dependency>
@@ -1404,22 +1118,6 @@
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
                 <scope>provided</scope>
-            </dependency>
-            <!-- logback -->
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-access</artifactId>
-                <version>${logback.version}</version>
             </dependency>
 
             <!-- test -->
@@ -1526,11 +1224,6 @@
                 <groupId>com.beust</groupId>
                 <artifactId>jcommander</artifactId>
                 <version>${jcommander.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esri.geometry</groupId>
-                <artifactId>esri-geometry-api</artifactId>
-                <version>${esri-geometry-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.tencentcloudapi.cls</groupId>

@@ -26,11 +26,6 @@
     <artifactId>tubemq-connector-spark</artifactId>
     <name>Apache InLong - TubeMQ Connectors-spark</name>
 
-    <properties>
-        <scala.binary.version>2.11</scala.binary.version>
-        <spark.version>2.4.4</spark.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
@@ -47,19 +42,16 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
         </dependency>
 
         <dependency>

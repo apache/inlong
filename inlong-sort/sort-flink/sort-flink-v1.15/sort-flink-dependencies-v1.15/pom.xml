@@ -22,34 +22,40 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
-        <artifactId>inlong-sort</artifactId>
+        <artifactId>sort-flink-v1.15</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sort-flink</artifactId>
-    <packaging>pom</packaging>
-    <name>Apache InLong - Sort Flink</name>
+    <artifactId>sort-flink-dependencies-v1.15</artifactId>
 
-    <profiles>
-        <profile>
-            <id>v1.13</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>cdc-base</module>
-                <module>base</module>
-                <module>sort-flink-v1.13</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>v1.15</id>
-            <modules>
-                <module>cdc-base</module>
-                <module>base</module>
-                <module>sort-flink-v1.15</module>
-            </modules>
-        </profile>
-    </profiles>
+    <name>Apache InLong - Sort Flink Dependencies v1.15</name>
+
+    <dependencies>
+        <!--flink 1.15.4-->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-planner_${flink.scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-api-java-bridge</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-streaming-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-streaming-scala_${flink.scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-clients</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

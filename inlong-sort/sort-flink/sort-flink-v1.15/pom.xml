@@ -26,42 +26,44 @@
         <version>1.8.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sort-flink-v1.13</artifactId>
+    <artifactId>sort-flink-v1.15</artifactId>
     <packaging>pom</packaging>
-    <name>Apache InLong - Sort Flink v1.13</name>
+    <name>Apache InLong - Sort Flink v1.15</name>
 
     <modules>
-        <module>sort-connectors-v1.13</module>
-        <module>sort-flink-dependencies-v1.13</module>
+        <module>sort-connectors-v1.15</module>
+        <module>sort-flink-dependencies-v1.15</module>
     </modules>
 
     <properties>
-        <flink.version>1.13.5</flink.version>
+        <flink.version>1.15.4</flink.version>
+        <debezium.version>2.0.1.Final</debezium.version>
         <flink.connector.mongodb.cdc.version>2.3.0</flink.connector.mongodb.cdc.version>
-        <flink.connector.redis>1.1.0</flink.connector.redis>
-        <flink.scala.binary.version>2.11</flink.scala.binary.version>
-        <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
-        <flink.scala.binary.version>2.11</flink.scala.binary.version>
-        <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
-        <flink.connector.postgres.cdc.version>2.2.1</flink.connector.postgres.cdc.version>
-        <flink.connector.sqlserver.cdc.version>2.2.1</flink.connector.sqlserver.cdc.version>
-        <flink.pulsar.version>1.13.6.2</flink.pulsar.version>
-        <flink.protobuf.version>2.7.6</flink.protobuf.version>
         <flink.connector.oracle.cdc.version>2.3.0</flink.connector.oracle.cdc.version>
+        <flink.connector.mysql.cdc.version>2.3.0</flink.connector.mysql.cdc.version>
+        <flink.connector.postgres.cdc.version>2.3.0</flink.connector.postgres.cdc.version>
+        <flink.connector.sqlserver.cdc.version>2.3.0</flink.connector.sqlserver.cdc.version>
+        <flink.pulsar.version>1.13.6.2</flink.pulsar.version>
         <flink.connector.doris.version>1.0.3</flink.connector.doris.version>
-
-        <hudi.version>0.12.1</hudi.version>
+        <flink.connector.redis>1.1.0</flink.connector.redis>
+        <flink.scala.binary.version>2.12</flink.scala.binary.version>
+        <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
+        <flink.protobuf.version>2.7.6</flink.protobuf.version>
 
         <sqlserver.jdbc.version>7.2.2.jre8</sqlserver.jdbc.version>
 
+        <hudi.version>0.12.1</hudi.version>
+
         <thrift.version>0.9.3</thrift.version>
+
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <!-- flink connector-->
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-kafka_${flink.scala.binary.version}</artifactId>
+                <artifactId>flink-connector-kafka</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
@@ -71,7 +73,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-hbase-2.2_${flink.scala.binary.version}</artifactId>
+                <artifactId>flink-connector-hbase-2.2</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
@@ -110,7 +112,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-connector-jdbc_${flink.scala.binary.version}</artifactId>
+                <artifactId>flink-connector-jdbc</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
@@ -153,27 +155,28 @@
             <!-- flink -->
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-table-api-java-bridge_${flink.scala.binary.version}</artifactId>
+                <artifactId>flink-table-api-java-bridge</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-table-runtime-blink_${flink.scala.binary.version}</artifactId>
+                <artifactId>flink-table-runtime</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-clients_${flink.scala.binary.version}</artifactId>
+                <artifactId>flink-clients</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-table-planner-blink_${flink.scala.binary.version}</artifactId>
+                <artifactId>flink-table-planner_${flink.scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
-                <artifactId>flink-streaming-java_${flink.scala.binary.version}</artifactId>
+                <artifactId>flink-streaming-java</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>
@@ -221,4 +224,5 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
 </project>
