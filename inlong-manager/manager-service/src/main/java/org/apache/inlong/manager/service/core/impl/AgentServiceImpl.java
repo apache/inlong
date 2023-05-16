@@ -64,6 +64,7 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
+import org.apache.pulsar.shade.org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.elasticsearch.common.util.set.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +89,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
@@ -120,9 +122,11 @@ public class AgentServiceImpl implements AgentService {
     private Boolean updateTaskTimeoutEnabled;
     @Value("${source.update.before.seconds:60}")
     private Integer beforeSeconds;
+    @Value("${source.update.interval:60}")
+    private Integer updateTaskInterval;
     @Value("${source.cleansing.enabled:false}")
     private Boolean sourceCleanEnabled;
-    @Value("${source.cleansing.interval:60}")
+    @Value("${source.cleansing.interval:600}")
     private Integer cleanInterval;
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
@@ -145,7 +149,11 @@ public class AgentServiceImpl implements AgentService {
     @PostConstruct
     private void startHeartbeatTask() {
         if (updateTaskTimeoutEnabled) {
-            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+            ThreadFactory factory = new ThreadFactoryBuilder()
+                    .setNameFormat("scheduled-source-timeout-%d")
+                    .setDaemon(true)
+                    .build();
+            ScheduledExecutorService executor  = Executors.newSingleThreadScheduledExecutor(factory);
             executor.scheduleWithFixedDelay(() -> {
                 try {
                     sourceMapper.updateStatusToTimeout(beforeSeconds);
@@ -153,11 +161,15 @@ public class AgentServiceImpl implements AgentService {
                 } catch (Throwable t) {
                     LOGGER.error("update task status error", t);
                 }
-            }, 0, beforeSeconds, TimeUnit.SECONDS);
+            }, 0, updateTaskInterval, TimeUnit.SECONDS);
             LOGGER.info("update task status started successfully");
         }
         if (sourceCleanEnabled) {
-            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+            ThreadFactory factory = new ThreadFactoryBuilder()
+                    .setNameFormat("scheduled-source-deleted-%d")
+                    .setDaemon(true)
+                    .build();
+            ScheduledExecutorService executor  = Executors.newSingleThreadScheduledExecutor(factory);
             executor.scheduleWithFixedDelay(() -> {
                 try {
                     sourceMapper.updateStatusByDeleted();
