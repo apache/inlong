@@ -151,7 +151,7 @@
         <pulsar.testcontainers.version>1.15.3</pulsar.testcontainers.version>
         <kafka.version>2.4.1</kafka.version>
         <iceberg.version>1.1.0</iceberg.version>
-        <hudi.version>0.12.1</hudi.version>
+        <hudi.version>0.12.3</hudi.version>
         <flink.version>1.13.5</flink.version>
         <flink.minor.version>1.13</flink.minor.version>
         <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
