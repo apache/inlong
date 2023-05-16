@@ -493,8 +493,8 @@ public class AgentServiceImpl implements AgentService {
 
     private void preTimeoutTasks(TaskRequest taskRequest) {
         // If the agent report succeeds, restore the source status
-        List<Integer> needUpdateIds = sourceMapper.selectHeartbeatTimeoutIds(Lists.newArrayList(SourceType.FILE),
-                taskRequest.getAgentIp(), taskRequest.getClusterName());
+        List<Integer> needUpdateIds = sourceMapper.selectHeartbeatTimeoutIds(null, taskRequest.getAgentIp(),
+                taskRequest.getClusterName());
         // restore state for all source by ip and type
         if (CollectionUtils.isNotEmpty(needUpdateIds)) {
             sourceMapper.rollbackTimeoutStatusByIds(needUpdateIds, null);
