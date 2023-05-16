@@ -23,7 +23,6 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.Scheduler;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -35,7 +34,6 @@ import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterStatus;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -180,8 +178,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     // If the agent report succeeds, restore the source status
                     if (Objects.equals(clusterNode.getType(), ClusterType.AGENT)) {
                         // If the agent report succeeds, restore the source status
-                        List<Integer> needUpdateIds = sourceMapper.selectHeartbeatTimeoutIds(
-                                Lists.newArrayList(SourceType.FILE), heartbeat.getIp(), heartbeat.getClusterName());
+                        List<Integer> needUpdateIds = sourceMapper.selectHeartbeatTimeoutIds(null, heartbeat.getIp(),
+                                heartbeat.getClusterName());
                         // restore state for all source by ip and type
                         if (CollectionUtils.isNotEmpty(needUpdateIds)) {
                             sourceMapper.rollbackTimeoutStatusByIds(needUpdateIds, null);
