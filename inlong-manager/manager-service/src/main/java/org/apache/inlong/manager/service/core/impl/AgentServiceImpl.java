@@ -86,6 +86,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
@@ -116,10 +118,12 @@ public class AgentServiceImpl implements AgentService {
             new CallerRunsPolicy());
     @Value("${source.update.enabled:false}")
     private Boolean updateTaskTimeoutEnabled;
-    @Value("${source.cleansing.enabled:false}")
-    private Boolean sourceCleanEnabled;
     @Value("${source.update.before.seconds:60}")
     private Integer beforeSeconds;
+    @Value("${source.cleansing.enabled:false}")
+    private Boolean sourceCleanEnabled;
+    @Value("${source.cleansing.interval:60}")
+    private Integer cleanInterval;
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -141,14 +145,28 @@ public class AgentServiceImpl implements AgentService {
     @PostConstruct
     private void startHeartbeatTask() {
         if (updateTaskTimeoutEnabled) {
-            UpdateTaskRunnable taskRunnable = new UpdateTaskRunnable();
-            this.executorService.execute(taskRunnable);
+            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+            executor.scheduleWithFixedDelay(() -> {
+                try {
+                    sourceMapper.updateStatusToTimeout(beforeSeconds);
+                    LOGGER.info("update task status successfully");
+                } catch (Throwable t) {
+                    LOGGER.error("update task status error", t);
+                }
+            }, 0, beforeSeconds, TimeUnit.SECONDS);
             LOGGER.info("update task status started successfully");
         }
         if (sourceCleanEnabled) {
-            TaskCleanRunnable taskCleanRunnable = new TaskCleanRunnable();
-            this.executorService.execute(taskCleanRunnable);
-            LOGGER.info("update task by error status started successfully");
+            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+            executor.scheduleWithFixedDelay(() -> {
+                try {
+                    sourceMapper.updateStatusByDeleted();
+                    LOGGER.info("clean task successfully");
+                } catch (Throwable t) {
+                    LOGGER.error("clean task error", t);
+                }
+            }, 0, cleanInterval, TimeUnit.SECONDS);
+            LOGGER.info("clean task started successfully");
         }
     }
 
@@ -254,12 +272,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(bindSet)) {
             bindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(ClusterType.AGENT);
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(Objects::nonNull)
+                        ClusterPageRequest pageRequest = new ClusterPageRequest();
+                        pageRequest.setParentId(cluster.getId());
+                        pageRequest.setType(ClusterType.AGENT);
+                        pageRequest.setKeyword(clusterNode);
+                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
+                    }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -278,12 +296,12 @@ public class AgentServiceImpl implements AgentService {
 
         if (CollectionUtils.isNotEmpty(unbindSet)) {
             unbindSet.stream().flatMap(clusterNode -> {
-                ClusterPageRequest pageRequest = new ClusterPageRequest();
-                pageRequest.setParentId(cluster.getId());
-                pageRequest.setType(ClusterType.AGENT);
-                pageRequest.setKeyword(clusterNode);
-                return clusterNodeMapper.selectByCondition(pageRequest).stream();
-            }).filter(Objects::nonNull)
+                        ClusterPageRequest pageRequest = new ClusterPageRequest();
+                        pageRequest.setParentId(cluster.getId());
+                        pageRequest.setType(ClusterType.AGENT);
+                        pageRequest.setKeyword(clusterNode);
+                        return clusterNodeMapper.selectByCondition(pageRequest).stream();
+                    }).filter(Objects::nonNull)
                     .forEach(entity -> {
                         Set<String> groupSet = new HashSet<>();
                         AgentClusterNodeDTO agentClusterNodeDTO = new AgentClusterNodeDTO();
@@ -433,7 +451,7 @@ public class AgentServiceImpl implements AgentService {
             if (!matchGroup(sourceEntity, clusterNodeEntity)
                     && !exceptedUnmatchedStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))) {
                 LOGGER.info("Transform task({}) from {} to {} because tag mismatch "
-                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                         sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_STOP.getCode(),
                         agentIp, agentClusterName);
                 sourceMapper.updateStatus(
@@ -453,7 +471,7 @@ public class AgentServiceImpl implements AgentService {
                     && !exceptedMatchedSourceStatus.contains(SourceStatus.forCode(sourceEntity.getStatus()))
                     && !exceptedMatchedGroupStatus.contains(GroupStatus.forCode(groupEntity.getStatus()))) {
                 LOGGER.info("Transform task({}) from {} to {} because tag rematch "
-                        + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
+                                + "for agent({}) in cluster({})", sourceEntity.getAgentIp(),
                         sourceEntity.getStatus(), SourceStatus.TO_BE_ISSUED_ACTIVE.getCode(),
                         agentIp, agentClusterName);
                 sourceMapper.updateStatus(
@@ -650,42 +668,6 @@ public class AgentServiceImpl implements AgentService {
         Set<String> sourceGroups = Stream.of(
                 sourceEntity.getInlongClusterNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
         return sourceGroups.stream().anyMatch(clusterNodeGroups::contains);
-    }
-
-    /**
-     * update task status when task timeout
-     */
-    private class UpdateTaskRunnable implements Runnable {
-
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    sourceMapper.updateStatusToTimeout(beforeSeconds);
-                    Thread.sleep(beforeSeconds * 1000);
-                } catch (Throwable t) {
-                    LOGGER.error("update task status runnable error", t);
-                }
-            }
-        }
-    }
-
-    /**
-     * update task which in an incorrect state
-     */
-    private class TaskCleanRunnable implements Runnable {
-
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    sourceMapper.updateStatusByDeleted();
-                    Thread.sleep(60 * 10000);
-                } catch (Throwable t) {
-                    LOGGER.error("update task status runnable error", t);
-                }
-            }
-        }
     }
 
 }
