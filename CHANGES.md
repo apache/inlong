@@ -1,3 +1,4 @@
+
 # InLong Changelog
 
 <!---
@@ -49,6 +50,7 @@
 ### Manager
 |                            ISSUE                            | Summary                                                                                        |
 |:-----------------------------------------------------------:|:-----------------------------------------------------------------------------------------------|
+| [INLONG-8035](https://github.com/apache/inlong/issues/8035) | [Bug][Manager] Non-file tasks cannot be recovered from the heartbeat timeout state             |
 | [INLONG-8021](https://github.com/apache/inlong/issues/8021) | [Improve][Manager] Periodically delete sources with inconsistent states                        |
 | [INLONG-8006](https://github.com/apache/inlong/issues/8006) | [Improve][Manager] Set displayname for the auto-registered cluster                             |
 | [INLONG-7999](https://github.com/apache/inlong/issues/7999) | [Improve][Manager] Support PostgreSQL data node                                                |
