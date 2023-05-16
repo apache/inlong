@@ -86,6 +86,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
@@ -115,9 +118,15 @@ public class AgentServiceImpl implements AgentService {
             new ThreadFactoryBuilder().setNameFormat("async-agent-%s").build(),
             new CallerRunsPolicy());
     @Value("${source.update.enabled:false}")
-    private Boolean enabled;
+    private Boolean updateTaskTimeoutEnabled;
     @Value("${source.update.before.seconds:60}")
     private Integer beforeSeconds;
+    @Value("${source.update.interval:60}")
+    private Integer updateTaskInterval;
+    @Value("${source.cleansing.enabled:false}")
+    private Boolean sourceCleanEnabled;
+    @Value("${source.cleansing.interval:600}")
+    private Integer cleanInterval;
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -138,10 +147,37 @@ public class AgentServiceImpl implements AgentService {
      */
     @PostConstruct
     private void startHeartbeatTask() {
-        if (enabled) {
-            UpdateTaskRunnable taskRunnable = new UpdateTaskRunnable();
-            this.executorService.execute(taskRunnable);
+        if (updateTaskTimeoutEnabled) {
+            ThreadFactory factory = new ThreadFactoryBuilder()
+                    .setNameFormat("scheduled-source-timeout-%d")
+                    .setDaemon(true)
+                    .build();
+            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(factory);
+            executor.scheduleWithFixedDelay(() -> {
+                try {
+                    sourceMapper.updateStatusToTimeout(beforeSeconds);
+                    LOGGER.info("update task status successfully");
+                } catch (Throwable t) {
+                    LOGGER.error("update task status error", t);
+                }
+            }, 0, updateTaskInterval, TimeUnit.SECONDS);
             LOGGER.info("update task status started successfully");
+        }
+        if (sourceCleanEnabled) {
+            ThreadFactory factory = new ThreadFactoryBuilder()
+                    .setNameFormat("scheduled-source-deleted-%d")
+                    .setDaemon(true)
+                    .build();
+            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(factory);
+            executor.scheduleWithFixedDelay(() -> {
+                try {
+                    sourceMapper.updateStatusByDeleted();
+                    LOGGER.info("clean task successfully");
+                } catch (Throwable t) {
+                    LOGGER.error("clean task error", t);
+                }
+            }, 0, cleanInterval, TimeUnit.SECONDS);
+            LOGGER.info("clean task started successfully");
         }
     }
 
@@ -643,24 +679,6 @@ public class AgentServiceImpl implements AgentService {
         Set<String> sourceGroups = Stream.of(
                 sourceEntity.getInlongClusterNodeGroup().split(InlongConstants.COMMA)).collect(Collectors.toSet());
         return sourceGroups.stream().anyMatch(clusterNodeGroups::contains);
-    }
-
-    /**
-     * update task status when task timeout
-     */
-    private class UpdateTaskRunnable implements Runnable {
-
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    sourceMapper.updateStatusToTimeout(beforeSeconds);
-                    Thread.sleep(beforeSeconds * 1000);
-                } catch (Throwable t) {
-                    LOGGER.error("update task status runnable error", t);
-                }
-            }
-        }
     }
 
 }
