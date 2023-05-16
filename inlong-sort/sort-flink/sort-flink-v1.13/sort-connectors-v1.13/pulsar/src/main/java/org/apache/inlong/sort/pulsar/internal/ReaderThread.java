@@ -63,6 +63,7 @@ public class ReaderThread<T> extends Thread {
     private boolean failOnDataLoss = true;
     private boolean useEarliestWhenDataLoss = false;
     private final PulsarCollector pulsarCollector;
+    private final String subscriptionName;
 
     protected volatile boolean running = true;
     protected volatile boolean closed = false;
@@ -78,7 +79,8 @@ public class ReaderThread<T> extends Thread {
             Map<String, Object> readerConf,
             PulsarDeserializationSchema<T> deserializer,
             int pollTimeoutMs,
-            ExceptionProxy exceptionProxy) {
+            ExceptionProxy exceptionProxy,
+            String subscriptionName) {
         this.owner = owner;
         this.state = state;
         this.clientConf = clientConf;
@@ -86,9 +88,9 @@ public class ReaderThread<T> extends Thread {
         this.deserializer = deserializer;
         this.pollTimeoutMs = pollTimeoutMs;
         this.exceptionProxy = exceptionProxy;
-
         this.topicRange = state.getTopicRange();
         this.startMessageId = state.getOffset();
+        this.subscriptionName = subscriptionName;
         this.pulsarCollector = new PulsarCollector();
     }
 
@@ -102,8 +104,10 @@ public class ReaderThread<T> extends Thread {
             ExceptionProxy exceptionProxy,
             boolean failOnDataLoss,
             boolean useEarliestWhenDataLoss,
-            boolean excludeMessageId) {
-        this(owner, state, clientConf, readerConf, deserializer, pollTimeoutMs, exceptionProxy);
+            boolean excludeMessageId,
+            String subscriptionName) {
+        this(owner, state, clientConf, readerConf, deserializer, pollTimeoutMs, exceptionProxy,
+                subscriptionName);
         this.failOnDataLoss = failOnDataLoss;
         this.useEarliestWhenDataLoss = useEarliestWhenDataLoss;
         this.excludeMessageId = excludeMessageId;
@@ -141,6 +145,7 @@ public class ReaderThread<T> extends Thread {
                 .newReader(deserializer.getSchema())
                 .topic(topicRange.getTopic())
                 .startMessageId(startMessageId)
+                .subscriptionName(subscriptionName)
                 .loadConf(readerConf);
         log.info("Create a reader at topic {} starting from message {} (inclusive) : config = {}",
                 topicRange, startMessageId, readerConf);

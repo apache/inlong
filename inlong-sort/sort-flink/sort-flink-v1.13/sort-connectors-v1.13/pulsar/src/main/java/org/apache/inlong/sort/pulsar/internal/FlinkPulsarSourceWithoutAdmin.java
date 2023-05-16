@@ -608,6 +608,7 @@ public class FlinkPulsarSourceWithoutAdmin<T>
                 streamingRuntime,
                 clientConfigurationData,
                 readerConf,
+                getSubscriptionName(),
                 pollTimeoutMs,
                 commitMaxRetries,
                 deserializer,

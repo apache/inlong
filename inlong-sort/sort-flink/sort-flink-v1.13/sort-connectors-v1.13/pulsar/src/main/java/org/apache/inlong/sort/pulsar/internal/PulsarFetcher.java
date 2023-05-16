@@ -117,6 +117,8 @@ public class PulsarFetcher<T> {
 
     protected final Map<String, Object> readerConf;
 
+    protected final String subscriptionName;
+
     protected final PulsarDeserializationSchema<T> deserializer;
 
     protected final int pollTimeoutMs;
@@ -181,7 +183,8 @@ public class PulsarFetcher<T> {
             PulsarDeserializationSchema<T> deserializer,
             PulsarMetadataReader metadataReader,
             MetricGroup consumerMetricGroup,
-            boolean useMetrics) throws Exception {
+            boolean useMetrics,
+            String subscriptionName) throws Exception {
         this(
                 sourceContext,
                 seedTopicsWithInitialOffsets,
@@ -193,6 +196,7 @@ public class PulsarFetcher<T> {
                 runtimeContext,
                 clientConf,
                 readerConf,
+                subscriptionName,
                 pollTimeoutMs,
                 3, // commit retries before fail
                 deserializer,
@@ -212,6 +216,7 @@ public class PulsarFetcher<T> {
             StreamingRuntimeContext runtimeContext,
             ClientConfigurationData clientConf,
             Map<String, Object> readerConf,
+            String subscriptionName,
             int pollTimeoutMs,
             int commitMaxRetries,
             PulsarDeserializationSchema<T> deserializer,
@@ -221,6 +226,7 @@ public class PulsarFetcher<T> {
 
         this.sourceContext = sourceContext;
         this.watermarkOutput = new SourceContextWatermarkOutputAdapter<>(sourceContext);
+        this.subscriptionName = subscriptionName;
         this.watermarkOutputMultiplexer = new WatermarkOutputMultiplexer(watermarkOutput);
         this.useMetrics = useMetrics;
         this.consumerMetricGroup = checkNotNull(consumerMetricGroup);
@@ -525,7 +531,7 @@ public class PulsarFetcher<T> {
                 exceptionProxy,
                 failOnDataLoss,
                 useEarliestWhenDataLoss,
-                excludeStartMessageIds.contains(state.getTopicRange()));
+                excludeStartMessageIds.contains(state.getTopicRange()), subscriptionName);
     }
 
     /**
