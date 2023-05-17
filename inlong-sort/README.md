@@ -53,11 +53,3 @@ Time window aggregation, Content extraction, Type conversion, Time format conver
 ### More kinds of Load Node
 
 Elasticsearch, and etc.
-
-# Compile Multi-version of Flink
-1. The packaging of different versions does not conflict with each other, and the dependent versions are managed by themselves.
-2. The dependencies related to flink under the Sort module only need to introduce sort-flink-dependencies-xxx.
-3. To switch the Flink version under the Sort module, you need to modify the relevant conflicts to ensure compatibility. Looking forward to your PR.
-4. How to switch Flink version？
-- By default, it will only pack: profile id is v1.13
-- If you need to package all modules: mvn clean install -DskipTests -P v1.15,v1.13
