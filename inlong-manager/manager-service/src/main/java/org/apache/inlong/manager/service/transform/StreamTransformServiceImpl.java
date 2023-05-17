@@ -142,13 +142,23 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     }
 
     @Override
-    public PageResult<TransformResponse> listTransform(TransformPageRequest request) {
+    public PageResult<TransformResponse> listByCondition(TransformPageRequest request, UserInfo opInfo) {
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();
         LOGGER.debug("begin to fetch transform info by groupId={} and streamId={} ", groupId, streamId);
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         PageResult<TransformResponse> pageResponse = new PageResult<>();
-        pageResponse.setList(getTransform(groupId, streamId));
+
+        checkUser(groupId, opInfo);
+
+        // query result
+        List<StreamTransformEntity> entityList = transformMapper.selectByCondition(request);
+        if (CollectionUtils.isEmpty(entityList)) {
+            pageResponse.setList(Collections.emptyList());
+            return pageResponse;
+        }
+
+        pageResponse.setList(getTransformResponse(entityList));
         return pageResponse;
     }
 
@@ -160,17 +170,9 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             throw new BusinessException(ErrorCodeEnum.TRANSFORM_NOT_FOUND,
                     String.format("source not found by id=%s", id));
         }
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(entity.getInlongGroupId());
-        if (groupEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
-        // only the person in charges can query
-        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+
+        checkUser(entity.getInlongGroupId(), opInfo);
+
         Map<Integer, List<StreamField>> fieldInfoMap = fieldEntities.stream()
                 .map(transformFieldEntity -> {
                     StreamField fieldInfo = CommonBeanUtils.copyProperties(transformFieldEntity, StreamField::new);
@@ -185,7 +187,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     }
 
     @Override
-    public List<TransformResponse> getTransform(String groupId, String streamId) {
+    public List<TransformResponse> listTransform(String groupId, String streamId) {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
@@ -197,18 +199,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Override
     public List<TransformResponse> listTransform(String groupId, String streamId, UserInfo opInfo) {
         // Check if it can be added
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        if (groupEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
-                    String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
-        }
-        // only the person in charges can query
-        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+        checkUser(groupId, opInfo);
         // query result
         List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
@@ -383,6 +374,21 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             }
         });
         return transformResponses;
+    }
+
+    private void checkUser(String groupId, UserInfo userInfo) {
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+        }
+        // only the person in charges can query
+        if (!userInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
+            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(userInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
     }
 
     private void checkParams(TransformRequest request) {

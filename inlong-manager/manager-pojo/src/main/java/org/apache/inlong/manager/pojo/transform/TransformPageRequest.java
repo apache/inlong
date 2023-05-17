@@ -36,4 +36,10 @@ public class TransformPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
+
+    @ApiModelProperty("Transform name, unique in one stream")
+    private String transformName;
+
+    @ApiModelProperty("Transform type, including: splitter, filter, joiner, etc.")
+    private String transformType;
 }

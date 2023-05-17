@@ -61,7 +61,7 @@ public class StreamTransformController {
     @RequestMapping(value = "/transform/list", method = RequestMethod.POST)
     @ApiOperation(value = "Get stream transform list")
     public Response<PageResult<TransformResponse>> list(@Validated @RequestBody TransformPageRequest request) {
-        return Response.success(streamTransformService.listTransform(request));
+        return Response.success(streamTransformService.listByCondition(request, LoginUserUtils.getLoginUser()));
     }
 
     @RequestMapping(value = "/transform/get/{id}", method = RequestMethod.GET)

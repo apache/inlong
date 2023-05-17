@@ -22,7 +22,6 @@ import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamTransformEntity;
 import org.apache.inlong.manager.dao.mapper.StreamTransformEntityMapper;
-import org.apache.inlong.manager.pojo.transform.TransformPageRequest;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.service.ServiceBaseTest;
@@ -66,10 +65,7 @@ public class StreamTransformServiceTest extends ServiceBaseTest {
         int index = transformEntityMapper.insert(entity);
         Assertions.assertEquals(1, index);
 
-        TransformPageRequest pageRequest = new TransformPageRequest();
-        pageRequest.setInlongGroupId(GLOBAL_GROUP_ID);
-        pageRequest.setInlongStreamId(GLOBAL_STREAM_ID);
-        List<TransformResponse> responses = streamTransformService.listTransform(pageRequest).getList();
+        List<TransformResponse> responses = streamTransformService.listTransform(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID);
         Assertions.assertEquals(1, responses.size());
     }
 

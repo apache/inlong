@@ -55,7 +55,7 @@ public interface StreamTransformService {
      * @param request the transform page request
      * @return the transform response
      */
-    PageResult<TransformResponse> listTransform(TransformPageRequest request);
+    PageResult<TransformResponse> listByCondition(TransformPageRequest request, UserInfo opInfo);
 
     /**
      * Query transform information based on id
@@ -73,7 +73,7 @@ public interface StreamTransformService {
      * @param streamId the inlong stream id
      * @return the transform response
      */
-    List<TransformResponse> getTransform(String groupId, String streamId);
+    List<TransformResponse> listTransform(String groupId, String streamId);
 
     /**
      * Query transform information based on inlong group id and inlong stream id.

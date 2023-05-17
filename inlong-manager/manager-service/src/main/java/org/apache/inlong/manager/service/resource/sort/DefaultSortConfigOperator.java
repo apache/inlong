@@ -102,7 +102,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         Map<String, List<StreamSource>> sourceMap = sourceService.getSourcesMap(groupInfo, streamInfoList);
         // get sink info
         Map<String, List<StreamSink>> sinkMap = sinkService.getSinksMap(groupInfo, streamInfoList);
-        List<TransformResponse> transformList = transformService.getTransform(groupInfo.getInlongGroupId(), null);
+        List<TransformResponse> transformList = transformService.listTransform(groupInfo.getInlongGroupId(), null);
         Map<String, List<TransformResponse>> transformMap = transformList.stream()
                 .collect(Collectors.groupingBy(TransformResponse::getInlongStreamId, HashMap::new,
                         Collectors.toCollection(ArrayList::new)));

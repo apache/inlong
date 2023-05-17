@@ -19,6 +19,7 @@ package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.StreamTransformEntity;
+import org.apache.inlong.manager.pojo.transform.TransformPageRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -34,6 +35,8 @@ public interface StreamTransformEntityMapper {
 
     List<StreamTransformEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("transformName") String transformName);
+
+    List<StreamTransformEntity> selectByCondition(@Param("request") TransformPageRequest request);
 
     int updateById(StreamTransformEntity record);
 
