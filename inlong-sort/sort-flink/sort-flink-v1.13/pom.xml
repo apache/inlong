@@ -32,7 +32,7 @@
 
     <modules>
         <module>sort-connectors</module>
-        <module>sort-flink-dependencies-v1.13</module>
+        <module>sort-flink-dependencies</module>
     </modules>
 
     <properties>
