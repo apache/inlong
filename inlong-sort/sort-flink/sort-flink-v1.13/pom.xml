@@ -49,7 +49,7 @@
         <flink.protobuf.version>2.7.6</flink.protobuf.version>
         <flink.connector.oracle.cdc.version>2.3.0</flink.connector.oracle.cdc.version>
         <flink.connector.doris.version>1.0.3</flink.connector.doris.version>
-        <hudi.version>0.12.1</hudi.version>
+        <hudi.version>0.12.3</hudi.version>
         <sqlserver.jdbc.version>7.2.2.jre8</sqlserver.jdbc.version>
         <thrift.version>0.9.3</thrift.version>
     </properties>
