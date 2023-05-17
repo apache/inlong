@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.transform;
 
+import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,18 +26,20 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.pojo.stream.StreamField;
-import org.apache.inlong.manager.pojo.transform.DeleteTransformRequest;
-import org.apache.inlong.manager.pojo.transform.TransformRequest;
-import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamTransformEntity;
 import org.apache.inlong.manager.dao.entity.StreamTransformFieldEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamTransformEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamTransformFieldEntityMapper;
+import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.pojo.transform.DeleteTransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformPageRequest;
+import org.apache.inlong.manager.pojo.transform.TransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.slf4j.Logger;
@@ -139,16 +142,35 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     }
 
     @Override
-    public List<TransformResponse> listTransform(String groupId, String streamId) {
+    public PageResult<TransformResponse> listTransform(TransformPageRequest request) {
+        String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
         LOGGER.debug("begin to fetch transform info by groupId={} and streamId={} ", groupId, streamId);
-        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
-        List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId, null);
-        if (CollectionUtils.isEmpty(entityList)) {
-            return Collections.emptyList();
-        }
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        PageResult<TransformResponse> pageResponse = new PageResult<>();
+        pageResponse.setList(getTransform(groupId, streamId));
+        return pageResponse;
+    }
 
-        List<Integer> transformIds = entityList.stream().map(StreamTransformEntity::getId).collect(Collectors.toList());
-        List<StreamTransformFieldEntity> fieldEntities = transformFieldMapper.selectByTransformIds(transformIds);
+    @Override
+    public TransformResponse get(Integer id, UserInfo opInfo) {
+        StreamTransformEntity entity = transformMapper.selectById(id);
+        List<StreamTransformFieldEntity> fieldEntities = transformFieldMapper.selectByTransformId(id);
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.TRANSFORM_NOT_FOUND,
+                    String.format("source not found by id=%s", id));
+        }
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(entity.getInlongGroupId());
+        if (groupEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // only the person in charges can query
+        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
+            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
+            if (!inCharges.contains(opInfo.getName())) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
+            }
+        }
         Map<Integer, List<StreamField>> fieldInfoMap = fieldEntities.stream()
                 .map(transformFieldEntity -> {
                     StreamField fieldInfo = CommonBeanUtils.copyProperties(transformFieldEntity, StreamField::new);
@@ -157,17 +179,19 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     return Pair.of(transformFieldEntity.getTransformId(), fieldInfo);
                 }).collect(Collectors.groupingBy(Pair::getLeft,
                         Collectors.mapping(Pair::getRight, Collectors.toList())));
-        List<TransformResponse> transformResponses = entityList.stream()
-                .map(entity -> CommonBeanUtils.copyProperties(entity, TransformResponse::new))
-                .collect(Collectors.toList());
-        transformResponses.forEach(transformResponse -> {
-            int transformId = transformResponse.getId();
-            List<StreamField> fieldInfos = fieldInfoMap.get(transformId);
-            if (CollectionUtils.isNotEmpty(fieldInfos)) {
-                transformResponse.setFieldList(fieldInfos);
-            }
-        });
-        return transformResponses;
+        TransformResponse transformResponse = CommonBeanUtils.copyProperties(entity, TransformResponse::new);
+        transformResponse.setFieldList(fieldInfoMap.get(id));
+        return transformResponse;
+    }
+
+    @Override
+    public List<TransformResponse> getTransform(String groupId, String streamId) {
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId, null);
+        if (CollectionUtils.isEmpty(entityList)) {
+            return Collections.emptyList();
+        }
+        return getTransformResponse(entityList);
     }
 
     @Override
@@ -191,27 +215,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             return Collections.emptyList();
         }
         // get transform data
-        List<Integer> transformIds = entityList.stream().map(StreamTransformEntity::getId).collect(Collectors.toList());
-        List<StreamTransformFieldEntity> fieldEntities = transformFieldMapper.selectByTransformIds(transformIds);
-        Map<Integer, List<StreamField>> fieldInfoMap = fieldEntities.stream()
-                .map(transformFieldEntity -> {
-                    StreamField fieldInfo = CommonBeanUtils.copyProperties(transformFieldEntity, StreamField::new);
-                    fieldInfo.setFieldType(transformFieldEntity.getFieldType());
-                    fieldInfo.setId(transformFieldEntity.getRankNum());
-                    return Pair.of(transformFieldEntity.getTransformId(), fieldInfo);
-                }).collect(Collectors.groupingBy(Pair::getLeft,
-                        Collectors.mapping(Pair::getRight, Collectors.toList())));
-        List<TransformResponse> transformResponses = entityList.stream()
-                .map(entity -> CommonBeanUtils.copyProperties(entity, TransformResponse::new))
-                .collect(Collectors.toList());
-        transformResponses.forEach(transformResponse -> {
-            int transformId = transformResponse.getId();
-            List<StreamField> fieldInfos = fieldInfoMap.get(transformId);
-            if (CollectionUtils.isNotEmpty(fieldInfos)) {
-                transformResponse.setFieldList(fieldInfos);
-            }
-        });
-        return transformResponses;
+        return getTransformResponse(entityList);
     }
 
     @Override
@@ -355,6 +359,30 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             }
         }
         return true;
+    }
+
+    private List<TransformResponse> getTransformResponse(List<StreamTransformEntity> entityList) {
+        List<Integer> transformIds = entityList.stream().map(StreamTransformEntity::getId).collect(Collectors.toList());
+        List<StreamTransformFieldEntity> fieldEntities = transformFieldMapper.selectByTransformIds(transformIds);
+        Map<Integer, List<StreamField>> fieldInfoMap = fieldEntities.stream()
+                .map(transformFieldEntity -> {
+                    StreamField fieldInfo = CommonBeanUtils.copyProperties(transformFieldEntity, StreamField::new);
+                    fieldInfo.setFieldType(transformFieldEntity.getFieldType());
+                    fieldInfo.setId(transformFieldEntity.getRankNum());
+                    return Pair.of(transformFieldEntity.getTransformId(), fieldInfo);
+                }).collect(Collectors.groupingBy(Pair::getLeft,
+                        Collectors.mapping(Pair::getRight, Collectors.toList())));
+        List<TransformResponse> transformResponses = entityList.stream()
+                .map(entity -> CommonBeanUtils.copyProperties(entity, TransformResponse::new))
+                .collect(Collectors.toList());
+        transformResponses.forEach(transformResponse -> {
+            int transformId = transformResponse.getId();
+            List<StreamField> fieldInfos = fieldInfoMap.get(transformId);
+            if (CollectionUtils.isNotEmpty(fieldInfos)) {
+                transformResponse.setFieldList(fieldInfos);
+            }
+        });
+        return transformResponses;
     }
 
     private void checkParams(TransformRequest request) {

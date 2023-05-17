@@ -17,7 +17,9 @@
 
 package org.apache.inlong.manager.service.transform;
 
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.transform.DeleteTransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformPageRequest;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.pojo.user.UserInfo;
@@ -50,11 +52,28 @@ public interface StreamTransformService {
     /**
      * Query transform information based on inlong group id and inlong stream id.
      *
+     * @param request the transform page request
+     * @return the transform response
+     */
+    PageResult<TransformResponse> listTransform(TransformPageRequest request);
+
+    /**
+     * Query transform information based on id
+     *
+     * @param id transform id.
+     * @param opInfo userinfo of operator
+     * @return transform info
+     */
+    TransformResponse get(Integer id, UserInfo opInfo);
+
+    /**
+     * Query transform information based on inlong group id and inlong stream id.
+     *
      * @param groupId the inlong group id
      * @param streamId the inlong stream id
      * @return the transform response
      */
-    List<TransformResponse> listTransform(String groupId, String streamId);
+    List<TransformResponse> getTransform(String groupId, String streamId);
 
     /**
      * Query transform information based on inlong group id and inlong stream id.
