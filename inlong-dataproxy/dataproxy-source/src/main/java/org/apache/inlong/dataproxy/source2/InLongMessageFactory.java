@@ -69,7 +69,7 @@ public class InLongMessageFactory extends ChannelInitializer<SocketChannel> {
                         (ChannelInboundHandlerAdapter) ctor.newInstance(source);
                 ch.pipeline().addLast("messageHandler", messageHandler);
             } catch (Exception e) {
-                LOG.info("{} newInstance {} failure!", source.getName(),
+                LOG.error("{} newInstance {} failure!", source.getName(),
                         source.getMessageHandlerName(), e);
             }
         }
