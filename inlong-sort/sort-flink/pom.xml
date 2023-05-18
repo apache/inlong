@@ -29,12 +29,27 @@
     <artifactId>sort-flink</artifactId>
     <packaging>pom</packaging>
     <name>Apache InLong - Sort Flink</name>
-    <modules>
-        <module>sort-flink-v1.13</module>
-        <module>cdc-base</module>
-        <module>base</module>
-    </modules>
 
-    <properties />
+    <profiles>
+        <profile>
+            <id>v1.13</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>cdc-base</module>
+                <module>base</module>
+                <module>sort-flink-v1.13</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>v1.15</id>
+            <modules>
+                <module>cdc-base</module>
+                <module>base</module>
+                <module>sort-flink-v1.15</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
