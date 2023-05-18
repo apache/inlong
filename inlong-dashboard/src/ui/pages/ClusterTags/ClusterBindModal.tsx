@@ -80,7 +80,7 @@ const Comp: React.FC<Props> = ({ clusterTag, ...modalProps }) => {
               formatResult: result =>
                 result?.list?.map(item => ({
                   ...item,
-                  label: `${item.displayName} (${
+                  label: `${item.displayName === null ? item.name : item.displayName} (${
                     clusters.find(c => c.value === item.type)?.label || item.type
                   })`,
                   value: item.id,
