@@ -102,7 +102,6 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         Map<String, List<StreamSource>> sourceMap = sourceService.getSourcesMap(groupInfo, streamInfoList);
         // get sink info
         Map<String, List<StreamSink>> sinkMap = sinkService.getSinksMap(groupInfo, streamInfoList);
-
         List<TransformResponse> transformList = transformService.listTransform(groupInfo.getInlongGroupId(), null);
         Map<String, List<TransformResponse>> transformMap = transformList.stream()
                 .collect(Collectors.groupingBy(TransformResponse::getInlongStreamId, HashMap::new,
@@ -130,7 +129,6 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                 auditIds.add(auditService.getAuditId(sink.getSinkType(), false));
             }
             for (StreamSource source : sources) {
-                source.setFieldList(inlongStream.getFieldList());
                 Map<String, Object> properties = source.getProperties();
                 properties.putIfAbsent("metrics.audit.key", String.join("&", auditIds));
             }
