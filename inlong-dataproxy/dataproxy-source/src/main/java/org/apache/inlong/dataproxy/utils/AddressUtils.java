@@ -26,20 +26,32 @@ public class AddressUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(AddressUtils.class);
 
+    public static String getChannelLocalIP(Channel channel) {
+        return getChannelIP(channel, true);
+    }
+
     public static String getChannelRemoteIP(Channel channel) {
+        return getChannelIP(channel, false);
+    }
+
+    private static String getChannelIP(Channel channel, boolean isLocal) {
         if (channel == null) {
             return null;
         }
-        SocketAddress rmtAddress = channel.remoteAddress();
-        if (rmtAddress == null) {
+        SocketAddress address = isLocal ? channel.localAddress() : channel.remoteAddress();
+        if (address == null) {
             return null;
         }
-        String strRemoteIP = rmtAddress.toString();
+        String strAddrIP = address.toString();
         try {
-            strRemoteIP = strRemoteIP.substring(1, strRemoteIP.indexOf(':'));
-            return strRemoteIP;
+            strAddrIP = strAddrIP.substring(1, strAddrIP.indexOf(':'));
+            return strAddrIP;
         } catch (Exception ee) {
-            logger.warn("Fail to get the remote IP, rmtAddress = {}", rmtAddress);
+            if (isLocal) {
+                logger.warn("Fail to get the local IP, localAddress = {}", address);
+            } else {
+                logger.warn("Fail to get the remote IP, remoteAddress = {}", address);
+            }
             return null;
         }
     }

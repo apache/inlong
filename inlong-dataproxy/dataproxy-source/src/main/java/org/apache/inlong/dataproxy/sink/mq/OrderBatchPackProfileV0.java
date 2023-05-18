@@ -92,14 +92,14 @@ public class OrderBatchPackProfileV0 extends BatchPackProfile {
             }
             return;
         }
-        if (orderProfile.getCtx() != null && orderProfile.getCtx().channel().isActive()) {
-            orderProfile.getCtx().channel().eventLoop().execute(() -> {
+        if (orderProfile.getChannel() != null && orderProfile.getChannel().isActive()) {
+            orderProfile.getChannel().eventLoop().execute(() -> {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("order message rsp: seqId = {}, inlongGroupId = {}, inlongStreamId = {}", sequenceId,
                             this.getInlongGroupId(), this.getInlongStreamId());
                 }
                 ByteBuf binBuffer = getResponsePackage("", MsgType.MSG_BIN_MULTI_BODY, sequenceId);
-                orderProfile.getCtx().writeAndFlush(binBuffer);
+                orderProfile.getChannel().writeAndFlush(binBuffer);
             });
         }
     }

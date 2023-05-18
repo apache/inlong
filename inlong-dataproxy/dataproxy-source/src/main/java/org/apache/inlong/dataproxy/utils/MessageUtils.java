@@ -22,7 +22,6 @@ import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -195,11 +194,10 @@ public class MessageUtils {
         ByteBuf binBuffer;
         final StringBuilder strBuff = new StringBuilder(512);
         // get and check channel context
-        ChannelHandlerContext ctx = event.getCtx();
-        if (ctx == null || ctx.channel() == null || !ctx.channel().isActive()) {
+        Channel remoteChannel = event.getChannel();
+        if (remoteChannel == null || !remoteChannel.isActive()) {
             return;
         }
-        Channel remoteChannel = ctx.channel();
         // check message type
         MsgType msgType = event.getMsgType();
         if (MsgType.MSG_UNKNOWN.equals(msgType)

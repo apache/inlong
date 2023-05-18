@@ -524,7 +524,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 Pair<Boolean, String> evenProcType =
                         MessageUtils.getEventProcType(syncSend, proxySend);
                 if (evenProcType.getLeft()) {
-                    event = new SinkRspEvent(event, msgType, ctx);
+                    event = new SinkRspEvent(event, msgType, ctx.channel());
                 }
                 // build metric data item
                 long longDataTime = Long.parseLong(strDataTime);
