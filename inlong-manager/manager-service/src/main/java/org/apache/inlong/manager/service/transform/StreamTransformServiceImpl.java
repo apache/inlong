@@ -24,7 +24,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -42,6 +41,7 @@ import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
+import org.apache.inlong.manager.service.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +71,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     protected StreamTransformFieldEntityMapper transformFieldMapper;
     @Autowired
     protected GroupCheckService groupCheckService;
+    @Autowired
+    protected UserService userService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
@@ -110,12 +111,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // check inlong group status
         GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(status)) {
@@ -148,8 +145,13 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         LOGGER.debug("begin to fetch transform info by groupId={} and streamId={} ", groupId, streamId);
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         PageResult<TransformResponse> pageResponse = new PageResult<>();
-
-        checkUser(groupId, opInfo);
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+        }
+        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
 
         // query result
         List<StreamTransformEntity> entityList = transformMapper.selectByCondition(request);
@@ -168,10 +170,16 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         List<StreamTransformFieldEntity> fieldEntities = transformFieldMapper.selectByTransformId(id);
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.TRANSFORM_NOT_FOUND,
-                    String.format("source not found by id=%s", id));
+                    String.format("transform not found by id=%s", id));
         }
 
-        checkUser(entity.getInlongGroupId(), opInfo);
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(entity.getInlongGroupId());
+        if (groupEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", entity.getInlongGroupId()));
+        }
+        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
 
         Map<Integer, List<StreamField>> fieldInfoMap = fieldEntities.stream()
                 .map(transformFieldEntity -> {
@@ -199,7 +207,13 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Override
     public List<TransformResponse> listTransform(String groupId, String streamId, UserInfo opInfo) {
         // Check if it can be added
-        checkUser(groupId, opInfo);
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
+                    String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
+        }
+        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // query result
         List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
@@ -247,12 +261,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // check inlong group status
         GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(status)) {
@@ -317,12 +327,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                     String.format("InlongGroup does not exist with InlongGroupId=%s", request.getInlongGroupId()));
         }
         // only the person in charges can query
-        if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(opInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
+        userService.checkUser(groupEntity.getInCharges(), opInfo.getName(),
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         // check inlong group status
         GroupStatus status = GroupStatus.forCode(groupEntity.getStatus());
         if (GroupStatus.notAllowedUpdate(status)) {
@@ -374,21 +380,6 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             }
         });
         return transformResponses;
-    }
-
-    private void checkUser(String groupId, UserInfo userInfo) {
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        if (groupEntity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND,
-                    String.format("InlongGroup does not exist with InlongGroupId=%s", groupId));
-        }
-        // only the person in charges can query
-        if (!userInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
-            List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
-            if (!inCharges.contains(userInfo.getName())) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_PERMISSION_DENIED);
-            }
-        }
     }
 
     private void checkParams(TransformRequest request) {
