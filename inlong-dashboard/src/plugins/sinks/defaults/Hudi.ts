@@ -244,6 +244,8 @@ export default class HudiSink extends SinkInfo implements DataWithBackend, Rende
     type: EditableTable,
     props: values => ({
       size: 'small',
+      canBatchAdd: true,
+      upsetByFieldKey: true,
       editing: ![110, 130].includes(values?.status),
       columns: getFieldListColumns(values),
     }),
