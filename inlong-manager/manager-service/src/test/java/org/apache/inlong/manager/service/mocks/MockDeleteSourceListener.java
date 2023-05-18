@@ -41,7 +41,7 @@ public class MockDeleteSourceListener implements SourceOperateListener {
             return false;
         }
         GroupResourceProcessForm processForm = (GroupResourceProcessForm) context.getProcessForm();
-        return InlongConstants.STANDARD_MODE.equals(processForm.getGroupInfo().getLightweight())
+        return InlongConstants.STANDARD_MODE.equals(processForm.getGroupInfo().getDataSync())
                 && processForm.getGroupOperateType() == GroupOperateType.DELETE;
     }
 
