@@ -168,22 +168,28 @@ public class MySqlSourceReader<T>
 
     @Override
     protected void onSplitFinished(Map<String, MySqlSplitState> finishedSplitIds) {
+        boolean requestNextSplit = true;
         for (MySqlSplitState mySqlSplitState : finishedSplitIds.values()) {
             MySqlSplit mySqlSplit = mySqlSplitState.toMySqlSplit();
             if (mySqlSplit.isBinlogSplit()) {
                 LOG.info(
                         "binlog split reader suspended due to newly added table, offset {}",
                         mySqlSplitState.asBinlogSplitState().getStartingOffset());
-
                 mySqlSourceReaderContext.resetStopBinlogSplitReader();
                 suspendedBinlogSplit = toSuspendedBinlogSplit(mySqlSplit.asBinlogSplit());
                 context.sendSourceEventToCoordinator(new SuspendBinlogReaderAckEvent());
+                // do not request next split when the reader is suspended, the suspended reader will
+                // automatically request the next split after it has been wakeup
+                requestNextSplit = false;
             } else {
                 finishedUnackedSplits.put(mySqlSplit.splitId(), mySqlSplit.asSnapshotSplit());
             }
         }
         reportFinishedSnapshotSplitsIfNeed();
-        context.sendSplitRequest();
+        LOG.info("request for new split finished unacked splits:{}", finishedUnackedSplits);
+        if (requestNextSplit) {
+            context.sendSplitRequest();
+        }
     }
 
     @Override
