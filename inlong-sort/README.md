@@ -32,7 +32,6 @@ InLong Sort can be used together with the Manager to manage metadata, or it can 
 |              | Hudi                                       | 
 
 ## Build
-
 ### For Apache Flink 1.13 (default)
 ````shell
  mvn clean install -DskipTests
