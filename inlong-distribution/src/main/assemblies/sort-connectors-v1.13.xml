@@ -24,12 +24,12 @@
         <format>dir</format>
         <format>tar.gz</format>
     </formats>
-    <includeBaseDirectory>true</includeBaseDirectory>
+    <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <!--connector plugin-->
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/hbase/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-hbase-${project.version}.jar</include>
             </includes>
@@ -37,7 +37,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/hive/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-hive-${project.version}.jar</include>
             </includes>
@@ -45,7 +45,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/iceberg/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-iceberg-${project.version}.jar</include>
             </includes>
@@ -53,7 +53,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/jdbc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-jdbc-${project.version}.jar</include>
             </includes>
@@ -61,7 +61,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/kafka/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-kafka-${project.version}.jar</include>
             </includes>
@@ -69,7 +69,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/mongodb-cdc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-mongodb-cdc-${project.version}.jar</include>
             </includes>
@@ -77,7 +77,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/mysql-cdc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-mysql-cdc-${project.version}.jar</include>
             </includes>
@@ -85,7 +85,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/postgres-cdc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-postgres-cdc-${project.version}.jar</include>
             </includes>
@@ -93,7 +93,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/pulsar/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-pulsar-${project.version}.jar</include>
             </includes>
@@ -101,7 +101,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/sqlserver-cdc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-sqlserver-cdc-${project.version}.jar</include>
             </includes>
@@ -109,7 +109,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/oracle-cdc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-oracle-cdc-${project.version}.jar</include>
             </includes>
@@ -117,7 +117,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/elasticsearch-6/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-elasticsearch6-${project.version}.jar</include>
             </includes>
@@ -125,7 +125,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/elasticsearch-7/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-elasticsearch7-${project.version}.jar</include>
             </includes>
@@ -133,7 +133,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/tubemq/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-tubemq-${project.version}.jar</include>
             </includes>
@@ -141,7 +141,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/filesystem/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-filesystem-${project.version}.jar</include>
             </includes>
@@ -149,7 +149,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/doris/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-doris-${project.version}.jar</include>
             </includes>
@@ -157,7 +157,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/starrocks/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-starrocks-${project.version}.jar</include>
             </includes>
@@ -173,7 +173,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/hudi/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-hudi-${project.version}.jar</include>
             </includes>
@@ -181,7 +181,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/kudu/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-kudu-${project.version}.jar</include>
             </includes>
@@ -189,7 +189,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.13/sort-connectors/redis/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-redis-${project.version}.jar</include>
             </includes>

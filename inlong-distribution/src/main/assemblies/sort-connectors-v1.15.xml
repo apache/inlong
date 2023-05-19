@@ -24,12 +24,12 @@
         <format>dir</format>
         <format>tar.gz</format>
     </formats>
-    <includeBaseDirectory>true</includeBaseDirectory>
+    <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <!--connector plugin-->
         <fileSet>
             <directory>../inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/jdbc/target</directory>
-            <outputDirectory>inlong-sort/connectors</outputDirectory>
+            <outputDirectory>connectors</outputDirectory>
             <includes>
                 <include>sort-connector-jdbc-${project.version}-v1.15.jar</include>
             </includes>
