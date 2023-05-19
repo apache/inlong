@@ -351,7 +351,7 @@ user_age,int,age of user`);
             }}
           >
             <Upload {...uploadProps}>
-              <Button key="upload" type={'primary'} icon={<UploadOutlined />} size={'middle'}>
+              <Button key="upload" type={'primary'} icon={<UploadOutlined />} size={'small'}>
                 {t('components.FieldParseModule.Upload')}
               </Button>
             </Upload>
