@@ -89,7 +89,7 @@ public interface InlongGroupService {
      * @param operator name of operator
      * @return inlong group status statistics
      */
-    InlongGroupCountResponse countGroupByUser(String operator, Integer dataSync);
+    InlongGroupCountResponse countGroupByUser(String operator, Integer groupMode);
 
     /**
      * According to the group id, query the topic to which it belongs

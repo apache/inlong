@@ -232,7 +232,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // if the group mode is DATASYNC, just get all related stream sources
         List<StreamSource> streamSources = this.listSource(groupId, null);
-        if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getDataSync())) {
+        if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getInlongGroupMode())) {
             result = streamSources.stream()
                     .collect(Collectors.groupingBy(StreamSource::getInlongStreamId, HashMap::new,
                             Collectors.toCollection(ArrayList::new)));
@@ -349,7 +349,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         if (CollectionUtils.isNotEmpty(streamFields)) {
             streamFields.forEach(streamField -> streamField.setId(null));
         }
-        sourceOperator.updateOpt(request, groupEntity.getStatus(), groupEntity.getDataSync(), operator);
+        sourceOperator.updateOpt(request, groupEntity.getStatus(), groupEntity.getInlongGroupMode(), operator);
 
         LOGGER.info("success to update source info: {}", request);
         return true;
@@ -381,7 +381,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         if (CollectionUtils.isNotEmpty(streamFields)) {
             streamFields.forEach(streamField -> streamField.setId(null));
         }
-        sourceOperator.updateOpt(request, groupEntity.getStatus(), groupEntity.getDataSync(), opInfo.getName());
+        sourceOperator.updateOpt(request, groupEntity.getStatus(), groupEntity.getInlongGroupMode(), opInfo.getName());
         return true;
     }
 

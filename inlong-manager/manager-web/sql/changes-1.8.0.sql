@@ -24,4 +24,4 @@ SET FOREIGN_KEY_CHECKS = 0;
 USE `apache_inlong_manager`;
 
 ALTER TABLE inlong_group
-    CHANGE lightweight data_sync tinyint(1) DEFAULT 0 NULL COMMENT 'Whether to use data sync mode, 0-no, 1-yes';
+    CHANGE lightweight inlong_group_mode tinyint(1) DEFAULT 0 NULL COMMENT 'Inlong group mode, Standard mode: 0, DataSync: 1';

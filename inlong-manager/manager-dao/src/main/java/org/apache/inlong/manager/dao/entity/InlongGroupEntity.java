@@ -42,7 +42,7 @@ public class InlongGroupEntity implements Serializable {
 
     private Integer enableZookeeper;
     private Integer enableCreateResource;
-    private Integer dataSync;
+    private Integer inlongGroupMode;
     private Integer dataReportType;
     private String inlongClusterTag;
 

@@ -64,7 +64,7 @@ public class StreamQueueResourceListener implements QueueOperateListener {
             return false;
         }
         StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
-        return InlongConstants.STANDARD_MODE.equals(streamProcessForm.getGroupInfo().getDataSync());
+        return InlongConstants.STANDARD_MODE.equals(streamProcessForm.getGroupInfo().getInlongGroupMode());
     }
 
     @Override

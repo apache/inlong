@@ -77,7 +77,7 @@ public class BaseExample {
         // set enable zk, create resource, group mode, and cluster tag
         pulsarInfo.setEnableZookeeper(InlongConstants.DISABLE_ZK);
         pulsarInfo.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
-        pulsarInfo.setDataSync(InlongConstants.STANDARD_MODE);
+        pulsarInfo.setInlongGroupMode(InlongConstants.STANDARD_MODE);
         pulsarInfo.setInlongClusterTag("default_cluster");
 
         pulsarInfo.setDailyRecords(10000000);

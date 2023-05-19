@@ -40,7 +40,7 @@ public interface InlongGroupEntityMapper {
     InlongGroupEntity selectByPrimaryKey(Integer id);
 
     List<Map<String, Object>> countGroupByUser(@Param(value = "username") String username,
-            @Param(value = "dataSync") Integer dataSync);
+            @Param(value = "inlongGroupMode") Integer inlongGroupMode);
 
     InlongGroupEntity selectByGroupId(String groupId);
 
