@@ -1,8 +1,3 @@
----
-title: Deployment
-sidebar_position: 2
----
-
 ## Set up Flink Environment
 InLong Sort is based on Apache Flink, you need to set up an [Apache Flink Environment](https://nightlies.apache.org/flink/flink-docs-release-1.13/docs/deployment/overview/).
 
