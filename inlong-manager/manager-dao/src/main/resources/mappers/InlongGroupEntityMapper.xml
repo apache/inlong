@@ -299,8 +299,8 @@
             <if test="enableCreateResource != null">
                 enable_create_resource = #{enableCreateResource,jdbcType=INTEGER},
             </if>
-            <if test="groupMode != null">
-                group_mode = #{groupMode,jdbcType=INTEGER},
+            <if test="inlongGroupMode != null">
+                inlong_group_mode = #{inlongGroupMode,jdbcType=INTEGER},
             </if>
             <if test="dataReportType != null">
                 data_report_type = #{dataReportType,jdbcType=INTEGER},
