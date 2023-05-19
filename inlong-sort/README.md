@@ -35,7 +35,6 @@ InLong Sort can be used together with the Manager to manage metadata, or it can 
 ### For Apache Flink 1.13 (default)
 ````shell
  mvn clean install -DskipTests
-````
 ###  For Apache Flink 1.15
 Modify root pom `<sort.flink.version>v1.15</sort.flink.version>`, then execute:
 ````shell
