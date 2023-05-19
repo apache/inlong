@@ -7,10 +7,9 @@ InLong Sort relies on Apache Flink 1.13.5. Chose `flink-1.13.5-bin-scala_2.11.tg
 - InLong Sort file, [Download](https://inlong.apache.org/download/) `apache-inlong-[version]-bin.tar.gz`
 - Data Nodes Connectors, [Download](https://inlong.apache.org/download/) `apache-inlong-[version]-sort-connectors.tar.gz`
 
-:::caution
+caution:
 Please put required Connectors jars into under `FLINK_HOME/lib/` after download.  
 Put [mysql-connector-java:8.0.21.jar](https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.21/mysql-connector-java-8.0.21.jar) to `FLINK_HOME/lib/` when you use `mysql-cdc-inlong` connector.
-:::
 
 ## Start an InLong Sort Job
 ```shell
@@ -18,9 +17,8 @@ Put [mysql-connector-java:8.0.21.jar](https://repo1.maven.org/maven2/mysql/mysql
 --sql.script.file [souce-to-sink].sql
 ```
 
-:::note
+note:
 `--sql.script.file` add a SQL script file includes multi Flink SQL statements that can be separated by semicolon, support `CREATE TABLE`, `CRETAE VIEW`, `INSERT INTO` etc.
-:::
 
 ### MySQL to PostgreSQL
 We can write following SQL script if we want to read data from MySQL and write into PostgreSQL.
