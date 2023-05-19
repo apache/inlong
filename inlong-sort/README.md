@@ -31,11 +31,16 @@ InLong Sort can be used together with the Manager to manage metadata, or it can 
 |              | TDSQL Postgres                             | 
 |              | Hudi                                       | 
 
-## Compile Multi-version of Flink
+## Build
 
 ### For Apache Flink 1.13 (default)
-- mvn clean install -DskipTests
+````shell
+ mvn clean install -DskipTests
+````
 ### For other Apache Flink version (for example：v1.15)
-- modify root pom `<sort.flink.version> v1.15 </sort.flink.version>`
-- adapt to Flink version
-- mvn clean install -DskipTests -P v1.15
+````shell
+mvn clean install -DskipTests -P v1.15
+````
+:::note
+modify root pom `<sort.flink.version> v1.15 </sort.flink.version>`
+:::
