@@ -83,6 +83,9 @@
             <if test="name != null and name != ''">
                 and name = #{name, jdbcType=VARCHAR}
             </if>
+            <if test="displayName != null and displayName != ''">
+                and displayName = #{displayName, jdbcType=VARCHAR}
+            </if>
             <if test="type != null and type != ''">
                 and type = #{type, jdbcType=VARCHAR}
             </if>
