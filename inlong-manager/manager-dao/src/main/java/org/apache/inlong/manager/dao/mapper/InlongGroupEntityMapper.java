@@ -40,7 +40,7 @@ public interface InlongGroupEntityMapper {
     InlongGroupEntity selectByPrimaryKey(Integer id);
 
     List<Map<String, Object>> countGroupByUser(@Param(value = "username") String username,
-            @Param(value = "lightweight") Integer lightweight);
+            @Param(value = "inlongGroupMode") Integer inlongGroupMode);
 
     InlongGroupEntity selectByGroupId(String groupId);
 

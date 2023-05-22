@@ -89,7 +89,7 @@ public class InitGroupCompleteListener implements ProcessEventListener {
 
             // update status of other related configs
             if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(groupInfo.getEnableCreateResource())) {
-                if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
+                if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getInlongGroupMode())) {
                     sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
                 } else {
                     sourceService.updateStatus(groupId, null, SourceStatus.TO_BE_ISSUED_ADD.getCode(), operator);

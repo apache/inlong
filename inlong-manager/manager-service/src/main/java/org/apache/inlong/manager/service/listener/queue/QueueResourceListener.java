@@ -96,7 +96,7 @@ public class QueueResourceListener implements QueueOperateListener {
             return false;
         }
         GroupResourceProcessForm processForm = (GroupResourceProcessForm) context.getProcessForm();
-        return InlongConstants.STANDARD_MODE.equals(processForm.getGroupInfo().getLightweight());
+        return InlongConstants.STANDARD_MODE.equals(processForm.getGroupInfo().getInlongGroupMode());
     }
 
     @Override

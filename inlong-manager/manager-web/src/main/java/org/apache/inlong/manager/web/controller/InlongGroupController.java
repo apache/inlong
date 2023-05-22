@@ -89,11 +89,11 @@ public class InlongGroupController {
 
     @RequestMapping(value = "/group/countByStatus", method = RequestMethod.GET)
     @ApiOperation(value = "Count inlong group status for current user")
-    @ApiImplicitParam(name = "lightweight", dataTypeClass = Integer.class, defaultValue = "0")
+    @ApiImplicitParam(name = "inlongGroupMode", dataTypeClass = Integer.class, defaultValue = "0")
     public Response<InlongGroupCountResponse> countGroupByUser(
-            @RequestParam(required = false, defaultValue = "0") Integer lightweight) {
+            @RequestParam(required = false, defaultValue = "0") Integer inlongGroupMode) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(groupService.countGroupByUser(operator, lightweight));
+        return Response.success(groupService.countGroupByUser(operator, inlongGroupMode));
     }
 
     @GetMapping(value = "/group/getTopic/{groupId}")

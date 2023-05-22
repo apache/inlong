@@ -71,8 +71,8 @@ public abstract class InlongGroupInfo extends BaseInlongGroup {
     @ApiModelProperty(value = "Whether to enable create resource? 0: disable, 1: enable")
     private Integer enableCreateResource = 0;
 
-    @ApiModelProperty(value = "Whether to use lightweight mode, 0: no, 1: yes")
-    private Integer lightweight;
+    @ApiModelProperty(value = "Standard mode: 0, DataSync mode: 1")
+    private Integer inlongGroupMode;
 
     @ApiModelProperty(value = "Data report type, default is 0.\n"
             + " 0: report to DataProxy and respond when the DataProxy received data.\n"

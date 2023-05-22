@@ -15,17 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.cli.consts;
+-- This is the SQL change file from version 1.7.0 to the current version 1.8.0.
+-- When upgrading to version 1.8.0, please execute those SQLs in the DB (such as MySQL) used by the Manager module.
 
-public class GroupConstants {
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
-    public static final int DEFAULT_INLONG_GROUP_MODE = 0;
+USE `apache_inlong_manager`;
 
-    public static final String DEFAULT_DATA_ENCODING = "UTF-8";
-
-    // int value of '|'
-    public static final String DEFAULT_DATA_SEPARATOR = "124";
-
-    public static final boolean DEFAULT_IGNORE_PARSE_ERROR = true;
-
-}
+ALTER TABLE inlong_group
+    CHANGE lightweight inlong_group_mode tinyint(1) DEFAULT 0 NULL COMMENT 'Inlong group mode, Standard mode: 0, DataSync mode: 1';

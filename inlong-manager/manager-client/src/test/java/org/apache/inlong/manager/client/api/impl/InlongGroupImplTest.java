@@ -41,7 +41,7 @@ class InlongGroupImplTest {
                 + "    \"mqResource\" : \"test_namespace\",\n"
                 + "    \"enableZookeeper\" : 0,\n"
                 + "    \"enableCreateResource\" : 1,\n"
-                + "    \"lightweight\" : 1,\n"
+                + "    \"inlongGroupMode\" : 1,\n"
                 + "    \"inlongClusterTag\" : \"default_cluster\",\n"
                 + "    \"dailyRecords\" : 10000000,\n"
                 + "    \"dailyStorage\" : 10000,\n"

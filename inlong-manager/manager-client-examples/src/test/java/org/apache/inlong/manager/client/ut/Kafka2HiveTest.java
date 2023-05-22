@@ -109,7 +109,7 @@ class Kafka2HiveTest extends BaseTest {
                                 "{\"formName\":\"ApplyGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\",\"id\":6,"
                                         + "\"inlongGroupId\":\"test_group009\",\"name\":null,\"description\":null,"
                                         + "\"mqResource\":\"test_namespace\",\"enableZookeeper\":0,"
-                                        + "\"enableCreateResource\":1,\"lightweight\":1,"
+                                        + "\"enableCreateResource\":1,\"inlongGroupMode\":1,"
                                         + "\"inlongClusterTag\":\"default_cluster\",\"dailyRecords\":10000000,"
                                         + "\"dailyStorage\":10000,\"peakRecords\":100000,\"maxLength\":10000,"
                                         + "\"inCharges\":\"test_inCharges,admin\",\"followers\":null,\"status\":101,"
@@ -161,7 +161,7 @@ class Kafka2HiveTest extends BaseTest {
                         .formData("{\"formName\":\"ApplyGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\","
                                 + "\"id\":8,\"inlongGroupId\":\"test_group011\",\"name\":null,\"description\":null,"
                                 + "\"mqResource\":\"test_namespace\",\"enableZookeeper\":0,\"enableCreateResource\":1,"
-                                + "\"lightweight\":1,\"inlongClusterTag\":\"default_cluster\","
+                                + "\"inlongGroupMode\":1,\"inlongClusterTag\":\"default_cluster\","
                                 + "\"dailyRecords\":10000000,\"dailyStorage\":10000,\"peakRecords\":100000,"
                                 + "\"maxLength\":10000,\"inCharges\":\"test_inCharges,admin\",\"followers\":null,"
                                 + "\"status\":101,\"creator\":\"admin\",\"modifier\":\"admin\","
@@ -189,7 +189,7 @@ class Kafka2HiveTest extends BaseTest {
         pulsarInfo.setMqResource("test_namespace");
         pulsarInfo.setEnableZookeeper(0);
         pulsarInfo.setEnableCreateResource(1);
-        pulsarInfo.setLightweight(1);
+        pulsarInfo.setInlongGroupMode(1);
         pulsarInfo.setInlongClusterTag("default_cluster");
         pulsarInfo.setInCharges("test_inCharges,admin");
         pulsarInfo.setStatus(130);

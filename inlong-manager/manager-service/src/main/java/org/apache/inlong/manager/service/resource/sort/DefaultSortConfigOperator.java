@@ -134,7 +134,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             }
             List<NodeRelation> relations;
 
-            if (InlongConstants.STANDARD_MODE.equals(groupInfo.getLightweight())) {
+            if (InlongConstants.STANDARD_MODE.equals(groupInfo.getInlongGroupMode())) {
                 if (CollectionUtils.isNotEmpty(transformResponses)) {
                     relations = NodeRelationUtils.createNodeRelations(inlongStream);
                     // in standard mode, replace upstream source node and transform input fields node

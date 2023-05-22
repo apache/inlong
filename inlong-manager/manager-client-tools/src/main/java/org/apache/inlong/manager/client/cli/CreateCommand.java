@@ -46,7 +46,7 @@ import java.util.Optional;
 import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_DATA_ENCODING;
 import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_DATA_SEPARATOR;
 import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_IGNORE_PARSE_ERROR;
-import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_LIGHTWEIGHT;
+import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_INLONG_GROUP_MODE;
 import static org.apache.inlong.manager.common.consts.InlongConstants.ADMIN_USER;
 
 /**
@@ -117,7 +117,7 @@ public class CreateCommand extends AbstractCommand {
             String inlongStreamId = groupConf.getStreamInfo().getInlongStreamId();
             // group
             groupConf.getGroupInfo().setInCharges(ADMIN_USER);
-            groupConf.getGroupInfo().setLightweight(DEFAULT_LIGHTWEIGHT);
+            groupConf.getGroupInfo().setInlongGroupMode(DEFAULT_INLONG_GROUP_MODE);
             groupConf.getGroupInfo().setSortConf(new FlinkSortConf());
 
             // stream

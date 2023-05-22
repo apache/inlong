@@ -80,16 +80,16 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
                 break;
         }
 
-        // if the inlong group is lightweight mode, the stream source needs to be processed.
-        if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
-            changeSource4Lightweight(groupId, operateType, operator);
+        // if the inlong group is dataSync mode, the stream source needs to be processed.
+        if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getInlongGroupMode())) {
+            changeSource4DataSync(groupId, operateType, operator);
         }
 
         log.info("success to execute UpdateGroupCompleteListener for groupId={}, operateType={}", groupId, operateType);
         return ListenerResult.success();
     }
 
-    private void changeSource4Lightweight(String groupId, GroupOperateType operateType, String operator) {
+    private void changeSource4DataSync(String groupId, GroupOperateType operateType, String operator) {
         switch (operateType) {
             case SUSPEND:
                 sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_STOP.getCode(), operator);

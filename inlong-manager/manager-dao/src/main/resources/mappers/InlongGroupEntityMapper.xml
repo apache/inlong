@@ -33,7 +33,7 @@
         <result column="max_length" jdbcType="INTEGER" property="maxLength"/>
         <result column="enable_zookeeper" jdbcType="INTEGER" property="enableZookeeper"/>
         <result column="enable_create_resource" jdbcType="INTEGER" property="enableCreateResource"/>
-        <result column="lightweight" jdbcType="INTEGER" property="lightweight"/>
+        <result column="inlong_group_mode" jdbcType="INTEGER" property="inlongGroupMode"/>
         <result column="data_report_type" jdbcType="INTEGER" property="dataReportType"/>
         <result column="inlong_cluster_tag" jdbcType="VARCHAR" property="inlongClusterTag"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
@@ -57,7 +57,7 @@
 
     <sql id="Base_Column_List">
         id, inlong_group_id, name, description, mq_type, mq_resource, daily_records, daily_storage,
-        peak_records, max_length, enable_zookeeper, enable_create_resource, lightweight, data_report_type,
+        peak_records, max_length, enable_zookeeper, enable_create_resource, inlong_group_mode, data_report_type,
         inlong_cluster_tag, ext_params, in_charges, followers, status, previous_status, is_deleted,
         creator, modifier, create_time, modify_time, version
     </sql>
@@ -70,7 +70,7 @@
                                   daily_records, daily_storage,
                                   peak_records, max_length,
                                   enable_zookeeper, enable_create_resource,
-                                  lightweight, data_report_type,
+                                  inlong_group_mode, data_report_type,
                                   inlong_cluster_tag, ext_params,
                                   in_charges, followers,
                                   status, previous_status,
@@ -81,7 +81,7 @@
                 #{dailyRecords,jdbcType=INTEGER}, #{dailyStorage,jdbcType=INTEGER},
                 #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER},
                 #{enableZookeeper,jdbcType=INTEGER}, #{enableCreateResource,jdbcType=INTEGER},
-                #{lightweight,jdbcType=INTEGER}, #{dataReportType,jdbcType=INTEGER},
+                #{inlongGroupMode,jdbcType=INTEGER}, #{dataReportType,jdbcType=INTEGER},
                 #{inlongClusterTag,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
                 #{inCharges,jdbcType=VARCHAR}, #{followers,jdbcType=VARCHAR},
                 #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
@@ -98,8 +98,8 @@
         select count(*) as total, status
         from inlong_group
         where is_deleted = 0
-          <if test="lightweight != null">
-              and lightweight = #{lightweight,jdbcType=TINYINT}
+          <if test="inlongGroupMode != null">
+              and inlong_group_mode = #{inlongGroupMode,jdbcType=TINYINT}
           </if>
           and (creator = #{username,jdbcType=VARCHAR} or find_in_set(#{username,jdbcType=VARCHAR}, in_charges))
         group by status
@@ -157,8 +157,8 @@
                     #{tag}
                 </foreach>
             </if>
-            <if test="lightweight != null">
-                and lightweight = #{lightweight,jdbcType=TINYINT}
+            <if test="inlongGroupMode != null">
+                and inlong_group_mode = #{inlongGroupMode,jdbcType=TINYINT}
             </if>
         </where>
         <choose>
@@ -251,7 +251,7 @@
 
             enable_zookeeper       = #{enableZookeeper,jdbcType=INTEGER},
             enable_create_resource = #{enableCreateResource,jdbcType=INTEGER},
-            lightweight            = #{lightweight,jdbcType=INTEGER},
+            inlong_group_mode      = #{inlongGroupMode,jdbcType=INTEGER},
             data_report_type       = #{dataReportType,jdbcType=INTEGER},
             inlong_cluster_tag     = #{inlongClusterTag,jdbcType=VARCHAR},
 
@@ -299,8 +299,8 @@
             <if test="enableCreateResource != null">
                 enable_create_resource = #{enableCreateResource,jdbcType=INTEGER},
             </if>
-            <if test="lightweight != null">
-                lightweight = #{lightweight,jdbcType=INTEGER},
+            <if test="inlongGroupMode != null">
+                inlong_group_mode = #{inlongGroupMode,jdbcType=INTEGER},
             </if>
             <if test="dataReportType != null">
                 data_report_type = #{dataReportType,jdbcType=INTEGER},

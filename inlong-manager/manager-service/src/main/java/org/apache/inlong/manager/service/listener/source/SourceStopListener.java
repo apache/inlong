@@ -42,7 +42,7 @@ public class SourceStopListener extends AbstractSourceOperateListener {
             return false;
         }
         GroupResourceProcessForm processForm = (GroupResourceProcessForm) context.getProcessForm();
-        return InlongConstants.STANDARD_MODE.equals(processForm.getGroupInfo().getLightweight())
+        return InlongConstants.STANDARD_MODE.equals(processForm.getGroupInfo().getInlongGroupMode())
                 && processForm.getGroupOperateType() == GroupOperateType.SUSPEND;
     }
 
