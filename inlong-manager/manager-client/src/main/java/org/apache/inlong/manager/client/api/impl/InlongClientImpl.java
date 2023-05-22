@@ -172,6 +172,7 @@ public class InlongClientImpl implements InlongClient {
                 groupStatusInfo.setSortStatus(SortStatus.NOT_EXISTS);
                 SortStatusInfo sortStatusInfo = sortStatusInfoMap.get(groupId);
                 if (sortStatusInfo != null) {
+                    // add sort status info to inlongGroup status info
                     groupStatusInfo.getProperties()
                             .put(InlongConstants.SORT_PROPERTIES, sortStatusInfo.getProperties());
                     groupStatusInfo.setSortStatus(sortStatusInfo.getSortStatus());
