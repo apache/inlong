@@ -319,8 +319,8 @@ public class Constants {
 
     public static final String CHDFS_CONFIG_PREFIX = "fs.ofs.";
 
-    public static final ConfigOption<Boolean> DATASYNC = key("dataSync").defaultValue(false)
-            .withDescription("Whether to dataSync or not");
+    public static final ConfigOption<Boolean> DATASYNC = key("datasync").defaultValue(false)
+            .withDescription("Whether to datasync or not");
 
     public static final ConfigOption<String> GROUP_INFO_FILE = key("group.info.file").noDefaultValue()
             .withDescription("The file which contains group info for a single tenant job");

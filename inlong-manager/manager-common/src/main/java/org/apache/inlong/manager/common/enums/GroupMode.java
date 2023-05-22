@@ -34,7 +34,7 @@ public enum GroupMode {
      * DataSync group init with sort in Inlong Cluster
      * StreamSource -> Sort -> StreamSink
      */
-    DATASYNC("dataSync");
+    DATASYNC("datasync");
 
     @Getter
     private final String mode;
