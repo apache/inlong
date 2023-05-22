@@ -17,8 +17,10 @@
 
 package org.apache.inlong.manager.pojo.group;
 
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -53,5 +55,8 @@ public class InlongGroupStatusInfo {
 
     @ApiModelProperty(value = "Sort job status of the group")
     private SortStatus sortStatus = SortStatus.UNKNOWN;
+
+    @ApiModelProperty("Extended properties of the group")
+    private Map<String, Object> properties = Maps.newHashMap();
 
 }
