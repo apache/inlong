@@ -102,8 +102,9 @@ public class SourceConstants {
     public static final boolean VAL_DEF_TCP_ENABLE_BUSY_WAIT = false;
     // tcp parameters max read idle time
     public static final String SRCCXT_MAX_READ_IDLE_TIME_MS = "maxReadIdleTime";
-    public static final long VAL_DEF_READ_IDLE_TIME_MS = 70 * 60 * 1000;
+    public static final long VAL_DEF_READ_IDLE_TIME_MS = 3 * 60 * 1000;
     public static final long VAL_MIN_READ_IDLE_TIME_MS = 60 * 1000;
+    public static final long VAL_MAX_READ_IDLE_TIME_MS = 70 * 60 * 1000;
     // source protocol type
     public static final String SRC_PROTOCOL_TYPE_TCP = "tcp";
     public static final String SRC_PROTOCOL_TYPE_UDP = "udp";

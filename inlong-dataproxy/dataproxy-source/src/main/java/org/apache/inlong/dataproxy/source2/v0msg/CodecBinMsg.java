@@ -17,26 +17,6 @@
 
 package org.apache.inlong.dataproxy.source2.v0msg;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.flume.Event;
-import org.apache.flume.event.EventBuilder;
-import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.common.msg.InLongMsg;
-import org.apache.inlong.common.msg.MsgType;
-import org.apache.inlong.dataproxy.base.SinkRspEvent;
-import org.apache.inlong.dataproxy.config.CommonConfigHolder;
-import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.consts.StatConstants;
-import org.apache.inlong.dataproxy.source2.BaseSource;
-import org.apache.inlong.dataproxy.utils.MessageUtils;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-
 import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_ATTRLEN_SIZE;
 import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_BODYLEN_OFFSET;
 import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_BODY_OFFSET;
@@ -52,6 +32,26 @@ import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_S
 import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_TOTALLEN_OFFSET;
 import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_TOTALLEN_SIZE;
 import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_UNIQ_OFFSET;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.flume.Event;
+import org.apache.flume.event.EventBuilder;
+import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.common.msg.MsgType;
+import org.apache.inlong.dataproxy.base.SinkRspEvent;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.consts.StatConstants;
+import org.apache.inlong.dataproxy.source2.BaseSource;
+import org.apache.inlong.dataproxy.utils.MessageUtils;
 
 public class CodecBinMsg extends AbsV0MsgCodec {
 
@@ -78,7 +78,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
         this.streamIdNum = cb.getUnsignedShort(BIN_MSG_STREAMIDNUM_OFFSET);
         this.extendField = cb.getUnsignedShort(BIN_MSG_EXTEND_OFFSET);
         this.dataTimeSec = cb.getUnsignedInt(BIN_MSG_DT_OFFSET);
-        this.dataTimeMs = this.dataTimeSec * 1000;
+        this.dataTimeMs = this.dataTimeSec * 1000L;
         this.msgCount = cb.getUnsignedShort(BIN_MSG_CNT_OFFSET);
         this.msgCount = (this.msgCount != 0) ? this.msgCount : 1;
         this.uniq = cb.getUnsignedInt(BIN_MSG_UNIQ_OFFSET);

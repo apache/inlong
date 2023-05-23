@@ -19,7 +19,11 @@ package org.apache.inlong.dataproxy.source2.v0msg;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.common.enums.DataProxyErrCode;
@@ -29,12 +33,6 @@ import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source2.BaseSource;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.dataproxy.utils.InLongMsgVer;
-
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 
 public abstract class AbsV0MsgCodec {
 

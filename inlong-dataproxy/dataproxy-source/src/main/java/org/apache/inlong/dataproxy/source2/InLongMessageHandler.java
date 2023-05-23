@@ -17,6 +17,26 @@
 
 package org.apache.inlong.dataproxy.source2;
 
+import static org.apache.inlong.dataproxy.source2.InLongMessageFactory.INLONG_LENGTH_FIELD_LENGTH;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_ATTRLEN_SIZE;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_BODYLEN_OFFSET;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_BODY_OFFSET;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_FIXED_CONTENT_SIZE;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_FORMAT_SIZE;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_TOTALLEN_SIZE;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_VERSION_OFFSET;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_FIXED_CONTENT_SIZE;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_MAGIC;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.TXT_MSG_FIXED_CONTENT_SIZE;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
@@ -29,12 +49,10 @@ import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.consts.StatConstants;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
-import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
-import org.apache.inlong.dataproxy.source.tcp.InlongTcpSourceCallback;
 import org.apache.inlong.dataproxy.source2.v0msg.AbsV0MsgCodec;
 import org.apache.inlong.dataproxy.source2.v0msg.CodecBinMsg;
 import org.apache.inlong.dataproxy.source2.v0msg.CodecTextMsg;
+import org.apache.inlong.dataproxy.source2.v1msg.InlongTcpSourceCallback;
 import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.sdk.commons.protocol.EventUtils;
@@ -43,30 +61,6 @@ import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-
-import static org.apache.inlong.dataproxy.source2.InLongMessageFactory.INLONG_LENGTH_FIELD_LENGTH;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_ATTRLEN_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_BODYLEN_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_BODY_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_FIXED_CONTENT_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_FORMAT_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_TOTALLEN_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_VERSION_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_FIXED_CONTENT_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_MAGIC;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.TXT_MSG_FIXED_CONTENT_SIZE;
 
 /**
  * Server message handler
@@ -209,7 +203,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             String strRemoteIp = AddressUtils.getChannelRemoteIP(ctx.channel());
             if (strRemoteIp != null
                     && ConfigManager.getInstance().isIllegalIP(strRemoteIp)) {
-                source.fileMetricEventInc(StatConstants.EVENT_LINKS_ILLEGAL);
+                source.fileMetricEventInc(StatConstants.EVENT_VISITIP_ILLEGAL);
                 ctx.channel().disconnect();
                 ctx.channel().close();
                 logger.error(strRemoteIp + " is Illegal IP, so refuse it !");
@@ -294,13 +288,13 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             source.fileMetricEventInc(StatConstants.EVENT_POST_SUCCESS);
             source.fileMetricRecordAdd(strBuff.toString(),
                     msgCodec.getMsgCount(), 1, msgCodec.getBodyLength(), 0);
-            this.addMetric(true, event.getBody().length, event);
+            source.addMetric(true, event.getBody().length, event);
             strBuff.delete(0, strBuff.length());
         } catch (Throwable ex) {
             logger.error("Error writting to channel, data will discard.", ex);
             source.fileMetricEventInc(StatConstants.EVENT_POST_DROPPED);
             source.fileMetricRecordAdd(strBuff.toString(), 0, 0, 0, msgCodec.getMsgCount());
-            this.addMetric(false, event.getBody().length, event);
+            source.addMetric(false, event.getBody().length, event);
             strBuff.delete(0, strBuff.length());
             throw new ChannelException("ProcessEvent error can't write event to channel.");
         }
@@ -314,7 +308,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         ProxySdk.MessagePack packObject = ProxySdk.MessagePack.parseFrom(msgBytes);
         // reject service
         if (source.isRejectService()) {
-            this.addMetric(false, 0, null);
+            source.addMetric(false, 0, null);
             source.fileMetricEventInc(StatConstants.EVENT_SERVICE_CLOSED);
             this.responsePackage(ctx, ProxySdk.ResultCode.ERR_REJECT, packObject);
             return;
@@ -381,7 +375,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         try {
             source.getChannelProcessor().processEvent(packEvent);
             events.forEach(event -> {
-                this.addMetric(true, event.getBody().length, event);
+                source.addMetric(true, event.getBody().length, event);
                 source.fileMetricEventInc(StatConstants.EVENT_POST_SUCCESS);
             });
             boolean awaitResult = callback.getLatch().await(
@@ -394,7 +388,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         } catch (Throwable ex) {
             logger.error("Process Controller Event error can't write event to channel.", ex);
             events.forEach(event -> {
-                this.addMetric(false, event.getBody().length, event);
+                source.addMetric(false, event.getBody().length, event);
                 source.fileMetricEventInc(StatConstants.EVENT_POST_DROPPED);
             });
             if (!callback.getHasResponsed().getAndSet(true)) {
@@ -421,7 +415,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
                     topic = source.getDefTopic();
                 } else {
                     source.fileMetricEventInc(StatConstants.EVENT_NOTOPIC);
-                    this.addMetric(false, event.getBody().length, event);
+                    source.addMetric(false, event.getBody().length, event);
                     this.responsePackage(ctx, ProxySdk.ResultCode.ERR_ID_ERROR, packObject);
                     return;
                 }
@@ -430,11 +424,11 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             // put to channel
             try {
                 source.getChannelProcessor().processEvent(event);
-                this.addMetric(true, event.getBody().length, event);
+                source.addMetric(true, event.getBody().length, event);
                 source.fileMetricEventInc(StatConstants.EVENT_POST_SUCCESS);
             } catch (Throwable ex) {
                 logger.error("Process Controller Event error can't write event to channel.", ex);
-                this.addMetric(false, event.getBody().length, event);
+                source.addMetric(false, event.getBody().length, event);
                 this.responsePackage(ctx, ProxySdk.ResultCode.ERR_REJECT, packObject);
                 source.fileMetricEventInc(StatConstants.EVENT_POST_DROPPED);
                 return;
@@ -652,30 +646,5 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             throw new Exception("Send response but channel full");
         }
         channel.writeAndFlush(binBuffer);
-    }
-
-    /**
-     * addMetric
-     *
-     * @param result
-     * @param size
-     * @param event
-     */
-    private void addMetric(boolean result, long size, Event event) {
-        Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, CommonConfigHolder.getInstance().getClusterName());
-        dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, source.getName());
-        dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, source.getStrPort());
-        DataProxyMetricItem.fillInlongId(event, dimensions);
-        DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
-        DataProxyMetricItem metricItem = source.getMetricItemSet().findMetricItem(dimensions);
-        if (result) {
-            metricItem.readSuccessCount.incrementAndGet();
-            metricItem.readSuccessSize.addAndGet(size);
-            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
-        } else {
-            metricItem.readFailCount.incrementAndGet();
-            metricItem.readFailSize.addAndGet(size);
-        }
     }
 }

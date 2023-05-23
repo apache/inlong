@@ -17,15 +17,17 @@
 
 package org.apache.inlong.dataproxy.source2;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.TimeUnit;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InLongMessageFactory extends ChannelInitializer<SocketChannel> {
 
@@ -58,6 +60,13 @@ public class InLongMessageFactory extends ChannelInitializer<SocketChannel> {
                     INLONG_LENGTH_ADJUSTMENT, INLONG_INITIAL_BYTES_TO_STRIP, DEFAULT_FAIL_FAST));
             ch.pipeline().addLast("readTimeoutHandler",
                     new ReadTimeoutHandler(source.getMaxReadIdleTimeMs(), TimeUnit.MILLISECONDS));
+        } else if (source.getProtocolName().equalsIgnoreCase(SourceConstants.SRC_PROTOCOL_TYPE_HTTP)) {
+            // add http message codec
+            ch.pipeline().addLast("msgCodec", new HttpServerCodec());
+            ch.pipeline().addLast("msgAggregator", new HttpObjectAggregator(source.getMaxMsgLength()));
+            ch.pipeline().addLast("readTimeoutHandler",
+                    new ReadTimeoutHandler(source.getMaxReadIdleTimeMs(), TimeUnit.MILLISECONDS));
+
         }
         // build message handler
         if (source.getChannelProcessor() != null) {
