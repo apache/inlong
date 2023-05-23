@@ -55,7 +55,6 @@ public class InlongShiroImpl implements InlongShiro {
 
     private static final String FILTER_NAME_WEB = "authWeb";
     private static final String FILTER_NAME_API = "authAPI";
-    private static final String FILTER_NAME_REQUEST = "request";
 
     @Autowired
     private UserService userService;
@@ -122,10 +121,6 @@ public class InlongShiroImpl implements InlongShiro {
 
         // other web
         pathDefinitions.put("/**", FILTER_NAME_WEB);
-
-        // request filter
-        // filters.put(FILTER_NAME_REQUEST, new HttpServletRequestFilter());
-        // pathDefinitions.put("/**", FILTER_NAME_REQUEST);
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(pathDefinitions);
         return shiroFilterFactoryBean;
