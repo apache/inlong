@@ -69,7 +69,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
     private boolean needTraceMsg = false;
 
     public CodecBinMsg(int totalDataLen, int msgTypeValue,
-                       long msgRcvTime, String strRemoteIP) {
+            long msgRcvTime, String strRemoteIP) {
         super(totalDataLen, msgTypeValue, msgRcvTime, strRemoteIP);
     }
 

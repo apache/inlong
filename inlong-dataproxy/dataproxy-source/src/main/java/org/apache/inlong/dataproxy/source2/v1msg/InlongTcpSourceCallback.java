@@ -83,7 +83,7 @@ public class InlongTcpSourceCallback implements SourceCallback {
                 remoteChannel.write(buffer);
             } else {
                 LOG.warn("the send buffer2 is full, so disconnect it!"
-                                + "please check remote client; Connection info:{}",
+                        + "please check remote client; Connection info:{}",
                         remoteChannel);
                 buffer.release();
             }

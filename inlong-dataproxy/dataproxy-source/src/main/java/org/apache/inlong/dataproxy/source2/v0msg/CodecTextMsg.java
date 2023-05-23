@@ -44,7 +44,7 @@ import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.TXT_MSG_T
 public class CodecTextMsg extends AbsV0MsgCodec {
 
     public CodecTextMsg(int totalDataLen, int msgTypeValue,
-                        long msgRcvTime, String strRemoteIP) {
+            long msgRcvTime, String strRemoteIP) {
         super(totalDataLen, msgTypeValue, msgRcvTime, strRemoteIP);
     }
 

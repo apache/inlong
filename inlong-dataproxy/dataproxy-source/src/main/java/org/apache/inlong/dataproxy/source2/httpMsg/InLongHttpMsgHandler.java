@@ -161,7 +161,7 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
     }
 
     private boolean processMessage(ChannelHandlerContext ctx, FullHttpRequest req,
-                                   long msgRcvTime, String clientIp) throws Exception {
+            long msgRcvTime, String clientIp) throws Exception {
         // get and check groupId
         HttpHeaders headers = req.headers();
         StringBuilder strBuff = new StringBuilder(512);

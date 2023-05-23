@@ -59,11 +59,11 @@ import io.netty.util.concurrent.GlobalEventExecutor;
  */
 public abstract class BaseSource
         extends
-        AbstractSource
+            AbstractSource
         implements
-        ProxyServiceMBean,
-        EventDrivenSource,
-        Configurable {
+            ProxyServiceMBean,
+            EventDrivenSource,
+            Configurable {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseSource.class);
 
@@ -158,7 +158,7 @@ public abstract class BaseSource
         this.maxMsgLength = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_MAX_MSG_LENGTH, SourceConstants.VAL_DEF_MAX_MSG_LENGTH);
         Preconditions.checkArgument((this.maxMsgLength >= SourceConstants.VAL_MIN_MAX_MSG_LENGTH
-                        && this.maxMsgLength <= SourceConstants.VAL_MAX_MAX_MSG_LENGTH),
+                && this.maxMsgLength <= SourceConstants.VAL_MAX_MAX_MSG_LENGTH),
                 SourceConstants.SRCCXT_MAX_MSG_LENGTH + " must be in ["
                         + SourceConstants.VAL_MIN_MAX_MSG_LENGTH + ", "
                         + SourceConstants.VAL_MAX_MAX_MSG_LENGTH + "]");
@@ -175,7 +175,7 @@ public abstract class BaseSource
         this.maxAcceptThreads = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_MAX_ACCEPT_THREADS, SourceConstants.VAL_DEF_NET_ACCEPT_THREADS);
         Preconditions.checkArgument((this.maxAcceptThreads >= SourceConstants.VAL_MIN_ACCEPT_THREADS
-                        && this.maxAcceptThreads <= SourceConstants.VAL_MAX_ACCEPT_THREADS),
+                && this.maxAcceptThreads <= SourceConstants.VAL_MAX_ACCEPT_THREADS),
                 SourceConstants.SRCCXT_MAX_ACCEPT_THREADS + " must be in ["
                         + SourceConstants.VAL_MIN_ACCEPT_THREADS + ", "
                         + SourceConstants.VAL_MAX_ACCEPT_THREADS + "]");
@@ -183,7 +183,7 @@ public abstract class BaseSource
         this.maxWorkerThreads = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_MAX_WORKER_THREADS, SourceConstants.VAL_DEF_WORKER_THREADS);
         Preconditions.checkArgument((this.maxWorkerThreads >= SourceConstants.VAL_MIN_WORKER_THREADS
-                        && this.maxWorkerThreads <= SourceConstants.VAL_MAX_WORKER_THREADS),
+                && this.maxWorkerThreads <= SourceConstants.VAL_MAX_WORKER_THREADS),
                 SourceConstants.SRCCXT_MAX_WORKER_THREADS + " must be in ["
                         + SourceConstants.VAL_MIN_WORKER_THREADS + ", "
                         + SourceConstants.VAL_MAX_WORKER_THREADS + "]");
@@ -191,7 +191,7 @@ public abstract class BaseSource
         this.maxReadIdleTimeMs = ConfStringUtils.getLongValue(context,
                 SourceConstants.SRCCXT_MAX_READ_IDLE_TIME_MS, SourceConstants.VAL_DEF_READ_IDLE_TIME_MS);
         Preconditions.checkArgument((this.maxReadIdleTimeMs >= SourceConstants.VAL_MIN_READ_IDLE_TIME_MS
-                        && this.maxReadIdleTimeMs <= SourceConstants.VAL_MAX_READ_IDLE_TIME_MS),
+                && this.maxReadIdleTimeMs <= SourceConstants.VAL_MAX_READ_IDLE_TIME_MS),
                 SourceConstants.SRCCXT_MAX_READ_IDLE_TIME_MS + " must be in ["
                         + SourceConstants.VAL_MIN_READ_IDLE_TIME_MS + ", "
                         + SourceConstants.VAL_MAX_READ_IDLE_TIME_MS + "]");

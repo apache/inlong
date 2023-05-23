@@ -66,7 +66,7 @@ public abstract class AbsV0MsgCodec {
     protected boolean needResp = true;
 
     public AbsV0MsgCodec(int totalDataLen, int msgTypeValue,
-                         long msgRcvTime, String strRemoteIP) {
+            long msgRcvTime, String strRemoteIP) {
         this.totalDataLen = totalDataLen;
         this.msgType = (byte) (msgTypeValue & 0xFF);
         this.msgRcvTime = msgRcvTime;
@@ -153,7 +153,7 @@ public abstract class AbsV0MsgCodec {
     }
 
     protected boolean decAttrInfo(BaseSource source, ByteBuf cb,
-                                  int attrLen, int attrPos) throws Exception {
+            int attrLen, int attrPos) throws Exception {
         // get attr bytes
         if (attrLen > 0) {
             byte[] attrData = new byte[attrLen];
