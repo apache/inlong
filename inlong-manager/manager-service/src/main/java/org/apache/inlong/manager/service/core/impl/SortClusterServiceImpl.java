@@ -184,6 +184,8 @@ public class SortClusterServiceImpl implements SortClusterService {
         // get all stream sinks
         Map<String, List<StreamSinkEntity>> task2AllStreams = sinkEntities.stream()
                 .filter(entity -> StringUtils.isNotBlank(entity.getInlongClusterName()))
+                .filter(entity -> StringUtils.isNotBlank(entity.getSortTaskName()))
+                .filter(entity -> StringUtils.isNotBlank(entity.getDataNodeName()))
                 .collect(Collectors.groupingBy(StreamSinkEntity::getSortTaskName));
 
         // get all data nodes and group by node name
