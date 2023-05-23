@@ -100,6 +100,7 @@ public class InlongRequestWrapper extends HttpServletRequestWrapper {
     public ServletInputStream getInputStream() {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(bodyParams.getBytes(StandardCharsets.UTF_8));
         return new ServletInputStream() {
+
             @Override
             public boolean isFinished() {
                 return false;
