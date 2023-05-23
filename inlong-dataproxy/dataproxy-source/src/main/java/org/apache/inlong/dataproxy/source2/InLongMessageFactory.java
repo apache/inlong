@@ -17,8 +17,12 @@
 
 package org.apache.inlong.dataproxy.source2;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Constructor;
 import java.util.concurrent.TimeUnit;
+
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
@@ -26,20 +30,16 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class InLongMessageFactory extends ChannelInitializer<SocketChannel> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(InLongMessageFactory.class);
 
     public static final int INLONG_LENGTH_FIELD_OFFSET = 0;
     public static final int INLONG_LENGTH_FIELD_LENGTH = 4;
     public static final int INLONG_LENGTH_ADJUSTMENT = -4;
     public static final int INLONG_INITIAL_BYTES_TO_STRIP = 0;
     public static final boolean DEFAULT_FAIL_FAST = true;
-
-    private BaseSource source;
+    private static final Logger LOG = LoggerFactory.getLogger(InLongMessageFactory.class);
+    private final BaseSource source;
 
     /**
      * get server factory

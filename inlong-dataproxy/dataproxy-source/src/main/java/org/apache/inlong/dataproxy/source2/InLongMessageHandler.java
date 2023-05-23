@@ -17,26 +17,6 @@
 
 package org.apache.inlong.dataproxy.source2;
 
-import static org.apache.inlong.dataproxy.source2.InLongMessageFactory.INLONG_LENGTH_FIELD_LENGTH;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_ATTRLEN_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_BODYLEN_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_BODY_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_FIXED_CONTENT_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_FORMAT_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_TOTALLEN_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_VERSION_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_FIXED_CONTENT_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_MAGIC;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.TXT_MSG_FIXED_CONTENT_SIZE;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
@@ -61,6 +41,29 @@ import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+
+import static org.apache.inlong.dataproxy.source2.InLongMessageFactory.INLONG_LENGTH_FIELD_LENGTH;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_ATTRLEN_SIZE;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_BODYLEN_OFFSET;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_BODY_OFFSET;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_FIXED_CONTENT_SIZE;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_FORMAT_SIZE;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_TOTALLEN_SIZE;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_VERSION_OFFSET;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_FIXED_CONTENT_SIZE;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_MAGIC;
+import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.TXT_MSG_FIXED_CONTENT_SIZE;
 
 /**
  * Server message handler

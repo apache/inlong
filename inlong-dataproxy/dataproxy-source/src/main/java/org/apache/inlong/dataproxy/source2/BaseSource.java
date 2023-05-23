@@ -18,15 +18,7 @@
 package org.apache.inlong.dataproxy.source2;
 
 import com.google.common.base.Preconditions;
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.util.concurrent.GlobalEventExecutor;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
@@ -51,17 +43,27 @@ import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.util.concurrent.GlobalEventExecutor;
+
 /**
  * source base class
- *
  */
 public abstract class BaseSource
         extends
-            AbstractSource
+        AbstractSource
         implements
-            ProxyServiceMBean,
-            EventDrivenSource,
-            Configurable {
+        ProxyServiceMBean,
+        EventDrivenSource,
+        Configurable {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseSource.class);
 
@@ -111,9 +113,9 @@ public abstract class BaseSource
     protected int monitorStatInvlSec;
     protected int maxMonitorStatCnt;
     protected MonitorIndex monitorIndex = null;
-    private MonitorIndexExt monitorIndexExt = null;
     // metric set
     protected DataProxyMetricItemSet metricItemSet;
+    private MonitorIndexExt monitorIndexExt = null;
 
     public BaseSource() {
         super();
@@ -156,7 +158,7 @@ public abstract class BaseSource
         this.maxMsgLength = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_MAX_MSG_LENGTH, SourceConstants.VAL_DEF_MAX_MSG_LENGTH);
         Preconditions.checkArgument((this.maxMsgLength >= SourceConstants.VAL_MIN_MAX_MSG_LENGTH
-                && this.maxMsgLength <= SourceConstants.VAL_MAX_MAX_MSG_LENGTH),
+                        && this.maxMsgLength <= SourceConstants.VAL_MAX_MAX_MSG_LENGTH),
                 SourceConstants.SRCCXT_MAX_MSG_LENGTH + " must be in ["
                         + SourceConstants.VAL_MIN_MAX_MSG_LENGTH + ", "
                         + SourceConstants.VAL_MAX_MAX_MSG_LENGTH + "]");
@@ -173,7 +175,7 @@ public abstract class BaseSource
         this.maxAcceptThreads = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_MAX_ACCEPT_THREADS, SourceConstants.VAL_DEF_NET_ACCEPT_THREADS);
         Preconditions.checkArgument((this.maxAcceptThreads >= SourceConstants.VAL_MIN_ACCEPT_THREADS
-                && this.maxAcceptThreads <= SourceConstants.VAL_MAX_ACCEPT_THREADS),
+                        && this.maxAcceptThreads <= SourceConstants.VAL_MAX_ACCEPT_THREADS),
                 SourceConstants.SRCCXT_MAX_ACCEPT_THREADS + " must be in ["
                         + SourceConstants.VAL_MIN_ACCEPT_THREADS + ", "
                         + SourceConstants.VAL_MAX_ACCEPT_THREADS + "]");
@@ -181,7 +183,7 @@ public abstract class BaseSource
         this.maxWorkerThreads = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_MAX_WORKER_THREADS, SourceConstants.VAL_DEF_WORKER_THREADS);
         Preconditions.checkArgument((this.maxWorkerThreads >= SourceConstants.VAL_MIN_WORKER_THREADS
-                && this.maxWorkerThreads <= SourceConstants.VAL_MAX_WORKER_THREADS),
+                        && this.maxWorkerThreads <= SourceConstants.VAL_MAX_WORKER_THREADS),
                 SourceConstants.SRCCXT_MAX_WORKER_THREADS + " must be in ["
                         + SourceConstants.VAL_MIN_WORKER_THREADS + ", "
                         + SourceConstants.VAL_MAX_WORKER_THREADS + "]");
@@ -189,7 +191,7 @@ public abstract class BaseSource
         this.maxReadIdleTimeMs = ConfStringUtils.getLongValue(context,
                 SourceConstants.SRCCXT_MAX_READ_IDLE_TIME_MS, SourceConstants.VAL_DEF_READ_IDLE_TIME_MS);
         Preconditions.checkArgument((this.maxReadIdleTimeMs >= SourceConstants.VAL_MIN_READ_IDLE_TIME_MS
-                && this.maxReadIdleTimeMs <= SourceConstants.VAL_MAX_READ_IDLE_TIME_MS),
+                        && this.maxReadIdleTimeMs <= SourceConstants.VAL_MAX_READ_IDLE_TIME_MS),
                 SourceConstants.SRCCXT_MAX_READ_IDLE_TIME_MS + " must be in ["
                         + SourceConstants.VAL_MIN_READ_IDLE_TIME_MS + ", "
                         + SourceConstants.VAL_MAX_READ_IDLE_TIME_MS + "]");
@@ -303,6 +305,7 @@ public abstract class BaseSource
 
     /**
      * get metricItemSet
+     *
      * @return the metricItemSet
      */
     public DataProxyMetricItemSet getMetricItemSet() {
@@ -408,6 +411,7 @@ public abstract class BaseSource
 
     /**
      * channel factory
+     *
      * @return
      */
     public ChannelInitializer getChannelInitializerFactory() {
@@ -460,7 +464,7 @@ public abstract class BaseSource
     /**
      * getHostIp
      *
-     * @param  context
+     * @param context
      * @return
      */
     private String getHostIp(Context context) {
@@ -490,7 +494,7 @@ public abstract class BaseSource
     /**
      * getHostPort
      *
-     * @param  context
+     * @param context
      * @return
      */
     private int getHostPort(Context context) {

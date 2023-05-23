@@ -19,11 +19,7 @@ package org.apache.inlong.dataproxy.source2.v0msg;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.common.enums.DataProxyErrCode;
@@ -34,6 +30,13 @@ import org.apache.inlong.dataproxy.source2.BaseSource;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+
 public abstract class AbsV0MsgCodec {
 
     // string splitter
@@ -43,7 +46,7 @@ public abstract class AbsV0MsgCodec {
     // map joiner
     protected static final Joiner.MapJoiner mapJoiner = Joiner.on(AttributeConstants.SEPARATOR)
             .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
-
+    protected final Map<String, String> attrMap = new HashMap<>();
     protected DataProxyErrCode errCode = DataProxyErrCode.UNKNOWN_ERROR;
     protected String errMsg = "";
     protected String strRemoteIP;
@@ -61,10 +64,9 @@ public abstract class AbsV0MsgCodec {
     protected long uniq = -1L;
     protected String msgProcType = "b2b";
     protected boolean needResp = true;
-    protected final Map<String, String> attrMap = new HashMap<>();
 
     public AbsV0MsgCodec(int totalDataLen, int msgTypeValue,
-            long msgRcvTime, String strRemoteIP) {
+                         long msgRcvTime, String strRemoteIP) {
         this.totalDataLen = totalDataLen;
         this.msgType = (byte) (msgTypeValue & 0xFF);
         this.msgRcvTime = msgRcvTime;
@@ -151,7 +153,7 @@ public abstract class AbsV0MsgCodec {
     }
 
     protected boolean decAttrInfo(BaseSource source, ByteBuf cb,
-            int attrLen, int attrPos) throws Exception {
+                                  int attrLen, int attrPos) throws Exception {
         // get attr bytes
         if (attrLen > 0) {
             byte[] attrData = new byte[attrLen];

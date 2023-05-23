@@ -24,6 +24,7 @@ public class ConfStringUtils {
 
     /**
      * isValidIp
+     *
      * @param ip
      * @return
      */
@@ -57,14 +58,12 @@ public class ConfStringUtils {
 
     /**
      * isValidPort
+     *
      * @param port
      * @return
      */
     public static boolean isValidPort(int port) {
-        if (port < 0 || port > 65535) {
-            return false;
-        }
-        return true;
+        return port >= 0 && port <= 65535;
     }
 
     /**
@@ -73,7 +72,6 @@ public class ConfStringUtils {
      * @param context  the context
      * @param fieldKey the configure key
      * @param defVal   the default value
-     *
      * @return the configuration value
      */
     public static int getIntValue(Context context, String fieldKey, int defVal) {
@@ -98,7 +96,6 @@ public class ConfStringUtils {
      * @param context  the context
      * @param fieldKey the configure key
      * @param defVal   the default value
-     *
      * @return the configuration value
      */
     public static long getLongValue(Context context, String fieldKey, long defVal) {

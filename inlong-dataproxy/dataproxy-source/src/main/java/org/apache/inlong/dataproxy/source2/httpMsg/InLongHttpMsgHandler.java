@@ -17,28 +17,6 @@
 
 package org.apache.inlong.dataproxy.source2.httpMsg;
 
-import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.util.CharsetUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.ChannelException;
@@ -61,9 +39,32 @@ import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.CharsetUtil;
+
+import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
+
 /**
  * HTTP Server message handler
- *
  */
 public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
@@ -160,7 +161,7 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
     }
 
     private boolean processMessage(ChannelHandlerContext ctx, FullHttpRequest req,
-            long msgRcvTime, String clientIp) throws Exception {
+                                   long msgRcvTime, String clientIp) throws Exception {
         // get and check groupId
         HttpHeaders headers = req.headers();
         StringBuilder strBuff = new StringBuilder(512);
@@ -359,7 +360,7 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     private class SendResultListener implements ChannelFutureListener {
 
-        private boolean isClose;
+        private final boolean isClose;
 
         public SendResultListener(boolean isClose) {
             this.isClose = isClose;
