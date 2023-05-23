@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.impl;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -32,6 +33,7 @@ import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.enums.SimpleSourceStatus;
@@ -68,6 +70,7 @@ public class InlongClientImpl implements InlongClient {
 
     private static final String URL_SPLITTER = ",";
     private static final String HOST_SPLITTER = ":";
+
     @Getter
     private final ClientConfiguration configuration;
     private final InlongGroupClient groupClient;
@@ -163,12 +166,19 @@ public class InlongClientImpl implements InlongClient {
         List<SortStatusInfo> sortStatusInfos = groupClient.listSortStatus(statusRequest);
 
         if (CollectionUtils.isNotEmpty(sortStatusInfos)) {
-            Map<String, SortStatus> sortStatusMap = sortStatusInfos.stream()
-                    .collect(Collectors.toMap(SortStatusInfo::getInlongGroupId, SortStatusInfo::getSortStatus));
-            groupStatusMap.forEach((groupId, groupStatusInfo) -> groupStatusInfo
-                    .setSortStatus(sortStatusMap.getOrDefault(groupId, SortStatus.NOT_EXISTS)));
+            Map<String, SortStatusInfo> sortStatusInfoMap = sortStatusInfos.stream()
+                    .collect(Collectors.toMap(SortStatusInfo::getInlongGroupId, Function.identity()));
+            groupStatusMap.forEach((groupId, groupStatusInfo) -> {
+                groupStatusInfo.setSortStatus(SortStatus.NOT_EXISTS);
+                SortStatusInfo sortStatusInfo = sortStatusInfoMap.get(groupId);
+                if (sortStatusInfo != null) {
+                    // add sort status info to inlongGroup status info
+                    groupStatusInfo.getProperties()
+                            .put(InlongConstants.SORT_PROPERTIES, sortStatusInfo.getProperties());
+                    groupStatusInfo.setSortStatus(sortStatusInfo.getSortStatus());
+                }
+            });
         }
-
         return groupStatusMap;
     }
 
