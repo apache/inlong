@@ -59,7 +59,6 @@ public class AuthenticationFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
             UserInfo loginUserInfo = (UserInfo) subject.getPrincipal();

@@ -24,6 +24,7 @@ import org.apache.inlong.manager.web.auth.openapi.OpenAPIAuthenticatingRealm;
 import org.apache.inlong.manager.web.auth.openapi.OpenAPIFilter;
 import org.apache.inlong.manager.web.auth.web.AuthenticationFilter;
 import org.apache.inlong.manager.web.auth.web.WebAuthorizingRealm;
+import org.apache.inlong.manager.web.filter.HttpServletRequestFilter;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
@@ -55,6 +56,7 @@ public class InlongShiroImpl implements InlongShiro {
 
     private static final String FILTER_NAME_WEB = "authWeb";
     private static final String FILTER_NAME_API = "authAPI";
+    private static final String FILTER_NAME_REQUEST = "request";
 
     @Autowired
     private UserService userService;
@@ -94,9 +96,13 @@ public class InlongShiroImpl implements InlongShiro {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         // anon: can be accessed by anyone, authc: only authentication is successful can be accessed
         Map<String, Filter> filters = new LinkedHashMap<>();
+
+        //request filter
         filters.put(FILTER_NAME_WEB, new AuthenticationFilter());
+
         shiroFilterFactoryBean.setFilters(filters);
         Map<String, String> pathDefinitions = new LinkedHashMap<>();
+
         // login, register request
         pathDefinitions.put("/api/anno/**/*", "anon");
 
@@ -117,6 +123,10 @@ public class InlongShiroImpl implements InlongShiro {
 
         // other web
         pathDefinitions.put("/**", FILTER_NAME_WEB);
+
+        // request filter
+        //filters.put(FILTER_NAME_REQUEST, new HttpServletRequestFilter());
+        //pathDefinitions.put("/**", FILTER_NAME_REQUEST);
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(pathDefinitions);
         return shiroFilterFactoryBean;
