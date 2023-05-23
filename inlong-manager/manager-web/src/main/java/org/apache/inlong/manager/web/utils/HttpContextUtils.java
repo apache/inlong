@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.web.utils;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -31,6 +34,7 @@ import java.util.Map;
 /**
  * HttpContextUtils
  */
+@Slf4j
 public class HttpContextUtils {
 
     /**
@@ -53,7 +57,7 @@ public class HttpContextUtils {
     public static Map<String, String[]> getParameterMap(HttpServletRequest request) {
         Map<String, String[]> paramMap = new HashMap<>();
         String queryString = request.getQueryString();
-        if (queryString != null && queryString.trim().length() > 0) {
+        if (StringUtils.isNotBlank(queryString)) {
             String[] params = queryString.split("&");
             for (int i = 0; i < params.length; i++) {
                 int splitIndex = params[i].indexOf("=");
@@ -90,32 +94,16 @@ public class HttpContextUtils {
      */
     public static String getBodyString(ServletRequest request) {
         StringBuilder sb = new StringBuilder();
-        InputStream inputStream = null;
-        BufferedReader reader = null;
-        try {
-            inputStream = request.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
+        try (InputStream inputStream = request.getInputStream()) {
+            try (BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line);
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            log.error("failed to get body string of request={}", request);
         }
         return sb.toString();
     }
