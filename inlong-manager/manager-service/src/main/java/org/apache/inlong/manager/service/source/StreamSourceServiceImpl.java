@@ -253,8 +253,9 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
-        List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
-
+        Page<StreamSourceEntity> entityPage = (Page<StreamSourceEntity>) sourceMapper.selectByCondition(request);
+        List<StreamSourceEntity> entityList = CommonBeanUtils.copyListProperties(entityPage,
+                StreamSourceEntity::new);
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
         Map<String, Page<StreamSourceEntity>> sourceMap = Maps.newHashMap();
         for (StreamSourceEntity entity : entityList) {
@@ -269,7 +270,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             }
         }
 
-        PageResult<? extends StreamSource> pageResult = new PageResult<>(responseList);
+        PageResult<? extends StreamSource> pageResult = new PageResult<>(responseList,
+                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list source page, result size {}", pageResult.getList().size());
         return pageResult;
@@ -283,7 +285,9 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
-        List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
+        Page<StreamSourceEntity> entityPage = (Page<StreamSourceEntity>) sourceMapper.selectByCondition(request);
+        List<StreamSourceEntity> entityList = CommonBeanUtils.copyListProperties(entityPage,
+                StreamSourceEntity::new);
         List<StreamSourceEntity> filteredEntitys = Lists.newArrayList();
         if (opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
             filteredEntitys.addAll(entityList);
@@ -324,7 +328,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                 responseList.addAll(pageInfo.getList());
             }
         }
-        return new PageResult<>(responseList);
+        return new PageResult<>(responseList, entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
     }
 
     @Override

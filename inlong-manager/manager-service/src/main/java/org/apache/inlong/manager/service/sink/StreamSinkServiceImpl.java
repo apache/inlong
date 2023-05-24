@@ -39,6 +39,7 @@ import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
@@ -322,9 +323,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
-        List<StreamSinkEntity> entityPage = sinkMapper.selectByCondition(request);
+        Page<StreamSinkEntity> entityPage = (Page<StreamSinkEntity>) sinkMapper.selectByCondition(request);
+        List<StreamSinkEntity> entityList = CommonBeanUtils.copyListProperties(entityPage,
+                StreamSinkEntity::new);
         Map<String, Page<StreamSinkEntity>> sinkMap = Maps.newHashMap();
-        for (StreamSinkEntity streamSink : entityPage) {
+        for (StreamSinkEntity streamSink : entityList) {
             InlongGroupEntity groupEntity =
                     groupMapper.selectByGroupId(streamSink.getInlongGroupId());
             if (groupEntity == null) {
@@ -346,7 +349,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             responseList.addAll(pageInfo.getList());
         }
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        PageResult<StreamSink> pageResult = new PageResult<>(responseList);
+        PageResult<StreamSink> pageResult = new PageResult<>(responseList,
+                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list sink page, result size {}", pageResult.getList().size());
         return pageResult;
