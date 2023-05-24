@@ -27,7 +27,6 @@ import {
   DeleteOutlined,
 } from '@ant-design/icons';
 import HighTable from '@/ui/components/HighTable';
-import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/ui/hooks';
 import i18n from '@/i18n';
 import DetailModal from './DetailModal';
@@ -36,6 +35,7 @@ import request from '@/core/utils/request';
 import { pickObjectArray } from '@/core/utils';
 import { CommonInterface } from '../common';
 import { sinks } from '@/plugins/sinks';
+import { ProList } from '@ant-design/pro-components';
 
 interface Props extends CommonInterface {
   inlongStreamId?: string;
@@ -48,7 +48,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
 
   const defaultOptions = {
     // keyword: '',
-    pageSize: defaultSize,
+    pageSize: 10000,
     pageNum: 1,
     sinkType: defaultValue,
   };
@@ -103,11 +103,11 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
     [getList, options.sinkType],
   );
 
-  const onChange = ({ current: pageNum, pageSize }) => {
+  const onChange = ({ current: pageNum }) => {
     setOptions(prev => ({
       ...prev,
       pageNum,
-      pageSize,
+      pageSize: 10000,
     }));
   };
 
@@ -120,7 +120,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   };
 
   const pagination: PaginationConfig = {
-    pageSize: options.pageSize,
+    pageSize: 10,
     current: options.pageNum,
     total: data?.total,
     simple: true,
@@ -213,11 +213,15 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         ]}
       >
         {mode === 'list' ? (
-          <List
+          <ProList
             size="small"
             loading={loading}
             dataSource={data?.list as Record<string, any>[]}
-            pagination={pagination}
+            pagination={{
+              pageSize: 10,
+              total: data?.total,
+              showSizeChanger: false,
+            }}
             renderItem={item => (
               <List.Item
                 actions={[
