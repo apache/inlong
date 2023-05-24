@@ -31,9 +31,11 @@ import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source2.BaseSource;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 
@@ -78,7 +80,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
         this.streamIdNum = cb.getUnsignedShort(BIN_MSG_STREAMIDNUM_OFFSET);
         this.extendField = cb.getUnsignedShort(BIN_MSG_EXTEND_OFFSET);
         this.dataTimeSec = cb.getUnsignedInt(BIN_MSG_DT_OFFSET);
-        this.dataTimeMs = this.dataTimeSec * 1000;
+        this.dataTimeMs = this.dataTimeSec * 1000L;
         this.msgCount = cb.getUnsignedShort(BIN_MSG_CNT_OFFSET);
         this.msgCount = (this.msgCount != 0) ? this.msgCount : 1;
         this.uniq = cb.getUnsignedInt(BIN_MSG_UNIQ_OFFSET);

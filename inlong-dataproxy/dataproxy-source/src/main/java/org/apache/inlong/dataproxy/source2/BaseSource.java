@@ -18,15 +18,11 @@
 package org.apache.inlong.dataproxy.source2;
 
 import com.google.common.base.Preconditions;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.util.concurrent.GlobalEventExecutor;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
+import org.apache.flume.Event;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.FlumeException;
 import org.apache.flume.conf.Configurable;
@@ -37,7 +33,10 @@ import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.admin.ProxyServiceMBean;
 import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
+import org.apache.inlong.dataproxy.source2.httpMsg.InLongHttpMsgHandler;
 import org.apache.inlong.dataproxy.utils.ConfStringUtils;
 import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
 import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
@@ -45,11 +44,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
 import java.util.Map;
+
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.util.concurrent.GlobalEventExecutor;
 
 /**
  * source base class
- *
  */
 public abstract class BaseSource
         extends
@@ -107,9 +113,9 @@ public abstract class BaseSource
     protected int monitorStatInvlSec;
     protected int maxMonitorStatCnt;
     protected MonitorIndex monitorIndex = null;
-    private MonitorIndexExt monitorIndexExt = null;
     // metric set
     protected DataProxyMetricItemSet metricItemSet;
+    private MonitorIndexExt monitorIndexExt = null;
 
     public BaseSource() {
         super();
@@ -129,8 +135,12 @@ public abstract class BaseSource
                 SourceConstants.SRCCXT_MSG_FACTORY_NAME + " config is blank");
         this.msgFactoryName = tmpVal.trim();
         // get message handler
-        tmpVal = context.getString(SourceConstants.SRCCXT_MESSAGE_HANDLER_NAME,
-                InLongMessageHandler.class.getName().trim());
+        tmpVal = context.getString(SourceConstants.SRCCXT_MESSAGE_HANDLER_NAME);
+        if (StringUtils.isBlank(tmpVal)) {
+            tmpVal = SourceConstants.SRC_PROTOCOL_TYPE_HTTP.equalsIgnoreCase(getProtocolName())
+                    ? InLongHttpMsgHandler.class.getName()
+                    : InLongMessageHandler.class.getName();
+        }
         Preconditions.checkArgument(StringUtils.isNotBlank(tmpVal),
                 SourceConstants.SRCCXT_MESSAGE_HANDLER_NAME + " config is blank");
         this.messageHandlerName = tmpVal;
@@ -145,8 +155,8 @@ public abstract class BaseSource
             this.defAttr = tmpVal.trim();
         }
         // get allowed max message length
-        this.maxMsgLength = getIntValue(context, SourceConstants.SRCCXT_MAX_MSG_LENGTH,
-                SourceConstants.VAL_DEF_MAX_MSG_LENGTH);
+        this.maxMsgLength = ConfStringUtils.getIntValue(context,
+                SourceConstants.SRCCXT_MAX_MSG_LENGTH, SourceConstants.VAL_DEF_MAX_MSG_LENGTH);
         Preconditions.checkArgument((this.maxMsgLength >= SourceConstants.VAL_MIN_MAX_MSG_LENGTH
                 && this.maxMsgLength <= SourceConstants.VAL_MAX_MAX_MSG_LENGTH),
                 SourceConstants.SRCCXT_MAX_MSG_LENGTH + " must be in ["
@@ -162,42 +172,44 @@ public abstract class BaseSource
         this.customProcessor = context.getBoolean(SourceConstants.SRCCXT_CUSTOM_CHANNEL_PROCESSOR,
                 SourceConstants.VAL_DEF_CUSTOM_CH_PROCESSOR);
         // get max accept threads
-        this.maxAcceptThreads = getIntValue(context, SourceConstants.SRCCXT_MAX_ACCEPT_THREADS,
-                SourceConstants.VAL_DEF_NET_ACCEPT_THREADS);
+        this.maxAcceptThreads = ConfStringUtils.getIntValue(context,
+                SourceConstants.SRCCXT_MAX_ACCEPT_THREADS, SourceConstants.VAL_DEF_NET_ACCEPT_THREADS);
         Preconditions.checkArgument((this.maxAcceptThreads >= SourceConstants.VAL_MIN_ACCEPT_THREADS
                 && this.maxAcceptThreads <= SourceConstants.VAL_MAX_ACCEPT_THREADS),
                 SourceConstants.SRCCXT_MAX_ACCEPT_THREADS + " must be in ["
                         + SourceConstants.VAL_MIN_ACCEPT_THREADS + ", "
                         + SourceConstants.VAL_MAX_ACCEPT_THREADS + "]");
         // get max worker threads
-        this.maxWorkerThreads = getIntValue(context, SourceConstants.SRCCXT_MAX_WORKER_THREADS,
-                SourceConstants.VAL_DEF_WORKER_THREADS);
+        this.maxWorkerThreads = ConfStringUtils.getIntValue(context,
+                SourceConstants.SRCCXT_MAX_WORKER_THREADS, SourceConstants.VAL_DEF_WORKER_THREADS);
         Preconditions.checkArgument((this.maxWorkerThreads >= SourceConstants.VAL_MIN_WORKER_THREADS
                 && this.maxWorkerThreads <= SourceConstants.VAL_MAX_WORKER_THREADS),
                 SourceConstants.SRCCXT_MAX_WORKER_THREADS + " must be in ["
                         + SourceConstants.VAL_MIN_WORKER_THREADS + ", "
                         + SourceConstants.VAL_MAX_WORKER_THREADS + "]");
         // get max read idle time
-        this.maxReadIdleTimeMs = getLongValue(context, SourceConstants.SRCCXT_MAX_READ_IDLE_TIME_MS,
-                SourceConstants.VAL_DEF_READ_IDLE_TIME_MS);
-        Preconditions.checkArgument((this.maxReadIdleTimeMs >= SourceConstants.VAL_MIN_READ_IDLE_TIME_MS),
-                SourceConstants.SRCCXT_MAX_READ_IDLE_TIME_MS + " must be >= "
-                        + SourceConstants.VAL_MIN_READ_IDLE_TIME_MS);
+        this.maxReadIdleTimeMs = ConfStringUtils.getLongValue(context,
+                SourceConstants.SRCCXT_MAX_READ_IDLE_TIME_MS, SourceConstants.VAL_DEF_READ_IDLE_TIME_MS);
+        Preconditions.checkArgument((this.maxReadIdleTimeMs >= SourceConstants.VAL_MIN_READ_IDLE_TIME_MS
+                && this.maxReadIdleTimeMs <= SourceConstants.VAL_MAX_READ_IDLE_TIME_MS),
+                SourceConstants.SRCCXT_MAX_READ_IDLE_TIME_MS + " must be in ["
+                        + SourceConstants.VAL_MIN_READ_IDLE_TIME_MS + ", "
+                        + SourceConstants.VAL_MAX_READ_IDLE_TIME_MS + "]");
         // get file metric statistic
-        this.monitorStatInvlSec = getIntValue(context, SourceConstants.SRCCXT_STAT_INTERVAL_SEC,
-                SourceConstants.VAL_DEF_STAT_INVL_SEC);
+        this.monitorStatInvlSec = ConfStringUtils.getIntValue(context,
+                SourceConstants.SRCCXT_STAT_INTERVAL_SEC, SourceConstants.VAL_DEF_STAT_INVL_SEC);
         Preconditions.checkArgument((this.monitorStatInvlSec >= SourceConstants.VAL_MIN_STAT_INVL_SEC),
                 SourceConstants.SRCCXT_STAT_INTERVAL_SEC + " must be >= "
                         + SourceConstants.VAL_MIN_STAT_INVL_SEC);
         // get max monitor key count
-        this.maxMonitorStatCnt = getIntValue(context, SourceConstants.SRCCXT_MAX_MONITOR_STAT_CNT,
-                SourceConstants.VAL_DEF_MON_STAT_CNT);
+        this.maxMonitorStatCnt = ConfStringUtils.getIntValue(context,
+                SourceConstants.SRCCXT_MAX_MONITOR_STAT_CNT, SourceConstants.VAL_DEF_MON_STAT_CNT);
         Preconditions.checkArgument(this.maxMonitorStatCnt >= SourceConstants.VAL_MIN_MON_STAT_CNT,
                 SourceConstants.SRCCXT_MAX_MONITOR_STAT_CNT + " must be >= "
                         + SourceConstants.VAL_MIN_MON_STAT_CNT);
         // get max connect count
-        this.maxConnections = getIntValue(context, SourceConstants.SRCCXT_MAX_CONNECTION_CNT,
-                SourceConstants.VAL_DEF_MAX_CONNECTION_CNT);
+        this.maxConnections = ConfStringUtils.getIntValue(context,
+                SourceConstants.SRCCXT_MAX_CONNECTION_CNT, SourceConstants.VAL_DEF_MAX_CONNECTION_CNT);
         Preconditions.checkArgument(this.maxConnections >= SourceConstants.VAL_MIN_CONNECTION_CNT,
                 SourceConstants.SRCCXT_MAX_CONNECTION_CNT + " must be >= "
                         + SourceConstants.VAL_MIN_CONNECTION_CNT);
@@ -205,8 +217,8 @@ public abstract class BaseSource
         this.fileMetricOn = context.getBoolean(SourceConstants.SRCCXT_FILE_METRIC_ON,
                 SourceConstants.VAL_DEF_FILE_METRIC_ON);
         // get max receive buffer size
-        this.maxRcvBufferSize = getIntValue(context, SourceConstants.SRCCXT_RECEIVE_BUFFER_SIZE,
-                SourceConstants.VAL_DEF_RECEIVE_BUFFER_SIZE);
+        this.maxRcvBufferSize = ConfStringUtils.getIntValue(context,
+                SourceConstants.SRCCXT_RECEIVE_BUFFER_SIZE, SourceConstants.VAL_DEF_RECEIVE_BUFFER_SIZE);
         Preconditions.checkArgument(this.maxRcvBufferSize >= SourceConstants.VAL_MIN_RECEIVE_BUFFER_SIZE,
                 SourceConstants.SRCCXT_RECEIVE_BUFFER_SIZE + " must be >= "
                         + SourceConstants.VAL_MIN_RECEIVE_BUFFER_SIZE);
@@ -214,8 +226,8 @@ public abstract class BaseSource
             this.maxRcvBufferSize = SourceConstants.VAL_MAX_RECEIVE_BUFFER_SIZE;
         }
         // get max send buffer size
-        this.maxSendBufferSize = getIntValue(context, SourceConstants.SRCCXT_SEND_BUFFER_SIZE,
-                SourceConstants.VAL_DEF_SEND_BUFFER_SIZE);
+        this.maxSendBufferSize = ConfStringUtils.getIntValue(context,
+                SourceConstants.SRCCXT_SEND_BUFFER_SIZE, SourceConstants.VAL_DEF_SEND_BUFFER_SIZE);
         Preconditions.checkArgument(this.maxSendBufferSize >= SourceConstants.VAL_MIN_SEND_BUFFER_SIZE,
                 SourceConstants.SRCCXT_SEND_BUFFER_SIZE + " must be >= "
                         + SourceConstants.VAL_MIN_SEND_BUFFER_SIZE);
@@ -281,11 +293,19 @@ public abstract class BaseSource
                 monitorIndexExt.shutDown();
             }
         }
+        // stop workers
+        if (this.acceptorGroup != null) {
+            this.acceptorGroup.shutdownGracefully();
+        }
+        if (this.workerGroup != null) {
+            this.workerGroup.shutdownGracefully();
+        }
         logger.info("[STOP {} SOURCE]{} stopped", this.getProtocolName(), this.getName());
     }
 
     /**
      * get metricItemSet
+     *
      * @return the metricItemSet
      */
     public DataProxyMetricItemSet getMetricItemSet() {
@@ -365,7 +385,33 @@ public abstract class BaseSource
     }
 
     /**
+     * addMetric
+     *
+     * @param result
+     * @param size
+     * @param event
+     */
+    public void addMetric(boolean result, long size, Event event) {
+        Map<String, String> dimensions = new HashMap<>();
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, CommonConfigHolder.getInstance().getClusterName());
+        dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, getName());
+        dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, getStrPort());
+        DataProxyMetricItem.fillInlongId(event, dimensions);
+        DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
+        DataProxyMetricItem metricItem = metricItemSet.findMetricItem(dimensions);
+        if (result) {
+            metricItem.readSuccessCount.incrementAndGet();
+            metricItem.readSuccessSize.addAndGet(size);
+            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
+        } else {
+            metricItem.readFailCount.incrementAndGet();
+            metricItem.readFailSize.addAndGet(size);
+        }
+    }
+
+    /**
      * channel factory
+     *
      * @return
      */
     public ChannelInitializer getChannelInitializerFactory() {
@@ -416,59 +462,9 @@ public abstract class BaseSource
     }
 
     /**
-     * Get the configuration value of integer type from the context
-     *
-     * @param context  the context
-     * @param fieldKey the configure key
-     * @param defVal   the default value
-     *
-     * @return the configuration value
-     */
-    public int getIntValue(Context context, String fieldKey, int defVal) {
-        String tmpVal = context.getString(fieldKey);
-        if (StringUtils.isNotBlank(tmpVal)) {
-            int result;
-            tmpVal = tmpVal.trim();
-            try {
-                result = Integer.parseInt(tmpVal);
-            } catch (Throwable e) {
-                throw new IllegalArgumentException(
-                        fieldKey + "(" + tmpVal + ") must specify an integer value!");
-            }
-            return result;
-        }
-        return defVal;
-    }
-
-    /**
-     * Get the configuration value of long type from the context
-     *
-     * @param context  the context
-     * @param fieldKey the configure key
-     * @param defVal   the default value
-     *
-     * @return the configuration value
-     */
-    public long getLongValue(Context context, String fieldKey, long defVal) {
-        String tmpVal = context.getString(fieldKey);
-        if (StringUtils.isNotBlank(tmpVal)) {
-            long result;
-            tmpVal = tmpVal.trim();
-            try {
-                result = Long.parseLong(tmpVal);
-            } catch (Throwable e) {
-                throw new IllegalArgumentException(
-                        fieldKey + "(" + tmpVal + ") must specify an long value!");
-            }
-            return result;
-        }
-        return defVal;
-    }
-
-    /**
      * getHostIp
      *
-     * @param  context
+     * @param context
      * @return
      */
     private String getHostIp(Context context) {
@@ -498,7 +494,7 @@ public abstract class BaseSource
     /**
      * getHostPort
      *
-     * @param  context
+     * @param context
      * @return
      */
     private int getHostPort(Context context) {

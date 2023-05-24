@@ -22,38 +22,32 @@ import com.google.common.base.Preconditions;
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.ConfStringUtils;
-import org.apache.inlong.dataproxy.utils.EventLoopUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.Iterator;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
  * Simple tcp source
  */
-public class SimpleTcpSource extends BaseSource implements Configurable, ConfigUpdateCallback {
+public class SimpleHttpSource extends BaseSource implements Configurable {
 
-    private static final Logger logger = LoggerFactory.getLogger(SimpleTcpSource.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimpleHttpSource.class);
 
     private ServerBootstrap bootstrap;
     private boolean tcpNoDelay;
-    private boolean tcpKeepAlive;
     private int highWaterMark;
-    private boolean enableBusyWait;
 
-    public SimpleTcpSource() {
+    public SimpleHttpSource() {
         super();
-        ConfigManager.getInstance().regIPVisitConfigChgCallback(this);
     }
 
     @Override
@@ -63,12 +57,6 @@ public class SimpleTcpSource extends BaseSource implements Configurable, ConfigU
         // get tcp no-delay parameter
         this.tcpNoDelay = context.getBoolean(SourceConstants.SRCCXT_TCP_NO_DELAY,
                 SourceConstants.VAL_DEF_TCP_NO_DELAY);
-        // get tcp keep-alive parameter
-        this.tcpKeepAlive = context.getBoolean(SourceConstants.SRCCXT_TCP_KEEP_ALIVE,
-                SourceConstants.VAL_DEF_TCP_KEEP_ALIVE);
-        // get tcp enable busy-wait
-        this.enableBusyWait = context.getBoolean(SourceConstants.SRCCXT_TCP_ENABLE_BUSY_WAIT,
-                SourceConstants.VAL_DEF_TCP_ENABLE_BUSY_WAIT);
         // get tcp high watermark
         this.highWaterMark = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_TCP_HIGH_WATER_MARK, SourceConstants.VAL_DEF_TCP_HIGH_WATER_MARK);
@@ -81,21 +69,19 @@ public class SimpleTcpSource extends BaseSource implements Configurable, ConfigU
     public synchronized void startSource() {
         logger.info("start " + this.getName());
         // build accept group
-        this.acceptorGroup = EventLoopUtil.newEventLoopGroup(maxAcceptThreads, enableBusyWait,
+        this.acceptorGroup = new NioEventLoopGroup(maxAcceptThreads,
                 new DefaultThreadFactory(this.getName() + "-boss-group"));
         // build worker group
-        this.workerGroup = EventLoopUtil.newEventLoopGroup(maxWorkerThreads, enableBusyWait,
+        this.workerGroup = new NioEventLoopGroup(maxWorkerThreads,
                 new DefaultThreadFactory(this.getName() + "-worker-group"));
         // init boostrap
         bootstrap = new ServerBootstrap();
         bootstrap.childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT);
         bootstrap.childOption(ChannelOption.TCP_NODELAY, tcpNoDelay);
-        bootstrap.childOption(ChannelOption.SO_KEEPALIVE, tcpKeepAlive);
         bootstrap.childOption(ChannelOption.SO_RCVBUF, maxRcvBufferSize);
         bootstrap.childOption(ChannelOption.SO_SNDBUF, maxSendBufferSize);
         bootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, highWaterMark);
-        bootstrap.channel(EventLoopUtil.getServerSocketChannelClass(workerGroup));
-        EventLoopUtil.enableTriggeredMode(bootstrap);
+        bootstrap.channel(NioServerSocketChannel.class);
         bootstrap.group(acceptorGroup, workerGroup);
         bootstrap.childHandler(this.getChannelInitializerFactory());
         try {
@@ -121,35 +107,6 @@ public class SimpleTcpSource extends BaseSource implements Configurable, ConfigU
 
     @Override
     public String getProtocolName() {
-        return SourceConstants.SRC_PROTOCOL_TYPE_TCP;
+        return SourceConstants.SRC_PROTOCOL_TYPE_HTTP;
     }
-
-    @Override
-    public void update() {
-        // check current all links
-        if (ConfigManager.getInstance().needChkIllegalIP()) {
-            int cnt = 0;
-            Channel channel;
-            String strRemoteIP;
-            long startTime = System.currentTimeMillis();
-            Iterator<Channel> iterator = allChannels.iterator();
-            while (iterator.hasNext()) {
-                channel = iterator.next();
-                strRemoteIP = AddressUtils.getChannelRemoteIP(channel);
-                if (strRemoteIP == null) {
-                    continue;
-                }
-                if (ConfigManager.getInstance().isIllegalIP(strRemoteIP)) {
-                    channel.disconnect();
-                    channel.close();
-                    allChannels.remove(channel);
-                    cnt++;
-                    logger.error(strRemoteIP + " is Illegal IP, so disconnect it !");
-                }
-            }
-            logger.info("Source {} channel check, disconnects {} Illegal channels, waist {} ms",
-                    getName(), cnt, (System.currentTimeMillis() - startTime));
-        }
-    }
-
 }

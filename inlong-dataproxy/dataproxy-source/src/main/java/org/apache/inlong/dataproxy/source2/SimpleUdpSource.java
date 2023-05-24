@@ -22,7 +22,9 @@ import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.net.InetSocketAddress;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.nio.NioDatagramChannel;
