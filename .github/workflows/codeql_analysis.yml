@@ -63,7 +63,7 @@ jobs:
 
       - name: Build with Maven
         run: |
-          mvn --batch-mode --update-snapshots -e -V clean install -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+          mvn --batch-mode --update-snapshots -e -V clean install -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
         env:
           CI: false
 

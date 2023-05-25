@@ -24,11 +24,11 @@
       <list>
         <IssueNavigationLink>
           <option name="issueRegexp" value="INLONG\-(\d+)" />
-          <option name="linkRegexp" value="https://github.com/apache/incubator-inlong/issues/$1" />
+          <option name="linkRegexp" value="https://github.com/apache/inlong/issues/$1" />
         </IssueNavigationLink>
         <IssueNavigationLink>
           <option name="issueRegexp" value="#(\d+)" />
-          <option name="linkRegexp" value="https://github.com/apache/incubator-inlong/pull/$1" />
+          <option name="linkRegexp" value="https://github.com/apache/inlong/pull/$1" />
         </IssueNavigationLink>
       </list>
     </option>
