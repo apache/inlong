@@ -23,17 +23,6 @@ public class StatConstants {
     public static final java.lang.String EVENT_SERVICE_UNREADY = "sink.unready";
     public static final java.lang.String EVENT_VISITIP_ILLEGAL = "links.illegal";
     public static final java.lang.String EVENT_NOTOPIC = "config.notopic";
-
-    public static final java.lang.String METASINK_SUCCESS = "metasink.success";
-    public static final java.lang.String METASINK_DROPPED = "metasink.dropped";
-    public static final java.lang.String METASINK_RETRY = "metasink.retry";
-    public static final java.lang.String METASINK_OTHEREXP = "metasink.otherexp";
-    public static final java.lang.String METASINK_NOTOPIC = "metasink.notopic";
-    public static final java.lang.String METASINK_NOSLAVE = "metasink.noslave";
-    public static final java.lang.String METASINK_MSG_NOTOPIC = "metasink.msgnotopic";
-    public static final java.lang.String METASINK_PROCESS_SPEED = "metasink.process.speed";
-    public static final java.lang.String EVENT_OTHEREXP = "socketmsg.otherexp";
-    public static final java.lang.String EVENT_INVALID = "socketmsg.invalid";
     // source
     public static final java.lang.String EVENT_LINKS_OVERMAX = "links.overmax";
     public static final java.lang.String EVENT_LINKS_IN = "links.linkin";
@@ -71,6 +60,22 @@ public class StatConstants {
     public static final java.lang.String EVENT_HTTP_BODYOVERMAXLEN = "httpmsg.bodyovermax";
     public static final java.lang.String EVENT_HTTP_POST_SUCCESS = "httpmsg.success";
     public static final java.lang.String EVENT_HTTP_POST_DROPPED = "httpmsg.dropped";
+
+    public static final java.lang.String EVENT_SINK_NOUID = "sink.nouid";
+    public static final java.lang.String EVENT_SINK_NOTOPIC = "sink.notopic";
+    public static final java.lang.String EVENT_SINK_NOPRODUCER = "sink.noproducer";
+    public static final java.lang.String EVENT_SINK_SENDEXCEPT = "sink.sendexcept";
+    public static final java.lang.String EVENT_SINK_FAILRETRY = "sink.retry";
+    public static final java.lang.String EVENT_SINK_FAILDROPPED = "sink.dropped";
+    public static final java.lang.String EVENT_SINK_SUCCESS = "sink.success";
+    public static final java.lang.String EVENT_SINK_RECEIVEEXCEPT = "sink.rcvexcept";
+
+    public static final java.lang.String METASINK_OTHEREXP = "metasink.otherexp";
+    public static final java.lang.String METASINK_NOSLAVE = "metasink.noslave";
+    public static final java.lang.String METASINK_MSG_NOTOPIC = "metasink.msgnotopic";
+    public static final java.lang.String METASINK_PROCESS_SPEED = "metasink.process.speed";
+    public static final java.lang.String EVENT_OTHEREXP = "socketmsg.otherexp";
+    public static final java.lang.String EVENT_INVALID = "socketmsg.invalid";
 
     public static final java.lang.String AGENT_MESSAGES_SENT_SUCCESS = "agent.messages.success";
     public static final java.lang.String AGENT_PACKAGES_SENT_SUCCESS = "agent.packages.success";

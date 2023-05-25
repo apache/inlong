@@ -109,13 +109,10 @@ public abstract class BaseSource
     // send buffer size
     protected int maxSendBufferSize;
     // file metric statistic
-    protected boolean fileMetricOn;
-    protected int monitorStatInvlSec;
-    protected int maxMonitorStatCnt;
     protected MonitorIndex monitorIndex = null;
+    private MonitorIndexExt monitorIndexExt = null;
     // metric set
     protected DataProxyMetricItemSet metricItemSet;
-    private MonitorIndexExt monitorIndexExt = null;
 
     public BaseSource() {
         super();
@@ -195,27 +192,12 @@ public abstract class BaseSource
                 SourceConstants.SRCCXT_MAX_READ_IDLE_TIME_MS + " must be in ["
                         + SourceConstants.VAL_MIN_READ_IDLE_TIME_MS + ", "
                         + SourceConstants.VAL_MAX_READ_IDLE_TIME_MS + "]");
-        // get file metric statistic
-        this.monitorStatInvlSec = ConfStringUtils.getIntValue(context,
-                SourceConstants.SRCCXT_STAT_INTERVAL_SEC, SourceConstants.VAL_DEF_STAT_INVL_SEC);
-        Preconditions.checkArgument((this.monitorStatInvlSec >= SourceConstants.VAL_MIN_STAT_INVL_SEC),
-                SourceConstants.SRCCXT_STAT_INTERVAL_SEC + " must be >= "
-                        + SourceConstants.VAL_MIN_STAT_INVL_SEC);
-        // get max monitor key count
-        this.maxMonitorStatCnt = ConfStringUtils.getIntValue(context,
-                SourceConstants.SRCCXT_MAX_MONITOR_STAT_CNT, SourceConstants.VAL_DEF_MON_STAT_CNT);
-        Preconditions.checkArgument(this.maxMonitorStatCnt >= SourceConstants.VAL_MIN_MON_STAT_CNT,
-                SourceConstants.SRCCXT_MAX_MONITOR_STAT_CNT + " must be >= "
-                        + SourceConstants.VAL_MIN_MON_STAT_CNT);
         // get max connect count
         this.maxConnections = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_MAX_CONNECTION_CNT, SourceConstants.VAL_DEF_MAX_CONNECTION_CNT);
         Preconditions.checkArgument(this.maxConnections >= SourceConstants.VAL_MIN_CONNECTION_CNT,
                 SourceConstants.SRCCXT_MAX_CONNECTION_CNT + " must be >= "
                         + SourceConstants.VAL_MIN_CONNECTION_CNT);
-        // get whether enable file metric
-        this.fileMetricOn = context.getBoolean(SourceConstants.SRCCXT_FILE_METRIC_ON,
-                SourceConstants.VAL_DEF_FILE_METRIC_ON);
         // get max receive buffer size
         this.maxRcvBufferSize = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_RECEIVE_BUFFER_SIZE, SourceConstants.VAL_DEF_RECEIVE_BUFFER_SIZE);
@@ -251,10 +233,14 @@ public abstract class BaseSource
                 CommonConfigHolder.getInstance().getClusterName(), getName(), String.valueOf(srcPort));
         MetricRegister.register(metricItemSet);
         // init monitor logic
-        if (fileMetricOn) {
-            this.monitorIndex = new MonitorIndex("Source", monitorStatInvlSec, maxMonitorStatCnt);
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+            this.monitorIndex = new MonitorIndex("Source",
+                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
+                    CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
             this.monitorIndexExt = new MonitorIndexExt(
-                    "DataProxy_monitors#" + this.getProtocolName(), monitorStatInvlSec, maxMonitorStatCnt);
+                    "DataProxy_monitors#" + this.getProtocolName(),
+                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
+                    CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
         }
         startSource();
         // register
@@ -285,7 +271,7 @@ public abstract class BaseSource
         // stop super class
         super.stop();
         // stop file statistic index
-        if (fileMetricOn) {
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
             if (monitorIndex != null) {
                 monitorIndex.shutDown();
             }
@@ -373,13 +359,13 @@ public abstract class BaseSource
     }
 
     public void fileMetricEventInc(String eventKey) {
-        if (fileMetricOn) {
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
             monitorIndexExt.incrementAndGet(eventKey);
         }
     }
 
     public void fileMetricRecordAdd(String key, int cnt, int packCnt, long packSize, int failCnt) {
-        if (fileMetricOn) {
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
             monitorIndex.addAndGet(key, cnt, packCnt, packSize, failCnt);
         }
     }

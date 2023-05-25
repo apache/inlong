@@ -274,7 +274,8 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
         // build metric data item
         dataTime = dataTime / 1000 / 60 / 10;
         dataTime = dataTime * 1000 * 60 * 10;
-        strBuff.append("http").append(AttrConstants.SEP_HASHTAG).append(topicName)
+        strBuff.append(source.getProtocolName())
+                .append(AttrConstants.SEP_HASHTAG).append(topicName)
                 .append(AttrConstants.SEP_HASHTAG).append(streamId)
                 .append(AttrConstants.SEP_HASHTAG).append(clientIp)
                 .append(AttrConstants.SEP_HASHTAG).append(NetworkUtils.getLocalIp())

@@ -23,6 +23,7 @@ import org.apache.flume.Context;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.sink.common.EventHandler;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
@@ -111,20 +112,24 @@ public class KafkaHandler implements MessageQueueHandler {
             // idConfig
             IdTopicConfig idConfig = sinkContext.getIdTopicHolder().getIdConfig(event.getUid());
             if (idConfig == null) {
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOUID);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
+                event.fail();
                 return false;
             }
             String baseTopic = idConfig.getTopicName();
             if (baseTopic == null) {
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
+                event.fail();
                 return false;
             }
             String topic = getProducerTopic(baseTopic, idConfig);
-
             // create producer failed
             if (producer == null) {
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOPRODUCER);
                 sinkContext.processSendFail(event, clusterName, topic, 0);
                 return false;
             }
@@ -138,8 +143,9 @@ public class KafkaHandler implements MessageQueueHandler {
             }
             return true;
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SENDEXCEPT);
             sinkContext.processSendFail(event, clusterName, event.getUid(), 0);
+            LOG.error(e.getMessage(), e);
             return false;
         }
     }
@@ -188,14 +194,11 @@ public class KafkaHandler implements MessageQueueHandler {
             @Override
             public void onCompletion(RecordMetadata arg0, Exception ex) {
                 if (ex != null) {
-                    LOG.error("Send fail:{}", ex.getMessage());
-                    LOG.error(ex.getMessage(), ex);
-                    if (event.isResend()) {
-                        sinkContext.processSendFail(event, clusterName, topic, sendTime);
-                    } else {
-                        event.fail();
-                    }
+                    sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
+                    sinkContext.processSendFail(event, clusterName, topic, sendTime);
+                    LOG.error("Send ProfileV1 to Kafka failure", ex);
                 } else {
+                    sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
                     sinkContext.addSendResultMetric(event, clusterName, topic, true, sendTime);
                     sinkContext.getDispatchQueue().release(event.getSize());
                     event.ack();
@@ -235,14 +238,11 @@ public class KafkaHandler implements MessageQueueHandler {
             @Override
             public void onCompletion(RecordMetadata arg0, Exception ex) {
                 if (ex != null) {
-                    LOG.error("Send fail:{}", ex.getMessage());
-                    LOG.error(ex.getMessage(), ex);
-                    if (event.isResend()) {
-                        sinkContext.processSendFail(event, clusterName, topic, sendTime);
-                    } else {
-                        event.fail();
-                    }
+                    sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
+                    sinkContext.processSendFail(event, clusterName, topic, sendTime);
+                    LOG.error("Send SimpleProfileV0 to Kafka failure", ex);
                 } else {
+                    sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
                     sinkContext.addSendResultMetric(event, clusterName, topic, true, sendTime);
                     sinkContext.getDispatchQueue().release(event.getSize());
                     event.ack();
@@ -279,14 +279,11 @@ public class KafkaHandler implements MessageQueueHandler {
             @Override
             public void onCompletion(RecordMetadata arg0, Exception ex) {
                 if (ex != null) {
-                    LOG.error("Send fail:{}", ex.getMessage());
-                    LOG.error(ex.getMessage(), ex);
-                    if (event.isResend()) {
-                        sinkContext.processSendFail(event, clusterName, topic, sendTime);
-                    } else {
-                        event.fail();
-                    }
+                    sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
+                    sinkContext.processSendFail(event, clusterName, topic, sendTime);
+                    LOG.error("Send OrderProfileV0 to Kafka failure", ex);
                 } else {
+                    sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
                     sinkContext.addSendResultMetric(event, clusterName, topic, true, sendTime);
                     sinkContext.getDispatchQueue().release(event.getSize());
                     event.ack();

@@ -21,6 +21,8 @@ import org.apache.commons.lang.ClassUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.monitor.MonitorIndex;
+import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
@@ -59,6 +61,9 @@ public class SinkContext {
     //
     protected final DataProxyMetricItemSet metricItemSet;
     protected Timer reloadTimer;
+    // file metric statistic
+    protected MonitorIndex monitorIndex = null;
+    private MonitorIndexExt monitorIndexExt = null;
 
     /**
      * Constructor
@@ -80,6 +85,16 @@ public class SinkContext {
      * start
      */
     public void start() {
+        // init monitor logic
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+            this.monitorIndex = new MonitorIndex("Sink",
+                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
+                    CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
+            this.monitorIndexExt = new MonitorIndexExt(
+                    "DataProxy_monitors#" + this.getSinkName(),
+                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
+                    CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
+        }
         try {
             this.reload();
             this.setReloadTimer();
@@ -96,6 +111,27 @@ public class SinkContext {
             this.reloadTimer.cancel();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+        }
+        // stop file statistic index
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+            if (monitorIndex != null) {
+                monitorIndex.shutDown();
+            }
+            if (monitorIndexExt != null) {
+                monitorIndexExt.shutDown();
+            }
+        }
+    }
+
+    public void fileMetricEventInc(String eventKey) {
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+            monitorIndexExt.incrementAndGet(eventKey);
+        }
+    }
+
+    public void fileMetricRecordAdd(String key, int cnt, int packCnt, long packSize, int failCnt) {
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+            monitorIndex.addAndGet(key, cnt, packCnt, packSize, failCnt);
         }
     }
 
