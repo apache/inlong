@@ -18,9 +18,13 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
+<<<<<<< HEAD
 import org.springframework.stereotype.Repository;
 
 @Repository
+=======
+
+>>>>>>> [INLONG-8087] Add definition of Inlong tenant table
 public interface InlongTenantEntityMapper {
 
     int insert(InlongTenantEntity record);
