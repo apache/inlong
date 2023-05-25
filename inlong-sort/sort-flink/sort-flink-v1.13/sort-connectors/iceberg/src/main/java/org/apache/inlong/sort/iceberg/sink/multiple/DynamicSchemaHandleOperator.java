@@ -471,7 +471,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         if (table.schema().sameSchema(oldSchema)) {
             List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(oldSchema, newSchema);
             for (TableChange tableChange : tableChanges) {
-                if (!(tableChange instanceof TableChange.UnknownColumnChange) ) {
+                if (tableChange instanceof TableChange.UnknownColumnChange) {
                     throw new UnsupportedOperationException(
                             String.format("Unsupported table %s schema change: %s.", tableId.toString(), tableChange));
                 }
