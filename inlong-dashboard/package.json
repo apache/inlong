@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
-    "@ant-design/pro-components": "^2.4.16",
     "@ant-design/pro-layout": "^7.10.3",
     "ahooks": "^2.10.0",
     "antd": "^5.3.3",

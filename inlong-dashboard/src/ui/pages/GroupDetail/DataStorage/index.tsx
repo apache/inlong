@@ -18,7 +18,7 @@
  */
 
 import React, { useState, useMemo, forwardRef, useCallback } from 'react';
-import { Badge, Button, Card, Modal, List, Tag, Segmented, message } from 'antd';
+import { Badge, Button, Card, Modal, List, Tag, Segmented, message, PaginationProps } from 'antd';
 import { PaginationConfig } from 'antd/lib/pagination';
 import {
   UnorderedListOutlined,
@@ -27,6 +27,7 @@ import {
   DeleteOutlined,
 } from '@ant-design/icons';
 import HighTable from '@/ui/components/HighTable';
+import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/ui/hooks';
 import i18n from '@/i18n';
 import DetailModal from './DetailModal';
@@ -35,7 +36,6 @@ import request from '@/core/utils/request';
 import { pickObjectArray } from '@/core/utils';
 import { CommonInterface } from '../common';
 import { sinks } from '@/plugins/sinks';
-import { ProList } from '@ant-design/pro-components';
 
 interface Props extends CommonInterface {
   inlongStreamId?: string;
@@ -48,7 +48,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
 
   const defaultOptions = {
     // keyword: '',
-    pageSize: 10000,
+    pageSize: defaultSize,
     pageNum: 1,
     sinkType: defaultValue,
   };
@@ -103,11 +103,11 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
     [getList, options.sinkType],
   );
 
-  const onChange = ({ current: pageNum }) => {
+  const onChange = ({ current: pageNum, pageSize }) => {
     setOptions(prev => ({
       ...prev,
       pageNum,
-      pageSize: 10000,
+      pageSize,
     }));
   };
 
@@ -119,8 +119,12 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
     }));
   };
 
+  const onChangeList: PaginationProps['onChange'] = page => {
+    setOptions({ pageSize: defaultSize, pageNum: page, sinkType: defaultValue });
+  };
+
   const pagination: PaginationConfig = {
-    pageSize: 10,
+    pageSize: options.pageSize,
     current: options.pageNum,
     total: data?.total,
     simple: true,
@@ -213,14 +217,17 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         ]}
       >
         {mode === 'list' ? (
-          <ProList
+          <List
             size="small"
             loading={loading}
             dataSource={data?.list as Record<string, any>[]}
             pagination={{
-              pageSize: 10,
+              pageSize: defaultSize,
+              current: options.pageNum,
               total: data?.total,
-              showSizeChanger: false,
+              simple: true,
+              size: 'small',
+              onChange: onChangeList,
             }}
             renderItem={item => (
               <List.Item
