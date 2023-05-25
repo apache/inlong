@@ -94,9 +94,13 @@ public class InlongShiroImpl implements InlongShiro {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         // anon: can be accessed by anyone, authc: only authentication is successful can be accessed
         Map<String, Filter> filters = new LinkedHashMap<>();
+
+        // request filter
         filters.put(FILTER_NAME_WEB, new AuthenticationFilter());
+
         shiroFilterFactoryBean.setFilters(filters);
         Map<String, String> pathDefinitions = new LinkedHashMap<>();
+
         // login, register request
         pathDefinitions.put("/api/anno/**/*", "anon");
 
