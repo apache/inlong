@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import com.google.common.collect.Sets;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.UpdateSchema;
@@ -27,13 +28,10 @@ import org.apache.iceberg.types.Type;
 import org.apache.iceberg.types.Types.NestedField;
 import org.apache.inlong.sort.base.sink.TableChange;
 import org.apache.inlong.sort.iceberg.FlinkTypeToType;
-import org.apache.inlong.sort.base.sink.TableChange.AddColumn;
 import org.apache.inlong.sort.base.sink.TableChange.ColumnPosition;
 import org.apache.inlong.sort.base.sink.TableChange.UnknownColumnChange;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SchemaChangeUtils {
@@ -42,7 +40,7 @@ public class SchemaChangeUtils {
 
     /**
      * Compare two schemas and get the schema changes that happened in them.
-     * TODO: currently only support add column
+     * TODO: currently only support add column,delete column and update column(column type change)
      *
      * @param oldSchema
      * @param newSchema
@@ -51,41 +49,74 @@ public class SchemaChangeUtils {
     static List<TableChange> diffSchema(Schema oldSchema, Schema newSchema) {
         List<String> oldFields = oldSchema.columns().stream().map(NestedField::name).collect(Collectors.toList());
         List<String> newFields = newSchema.columns().stream().map(NestedField::name).collect(Collectors.toList());
-        int oi = 0;
-        int ni = 0;
+        Set<String> oldFieldSet = new HashSet<>(oldFields);
+        Set<String> newFieldSet = new HashSet<>(newFields);
+
+        Set<String> intersectColSet = Sets.intersection(oldFieldSet, newFieldSet);
+        Set<String> colsToDelete = Sets.difference(oldFieldSet, newFieldSet);
+        Set<String> colsToAdd = Sets.difference(newFieldSet, oldFieldSet);
+
         List<TableChange> tableChanges = new ArrayList<>();
-        while (ni < newFields.size()) {
-            if (oi < oldFields.size() && oldFields.get(oi).equals(newFields.get(ni))) {
-                oi++;
-                ni++;
-            } else {
-                NestedField newField = newSchema.findField(newFields.get(ni));
+
+        //step0: Unknown change
+        if (!colsToDelete.isEmpty() && !colsToAdd.isEmpty()) {
+            tableChanges.add(new UnknownColumnChange(
+                    String.format(" old schema: [%s] and new schema: [%s], it is unknown column change", oldSchema.toString(), newSchema.toString())
+            ));
+            return tableChanges;
+        }
+
+        //step1: judge whether update column(only column type change and doc change)
+        for (String colName : intersectColSet) {
+            NestedField oldField = oldSchema.findField(colName);
+            NestedField newField = newSchema.findField(colName);
+            if (!oldField.type().equals(newField.type()) || !oldField.doc().equals(newField.doc())) {
                 tableChanges.add(
-                        new AddColumn(
+                        new TableChange.UpdateColumn(
                                 new String[]{newField.name()},
                                 FlinkSchemaUtil.convert(newField.type()),
                                 !newField.isRequired(),
-                                newField.doc(),
-                                ni == 0 ? ColumnPosition.first() : ColumnPosition.after(newFields.get(ni - 1))));
-                ni++;
+                                newField.doc()));
             }
         }
 
-        if (oi != oldFields.size()) {
-            tableChanges.clear();
-            tableChanges.add(
-                    new UnknownColumnChange(
-                            String.format("Unsupported schema update.\n"
-                                    + "oldSchema:\n%s\n, newSchema:\n %s", oldSchema, newSchema)));
+        //step2: judge whether delete column
+        for (String colName : oldFields) {
+            if (colsToDelete.contains(colName)) {
+                tableChanges.add(
+                        new TableChange.DeleteColumn(
+                                new String[]{colName}
+                        ));
+            }
         }
 
+        //step3: judge whether add column
+        if (!colsToAdd.isEmpty()) {
+            for (int i = 0; i < newFields.size(); i++) {
+                String colName = newFields.get(i);
+                if (colsToAdd.contains(colName)) {
+                    NestedField addField = newSchema.findField(colName);
+                    tableChanges.add(
+                            new TableChange.AddColumn(
+                                 new String[]{addField.name()},
+                                 FlinkSchemaUtil.convert(addField.type()),
+                                 !addField.isRequired(),
+                                 addField.doc(),
+                                i == 0 ? ColumnPosition.first() : ColumnPosition.after(newFields.get(i - 1))));
+                }
+            }
+        }
         return tableChanges;
     }
 
     public static void applySchemaChanges(UpdateSchema pendingUpdate, List<TableChange> tableChanges) {
         for (TableChange change : tableChanges) {
             if (change instanceof TableChange.AddColumn) {
-                apply(pendingUpdate, (TableChange.AddColumn) change);
+                applyAddColumn(pendingUpdate, (TableChange.AddColumn) change);
+            } else if (change instanceof TableChange.DeleteColumn) {
+                applyDeleteColumn(pendingUpdate, (TableChange.DeleteColumn) change);
+            } else if (change instanceof TableChange.UpdateColumn) {
+                applyUpdateColumn(pendingUpdate, (TableChange.UpdateColumn) change);
             } else {
                 throw new UnsupportedOperationException("Cannot apply unknown table change: " + change);
             }
@@ -93,7 +124,7 @@ public class SchemaChangeUtils {
         pendingUpdate.commit();
     }
 
-    public static void apply(UpdateSchema pendingUpdate, TableChange.AddColumn add) {
+    public static void applyAddColumn(UpdateSchema pendingUpdate, TableChange.AddColumn add) {
         Preconditions.checkArgument(add.isNullable(),
                 "Incompatible change: cannot add required column: %s", leafName(add.fieldNames()));
         Type type = add.dataType().accept(new FlinkTypeToType(RowType.of(add.dataType())));
@@ -111,6 +142,15 @@ public class SchemaChangeUtils {
             Preconditions.checkArgument(add.position() == null,
                     "Cannot add '%s' at unknown position: %s", DOT.join(add.fieldNames()), add.position());
         }
+    }
+
+    public static void applyDeleteColumn(UpdateSchema pendingUpdate, TableChange.DeleteColumn delete) {
+        pendingUpdate.deleteColumn(DOT.join(delete.fieldNames()));
+    }
+
+    public static void applyUpdateColumn(UpdateSchema pendingUpdate, TableChange.UpdateColumn update) {
+        Type type = update.dataType().accept(new FlinkTypeToType(RowType.of(update.dataType())));
+        pendingUpdate.updateColumn(DOT.join(update.fieldNames()), type.asPrimitiveType(),  update.comment());
     }
 
     public static String leafName(String[] fieldNames) {
