@@ -33,6 +33,7 @@ import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.admin.ProxyServiceMBean;
 import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -234,11 +235,12 @@ public abstract class BaseSource
         MetricRegister.register(metricItemSet);
         // init monitor logic
         if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            this.monitorIndex = new MonitorIndex("Source",
+            this.monitorIndex = new MonitorIndex(CommonConfigHolder.getInstance().getFileMetricSourceOutName(),
                     CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
             this.monitorIndexExt = new MonitorIndexExt(
-                    "DataProxy_monitors#" + this.getProtocolName(),
+                    CommonConfigHolder.getInstance().getFileMetricEventOutName()
+                            + AttrConstants.SEP_HASHTAG + this.getProtocolName(),
                     CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
         }

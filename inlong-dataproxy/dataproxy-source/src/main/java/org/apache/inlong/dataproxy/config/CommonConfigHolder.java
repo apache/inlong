@@ -76,16 +76,25 @@ public class CommonConfigHolder {
     public static final String KEY_ENABLE_WHITELIST = "proxy.enable.whitelist";
     public static final boolean VAL_DEF_ENABLE_WHITELIST = false;
     // whether enable file metric, optional field.
-    public static final String KEY_ENABLE_FILEMETRIC = "filemetric.enable";
+    public static final String KEY_ENABLE_FILEMETRIC = "file.metric.enable";
     public static final boolean VAL_DEF_ENABLE_FILEMETRIC = true;
     // file metric statistic interval (second)
-    public static final String KEY_FILEMETRIC_STAT_INTERVAL_SEC = "filemetric.statinvl.sec";
+    public static final String KEY_FILEMETRIC_STAT_INTERVAL_SEC = "file.metric.stat.interval.sec";
     public static final int VAL_DEF_FILEMETRIC_STAT_INVL_SEC = 60;
     public static final int VAL_MIN_FILEMETRIC_STAT_INVL_SEC = 0;
     // file metric max statistic key count
-    public static final String KEY_FILEMETRIC_MAXCACHE_CNT = "filemetric.maxcache.cnt";
+    public static final String KEY_FILEMETRIC_MAXCACHE_CNT = "file.metric.max.cache.cnt";
     public static final int VAL_DEF_FILEMETRIC_MAXCACHE_CNT = 1000000;
     public static final int VAL_MIN_FILEMETRIC_MAXCACHE_CNT = 0;
+    // source metric statistic name
+    public static final String KEY_FILEMETRIC_SOURCE_OUTPUT_NAME = "file.metric.source.output.name";
+    public static final String VAL_DEF_FILEMETRIC_SOURCE_OUTPUT_NAME = "Source";
+    // sink metric statistic name
+    public static final String KEY_FILEMETRIC_SINK_OUTPUT_NAME = "file.metric.sink.output.name";
+    public static final String VAL_DEF_FILEMETRIC_SINK_OUTPUT_NAME = "Sink";
+    // event metric statistic name
+    public static final String KEY_FILEMETRIC_EVENT_OUTPUT_NAME = "file.metric.event.output.name";
+    public static final String VAL_DEF_FILEMETRIC_EVENT_OUTPUT_NAME = "DataProxy_monitors";
     // Audit fields
     public static final String KEY_ENABLE_AUDIT = "audit.enable";
     public static final boolean VAL_DEF_ENABLE_AUDIT = true;
@@ -154,6 +163,9 @@ public class CommonConfigHolder {
     private boolean enableFileMetric = VAL_DEF_ENABLE_FILEMETRIC;
     private int fileMetricStatInvlSec = VAL_DEF_FILEMETRIC_STAT_INVL_SEC;
     private int fileMetricStatCacheCnt = VAL_DEF_FILEMETRIC_MAXCACHE_CNT;
+    private String fileMetricSourceOutName = VAL_DEF_FILEMETRIC_SOURCE_OUTPUT_NAME;
+    private String fileMetricSinkOutName = VAL_DEF_FILEMETRIC_SINK_OUTPUT_NAME;
+    private String fileMetricEventOutName = VAL_DEF_FILEMETRIC_EVENT_OUTPUT_NAME;
 
     /**
      * get instance for common.properties config manager
@@ -306,6 +318,18 @@ public class CommonConfigHolder {
         return msgCompressType;
     }
 
+    public String getFileMetricSourceOutName() {
+        return fileMetricSourceOutName;
+    }
+
+    public String getFileMetricSinkOutName() {
+        return fileMetricSinkOutName;
+    }
+
+    public String getFileMetricEventOutName() {
+        return fileMetricEventOutName;
+    }
+
     private void preReadFields() {
         String tmpValue;
         // read cluster tag
@@ -377,6 +401,21 @@ public class CommonConfigHolder {
             if (maxCacheCnt >= VAL_MIN_FILEMETRIC_STAT_INVL_SEC) {
                 this.fileMetricStatCacheCnt = maxCacheCnt;
             }
+        }
+        // read source file statistic output name
+        tmpValue = this.props.get(KEY_FILEMETRIC_SOURCE_OUTPUT_NAME);
+        if (StringUtils.isNotBlank(tmpValue)) {
+            this.fileMetricSourceOutName = tmpValue.trim();
+        }
+        // read sink file statistic output name
+        tmpValue = this.props.get(KEY_FILEMETRIC_SINK_OUTPUT_NAME);
+        if (StringUtils.isNotBlank(tmpValue)) {
+            this.fileMetricSinkOutName = tmpValue.trim();
+        }
+        // read event file statistic output name
+        tmpValue = this.props.get(KEY_FILEMETRIC_EVENT_OUTPUT_NAME);
+        if (StringUtils.isNotBlank(tmpValue)) {
+            this.fileMetricEventOutName = tmpValue.trim();
         }
         // read whether enable audit
         tmpValue = this.props.get(KEY_ENABLE_AUDIT);

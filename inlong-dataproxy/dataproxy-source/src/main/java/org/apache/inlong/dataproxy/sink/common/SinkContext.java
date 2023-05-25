@@ -25,6 +25,7 @@ import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
@@ -87,11 +88,12 @@ public class SinkContext {
     public void start() {
         // init monitor logic
         if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            this.monitorIndex = new MonitorIndex("Sink",
+            this.monitorIndex = new MonitorIndex(CommonConfigHolder.getInstance().getFileMetricSinkOutName(),
                     CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
             this.monitorIndexExt = new MonitorIndexExt(
-                    "DataProxy_monitors#" + this.getSinkName(),
+                    CommonConfigHolder.getInstance().getFileMetricEventOutName()
+                            + AttrConstants.SEP_HASHTAG + this.getSinkName(),
                     CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
         }
