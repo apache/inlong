@@ -62,17 +62,6 @@ public class SourceConstants {
     public static final int VAL_DEF_WORKER_THREADS = Runtime.getRuntime().availableProcessors();
     public static final int VAL_MIN_WORKER_THREADS = 1;
     public static final int VAL_MAX_WORKER_THREADS = Runtime.getRuntime().availableProcessors() * 2;
-    // file metric statistic interval(second)
-    public static final String SRCCXT_STAT_INTERVAL_SEC = "stat-interval-sec";
-    public static final int VAL_DEF_STAT_INVL_SEC = 60;
-    public static final int VAL_MIN_STAT_INVL_SEC = 0;
-    // max file statistic key count
-    public static final String SRCCXT_MAX_MONITOR_STAT_CNT = "max-monitor-cnt";
-    public static final int VAL_DEF_MON_STAT_CNT = 1000000;
-    public static final int VAL_MIN_MON_STAT_CNT = 0;
-    // max file statistic key count
-    public static final String SRCCXT_FILE_METRIC_ON = "file-metric-on";
-    public static final boolean VAL_DEF_FILE_METRIC_ON = true;
     // max connection count
     public static final String SRCCXT_MAX_CONNECTION_CNT = "connections";
     public static final int VAL_DEF_MAX_CONNECTION_CNT = 5000;

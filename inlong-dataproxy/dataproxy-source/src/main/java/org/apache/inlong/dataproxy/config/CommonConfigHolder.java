@@ -75,6 +75,26 @@ public class CommonConfigHolder {
     // whether enable whitelist, optional field.
     public static final String KEY_ENABLE_WHITELIST = "proxy.enable.whitelist";
     public static final boolean VAL_DEF_ENABLE_WHITELIST = false;
+    // whether enable file metric, optional field.
+    public static final String KEY_ENABLE_FILE_METRIC = "file.metric.enable";
+    public static final boolean VAL_DEF_ENABLE_FILE_METRIC = true;
+    // file metric statistic interval (second)
+    public static final String KEY_FILE_METRIC_STAT_INTERVAL_SEC = "file.metric.stat.interval.sec";
+    public static final int VAL_DEF_FILE_METRIC_STAT_INVL_SEC = 60;
+    public static final int VAL_MIN_FILE_METRIC_STAT_INVL_SEC = 0;
+    // file metric max statistic key count
+    public static final String KEY_FILE_METRIC_MAX_CACHE_CNT = "file.metric.max.cache.cnt";
+    public static final int VAL_DEF_FILE_METRIC_MAX_CACHE_CNT = 1000000;
+    public static final int VAL_MIN_FILE_METRIC_MAX_CACHE_CNT = 0;
+    // source metric statistic name
+    public static final String KEY_FILE_METRIC_SOURCE_OUTPUT_NAME = "file.metric.source.output.name";
+    public static final String VAL_DEF_FILE_METRIC_SOURCE_OUTPUT_NAME = "Source";
+    // sink metric statistic name
+    public static final String KEY_FILE_METRIC_SINK_OUTPUT_NAME = "file.metric.sink.output.name";
+    public static final String VAL_DEF_FILE_METRIC_SINK_OUTPUT_NAME = "Sink";
+    // event metric statistic name
+    public static final String KEY_FILE_METRIC_EVENT_OUTPUT_NAME = "file.metric.event.output.name";
+    public static final String VAL_DEF_FILE_METRIC_EVENT_OUTPUT_NAME = "DataProxy_monitors";
     // Audit fields
     public static final String KEY_ENABLE_AUDIT = "audit.enable";
     public static final boolean VAL_DEF_ENABLE_AUDIT = true;
@@ -140,6 +160,12 @@ public class CommonConfigHolder {
     private String proxyNodeId = VAL_DEF_PROXY_NODE_ID;
     private String msgCompressType = VAL_DEF_MSG_COMPRESS_TYPE;
     private int prometheusHttpPort = VAL_DEF_PROMETHEUS_HTTP_PORT;
+    private boolean enableFileMetric = VAL_DEF_ENABLE_FILE_METRIC;
+    private int fileMetricStatInvlSec = VAL_DEF_FILE_METRIC_STAT_INVL_SEC;
+    private int fileMetricStatCacheCnt = VAL_DEF_FILE_METRIC_MAX_CACHE_CNT;
+    private String fileMetricSourceOutName = VAL_DEF_FILE_METRIC_SOURCE_OUTPUT_NAME;
+    private String fileMetricSinkOutName = VAL_DEF_FILE_METRIC_SINK_OUTPUT_NAME;
+    private String fileMetricEventOutName = VAL_DEF_FILE_METRIC_EVENT_OUTPUT_NAME;
 
     /**
      * get instance for common.properties config manager
@@ -232,6 +258,18 @@ public class CommonConfigHolder {
         return enableAudit;
     }
 
+    public boolean isEnableFileMetric() {
+        return enableFileMetric;
+    }
+
+    public int getFileMetricStatInvlSec() {
+        return fileMetricStatInvlSec;
+    }
+
+    public int getFileMetricStatCacheCnt() {
+        return fileMetricStatCacheCnt;
+    }
+
     public HashSet<String> getAuditProxys() {
         return auditProxys;
     }
@@ -278,6 +316,18 @@ public class CommonConfigHolder {
 
     public String getMsgCompressType() {
         return msgCompressType;
+    }
+
+    public String getFileMetricSourceOutName() {
+        return fileMetricSourceOutName;
+    }
+
+    public String getFileMetricSinkOutName() {
+        return fileMetricSinkOutName;
+    }
+
+    public String getFileMetricEventOutName() {
+        return fileMetricEventOutName;
     }
 
     private void preReadFields() {
@@ -330,6 +380,42 @@ public class CommonConfigHolder {
         tmpValue = this.props.get(KEY_MANAGER_AUTH_SECRET_KEY);
         if (StringUtils.isNotBlank(tmpValue)) {
             this.managerAuthSecretKey = tmpValue.trim();
+        }
+        // read whether enable file metric
+        tmpValue = this.props.get(KEY_ENABLE_FILE_METRIC);
+        if (StringUtils.isNotEmpty(tmpValue)) {
+            this.enableFileMetric = "TRUE".equalsIgnoreCase(tmpValue.trim());
+        }
+        // read file metric statistic interval
+        tmpValue = this.props.get(KEY_FILE_METRIC_STAT_INTERVAL_SEC);
+        if (StringUtils.isNotEmpty(tmpValue)) {
+            int statInvl = NumberUtils.toInt(tmpValue.trim(), VAL_DEF_FILE_METRIC_STAT_INVL_SEC);
+            if (statInvl >= VAL_MIN_FILE_METRIC_MAX_CACHE_CNT) {
+                this.fileMetricStatInvlSec = statInvl;
+            }
+        }
+        // read file metric statistic max cache count
+        tmpValue = this.props.get(KEY_FILE_METRIC_MAX_CACHE_CNT);
+        if (StringUtils.isNotEmpty(tmpValue)) {
+            int maxCacheCnt = NumberUtils.toInt(tmpValue.trim(), VAL_DEF_FILE_METRIC_MAX_CACHE_CNT);
+            if (maxCacheCnt >= VAL_MIN_FILE_METRIC_STAT_INVL_SEC) {
+                this.fileMetricStatCacheCnt = maxCacheCnt;
+            }
+        }
+        // read source file statistic output name
+        tmpValue = this.props.get(KEY_FILE_METRIC_SOURCE_OUTPUT_NAME);
+        if (StringUtils.isNotBlank(tmpValue)) {
+            this.fileMetricSourceOutName = tmpValue.trim();
+        }
+        // read sink file statistic output name
+        tmpValue = this.props.get(KEY_FILE_METRIC_SINK_OUTPUT_NAME);
+        if (StringUtils.isNotBlank(tmpValue)) {
+            this.fileMetricSinkOutName = tmpValue.trim();
+        }
+        // read event file statistic output name
+        tmpValue = this.props.get(KEY_FILE_METRIC_EVENT_OUTPUT_NAME);
+        if (StringUtils.isNotBlank(tmpValue)) {
+            this.fileMetricEventOutName = tmpValue.trim();
         }
         // read whether enable audit
         tmpValue = this.props.get(KEY_ENABLE_AUDIT);
