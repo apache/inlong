@@ -44,14 +44,11 @@ public class HttpServletRequestFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        ServletRequest requestWrapper = null;
         if (servletRequest instanceof HttpServletRequest) {
-            requestWrapper = new InlongRequestWrapper((HttpServletRequest) servletRequest);
-        }
-        if (null == requestWrapper) {
-            filterChain.doFilter(servletRequest, servletResponse);
-        } else {
+            ServletRequest requestWrapper = new InlongRequestWrapper((HttpServletRequest) servletRequest);
             filterChain.doFilter(requestWrapper, servletResponse);
+        } else {
+            filterChain.doFilter(servletRequest, servletResponse);
         }
     }
 }
