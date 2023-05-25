@@ -17,37 +17,51 @@
 
 package org.apache.inlong.manager.pojo.tenant;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
-import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
-import org.hibernate.validator.constraints.Length;
+import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import java.util.Date;
+
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Tenant request")
+@ApiModel("Inlong tenant info")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
-public class TenantRequest {
+public class InlongTenantInfo {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
     @ApiModelProperty(value = "Tenant name")
-    @Pattern(regexp = "^[A-Za-z0-9_-]{1,256}$", message = "only supports letters, numbers, '-', or '_'")
     private String name;
 
     @ApiModelProperty(value = "Description of the tenant")
-    @Length(max = 256, message = "length must be less than or equal to 256")
     private String description;
 
+    @ApiModelProperty(value = "Name of in creator")
+    private String creator;
+
+    @ApiModelProperty(value = "Name of in modifier")
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
+
     @ApiModelProperty(value = "Version number")
-    @NotNull(groups = {UpdateByIdValidation.class, UpdateByKeyValidation.class}, message = "version cannot be null")
     private Integer version;
+
+    public InlongTenantRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, InlongTenantRequest::new);
+    }
 }

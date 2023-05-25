@@ -23,23 +23,28 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.pojo.common.PageRequest;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Tenant paging query request")
-public class TenantPageRequest extends PageRequest {
+public class InlongTenantPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
     @ApiModelProperty(value = "Tenant name")
     @Pattern(regexp = "^[A-Za-z0-9_-]{1,256}$", message = "only supports letters, numbers, '-', or '_'")
+    @NotBlank
     private String name;
+
+    @ApiModelProperty(value = "Keyword")
+    private String keyword;
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
-    @ApiModelProperty(value = "Whether the current user is in the administrator role", hidden = true)
-    private Boolean isAdminRole;
+    @ApiModelProperty(value = "Whether the current user is in the inlong administrator role", hidden = true)
+    private Boolean isInlongAdminRole;
 }
