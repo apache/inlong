@@ -228,7 +228,10 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
                                                 .map(MySqlSnapshotSplit::toSchemaLessSnapshotSplit)
                                                 .collect(Collectors.toList());
                                 synchronized (lock) {
-                                    remainingSplits.addAll(schemaLessSnapshotSplits);
+                                    int size = schemaLessSnapshotSplits.size();
+                                    // move the last snapshot split to the front of the remaining splits.
+                                    remainingSplits.add(0, schemaLessSnapshotSplits.get(size - 1));
+                                    remainingSplits.addAll(schemaLessSnapshotSplits.subList(0, size - 1));
                                     remainingTables.remove(nextTable);
                                     addAlreadyProcessedTablesIfNotExists(nextTable);
                                     lock.notify();
