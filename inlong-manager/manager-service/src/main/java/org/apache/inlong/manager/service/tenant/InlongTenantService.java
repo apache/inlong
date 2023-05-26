@@ -15,25 +15,44 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.service.tenant;
 
-import com.github.pagehelper.Page;
-import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
+import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
-import org.springframework.stereotype.Repository;
+import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
 
-@Repository
-public interface InlongTenantEntityMapper {
+/**
+ * Inlong tenant service
+ */
+public interface InlongTenantService {
 
-    int insert(InlongTenantEntity record);
+    /**
+     * Get tenant info
+     * @param name
+     * @return
+     */
+    InlongTenantInfo get(String name);
 
-    int insertSelective(InlongTenantEntity record);
+    /**
+     * Save one tenant
+     * @param request
+     * @return
+     */
+    Integer save(InlongTenantRequest request);
 
-    int updateById(InlongTenantEntity record);
+    /**
+     * List tenants by condition
+     * @param request
+     * @return
+     */
+    PageInfo<InlongTenantInfo> listByCondition(InlongTenantPageRequest request);
 
-    int updateByIdSelective(InlongTenantEntity record);
+    /**
+     * Update one tenant
+     * @param request
+     * @return
+     */
+    Boolean update(InlongTenantRequest request);
 
-    Page<InlongTenantEntity> selectByCondition(InlongTenantPageRequest pageRequest);
-
-    InlongTenantEntity selectByName(String name);
 }

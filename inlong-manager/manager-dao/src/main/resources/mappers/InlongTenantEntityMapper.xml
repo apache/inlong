@@ -35,15 +35,14 @@
     id, name, description, is_deleted, creator, modifier, create_time, modify_time, version
   </sql>
 
-  <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
-    insert into inlong_tenant (id, name, description,
-                               is_deleted, creator, modifier,
-                               create_time, modify_time)
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+          parameterType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
+    insert into inlong_tenant (id, name, description, creator, modifier)
     values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
-            #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
-            #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+            #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+          parameterType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
     insert into inlong_tenant
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -63,12 +62,6 @@
       </if>
       <if test="modifier != null and modifier != ''">
         modifier,
-      </if>
-      <if test="createTime != null">
-        create_time,
-      </if>
-      <if test="modifyTime != null">
-        modify_time,
       </if>
       <if test="version != null">
         version,
@@ -103,8 +96,7 @@
   </insert>
   <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
     update inlong_tenant
-    set name         = #{name, jdbcType=VARCHAR},
-        description  = #{description,jdbcType=VARCHAR},
+    set description  = #{description,jdbcType=VARCHAR},
         is_deleted   = #{isDeleted, jdbcType=INTEGER},
         modifier     = #{modifier, jdbcType=VARCHAR},
         version      = #{version, jdbcType=INTEGER} + 1
@@ -114,9 +106,6 @@
   <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
     update inlong_tenant
     <set>
-      <if test="name != null and name != ''">
-        name = #{name, jdbcType=VARCHAR},
-      </if>
       <if test="description != null and description != ''">
         description = #{description,jdbcType=VARCHAR},
       </if>
@@ -131,4 +120,31 @@
     where id = #{id, jdbcType=INTEGER}
     and version = #{version, jdbcType=INTEGER}
   </update>
+  <select id="selectByCondition"
+          parameterType="org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest"
+          resultType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
+    select
+    <include refid="Base_Column_List"/>
+    from inlong_tenant
+    <where>
+      is_deleted = 0
+      <if test="name != null and name != ''">
+        and name = #{name, jdbcType=VARCHAR}
+      </if>
+      <if test="keyword != null and keyword != ''">
+        and name like CONCAT('%', #{keyword}, '%')
+      </if>
+    </where>
+    order by modify_time desc
+  </select>
+  <select id="selectByName"
+          parameterType="java.lang.String"
+          resultType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
+    select
+    <include refid="Base_Column_List"/>
+    from inlong_tenant
+    where name = #{name, jdbcType=VARCHAR}
+    and is_deleted = 0
+  </select>
+
 </mapper>
