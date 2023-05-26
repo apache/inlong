@@ -51,6 +51,7 @@ import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -85,6 +86,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
 
+    @Value("${cluster.heartbeat.interval:30}")
+    private Long heartbeatIntervalFactor;
+
     /**
      * Check whether the configuration information carried in the heartbeat has been updated
      *
@@ -106,7 +110,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         // When the manager restarts, set the heartbeat timeout state of all nodes
         // and wait for the heartbeat report of the corresponding node
         clusterNodeMapper.updateStatus(null, NodeStatus.HEARTBEAT_TIMEOUT.getStatus(), NodeStatus.NORMAL.getStatus());
-        long expireTime = heartbeatInterval() * 2L;
+        long expireTime = heartbeatInterval() * heartbeatIntervalFactor;
         Scheduler evictScheduler = Scheduler.forScheduledExecutorService(Executors.newSingleThreadScheduledExecutor());
         heartbeatCache = Caffeine.newBuilder()
                 .scheduler(evictScheduler)
