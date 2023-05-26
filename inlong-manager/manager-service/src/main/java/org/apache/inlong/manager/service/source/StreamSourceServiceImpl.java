@@ -253,11 +253,10 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
-        List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
-
+        Page<StreamSourceEntity> entityPage = (Page<StreamSourceEntity>) sourceMapper.selectByCondition(request);
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
         Map<String, Page<StreamSourceEntity>> sourceMap = Maps.newHashMap();
-        for (StreamSourceEntity entity : entityList) {
+        for (StreamSourceEntity entity : entityPage) {
             sourceMap.computeIfAbsent(entity.getSourceType(), k -> new Page<>()).add(entity);
         }
         List<StreamSource> responseList = Lists.newArrayList();
@@ -269,7 +268,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             }
         }
 
-        PageResult<? extends StreamSource> pageResult = new PageResult<>(responseList);
+        PageResult<? extends StreamSource> pageResult = new PageResult<>(responseList, entityPage.getTotal(),
+                entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list source page, result size {}", pageResult.getList().size());
         return pageResult;

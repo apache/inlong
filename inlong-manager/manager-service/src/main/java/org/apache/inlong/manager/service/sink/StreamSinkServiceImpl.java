@@ -322,7 +322,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
-        List<StreamSinkEntity> entityPage = sinkMapper.selectByCondition(request);
+        Page<StreamSinkEntity> entityPage = (Page<StreamSinkEntity>) sinkMapper.selectByCondition(request);
         Map<String, Page<StreamSinkEntity>> sinkMap = Maps.newHashMap();
         for (StreamSinkEntity streamSink : entityPage) {
             InlongGroupEntity groupEntity =
@@ -346,7 +346,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             responseList.addAll(pageInfo.getList());
         }
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        PageResult<StreamSink> pageResult = new PageResult<>(responseList);
+        PageResult<StreamSink> pageResult = new PageResult<>(responseList, entityPage.getTotal(),
+                entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list sink page, result size {}", pageResult.getList().size());
         return pageResult;
