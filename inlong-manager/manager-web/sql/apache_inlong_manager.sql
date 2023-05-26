@@ -584,6 +584,29 @@ CREATE TABLE IF NOT EXISTS `tenant_user_role`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Tenant User Role Table';
 
 -- ----------------------------
+-- Table structure for inlong_user_role
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `inlong_user_role`
+(
+    `id`          int(11)      NOT NULL AUTO_INCREMENT,
+    `user_name`   varchar(256) NOT NULL COMMENT 'Username',
+    `role_code`   varchar(256) NOT NULL COMMENT 'User role code',
+    `disabled`    tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Whether to disabled, 0: enabled, 1: disabled',
+    `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `creator`     varchar(256) NOT NULL COMMENT 'Creator name',
+    `modifier`    varchar(256)          DEFAULT NULL COMMENT 'Modifier name',
+    `create_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_tenant_user_role` (`user_name`, `role_code`, `is_deleted`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong User Role Table';
+
+INSERT INTO `inlong_user_role` (`user_name`, `role_code`, `creator`)
+VALUES ('admin', 'INLONG_ADMIN', 'inlong_init');
+
+-- ----------------------------
 -- Table structure for workflow_approver
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `workflow_approver`

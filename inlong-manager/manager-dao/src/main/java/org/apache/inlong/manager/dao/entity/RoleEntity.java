@@ -23,16 +23,16 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Role entity, including role code, role name, etc.
+ * User role entity, including username, role code, etc.
  */
 @Data
-public class RoleEntity implements Serializable {
+public class UserRoleEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
+    private String username;
     private String roleCode;
-    private String roleName;
-
+    private String tenant;
     private Integer disabled;
     private Integer isDeleted;
     private String creator;
