@@ -32,7 +32,7 @@ public class UserRoleEntity implements Serializable {
     private Integer id;
     private String username;
     private String roleCode;
-
+    private String tenant;
     private Integer disabled;
     private Integer isDeleted;
     private String creator;
