@@ -57,7 +57,6 @@ import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.base.sink.TableChange;
-import org.apache.inlong.sort.base.sink.TableChange.AddColumn;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -471,8 +470,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         if (table.schema().sameSchema(oldSchema)) {
             List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(oldSchema, newSchema);
             for (TableChange tableChange : tableChanges) {
-                if (!(tableChange instanceof AddColumn)) {
-                    // todo:currently iceberg can only handle addColumn, so always return false
+                if (tableChange instanceof TableChange.UnknownColumnChange) {
                     throw new UnsupportedOperationException(
                             String.format("Unsupported table %s schema change: %s.", tableId.toString(), tableChange));
                 }
@@ -487,8 +485,12 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     // =============================== Utils method =================================================================
     // The way to judge compatibility is whether all the field names in the old schema exist in the new schema
     private boolean isCompatible(Schema newSchema, Schema oldSchema) {
-        for (NestedField field : oldSchema.columns()) {
-            if (newSchema.findField(field.name()) == null) {
+        if (newSchema.columns().size() != oldSchema.columns().size()) {
+            return false;
+        }
+        for (NestedField oldField : oldSchema.columns()) {
+            NestedField newField = newSchema.findField(oldField.name());
+            if (newField == null || !oldField.type().equals(newField.type())) {
                 return false;
             }
         }
