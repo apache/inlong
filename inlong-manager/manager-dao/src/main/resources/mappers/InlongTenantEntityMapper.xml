@@ -96,8 +96,7 @@
   </insert>
   <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
     update inlong_tenant
-    set name         = #{name, jdbcType=VARCHAR},
-        description  = #{description,jdbcType=VARCHAR},
+    set description  = #{description,jdbcType=VARCHAR},
         is_deleted   = #{isDeleted, jdbcType=INTEGER},
         modifier     = #{modifier, jdbcType=VARCHAR},
         version      = #{version, jdbcType=INTEGER} + 1
