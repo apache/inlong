@@ -58,15 +58,15 @@ public class SchemaChangeUtils {
 
         List<TableChange> tableChanges = new ArrayList<>();
 
-        //step0: Unknown change
+        // step0: Unknown change
         if (!colsToDelete.isEmpty() && !colsToAdd.isEmpty()) {
             tableChanges.add(new UnknownColumnChange(
-                    String.format(" old schema: [%s] and new schema: [%s], it is unknown column change", oldSchema.toString(), newSchema.toString())
-            ));
+                    String.format(" old schema: [%s] and new schema: [%s], it is unknown column change",
+                            oldSchema.toString(), newSchema.toString())));
             return tableChanges;
         }
 
-        //step1: judge whether update column(only column type change and doc change)
+        // step1: judge whether update column(only column type change and doc change)
         for (String colName : intersectColSet) {
             NestedField oldField = oldSchema.findField(colName);
             NestedField newField = newSchema.findField(colName);
@@ -80,17 +80,16 @@ public class SchemaChangeUtils {
             }
         }
 
-        //step2: judge whether delete column
+        // step2: judge whether delete column
         for (String colName : oldFields) {
             if (colsToDelete.contains(colName)) {
                 tableChanges.add(
                         new TableChange.DeleteColumn(
-                                new String[]{colName}
-                        ));
+                                new String[]{colName}));
             }
         }
 
-        //step3: judge whether add column
+        // step3: judge whether add column
         if (!colsToAdd.isEmpty()) {
             for (int i = 0; i < newFields.size(); i++) {
                 String colName = newFields.get(i);
@@ -98,11 +97,11 @@ public class SchemaChangeUtils {
                     NestedField addField = newSchema.findField(colName);
                     tableChanges.add(
                             new TableChange.AddColumn(
-                                 new String[]{addField.name()},
-                                 FlinkSchemaUtil.convert(addField.type()),
-                                 !addField.isRequired(),
-                                 addField.doc(),
-                                i == 0 ? ColumnPosition.first() : ColumnPosition.after(newFields.get(i - 1))));
+                                    new String[]{addField.name()},
+                                    FlinkSchemaUtil.convert(addField.type()),
+                                    !addField.isRequired(),
+                                    addField.doc(),
+                                    i == 0 ? ColumnPosition.first() : ColumnPosition.after(newFields.get(i - 1))));
                 }
             }
         }
@@ -150,7 +149,7 @@ public class SchemaChangeUtils {
 
     public static void applyUpdateColumn(UpdateSchema pendingUpdate, TableChange.UpdateColumn update) {
         Type type = update.dataType().accept(new FlinkTypeToType(RowType.of(update.dataType())));
-        pendingUpdate.updateColumn(DOT.join(update.fieldNames()), type.asPrimitiveType(),  update.comment());
+        pendingUpdate.updateColumn(DOT.join(update.fieldNames()), type.asPrimitiveType(), update.comment());
     }
 
     public static String leafName(String[] fieldNames) {

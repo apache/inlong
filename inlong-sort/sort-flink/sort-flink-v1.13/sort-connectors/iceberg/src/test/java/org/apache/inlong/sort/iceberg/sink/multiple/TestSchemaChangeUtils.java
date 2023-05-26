@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
 import org.apache.iceberg.Schema;
@@ -46,10 +63,10 @@ public class TestSchemaChangeUtils {
         List<TableChange> tableChanges = deleteColumn();
         Assert.assertEquals("Table changes size must be 1 when del 1 column", 1, tableChanges.size());
         for (TableChange tableChange : tableChanges) {
-            Assert.assertTrue("The table change must be DeleteColumn ", tableChange instanceof TableChange.DeleteColumn);
+            Assert.assertTrue("The table change must be DeleteColumn ",
+                    tableChange instanceof TableChange.DeleteColumn);
         }
     }
-
 
     public List<TableChange> deleteColumn() {
         Schema delColSchema = new Schema(
@@ -64,23 +81,25 @@ public class TestSchemaChangeUtils {
         List<TableChange> updateTypeTableChanges = testUpdateTypeColumn();
         Assert.assertEquals("update 2 col, id: int -> double; age: int -> long", 2, updateTypeTableChanges.size());
         for (TableChange tableChange : updateTypeTableChanges) {
-            Assert.assertTrue("The table changes must be UpdateColumn ", tableChange instanceof TableChange.UpdateColumn);
+            Assert.assertTrue("The table changes must be UpdateColumn ",
+                    tableChange instanceof TableChange.UpdateColumn);
         }
 
         List<TableChange> updateCommentTableChanges = testCommentTypeColumn();
-        Assert.assertEquals("update 1 col comment, name comment: name -> family name:", 1, updateCommentTableChanges.size());
+        Assert.assertEquals("update 1 col comment, name comment: name -> family name:", 1,
+                updateCommentTableChanges.size());
         for (TableChange tableChange : updateCommentTableChanges) {
-            Assert.assertTrue("The table changes must be UpdateColumn ", tableChange instanceof TableChange.UpdateColumn);
+            Assert.assertTrue("The table changes must be UpdateColumn ",
+                    tableChange instanceof TableChange.UpdateColumn);
         }
     }
-
 
     public List<TableChange> testUpdateTypeColumn() {
         Schema updateTypeColSchema = new Schema(
                 Types.NestedField.required(1, "id", Types.DoubleType.get(), "primary key"),
                 Types.NestedField.optional(2, "name", Types.StringType.get(), "name"),
                 Types.NestedField.optional(3, "age", Types.LongType.get(), "age"));
-        return  SchemaChangeUtils.diffSchema(baseSchema, updateTypeColSchema);
+        return SchemaChangeUtils.diffSchema(baseSchema, updateTypeColSchema);
     }
 
     public List<TableChange> testCommentTypeColumn() {
@@ -100,7 +119,8 @@ public class TestSchemaChangeUtils {
         List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(baseSchema, unknownColSchema);
         Assert.assertEquals("rename column is not supported.", 1, tableChanges.size());
         for (TableChange tableChange : tableChanges) {
-            Assert.assertTrue("The table changes must be UnknownColumnChange ", tableChange instanceof TableChange.UnknownColumnChange);
+            Assert.assertTrue("The table changes must be UnknownColumnChange ",
+                    tableChange instanceof TableChange.UnknownColumnChange);
         }
     }
 }

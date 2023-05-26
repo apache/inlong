@@ -254,7 +254,6 @@ public interface TableChange {
         }
     }
 
-
     /**
      * Represents a column change that is not recognized by the connector.
      */
