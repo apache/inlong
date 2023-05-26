@@ -164,7 +164,7 @@ public class HiveRowDataPartitionComputer extends RowDataPartitionComputer {
 
                 boolean replaceLineBreak = hiveWriterFactory.getStorageDescriptor().getInputFormat()
                         .contains("TextInputFormat");
-                Pair<GenericRowData, Long> pair = HiveTableUtil.getRowData(rawData, columnNames, allTypes,
+                Pair<GenericRowData, Integer> pair = HiveTableUtil.getRowData(rawData, columnNames, allTypes,
                         replaceLineBreak);
                 GenericRowData genericRowData = pair.getLeft();
 

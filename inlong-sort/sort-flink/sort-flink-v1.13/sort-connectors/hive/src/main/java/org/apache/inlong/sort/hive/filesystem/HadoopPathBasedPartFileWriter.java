@@ -230,7 +230,7 @@ public class HadoopPathBasedPartFileWriter<IN, BucketID> extends AbstractPartFil
                     LOG.debug("record: {}", record);
                     LOG.debug("columns : {}", Arrays.deepToString(writerFactory.getAllColumns()));
                     LOG.debug("types: {}", Arrays.deepToString(writerFactory.getAllTypes()));
-                    Pair<GenericRowData, Long> rowDataPair = HiveTableUtil.getRowData(record,
+                    Pair<GenericRowData, Integer> rowDataPair = HiveTableUtil.getRowData(record,
                             writerFactory.getAllColumns(), writerFactory.getAllTypes(), replaceLineBreak);
                     GenericRowData genericRowData = rowDataPair.getLeft();
                     recordSize += rowDataPair.getRight();

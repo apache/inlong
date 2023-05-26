@@ -456,12 +456,12 @@ public class HiveTableUtil {
      * @param allColumns hive column names
      * @param allTypes hive column types
      * @param replaceLineBreak if replace line break to blank to avoid data corrupt when hive text table
-     * @return generic row data
+     * @return generic row data and byte size of the data
      */
-    public static Pair<GenericRowData, Long> getRowData(Map<String, Object> record, String[] allColumns,
+    public static Pair<GenericRowData, Integer> getRowData(Map<String, Object> record, String[] allColumns,
             DataType[] allTypes, boolean replaceLineBreak) {
         GenericRowData genericRowData = new GenericRowData(RowKind.INSERT, allColumns.length);
-        long byteSize = 0;
+        int byteSize = 0;
         for (int index = 0; index < allColumns.length; index++) {
             String columnName = allColumns[index];
             LogicalType logicalType = allTypes[index].getLogicalType();
