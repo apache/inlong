@@ -20,6 +20,7 @@ package org.apache.inlong.sort.elasticsearch;
 import org.apache.flink.annotation.Internal;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;

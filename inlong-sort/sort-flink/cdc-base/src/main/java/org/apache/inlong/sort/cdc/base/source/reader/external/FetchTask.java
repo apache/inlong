@@ -17,18 +17,20 @@
 
 package org.apache.inlong.sort.cdc.base.source.reader.external;
 
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.pipeline.DataChangeEvent;
 import io.debezium.relational.TableId;
 import io.debezium.relational.Tables;
+import org.apache.flink.annotation.Experimental;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import org.apache.flink.annotation.Experimental;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.source.SourceRecord;
 
 /** The task to fetching data of a Split.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

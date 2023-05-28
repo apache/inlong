@@ -17,17 +17,19 @@
 
 package org.apache.inlong.manager.pojo.stream;
 
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 

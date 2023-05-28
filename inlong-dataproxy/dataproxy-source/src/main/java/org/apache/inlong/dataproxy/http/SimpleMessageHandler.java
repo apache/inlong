@@ -17,18 +17,6 @@
 
 package org.apache.inlong.dataproxy.http;
 
-import static org.apache.inlong.dataproxy.consts.AttrConstants.SEP_HASHTAG;
-import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.flume.ChannelException;
-import org.apache.flume.Event;
-import org.apache.flume.channel.ChannelProcessor;
-import org.apache.flume.event.EventBuilder;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -45,8 +33,24 @@ import org.apache.inlong.dataproxy.source.ServiceDecoder;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.flume.ChannelException;
+import org.apache.flume.Event;
+import org.apache.flume.channel.ChannelProcessor;
+import org.apache.flume.event.EventBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.apache.inlong.dataproxy.consts.AttrConstants.SEP_HASHTAG;
 
 public class SimpleMessageHandler implements MessageHandler {
 

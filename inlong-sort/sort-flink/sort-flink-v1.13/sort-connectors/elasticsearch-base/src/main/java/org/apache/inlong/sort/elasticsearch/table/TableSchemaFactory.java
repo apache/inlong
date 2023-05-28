@@ -19,6 +19,7 @@ package org.apache.inlong.sort.elasticsearch.table;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.TableSchema;
+
 import java.io.Serializable;
 
 public class TableSchemaFactory implements Serializable {

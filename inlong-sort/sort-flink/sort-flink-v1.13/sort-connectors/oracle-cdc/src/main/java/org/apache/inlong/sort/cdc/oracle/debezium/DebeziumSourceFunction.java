@@ -17,10 +17,27 @@
 
 package org.apache.inlong.sort.cdc.oracle.debezium;
 
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffsetSerializer;
+import org.apache.inlong.sort.cdc.base.debezium.internal.FlinkDatabaseHistory;
+import org.apache.inlong.sort.cdc.base.debezium.internal.FlinkOffsetBackingStore;
+import org.apache.inlong.sort.cdc.base.debezium.internal.Handover;
+import org.apache.inlong.sort.cdc.base.debezium.internal.SchemaRecord;
+import org.apache.inlong.sort.cdc.base.util.CallbackCollector;
+import org.apache.inlong.sort.cdc.base.util.DatabaseHistoryUtil;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeConsumer;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeFetcher;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkDatabaseSchemaHistory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.ververica.cdc.debezium.Validator;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.connector.SnapshotRecord;
@@ -32,19 +49,6 @@ import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.spi.OffsetCommitPolicy;
 import io.debezium.heartbeat.Heartbeat;
 import io.debezium.relational.history.TableChanges.TableChange;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -62,35 +66,34 @@ import org.apache.flink.metrics.Gauge;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.base.Constants;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
-import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffsetSerializer;
-import org.apache.inlong.sort.cdc.base.debezium.internal.FlinkDatabaseHistory;
-import org.apache.inlong.sort.cdc.base.debezium.internal.FlinkOffsetBackingStore;
-import org.apache.inlong.sort.cdc.base.debezium.internal.Handover;
-import org.apache.inlong.sort.cdc.base.debezium.internal.SchemaRecord;
-import org.apache.inlong.sort.cdc.base.util.CallbackCollector;
-import org.apache.inlong.sort.cdc.base.util.DatabaseHistoryUtil;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeFetcher;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeConsumer;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkDatabaseSchemaHistory;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 
 /**
  * The {@link DebeziumSourceFunction} is a streaming data source that pulls captured change data

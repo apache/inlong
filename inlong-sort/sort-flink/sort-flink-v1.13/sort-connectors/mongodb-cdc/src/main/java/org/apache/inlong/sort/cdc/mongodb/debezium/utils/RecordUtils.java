@@ -21,10 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import com.mongodb.client.model.changestream.OperationType;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.relational.TableId;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.BigIntType;
 import org.apache.flink.table.types.logical.BinaryType;
@@ -39,6 +35,10 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.bson.BsonType;
 import org.bson.BsonValue;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class to deal record.

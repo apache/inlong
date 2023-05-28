@@ -17,34 +17,6 @@
 
 package org.apache.inlong.sort.cdc.base.source.reader;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.flink.util.Preconditions.checkState;
-
-import com.ververica.cdc.connectors.base.source.meta.events.FinishedSnapshotSplitsAckEvent;
-import com.ververica.cdc.connectors.base.source.meta.events.FinishedSnapshotSplitsRequestEvent;
-import com.ververica.cdc.connectors.base.source.meta.events.StreamSplitMetaEvent;
-import com.ververica.cdc.connectors.base.source.meta.events.StreamSplitMetaRequestEvent;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import org.apache.flink.annotation.Experimental;
-import org.apache.flink.api.connector.source.SourceEvent;
-import org.apache.flink.api.connector.source.SourceReaderContext;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.connector.base.source.reader.RecordEmitter;
-import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
-import org.apache.flink.connector.base.source.reader.SingleThreadMultiplexSourceReaderBase;
-import org.apache.flink.connector.base.source.reader.fetcher.SingleThreadFetcherManager;
-import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
-import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.dialect.DataSourceDialect;
@@ -62,8 +34,38 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
 import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
 import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplitState;
 import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
+
+import com.ververica.cdc.connectors.base.source.meta.events.FinishedSnapshotSplitsAckEvent;
+import com.ververica.cdc.connectors.base.source.meta.events.FinishedSnapshotSplitsRequestEvent;
+import com.ververica.cdc.connectors.base.source.meta.events.StreamSplitMetaEvent;
+import com.ververica.cdc.connectors.base.source.meta.events.StreamSplitMetaRequestEvent;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
+import org.apache.flink.annotation.Experimental;
+import org.apache.flink.api.connector.source.SourceEvent;
+import org.apache.flink.api.connector.source.SourceReaderContext;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+import org.apache.flink.connector.base.source.reader.SingleThreadMultiplexSourceReaderBase;
+import org.apache.flink.connector.base.source.reader.fetcher.SingleThreadFetcherManager;
+import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
+import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.flink.util.Preconditions.checkState;
 
 /**
  * The multi-parallel source reader for table snapshot phase from {@link SnapshotSplit} and then

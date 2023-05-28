@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.formats.json;
 
+import org.apache.flink.types.Row;
+
 import java.io.Serializable;
 import java.util.Map;
-import org.apache.flink.types.Row;
 
 public class MysqlBinLogData implements Serializable {
 

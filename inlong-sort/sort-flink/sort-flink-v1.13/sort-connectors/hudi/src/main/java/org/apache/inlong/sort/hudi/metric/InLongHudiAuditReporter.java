@@ -17,21 +17,21 @@
 
 package org.apache.inlong.sort.hudi.metric;
 
-import static org.apache.hudi.config.metrics.HoodieMetricsConfig.METRICS_REPORTER_PREFIX;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.hudi.metric.HudiMetricsConfig.REPORT_PERIOD_IN_SECONDS;
-import static org.apache.inlong.sort.hudi.metric.HudiMetricsConfig.getConfig;
-
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.flink.util.StringUtils;
 import org.apache.hudi.com.codahale.metrics.MetricFilter;
 import org.apache.hudi.com.codahale.metrics.MetricRegistry;
 import org.apache.hudi.metrics.custom.CustomizableMetricsReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.hudi.config.metrics.HoodieMetricsConfig.METRICS_REPORTER_PREFIX;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.hudi.metric.HudiMetricsConfig.REPORT_PERIOD_IN_SECONDS;
+import static org.apache.inlong.sort.hudi.metric.HudiMetricsConfig.getConfig;
 
 /**
  * The main entry of hudi audit reporter.

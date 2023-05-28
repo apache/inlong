@@ -17,16 +17,18 @@
 
 package org.apache.inlong.sort.cdc.base.debezium.internal;
 
+import org.apache.inlong.sort.cdc.base.util.DatabaseHistoryUtil;
+
 import io.debezium.config.Configuration;
 import io.debezium.relational.history.AbstractDatabaseHistory;
 import io.debezium.relational.history.DatabaseHistoryException;
 import io.debezium.relational.history.DatabaseHistoryListener;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.HistoryRecordComparator;
+
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
-import org.apache.inlong.sort.cdc.base.util.DatabaseHistoryUtil;
 
 /**
  * Inspired from {@link io.debezium.relational.history.MemoryDatabaseHistory} but we will store the

@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.hudi.metric;
 
+import org.apache.inlong.audit.AuditOperator;
+import org.apache.inlong.sort.base.Constants;
+
 import org.apache.flink.util.Preconditions;
 import org.apache.hudi.com.codahale.metrics.Counter;
 import org.apache.hudi.com.codahale.metrics.Gauge;
@@ -26,8 +29,6 @@ import org.apache.hudi.com.codahale.metrics.MetricFilter;
 import org.apache.hudi.com.codahale.metrics.MetricRegistry;
 import org.apache.hudi.com.codahale.metrics.ScheduledReporter;
 import org.apache.hudi.com.codahale.metrics.Timer;
-import org.apache.inlong.audit.AuditOperator;
-import org.apache.inlong.sort.base.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

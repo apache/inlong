@@ -17,6 +17,11 @@
 
 package org.apache.inlong.audit.source;
 
+import org.apache.inlong.audit.channel.FailoverChannelProcessor;
+import org.apache.inlong.audit.consts.ConfigConstants;
+import org.apache.inlong.audit.utils.EventLoopUtil;
+import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
+
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -29,8 +34,6 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import java.lang.reflect.Constructor;
-import java.net.InetSocketAddress;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
@@ -38,12 +41,11 @@ import org.apache.flume.EventDrivenSource;
 import org.apache.flume.FlumeException;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.source.AbstractSource;
-import org.apache.inlong.audit.channel.FailoverChannelProcessor;
-import org.apache.inlong.audit.consts.ConfigConstants;
-import org.apache.inlong.audit.utils.EventLoopUtil;
-import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+import java.net.InetSocketAddress;
 
 /**
  * Simple tcp source

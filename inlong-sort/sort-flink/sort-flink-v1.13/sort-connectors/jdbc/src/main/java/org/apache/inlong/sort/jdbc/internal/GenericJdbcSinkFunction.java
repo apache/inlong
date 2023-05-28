@@ -27,6 +27,7 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.util.Preconditions;
 
 import javax.annotation.Nonnull;
+
 import java.io.IOException;
 
 /**

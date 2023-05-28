@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.offset;
 
-import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.bsonTimestampFromEpochMillis;
-import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.currentBsonTimestamp;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
 
 import java.util.Map;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
+
+import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.bsonTimestampFromEpochMillis;
+import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.currentBsonTimestamp;
 
 /** An change stream offset factory class create {@link ChangeStreamOffset} instance.
  * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.

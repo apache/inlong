@@ -17,15 +17,18 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.split;
 
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.flink.table.types.logical.RowType;
+
+import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 
 /** The split to describe a split of a database table snapshot.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

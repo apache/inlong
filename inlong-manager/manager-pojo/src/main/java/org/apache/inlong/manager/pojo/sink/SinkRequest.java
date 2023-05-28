@@ -17,21 +17,22 @@
 
 package org.apache.inlong.manager.pojo.sink;
 
+import org.apache.inlong.manager.common.validation.SaveValidation;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import org.apache.inlong.manager.common.validation.SaveValidation;
-import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
-import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+
 import java.util.List;
 import java.util.Map;
 

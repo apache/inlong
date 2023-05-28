@@ -17,19 +17,6 @@
 
 package org.apache.inlong.sort.cdc.oracle.debezium.internal;
 
-import io.debezium.connector.SnapshotRecord;
-import io.debezium.data.Envelope;
-import io.debezium.engine.ChangeEvent;
-import io.debezium.engine.DebeziumEngine;
-import io.debezium.relational.history.TableChanges.TableChange;
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
 import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
@@ -37,11 +24,26 @@ import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffsetSerialize
 import org.apache.inlong.sort.cdc.base.debezium.internal.Handover;
 import org.apache.inlong.sort.cdc.base.debezium.internal.SchemaRecord;
 import org.apache.inlong.sort.cdc.base.util.RecordUtils;
+
+import io.debezium.connector.SnapshotRecord;
+import io.debezium.data.Envelope;
+import io.debezium.engine.ChangeEvent;
+import io.debezium.engine.DebeziumEngine;
+import io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.util.Collector;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * A Handler that convert change messages from {@link DebeziumEngine} to data in Flink. Considering

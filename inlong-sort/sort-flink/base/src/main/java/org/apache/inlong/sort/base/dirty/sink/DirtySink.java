@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.base.dirty.sink;
 
-import org.apache.flink.configuration.Configuration;
 import org.apache.inlong.sort.base.dirty.DirtyData;
+
+import org.apache.flink.configuration.Configuration;
 
 import java.io.Serializable;
 

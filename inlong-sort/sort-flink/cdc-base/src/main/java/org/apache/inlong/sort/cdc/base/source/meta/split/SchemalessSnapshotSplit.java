@@ -17,12 +17,14 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.split;
 
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.flink.table.types.logical.RowType;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 
 /**
  * A kind of {@link SnapshotSplit} without table schema information, it is useful to reduce memory

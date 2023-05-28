@@ -17,6 +17,14 @@
 
 package org.apache.inlong.manager.plugin.flink;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
+import org.apache.inlong.manager.plugin.flink.enums.ConnectorJarType;
+import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
+import org.apache.inlong.manager.plugin.util.FlinkUtils;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
-import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
-import org.apache.inlong.manager.plugin.flink.enums.ConnectorJarType;
-import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
-import org.apache.inlong.manager.plugin.util.FlinkUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;

@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sort.cdc.base.dialect;
 
-import io.debezium.jdbc.JdbcConnection;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges.TableChange;
-import java.util.List;
-import java.util.Map;
-import org.apache.flink.annotation.Experimental;
-import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.relational.connection.JdbcConnectionFactory;
@@ -31,6 +24,15 @@ import org.apache.inlong.sort.cdc.base.relational.connection.JdbcConnectionPoolF
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
 import org.apache.inlong.sort.cdc.base.source.reader.external.JdbcSourceFetchTaskContext;
+
+import io.debezium.jdbc.JdbcConnection;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.flink.annotation.Experimental;
+import org.apache.flink.util.FlinkRuntimeException;
+
+import java.util.List;
+import java.util.Map;
 
 /** The dialect of JDBC data source.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

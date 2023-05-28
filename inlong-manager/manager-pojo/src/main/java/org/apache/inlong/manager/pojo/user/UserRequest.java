@@ -17,6 +17,11 @@
 
 package org.apache.inlong.manager.pojo.user;
 
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.validation.InEnumInt;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.common.PageRequest;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -24,10 +29,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
-import org.apache.inlong.manager.pojo.common.PageRequest;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
-import org.apache.inlong.manager.common.validation.InEnumInt;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 

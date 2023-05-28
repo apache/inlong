@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.base.util;
 
-import org.apache.flink.api.common.state.ListState;
-import org.apache.flink.metrics.Counter;
 import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
@@ -26,6 +24,9 @@ import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.base.metric.phase.ReadPhaseMetricData;
 import org.apache.inlong.sort.base.metric.sub.SinkSubMetricData;
 import org.apache.inlong.sort.base.metric.sub.SourceSubMetricData;
+
+import org.apache.flink.api.common.state.ListState;
+import org.apache.flink.metrics.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

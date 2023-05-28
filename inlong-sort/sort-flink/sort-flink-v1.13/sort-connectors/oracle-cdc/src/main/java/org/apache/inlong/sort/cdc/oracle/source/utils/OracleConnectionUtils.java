@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.utils;
 
-import static io.debezium.config.CommonConnectorConfig.DATABASE_CONFIG_PREFIX;
+import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
 
 import io.debezium.config.Configuration;
 import io.debezium.connector.oracle.OracleConnection;
@@ -25,15 +25,17 @@ import io.debezium.connector.oracle.Scn;
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.RelationalTableFilters;
 import io.debezium.relational.TableId;
+import org.apache.flink.util.FlinkRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static io.debezium.config.CommonConnectorConfig.DATABASE_CONFIG_PREFIX;
 
 /** Oracle connection Utilities.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sort.cdc.base.source.assigner;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.dialect.DataSourceDialect;
 import org.apache.inlong.sort.cdc.base.source.assigner.state.PendingSplitsState;
@@ -33,8 +26,17 @@ import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
 import org.apache.inlong.sort.cdc.base.source.meta.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /** Assigner for stream split.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

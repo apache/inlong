@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sort.kudu.sink;
 
+import org.apache.inlong.sort.kudu.common.KuduTableInfo;
+import org.apache.inlong.sort.kudu.source.KuduConsumerTask;
+
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.kudu.common.KuduTableInfo;
-import org.apache.inlong.sort.kudu.source.KuduConsumerTask;
 import org.apache.kudu.Schema;
 import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.KuduException;

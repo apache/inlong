@@ -17,9 +17,6 @@
 
 package org.apache.inlong.dataproxy.source2.v0msg;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Event;
-import org.apache.flume.event.EventBuilder;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
@@ -28,13 +25,16 @@ import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source2.BaseSource;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.Event;
+import org.apache.flume.event.EventBuilder;
 import org.xerial.snappy.Snappy;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 
 import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.TXT_MSG_BODYLEN_OFFSET;
 import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.TXT_MSG_BODY_OFFSET;

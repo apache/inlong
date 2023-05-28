@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.cdc;
 
-import java.util.HashMap;
 import org.apache.inlong.sort.cdc.mysql.utils.OperationUtils;
 import org.apache.inlong.sort.protocol.ddl.enums.AlterType;
 import org.apache.inlong.sort.protocol.ddl.enums.OperationType;
@@ -25,8 +24,11 @@ import org.apache.inlong.sort.protocol.ddl.enums.PositionType;
 import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
 import org.apache.inlong.sort.protocol.ddl.operations.Operation;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.HashMap;
 
 /**
  * Test for table operations

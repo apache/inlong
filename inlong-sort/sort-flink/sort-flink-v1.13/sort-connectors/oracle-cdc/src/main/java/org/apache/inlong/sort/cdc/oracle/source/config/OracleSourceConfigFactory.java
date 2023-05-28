@@ -17,17 +17,20 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.config;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfigFactory;
 
 import com.ververica.cdc.connectors.base.source.EmbeddedFlinkDatabaseHistory;
 import io.debezium.config.Configuration;
 import io.debezium.connector.oracle.OracleConnector;
+
+import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-import javax.annotation.Nullable;
-import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfigFactory;
+
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /** A factory to initialize {@link OracleSourceConfig}.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

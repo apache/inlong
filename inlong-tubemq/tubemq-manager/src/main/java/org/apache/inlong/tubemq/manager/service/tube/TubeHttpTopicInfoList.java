@@ -17,20 +17,20 @@
 
 package org.apache.inlong.tubemq.manager.service.tube;
 
-import static org.apache.inlong.tubemq.manager.service.TubeConst.BATCH_ADD_TOPIC;
-import static org.apache.inlong.tubemq.manager.service.TubeConst.OP_MODIFY;
-import static org.apache.inlong.tubemq.manager.service.TubeConst.WEB_API;
+import org.apache.inlong.tubemq.manager.controller.node.request.AddTopicReq;
+import org.apache.inlong.tubemq.manager.service.tube.TubeHttpTopicInfoList.TopicInfoList.TopicInfo;
 
 import com.google.common.collect.Lists;
+import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Data;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.tubemq.manager.controller.node.request.AddTopicReq;
-import org.apache.inlong.tubemq.manager.service.tube.TubeHttpTopicInfoList.TopicInfoList.TopicInfo;
+import static org.apache.inlong.tubemq.manager.service.TubeConst.BATCH_ADD_TOPIC;
+import static org.apache.inlong.tubemq.manager.service.TubeConst.OP_MODIFY;
+import static org.apache.inlong.tubemq.manager.service.TubeConst.WEB_API;
 
 /**
  * json class for topic info list from master http service.

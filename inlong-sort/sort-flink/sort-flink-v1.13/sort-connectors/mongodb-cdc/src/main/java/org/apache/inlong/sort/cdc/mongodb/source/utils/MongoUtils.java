@@ -17,6 +17,37 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.utils;
 
+import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
+import org.apache.inlong.sort.cdc.mongodb.source.connection.MongoClientPool;
+import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamDescriptor;
+
+import com.mongodb.ConnectionString;
+import com.mongodb.client.ChangeStreamIterable;
+import com.mongodb.client.MongoChangeStreamCursor;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.changestream.ChangeStreamDocument;
+import com.mongodb.client.model.changestream.FullDocument;
+import io.debezium.relational.TableId;
+import org.apache.commons.lang3.StringUtils;
+import org.bson.BsonDocument;
+import org.bson.BsonDouble;
+import org.bson.BsonInt32;
+import org.bson.BsonString;
+import org.bson.BsonTimestamp;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
 import static com.mongodb.client.model.Aggregates.match;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -36,34 +67,6 @@ import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscov
 import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.includeListAsFlatPattern;
 import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.isIncludeListExplicitlySpecified;
 import static org.apache.flink.util.Preconditions.checkNotNull;
-
-import com.mongodb.ConnectionString;
-import com.mongodb.client.ChangeStreamIterable;
-import com.mongodb.client.MongoChangeStreamCursor;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.changestream.ChangeStreamDocument;
-import com.mongodb.client.model.changestream.FullDocument;
-import io.debezium.relational.TableId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
-import org.apache.inlong.sort.cdc.mongodb.source.connection.MongoClientPool;
-import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamDescriptor;
-import org.bson.BsonDocument;
-import org.bson.BsonDouble;
-import org.bson.BsonInt32;
-import org.bson.BsonString;
-import org.bson.BsonTimestamp;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Utilities of MongoDB operations.
  * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.

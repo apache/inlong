@@ -17,15 +17,17 @@
 
 package org.apache.inlong.sort.cdc.base.relational.connection;
 
+import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
+
 import com.zaxxer.hikari.HikariDataSource;
 import io.debezium.jdbc.JdbcConfiguration;
 import io.debezium.jdbc.JdbcConnection;
-import java.sql.Connection;
-import java.sql.SQLException;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /** A factory to create JDBC connection.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

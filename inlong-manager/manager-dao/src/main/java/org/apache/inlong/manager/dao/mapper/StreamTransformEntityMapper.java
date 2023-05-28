@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.StreamTransformEntity;
 import org.apache.inlong.manager.pojo.transform.TransformPageRequest;
+
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

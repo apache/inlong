@@ -23,6 +23,7 @@ import org.apache.inlong.agent.plugin.sources.reader.file.FileReaderOperator;
 import org.apache.inlong.agent.plugin.sources.reader.file.TriggerFileReader;
 import org.apache.inlong.agent.plugin.utils.FileDataUtils;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

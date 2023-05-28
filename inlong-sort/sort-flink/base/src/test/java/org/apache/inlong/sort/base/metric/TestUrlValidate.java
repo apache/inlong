@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.base.metric;
 
 import org.apache.inlong.sort.base.util.JdbcUrlUtils;
+
 import org.junit.Assert;
 import org.junit.Test;
 

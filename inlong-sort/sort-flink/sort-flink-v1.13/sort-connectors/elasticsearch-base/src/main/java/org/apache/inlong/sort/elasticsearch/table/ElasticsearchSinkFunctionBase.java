@@ -17,21 +17,23 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
+import org.apache.inlong.sort.elasticsearch.RequestIndexer;
+
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
-import org.apache.inlong.sort.base.dirty.DirtyType;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
-import org.apache.inlong.sort.elasticsearch.RequestIndexer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Function;

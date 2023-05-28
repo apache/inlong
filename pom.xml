@@ -1296,6 +1296,13 @@
                         <licenseHeader>
                             <file>codestyle/license-header</file>
                         </licenseHeader>
+
+                        <importOrder>
+                            <!-- you can use an empty string for all the imports you didn't specify explicitly, '|' to join group without blank line, and '\#` prefix for static imports. -->
+                            <order>org.apache.inlong,org.apache.inlong.shaded,,javax,java,\#</order>
+                        </importOrder>
+
+                        <!-- remove unused imports -->
                         <removeUnusedImports />
                         <replaceRegex>
                             <name>Remove wildcard imports</name>
@@ -1335,6 +1342,7 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>compile-format</id>
                         <goals>
                             <goal>apply</goal>
                         </goals>

@@ -17,17 +17,20 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.offset;
 
-import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.maximumBsonTimestamp;
-import static com.ververica.cdc.connectors.mongodb.source.utils.ResumeTokenUtils.decodeTimestamp;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+
+import org.bson.BsonDocument;
+import org.bson.BsonTimestamp;
+
+import javax.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import javax.annotation.Nullable;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
-import org.bson.BsonDocument;
-import org.bson.BsonTimestamp;
+
+import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.maximumBsonTimestamp;
+import static com.ververica.cdc.connectors.mongodb.source.utils.ResumeTokenUtils.decodeTimestamp;
 
 /**
  * A structure describes a fine grained offset in a change log event including resumeToken and

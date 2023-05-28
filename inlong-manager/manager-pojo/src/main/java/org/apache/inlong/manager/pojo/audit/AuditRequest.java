@@ -17,13 +17,15 @@
 
 package org.apache.inlong.manager.pojo.audit;
 
+import org.apache.inlong.manager.common.enums.TimeStaticsDim;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 
 import javax.validation.constraints.NotBlank;
+
 import java.util.List;
 
 /**

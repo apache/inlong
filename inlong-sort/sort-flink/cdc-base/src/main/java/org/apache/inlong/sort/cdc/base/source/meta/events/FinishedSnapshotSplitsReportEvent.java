@@ -17,11 +17,13 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.events;
 
-import java.util.Map;
-import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.inlong.sort.cdc.base.source.enumerator.IncrementalSourceEnumerator;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceReader;
+
+import org.apache.flink.api.connector.source.SourceEvent;
+
+import java.util.Map;
 
 /**
  * The {@link SourceEvent} that {@link IncrementalSourceReader} sends to {@link

@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.cdc.postgres.debezium.internal;
 
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.util.RecordUtils;
+import org.apache.inlong.sort.cdc.postgres.connection.PostgreSQLJdbcConnectionOptions;
+import org.apache.inlong.sort.cdc.postgres.connection.PostgreSQLJdbcConnectionProvider;
+import org.apache.inlong.sort.cdc.postgres.manager.PostgreSQLQueryVisitor;
+
 import com.ververica.cdc.debezium.internal.DebeziumOffset;
 import com.ververica.cdc.debezium.internal.DebeziumOffsetSerializer;
 import com.ververica.cdc.debezium.internal.Handover;
@@ -29,6 +35,17 @@ import io.debezium.relational.Column;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
 import io.debezium.relational.history.TableChanges.TableChangeType;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.util.Collector;
+import org.apache.kafka.connect.data.Field;
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Types;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -37,21 +54,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.base.util.RecordUtils;
-import org.apache.inlong.sort.cdc.postgres.connection.PostgreSQLJdbcConnectionOptions;
-import org.apache.inlong.sort.cdc.postgres.connection.PostgreSQLJdbcConnectionProvider;
-import org.apache.inlong.sort.cdc.postgres.manager.PostgreSQLQueryVisitor;
-import org.apache.kafka.connect.data.Field;
-import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.source.SourceRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A Handler that convert change messages from {@link DebeziumEngine} to data in Flink. Considering

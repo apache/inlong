@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

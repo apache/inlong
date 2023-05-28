@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client;
 
-import lombok.Data;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.FieldType;
@@ -28,6 +27,8 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+
+import lombok.Data;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

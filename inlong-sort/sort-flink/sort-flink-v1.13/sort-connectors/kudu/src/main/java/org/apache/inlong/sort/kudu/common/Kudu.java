@@ -21,6 +21,7 @@ import org.apache.flink.table.descriptors.ConnectorDescriptor;
 import org.apache.flink.table.descriptors.DescriptorProperties;
 
 import javax.annotation.Nonnull;
+
 import java.util.HashMap;
 import java.util.Map;
 

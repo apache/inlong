@@ -17,18 +17,20 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.split;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
-import com.ververica.cdc.connectors.base.utils.SerializerUtils;
-import io.debezium.relational.TableId;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Objects;
-import org.apache.flink.core.memory.DataOutputSerializer;
-import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetDeserializerSerializer;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
+
+import com.ververica.cdc.connectors.base.utils.SerializerUtils;
+import io.debezium.relational.TableId;
+import org.apache.flink.core.memory.DataOutputSerializer;
+import org.apache.flink.util.FlinkRuntimeException;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
+
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /** The information used to describe a finished snapshot split.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

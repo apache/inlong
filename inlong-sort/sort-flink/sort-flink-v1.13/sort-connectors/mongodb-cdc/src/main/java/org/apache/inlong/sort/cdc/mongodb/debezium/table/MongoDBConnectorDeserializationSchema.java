@@ -17,10 +17,14 @@
 
 package org.apache.inlong.sort.cdc.mongodb.debezium.table;
 
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
+import org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKind;
+import org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKindValidator;
+
 import com.mongodb.client.model.changestream.OperationType;
 import com.mongodb.internal.HexUtils;
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
-import java.util.LinkedHashMap;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericArrayData;
@@ -37,10 +41,6 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.utils.LogicalTypeUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
-import org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKind;
-import org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKindValidator;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -73,6 +73,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 

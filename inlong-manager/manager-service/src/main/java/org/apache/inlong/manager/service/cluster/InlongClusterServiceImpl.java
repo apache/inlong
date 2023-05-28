@@ -17,13 +17,6 @@
 
 package org.apache.inlong.manager.service.cluster;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.audit.AuditConfig;
@@ -74,6 +67,14 @@ import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperator;
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperatorFactory;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.apache.inlong.manager.service.user.UserService;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

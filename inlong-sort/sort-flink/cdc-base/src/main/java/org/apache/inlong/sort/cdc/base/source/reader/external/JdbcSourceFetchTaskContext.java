@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.cdc.base.source.reader.external;
 
+import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
+import org.apache.inlong.sort.cdc.base.config.SourceConfig;
+import org.apache.inlong.sort.cdc.base.dialect.JdbcDataSourceDialect;
+import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
+
 import com.ververica.cdc.connectors.base.utils.SourceRecordUtils;
 import io.debezium.config.CommonConnectorConfig;
 import io.debezium.data.Envelope;
@@ -26,18 +31,15 @@ import io.debezium.relational.RelationalDatabaseSchema;
 import io.debezium.relational.Table;
 import io.debezium.relational.TableId;
 import io.debezium.util.SchemaNameAdjuster;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
+
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
-import org.apache.inlong.sort.cdc.base.config.SourceConfig;
-import org.apache.inlong.sort.cdc.base.dialect.JdbcDataSourceDialect;
-import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.source.SourceRecord;
 
 /** The context for fetch task that fetching data of snapshot split from JDBC data source.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

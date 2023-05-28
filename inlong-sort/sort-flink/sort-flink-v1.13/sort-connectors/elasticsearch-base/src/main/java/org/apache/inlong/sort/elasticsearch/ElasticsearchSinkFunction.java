@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.elasticsearch;
 
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
 
 import java.io.Serializable;
 

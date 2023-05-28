@@ -39,6 +39,7 @@ import org.apache.pulsar.common.schema.SchemaInfo;
 import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;

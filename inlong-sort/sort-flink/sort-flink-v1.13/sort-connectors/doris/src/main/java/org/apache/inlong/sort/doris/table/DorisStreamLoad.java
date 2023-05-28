@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.doris.table;
 
+import org.apache.inlong.sort.doris.model.RespContent;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.doris.flink.exception.StreamLoadException;
 import org.apache.doris.shaded.com.fasterxml.jackson.core.JsonProcessingException;
@@ -31,7 +33,6 @@ import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.sort.doris.model.RespContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

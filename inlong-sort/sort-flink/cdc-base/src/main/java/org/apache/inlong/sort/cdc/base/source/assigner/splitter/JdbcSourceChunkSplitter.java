@@ -17,19 +17,21 @@
 
 package org.apache.inlong.sort.cdc.base.source.assigner.splitter;
 
-import static org.apache.flink.table.api.DataTypes.FIELD;
-import static org.apache.flink.table.api.DataTypes.ROW;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.Column;
 import io.debezium.relational.TableId;
-import java.sql.SQLException;
-import java.util.Collection;
 import org.apache.flink.annotation.Experimental;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
+
+import java.sql.SQLException;
+import java.util.Collection;
+
+import static org.apache.flink.table.api.DataTypes.FIELD;
+import static org.apache.flink.table.api.DataTypes.ROW;
 
 /** The {@code ChunkSplitter} used to split table into a set of chunks for JDBC data source.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

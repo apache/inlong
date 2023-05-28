@@ -17,25 +17,6 @@
 
 package org.apache.inlong.sort.cdc.base.source;
 
-import com.ververica.cdc.connectors.base.options.StartupMode;
-import io.debezium.relational.TableId;
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.function.Supplier;
-import org.apache.flink.annotation.Experimental;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.connector.source.Boundedness;
-import org.apache.flink.api.connector.source.Source;
-import org.apache.flink.api.connector.source.SourceReaderContext;
-import org.apache.flink.api.connector.source.SplitEnumerator;
-import org.apache.flink.api.connector.source.SplitEnumeratorContext;
-import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
-import org.apache.flink.connector.base.source.reader.RecordEmitter;
-import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
-import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
-import org.apache.flink.core.io.SimpleVersionedSerializer;
-import org.apache.flink.metrics.MetricGroup;
-import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.cdc.base.config.MetricConfig;
@@ -59,6 +40,27 @@ import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
 import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceReader;
 import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceRecordEmitter;
 import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceSplitReader;
+
+import com.ververica.cdc.connectors.base.options.StartupMode;
+import io.debezium.relational.TableId;
+import org.apache.flink.annotation.Experimental;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.connector.source.Boundedness;
+import org.apache.flink.api.connector.source.Source;
+import org.apache.flink.api.connector.source.SourceReaderContext;
+import org.apache.flink.api.connector.source.SplitEnumerator;
+import org.apache.flink.api.connector.source.SplitEnumeratorContext;
+import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
+import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
+import org.apache.flink.core.io.SimpleVersionedSerializer;
+import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.util.FlinkRuntimeException;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * The basic source of Incremental Snapshot framework for datasource, it is based on FLIP-27 and

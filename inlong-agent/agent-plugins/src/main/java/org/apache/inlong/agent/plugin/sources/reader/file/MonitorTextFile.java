@@ -17,9 +17,10 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
+
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

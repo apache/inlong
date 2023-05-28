@@ -17,10 +17,9 @@
 
 package org.apache.inlong.manager.service.core.heartbeat;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
-import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
@@ -30,6 +29,8 @@ import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.heartbeat.HeartbeatManager;
+
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

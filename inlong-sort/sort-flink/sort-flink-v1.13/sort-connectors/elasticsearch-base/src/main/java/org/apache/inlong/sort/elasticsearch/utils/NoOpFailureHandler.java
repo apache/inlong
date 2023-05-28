@@ -19,6 +19,7 @@ package org.apache.inlong.sort.elasticsearch.utils;
 
 import org.apache.inlong.sort.elasticsearch.ActionRequestFailureHandler;
 import org.apache.inlong.sort.elasticsearch.RequestIndexer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

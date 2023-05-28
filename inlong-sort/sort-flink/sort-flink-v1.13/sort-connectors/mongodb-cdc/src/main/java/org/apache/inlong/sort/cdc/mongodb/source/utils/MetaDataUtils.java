@@ -17,27 +17,30 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.utils;
 
+import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumJson;
+import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumJson.Source;
+import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
+import org.apache.inlong.sort.formats.json.canal.CanalJson;
+
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.flink.table.data.GenericRowData;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.StringData;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
+
+import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.flink.table.data.GenericRowData;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.data.StringData;
-import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumJson;
-import org.apache.inlong.sort.cdc.mongodb.debezium.DebeziumJson.Source;
-import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
-import org.apache.inlong.sort.formats.json.canal.CanalJson;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.source.SourceRecord;
 
 public class MetaDataUtils {
 

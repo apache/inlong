@@ -17,12 +17,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
-import io.debezium.connector.mysql.MySqlConnection;
-import io.debezium.jdbc.JdbcConnection;
-import io.debezium.relational.RelationalTableFilters;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges.TableChange;
-import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
 import org.apache.inlong.sort.cdc.mysql.schema.MySqlSchema;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.BinlogPendingSplitsState;
@@ -33,6 +27,13 @@ import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
+
+import io.debezium.connector.mysql.MySqlConnection;
+import io.debezium.jdbc.JdbcConnection;
+import io.debezium.relational.RelationalTableFilters;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.flink.util.FlinkRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

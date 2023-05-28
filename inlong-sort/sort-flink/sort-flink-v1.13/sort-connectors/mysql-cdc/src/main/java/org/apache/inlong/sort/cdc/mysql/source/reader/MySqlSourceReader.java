@@ -17,18 +17,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.reader;
 
-import io.debezium.connector.mysql.MySqlConnection;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges;
-import java.util.Map.Entry;
-import org.apache.flink.api.connector.source.SourceEvent;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.connector.base.source.reader.RecordEmitter;
-import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
-import org.apache.flink.connector.base.source.reader.SingleThreadMultiplexSourceReaderBase;
-import org.apache.flink.connector.base.source.reader.fetcher.SingleThreadFetcherManager;
-import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
-import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
 import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
@@ -54,6 +42,18 @@ import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplitState;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
 import org.apache.inlong.sort.cdc.mysql.source.utils.TableDiscoveryUtils;
+
+import io.debezium.connector.mysql.MySqlConnection;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
+import org.apache.flink.api.connector.source.SourceEvent;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+import org.apache.flink.connector.base.source.reader.SingleThreadMultiplexSourceReaderBase;
+import org.apache.flink.connector.base.source.reader.fetcher.SingleThreadFetcherManager;
+import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
+import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +65,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 

@@ -17,9 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
@@ -31,6 +28,10 @@ import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.pulsar.PulsarHandler;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
+
+import org.apache.commons.lang.ClassUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.jdbc.converter.oracle;
 
+import org.apache.inlong.sort.jdbc.converter.AbstractJdbcRowConverter;
+
 import oracle.jdbc.internal.OracleBlob;
 import oracle.jdbc.internal.OracleClob;
 import oracle.sql.BINARY_DOUBLE;
@@ -33,7 +35,6 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.jdbc.converter.AbstractJdbcRowConverter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

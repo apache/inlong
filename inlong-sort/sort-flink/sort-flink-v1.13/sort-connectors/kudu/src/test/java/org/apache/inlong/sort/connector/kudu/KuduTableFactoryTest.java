@@ -17,14 +17,15 @@
 
 package org.apache.inlong.sort.connector.kudu;
 
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.connector.sink.DynamicTableSink;
-import org.apache.flink.table.connector.source.DynamicTableSource;
-import org.apache.flink.table.types.DataType;
 import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.apache.inlong.sort.kudu.table.KuduDynamicTableFactory;
 import org.apache.inlong.sort.kudu.table.KuduDynamicTableSink;
 import org.apache.inlong.sort.kudu.table.KuduDynamicTableSource;
+
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.table.connector.sink.DynamicTableSink;
+import org.apache.flink.table.connector.source.DynamicTableSource;
+import org.apache.flink.table.types.DataType;
 import org.apache.kudu.client.KuduException;
 import org.apache.kudu.client.SessionConfiguration.FlushMode;
 import org.junit.Test;

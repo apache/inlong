@@ -17,7 +17,10 @@
 
 package org.apache.inlong.sort.cdc.base.relational;
 
-import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isMysqlConnector;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkEvent;
+import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkKind;
 
 import io.debezium.config.CommonConnectorConfig;
 import io.debezium.connector.base.ChangeEventQueue;
@@ -35,20 +38,19 @@ import io.debezium.schema.HistorizedDatabaseSchema;
 import io.debezium.schema.SchemaChangeEvent;
 import io.debezium.schema.TopicSelector;
 import io.debezium.util.SchemaNameAdjuster;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
-import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkEvent;
-import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkKind;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isMysqlConnector;
 
 /**
  * A subclass implementation of {@link EventDispatcher}.

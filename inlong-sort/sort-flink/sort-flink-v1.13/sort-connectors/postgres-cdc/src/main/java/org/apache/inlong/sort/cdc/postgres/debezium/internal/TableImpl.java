@@ -17,18 +17,18 @@
 
 package org.apache.inlong.sort.cdc.postgres.debezium.internal;
 
+import io.debezium.annotation.PackagePrivate;
 import io.debezium.relational.Column;
 import io.debezium.relational.Table;
 import io.debezium.relational.TableEditor;
 import io.debezium.relational.TableId;
+import io.debezium.util.Strings;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import io.debezium.annotation.PackagePrivate;
-import io.debezium.util.Strings;
 
 /**
  * A implementation class of {@link Table} interface, which can be used to instantiate a {@link TableImpl} object.

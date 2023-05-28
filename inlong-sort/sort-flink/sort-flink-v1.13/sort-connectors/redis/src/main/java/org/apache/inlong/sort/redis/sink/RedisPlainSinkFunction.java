@@ -17,18 +17,20 @@
 
 package org.apache.inlong.sort.redis.sink;
 
-import static org.apache.flink.api.java.ClosureCleaner.ensureSerializable;
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import org.apache.inlong.sort.redis.common.schema.StateEncoder;
 
-import java.time.Duration;
-import java.util.List;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.apache.flink.table.data.RowData;
-import org.apache.inlong.sort.redis.common.schema.StateEncoder;
+
+import java.time.Duration;
+import java.util.List;
+
+import static org.apache.flink.api.java.ClosureCleaner.ensureSerializable;
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * The Flink Redis Producer.

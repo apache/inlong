@@ -17,6 +17,14 @@
 
 package org.apache.inlong.dataproxy.node;
 
+import org.apache.inlong.common.config.IDataProxyConfigHolder;
+import org.apache.inlong.common.metric.MetricObserver;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
+import org.apache.inlong.dataproxy.config.RemoteConfigManager;
+import org.apache.inlong.dataproxy.heartbeat.HeartbeatManager;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
+import org.apache.inlong.sdk.commons.admin.AdminTask;
+
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
@@ -45,13 +53,6 @@ import org.apache.flume.node.PollingZooKeeperConfigurationProvider;
 import org.apache.flume.node.PropertiesFileConfigurationProvider;
 import org.apache.flume.node.StaticZooKeeperConfigurationProvider;
 import org.apache.flume.util.SSLUtil;
-import org.apache.inlong.common.config.IDataProxyConfigHolder;
-import org.apache.inlong.common.metric.MetricObserver;
-import org.apache.inlong.dataproxy.config.CommonConfigHolder;
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.dataproxy.heartbeat.HeartbeatManager;
-import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
-import org.apache.inlong.sdk.commons.admin.AdminTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

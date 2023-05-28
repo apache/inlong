@@ -17,15 +17,17 @@
 
 package org.apache.inlong.sort.cdc.base.config;
 
+import org.apache.inlong.sort.cdc.base.config.SourceConfig.Factory;
+
 import com.ververica.cdc.connectors.base.options.JdbcSourceOptions;
 import com.ververica.cdc.connectors.base.options.SourceOptions;
 import com.ververica.cdc.connectors.base.options.StartupOptions;
+import org.apache.flink.annotation.Internal;
+
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import org.apache.flink.annotation.Internal;
-import org.apache.inlong.sort.cdc.base.config.SourceConfig.Factory;
 
 /** A {@link Factory} to provide {@link com.ververica.cdc.connectors.base.config.SourceConfig} of JDBC data source.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

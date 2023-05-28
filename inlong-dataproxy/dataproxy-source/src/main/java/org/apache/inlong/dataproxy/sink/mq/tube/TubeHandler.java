@@ -17,8 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.mq.tube;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Context;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
@@ -38,6 +36,9 @@ import org.apache.inlong.tubemq.client.producer.MessageProducer;
 import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
 import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.Message;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

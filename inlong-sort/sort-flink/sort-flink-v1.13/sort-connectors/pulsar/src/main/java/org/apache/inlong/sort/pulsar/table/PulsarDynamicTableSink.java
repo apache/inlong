@@ -42,6 +42,7 @@ import org.apache.pulsar.client.api.MessageRouter;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;

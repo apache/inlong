@@ -17,11 +17,13 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.reader;
 
-import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isHighWatermarkEvent;
-import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isWatermarkEvent;
-import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getHistoryRecord;
-import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isDataChangeRecord;
-import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isSchemaChangeEvent;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
+import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
+import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceRecordEmitter;
+import org.apache.inlong.sort.cdc.base.util.RecordUtils;
 
 import com.ververica.cdc.debezium.history.FlinkJsonTableChangeSerializer;
 import io.debezium.connector.AbstractSourceInfo;
@@ -31,20 +33,20 @@ import io.debezium.relational.TableId;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
-import java.util.Map;
 import org.apache.flink.api.connector.source.SourceOutput;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitState;
-import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
-import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceRecordEmitter;
-import org.apache.inlong.sort.cdc.base.util.RecordUtils;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isHighWatermarkEvent;
+import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isWatermarkEvent;
+import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.getHistoryRecord;
+import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.isDataChangeRecord;
+import static org.apache.inlong.sort.cdc.base.util.RecordUtils.isSchemaChangeEvent;
 
 /**
  * Inheriting from IncrementalSourceRecordEmitter, and override the processElement method to collect metric of Oracle.

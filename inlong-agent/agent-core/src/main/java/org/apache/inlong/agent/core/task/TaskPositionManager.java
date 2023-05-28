@@ -24,6 +24,7 @@ import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.db.JobProfileDb;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

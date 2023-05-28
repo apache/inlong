@@ -17,9 +17,6 @@
 
 package org.apache.inlong.dataproxy.source2;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.ChannelException;
-import org.apache.flume.Event;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -39,12 +36,6 @@ import org.apache.inlong.sdk.commons.protocol.EventUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -52,6 +43,15 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.ChannelException;
+import org.apache.flume.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.dataproxy.source2.InLongMessageFactory.INLONG_LENGTH_FIELD_LENGTH;
 import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_HB_ATTRLEN_SIZE;

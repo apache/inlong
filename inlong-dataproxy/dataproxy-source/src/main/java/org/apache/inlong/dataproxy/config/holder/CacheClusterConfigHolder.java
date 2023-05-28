@@ -17,22 +17,23 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import static org.apache.inlong.dataproxy.config.loader.CacheClusterConfigLoader.CACHE_CLUSTER_CONFIG_TYPE;
-import static org.apache.inlong.dataproxy.config.loader.ConfigLoader.RELOAD_INTERVAL;
+import org.apache.inlong.dataproxy.config.loader.CacheClusterConfigLoader;
+import org.apache.inlong.dataproxy.config.loader.ContextCacheClusterConfigLoader;
+import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.flume.Context;
-import org.apache.flume.conf.Configurable;
-import org.apache.inlong.dataproxy.config.loader.CacheClusterConfigLoader;
-import org.apache.inlong.dataproxy.config.loader.ContextCacheClusterConfigLoader;
-import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.dataproxy.config.loader.CacheClusterConfigLoader.CACHE_CLUSTER_CONFIG_TYPE;
+import static org.apache.inlong.dataproxy.config.loader.ConfigLoader.RELOAD_INTERVAL;
 
 /**
  * 

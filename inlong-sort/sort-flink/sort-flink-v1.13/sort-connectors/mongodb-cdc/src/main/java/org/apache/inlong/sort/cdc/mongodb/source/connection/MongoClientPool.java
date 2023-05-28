@@ -17,14 +17,16 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.connection;
 
+import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
+
 import com.mongodb.ConnectionString;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /** A MongoDB Client pools.
  * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.

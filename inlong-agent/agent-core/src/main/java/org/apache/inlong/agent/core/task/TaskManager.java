@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.core.task;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -28,6 +27,8 @@ import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.metric.MetricRegister;
+
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

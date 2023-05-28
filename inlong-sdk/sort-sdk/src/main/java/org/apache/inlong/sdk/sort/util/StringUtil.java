@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.sort.util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
-import io.debezium.relational.TableId;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.HybridPendingSplitsState;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.PendingSplitsState;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
@@ -26,6 +25,8 @@ import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSchemalessSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
+
+import io.debezium.relational.TableId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

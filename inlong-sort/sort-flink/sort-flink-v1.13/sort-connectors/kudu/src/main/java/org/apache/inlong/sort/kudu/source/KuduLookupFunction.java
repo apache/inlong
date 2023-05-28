@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.kudu.source;
 
+import org.apache.inlong.sort.kudu.common.KuduOptions;
+import org.apache.inlong.sort.kudu.common.KuduTableInfo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.shaded.guava18.com.google.common.cache.Cache;
@@ -24,8 +27,6 @@ import org.apache.flink.shaded.guava18.com.google.common.cache.CacheBuilder;
 import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.TableFunction;
 import org.apache.flink.types.Row;
-import org.apache.inlong.sort.kudu.common.KuduOptions;
-import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.apache.kudu.ColumnSchema;
 import org.apache.kudu.Schema;
 import org.apache.kudu.client.KuduClient;

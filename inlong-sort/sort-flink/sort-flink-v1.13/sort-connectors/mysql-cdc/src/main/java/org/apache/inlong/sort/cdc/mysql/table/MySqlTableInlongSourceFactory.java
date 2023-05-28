@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
+import org.apache.inlong.sort.cdc.base.debezium.table.DebeziumOptions;
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions;
+import org.apache.inlong.sort.cdc.mysql.source.config.ServerIdRange;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
@@ -25,9 +29,6 @@ import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.cdc.base.debezium.table.DebeziumOptions;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions;
-import org.apache.inlong.sort.cdc.mysql.source.config.ServerIdRange;
 
 import java.time.Duration;
 import java.time.ZoneId;

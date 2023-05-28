@@ -17,12 +17,14 @@
 
 package org.apache.inlong.sort.cdc.base.relational.connection;
 
-import com.zaxxer.hikari.HikariDataSource;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
+
+import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /** A Jdbc Connection pools implementation.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

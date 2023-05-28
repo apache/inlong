@@ -17,25 +17,15 @@
 
 package org.apache.inlong.sort.redis.table;
 
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.DATA_TYPE;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_ASYNC;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_MAX_ROWS;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_TTL;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_MAX_RETRIES;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.SCHEMA_MAPPING_MODE;
-import static org.apache.inlong.sort.redis.common.config.SchemaMappingMode.STATIC_KV_PAIR;
-import static org.apache.inlong.sort.redis.common.config.SchemaMappingMode.STATIC_PREFIX_MATCH;
+import org.apache.inlong.sort.redis.common.config.RedisDataType;
+import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
+import org.apache.inlong.sort.redis.common.config.RedisOptions;
+import org.apache.inlong.sort.redis.common.config.SchemaMappingMode;
+import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
+import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
+import org.apache.inlong.sort.redis.sink.RedisDynamicTableSink;
+import org.apache.inlong.sort.redis.source.RedisDynamicTableSource;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
@@ -51,14 +41,26 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
-import org.apache.inlong.sort.redis.common.config.RedisDataType;
-import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
-import org.apache.inlong.sort.redis.common.config.RedisOptions;
-import org.apache.inlong.sort.redis.common.config.SchemaMappingMode;
-import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
-import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
-import org.apache.inlong.sort.redis.sink.RedisDynamicTableSink;
-import org.apache.inlong.sort.redis.source.RedisDynamicTableSource;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.DATA_TYPE;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_ASYNC;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_MAX_ROWS;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_TTL;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_MAX_RETRIES;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.SCHEMA_MAPPING_MODE;
+import static org.apache.inlong.sort.redis.common.config.SchemaMappingMode.STATIC_KV_PAIR;
+import static org.apache.inlong.sort.redis.common.config.SchemaMappingMode.STATIC_PREFIX_MATCH;
 
 /**
  * Redis dynamic table factory

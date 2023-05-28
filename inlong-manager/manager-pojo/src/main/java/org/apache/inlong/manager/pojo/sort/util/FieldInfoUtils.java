@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import com.google.common.collect.Lists;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
@@ -53,7 +50,9 @@ import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.List;

@@ -21,6 +21,7 @@ import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
 
 import java.io.Serializable;
+
 import static org.apache.inlong.sort.base.Constants.DIRTY_IDENTIFIER;
 import static org.apache.inlong.sort.base.Constants.DIRTY_IGNORE;
 import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_CONNECTOR;

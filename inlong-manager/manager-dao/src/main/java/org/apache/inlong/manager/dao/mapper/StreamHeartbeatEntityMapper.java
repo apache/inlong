@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
 import org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
+
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.filter;
 
 import org.apache.inlong.manager.web.WebBaseTest;
 import org.apache.inlong.manager.web.utils.InlongRequestWrapper;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
@@ -32,6 +33,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 

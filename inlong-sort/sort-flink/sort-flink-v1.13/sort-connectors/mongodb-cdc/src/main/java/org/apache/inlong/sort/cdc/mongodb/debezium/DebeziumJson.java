@@ -18,10 +18,11 @@
 package org.apache.inlong.sort.cdc.mongodb.debezium;
 
 import io.debezium.relational.history.TableChanges;
-import java.util.List;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder

@@ -17,12 +17,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.enumerator;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.api.connector.source.SourceEvent;
-import org.apache.flink.api.connector.source.SplitEnumerator;
-import org.apache.flink.api.connector.source.SplitEnumeratorContext;
-import org.apache.flink.shaded.guava18.com.google.common.collect.Lists;
-import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.MySqlHybridSplitAssigner;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.MySqlSplitAssigner;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.PendingSplitsState;
@@ -40,10 +34,18 @@ import org.apache.inlong.sort.cdc.mysql.source.events.WakeupReaderEvent;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
+
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.connector.source.SourceEvent;
+import org.apache.flink.api.connector.source.SplitEnumerator;
+import org.apache.flink.api.connector.source.SplitEnumeratorContext;
+import org.apache.flink.shaded.guava18.com.google.common.collect.Lists;
+import org.apache.flink.util.FlinkRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

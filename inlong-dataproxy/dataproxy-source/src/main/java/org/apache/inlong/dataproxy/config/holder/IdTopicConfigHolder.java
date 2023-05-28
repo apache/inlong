@@ -17,12 +17,13 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.flume.Context;
-import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.config.loader.ContextIdTopicConfigLoader;
 import org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+
+import org.apache.commons.lang.ClassUtils;
+import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

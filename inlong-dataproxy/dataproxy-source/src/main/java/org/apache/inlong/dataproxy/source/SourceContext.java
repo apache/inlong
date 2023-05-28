@@ -17,16 +17,17 @@
 
 package org.apache.inlong.dataproxy.source;
 
-import com.google.common.base.Preconditions;
-
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Context;
-import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
+
+import com.google.common.base.Preconditions;
+import io.netty.channel.group.ChannelGroup;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Context;
+import org.apache.flume.source.AbstractSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +35,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import io.netty.channel.group.ChannelGroup;
 
 /**
  * 

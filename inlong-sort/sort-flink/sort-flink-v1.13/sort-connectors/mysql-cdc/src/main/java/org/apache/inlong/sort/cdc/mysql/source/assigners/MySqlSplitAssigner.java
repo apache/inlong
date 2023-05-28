@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
-import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.PendingSplitsState;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
+
+import org.apache.flink.api.common.state.CheckpointListener;
 
 import java.util.Collection;
 import java.util.List;

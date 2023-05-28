@@ -17,19 +17,19 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.common.msg.MsgType;
+import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 
 /**
  * SimpleBatchPackProfileV0

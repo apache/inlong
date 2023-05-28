@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.elasticsearch6.utils;
 
-import org.apache.flink.util.ExceptionUtils;
 import org.apache.inlong.sort.elasticsearch.ActionRequestFailureHandler;
 import org.apache.inlong.sort.elasticsearch.RequestIndexer;
+
+import org.apache.flink.util.ExceptionUtils;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.common.util.concurrent.EsRejectedExecutionException;
 import org.slf4j.Logger;

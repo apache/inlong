@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.jdbc.table;
 
+import org.apache.inlong.sort.jdbc.internal.JdbcMultiBatchingComm;
+
 import org.apache.flink.connector.jdbc.dialect.JdbcDialect;
 import org.apache.flink.connector.jdbc.internal.connection.SimpleJdbcConnectionProvider;
 import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
@@ -27,7 +29,6 @@ import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.logical.VarBinaryType;
-import org.apache.inlong.sort.jdbc.internal.JdbcMultiBatchingComm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

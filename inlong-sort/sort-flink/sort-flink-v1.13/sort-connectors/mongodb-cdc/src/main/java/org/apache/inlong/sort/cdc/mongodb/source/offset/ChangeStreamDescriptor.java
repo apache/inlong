@@ -18,10 +18,12 @@
 package org.apache.inlong.sort.cdc.mongodb.source.offset;
 
 import io.debezium.relational.TableId;
+
+import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 
 /** A structure describes a filter of change stream targets.
  * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.

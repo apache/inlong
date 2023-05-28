@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
+import org.apache.inlong.manager.pojo.sort.standalone.SortSinkInfo;
+
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.mapping.ResultSetType;
-import org.apache.inlong.manager.dao.entity.DataNodeEntity;
-import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
-import org.apache.inlong.manager.pojo.sort.standalone.SortSinkInfo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

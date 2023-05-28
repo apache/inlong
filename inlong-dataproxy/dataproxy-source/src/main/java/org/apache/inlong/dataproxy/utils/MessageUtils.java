@@ -17,26 +17,28 @@
 
 package org.apache.inlong.dataproxy.utils;
 
-import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
+import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.common.msg.MsgType;
+import org.apache.inlong.common.util.NetworkUtils;
+import org.apache.inlong.dataproxy.base.SinkRspEvent;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flume.Event;
-import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.common.monitor.LogCounter;
-import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.common.util.NetworkUtils;
-import org.apache.inlong.dataproxy.base.SinkRspEvent;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.common.msg.MsgType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
 
 public class MessageUtils {
 

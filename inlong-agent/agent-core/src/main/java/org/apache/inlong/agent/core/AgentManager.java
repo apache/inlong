@@ -17,16 +17,6 @@
 
 package org.apache.inlong.agent.core;
 
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CONF_PARENT;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_CONF_PARENT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
-
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -43,8 +33,19 @@ import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.JobProfileDb;
 import org.apache.inlong.agent.db.LocalProfile;
 import org.apache.inlong.agent.db.TriggerProfileDb;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CONF_PARENT;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_CONF_PARENT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
 
 /**
  * Agent Manager, the bridge for job manager, task manager, db e.t.c it manages agent level operations and communicates

@@ -17,10 +17,7 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
-import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getCanalData;
-import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getDebeziumData;
-import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getMetaData;
-import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getOpType;
+import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
 
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
@@ -36,13 +33,18 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
-import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
 import javax.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getCanalData;
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getDebeziumData;
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getMetaData;
+import static org.apache.inlong.sort.cdc.mysql.utils.MetaDataUtils.getOpType;
 
 /**
  * Defines the supported metadata columns for {@link MySqlTableSource}.

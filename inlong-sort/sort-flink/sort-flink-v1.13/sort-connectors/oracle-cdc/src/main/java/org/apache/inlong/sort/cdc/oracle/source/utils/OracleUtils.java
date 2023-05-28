@@ -17,9 +17,7 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.utils;
 
-import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.rowToArray;
-import static org.apache.flink.table.api.DataTypes.FIELD;
-import static org.apache.flink.table.api.DataTypes.ROW;
+import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
 
 import com.ververica.cdc.connectors.oracle.source.utils.OracleConnectionUtils;
 import com.ververica.cdc.connectors.oracle.source.utils.OracleTypeUtils;
@@ -36,6 +34,10 @@ import io.debezium.relational.Table;
 import io.debezium.relational.TableId;
 import io.debezium.schema.TopicSelector;
 import io.debezium.util.SchemaNameAdjuster;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.kafka.connect.source.SourceRecord;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -45,10 +47,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
-import org.apache.kafka.connect.source.SourceRecord;
+
+import static com.ververica.cdc.connectors.base.utils.SourceRecordUtils.rowToArray;
+import static org.apache.flink.table.api.DataTypes.FIELD;
+import static org.apache.flink.table.api.DataTypes.ROW;
 
 /** Utils to prepare Oracle SQL statement.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

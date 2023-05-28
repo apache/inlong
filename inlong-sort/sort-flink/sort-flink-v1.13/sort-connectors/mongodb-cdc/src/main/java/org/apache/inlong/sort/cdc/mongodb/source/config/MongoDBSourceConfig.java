@@ -17,18 +17,21 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.config;
 
-import static com.ververica.cdc.connectors.mongodb.source.utils.MongoUtils.buildConnectionString;
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
-import com.ververica.cdc.connectors.base.options.StartupOptions;
-import com.ververica.cdc.connectors.mongodb.source.MongoDBSource;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import javax.annotation.Nullable;
 import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.cdc.base.config.MetricConfig;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
+
+import com.ververica.cdc.connectors.base.options.StartupOptions;
+import com.ververica.cdc.connectors.mongodb.source.MongoDBSource;
+
+import javax.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+import static com.ververica.cdc.connectors.mongodb.source.utils.MongoUtils.buildConnectionString;
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /** A MongoDB Source configuration which is used by {@link MongoDBSource}.
  * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.

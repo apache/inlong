@@ -17,19 +17,20 @@
 
 package org.apache.inlong.manager.pojo.group;
 
-import com.google.common.collect.Maps;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import java.util.Map;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.enums.SortStatus;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
+import com.google.common.collect.Maps;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * Inlong group status info

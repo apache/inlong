@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -31,6 +30,8 @@ import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQDTO;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQInfo;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQRequest;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQTopicInfo;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

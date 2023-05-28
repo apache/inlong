@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.configuration.description.Description;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
 
 import java.time.Duration;
 import java.util.List;

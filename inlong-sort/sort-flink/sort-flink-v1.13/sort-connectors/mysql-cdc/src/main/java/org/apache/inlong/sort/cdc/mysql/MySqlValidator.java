@@ -17,14 +17,15 @@
 
 package org.apache.inlong.sort.cdc.mysql;
 
+import org.apache.inlong.sort.cdc.debezium.Validator;
+import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+
 import io.debezium.config.Configuration;
 import io.debezium.jdbc.JdbcConnection;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.debezium.Validator;
-import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

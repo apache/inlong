@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.service.tenant;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
+
+import com.github.pagehelper.PageInfo;
 
 /**
  * Inlong tenant service

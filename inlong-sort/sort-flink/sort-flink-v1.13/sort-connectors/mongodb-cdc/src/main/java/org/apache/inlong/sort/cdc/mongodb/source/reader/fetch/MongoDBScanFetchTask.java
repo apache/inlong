@@ -17,6 +17,33 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.reader.fetch;
 
+import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
+import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkEvent;
+import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkKind;
+import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
+import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
+import org.apache.inlong.sort.cdc.mongodb.source.dialect.MongoDBDialect;
+import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffset;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.changestream.OperationType;
+import io.debezium.connector.base.ChangeEventQueue;
+import io.debezium.pipeline.DataChangeEvent;
+import io.debezium.relational.TableId;
+import org.apache.kafka.connect.source.SourceRecord;
+import org.bson.BsonDocument;
+import org.bson.BsonInt64;
+import org.bson.BsonString;
+import org.bson.RawBsonDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.DOCUMENT_KEY_FIELD;
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.FULL_DOCUMENT_FIELD;
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.ID_FIELD;
@@ -34,31 +61,6 @@ import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.createWatermarkPartitionMap;
 import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.clientFor;
 import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.collectionFor;
-
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.model.changestream.OperationType;
-import io.debezium.connector.base.ChangeEventQueue;
-import io.debezium.pipeline.DataChangeEvent;
-import io.debezium.relational.TableId;
-import java.util.ArrayList;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
-import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
-import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkEvent;
-import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkKind;
-import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
-import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
-import org.apache.inlong.sort.cdc.mongodb.source.dialect.MongoDBDialect;
-import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffset;
-import org.apache.kafka.connect.source.SourceRecord;
-import org.bson.BsonDocument;
-import org.bson.BsonInt64;
-import org.bson.BsonString;
-import org.bson.RawBsonDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** The task to work for fetching data of MongoDB collection snapshot split .
  * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.

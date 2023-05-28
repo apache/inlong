@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.meta.offset;
 
-import java.util.Map;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
+
+import java.util.Map;
 
 /** An offset factory class create {@link RedoLogOffset} instance.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

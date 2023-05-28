@@ -17,9 +17,10 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import com.google.common.base.Splitter;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
+
+import com.google.common.base.Splitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.web.auth.web;
 
-import com.google.common.collect.Sets;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
-import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.user.UserService;
+
+import com.google.common.collect.Sets;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;

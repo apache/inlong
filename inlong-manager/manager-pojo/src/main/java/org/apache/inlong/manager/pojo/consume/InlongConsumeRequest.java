@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.consume;
 
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,7 +26,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

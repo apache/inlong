@@ -17,13 +17,15 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.assigners.splitters;
 
+import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
+
 import io.debezium.relational.TableId;
-import java.util.Collection;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 import org.bson.BsonDocument;
+
+import java.util.Collection;
 
 /**
  * The {@link MongoDBChunkSplitter} used to split collection into a set of chunks for MongoDB data

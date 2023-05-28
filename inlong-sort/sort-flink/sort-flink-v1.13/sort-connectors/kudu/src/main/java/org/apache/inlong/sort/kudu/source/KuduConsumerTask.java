@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.kudu.source;
 
-import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.kudu.sink.KuduWriter;
+
+import org.apache.flink.table.data.RowData;
 import org.apache.kudu.client.KuduException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

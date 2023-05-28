@@ -17,29 +17,6 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.dialect;
 
-import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.ID_FIELD;
-import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.collectionNames;
-import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.collectionsFilter;
-import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.databaseFilter;
-import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.databaseNames;
-import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.clientFor;
-import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.getChangeStreamDescriptor;
-import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.getCurrentClusterTime;
-import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.getLatestResumeToken;
-
-import com.mongodb.client.MongoClient;
-import com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.CollectionDiscoveryInfo;
-import io.debezium.relational.Column;
-import io.debezium.relational.Table;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges;
-import io.debezium.relational.history.TableChanges.TableChange;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import org.apache.flink.annotation.Experimental;
 import org.apache.inlong.sort.cdc.base.dialect.DataSourceDialect;
 import org.apache.inlong.sort.cdc.base.source.assigner.splitter.ChunkSplitter;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
@@ -51,9 +28,34 @@ import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffset;
 import org.apache.inlong.sort.cdc.mongodb.source.reader.fetch.MongoDBFetchTaskContext;
 import org.apache.inlong.sort.cdc.mongodb.source.reader.fetch.MongoDBScanFetchTask;
 import org.apache.inlong.sort.cdc.mongodb.source.reader.fetch.MongoDBStreamFetchTask;
+
+import com.mongodb.client.MongoClient;
+import com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.CollectionDiscoveryInfo;
+import io.debezium.relational.Column;
+import io.debezium.relational.Table;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
+import io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.flink.annotation.Experimental;
 import org.bson.BsonDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.ID_FIELD;
+import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.collectionNames;
+import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.collectionsFilter;
+import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.databaseFilter;
+import static com.ververica.cdc.connectors.mongodb.source.utils.CollectionDiscoveryUtils.databaseNames;
+import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.clientFor;
+import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.getChangeStreamDescriptor;
+import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.getCurrentClusterTime;
+import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.getLatestResumeToken;
 
 /** The {@link DataSourceDialect} implementation for MongoDB datasource.
  * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.
