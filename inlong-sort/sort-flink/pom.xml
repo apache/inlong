@@ -30,6 +30,13 @@
     <packaging>pom</packaging>
     <name>Apache InLong - Sort Flink</name>
 
+    <modules>
+        <module>cdc-base</module>
+        <module>base</module>
+        <module>sort-flink-v1.13</module>
+        <module>sort-flink-v1.15</module>
+    </modules>
+
     <profiles>
         <profile>
             <id>v1.13</id>

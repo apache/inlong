@@ -27,7 +27,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>sort-connectors</artifactId>
+    <artifactId>sort-connectors-v1.13</artifactId>
 
     <packaging>pom</packaging>
     <name>Apache InLong - Sort Connectors v1.13</name>
