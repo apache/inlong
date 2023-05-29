@@ -78,6 +78,9 @@ public class HadoopPathBasedBulkFormatBuilder<IN, BucketID, T extends HadoopPath
     private final PartitionPolicy partitionPolicy;
     private final HiveShim hiveShim;
     private final String hiveVersion;
+    private final String inputFormat;
+    private final String outputFormat;
+    private final String serializationLib;
 
     public HadoopPathBasedBulkFormatBuilder(
             org.apache.hadoop.fs.Path basePath,
@@ -90,7 +93,10 @@ public class HadoopPathBasedBulkFormatBuilder<IN, BucketID, T extends HadoopPath
             PartitionPolicy partitionPolicy,
             HiveShim hiveShim,
             String hiveVersion,
-            boolean sinkMultipleEnable) {
+            boolean sinkMultipleEnable,
+            String inputFormat,
+            String outputFormat,
+            String serializationLib) {
         this(
                 basePath,
                 writerFactory,
@@ -105,7 +111,10 @@ public class HadoopPathBasedBulkFormatBuilder<IN, BucketID, T extends HadoopPath
                 schemaUpdatePolicy,
                 partitionPolicy,
                 hiveShim,
-                hiveVersion);
+                hiveVersion,
+                inputFormat,
+                outputFormat,
+                serializationLib);
     }
 
     public HadoopPathBasedBulkFormatBuilder(
@@ -122,7 +131,10 @@ public class HadoopPathBasedBulkFormatBuilder<IN, BucketID, T extends HadoopPath
             SchemaUpdateExceptionPolicy schemaUpdatePolicy,
             PartitionPolicy partitionPolicy,
             HiveShim hiveShim,
-            String hiveVersion) {
+            String hiveVersion,
+            String inputFormat,
+            String outputFormat,
+            String serializationLib) {
 
         this.basePath = new Path(Preconditions.checkNotNull(basePath).toString());
         this.writerFactory = writerFactory;
@@ -138,6 +150,9 @@ public class HadoopPathBasedBulkFormatBuilder<IN, BucketID, T extends HadoopPath
         this.partitionPolicy = partitionPolicy;
         this.hiveShim = hiveShim;
         this.hiveVersion = hiveVersion;
+        this.inputFormat = inputFormat;
+        this.outputFormat = outputFormat;
+        this.serializationLib = serializationLib;
     }
 
     public T withBucketAssigner(BucketAssigner<IN, BucketID> assigner) {
@@ -177,7 +192,10 @@ public class HadoopPathBasedBulkFormatBuilder<IN, BucketID, T extends HadoopPath
                 schemaUpdatePolicy,
                 partitionPolicy,
                 hiveShim,
-                hiveVersion);
+                hiveVersion,
+                inputFormat,
+                outputFormat,
+                serializationLib);
     }
 
     @Override

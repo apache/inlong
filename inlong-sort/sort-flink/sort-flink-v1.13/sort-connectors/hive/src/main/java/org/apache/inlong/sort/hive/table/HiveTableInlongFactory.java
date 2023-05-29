@@ -66,6 +66,9 @@ import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
 import static org.apache.inlong.sort.base.Constants.SINK_PARTITION_POLICY;
 import static org.apache.inlong.sort.base.Constants.SOURCE_PARTITION_FIELD_NAME;
 import static org.apache.inlong.sort.hive.HiveOptions.HIVE_DATABASE;
+import static org.apache.inlong.sort.hive.HiveOptions.HIVE_STORAGE_INPUT_FORMAT;
+import static org.apache.inlong.sort.hive.HiveOptions.HIVE_STORAGE_OUTPUT_FORMAT;
+import static org.apache.inlong.sort.hive.HiveOptions.HIVE_STORAGE_SERIALIZATION_LIB;
 
 /**
  * DynamicTableSourceFactory for hive table source
@@ -126,6 +129,9 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
             String timestampPattern = helper.getOptions().getOptional(PARTITION_TIME_EXTRACTOR_TIMESTAMP_PATTERN)
                     .orElse("yyyy-MM-dd");
             boolean sinkMultipleEnable = helper.getOptions().get(SINK_MULTIPLE_ENABLE);
+            String inputFormat = helper.getOptions().get(HIVE_STORAGE_INPUT_FORMAT);
+            String outputFormat = helper.getOptions().get(HIVE_STORAGE_OUTPUT_FORMAT);
+            String serializationLib = helper.getOptions().get(HIVE_STORAGE_SERIALIZATION_LIB);
             return new HiveTableSink(
                     context.getConfiguration(),
                     new JobConf(hiveConf),
@@ -140,7 +146,10 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
                     partitionPolicy,
                     partitionField,
                     timestampPattern,
-                    sinkMultipleEnable);
+                    sinkMultipleEnable,
+                    inputFormat,
+                    outputFormat,
+                    serializationLib);
         } else {
             return FactoryUtil.createTableSink(
                     null, // we already in the factory of catalog

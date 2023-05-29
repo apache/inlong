@@ -193,9 +193,13 @@ public class HiveTableUtil {
      * @param schema flink field type
      * @param partitionPolicy policy of partitioning table
      * @param hiveVersion hive version
+     * @param inputFormat the input format of storage descriptor
+     * @param outputFormat the output format of storage descriptor
+     * @param serializationLib the serialization library of storage descriptor
      */
     public static void createTable(String databaseName, String tableName, RowType schema,
-            PartitionPolicy partitionPolicy, String hiveVersion) {
+            PartitionPolicy partitionPolicy, String hiveVersion, String inputFormat, String outputFormat,
+            String serializationLib) {
         HiveConf hiveConf = HiveTableInlongFactory.getHiveConf();
         try (HiveMetastoreClientWrapper client = HiveMetastoreClientFactory.create(hiveConf, hiveVersion)) {
 
@@ -233,10 +237,10 @@ public class HiveTableUtil {
             StorageDescriptor sd = new StorageDescriptor();
             table.setSd(sd);
             sd.setCols(fieldSchemaList);
-            sd.setInputFormat("org.apache.hadoop.mapred.TextInputFormat");
-            sd.setOutputFormat("org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat");
+            sd.setInputFormat(inputFormat);
+            sd.setOutputFormat(outputFormat);
             sd.setSerdeInfo(new SerDeInfo());
-            sd.getSerdeInfo().setSerializationLib("org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe");
+            sd.getSerdeInfo().setSerializationLib(serializationLib);
             client.createTable(table);
             LOG.info("create table {}.{}", databaseName, tableName);
         } catch (TException e) {

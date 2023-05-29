@@ -109,6 +109,12 @@ public class HadoopPathBasedPartFileWriter<IN, BucketID> extends AbstractPartFil
 
     private final PartitionPolicy partitionPolicy;
 
+    private final String inputFormat;
+
+    private final String outputFormat;
+
+    private final String serializationLib;
+
     private transient JsonDynamicSchemaFormat jsonFormat;
 
     @Nullable
@@ -134,7 +140,10 @@ public class HadoopPathBasedPartFileWriter<IN, BucketID> extends AbstractPartFil
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
             SchemaUpdateExceptionPolicy schemaUpdatePolicy,
-            PartitionPolicy partitionPolicy) {
+            PartitionPolicy partitionPolicy,
+            String inputFormat,
+            String outputFormat,
+            String serializationLib) {
         super(bucketID, createTime);
 
         this.bucketID = bucketID;
@@ -153,6 +162,9 @@ public class HadoopPathBasedPartFileWriter<IN, BucketID> extends AbstractPartFil
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
         this.partitionPolicy = partitionPolicy;
+        this.inputFormat = inputFormat;
+        this.outputFormat = outputFormat;
+        this.serializationLib = serializationLib;
     }
 
     @Override
@@ -364,7 +376,7 @@ public class HadoopPathBasedPartFileWriter<IN, BucketID> extends AbstractPartFil
         if (writerFactory == null) {
             // hive table may not exist, auto create
             HiveTableUtil.createTable(identifier.getDatabaseName(), identifier.getObjectName(), schema, partitionPolicy,
-                    hiveVersion);
+                    hiveVersion, inputFormat, outputFormat, serializationLib);
             writerFactory = HiveTableUtil.getWriterFactory(hiveShim, hiveVersion, identifier);
         }
         return writerFactory;
@@ -696,6 +708,12 @@ public class HadoopPathBasedPartFileWriter<IN, BucketID> extends AbstractPartFil
 
         private final PartitionPolicy partitionPolicy;
 
+        private final String inputFormat;
+
+        private final String outputFormat;
+
+        private final String serializationLib;
+
         private final HiveShim hiveShim;
         private final String hiveVersion;
 
@@ -706,7 +724,10 @@ public class HadoopPathBasedPartFileWriter<IN, BucketID> extends AbstractPartFil
                 SchemaUpdateExceptionPolicy schemaUpdatePolicy,
                 PartitionPolicy partitionPolicy,
                 HiveShim hiveShim,
-                String hiveVersion) {
+                String hiveVersion,
+                String inputFormat,
+                String outputFormat,
+                String serializationLib) {
             this.configuration = configuration;
             this.bulkWriterFactory = bulkWriterFactory;
             this.hiveWriterFactory = ((HiveBulkWriterFactory) this.bulkWriterFactory).getFactory();
@@ -718,6 +739,9 @@ public class HadoopPathBasedPartFileWriter<IN, BucketID> extends AbstractPartFil
             this.partitionPolicy = partitionPolicy;
             this.hiveShim = hiveShim;
             this.hiveVersion = hiveVersion;
+            this.inputFormat = inputFormat;
+            this.outputFormat = outputFormat;
+            this.serializationLib = serializationLib;
         }
 
         @Override
@@ -751,7 +775,10 @@ public class HadoopPathBasedPartFileWriter<IN, BucketID> extends AbstractPartFil
                     dirtyOptions,
                     dirtySink,
                     schemaUpdatePolicy,
-                    partitionPolicy);
+                    partitionPolicy,
+                    inputFormat,
+                    outputFormat,
+                    serializationLib);
         }
 
         @Override

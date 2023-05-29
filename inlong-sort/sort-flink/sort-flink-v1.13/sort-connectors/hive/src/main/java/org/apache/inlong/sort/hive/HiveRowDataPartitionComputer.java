@@ -72,6 +72,9 @@ public class HiveRowDataPartitionComputer extends RowDataPartitionComputer {
     private final HiveShim hiveShim;
 
     private final String hiveVersion;
+    private final String inputFormat;
+    private final String outputFormat;
+    private final String serializationLib;
 
     private final PartitionPolicy partitionPolicy;
 
@@ -89,7 +92,10 @@ public class HiveRowDataPartitionComputer extends RowDataPartitionComputer {
             String[] partitionColumns,
             PartitionPolicy partitionPolicy,
             String partitionField,
-            String timePattern) {
+            String timePattern,
+            String inputFormat,
+            String outputFormat,
+            String serializationLib) {
         super(defaultPartValue, columnNames, columnTypes, partitionColumns);
         this.hiveShim = hiveShim;
         this.hiveVersion = hiveVersion;
@@ -113,6 +119,9 @@ public class HiveRowDataPartitionComputer extends RowDataPartitionComputer {
         this.partitionPolicy = partitionPolicy;
         this.partitionField = partitionField;
         this.timePattern = timePattern;
+        this.inputFormat = inputFormat;
+        this.outputFormat = outputFormat;
+        this.serializationLib = serializationLib;
     }
 
     @Override
@@ -147,7 +156,8 @@ public class HiveRowDataPartitionComputer extends RowDataPartitionComputer {
 
                 HiveWriterFactory hiveWriterFactory = HiveTableUtil.getWriterFactory(hiveShim, hiveVersion, identifier);
                 if (hiveWriterFactory == null) {
-                    HiveTableUtil.createTable(databaseName, tableName, schema, partitionPolicy, hiveVersion);
+                    HiveTableUtil.createTable(databaseName, tableName, schema, partitionPolicy, hiveVersion,
+                            inputFormat, outputFormat, serializationLib);
                     hiveWriterFactory = HiveTableUtil.getWriterFactory(hiveShim, hiveVersion, identifier);
                 }
 

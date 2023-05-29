@@ -79,4 +79,22 @@ public class HiveOptions {
                     .defaultValue(10)
                     .withDescription("The interval milliseconds to scan if source table schema changed.");
 
+    public static final ConfigOption<String> HIVE_STORAGE_INPUT_FORMAT =
+            ConfigOptions.key("hive.storage.input.format")
+                    .stringType()
+                    .defaultValue("org.apache.hadoop.mapred.TextInputFormat")
+                    .withDescription("The input format of storage descriptor");
+
+    public static final ConfigOption<String> HIVE_STORAGE_OUTPUT_FORMAT =
+            ConfigOptions.key("hive.storage.output.format")
+                    .stringType()
+                    .defaultValue("org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat")
+                    .withDescription("The output format of storage descriptor");
+
+    public static final ConfigOption<String> HIVE_STORAGE_SERIALIZATION_LIB =
+            ConfigOptions.key("hive.storage.serialization.lib")
+                    .stringType()
+                    .defaultValue("org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe")
+                    .withDescription("The serialization library of storage descriptor");
+
 }
