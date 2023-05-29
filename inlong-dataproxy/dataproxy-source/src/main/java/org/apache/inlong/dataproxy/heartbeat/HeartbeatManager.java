@@ -17,6 +17,18 @@
 
 package org.apache.inlong.dataproxy.heartbeat;
 
+import org.apache.inlong.common.enums.ComponentTypeEnum;
+import org.apache.inlong.common.enums.NodeSrvStatus;
+import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
+import org.apache.inlong.common.heartbeat.GroupHeartbeat;
+import org.apache.inlong.common.heartbeat.HeartbeatMsg;
+import org.apache.inlong.common.heartbeat.StreamHeartbeat;
+import org.apache.inlong.dataproxy.config.AuthUtils;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -29,17 +41,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.common.enums.ComponentTypeEnum;
-import org.apache.inlong.common.enums.NodeSrvStatus;
-import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
-import org.apache.inlong.common.heartbeat.GroupHeartbeat;
-import org.apache.inlong.common.heartbeat.HeartbeatMsg;
-import org.apache.inlong.common.heartbeat.StreamHeartbeat;
-import org.apache.inlong.dataproxy.config.AuthUtils;
-import org.apache.inlong.dataproxy.config.CommonConfigHolder;
-import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
 
 import java.util.ArrayList;
 import java.util.List;

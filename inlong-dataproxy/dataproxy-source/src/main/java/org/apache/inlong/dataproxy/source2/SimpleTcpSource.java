@@ -17,26 +17,25 @@
 
 package org.apache.inlong.dataproxy.source2;
 
-import com.google.common.base.Preconditions;
-
-import org.apache.flume.Context;
-import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.ConfStringUtils;
 import org.apache.inlong.dataproxy.utils.EventLoopUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.util.Iterator;
-
+import com.google.common.base.Preconditions;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.Iterator;
 
 /**
  * Simple tcp source

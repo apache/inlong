@@ -17,22 +17,24 @@
 
 package org.apache.inlong.sort.cdc.base.source.metrics;
 
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
-
-import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.flink.metrics.Gauge;
-import org.apache.flink.metrics.MetricGroup;
 import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
 import org.apache.inlong.sort.cdc.base.source.meta.split.MetricSplit.TableMetric;
+
+import com.google.common.collect.ImmutableMap;
+import org.apache.flink.metrics.Gauge;
+import org.apache.flink.metrics.MetricGroup;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 
 /**
  * A collection class for handling metrics in {@link SourceReaderMetrics}.

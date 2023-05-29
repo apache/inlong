@@ -20,8 +20,9 @@ package org.apache.inlong.sort.cdc.base.source.meta.events;
 import com.ververica.cdc.connectors.base.source.enumerator.IncrementalSourceEnumerator;
 import com.ververica.cdc.connectors.base.source.meta.split.FinishedSnapshotSplitInfo;
 import com.ververica.cdc.connectors.base.source.reader.IncrementalSourceReader;
-import java.util.List;
 import org.apache.flink.api.connector.source.SourceEvent;
+
+import java.util.List;
 
 /**
  * The {@link SourceEvent} that {@link IncrementalSourceEnumerator} sends to {@link

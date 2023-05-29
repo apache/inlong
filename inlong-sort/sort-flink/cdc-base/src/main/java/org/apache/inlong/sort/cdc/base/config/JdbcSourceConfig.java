@@ -21,6 +21,7 @@ import com.ververica.cdc.connectors.base.options.StartupOptions;
 import com.ververica.cdc.connectors.base.source.IncrementalSource;
 import io.debezium.config.Configuration;
 import io.debezium.relational.RelationalDatabaseConnectorConfig;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.Properties;

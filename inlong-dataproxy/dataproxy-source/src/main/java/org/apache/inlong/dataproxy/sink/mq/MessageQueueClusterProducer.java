@@ -17,9 +17,10 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
+import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
-import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

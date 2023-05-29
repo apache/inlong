@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sort.base.metric;
 
+import org.apache.inlong.audit.AuditOperator;
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
-import org.apache.inlong.audit.AuditOperator;
-import org.apache.inlong.sort.base.Constants;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 
 import java.util.Map;
 

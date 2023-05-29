@@ -17,17 +17,19 @@
 
 package org.apache.inlong.sort.elasticsearch6;
 
-import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.elasticsearch.table.MultipleElasticsearchSinkFunctionBase;
 import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
 import org.apache.inlong.sort.elasticsearch.table.TableSchemaFactory;
+
+import org.apache.flink.api.common.serialization.SerializationSchema;
+import org.apache.flink.table.data.RowData;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.common.xcontent.XContentType;
 
 import javax.annotation.Nullable;
+
 import java.util.function.Function;
 
 /**

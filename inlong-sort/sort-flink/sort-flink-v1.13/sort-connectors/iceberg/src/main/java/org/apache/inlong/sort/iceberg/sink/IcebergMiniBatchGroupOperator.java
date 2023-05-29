@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
+import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer;
+
 import org.apache.flink.streaming.api.operators.BoundedOneInput;
 import org.apache.flink.streaming.api.operators.OneInputStreamOperator;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.runtime.operators.TableStreamOperator;
 import org.apache.flink.table.runtime.util.StreamRecordCollector;
-import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

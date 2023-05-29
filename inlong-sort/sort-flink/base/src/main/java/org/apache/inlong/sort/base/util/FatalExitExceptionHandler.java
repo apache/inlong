@@ -19,6 +19,7 @@ package org.apache.inlong.sort.base.util;
 
 import org.apache.inlong.sort.base.security.FlinkSecurityManager;
 import org.apache.inlong.sort.base.util.concurrent.ThreadUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

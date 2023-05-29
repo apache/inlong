@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import org.apache.inlong.tubemq.corebase.Message;
+
 import com.google.common.base.Objects;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.tubemq.corebase.Message;
 
 import java.io.IOException;
 import java.io.Serializable;

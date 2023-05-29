@@ -17,14 +17,15 @@
 
 package org.apache.inlong.sort.cdc.oracle;
 
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumSourceFunction;
+
 import com.ververica.cdc.connectors.base.options.StartupOptions;
 import com.ververica.cdc.connectors.oracle.OracleValidator;
 import io.debezium.connector.oracle.OracleConnector;
 
 import java.util.Properties;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
-import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumSourceFunction;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 

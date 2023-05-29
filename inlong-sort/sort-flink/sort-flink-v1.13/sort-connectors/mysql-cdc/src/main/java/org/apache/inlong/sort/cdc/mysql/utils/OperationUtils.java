@@ -17,14 +17,19 @@
 
 package org.apache.inlong.sort.cdc.mysql.utils;
 
-import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.parseColumnWithPosition;
-import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.parseColumns;
-import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.parseComment;
-import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.reformatName;
+import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
+import org.apache.inlong.sort.protocol.ddl.enums.AlterType;
+import org.apache.inlong.sort.protocol.ddl.enums.IndexType;
+import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
+import org.apache.inlong.sort.protocol.ddl.expressions.Column;
+import org.apache.inlong.sort.protocol.ddl.indexes.Index;
+import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
+import org.apache.inlong.sort.protocol.ddl.operations.CreateTableOperation;
+import org.apache.inlong.sort.protocol.ddl.operations.DropTableOperation;
+import org.apache.inlong.sort.protocol.ddl.operations.Operation;
+import org.apache.inlong.sort.protocol.ddl.operations.RenameTableOperation;
+import org.apache.inlong.sort.protocol.ddl.operations.TruncateTableOperation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.alter.Alter;
@@ -34,20 +39,17 @@ import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import org.apache.commons.lang.StringUtils;
-import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
-import org.apache.inlong.sort.protocol.ddl.expressions.Column;
-import org.apache.inlong.sort.protocol.ddl.enums.AlterType;
-import org.apache.inlong.sort.protocol.ddl.enums.IndexType;
-import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
-import org.apache.inlong.sort.protocol.ddl.indexes.Index;
-import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
-import org.apache.inlong.sort.protocol.ddl.operations.CreateTableOperation;
-import org.apache.inlong.sort.protocol.ddl.operations.DropTableOperation;
-import org.apache.inlong.sort.protocol.ddl.operations.Operation;
-import org.apache.inlong.sort.protocol.ddl.operations.RenameTableOperation;
-import org.apache.inlong.sort.protocol.ddl.operations.TruncateTableOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.parseColumnWithPosition;
+import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.parseColumns;
+import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.parseComment;
+import static org.apache.inlong.sort.protocol.ddl.Utils.ColumnUtils.reformatName;
 
 /**
  * Utils for generate operation from statement from sqlParser.

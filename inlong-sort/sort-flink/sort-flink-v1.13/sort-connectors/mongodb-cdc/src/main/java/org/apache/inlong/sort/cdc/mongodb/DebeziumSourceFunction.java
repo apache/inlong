@@ -17,6 +17,27 @@
 
 package org.apache.inlong.sort.cdc.mongodb;
 
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.enums.ReadPhase;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumChangeConsumer;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumChangeFetcher;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumOffsetSerializer;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.FlinkDatabaseHistory;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.FlinkDatabaseSchemaHistory;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.FlinkOffsetBackingStore;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.Handover;
+import org.apache.inlong.sort.cdc.mongodb.debezium.internal.SchemaRecord;
+import org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil;
+import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
+
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
 import com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils;
@@ -51,32 +72,13 @@ import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.base.Constants;
-import org.apache.inlong.sort.base.enums.ReadPhase;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumChangeConsumer;
-import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumChangeFetcher;
-import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumOffset;
-import org.apache.inlong.sort.cdc.mongodb.debezium.internal.DebeziumOffsetSerializer;
-import org.apache.inlong.sort.cdc.mongodb.debezium.internal.FlinkDatabaseHistory;
-import org.apache.inlong.sort.cdc.mongodb.debezium.internal.FlinkDatabaseSchemaHistory;
-import org.apache.inlong.sort.cdc.mongodb.debezium.internal.FlinkOffsetBackingStore;
-import org.apache.inlong.sort.cdc.mongodb.debezium.internal.Handover;
-import org.apache.inlong.sort.cdc.mongodb.debezium.internal.SchemaRecord;
-import org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil;
-import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;

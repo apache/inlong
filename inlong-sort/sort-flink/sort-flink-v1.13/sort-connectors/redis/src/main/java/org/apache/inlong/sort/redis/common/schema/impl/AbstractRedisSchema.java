@@ -17,11 +17,8 @@
 
 package org.apache.inlong.sort.redis.common.schema.impl;
 
-import static org.apache.flink.util.Preconditions.checkState;
+import org.apache.inlong.sort.redis.common.schema.RedisSchema;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.IntStream;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.shaded.guava18.com.google.common.base.Preconditions;
 import org.apache.flink.table.api.TableSchema;
@@ -35,7 +32,12 @@ import org.apache.flink.table.types.KeyValueDataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.redis.common.schema.RedisSchema;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.IntStream;
+
+import static org.apache.flink.util.Preconditions.checkState;
 
 /**
  * The base class of {@link RedisSchema}

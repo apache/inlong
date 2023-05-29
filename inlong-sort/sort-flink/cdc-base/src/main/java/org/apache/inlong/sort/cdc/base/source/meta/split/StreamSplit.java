@@ -17,13 +17,16 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.split;
 
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
+
+import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nullable;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 
 /** The split to describe the change log of database table(s).
  * Copy from com.ververica:flink-cdc-base:2.3.0.

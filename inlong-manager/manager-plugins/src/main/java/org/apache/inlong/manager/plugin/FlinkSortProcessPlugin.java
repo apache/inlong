@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.plugin;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.plugin.listener.DeleteSortListener;
 import org.apache.inlong.manager.plugin.listener.DeleteStreamListener;
 import org.apache.inlong.manager.plugin.listener.RestartSortListener;
@@ -29,6 +28,8 @@ import org.apache.inlong.manager.plugin.listener.SuspendStreamListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedList;
 import java.util.List;

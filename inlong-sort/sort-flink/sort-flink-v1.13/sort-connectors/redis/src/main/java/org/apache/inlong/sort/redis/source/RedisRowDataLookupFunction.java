@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.redis.source;
 
+import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
+import org.apache.inlong.sort.redis.common.container.InlongRedisCommandsContainer;
+import org.apache.inlong.sort.redis.common.container.RedisCommandsContainerBuilder;
+import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
+import org.apache.inlong.sort.redis.common.mapper.RedisCommandDescription;
+
 import org.apache.flink.shaded.guava18.com.google.common.cache.Cache;
 import org.apache.flink.shaded.guava18.com.google.common.cache.CacheBuilder;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
@@ -25,11 +31,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.TableFunction;
-import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
-import org.apache.inlong.sort.redis.common.container.InlongRedisCommandsContainer;
-import org.apache.inlong.sort.redis.common.container.RedisCommandsContainerBuilder;
-import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
-import org.apache.inlong.sort.redis.common.mapper.RedisCommandDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

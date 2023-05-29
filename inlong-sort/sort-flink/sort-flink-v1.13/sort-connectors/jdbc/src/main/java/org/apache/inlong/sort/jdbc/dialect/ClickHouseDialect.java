@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.jdbc.dialect;
 
+import org.apache.inlong.sort.jdbc.converter.clickhouse.ClickHouseRowConverter;
+import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.jdbc.converter.clickhouse.ClickHouseRowConverter;
-import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

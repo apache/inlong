@@ -17,19 +17,6 @@
 
 package org.apache.inlong.sort.cdc.oracle.source;
 
-import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleConnectionUtils.createOracleConnection;
-import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleConnectionUtils.currentRedoLogOffset;
-
-import io.debezium.connector.oracle.OracleConnection;
-import io.debezium.jdbc.JdbcConnection;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges.TableChange;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.flink.annotation.Experimental;
-import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 import org.apache.inlong.sort.cdc.base.dialect.JdbcDataSourceDialect;
 import org.apache.inlong.sort.cdc.base.relational.connection.JdbcConnectionPoolFactory;
@@ -45,6 +32,21 @@ import org.apache.inlong.sort.cdc.oracle.source.reader.fetch.OracleStreamFetchTa
 import org.apache.inlong.sort.cdc.oracle.source.splitter.OracleChunkSplitter;
 import org.apache.inlong.sort.cdc.oracle.source.utils.OracleConnectionUtils;
 import org.apache.inlong.sort.cdc.oracle.source.utils.OracleSchema;
+
+import io.debezium.connector.oracle.OracleConnection;
+import io.debezium.jdbc.JdbcConnection;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.flink.annotation.Experimental;
+import org.apache.flink.util.FlinkRuntimeException;
+
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleConnectionUtils.createOracleConnection;
+import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleConnectionUtils.currentRedoLogOffset;
 
 /** The {@link JdbcDataSourceDialect} implementation for Oracle datasource.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

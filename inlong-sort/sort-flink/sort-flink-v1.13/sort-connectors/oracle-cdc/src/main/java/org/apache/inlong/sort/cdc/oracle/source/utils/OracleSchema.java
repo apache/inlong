@@ -24,12 +24,13 @@ import io.debezium.relational.TableId;
 import io.debezium.relational.Tables;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.flink.util.FlinkRuntimeException;
+
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.flink.util.FlinkRuntimeException;
 
 /** A component used to get schema by table path.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

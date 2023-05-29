@@ -17,16 +17,17 @@
 
 package org.apache.inlong.manager.service.resource.queue.tubemq;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.queue.tubemq.ConsumerGroupResponse;
 import org.apache.inlong.manager.pojo.queue.tubemq.TopicResponse;
 import org.apache.inlong.manager.pojo.queue.tubemq.TubeBrokerInfo;
 import org.apache.inlong.manager.pojo.queue.tubemq.TubeHttpResponse;
-import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
+
 import java.util.List;
 
 /**

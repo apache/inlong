@@ -17,8 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
-import com.google.protobuf.ByteString;
-
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
@@ -28,6 +26,8 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
 import org.apache.inlong.sdk.commons.utils.GzipUtils;
+
+import com.google.protobuf.ByteString;
 import org.xerial.snappy.Snappy;
 
 import java.io.IOException;

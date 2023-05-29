@@ -17,17 +17,20 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.config;
 
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
+
 import com.ververica.cdc.connectors.base.options.StartupOptions;
 import io.debezium.config.Configuration;
 import io.debezium.connector.oracle.OracleConnectorConfig;
 import io.debezium.relational.RelationalTableFilters;
+
+import javax.annotation.Nullable;
+
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import javax.annotation.Nullable;
-import org.apache.inlong.sort.base.Constants;
-import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 
 /**
  * Describes the connection information of the Oracle database and the configuration information for

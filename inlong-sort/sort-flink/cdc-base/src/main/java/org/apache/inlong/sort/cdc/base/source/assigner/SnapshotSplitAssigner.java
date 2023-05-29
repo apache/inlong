@@ -17,20 +17,6 @@
 
 package org.apache.inlong.sort.cdc.base.source.assigner;
 
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.dialect.DataSourceDialect;
 import org.apache.inlong.sort.cdc.base.source.assigner.splitter.ChunkSplitter;
@@ -41,8 +27,25 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.FinishedSnapshotSplitIn
 import org.apache.inlong.sort.cdc.base.source.meta.split.SchemalessSnapshotSplit;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
+import org.apache.flink.util.FlinkRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /** Assigner for snapshot split.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

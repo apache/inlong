@@ -17,14 +17,16 @@
 
 package org.apache.inlong.sort.formats.kv;
 
-import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import org.apache.inlong.sort.formats.base.TableFormatConstants;
+
+import org.apache.flink.table.descriptors.DescriptorProperties;
+import org.apache.flink.table.descriptors.FormatDescriptor;
 
 import java.nio.charset.Charset;
 import java.util.Map;
-import org.apache.flink.table.descriptors.DescriptorProperties;
-import org.apache.flink.table.descriptors.FormatDescriptor;
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
+
+import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * Format descriptor for KVs.

@@ -18,8 +18,9 @@
 package org.apache.inlong.sort.cdc.mongodb.debezium.table;
 
 import io.debezium.relational.history.TableChanges.TableChange;
-import java.io.Serializable;
 import org.apache.kafka.connect.data.Schema;
+
+import java.io.Serializable;
 
 /**
  * Runtime converter that converts objects of Debezium into objects of Flink Table & SQL internal

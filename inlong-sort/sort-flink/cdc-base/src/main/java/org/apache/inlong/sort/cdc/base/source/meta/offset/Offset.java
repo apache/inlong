@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.offset;
 
+import org.apache.flink.annotation.Experimental;
+import org.apache.kafka.connect.errors.ConnectException;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.flink.annotation.Experimental;
-import org.apache.kafka.connect.errors.ConnectException;
 
 /**
  * A structure describes a fine-grained offset in a change event including change log position.

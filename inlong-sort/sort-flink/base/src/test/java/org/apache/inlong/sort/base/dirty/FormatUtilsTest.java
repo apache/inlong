@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.base.dirty;
 
+import org.apache.inlong.sort.base.dirty.utils.FormatUtils;
+
 import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.formats.json.JsonOptions.MapNullKeyMode;
 import org.apache.flink.formats.json.RowDataToJsonConverters;
@@ -32,7 +34,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.RowData.FieldGetter;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.types.logical.LogicalType;
-import org.apache.inlong.sort.base.dirty.utils.FormatUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +41,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import static org.apache.flink.table.data.RowData.createFieldGetter;
 
 /**

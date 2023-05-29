@@ -17,6 +17,17 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.reader.fetch;
 
+import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
+import org.apache.inlong.sort.cdc.base.dialect.JdbcDataSourceDialect;
+import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+import org.apache.inlong.sort.cdc.base.source.reader.external.JdbcSourceFetchTaskContext;
+import org.apache.inlong.sort.cdc.oracle.source.config.OracleSourceConfig;
+import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
+import org.apache.inlong.sort.cdc.oracle.source.relational.OracleSourceEventDispatcher;
+import org.apache.inlong.sort.cdc.oracle.source.utils.OracleUtils;
+
 import com.ververica.cdc.connectors.base.source.EmbeddedFlinkDatabaseHistory;
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.connector.oracle.OracleChangeEventSourceMetricsFactory;
@@ -42,23 +53,14 @@ import io.debezium.relational.Tables;
 import io.debezium.schema.DataCollectionId;
 import io.debezium.schema.TopicSelector;
 import io.debezium.util.Collect;
-import java.time.Instant;
-import java.util.Map;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
-import org.apache.inlong.sort.cdc.base.dialect.JdbcDataSourceDialect;
-import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
-import org.apache.inlong.sort.cdc.base.source.reader.external.JdbcSourceFetchTaskContext;
-import org.apache.inlong.sort.cdc.oracle.source.config.OracleSourceConfig;
-import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
-import org.apache.inlong.sort.cdc.oracle.source.relational.OracleSourceEventDispatcher;
-import org.apache.inlong.sort.cdc.oracle.source.utils.OracleUtils;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.util.Map;
 
 /** The context for fetch task that fetching data of snapshot split from Oracle data source.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

@@ -17,10 +17,12 @@
 
 package org.apache.inlong.sort.base.dirty;
 
-import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.inlong.sort.base.util.PatternReplaceUtils;
 
+import org.apache.flink.table.types.logical.LogicalType;
+
 import javax.annotation.Nullable;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;

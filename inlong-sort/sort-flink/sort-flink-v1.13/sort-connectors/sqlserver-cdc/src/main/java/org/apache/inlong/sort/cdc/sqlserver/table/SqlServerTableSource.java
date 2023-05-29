@@ -17,9 +17,14 @@
 
 package org.apache.inlong.sort.cdc.sqlserver.table;
 
+import org.apache.inlong.sort.cdc.sqlserver.SqlServerSource;
+
 import com.ververica.cdc.connectors.sqlserver.table.SqlServerDeserializationConverterFactory;
 import com.ververica.cdc.connectors.sqlserver.table.SqlServerReadableMetadata;
 import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
+import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
+import com.ververica.cdc.debezium.table.MetadataConverter;
+import com.ververica.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -31,11 +36,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-
-import org.apache.inlong.sort.cdc.sqlserver.SqlServerSource;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.table.MetadataConverter;
-import com.ververica.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
 
 import java.time.ZoneId;
 import java.util.Collections;

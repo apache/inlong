@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.web;
 
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.user.UserLoginRequest;
+import org.apache.inlong.manager.test.BaseTest;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.pojo.user.UserLoginRequest;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.test.BaseTest;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.SecurityManager;
 import org.junit.jupiter.api.Assertions;
@@ -40,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
+
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;

@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.cdc.base.debezium.internal;
 
+import org.apache.flink.annotation.Internal;
+
 import java.io.Serializable;
 import java.util.Map;
-import org.apache.flink.annotation.Internal;
 
 /**
  * The state that the Flink Debezium Consumer holds for each instance.

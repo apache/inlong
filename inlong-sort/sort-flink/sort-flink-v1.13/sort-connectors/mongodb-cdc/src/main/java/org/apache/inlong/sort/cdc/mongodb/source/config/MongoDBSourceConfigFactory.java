@@ -17,6 +17,14 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.config;
 
+import org.apache.inlong.sort.cdc.base.config.SourceConfig.Factory;
+
+import com.ververica.cdc.connectors.base.options.StartupOptions;
+import org.apache.flink.annotation.Internal;
+
+import java.util.Arrays;
+import java.util.List;
+
 import static com.ververica.cdc.connectors.base.options.SourceOptions.CHUNK_META_GROUP_SIZE;
 import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.BATCH_SIZE;
 import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.HEARTBEAT_INTERVAL_MILLIS;
@@ -25,12 +33,6 @@ import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOp
 import static com.ververica.cdc.connectors.mongodb.source.config.MongoDBSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE_MB;
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
-
-import com.ververica.cdc.connectors.base.options.StartupOptions;
-import java.util.Arrays;
-import java.util.List;
-import org.apache.flink.annotation.Internal;
-import org.apache.inlong.sort.cdc.base.config.SourceConfig.Factory;
 
 /** A factory to construct {@link MongoDBSourceConfig}.
  *

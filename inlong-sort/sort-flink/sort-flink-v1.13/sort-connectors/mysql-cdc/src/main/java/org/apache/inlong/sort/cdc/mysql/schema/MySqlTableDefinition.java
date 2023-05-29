@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.schema;
 
+import org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils;
+
 import io.debezium.relational.TableId;
 import org.apache.flink.util.CollectionUtil;
-import org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;

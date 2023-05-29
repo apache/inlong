@@ -17,12 +17,14 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
-import org.apache.flink.configuration.ReadableConfig;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
+
+import org.apache.flink.configuration.ReadableConfig;
 
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
+
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_DELAY_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_TYPE_OPTION;

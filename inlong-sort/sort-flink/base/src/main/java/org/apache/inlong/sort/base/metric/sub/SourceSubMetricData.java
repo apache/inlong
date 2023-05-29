@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sort.base.metric.sub;
 
-import java.util.Map;
 import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.base.metric.phase.ReadPhaseMetricData;
+
+import java.util.Map;
 
 /**
  * A collection class for handling sub metrics

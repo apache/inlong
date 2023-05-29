@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.kudu.table;
 
+import org.apache.inlong.sort.kudu.common.KuduOptions;
+import org.apache.inlong.sort.kudu.common.KuduTableInfo;
+import org.apache.inlong.sort.kudu.sink.KuduAsyncSinkFunction;
+import org.apache.inlong.sort.kudu.sink.KuduSinkFunction;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
@@ -27,18 +32,15 @@ import org.apache.flink.table.connector.sink.DataStreamSinkProvider;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.utils.TableConnectorUtils;
-import org.apache.inlong.sort.kudu.common.KuduOptions;
-import org.apache.inlong.sort.kudu.common.KuduTableInfo;
-import org.apache.inlong.sort.kudu.sink.KuduAsyncSinkFunction;
-import org.apache.inlong.sort.kudu.sink.KuduSinkFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nullable;
 
 import static org.apache.inlong.sort.kudu.common.KuduOptions.IGNORE_ALL_CHANGELOG;
 

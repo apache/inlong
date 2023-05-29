@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.cdc.mongodb;
 
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+
 import com.mongodb.ConnectionString;
 import com.mongodb.client.model.changestream.FullDocument;
 import com.mongodb.kafka.connect.source.MongoSourceConfig;
@@ -35,7 +37,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.COLLECTION_INCLUDE_LIST;
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.DATABASE_INCLUDE_LIST;

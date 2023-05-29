@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.pojo.group;
 
+import org.apache.inlong.manager.common.auth.Authentication;
+import org.apache.inlong.manager.pojo.sort.BaseSortConf;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -26,8 +29,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.auth.Authentication;
-import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 
 import java.util.Date;
 import java.util.List;

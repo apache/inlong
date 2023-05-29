@@ -18,11 +18,13 @@
 package org.apache.inlong.sort.cdc.mongodb.debezium.table;
 
 import io.debezium.relational.history.TableChanges;
-import java.io.Serializable;
-import javax.annotation.Nullable;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.table.data.RowData;
 import org.apache.kafka.connect.source.SourceRecord;
+
+import javax.annotation.Nullable;
+
+import java.io.Serializable;
 
 /**
  * A converter converts {@link SourceRecord} metadata into Flink internal data structures.

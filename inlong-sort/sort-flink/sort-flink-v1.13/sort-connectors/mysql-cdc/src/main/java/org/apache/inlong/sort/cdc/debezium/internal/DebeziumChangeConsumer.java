@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sort.cdc.debezium.internal;
 
+import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.cdc.base.debezium.internal.Handover;
+
 import io.debezium.embedded.EmbeddedEngineChangeEvent;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.DebeziumEngine.RecordCommitter;
 import org.apache.flink.annotation.Internal;
-import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
-import org.apache.inlong.sort.cdc.base.debezium.internal.Handover;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;

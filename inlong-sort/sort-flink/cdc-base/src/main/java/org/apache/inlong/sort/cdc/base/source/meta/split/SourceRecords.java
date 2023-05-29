@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.split;
 
+import org.apache.kafka.connect.source.SourceRecord;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.kafka.connect.source.SourceRecord;
 
 /** Data structure to describe a set of {@link SourceRecord}.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

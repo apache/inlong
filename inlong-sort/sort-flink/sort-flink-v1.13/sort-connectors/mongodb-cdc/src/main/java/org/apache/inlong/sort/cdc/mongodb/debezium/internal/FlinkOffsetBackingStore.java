@@ -17,8 +17,21 @@
 
 package org.apache.inlong.sort.cdc.mongodb.debezium.internal;
 
+import org.apache.inlong.sort.base.util.concurrent.ThreadUtils;
+import org.apache.inlong.sort.cdc.mongodb.DebeziumSourceFunction;
+
 import io.debezium.embedded.EmbeddedEngine;
 import io.debezium.engine.DebeziumEngine;
+import org.apache.kafka.connect.errors.ConnectException;
+import org.apache.kafka.connect.json.JsonConverter;
+import org.apache.kafka.connect.runtime.WorkerConfig;
+import org.apache.kafka.connect.storage.Converter;
+import org.apache.kafka.connect.storage.OffsetBackingStore;
+import org.apache.kafka.connect.storage.OffsetStorageWriter;
+import org.apache.kafka.connect.util.Callback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -31,18 +44,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import org.apache.inlong.sort.base.util.concurrent.ThreadUtils;
-import org.apache.inlong.sort.cdc.mongodb.DebeziumSourceFunction;
-import org.apache.kafka.connect.errors.ConnectException;
-import org.apache.kafka.connect.json.JsonConverter;
-import org.apache.kafka.connect.runtime.WorkerConfig;
-import org.apache.kafka.connect.storage.Converter;
-import org.apache.kafka.connect.storage.OffsetBackingStore;
-import org.apache.kafka.connect.storage.OffsetStorageWriter;
-import org.apache.kafka.connect.util.Callback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A implementation of {@link OffsetBackingStore} backed on Flink's state mechanism.

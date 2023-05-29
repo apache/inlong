@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.elasticsearch6.table;
 
+import org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions;
+
 import org.apache.flink.api.common.time.Deadline;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -35,8 +37,6 @@ import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
-
-import org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.Client;
@@ -59,8 +59,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import static org.apache.inlong.sort.elasticsearch.table.TestContext.context;
 import static org.apache.flink.table.api.Expressions.row;
+import static org.apache.inlong.sort.elasticsearch.table.TestContext.context;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 

@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.connection;
 
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+
 import com.zaxxer.hikari.HikariDataSource;
 import io.debezium.jdbc.JdbcConfiguration;
 import io.debezium.jdbc.JdbcConnection;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

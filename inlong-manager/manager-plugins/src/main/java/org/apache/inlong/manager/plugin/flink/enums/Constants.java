@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.plugin.flink.enums;
 
-import java.util.Optional;
-import java.util.function.Function;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Constants info, including properties, dataflow info and rest api url info.

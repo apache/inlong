@@ -17,8 +17,9 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
-import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+
+import org.apache.flume.Context;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;

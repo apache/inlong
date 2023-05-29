@@ -17,6 +17,16 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.reader;
 
+import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
+import org.apache.inlong.sort.cdc.mysql.debezium.task.MySqlBinlogSplitReadTask;
+import org.apache.inlong.sort.cdc.mysql.debezium.task.MySqlSnapshotSplitReadTask;
+import org.apache.inlong.sort.cdc.mysql.debezium.task.context.StatefulTaskContext;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
+import org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils;
+
 import io.debezium.config.Configuration;
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
@@ -29,20 +39,12 @@ import io.debezium.pipeline.spi.SnapshotResult;
 import io.debezium.util.SchemaNameAdjuster;
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
-import org.apache.inlong.sort.cdc.mysql.debezium.task.MySqlBinlogSplitReadTask;
-import org.apache.inlong.sort.cdc.mysql.debezium.task.MySqlSnapshotSplitReadTask;
-import org.apache.inlong.sort.cdc.mysql.debezium.task.context.StatefulTaskContext;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
-import org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sort.base.security;
 
+import org.apache.inlong.sort.base.UserSystemExitException;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import org.apache.flink.configuration.ClusterOptions;
 import org.apache.flink.configuration.ClusterOptions.UserSystemExitMode;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.IllegalConfigurationException;
-import org.apache.inlong.sort.base.UserSystemExitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

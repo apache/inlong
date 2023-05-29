@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.split;
 
-import javax.annotation.Nullable;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+
+import javax.annotation.Nullable;
 
 /** The state of split to describe the snapshot of table(s).
  * Copy from com.ververica:flink-cdc-base:2.3.0.

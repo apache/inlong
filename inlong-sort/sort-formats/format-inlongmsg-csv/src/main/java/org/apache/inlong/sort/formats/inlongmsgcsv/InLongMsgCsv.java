@@ -17,16 +17,18 @@
 
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
+import org.apache.inlong.sort.formats.base.TableFormatConstants;
+
+import org.apache.flink.table.descriptors.DescriptorProperties;
+import org.apache.flink.table.descriptors.FormatDescriptor;
+
+import java.nio.charset.Charset;
+import java.util.Map;
+
 import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_ATTRIBUTES_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.FORMAT_TIME_FIELD_NAME;
-
-import java.nio.charset.Charset;
-import java.util.Map;
-import org.apache.flink.table.descriptors.DescriptorProperties;
-import org.apache.flink.table.descriptors.FormatDescriptor;
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
 
 /**
  * Format descriptor for comma-separated values (CSV).

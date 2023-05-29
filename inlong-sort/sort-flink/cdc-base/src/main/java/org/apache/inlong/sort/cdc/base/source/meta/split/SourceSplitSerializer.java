@@ -17,28 +17,30 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.split;
 
+import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetDeserializerSerializer;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
+import org.apache.inlong.sort.cdc.base.source.meta.split.MetricSplit.TableMetric;
+
 import com.ververica.cdc.connectors.base.utils.SerializerUtils;
 import io.debezium.document.Document;
 import io.debezium.document.DocumentReader;
 import io.debezium.document.DocumentWriter;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.flink.core.io.SimpleVersionedSerializer;
+import org.apache.flink.core.memory.DataInputDeserializer;
+import org.apache.flink.core.memory.DataOutputSerializer;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.table.types.logical.utils.LogicalTypeParser;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.flink.core.io.SimpleVersionedSerializer;
-import org.apache.flink.core.memory.DataInputDeserializer;
-import org.apache.flink.core.memory.DataOutputSerializer;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.table.types.logical.utils.LogicalTypeParser;
-import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetDeserializerSerializer;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.OffsetFactory;
-import org.apache.inlong.sort.cdc.base.source.meta.split.MetricSplit.TableMetric;
 
 /** A serializer for the {@link SourceSplitBase}.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

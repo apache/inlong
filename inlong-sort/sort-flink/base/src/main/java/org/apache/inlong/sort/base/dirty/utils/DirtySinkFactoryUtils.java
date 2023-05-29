@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.base.dirty.utils;
 
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.factories.DynamicTableFactory.Context;
-import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.sink.DirtySinkFactory;
+
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.table.factories.DynamicTableFactory.Context;
+import org.apache.flink.table.factories.FactoryUtil;
 
 /**
  * Dirty sink facotry utils, it helps to create dirty sink

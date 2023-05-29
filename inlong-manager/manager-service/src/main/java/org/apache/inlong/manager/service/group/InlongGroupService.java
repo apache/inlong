@@ -31,6 +31,7 @@ import org.apache.inlong.manager.pojo.user.UserInfo;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
 import java.util.List;
 
 /**

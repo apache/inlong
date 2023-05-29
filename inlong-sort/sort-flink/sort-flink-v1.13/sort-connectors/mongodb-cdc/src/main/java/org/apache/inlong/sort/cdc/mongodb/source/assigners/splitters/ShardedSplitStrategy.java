@@ -17,6 +17,25 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.assigners.splitters;
 
+import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
+
+import com.mongodb.MongoQueryException;
+import com.mongodb.client.MongoClient;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.table.types.logical.RowType;
+import org.bson.BsonBoolean;
+import org.bson.BsonDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.DROPPED_FIELD;
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.KEY_FIELD;
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.MAX_FIELD;
@@ -25,23 +44,6 @@ import static com.ververica.cdc.connectors.mongodb.source.dialect.MongoDBDialect
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoUtils.UNAUTHORIZED_ERROR;
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoUtils.readChunks;
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoUtils.readCollectionMetadata;
-
-import com.mongodb.MongoQueryException;
-import com.mongodb.client.MongoClient;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
-import org.bson.BsonBoolean;
-import org.bson.BsonDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The Sharded Splitter

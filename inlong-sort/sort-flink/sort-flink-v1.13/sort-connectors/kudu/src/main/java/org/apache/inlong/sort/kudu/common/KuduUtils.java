@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.kudu.common;
 
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.table.types.DataType;
-import org.apache.flink.util.StringUtils;
 import org.apache.inlong.sort.formats.common.BooleanTypeInfo;
 import org.apache.inlong.sort.formats.common.ByteTypeInfo;
 import org.apache.inlong.sort.formats.common.DateTypeInfo;
@@ -32,6 +29,10 @@ import org.apache.inlong.sort.formats.common.RowTypeInfo;
 import org.apache.inlong.sort.formats.common.StringTypeInfo;
 import org.apache.inlong.sort.formats.common.TimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
+
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.util.StringUtils;
 import org.apache.kudu.ColumnSchema;
 import org.apache.kudu.Schema;
 import org.apache.kudu.Type;

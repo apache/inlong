@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.redis.common.config;
 
+import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
-import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
 
 /**
  * Redis options

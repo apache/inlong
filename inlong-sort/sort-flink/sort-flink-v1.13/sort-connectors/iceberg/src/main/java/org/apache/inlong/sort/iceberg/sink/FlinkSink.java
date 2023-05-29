@@ -17,7 +17,20 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
-import java.util.Set;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.sink.MultipleSinkOption;
+import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer;
+import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer.BufferType;
+import org.apache.inlong.sort.iceberg.sink.multiple.DynamicSchemaHandleOperator;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleFilesCommiter;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleStreamWriter;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergProcessOperator;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleFileCommiter;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleStreamWriter;
+import org.apache.inlong.sort.iceberg.sink.multiple.MultipleWriteResult;
+import org.apache.inlong.sort.iceberg.sink.multiple.RecordWithSchema;
+
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -58,27 +71,16 @@ import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 import org.apache.iceberg.types.TypeUtil;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.base.sink.MultipleSinkOption;
-import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer;
-import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer.BufferType;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleFilesCommiter;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleStreamWriter;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergProcessOperator;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleFileCommiter;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleStreamWriter;
-import org.apache.inlong.sort.iceberg.sink.multiple.MultipleWriteResult;
-import org.apache.inlong.sort.iceberg.sink.multiple.RecordWithSchema;
-import org.apache.inlong.sort.iceberg.sink.multiple.DynamicSchemaHandleOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

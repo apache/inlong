@@ -17,6 +17,14 @@
 
 package org.apache.inlong.sort.cdc.debezium.internal;
 
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffsetSerializer;
+import org.apache.inlong.sort.cdc.base.debezium.internal.FlinkDatabaseSchemaHistory;
+import org.apache.inlong.sort.cdc.base.debezium.internal.Handover;
+import org.apache.inlong.sort.cdc.base.debezium.internal.SchemaRecord;
+
 import com.ververica.cdc.connectors.mysql.source.utils.RecordUtils;
 import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
@@ -27,13 +35,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffset;
-import org.apache.inlong.sort.cdc.base.debezium.internal.DebeziumOffsetSerializer;
-import org.apache.inlong.sort.cdc.base.debezium.internal.FlinkDatabaseSchemaHistory;
-import org.apache.inlong.sort.cdc.base.debezium.internal.Handover;
-import org.apache.inlong.sort.cdc.base.debezium.internal.SchemaRecord;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;

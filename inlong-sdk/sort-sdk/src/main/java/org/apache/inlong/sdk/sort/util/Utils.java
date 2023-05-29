@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sdk.sort.util;
 
+import org.xerial.snappy.Snappy;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import org.xerial.snappy.Snappy;
 
 public class Utils {
 

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.iceberg.sink.collections;
 
+import org.apache.inlong.sort.iceberg.sink.collections.KVBuffer.Convertor;
+
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -38,7 +40,6 @@ import org.apache.iceberg.Schema;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.flink.RowDataWrapper;
 import org.apache.iceberg.types.Types.NestedField;
-import org.apache.inlong.sort.iceberg.sink.collections.KVBuffer.Convertor;
 
 import java.io.Closeable;
 import java.io.File;

@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.cdc.oracle.table;
 
+import org.apache.inlong.sort.cdc.base.debezium.table.DebeziumOptions;
+
 import com.ververica.cdc.connectors.base.options.StartupOptions;
-import java.time.Duration;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
@@ -27,9 +28,9 @@ import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.inlong.sort.cdc.base.debezium.table.DebeziumOptions;
 
 import static com.ververica.cdc.connectors.base.options.JdbcSourceOptions.CONNECTION_POOL_SIZE;
 import static com.ververica.cdc.connectors.base.options.JdbcSourceOptions.CONNECT_MAX_RETRIES;

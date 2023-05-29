@@ -17,13 +17,15 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.config;
 
-import io.debezium.config.Configuration;
-import io.debezium.connector.mysql.MySqlConnectorConfig;
-import io.debezium.relational.RelationalTableFilters;
 import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
 import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
 
+import io.debezium.config.Configuration;
+import io.debezium.connector.mysql.MySqlConnectorConfig;
+import io.debezium.relational.RelationalTableFilters;
+
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.List;

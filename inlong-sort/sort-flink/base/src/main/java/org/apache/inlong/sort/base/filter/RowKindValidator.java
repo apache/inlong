@@ -17,15 +17,16 @@
 
 package org.apache.inlong.sort.base.filter;
 
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
+import org.apache.flink.types.RowKind;
+import org.apache.flink.util.Preconditions;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.apache.flink.types.RowKind;
-import org.apache.flink.util.Preconditions;
+
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /**
  * row kind validator, only specified row kinds can be valid

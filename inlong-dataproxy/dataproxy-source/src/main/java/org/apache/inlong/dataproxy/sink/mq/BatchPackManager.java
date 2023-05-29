@@ -17,11 +17,12 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
-import org.apache.flume.Context;
-import org.apache.flume.event.SimpleEvent;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
+
+import org.apache.flume.Context;
+import org.apache.flume.event.SimpleEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

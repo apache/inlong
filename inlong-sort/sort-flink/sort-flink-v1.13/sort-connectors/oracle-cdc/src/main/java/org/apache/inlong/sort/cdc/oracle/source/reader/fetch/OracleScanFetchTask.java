@@ -17,11 +17,13 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.reader.fetch;
 
-import static org.apache.inlong.sort.cdc.oracle.source.reader.fetch.OracleStreamFetchTask.RedoLogSplitReadTask;
-import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleConnectionUtils.createOracleConnection;
-import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleConnectionUtils.currentRedoLogOffset;
-import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleUtils.buildSplitScanQuery;
-import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleUtils.readTableSplitDataStatement;
+import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
+import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkKind;
+import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
+import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
 
 import io.debezium.DebeziumException;
 import io.debezium.config.Configuration;
@@ -49,25 +51,25 @@ import io.debezium.util.Clock;
 import io.debezium.util.ColumnUtils;
 import io.debezium.util.Strings;
 import io.debezium.util.Threads;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Map;
-import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
-import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
-import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkKind;
-import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
-import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
 import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Map;
+
+import static org.apache.inlong.sort.cdc.oracle.source.reader.fetch.OracleStreamFetchTask.RedoLogSplitReadTask;
+import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleConnectionUtils.createOracleConnection;
+import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleConnectionUtils.currentRedoLogOffset;
+import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleUtils.buildSplitScanQuery;
+import static org.apache.inlong.sort.cdc.oracle.source.utils.OracleUtils.readTableSplitDataStatement;
 
 /** The task to work for fetching data of Oracle table snapshot split.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

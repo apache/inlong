@@ -17,9 +17,10 @@
 
 package org.apache.inlong.dataproxy.node;
 
+import org.apache.inlong.dataproxy.config.RemoteConfigManager;
+
 import org.apache.flume.conf.FlumeConfiguration;
 import org.apache.flume.node.AbstractConfigurationProvider;
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

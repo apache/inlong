@@ -17,6 +17,29 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.assigners.splitters;
 
+import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
+
+import com.mongodb.MongoCommandException;
+import com.mongodb.client.MongoClient;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.table.types.logical.RowType;
+import org.bson.BsonArray;
+import org.bson.BsonDocument;
+import org.bson.BsonInt32;
+import org.bson.BsonValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.BSON_MIN_KEY;
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.ID_FIELD;
 import static com.ververica.cdc.connectors.mongodb.source.dialect.MongoDBDialect.collectionSchema;
@@ -25,27 +48,6 @@ import static com.ververica.cdc.connectors.mongodb.source.utils.ChunkUtils.maxUp
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoUtils.UNAUTHORIZED_ERROR;
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoUtils.isCommandSucceed;
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoUtils.splitVector;
-
-import com.mongodb.MongoCommandException;
-import com.mongodb.client.MongoClient;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonInt32;
-import org.bson.BsonValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The SplitVector Splitter.

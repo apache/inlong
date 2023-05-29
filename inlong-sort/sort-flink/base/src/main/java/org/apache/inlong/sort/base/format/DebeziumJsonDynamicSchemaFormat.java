@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.base.format;
 
+import org.apache.inlong.sort.base.format.JsonToRowDataConverters.JsonToRowDataConverter;
+
 import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.RowData;
@@ -32,7 +34,6 @@ import org.apache.flink.table.types.logical.TinyIntType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.format.JsonToRowDataConverters.JsonToRowDataConverter;
 
 import java.io.IOException;
 import java.util.ArrayList;

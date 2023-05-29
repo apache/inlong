@@ -17,15 +17,6 @@
 
 package org.apache.inlong.sort.cdc.base.source.assigner;
 
-import io.debezium.relational.TableId;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.dialect.DataSourceDialect;
 import org.apache.inlong.sort.cdc.base.source.assigner.state.HybridPendingSplitsState;
@@ -36,8 +27,19 @@ import org.apache.inlong.sort.cdc.base.source.meta.split.FinishedSnapshotSplitIn
 import org.apache.inlong.sort.cdc.base.source.meta.split.SchemalessSnapshotSplit;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
+
+import io.debezium.relational.TableId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /** Assigner for Hybrid split which contains snapshot splits and stream splits.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

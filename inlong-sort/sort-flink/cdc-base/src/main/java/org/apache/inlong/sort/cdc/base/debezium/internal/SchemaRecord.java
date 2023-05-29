@@ -21,8 +21,10 @@ import io.debezium.document.Document;
 import io.debezium.document.DocumentWriter;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.TableChanges.TableChange;
-import java.io.IOException;
+
 import javax.annotation.Nullable;
+
+import java.io.IOException;
 
 /**
  * The Record represents a schema change event, it contains either one {@link HistoryRecord} or

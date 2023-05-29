@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.connection;
 
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 
 import java.util.Properties;
 

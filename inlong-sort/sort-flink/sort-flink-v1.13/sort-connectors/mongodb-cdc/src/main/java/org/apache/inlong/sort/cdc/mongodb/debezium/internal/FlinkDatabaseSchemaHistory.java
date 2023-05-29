@@ -17,7 +17,8 @@
 
 package org.apache.inlong.sort.cdc.mongodb.debezium.internal;
 
-import static io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.inlong.sort.cdc.mongodb.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil;
 
 import io.debezium.config.Configuration;
 import io.debezium.relational.TableId;
@@ -30,12 +31,13 @@ import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.HistoryRecordComparator;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.schema.DatabaseSchema;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.apache.inlong.sort.cdc.mongodb.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil;
+
+import static io.debezium.relational.history.TableChanges.TableChange;
 
 /**
  * The {@link FlinkDatabaseSchemaHistory} only stores the latest schema of the monitored tables.

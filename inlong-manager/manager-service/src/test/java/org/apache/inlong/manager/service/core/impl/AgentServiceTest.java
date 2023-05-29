@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.ManagerOpEnum;
@@ -45,6 +42,10 @@ import org.apache.inlong.manager.service.core.HeartbeatService;
 import org.apache.inlong.manager.service.group.InlongGroupProcessService;
 import org.apache.inlong.manager.service.mocks.MockAgent;
 import org.apache.inlong.manager.service.source.StreamSourceService;
+
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

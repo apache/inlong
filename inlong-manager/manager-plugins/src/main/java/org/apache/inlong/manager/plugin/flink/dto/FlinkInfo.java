@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.plugin.flink.dto;
 
-import lombok.Data;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+
+import lombok.Data;
 
 import java.util.List;
 

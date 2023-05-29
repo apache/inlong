@@ -17,15 +17,17 @@
 
 package org.apache.inlong.sort.redis.common.schema.impl;
 
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import org.apache.inlong.sort.redis.common.schema.StateEncoder;
+
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.data.ArrayData;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.MapData;
 import org.apache.flink.table.data.StringData;
-import org.apache.inlong.sort.redis.common.schema.StateEncoder;
+
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * The RedisSchema for Hash data-type and Dynamic mode.

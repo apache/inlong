@@ -17,25 +17,25 @@
 
 package org.apache.inlong.sort.cdc.mongodb.table;
 
-import static org.apache.inlong.sort.cdc.mongodb.source.utils.MetaDataUtils.getCanalData;
-import static org.apache.inlong.sort.cdc.mongodb.source.utils.MetaDataUtils.getDebeziumData;
-import static org.apache.inlong.sort.cdc.mongodb.source.utils.MetaDataUtils.getMetaData;
+import org.apache.inlong.sort.cdc.mongodb.debezium.table.MetadataConverter;
 
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.relational.history.TableChanges;
-
-import javax.annotation.Nullable;
-
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
-import org.apache.inlong.sort.cdc.mongodb.debezium.table.MetadataConverter;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
+
+import javax.annotation.Nullable;
+
+import static org.apache.inlong.sort.cdc.mongodb.source.utils.MetaDataUtils.getCanalData;
+import static org.apache.inlong.sort.cdc.mongodb.source.utils.MetaDataUtils.getDebeziumData;
+import static org.apache.inlong.sort.cdc.mongodb.source.utils.MetaDataUtils.getMetaData;
 
 /** Defines the supported metadata columns for {@link MongoDBTableSource}. */
 public enum MongoDBReadableMetadata {

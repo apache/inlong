@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.jdbc.table;
 
-import org.apache.flink.connector.jdbc.dialect.JdbcDialect;
 import org.apache.inlong.sort.jdbc.dialect.MySQLDialect;
 import org.apache.inlong.sort.jdbc.dialect.OracleDialect;
 import org.apache.inlong.sort.jdbc.dialect.SqlServerDialect;
 import org.apache.inlong.sort.jdbc.dialect.TDSQLPostgresDialect;
+
+import org.apache.flink.connector.jdbc.dialect.JdbcDialect;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

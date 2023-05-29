@@ -17,6 +17,39 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.reader.fetch;
 
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
+import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkEvent;
+import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkKind;
+import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
+import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
+import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamDescriptor;
+import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffset;
+
+import com.mongodb.MongoCommandException;
+import com.mongodb.MongoNamespace;
+import com.mongodb.client.ChangeStreamIterable;
+import com.mongodb.client.MongoChangeStreamCursor;
+import com.mongodb.client.MongoClient;
+import com.mongodb.kafka.connect.source.heartbeat.HeartbeatManager;
+import io.debezium.connector.base.ChangeEventQueue;
+import io.debezium.pipeline.DataChangeEvent;
+import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.kafka.common.utils.SystemTime;
+import org.apache.kafka.common.utils.Time;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
+import org.bson.BsonDocument;
+import org.bson.BsonInt64;
+import org.bson.BsonString;
+import org.bson.BsonTimestamp;
+import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.util.Optional;
+
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.CLUSTER_TIME_FIELD;
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.DOCUMENT_KEY_FIELD;
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.HEARTBEAT_TOPIC_NAME;
@@ -45,37 +78,6 @@ import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.UNKNOWN
 import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.clientFor;
 import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.getChangeStreamIterable;
 import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.getCurrentClusterTime;
-
-import com.mongodb.MongoCommandException;
-import com.mongodb.MongoNamespace;
-import com.mongodb.client.ChangeStreamIterable;
-import com.mongodb.client.MongoChangeStreamCursor;
-import com.mongodb.client.MongoClient;
-import com.mongodb.kafka.connect.source.heartbeat.HeartbeatManager;
-import io.debezium.connector.base.ChangeEventQueue;
-import io.debezium.pipeline.DataChangeEvent;
-import java.time.Instant;
-import java.util.Optional;
-import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
-import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
-import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkEvent;
-import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkKind;
-import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
-import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
-import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamDescriptor;
-import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffset;
-import org.apache.kafka.common.utils.SystemTime;
-import org.apache.kafka.common.utils.Time;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.source.SourceRecord;
-import org.bson.BsonDocument;
-import org.bson.BsonInt64;
-import org.bson.BsonString;
-import org.bson.BsonTimestamp;
-import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** The task to work for fetching data of MongoDB stream split .
  * Copy from com.ververica:flink-connector-mongodb-cdc:2.3.0.

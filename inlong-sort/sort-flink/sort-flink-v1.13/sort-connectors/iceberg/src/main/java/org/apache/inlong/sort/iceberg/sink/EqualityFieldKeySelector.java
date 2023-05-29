@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
-import java.util.List;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
@@ -27,6 +26,8 @@ import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 import org.apache.iceberg.types.TypeUtil;
 import org.apache.iceberg.util.StructLikeWrapper;
 import org.apache.iceberg.util.StructProjection;
+
+import java.util.List;
 
 /**
  * Create a {@link KeySelector} to shuffle by equality fields, to ensure same equality fields record

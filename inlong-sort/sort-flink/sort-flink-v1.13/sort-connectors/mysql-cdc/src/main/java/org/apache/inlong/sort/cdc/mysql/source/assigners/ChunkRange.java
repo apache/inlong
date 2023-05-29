@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
 import javax.annotation.Nullable;
+
 import java.util.Objects;
 
 import static org.apache.flink.util.Preconditions.checkArgument;

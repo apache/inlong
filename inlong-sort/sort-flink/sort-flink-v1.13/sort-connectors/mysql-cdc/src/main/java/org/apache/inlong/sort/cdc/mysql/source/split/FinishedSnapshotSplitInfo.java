@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+
 import io.debezium.relational.TableId;
 import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataOutputSerializer;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
 import java.io.IOException;
 import java.util.Arrays;

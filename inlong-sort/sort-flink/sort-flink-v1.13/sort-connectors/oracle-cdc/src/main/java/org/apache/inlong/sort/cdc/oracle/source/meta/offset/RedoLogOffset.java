@@ -17,12 +17,15 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.meta.offset;
 
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+
 import io.debezium.connector.oracle.Scn;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 
 /** A structure describes an offset in a redo log event.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

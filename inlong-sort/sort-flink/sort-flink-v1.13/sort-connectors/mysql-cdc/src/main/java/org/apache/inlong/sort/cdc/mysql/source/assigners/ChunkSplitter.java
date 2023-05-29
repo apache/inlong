@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
+import org.apache.inlong.sort.cdc.mysql.schema.MySqlSchema;
+import org.apache.inlong.sort.cdc.mysql.schema.MySqlTypeUtils;
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
+import org.apache.inlong.sort.cdc.mysql.source.utils.ChunkUtils;
+import org.apache.inlong.sort.cdc.mysql.source.utils.ObjectUtils;
+
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.Column;
 import io.debezium.relational.Table;
@@ -26,12 +33,6 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mysql.schema.MySqlSchema;
-import org.apache.inlong.sort.cdc.mysql.schema.MySqlTypeUtils;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
-import org.apache.inlong.sort.cdc.mysql.source.utils.ChunkUtils;
-import org.apache.inlong.sort.cdc.mysql.source.utils.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

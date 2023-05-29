@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.tenant;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
@@ -26,10 +25,11 @@ import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 
+import com.github.pagehelper.PageInfo;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class InlongTenantServiceTest extends ServiceBaseTest {

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.relational;
 
+import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
+
 import io.debezium.config.CommonConnectorConfig;
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.document.DocumentWriter;
@@ -31,10 +33,10 @@ import io.debezium.schema.DataCollectionFilters;
 import io.debezium.schema.DatabaseSchema;
 import io.debezium.schema.TopicSelector;
 import io.debezium.util.SchemaNameAdjuster;
-import java.util.Collection;
-import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
 
 /**
  * A subclass implementation of {@link EventDispatcher}.

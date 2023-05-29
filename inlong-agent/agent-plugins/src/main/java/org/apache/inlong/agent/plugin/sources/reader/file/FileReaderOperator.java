@@ -17,24 +17,28 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
-import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_DEFAULT_STATUS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_STATUS;
-import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
-import static org.apache.inlong.agent.constant.MetadataConstants.DATA_CONTENT;
-import static org.apache.inlong.agent.constant.MetadataConstants.DATA_CONTENT_TIME;
-import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
-import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_FILE_NAME;
-import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_HOST_NAME;
-import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_SOURCE_IP;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.DataCollectType;
+import org.apache.inlong.agent.constant.JobConstants;
+import org.apache.inlong.agent.core.task.TaskPositionManager;
+import org.apache.inlong.agent.except.FileException;
+import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
+import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.Validator;
+import org.apache.inlong.agent.plugin.sources.reader.AbstractReader;
+import org.apache.inlong.agent.plugin.utils.FileDataUtils;
+import org.apache.inlong.agent.plugin.validator.PatternValidator;
+import org.apache.inlong.agent.utils.AgentUtils;
 
 import com.google.gson.Gson;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,25 +63,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.constant.DataCollectType;
-import org.apache.inlong.agent.constant.JobConstants;
-import org.apache.inlong.agent.core.task.TaskPositionManager;
-import org.apache.inlong.agent.except.FileException;
-import org.apache.inlong.agent.message.DefaultMessage;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
-import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.Validator;
-import org.apache.inlong.agent.plugin.sources.reader.AbstractReader;
-import org.apache.inlong.agent.plugin.utils.FileDataUtils;
-import org.apache.inlong.agent.plugin.validator.PatternValidator;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_DEFAULT_STATUS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_STATUS;
+import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
+import static org.apache.inlong.agent.constant.MetadataConstants.DATA_CONTENT;
+import static org.apache.inlong.agent.constant.MetadataConstants.DATA_CONTENT_TIME;
+import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_FILE_NAME;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_HOST_NAME;
+import static org.apache.inlong.agent.constant.MetadataConstants.METADATA_SOURCE_IP;
 
 /**
  * File reader entrance

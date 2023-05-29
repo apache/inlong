@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium;
 
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+import org.apache.inlong.sort.cdc.mysql.source.connection.JdbcConnectionFactory;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import io.debezium.config.Configuration;
 import io.debezium.connector.mysql.MySqlConnection;
@@ -33,9 +37,6 @@ import io.debezium.relational.TableId;
 import io.debezium.schema.TopicSelector;
 import io.debezium.util.SchemaNameAdjuster;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
-import org.apache.inlong.sort.cdc.mysql.source.connection.JdbcConnectionFactory;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

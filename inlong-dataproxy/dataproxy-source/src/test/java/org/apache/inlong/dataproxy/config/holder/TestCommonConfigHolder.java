@@ -19,6 +19,7 @@ package org.apache.inlong.dataproxy.config.holder;
 
 import org.apache.inlong.common.metric.MetricListener;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
+
 import org.junit.Assert;
 import org.junit.Test;
 

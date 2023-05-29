@@ -24,6 +24,7 @@ import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.HeartbeatManager;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
+
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.api.support.membermodification.MemberModifier;
 import org.slf4j.Logger;

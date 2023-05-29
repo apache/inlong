@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import org.apache.inlong.sort.base.sink.TableChange;
+import org.apache.inlong.sort.base.sink.TableChange.AddColumn;
+import org.apache.inlong.sort.base.sink.TableChange.ColumnPosition;
+import org.apache.inlong.sort.base.sink.TableChange.UnknownColumnChange;
+import org.apache.inlong.sort.iceberg.FlinkTypeToType;
+
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.UpdateSchema;
@@ -25,11 +31,6 @@ import org.apache.iceberg.relocated.com.google.common.base.Joiner;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.types.Type;
 import org.apache.iceberg.types.Types.NestedField;
-import org.apache.inlong.sort.base.sink.TableChange;
-import org.apache.inlong.sort.iceberg.FlinkTypeToType;
-import org.apache.inlong.sort.base.sink.TableChange.AddColumn;
-import org.apache.inlong.sort.base.sink.TableChange.ColumnPosition;
-import org.apache.inlong.sort.base.sink.TableChange.UnknownColumnChange;
 
 import java.util.ArrayList;
 import java.util.Arrays;

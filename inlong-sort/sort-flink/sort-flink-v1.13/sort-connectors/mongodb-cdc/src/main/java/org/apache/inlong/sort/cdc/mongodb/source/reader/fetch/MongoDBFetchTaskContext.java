@@ -17,9 +17,13 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.reader.fetch;
 
-import static com.ververica.cdc.connectors.mongodb.source.utils.BsonUtils.compareBsonValue;
-import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.getDocumentKey;
-import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.getResumeToken;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
+import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
+import org.apache.inlong.sort.cdc.mongodb.source.dialect.MongoDBDialect;
+import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamDescriptor;
+import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffset;
 
 import com.mongodb.client.model.changestream.OperationType;
 import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
@@ -29,23 +33,21 @@ import io.debezium.pipeline.DataChangeEvent;
 import io.debezium.relational.TableId;
 import io.debezium.relational.Tables;
 import io.debezium.util.LoggingContext;
-import java.time.Duration;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
-import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
-import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
-import org.apache.inlong.sort.cdc.mongodb.source.dialect.MongoDBDialect;
-import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamDescriptor;
-import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffset;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.bson.BsonDocument;
 import org.bson.BsonType;
 import org.bson.BsonValue;
+
+import java.time.Duration;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.ververica.cdc.connectors.mongodb.source.utils.BsonUtils.compareBsonValue;
+import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.getDocumentKey;
+import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.getResumeToken;
 
 /** The context for fetch task that fetching data of snapshot split from MongoDB data source. */
 public class MongoDBFetchTaskContext implements FetchTask.Context {

@@ -17,23 +17,25 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplitState;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
+
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.HistoryRecord;
+import io.debezium.relational.history.HistoryRecord.Fields;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.apache.inlong.sort.base.Constants.CARET;
 import static org.apache.inlong.sort.base.Constants.DDL_OP_ALTER;
 import static org.apache.inlong.sort.base.Constants.DOLLAR;
 import static org.apache.inlong.sort.base.Constants.GHOST_TAG;
 import static org.apache.inlong.sort.base.Constants.TABLE_NAME;
 import static org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
-
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.HistoryRecord;
-import io.debezium.relational.history.HistoryRecord.Fields;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplitState;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.source.SourceRecord;
 
 /**
  * Utility class to deal gh-ost record.

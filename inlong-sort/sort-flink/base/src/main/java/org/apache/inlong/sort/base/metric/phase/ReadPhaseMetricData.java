@@ -17,14 +17,16 @@
 
 package org.apache.inlong.sort.base.metric.phase;
 
-import static org.apache.inlong.sort.base.Constants.READ_PHASE_TIMESTAMP;
-
-import java.util.Map;
-import org.apache.flink.metrics.Counter;
-import org.apache.flink.metrics.MetricGroup;
 import org.apache.inlong.sort.base.metric.MetricData;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
+
+import org.apache.flink.metrics.Counter;
+import org.apache.flink.metrics.MetricGroup;
+
+import java.util.Map;
+
+import static org.apache.inlong.sort.base.Constants.READ_PHASE_TIMESTAMP;
 
 /**
  * A collection class for handling read phase metric data

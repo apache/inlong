@@ -17,14 +17,10 @@
 
 package org.apache.inlong.sort.cdc.base.util;
 
-import static org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
-
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.relational.Column;
 import io.debezium.relational.TableId;
-import java.util.Arrays;
-import java.util.List;
 import org.apache.flink.table.types.logical.BigIntType;
 import org.apache.flink.table.types.logical.BinaryType;
 import org.apache.flink.table.types.logical.BooleanType;
@@ -40,6 +36,11 @@ import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
 
 /**
  * Utility class to deal record.

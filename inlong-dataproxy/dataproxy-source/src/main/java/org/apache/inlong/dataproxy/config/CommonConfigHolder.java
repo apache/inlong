@@ -17,14 +17,16 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.sink.common.DefaultEventHandler;
 import org.apache.inlong.dataproxy.sink.mq.AllCacheClusterSelector;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;

@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
+import org.apache.inlong.sort.cdc.mysql.schema.MySqlTypeUtils;
+
 import io.debezium.relational.Column;
 import io.debezium.relational.Table;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.cdc.mysql.schema.MySqlTypeUtils;
 
 import java.util.List;
 
