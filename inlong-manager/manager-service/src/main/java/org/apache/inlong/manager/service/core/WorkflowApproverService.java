@@ -41,6 +41,7 @@ public interface WorkflowApproverService {
      * Get workflow approver by ID
      *
      * @param id approver id
+     * @param operator operator name
      * @return approver info
      */
     ApproverResponse get(Integer id, String operator);
