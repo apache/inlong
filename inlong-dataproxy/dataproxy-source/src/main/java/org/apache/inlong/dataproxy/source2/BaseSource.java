@@ -179,11 +179,9 @@ public abstract class BaseSource
         // get max worker threads
         this.maxWorkerThreads = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_MAX_WORKER_THREADS, SourceConstants.VAL_DEF_WORKER_THREADS);
-        Preconditions.checkArgument((this.maxWorkerThreads >= SourceConstants.VAL_MIN_WORKER_THREADS
-                && this.maxWorkerThreads <= SourceConstants.VAL_MAX_WORKER_THREADS),
-                SourceConstants.SRCCXT_MAX_WORKER_THREADS + " must be in ["
-                        + SourceConstants.VAL_MIN_WORKER_THREADS + ", "
-                        + SourceConstants.VAL_MAX_WORKER_THREADS + "]");
+        Preconditions.checkArgument((this.maxWorkerThreads >= SourceConstants.VAL_MIN_WORKER_THREADS),
+                SourceConstants.SRCCXT_MAX_WORKER_THREADS + " must be >= "
+                        + SourceConstants.VAL_MIN_WORKER_THREADS);
         // get max read idle time
         this.maxReadIdleTimeMs = ConfStringUtils.getLongValue(context,
                 SourceConstants.SRCCXT_MAX_READ_IDLE_TIME_MS, SourceConstants.VAL_DEF_READ_IDLE_TIME_MS);
@@ -204,18 +202,12 @@ public abstract class BaseSource
         Preconditions.checkArgument(this.maxRcvBufferSize >= SourceConstants.VAL_MIN_RECEIVE_BUFFER_SIZE,
                 SourceConstants.SRCCXT_RECEIVE_BUFFER_SIZE + " must be >= "
                         + SourceConstants.VAL_MIN_RECEIVE_BUFFER_SIZE);
-        if (this.maxRcvBufferSize > SourceConstants.VAL_MAX_RECEIVE_BUFFER_SIZE) {
-            this.maxRcvBufferSize = SourceConstants.VAL_MAX_RECEIVE_BUFFER_SIZE;
-        }
         // get max send buffer size
         this.maxSendBufferSize = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_SEND_BUFFER_SIZE, SourceConstants.VAL_DEF_SEND_BUFFER_SIZE);
         Preconditions.checkArgument(this.maxSendBufferSize >= SourceConstants.VAL_MIN_SEND_BUFFER_SIZE,
                 SourceConstants.SRCCXT_SEND_BUFFER_SIZE + " must be >= "
                         + SourceConstants.VAL_MIN_SEND_BUFFER_SIZE);
-        if (this.maxSendBufferSize > SourceConstants.VAL_MAX_SEND_BUFFER_SIZE) {
-            this.maxSendBufferSize = SourceConstants.VAL_MAX_SEND_BUFFER_SIZE;
-        }
     }
 
     @Override

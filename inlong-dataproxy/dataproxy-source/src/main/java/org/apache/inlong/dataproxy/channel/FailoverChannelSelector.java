@@ -103,9 +103,7 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
      */
     private List<String> splitChannelName(String channelName) {
         List<String> fileMetricList = new ArrayList<String>();
-        if (StringUtils.isEmpty(channelName)) {
-            LOG.info("channel name is null!");
-        } else {
+        if (StringUtils.isNotBlank(channelName)) {
             fileMetricList = Arrays.asList(channelName.split("\\s+"));
         }
         return fileMetricList;
@@ -145,11 +143,9 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
                 this.slaveChannels.add(channel);
             }
         }
-        LOG.info("masters:" + this.masterChannels);
-        LOG.info("orders:" + this.orderChannels);
-        LOG.info("slaves:" + this.slaveChannels);
-        LOG.info("transfers:" + this.transferChannels);
-        LOG.info("agentFileMetrics:" + this.agentFileMetricChannels);
-        LOG.info("slaMetrics:" + this.slaMetricChannels);
+        LOG.info(
+                "Configure channels, masters={}, orders={}, slaves={}, transfers={}, agentFileMetrics={}, slaMetrics={}",
+                this.masterChannels, this.orderChannels, this.slaveChannels,
+                this.transferChannels, this.agentFileMetricChannels, this.slaMetricChannels);
     }
 }

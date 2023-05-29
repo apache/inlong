@@ -61,7 +61,6 @@ public class SourceConstants {
     public static final String SRCCXT_MAX_WORKER_THREADS = "max-threads";
     public static final int VAL_DEF_WORKER_THREADS = Runtime.getRuntime().availableProcessors();
     public static final int VAL_MIN_WORKER_THREADS = 1;
-    public static final int VAL_MAX_WORKER_THREADS = Runtime.getRuntime().availableProcessors() * 2;
     // max connection count
     public static final String SRCCXT_MAX_CONNECTION_CNT = "connections";
     public static final int VAL_DEF_MAX_CONNECTION_CNT = 5000;
@@ -70,12 +69,10 @@ public class SourceConstants {
     public static final String SRCCXT_RECEIVE_BUFFER_SIZE = "receiveBufferSize";
     public static final int VAL_DEF_RECEIVE_BUFFER_SIZE = 64 * 1024;
     public static final int VAL_MIN_RECEIVE_BUFFER_SIZE = 0;
-    public static final int VAL_MAX_RECEIVE_BUFFER_SIZE = 100 * 1024 * 1024;
     // max send buffer size
     public static final String SRCCXT_SEND_BUFFER_SIZE = "sendBufferSize";
     public static final int VAL_DEF_SEND_BUFFER_SIZE = 64 * 1024;
     public static final int VAL_MIN_SEND_BUFFER_SIZE = 0;
-    public static final int VAL_MAX_SEND_BUFFER_SIZE = 100 * 1024 * 1024;
     // tcp parameter no delay
     public static final String SRCCXT_TCP_NO_DELAY = "tcpNoDelay";
     public static final boolean VAL_DEF_TCP_NO_DELAY = true;

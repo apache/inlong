@@ -38,27 +38,27 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * save to list
  */
-public class IPVisitConfigHolder extends ConfigHolder {
+public class VisitConfigHolder extends ConfigHolder {
 
     private static final int MIN_NETMASK_BITS = 0;
     private static final int MAX_NETMASK_BITS = 32;
     private static final String MASKIP_NETMASK_SEP = "/";
     private static final String IPV4ADDR_TMP =
             "((?:(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(?:25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d))))";
-    private static final Logger LOG = LoggerFactory.getLogger(IPVisitConfigHolder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VisitConfigHolder.class);
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final boolean isBlackList;
     private final ConcurrentHashMap<String, Long> confHolder = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> ipAddrHolder = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Pair<Integer, Integer>> ipSegmentHolder = new ConcurrentHashMap<>();
 
-    public IPVisitConfigHolder(boolean isBlackList, String fileName) {
+    public VisitConfigHolder(boolean isBlackList, String fileName) {
         super(fileName);
         this.isBlackList = isBlackList;
     }
 
     @Override
-    public boolean loadFromFileToHolder() {
+    protected boolean loadFromFileToHolder() {
         readWriteLock.writeLock().lock();
         try {
             Map<String, Long> tmpHolder = loadFile();
@@ -90,9 +90,7 @@ public class IPVisitConfigHolder extends ConfigHolder {
             int hostAddrMask;
             tmpKeys.clear();
             for (Map.Entry<String, Long> entry : tmpHolder.entrySet()) {
-                if (entry == null
-                        || entry.getKey() == null
-                        || StringUtils.isBlank(entry.getKey())) {
+                if (entry == null || StringUtils.isBlank(entry.getKey())) {
                     continue;
                 }
                 if (!confHolder.containsKey(entry.getKey())) {

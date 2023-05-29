@@ -40,7 +40,7 @@ public class MxPropertiesHolder extends PropertiesConfigHolder {
      * load m from file
      */
     @Override
-    public boolean loadFromFileToHolder() {
+    protected boolean loadFromFileToHolder() {
         super.loadFromFileToHolder();
         try {
             for (Map.Entry<String, String> entry : getHolder().entrySet()) {
