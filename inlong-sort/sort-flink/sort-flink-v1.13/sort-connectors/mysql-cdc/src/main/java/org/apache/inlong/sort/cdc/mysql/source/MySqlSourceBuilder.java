@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sort.cdc.mysql.source;
 
-import org.apache.flink.annotation.PublicEvolving;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfigFactory;
 import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
+
+import org.apache.flink.annotation.PublicEvolving;
 
 import java.time.Duration;
 import java.util.Properties;

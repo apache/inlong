@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.config;
 
-import org.apache.flink.annotation.Internal;
 import org.apache.inlong.sort.cdc.mysql.debezium.EmbeddedFlinkDatabaseHistory;
 import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
+
+import org.apache.flink.annotation.Internal;
 
 import java.io.Serializable;
 import java.time.Duration;
