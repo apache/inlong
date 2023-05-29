@@ -44,7 +44,7 @@ public class SchemaChangeUtils {
 
     /**
      * Compare two schemas and get the schema changes that happened in them.
-     * TODO: currently only support add column,delete column and update column(column type change)
+     * TODO: currently only support add column,delete column and column type change, rename column and column position change are not supported
      *
      * @param oldSchema
      * @param newSchema
@@ -62,7 +62,10 @@ public class SchemaChangeUtils {
 
         List<TableChange> tableChanges = new ArrayList<>();
 
-        // step0: Unknown change
+        // step0: judge whether unknown change
+        // just diff two different schema can not distinguish（add + delete) vs modify
+        // Example first [a, b, c] -> then delete c [a, b] -> add d [a, b, d], currently it is only judged as unknown change.
+        // In next version,we will judge it is [delete and add] or rename by using information extracted from DDL
         if (!colsToDelete.isEmpty() && !colsToAdd.isEmpty()) {
             tableChanges.add(new UnknownColumnChange(
                     String.format(" old schema: [%s] and new schema: [%s], it is unknown column change",
@@ -70,7 +73,7 @@ public class SchemaChangeUtils {
             return tableChanges;
         }
 
-        // step1: judge whether update column(only column type change and doc change)
+        // step1: judge whether column type change
         for (String colName : intersectColSet) {
             NestedField oldField = oldSchema.findField(colName);
             NestedField newField = newSchema.findField(colName);
