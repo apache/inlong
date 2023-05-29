@@ -71,7 +71,6 @@ public class WorkflowApproverController {
 
     @GetMapping("/workflow/approver/list")
     @ApiOperation(value = "List workflow approvers")
-    @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<PageResult<ApproverResponse>> listByCondition(ApproverPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
