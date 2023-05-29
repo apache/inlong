@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.service.user;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
 import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.ServiceBaseTest;
+
+import com.github.pagehelper.PageInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;

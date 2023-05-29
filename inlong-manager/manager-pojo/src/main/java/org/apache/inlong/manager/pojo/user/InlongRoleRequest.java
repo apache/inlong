@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.pojo.user;
 
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import javax.validation.constraints.NotBlank;
 

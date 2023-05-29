@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.service.user;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
 import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
+
+import com.github.pagehelper.PageInfo;
 
 public interface InlongRoleService {
 

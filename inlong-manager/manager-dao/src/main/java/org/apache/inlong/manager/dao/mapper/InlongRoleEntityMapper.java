@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import com.github.pagehelper.Page;
 import org.apache.inlong.manager.dao.entity.InlongRoleEntity;
 import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
+
+import com.github.pagehelper.Page;
 import org.springframework.stereotype.Repository;
 
 @Repository

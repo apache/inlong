@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.user;
 
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,7 +26,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.util.Date;
 
