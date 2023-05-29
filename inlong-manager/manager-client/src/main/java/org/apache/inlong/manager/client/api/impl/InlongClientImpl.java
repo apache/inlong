@@ -150,7 +150,6 @@ public class InlongClientImpl implements InlongClient {
                         .originalStatus(briefInfo.getStatus())
                         .simpleGroupStatus(groupStatus)
                         .streamSources(sources)
-                        .properties(Maps.newHashMap())
                         .build();
                 groupStatusMap.put(groupId, statusInfo);
             });

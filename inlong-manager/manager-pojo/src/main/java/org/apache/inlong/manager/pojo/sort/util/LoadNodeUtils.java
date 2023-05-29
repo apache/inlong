@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import java.util.Objects;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -90,6 +89,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -357,7 +357,7 @@ public class LoadNodeUtils {
         Format format = null;
         if (starRocksSink.getSinkMultipleEnable() != null && starRocksSink.getSinkMultipleEnable()
                 && StringUtils.isNotBlank(
-                starRocksSink.getSinkMultipleFormat())) {
+                        starRocksSink.getSinkMultipleFormat())) {
             DataTypeEnum dataType = DataTypeEnum.forType(starRocksSink.getSinkMultipleFormat());
             switch (dataType) {
                 case CANAL:
@@ -552,7 +552,7 @@ public class LoadNodeUtils {
         Format format = null;
         if (elasticsearchSink.getSinkMultipleEnable() != null && elasticsearchSink.getSinkMultipleEnable()
                 && StringUtils.isNotBlank(
-                elasticsearchSink.getSinkMultipleFormat())) {
+                        elasticsearchSink.getSinkMultipleFormat())) {
             DataTypeEnum dataType = DataTypeEnum.forType(elasticsearchSink.getSinkMultipleFormat());
             switch (dataType) {
                 case CANAL:

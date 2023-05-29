@@ -57,7 +57,8 @@ public class InlongGroupStatusInfo {
     @ApiModelProperty(value = "Sort job status of the group")
     private SortStatus sortStatus = SortStatus.UNKNOWN;
 
+    @Builder.Default
     @ApiModelProperty("Extended properties of the group")
-    private Map<String, Object> properties;
+    private Map<String, Object> properties = Maps.newHashMap();
 
 }
