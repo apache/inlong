@@ -39,11 +39,14 @@ func ExampleClient_Send() {
 	}
 
 	for i := 0; i < 1000; i++ {
-		client.Send(context.Background(), dataproxy.Message{
+		err := client.Send(context.Background(), dataproxy.Message{
 			GroupID:  "test",
 			StreamID: "test",
 			Payload:  []byte("test|a|b|c"),
 		})
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 	client.Close()
