@@ -235,18 +235,13 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             String groupIdNum = commonAttrMap.get(AttrConstants.GROUPID_NUM);
             String streamIdNum = commonAttrMap.get(AttrConstants.STREAMID_NUM);
 
-            if (configManager.getGroupIdMappingProperties() != null
-                    && configManager.getStreamIdMappingProperties() != null) {
-                groupId = configManager.getGroupIdMappingProperties().get(groupIdNum);
-                streamId = (configManager.getStreamIdMappingProperties().get(groupIdNum) == null)
-                        ? null
-                        : configManager.getStreamIdMappingProperties().get(groupIdNum).get(streamIdNum);
+            if (!configManager.isGroupIdNumConfigEmpty()
+                    && !configManager.isStreamIdNumConfigEmpty()) {
+                groupId = configManager.getGroupIdNameByNum(groupIdNum);
+                streamId = configManager.getStreamIdNameByIdNum(groupIdNum, streamIdNum);
                 if (groupId != null && streamId != null) {
-                    String enableTrans = (configManager.getGroupIdEnableMappingProperties() == null)
-                            ? null
-                            : configManager.getGroupIdEnableMappingProperties().get(groupIdNum);
-                    if (("TRUE".equalsIgnoreCase(enableTrans) && "TRUE"
-                            .equalsIgnoreCase(num2name))) {
+                    if ((configManager.isEnableNum2NameTrans(groupIdNum)
+                            && "TRUE".equalsIgnoreCase(num2name))) {
                         String extraAttr = "groupId=" + groupId + "&" + "streamId=" + streamId;
                         message.setData(newBinMsg(message.getData(), extraAttr));
                     }

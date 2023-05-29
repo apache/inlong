@@ -89,6 +89,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -117,6 +118,7 @@ public class LoadNodeUtils {
                 .collect(Collectors.toList());
         List<FieldRelation> fieldRelations = parseSinkFields(streamSink.getSinkFieldList(), constantFieldMap);
         Map<String, String> properties = streamSink.getProperties().entrySet().stream()
+                .filter(v -> Objects.nonNull(v.getValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         String sinkType = streamSink.getSinkType();
         switch (sinkType) {
