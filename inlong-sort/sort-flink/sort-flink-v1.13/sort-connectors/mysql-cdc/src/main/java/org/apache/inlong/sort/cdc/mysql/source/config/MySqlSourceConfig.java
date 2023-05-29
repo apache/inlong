@@ -17,15 +17,13 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.config;
 
-import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
-import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
-
 import io.debezium.config.Configuration;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
 import io.debezium.relational.RelationalTableFilters;
+import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
+import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
 
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.List;
@@ -74,6 +72,7 @@ public class MySqlSourceConfig implements Serializable {
     private final boolean includeIncremental;
     private final boolean ghostDdlChange;
     private final String ghostTableRegex;
+    private final boolean migrateAll;
 
     MySqlSourceConfig(
             String hostname,
@@ -101,7 +100,8 @@ public class MySqlSourceConfig implements Serializable {
             String inlongAudit,
             boolean includeIncremental,
             boolean ghostDdlChange,
-            String ghostTableRegex) {
+            String ghostTableRegex,
+            boolean migrateAll) {
         this.hostname = checkNotNull(hostname);
         this.port = port;
         this.username = checkNotNull(username);
@@ -130,6 +130,7 @@ public class MySqlSourceConfig implements Serializable {
         this.includeIncremental = includeIncremental;
         this.ghostDdlChange = ghostDdlChange;
         this.ghostTableRegex = ghostTableRegex;
+        this.migrateAll = migrateAll;
     }
 
     public String getHostname() {
@@ -247,5 +248,9 @@ public class MySqlSourceConfig implements Serializable {
 
     public String getGhostTableRegex() {
         return ghostTableRegex;
+    }
+
+    public boolean isMigrateAll() {
+        return migrateAll;
     }
 }

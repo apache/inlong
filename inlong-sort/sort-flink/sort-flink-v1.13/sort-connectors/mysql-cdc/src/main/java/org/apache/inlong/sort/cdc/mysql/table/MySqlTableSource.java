@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
-import org.apache.inlong.sort.base.filter.RowKindValidator;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
-import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
-
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -36,9 +29,14 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.filter.RowKindValidator;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
+import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
+import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
 
 import javax.annotation.Nullable;
-
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Collections;
@@ -240,6 +238,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .includeIncremental(includeIncremental)
                             .ghostDdlChange(ghostDdlChange)
                             .ghostTableRegex(ghostTableRegex)
+                            .migrateAll(migrateAll)
                             .build();
             return SourceProvider.of(parallelSource);
         } else {

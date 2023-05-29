@@ -17,11 +17,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.source;
 
+import org.apache.flink.annotation.PublicEvolving;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfigFactory;
 import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
-
-import org.apache.flink.annotation.PublicEvolving;
 
 import java.time.Duration;
 import java.util.Properties;
@@ -260,6 +259,11 @@ public class MySqlSourceBuilder<T> {
 
     public MySqlSourceBuilder<T> inlongAudit(String inlongAudit) {
         this.configFactory.inlongAudit(inlongAudit);
+        return this;
+    }
+
+    public MySqlSourceBuilder<T> migrateAll(boolean migrateAll) {
+        this.configFactory.migrateAll(migrateAll);
         return this;
     }
 

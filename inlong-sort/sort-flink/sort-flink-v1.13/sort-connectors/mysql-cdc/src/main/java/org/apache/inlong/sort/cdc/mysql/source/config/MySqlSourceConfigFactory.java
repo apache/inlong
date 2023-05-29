@@ -17,10 +17,9 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.config;
 
+import org.apache.flink.annotation.Internal;
 import org.apache.inlong.sort.cdc.mysql.debezium.EmbeddedFlinkDatabaseHistory;
 import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
-
-import org.apache.flink.annotation.Internal;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -79,6 +78,7 @@ public class MySqlSourceConfigFactory implements Serializable {
     private boolean includeIncremental;
     private boolean ghostDdlChange;
     private String ghostTableRegex;
+    private boolean migrateAll;
 
     public MySqlSourceConfigFactory inlongMetric(String inlongMetric) {
         this.inlongMetric = inlongMetric;
@@ -102,6 +102,11 @@ public class MySqlSourceConfigFactory implements Serializable {
 
     public MySqlSourceConfigFactory ghostTableRegex(String ghostTableRegex) {
         this.ghostTableRegex = ghostTableRegex;
+        return this;
+    }
+
+    public MySqlSourceConfigFactory migrateAll(boolean migrateAll) {
+        this.migrateAll = migrateAll;
         return this;
     }
 
@@ -391,6 +396,7 @@ public class MySqlSourceConfigFactory implements Serializable {
                 inlongAudit,
                 includeIncremental,
                 ghostDdlChange,
-                ghostTableRegex);
+                ghostTableRegex,
+                migrateAll);
     }
 }

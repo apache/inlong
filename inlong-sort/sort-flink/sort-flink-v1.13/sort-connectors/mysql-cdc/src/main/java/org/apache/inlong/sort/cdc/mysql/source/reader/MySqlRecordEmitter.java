@@ -17,15 +17,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.reader;
 
-import org.apache.inlong.sort.base.enums.ReadPhase;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.base.util.ColumnFilterUtil;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
-import org.apache.inlong.sort.cdc.mysql.source.metrics.MySqlSourceReaderMetrics;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
-
 import com.ververica.cdc.connectors.mysql.source.utils.RecordUtils;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
@@ -45,6 +36,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.connector.source.SourceOutput;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
 import org.apache.flink.util.Collector;
+import org.apache.inlong.sort.base.enums.ReadPhase;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.base.util.ColumnFilterUtil;
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+import org.apache.inlong.sort.cdc.mysql.source.metrics.MySqlSourceReaderMetrics;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -97,6 +96,7 @@ public final class MySqlRecordEmitter<T>
     private volatile Long snapDuration;
     private volatile long snapEarliestTime = 0L;
     private volatile long snapProcessTime = 0L;
+    private final boolean migrateAll;
 
     private boolean includeIncremental;
     private boolean ghostDdlChange;
@@ -115,6 +115,7 @@ public final class MySqlRecordEmitter<T>
                 sourceConfig.getDbzConfiguration(), ColumnFilterMode.CATALOG);
         this.ghostDdlChange = sourceConfig.isGhostDdlChange();
         this.ghostTableRegex = sourceConfig.getGhostTableRegex();
+        this.migrateAll = sourceConfig.isMigrateAll();
     }
 
     @Override
@@ -185,12 +186,16 @@ public final class MySqlRecordEmitter<T>
 
                         @Override
                         public void collect(final T t) {
-                            Struct value = (Struct) element.value();
-                            Struct source = value.getStruct(Envelope.FieldName.SOURCE);
-                            String databaseName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
-                            String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
+                            if (migrateAll) {
+                                Struct value = (Struct) element.value();
+                                Struct source = value.getStruct(Envelope.FieldName.SOURCE);
+                                String databaseName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
+                                String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
 
-                            sourceReaderMetrics.outputMetrics(databaseName, tableName, iSnapShot, t);
+                                sourceReaderMetrics.outputMetrics(databaseName, tableName, iSnapShot, t);
+                            } else {
+                                sourceReaderMetrics.outputMetrics(null, null, iSnapShot, t);
+                            }
                             output.collect(t);
                         }
 
