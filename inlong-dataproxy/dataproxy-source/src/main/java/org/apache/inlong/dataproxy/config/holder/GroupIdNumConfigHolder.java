@@ -17,8 +17,9 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.dataproxy.config.PropertiesHolder;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
