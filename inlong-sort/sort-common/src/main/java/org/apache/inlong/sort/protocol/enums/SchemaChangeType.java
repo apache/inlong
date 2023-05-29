@@ -61,7 +61,7 @@ public enum SchemaChangeType {
     ALTER(-1);
 
     /**
-     * The code represents this schama change type
+     * The code represents this schema change type
      */
     private final int code;
 

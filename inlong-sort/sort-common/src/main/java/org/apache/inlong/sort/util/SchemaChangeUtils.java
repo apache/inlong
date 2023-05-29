@@ -87,9 +87,9 @@ public final class SchemaChangeUtils {
      */
     public static String serialize(Map<SchemaChangeType, SchemaChangePolicy> policyMap) {
         Preconditions.checkNotNull(policyMap, "policyMap is null");
-        StringJoiner joiner = new StringJoiner("&");
+        StringJoiner joiner = new StringJoiner(DELIMITER);
         for (Entry<SchemaChangeType, SchemaChangePolicy> kv : policyMap.entrySet()) {
-            joiner.add(kv.getKey().getCode() + "=" + kv.getValue().getCode());
+            joiner.add(kv.getKey().getCode() + KEY_VALUE_DELIMITER + kv.getValue().getCode());
         }
         return joiner.toString();
     }
@@ -205,13 +205,24 @@ public final class SchemaChangeUtils {
         Preconditions.checkNotNull(alterColumn.getNewColumn(), "The new column is null");
         Column newColumn = alterColumn.getNewColumn();
         Column oldColumn = alterColumn.getOldColumn();
-        Preconditions.checkState(newColumn.getName() != null && !newColumn.getName().trim().isEmpty(),
-                "The new column name is blank");
-        if (oldColumn != null && oldColumn.getName() != null && !oldColumn.getName().trim().isEmpty()
-                && !newColumn.getName().equals(oldColumn.getName())) {
+        Preconditions.checkState(isNotEmpty(newColumn), "The new column name is blank");
+        if (isNotEmpty(oldColumn) && !oldColumn.getName().equals(newColumn.getName())) {
             types.add(SchemaChangeType.RENAME_COLUMN);
         } else {
             types.add(SchemaChangeType.CHANGE_COLUMN_TYPE);
         }
+    }
+
+    /**
+     * Check if column is empty
+     *
+     * @param column The column {@link Column}
+     * @return true if not empty else false
+     */
+    public static boolean isNotEmpty(Column column) {
+        if (column == null || column.getName() == null) {
+            return false;
+        }
+        return !column.getName().trim().isEmpty();
     }
 }
