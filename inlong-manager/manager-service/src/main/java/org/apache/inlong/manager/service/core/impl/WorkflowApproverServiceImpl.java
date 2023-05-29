@@ -19,16 +19,19 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowApproverEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
@@ -89,11 +92,18 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
     @Override
     public ApproverResponse get(Integer id) {
         Preconditions.expectNotNull(id, "approver id cannot be null");
+
         WorkflowApproverEntity approverEntity = approverMapper.selectById(id);
         if (approverEntity == null) {
             LOGGER.error("workflow approver not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.WORKFLOW_APPROVER_NOT_FOUND);
         }
+
+        UserInfo userInfo = LoginUserUtils.getLoginUser();
+        boolean isAdmin = userInfo.getRoles().contains(UserTypeEnum.ADMIN.name());
+        Preconditions.expectTrue(isAdmin || approverEntity.getApprovers().contains(userInfo.getName()),
+                "You are not a manager and do not have permission to get this workflow approver");
+
         return CommonBeanUtils.copyProperties(approverEntity, ApproverResponse::new);
     }
 
