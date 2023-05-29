@@ -108,6 +108,18 @@ public enum DirtyType {
      * Document parse error
      */
     DOCUMENT_PARSE_ERROR("DocumentParseError"),
+    /**
+     * Create table error
+     */
+    CREATE_TABLE_ERROR("CreateTableError"),
+    /**
+     * Extract schema change type error
+     */
+    EXTRACT_SCHEMA_CHANGE_TYPE_ERROR("ExtractSchemaChangeTypeError"),
+    /**
+     * Handle alter table error
+     */
+    HANDLE_ALTER_TABLE_ERROR("HandleAlterTableError"),
     ;
 
     private final String format;

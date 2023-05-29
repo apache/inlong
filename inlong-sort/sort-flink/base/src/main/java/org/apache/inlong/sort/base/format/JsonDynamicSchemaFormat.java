@@ -52,7 +52,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
-
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
 
 /**
@@ -336,7 +335,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
         return new RowType(fields);
     }
 
-    private LogicalType sqlType2FlinkType(int jdbcType) {
+    public LogicalType sqlType2FlinkType(int jdbcType) {
         Map<Integer, LogicalType> typeMap = adaptSparkEngine
                 ? SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING
                 : SQL_TYPE_2_FLINK_TYPE_MAPPING;
