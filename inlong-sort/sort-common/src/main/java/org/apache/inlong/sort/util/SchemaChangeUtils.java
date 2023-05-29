@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sort.util;
 
-import com.google.common.base.Preconditions;
 import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.protocol.ddl.expressions.Column;
 import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
 import org.apache.inlong.sort.protocol.ddl.operations.Operation;
 import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
 import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
+
+import com.google.common.base.Preconditions;
 
 import java.util.HashMap;
 import java.util.HashSet;

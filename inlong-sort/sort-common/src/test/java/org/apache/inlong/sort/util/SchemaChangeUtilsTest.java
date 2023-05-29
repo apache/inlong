@@ -19,6 +19,7 @@ package org.apache.inlong.sort.util;
 
 import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
 import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
