@@ -22,8 +22,8 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.InlongRoleEntity;
-import org.apache.inlong.manager.dao.mapper.InlongRoleEntityMapper;
+import org.apache.inlong.manager.dao.entity.InlongUserRoleEntity;
+import org.apache.inlong.manager.dao.mapper.InlongUserRoleEntityMapper;
 import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
 import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
@@ -38,12 +38,12 @@ import org.springframework.stereotype.Service;
 public class InlongRoleServiceImpl implements InlongRoleService {
 
     @Autowired
-    private InlongRoleEntityMapper inlongUserMapper;
+    private InlongUserRoleEntityMapper inlongUserMapper;
 
     @Override
     public PageInfo<InlongRoleInfo> listByCondition(InlongRolePageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<InlongRoleEntity> entityPage = inlongUserMapper.listByCondition(request);
+        Page<InlongUserRoleEntity> entityPage = inlongUserMapper.listByCondition(request);
         return entityPage.toPageInfo(entity -> CommonBeanUtils.copyProperties(entity, InlongRoleInfo::new));
     }
 
@@ -54,7 +54,7 @@ public class InlongRoleServiceImpl implements InlongRoleService {
         Preconditions.expectNotBlank(request.getRoleCode(),
                 "Failed to save tenant user role, role code should not be blank");
 
-        InlongRoleEntity entity = CommonBeanUtils.copyProperties(request, InlongRoleEntity::new);
+        InlongUserRoleEntity entity = CommonBeanUtils.copyProperties(request, InlongUserRoleEntity::new);
         String operator = LoginUserUtils.getLoginUser().getName();
         entity.setCreator(operator);
         entity.setModifier(operator);
@@ -64,11 +64,11 @@ public class InlongRoleServiceImpl implements InlongRoleService {
 
     @Override
     public boolean update(InlongRoleRequest request) {
-        InlongRoleEntity exist = inlongUserMapper.selectById(request.getId());
+        InlongUserRoleEntity exist = inlongUserMapper.selectById(request.getId());
         Preconditions.expectNotNull(exist, ErrorCodeEnum.RECORD_NOT_FOUND,
                 String.format("inlong user role record not found by id=%s", request.getId()));
 
-        InlongRoleEntity entity = CommonBeanUtils.copyProperties(request, InlongRoleEntity::new);
+        InlongUserRoleEntity entity = CommonBeanUtils.copyProperties(request, InlongUserRoleEntity::new);
         String operator = LoginUserUtils.getLoginUser().getName();
         entity.setModifier(operator);
         int rowCount = inlongUserMapper.updateById(entity);
@@ -83,7 +83,7 @@ public class InlongRoleServiceImpl implements InlongRoleService {
 
     @Override
     public InlongRoleInfo get(int id) {
-        InlongRoleEntity entity = inlongUserMapper.selectById(id);
+        InlongUserRoleEntity entity = inlongUserMapper.selectById(id);
         return CommonBeanUtils.copyProperties(entity, InlongRoleInfo::new);
     }
 }

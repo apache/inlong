@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-public class InlongRoleEntity implements Serializable {
+public class InlongUserRoleEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;

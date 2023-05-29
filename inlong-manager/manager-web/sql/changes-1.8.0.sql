@@ -69,7 +69,7 @@ VALUES ('admin', 'INLONG_ADMIN', 'inlong_init');
 
 RENAME TABLE user_role TO tenant_user_role;
 ALTER TABLE tenant_user_role
-    ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL comment 'User tenant';
+    ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL COMMENT 'User tenant';
 ALTER TABLE tenant_user_role
     ADD CONSTRAINT unique_tenant_user
         UNIQUE (user_name, tenant, is_deleted);
