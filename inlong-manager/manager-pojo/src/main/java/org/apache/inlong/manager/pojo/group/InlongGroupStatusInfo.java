@@ -58,6 +58,6 @@ public class InlongGroupStatusInfo {
     private SortStatus sortStatus = SortStatus.UNKNOWN;
 
     @ApiModelProperty("Extended properties of the group")
-    private Map<String, Object> properties = Maps.newHashMap();
+    private Map<String, Object> properties;
 
 }

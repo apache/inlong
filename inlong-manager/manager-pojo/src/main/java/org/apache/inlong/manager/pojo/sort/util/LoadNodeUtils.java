@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import java.util.Objects;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -117,6 +118,7 @@ public class LoadNodeUtils {
                 .collect(Collectors.toList());
         List<FieldRelation> fieldRelations = parseSinkFields(streamSink.getSinkFieldList(), constantFieldMap);
         Map<String, String> properties = streamSink.getProperties().entrySet().stream()
+                .filter(v -> Objects.nonNull(v.getValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         String sinkType = streamSink.getSinkType();
         switch (sinkType) {
@@ -355,7 +357,7 @@ public class LoadNodeUtils {
         Format format = null;
         if (starRocksSink.getSinkMultipleEnable() != null && starRocksSink.getSinkMultipleEnable()
                 && StringUtils.isNotBlank(
-                        starRocksSink.getSinkMultipleFormat())) {
+                starRocksSink.getSinkMultipleFormat())) {
             DataTypeEnum dataType = DataTypeEnum.forType(starRocksSink.getSinkMultipleFormat());
             switch (dataType) {
                 case CANAL:
@@ -550,7 +552,7 @@ public class LoadNodeUtils {
         Format format = null;
         if (elasticsearchSink.getSinkMultipleEnable() != null && elasticsearchSink.getSinkMultipleEnable()
                 && StringUtils.isNotBlank(
-                        elasticsearchSink.getSinkMultipleFormat())) {
+                elasticsearchSink.getSinkMultipleFormat())) {
             DataTypeEnum dataType = DataTypeEnum.forType(elasticsearchSink.getSinkMultipleFormat());
             switch (dataType) {
                 case CANAL:

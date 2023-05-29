@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import java.util.Objects;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -563,6 +564,7 @@ public class ExtractNodeUtils {
      */
     private static Map<String, String> parseProperties(Map<String, Object> properties) {
         return properties.entrySet().stream()
+                .filter(v -> Objects.nonNull(v.getValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
     }
 
