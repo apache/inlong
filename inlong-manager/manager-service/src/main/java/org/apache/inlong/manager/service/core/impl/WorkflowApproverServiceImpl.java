@@ -93,7 +93,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
     }
 
     @Override
-    public ApproverResponse get(Integer id) {
+    public ApproverResponse get(Integer id, String operator) {
         Preconditions.expectNotNull(id, "approver id cannot be null");
 
         WorkflowApproverEntity approverEntity = approverMapper.selectById(id);
@@ -102,7 +102,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
             throw new BusinessException(ErrorCodeEnum.WORKFLOW_APPROVER_NOT_FOUND);
         }
 
-        userService.checkUser(approverEntity.getApprovers(), LoginUserUtils.getLoginUser().getName(),
+        userService.checkUser(approverEntity.getApprovers(), operator,
                 "Current user does not have permission to get this workflow approver info");
 
         return CommonBeanUtils.copyProperties(approverEntity, ApproverResponse::new);

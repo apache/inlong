@@ -65,7 +65,7 @@ public class WorkflowApproverController {
     @ApiOperation(value = "Get approver by ID")
     @ApiImplicitParam(name = "id", value = "Workflow approver ID", dataTypeClass = Integer.class, required = true)
     public Response<ApproverResponse> get(@PathVariable Integer id) {
-        return Response.success(workflowApproverService.get(id));
+        return Response.success(workflowApproverService.get(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @GetMapping("/workflow/approver/list")
