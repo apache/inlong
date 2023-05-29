@@ -17,12 +17,6 @@
 
 package org.apache.inlong.manager.service.heartbeat;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.google.gson.Gson;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
@@ -44,6 +38,13 @@ import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
 import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
 import org.apache.inlong.manager.service.core.HeartbeatService;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;

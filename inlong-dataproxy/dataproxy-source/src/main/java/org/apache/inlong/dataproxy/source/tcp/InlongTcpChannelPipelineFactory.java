@@ -17,23 +17,23 @@
 
 package org.apache.inlong.dataproxy.source.tcp;
 
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.source.SourceContext;
+
+import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import java.lang.reflect.Constructor;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
+import java.lang.reflect.Constructor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * InlongTcpChannelPipelineFactory

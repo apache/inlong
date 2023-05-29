@@ -17,15 +17,9 @@
 
 package org.apache.inlong.sort.formats.json.canal;
 
-import static org.apache.flink.table.types.utils.TypeConversions.fromLogicalToDataType;
+import org.apache.inlong.sort.formats.json.MysqlBinLogData;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.ReadableMetadata;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.formats.json.JsonRowSerializationSchema;
@@ -40,8 +34,16 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.types.Row;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.formats.json.MysqlBinLogData;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.ReadableMetadata;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.apache.flink.table.types.utils.TypeConversions.fromLogicalToDataType;
 
 /**
  * Copied from apache flink project with a litter change.

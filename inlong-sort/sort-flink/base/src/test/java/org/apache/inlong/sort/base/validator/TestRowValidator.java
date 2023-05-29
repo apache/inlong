@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.base.validator;
 
-import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.base.filter.RowKindValidator;
 import org.apache.inlong.sort.base.filter.RowValidator;
+
+import org.apache.flink.types.RowKind;
 import org.junit.Assert;
 import org.junit.Test;
 

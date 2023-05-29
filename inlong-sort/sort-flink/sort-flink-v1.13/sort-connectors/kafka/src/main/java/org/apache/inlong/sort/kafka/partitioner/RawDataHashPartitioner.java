@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.kafka.partitioner;
 
+import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

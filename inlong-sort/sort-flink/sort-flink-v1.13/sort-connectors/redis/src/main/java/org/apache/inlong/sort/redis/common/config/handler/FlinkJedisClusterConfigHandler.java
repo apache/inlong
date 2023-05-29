@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.redis.common.config.handler;
 
+import org.apache.inlong.sort.redis.common.config.RedisOptions;
+import org.apache.inlong.sort.redis.common.handler.InlongJedisConfigHandler;
+
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisClusterConfig;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.redis.common.config.RedisOptions;
-import org.apache.inlong.sort.redis.common.handler.InlongJedisConfigHandler;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import static org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator.REDIS_CLUSTER;
 import static org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator.REDIS_MODE;
 

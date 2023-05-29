@@ -17,11 +17,13 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.split;
 
+import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+
+import javax.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
-import javax.annotation.Nullable;
-import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
 
 /**
  * An implementation of {@link RecordsWithSplitIds} which contains the records of one table split.

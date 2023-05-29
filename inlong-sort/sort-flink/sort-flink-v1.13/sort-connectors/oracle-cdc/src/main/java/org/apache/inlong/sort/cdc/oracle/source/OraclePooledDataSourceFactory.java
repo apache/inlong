@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sort.cdc.oracle.source;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
 import org.apache.inlong.sort.cdc.base.relational.connection.JdbcConnectionPoolFactory;
 import org.apache.inlong.sort.cdc.oracle.source.config.OracleSourceConfig;
+
+import org.apache.commons.lang3.StringUtils;
 
 /** A Oracle datasource factory.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

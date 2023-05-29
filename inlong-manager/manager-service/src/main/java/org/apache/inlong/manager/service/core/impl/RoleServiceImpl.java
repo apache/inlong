@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.dao.entity.UserRoleEntity;
 import org.apache.inlong.manager.dao.mapper.UserRoleEntityMapper;
 import org.apache.inlong.manager.service.core.RoleService;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Role operation

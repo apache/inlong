@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners.state;
 
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSchemalessSnapshotSplit;
+
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges.TableChange;
 
 import java.util.List;
 import java.util.Map;

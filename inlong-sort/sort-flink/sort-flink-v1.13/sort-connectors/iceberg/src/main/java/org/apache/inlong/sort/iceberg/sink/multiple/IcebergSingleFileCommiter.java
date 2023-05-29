@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import org.apache.inlong.sort.iceberg.FlinkActions;
+import org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory;
+import org.apache.inlong.sort.iceberg.sink.DeltaManifests;
+import org.apache.inlong.sort.iceberg.sink.DeltaManifestsSerializer;
+import org.apache.inlong.sort.iceberg.sink.FlinkManifestUtil;
+import org.apache.inlong.sort.iceberg.sink.ManifestOutputFileFactory;
+
 import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
@@ -48,12 +55,6 @@ import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.types.Comparators;
 import org.apache.iceberg.types.Types;
 import org.apache.iceberg.util.PropertyUtil;
-import org.apache.inlong.sort.iceberg.FlinkActions;
-import org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory;
-import org.apache.inlong.sort.iceberg.sink.DeltaManifests;
-import org.apache.inlong.sort.iceberg.sink.DeltaManifestsSerializer;
-import org.apache.inlong.sort.iceberg.sink.FlinkManifestUtil;
-import org.apache.inlong.sort.iceberg.sink.ManifestOutputFileFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

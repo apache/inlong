@@ -20,6 +20,7 @@ package org.apache.inlong.sort.cdc.base.config;
 import com.ververica.cdc.connectors.base.options.StartupOptions;
 import com.ververica.cdc.connectors.base.source.IncrementalSource;
 import io.debezium.config.Configuration;
+
 import java.util.Properties;
 
 /** A basic Source configuration which is used by {@link IncrementalSource}.

@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sort.redis;
 
-import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSink;
-import static org.junit.Assert.assertTrue;
+import org.apache.inlong.sort.redis.sink.RedisBitmapSinkFunction;
+import org.apache.inlong.sort.redis.sink.RedisDynamicTableSink;
+import org.apache.inlong.sort.redis.sink.RedisHashSinkFunction;
+import org.apache.inlong.sort.redis.sink.RedisPlainSinkFunction;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.catalog.Column;
@@ -30,11 +30,13 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.runtime.connector.sink.SinkRuntimeProviderContext;
-import org.apache.inlong.sort.redis.sink.RedisBitmapSinkFunction;
-import org.apache.inlong.sort.redis.sink.RedisDynamicTableSink;
-import org.apache.inlong.sort.redis.sink.RedisHashSinkFunction;
-import org.apache.inlong.sort.redis.sink.RedisPlainSinkFunction;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSink;
+import static org.junit.Assert.assertTrue;
 
 public class RedisDynamicTableFactoryTest {
 

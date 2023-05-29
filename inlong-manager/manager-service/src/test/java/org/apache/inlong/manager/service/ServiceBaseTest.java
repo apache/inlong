@@ -29,6 +29,7 @@ import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.test.BaseTest;
+
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

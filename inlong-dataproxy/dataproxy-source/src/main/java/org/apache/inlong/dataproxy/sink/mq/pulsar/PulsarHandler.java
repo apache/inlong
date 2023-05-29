@@ -17,18 +17,21 @@
 
 package org.apache.inlong.dataproxy.sink.mq.pulsar;
 
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Context;
+import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.sink.common.EventHandler;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
 import org.apache.inlong.dataproxy.sink.mq.OrderBatchPackProfileV0;
 import org.apache.inlong.dataproxy.sink.mq.SimpleBatchPackProfileV0;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.Context;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.CompressionType;
@@ -58,6 +61,8 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_STATS_INTER
 public class PulsarHandler implements MessageQueueHandler {
 
     public static final Logger LOG = LoggerFactory.getLogger(PulsarHandler.class);
+    // log print count
+    private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
 
     public static final String KEY_TENANT = "tenant";
     public static final String KEY_NAMESPACE = "namespace";
@@ -194,19 +199,24 @@ public class PulsarHandler implements MessageQueueHandler {
             // idConfig
             IdTopicConfig idConfig = sinkContext.getIdTopicHolder().getIdConfig(event.getUid());
             if (idConfig == null) {
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOUID);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
+                event.fail();
                 return false;
             }
             String baseTopic = idConfig.getTopicName();
             if (baseTopic == null) {
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
+                event.fail();
                 return false;
             }
             // topic
             String producerTopic = this.getProducerTopic(baseTopic, idConfig);
             if (producerTopic == null) {
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.fail();
@@ -236,6 +246,7 @@ public class PulsarHandler implements MessageQueueHandler {
             }
             // create producer failed
             if (producer == null) {
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOPRODUCER);
                 sinkContext.processSendFail(event, clusterName, producerTopic, 0);
                 return false;
             }
@@ -249,8 +260,9 @@ public class PulsarHandler implements MessageQueueHandler {
             }
             return true;
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SENDEXCEPT);
             sinkContext.processSendFail(event, clusterName, event.getUid(), 0);
+            LOG.error(e.getMessage(), e);
             return false;
         }
     }
@@ -321,10 +333,11 @@ public class PulsarHandler implements MessageQueueHandler {
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
-                LOG.error("Send fail:{}", ex.getMessage());
-                LOG.error(ex.getMessage(), ex);
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
                 sinkContext.processSendFail(event, clusterName, producerTopic, sendTime);
+                LOG.error("Send ProfileV1 to Pulsar failure", ex);
             } else {
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
                 sinkContext.addSendResultMetric(event, clusterName, producerTopic, true, sendTime);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
@@ -354,10 +367,11 @@ public class PulsarHandler implements MessageQueueHandler {
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
-                LOG.error("Send fail:{}", ex.getMessage());
-                LOG.error(ex.getMessage(), ex);
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
                 sinkContext.processSendFail(event, clusterName, producerTopic, sendTime);
+                LOG.error("Send SimpleProfileV0 to Pulsar failure", ex);
             } else {
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
                 sinkContext.addSendResultMetric(event, clusterName, producerTopic, true, sendTime);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
@@ -383,10 +397,11 @@ public class PulsarHandler implements MessageQueueHandler {
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
-                LOG.error("Send fail:{}", ex.getMessage());
-                LOG.error(ex.getMessage(), ex);
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
                 sinkContext.processSendFail(event, clusterName, producerTopic, sendTime);
+                LOG.error("Send OrderProfileV0 to Pulsar failure", ex);
             } else {
+                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
                 sinkContext.addSendResultMetric(event, clusterName, producerTopic, true, sendTime);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();

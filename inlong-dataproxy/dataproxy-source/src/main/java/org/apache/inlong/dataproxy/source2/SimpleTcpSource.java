@@ -17,6 +17,12 @@
 
 package org.apache.inlong.dataproxy.source2;
 
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
+import org.apache.inlong.dataproxy.utils.AddressUtils;
+import org.apache.inlong.dataproxy.utils.ConfStringUtils;
+import org.apache.inlong.dataproxy.utils.EventLoopUtil;
+
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
@@ -25,10 +31,6 @@ import io.netty.channel.ChannelOption;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
-import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.utils.AddressUtils;
-import org.apache.inlong.dataproxy.utils.EventLoopUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,6 @@ import java.util.Iterator;
 
 /**
  * Simple tcp source
- *
  */
 public class SimpleTcpSource extends BaseSource implements Configurable, ConfigUpdateCallback {
 
@@ -68,8 +69,8 @@ public class SimpleTcpSource extends BaseSource implements Configurable, ConfigU
         this.enableBusyWait = context.getBoolean(SourceConstants.SRCCXT_TCP_ENABLE_BUSY_WAIT,
                 SourceConstants.VAL_DEF_TCP_ENABLE_BUSY_WAIT);
         // get tcp high watermark
-        this.highWaterMark = getIntValue(context, SourceConstants.SRCCXT_TCP_HIGH_WATER_MARK,
-                SourceConstants.VAL_DEF_TCP_HIGH_WATER_MARK);
+        this.highWaterMark = ConfStringUtils.getIntValue(context,
+                SourceConstants.SRCCXT_TCP_HIGH_WATER_MARK, SourceConstants.VAL_DEF_TCP_HIGH_WATER_MARK);
         Preconditions.checkArgument((this.highWaterMark >= SourceConstants.VAL_MIN_TCP_HIGH_WATER_MARK),
                 SourceConstants.VAL_DEF_TCP_HIGH_WATER_MARK + " must be >= "
                         + SourceConstants.VAL_MIN_TCP_HIGH_WATER_MARK);

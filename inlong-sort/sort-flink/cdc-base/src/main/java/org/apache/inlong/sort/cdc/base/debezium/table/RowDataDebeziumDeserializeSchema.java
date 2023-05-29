@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.cdc.base.debezium.table;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
-import static org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
+import org.apache.inlong.sort.base.filter.RowValidator;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.util.RecordUtils;
+import org.apache.inlong.sort.cdc.base.util.TemporalConversions;
 
 import io.debezium.data.Envelope;
 import io.debezium.data.SpecialValueDecimal;
@@ -32,18 +33,6 @@ import io.debezium.time.NanoTime;
 import io.debezium.time.NanoTimestamp;
 import io.debezium.time.Timestamp;
 import io.debezium.time.ZonedTimestamp;
-import java.math.BigDecimal;
-import java.nio.ByteBuffer;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.data.DecimalData;
@@ -56,10 +45,6 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.base.filter.RowValidator;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.base.util.RecordUtils;
-import org.apache.inlong.sort.cdc.base.util.TemporalConversions;
 import org.apache.kafka.connect.data.ConnectSchema;
 import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Field;
@@ -68,6 +53,23 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.DDL_FIELD_NAME;
+import static org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
 
 /**
  * Deserialization schema from Debezium object to Flink Table/SQL internal data structure {@link

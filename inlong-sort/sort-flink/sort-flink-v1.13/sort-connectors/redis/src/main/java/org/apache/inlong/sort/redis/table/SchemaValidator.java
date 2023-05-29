@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.redis.table;
 
+import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
+
 import org.apache.flink.table.catalog.Column;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
 
 import java.util.Arrays;
 import java.util.HashMap;

@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.hbase;
 
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
+import org.apache.inlong.sort.hbase.sink.HBaseDynamicTableSink;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.connector.hbase.options.HBaseLookupOptions;
@@ -30,10 +35,6 @@ import org.apache.flink.table.factories.DynamicTableSinkFactory;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil.TableFactoryHelper;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
-import org.apache.inlong.sort.hbase.sink.HBaseDynamicTableSink;
 
 import java.util.HashSet;
 import java.util.Map;

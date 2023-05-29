@@ -17,9 +17,10 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
+import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
-import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 
 import java.security.SecureRandom;

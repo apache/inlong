@@ -17,6 +17,15 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.reader;
 
+import org.apache.inlong.sort.base.enums.ReadPhase;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.base.util.ColumnFilterUtil;
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+import org.apache.inlong.sort.cdc.mysql.source.metrics.MySqlSourceReaderMetrics;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
+
 import com.ververica.cdc.connectors.mysql.source.utils.RecordUtils;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
@@ -28,8 +37,6 @@ import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.HistoryRecord.Fields;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
-import java.util.Map.Entry;
-import java.util.Set;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
@@ -38,14 +45,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.connector.source.SourceOutput;
 import org.apache.flink.connector.base.source.reader.RecordEmitter;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.base.enums.ReadPhase;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.base.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.base.util.ColumnFilterUtil;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
-import org.apache.inlong.sort.cdc.mysql.source.metrics.MySqlSourceReaderMetrics;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -53,6 +52,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import static org.apache.inlong.sort.cdc.mysql.source.utils.GhostUtils.collectGhostDdl;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.GhostUtils.updateGhostDdlElement;

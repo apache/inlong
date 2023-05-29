@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.base;
 
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
-import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 
 import java.util.Map;
 

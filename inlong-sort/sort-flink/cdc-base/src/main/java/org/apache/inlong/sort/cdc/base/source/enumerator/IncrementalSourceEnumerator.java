@@ -17,20 +17,6 @@
 
 package org.apache.inlong.sort.cdc.base.source.enumerator;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import org.apache.flink.annotation.Experimental;
-import org.apache.flink.api.connector.source.SourceEvent;
-import org.apache.flink.api.connector.source.SplitEnumerator;
-import org.apache.flink.api.connector.source.SplitEnumeratorContext;
-import org.apache.flink.shaded.guava30.com.google.common.collect.Lists;
-import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.source.assigner.SplitAssigner;
 import org.apache.inlong.sort.cdc.base.source.assigner.state.PendingSplitsState;
@@ -42,8 +28,25 @@ import org.apache.inlong.sort.cdc.base.source.meta.events.StreamSplitMetaRequest
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+
+import org.apache.flink.annotation.Experimental;
+import org.apache.flink.api.connector.source.SourceEvent;
+import org.apache.flink.api.connector.source.SplitEnumerator;
+import org.apache.flink.api.connector.source.SplitEnumeratorContext;
+import org.apache.flink.shaded.guava30.com.google.common.collect.Lists;
+import org.apache.flink.util.FlinkRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Incremental source enumerator that enumerates receive the split request and assign the split to

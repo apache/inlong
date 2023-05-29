@@ -17,12 +17,6 @@
 
 package org.apache.inlong.manager.service.source;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -51,6 +45,13 @@ import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.apache.inlong.manager.service.user.UserService;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -230,9 +231,9 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         LOGGER.debug("begin to get source map for groupId={}", groupId);
         Map<String, List<StreamSource>> result;
 
-        // if the group mode is LIGHTWEIGHT, just get all related stream sources
+        // if the group mode is DATASYNC, just get all related stream sources
         List<StreamSource> streamSources = this.listSource(groupId, null);
-        if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
+        if (InlongConstants.DATASYNC_MODE.equals(groupInfo.getInlongGroupMode())) {
             result = streamSources.stream()
                     .collect(Collectors.groupingBy(StreamSource::getInlongStreamId, HashMap::new,
                             Collectors.toCollection(ArrayList::new)));
@@ -253,11 +254,10 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
-        List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
-
+        Page<StreamSourceEntity> entityPage = (Page<StreamSourceEntity>) sourceMapper.selectByCondition(request);
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
         Map<String, Page<StreamSourceEntity>> sourceMap = Maps.newHashMap();
-        for (StreamSourceEntity entity : entityList) {
+        for (StreamSourceEntity entity : entityPage) {
             sourceMap.computeIfAbsent(entity.getSourceType(), k -> new Page<>()).add(entity);
         }
         List<StreamSource> responseList = Lists.newArrayList();
@@ -269,7 +269,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             }
         }
 
-        PageResult<? extends StreamSource> pageResult = new PageResult<>(responseList);
+        PageResult<? extends StreamSource> pageResult = new PageResult<>(responseList, entityPage.getTotal(),
+                entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list source page, result size {}", pageResult.getList().size());
         return pageResult;
@@ -349,7 +350,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         if (CollectionUtils.isNotEmpty(streamFields)) {
             streamFields.forEach(streamField -> streamField.setId(null));
         }
-        sourceOperator.updateOpt(request, groupEntity.getStatus(), groupEntity.getLightweight(), operator);
+        sourceOperator.updateOpt(request, groupEntity.getStatus(), groupEntity.getInlongGroupMode(), operator);
 
         LOGGER.info("success to update source info: {}", request);
         return true;
@@ -381,7 +382,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         if (CollectionUtils.isNotEmpty(streamFields)) {
             streamFields.forEach(streamField -> streamField.setId(null));
         }
-        sourceOperator.updateOpt(request, groupEntity.getStatus(), groupEntity.getLightweight(), opInfo.getName());
+        sourceOperator.updateOpt(request, groupEntity.getStatus(), groupEntity.getInlongGroupMode(), opInfo.getName());
         return true;
     }
 

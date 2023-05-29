@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.pojo.group;
 
+import org.apache.inlong.manager.common.auth.Authentication;
+import org.apache.inlong.manager.pojo.sort.BaseSortConf;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -26,8 +29,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.auth.Authentication;
-import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 
 import java.util.Date;
 import java.util.List;
@@ -71,8 +72,8 @@ public abstract class InlongGroupInfo extends BaseInlongGroup {
     @ApiModelProperty(value = "Whether to enable create resource? 0: disable, 1: enable")
     private Integer enableCreateResource = 0;
 
-    @ApiModelProperty(value = "Whether to use lightweight mode, 0: no, 1: yes")
-    private Integer lightweight;
+    @ApiModelProperty(value = "Standard mode: 0, DataSync mode: 1")
+    private Integer inlongGroupMode;
 
     @ApiModelProperty(value = "Data report type, default is 0.\n"
             + " 0: report to DataProxy and respond when the DataProxy received data.\n"

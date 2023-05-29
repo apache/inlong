@@ -24,6 +24,7 @@ import org.apache.inlong.manager.web.auth.openapi.OpenAPIAuthenticatingRealm;
 import org.apache.inlong.manager.web.auth.openapi.OpenAPIFilter;
 import org.apache.inlong.manager.web.auth.web.AuthenticationFilter;
 import org.apache.inlong.manager.web.auth.web.WebAuthorizingRealm;
+
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
@@ -41,6 +42,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.Filter;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -94,9 +96,13 @@ public class InlongShiroImpl implements InlongShiro {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         // anon: can be accessed by anyone, authc: only authentication is successful can be accessed
         Map<String, Filter> filters = new LinkedHashMap<>();
+
+        // request filter
         filters.put(FILTER_NAME_WEB, new AuthenticationFilter());
+
         shiroFilterFactoryBean.setFilters(filters);
         Map<String, String> pathDefinitions = new LinkedHashMap<>();
+
         // login, register request
         pathDefinitions.put("/api/anno/**/*", "anon");
 

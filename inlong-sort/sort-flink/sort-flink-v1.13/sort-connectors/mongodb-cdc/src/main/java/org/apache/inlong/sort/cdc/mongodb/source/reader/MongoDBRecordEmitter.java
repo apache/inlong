@@ -17,18 +17,6 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.reader;
 
-import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isHighWatermarkEvent;
-import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isWatermarkEvent;
-import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.getFetchTimestamp;
-import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.getMessageTimestamp;
-import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.getResumeToken;
-import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.isDataChangeRecord;
-import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.isHeartbeatEvent;
-
-import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
-import org.apache.flink.api.connector.source.SourceOutput;
-import org.apache.flink.connector.base.source.reader.RecordEmitter;
-import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
@@ -40,11 +28,24 @@ import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceReader;
 import org.apache.inlong.sort.cdc.base.source.reader.IncrementalSourceRecordEmitter;
 import org.apache.inlong.sort.cdc.mongodb.debezium.utils.RecordUtils;
 import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffset;
+
+import com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope;
+import org.apache.flink.api.connector.source.SourceOutput;
+import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.flink.util.Collector;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.bson.BsonDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isHighWatermarkEvent;
+import static com.ververica.cdc.connectors.base.source.meta.wartermark.WatermarkEvent.isWatermarkEvent;
+import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.getFetchTimestamp;
+import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.getMessageTimestamp;
+import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.getResumeToken;
+import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.isDataChangeRecord;
+import static com.ververica.cdc.connectors.mongodb.source.utils.MongoRecordUtils.isHeartbeatEvent;
 
 /**
  * The {@link RecordEmitter} implementation for {@link IncrementalSourceReader}.

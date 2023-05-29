@@ -17,6 +17,14 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+import org.apache.inlong.sort.kafka.KafkaDynamicSink;
+import org.apache.inlong.sort.kafka.partitioner.InLongFixedPartitionPartitioner;
+import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -51,15 +59,9 @@ import org.apache.flink.table.formats.raw.RawFormatSerializationSchema;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.kafka.KafkaDynamicSink;
-import org.apache.inlong.sort.kafka.partitioner.InLongFixedPartitionPartitioner;
-import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
 
 import javax.annotation.Nullable;
+
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,6 +72,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
+
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS_PREFIX;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FORMAT;

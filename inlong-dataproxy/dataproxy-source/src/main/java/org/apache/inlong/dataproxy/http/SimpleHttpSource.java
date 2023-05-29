@@ -17,20 +17,17 @@
 
 package org.apache.inlong.dataproxy.http;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import java.util.EnumSet;
-import javax.servlet.DispatcherType;
-import java.lang.reflect.Constructor;
-import java.util.Map;
-import org.apache.flume.Context;
-import org.apache.flume.channel.ChannelProcessor;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.remote.ConfigMessageServlet;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.source.ServiceDecoder;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import org.apache.flume.Context;
+import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.source.http.HTTPSource;
 import org.apache.flume.source.http.HTTPSourceConfigurationConstants;
 import org.eclipse.jetty.server.Connector;
@@ -47,6 +44,12 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.DispatcherType;
+
+import java.lang.reflect.Constructor;
+import java.util.EnumSet;
+import java.util.Map;
 
 public class SimpleHttpSource extends HttpBaseSource {
 

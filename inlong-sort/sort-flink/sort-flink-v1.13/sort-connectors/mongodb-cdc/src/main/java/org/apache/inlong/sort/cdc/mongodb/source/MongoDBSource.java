@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source;
 
-import org.apache.flink.annotation.Experimental;
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.annotation.PublicEvolving;
-import org.apache.flink.connector.base.source.reader.RecordEmitter;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.source.IncrementalSource;
@@ -32,6 +28,11 @@ import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfigFacto
 import org.apache.inlong.sort.cdc.mongodb.source.dialect.MongoDBDialect;
 import org.apache.inlong.sort.cdc.mongodb.source.offset.ChangeStreamOffsetFactory;
 import org.apache.inlong.sort.cdc.mongodb.source.reader.MongoDBRecordEmitter;
+
+import org.apache.flink.annotation.Experimental;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.connector.base.source.reader.RecordEmitter;
 
 /**
  * The MongoDB CDC Source based on FLIP-27 which supports parallel reading snapshot of collection

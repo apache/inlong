@@ -17,13 +17,14 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
+import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+
+import org.apache.flume.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.flume.Context;
-import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 
 /**
  * 

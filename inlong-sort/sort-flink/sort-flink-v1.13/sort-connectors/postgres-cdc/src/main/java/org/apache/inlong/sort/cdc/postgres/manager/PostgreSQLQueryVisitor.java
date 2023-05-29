@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.cdc.postgres.manager;
 
+import org.apache.inlong.sort.cdc.postgres.connection.PostgreSQLJdbcConnectionProvider;
+import org.apache.inlong.sort.cdc.postgres.table.PostgreSQLDataType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,10 +33,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.inlong.sort.cdc.postgres.connection.PostgreSQLJdbcConnectionProvider;
-import org.apache.inlong.sort.cdc.postgres.table.PostgreSQLDataType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * JDBC query tool to query meta info or data from PostgreSQL Server

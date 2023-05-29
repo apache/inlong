@@ -21,6 +21,7 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.util.Preconditions;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Objects;
 

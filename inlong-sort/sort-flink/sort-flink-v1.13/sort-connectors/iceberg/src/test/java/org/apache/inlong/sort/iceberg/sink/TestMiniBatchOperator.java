@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
+import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer;
+import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer.BufferType;
+
 import org.apache.flink.streaming.util.OneInputStreamOperatorTestHarness;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
@@ -31,8 +34,6 @@ import org.apache.iceberg.PartitionKey;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
-import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer;
-import org.apache.inlong.sort.iceberg.sink.collections.PartitionGroupBuffer.BufferType;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

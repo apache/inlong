@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.jdbc.dialect;
 
-import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.inlong.sort.jdbc.converter.mysql.MySQLRowConverter;
-import org.apache.flink.table.types.logical.LogicalTypeRoot;
-import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.internal.JdbcMultiBatchingComm;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
+
+import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
+import org.apache.flink.table.types.logical.LogicalTypeRoot;
+import org.apache.flink.table.types.logical.RowType;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -18,10 +18,11 @@
 package org.apache.inlong.sort.cdc.oracle.source.utils;
 
 import io.debezium.relational.Column;
-import java.sql.Types;
 import oracle.jdbc.OracleTypes;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.types.DataType;
+
+import java.sql.Types;
 
 /** Utilities for converting from oracle types to Flink types.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

@@ -17,6 +17,18 @@
 
 package org.apache.inlong.sort.elasticsearch6.table;
 
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
+import org.apache.inlong.sort.elasticsearch.table.IndexGeneratorFactory;
+import org.apache.inlong.sort.elasticsearch.table.KeyExtractor;
+import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
+import org.apache.inlong.sort.elasticsearch.table.RoutingExtractor;
+import org.apache.inlong.sort.elasticsearch.table.TableSchemaFactory;
+import org.apache.inlong.sort.elasticsearch6.ElasticsearchSink;
+import org.apache.inlong.sort.elasticsearch6.MultipleRowElasticsearchSinkFunction;
+import org.apache.inlong.sort.elasticsearch6.RowElasticsearchSinkFunction;
+
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.serialization.SerializationSchema;
@@ -33,17 +45,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
-import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
-import org.apache.inlong.sort.elasticsearch.table.IndexGeneratorFactory;
-import org.apache.inlong.sort.elasticsearch.table.KeyExtractor;
-import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
-import org.apache.inlong.sort.elasticsearch.table.RoutingExtractor;
-import org.apache.inlong.sort.elasticsearch.table.TableSchemaFactory;
-import org.apache.inlong.sort.elasticsearch6.ElasticsearchSink;
-import org.apache.inlong.sort.elasticsearch6.MultipleRowElasticsearchSinkFunction;
-import org.apache.inlong.sort.elasticsearch6.RowElasticsearchSinkFunction;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -52,6 +53,7 @@ import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Objects;
 

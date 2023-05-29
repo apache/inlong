@@ -17,14 +17,16 @@
 
 package org.apache.inlong.sort.redis.common.schema.impl;
 
-import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkState;
+import org.apache.inlong.sort.redis.common.schema.StateEncoder;
 
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.data.GenericRowData;
-import org.apache.inlong.sort.redis.common.schema.StateEncoder;
+
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkState;
 
 public class HashStaticKvPairSchema extends HashStaticPrefixMatchSchema {
 

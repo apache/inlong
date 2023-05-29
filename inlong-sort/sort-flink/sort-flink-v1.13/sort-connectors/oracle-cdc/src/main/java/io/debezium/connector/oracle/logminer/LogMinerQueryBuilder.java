@@ -20,6 +20,7 @@ package io.debezium.connector.oracle.logminer;
 import io.debezium.connector.oracle.OracleConnectorConfig;
 import io.debezium.connector.oracle.OracleDatabaseSchema;
 import io.debezium.util.Strings;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;

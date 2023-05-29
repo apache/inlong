@@ -17,17 +17,18 @@
 
 package org.apache.inlong.sort.elasticsearch6;
 
-import org.apache.flink.annotation.PublicEvolving;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.connectors.elasticsearch6.RestClientFactory;
-import org.apache.flink.util.Preconditions;
-import org.apache.http.HttpHost;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.elasticsearch.ActionRequestFailureHandler;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
 import org.apache.inlong.sort.elasticsearch.utils.NoOpFailureHandler;
 import org.apache.inlong.sort.elasticsearch6.utils.DirtySinkFailureHandler;
+
+import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.connectors.elasticsearch6.RestClientFactory;
+import org.apache.flink.util.Preconditions;
+import org.apache.http.HttpHost;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;

@@ -17,18 +17,14 @@
 
 package org.apache.inlong.sort.starrocks.table.sink;
 
-import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 
 import com.starrocks.connector.flink.table.sink.StarRocksSinkOptions;
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
@@ -40,12 +36,18 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.utils.TableSchemaUtils;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
 
 public class StarRocksDynamicTableSinkFactory implements DynamicTableSinkFactory {
 

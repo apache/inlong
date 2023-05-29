@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.connection;
 
-import com.zaxxer.hikari.HikariDataSource;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+
+import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import org.apache.inlong.sort.base.sink.TableChange;
+
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.types.Types;
-import org.apache.inlong.sort.base.sink.TableChange;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

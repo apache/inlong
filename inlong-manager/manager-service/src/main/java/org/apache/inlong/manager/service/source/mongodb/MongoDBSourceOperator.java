@@ -17,19 +17,20 @@
 
 package org.apache.inlong.manager.service.source.mongodb;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSource;
 import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSourceDTO;
 import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

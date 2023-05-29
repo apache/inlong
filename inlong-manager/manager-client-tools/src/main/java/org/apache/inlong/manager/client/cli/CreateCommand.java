@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.client.cli;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.beust.jcommander.converters.FileConverter;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
@@ -39,6 +36,10 @@ import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+import com.beust.jcommander.converters.FileConverter;
+
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +47,7 @@ import java.util.Optional;
 import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_DATA_ENCODING;
 import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_DATA_SEPARATOR;
 import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_IGNORE_PARSE_ERROR;
-import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_LIGHTWEIGHT;
+import static org.apache.inlong.manager.client.cli.consts.GroupConstants.DEFAULT_INLONG_GROUP_MODE;
 import static org.apache.inlong.manager.common.consts.InlongConstants.ADMIN_USER;
 
 /**
@@ -117,7 +118,7 @@ public class CreateCommand extends AbstractCommand {
             String inlongStreamId = groupConf.getStreamInfo().getInlongStreamId();
             // group
             groupConf.getGroupInfo().setInCharges(ADMIN_USER);
-            groupConf.getGroupInfo().setLightweight(DEFAULT_LIGHTWEIGHT);
+            groupConf.getGroupInfo().setInlongGroupMode(DEFAULT_INLONG_GROUP_MODE);
             groupConf.getGroupInfo().setSortConf(new FlinkSortConf());
 
             // stream

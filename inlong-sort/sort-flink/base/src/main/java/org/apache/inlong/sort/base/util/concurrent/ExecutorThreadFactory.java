@@ -17,10 +17,12 @@
 
 package org.apache.inlong.sort.base.util.concurrent;
 
-import com.google.common.base.Preconditions;
 import org.apache.inlong.sort.base.util.FatalExitExceptionHandler;
 
+import com.google.common.base.Preconditions;
+
 import javax.annotation.Nullable;
+
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

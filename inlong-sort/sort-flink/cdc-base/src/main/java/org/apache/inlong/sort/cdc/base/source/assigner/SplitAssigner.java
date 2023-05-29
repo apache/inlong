@@ -17,16 +17,18 @@
 
 package org.apache.inlong.sort.cdc.base.source.assigner;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import org.apache.flink.annotation.Experimental;
-import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.inlong.sort.cdc.base.source.assigner.state.PendingSplitsState;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+
+import org.apache.flink.annotation.Experimental;
+import org.apache.flink.api.common.state.CheckpointListener;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * The {@code SplitAssigner} is responsible for deciding what split should be processed. It

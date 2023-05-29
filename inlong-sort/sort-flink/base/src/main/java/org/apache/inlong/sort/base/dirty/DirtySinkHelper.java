@@ -17,13 +17,15 @@
 
 package org.apache.inlong.sort.base.dirty;
 
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

@@ -17,11 +17,13 @@
 
 package org.apache.inlong.sort.kafka.partitioner;
 
+import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
+
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.junit.Assert;
 import org.junit.Test;
+
 import java.io.IOException;
 import java.util.List;
 

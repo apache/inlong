@@ -17,23 +17,6 @@
 
 package org.apache.inlong.tubemq.client.consumer;
 
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.inlong.tubemq.client.common.ClientStatsInfo;
 import org.apache.inlong.tubemq.client.common.ConfirmResult;
 import org.apache.inlong.tubemq.client.common.ConsumeResult;
@@ -64,8 +47,26 @@ import org.apache.inlong.tubemq.corerpc.RpcConstants;
 import org.apache.inlong.tubemq.corerpc.RpcServiceFactory;
 import org.apache.inlong.tubemq.corerpc.service.BrokerReadService;
 import org.apache.inlong.tubemq.corerpc.service.MasterService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * SimpleClientBalanceConsumer, This type of consumer supports the client for

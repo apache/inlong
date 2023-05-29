@@ -19,6 +19,7 @@ package org.apache.inlong.sort.base.util;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.KEY_VALUE_DELIMITER;
 

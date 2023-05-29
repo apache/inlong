@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.plugin.listener;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Listener for startup the Sort task for InlongStream

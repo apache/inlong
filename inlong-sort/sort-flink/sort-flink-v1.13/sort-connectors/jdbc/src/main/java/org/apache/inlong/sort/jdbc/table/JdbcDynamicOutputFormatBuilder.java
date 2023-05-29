@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.jdbc.table;
 
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+import org.apache.inlong.sort.jdbc.internal.JdbcBatchingOutputFormat;
+import org.apache.inlong.sort.jdbc.internal.JdbcMultiBatchingOutputFormat;
+
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeutils.TypeSerializer;
@@ -37,12 +44,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
-import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.jdbc.internal.JdbcBatchingOutputFormat;
-import org.apache.inlong.sort.jdbc.internal.JdbcMultiBatchingOutputFormat;
 
 import java.io.Serializable;
 import java.util.Arrays;

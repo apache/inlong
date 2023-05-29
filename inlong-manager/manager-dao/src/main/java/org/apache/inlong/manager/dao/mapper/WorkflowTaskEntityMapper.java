@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.pojo.common.CountInfo;
 import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskRequest;
+
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

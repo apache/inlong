@@ -17,16 +17,18 @@
 
 package org.apache.inlong.sort.cdc.postgres.table;
 
+import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverterFactory;
+
 import io.debezium.data.SpecialValueDecimal;
 import io.debezium.data.VariableScaleDecimal;
+import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
+
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.util.Optional;
-import org.apache.flink.table.types.logical.LogicalType;
-import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverter;
-import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverterFactory;
-import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.Struct;
 
 /** Used to create {@link DeserializationRuntimeConverterFactory} specified to Oracle. */
 public class PostgreSQLDeserializationConverterFactory {

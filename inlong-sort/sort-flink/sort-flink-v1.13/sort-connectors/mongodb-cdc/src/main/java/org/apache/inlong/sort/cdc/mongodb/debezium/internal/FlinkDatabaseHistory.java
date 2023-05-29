@@ -17,19 +17,20 @@
 
 package org.apache.inlong.sort.cdc.mongodb.debezium.internal;
 
-import static org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil.registerHistory;
-import static org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil.removeHistory;
-import static org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
-
 import io.debezium.config.Configuration;
 import io.debezium.relational.history.AbstractDatabaseHistory;
 import io.debezium.relational.history.DatabaseHistoryException;
 import io.debezium.relational.history.DatabaseHistoryListener;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.HistoryRecordComparator;
+
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
+
+import static org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil.registerHistory;
+import static org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil.removeHistory;
+import static org.apache.inlong.sort.cdc.mongodb.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
 /**
  * Inspired from {@link io.debezium.relational.history.MemoryDatabaseHistory} but we will store the

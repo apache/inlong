@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.cdc.mysql.schema;
 
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+
 import io.debezium.connector.mysql.MySqlConnectorConfig;
 import io.debezium.connector.mysql.MySqlDatabaseSchema;
 import io.debezium.connector.mysql.MySqlOffsetContext;
@@ -26,7 +28,6 @@ import io.debezium.relational.history.TableChanges.TableChange;
 import io.debezium.schema.SchemaChangeEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 
 import java.sql.SQLException;
 import java.time.Instant;

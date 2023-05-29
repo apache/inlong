@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.filesystem.stream;
 
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.filesystem.stream.compact.CompactFileWriter;
+
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.configuration.Configuration;
@@ -41,11 +45,9 @@ import org.apache.flink.table.filesystem.stream.compact.CompactOperator;
 import org.apache.flink.table.filesystem.stream.compact.CompactReader;
 import org.apache.flink.table.filesystem.stream.compact.CompactWriter;
 import org.apache.flink.util.function.SupplierWithException;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.filesystem.stream.compact.CompactFileWriter;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;

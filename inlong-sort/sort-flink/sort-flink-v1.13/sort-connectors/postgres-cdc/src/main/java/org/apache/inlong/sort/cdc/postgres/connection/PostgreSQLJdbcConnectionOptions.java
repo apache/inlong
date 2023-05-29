@@ -17,11 +17,13 @@
 
 package org.apache.inlong.sort.cdc.postgres.connection;
 
-import java.io.Serializable;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.util.Preconditions;
+
+import javax.annotation.Nullable;
+
+import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * JDBC connection options.

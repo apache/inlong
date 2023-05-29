@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.kudu.table;
 
+import org.apache.inlong.sort.kudu.common.KuduTableInfo;
+import org.apache.inlong.sort.kudu.source.KuduLookupFunction;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.connector.source.LookupTableSource;
 import org.apache.flink.table.connector.source.TableFunctionProvider;
-import org.apache.inlong.sort.kudu.common.KuduTableInfo;
-import org.apache.inlong.sort.kudu.source.KuduLookupFunction;
 
 import java.util.Objects;
 

@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.connect.errors.ConnectException;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;

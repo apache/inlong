@@ -17,20 +17,22 @@
 
 package org.apache.inlong.sort.elasticsearch6.table;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.util.InstantiationUtil;
-import org.apache.http.HttpHost;
 import org.apache.inlong.sort.elasticsearch.ActionRequestFailureHandler;
 import org.apache.inlong.sort.elasticsearch.table.ElasticsearchConfiguration;
 import org.apache.inlong.sort.elasticsearch.utils.IgnoringFailureHandler;
 import org.apache.inlong.sort.elasticsearch.utils.NoOpFailureHandler;
 import org.apache.inlong.sort.elasticsearch6.utils.RetryRejectedExecutionFailureHandler;
+
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.util.InstantiationUtil;
+import org.apache.http.HttpHost;
 import org.elasticsearch.action.DocWriteRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.FAILURE_HANDLER_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
 

@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.base.filter;
 
-import java.io.Serializable;
 import org.apache.flink.types.RowKind;
+
+import java.io.Serializable;
 
 /**
  * Validator for RowData

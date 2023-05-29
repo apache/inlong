@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringJoiner;
+
 import static org.apache.flink.table.data.RowData.createFieldGetter;
 
 /**

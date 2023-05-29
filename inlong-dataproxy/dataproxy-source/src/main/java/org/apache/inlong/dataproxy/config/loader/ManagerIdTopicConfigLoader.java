@@ -17,12 +17,13 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
-import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.DataType;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+
+import org.apache.flume.Context;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -17,16 +17,16 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
+import org.apache.inlong.sort.cdc.mysql.schema.MySqlSchema;
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+
 import io.debezium.connector.mysql.MySqlConnection;
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.RelationalTableFilters;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
-import java.util.stream.Collectors;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mysql.schema.MySqlSchema;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote;
 

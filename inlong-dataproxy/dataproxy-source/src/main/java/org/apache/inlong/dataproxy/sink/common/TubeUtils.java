@@ -17,8 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
-import java.util.Map;
-import org.apache.flume.Event;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -28,6 +26,10 @@ import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.corebase.Message;
+
+import org.apache.flume.Event;
+
+import java.util.Map;
 
 public class TubeUtils {
 

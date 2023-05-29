@@ -31,10 +31,10 @@ public enum GroupMode {
     STANDARD("standard"),
 
     /**
-     * Lightweight group init with sort in Inlong Cluster
+     * DataSync group init with sort in Inlong Cluster
      * StreamSource -> Sort -> StreamSink
      */
-    LIGHTWEIGHT("lightweight");
+    DATASYNC("datasync");
 
     @Getter
     private final String mode;

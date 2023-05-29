@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.cdc.mongodb.table.filter;
 
+import org.apache.inlong.sort.base.filter.RowValidator;
+
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 
@@ -24,7 +26,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.apache.inlong.sort.base.filter.RowValidator;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKind.toMongoDBRowKind;

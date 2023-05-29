@@ -17,19 +17,21 @@
 
 package org.apache.inlong.sort.cdc.mongodb.debezium.internal;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
 import io.debezium.engine.ChangeEvent;
-import java.io.Closeable;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+
+import java.io.Closeable;
+import java.util.Collections;
+import java.util.List;
+
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * The Handover is a utility to hand over data (a buffer of records) and exception from a

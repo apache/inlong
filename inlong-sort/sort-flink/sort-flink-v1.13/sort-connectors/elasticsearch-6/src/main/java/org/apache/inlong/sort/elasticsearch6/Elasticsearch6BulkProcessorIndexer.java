@@ -17,13 +17,15 @@
 
 package org.apache.inlong.sort.elasticsearch6;
 
-import org.apache.flink.annotation.Internal;
 import org.apache.inlong.sort.elasticsearch.RequestIndexer;
+
+import org.apache.flink.annotation.Internal;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 
 import java.util.concurrent.atomic.AtomicLong;
+
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**

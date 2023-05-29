@@ -17,12 +17,6 @@
 
 package org.apache.inlong.sort.iceberg.sink.trick;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import org.apache.iceberg.DataFile;
 import org.apache.iceberg.DeleteFile;
 import org.apache.iceberg.FileFormat;
@@ -45,6 +39,13 @@ import org.apache.iceberg.util.StructLikeMap;
 import org.apache.iceberg.util.StructProjection;
 import org.apache.iceberg.util.Tasks;
 import org.apache.iceberg.util.ThreadPools;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Copied from iceberg 1.1.x. Modify List to concurrent List.

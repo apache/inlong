@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.starrocks.table.sink;
 
+import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+
 import com.starrocks.connector.flink.row.sink.StarRocksTableRowTransformer;
 import com.starrocks.connector.flink.table.sink.StarRocksSinkOptions;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -25,8 +28,6 @@ import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
-import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
-import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 
 public class StarRocksDynamicTableSink implements DynamicTableSink {
 

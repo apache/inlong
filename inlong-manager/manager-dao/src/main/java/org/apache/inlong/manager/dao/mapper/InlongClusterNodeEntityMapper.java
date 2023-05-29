@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.redis.common.schema;
 
-import java.io.Serializable;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.format.EncodingFormat;
 import org.apache.flink.table.connector.sink.DynamicTableSink.Context;
 import org.apache.flink.table.data.RowData;
+
+import java.io.Serializable;
 
 public interface RedisSchema<T> extends Serializable {
 

@@ -21,6 +21,7 @@ import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
 import org.apache.kafka.connect.source.SourceRecord;
 
 import javax.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;

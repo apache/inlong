@@ -17,20 +17,22 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.assigners.splitters;
 
+import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
+
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
+import org.apache.flink.annotation.Internal;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.ID_FIELD;
 import static com.ververica.cdc.connectors.mongodb.source.dialect.MongoDBDialect.collectionSchema;
 import static com.ververica.cdc.connectors.mongodb.source.utils.ChunkUtils.maxUpperBoundOfId;
 import static com.ververica.cdc.connectors.mongodb.source.utils.ChunkUtils.minLowerBoundOfId;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.flink.annotation.Internal;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 
 /**
  * The Single Partitioner

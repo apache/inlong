@@ -23,12 +23,13 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import java.lang.reflect.Constructor;
-import java.util.concurrent.TimeUnit;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.source.AbstractSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+import java.util.concurrent.TimeUnit;
 
 public class ServerMessageFactory extends ChannelInitializer<SocketChannel> {
 

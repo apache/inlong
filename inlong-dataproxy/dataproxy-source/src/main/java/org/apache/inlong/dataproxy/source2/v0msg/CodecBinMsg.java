@@ -17,10 +17,6 @@
 
 package org.apache.inlong.dataproxy.source2.v0msg;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.flume.Event;
-import org.apache.flume.event.EventBuilder;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
@@ -31,11 +27,17 @@ import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source2.BaseSource;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.flume.Event;
+import org.apache.flume.event.EventBuilder;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 
 import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_ATTRLEN_SIZE;
 import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_BODYLEN_OFFSET;
@@ -78,7 +80,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
         this.streamIdNum = cb.getUnsignedShort(BIN_MSG_STREAMIDNUM_OFFSET);
         this.extendField = cb.getUnsignedShort(BIN_MSG_EXTEND_OFFSET);
         this.dataTimeSec = cb.getUnsignedInt(BIN_MSG_DT_OFFSET);
-        this.dataTimeMs = this.dataTimeSec * 1000;
+        this.dataTimeMs = this.dataTimeSec * 1000L;
         this.msgCount = cb.getUnsignedShort(BIN_MSG_CNT_OFFSET);
         this.msgCount = (this.msgCount != 0) ? this.msgCount : 1;
         this.uniq = cb.getUnsignedInt(BIN_MSG_UNIQ_OFFSET);
@@ -263,17 +265,17 @@ public class CodecBinMsg extends AbsV0MsgCodec {
             String confGroupId;
             String confStreamId;
             String strGroupIdNum = String.valueOf(this.groupIdNum);
-            if (configManager.getGroupIdMappingProperties() == null) {
-                source.fileMetricEventInc(StatConstants.EVENT_SERVICE_UNREADY);
-                this.errCode = DataProxyErrCode.CONF_SERVICE_UNREADY;
-                this.errMsg = "GroupId-Mapping configuration is null";
-                return false;
-            }
-            confGroupId = configManager.getGroupIdMappingProperties().get(strGroupIdNum);
+            confGroupId = configManager.getGroupIdNameByNum(strGroupIdNum);
             if (StringUtils.isBlank(confGroupId)) {
-                source.fileMetricEventInc(StatConstants.EVENT_WITHOUTGROUPID);
-                this.errCode = DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE;
-                this.errMsg = String.format("Non-existing groupIdNum(%s) configuration", strGroupIdNum);
+                if (configManager.isGroupIdNumConfigEmpty()) {
+                    source.fileMetricEventInc(StatConstants.EVENT_SERVICE_UNREADY);
+                    this.errCode = DataProxyErrCode.CONF_SERVICE_UNREADY;
+                    this.errMsg = "GroupId-Mapping configuration is null";
+                } else {
+                    source.fileMetricEventInc(StatConstants.EVENT_WITHOUTGROUPID);
+                    this.errCode = DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE;
+                    this.errMsg = String.format("Non-existing groupIdNum(%s) configuration", strGroupIdNum);
+                }
                 return false;
             }
             if (StringUtils.isNotBlank(this.groupId) && !this.groupId.equalsIgnoreCase(confGroupId)) {
@@ -294,27 +296,19 @@ public class CodecBinMsg extends AbsV0MsgCodec {
                     return false;
                 }
             } else {
-                if (configManager.getStreamIdMappingProperties() == null) {
-                    source.fileMetricEventInc(StatConstants.EVENT_SERVICE_UNREADY);
-                    this.errCode = DataProxyErrCode.CONF_SERVICE_UNREADY;
-                    this.errMsg = "StreamId-Mapping configuration is null";
-                    return false;
-                }
-                Map<String, String> confStreamIdMap =
-                        configManager.getStreamIdMappingProperties().get(strGroupIdNum);
-                if (confStreamIdMap == null) {
-                    source.fileMetricEventInc(StatConstants.EVENT_SERVICE_UNREADY);
-                    this.errCode = DataProxyErrCode.CONF_SERVICE_UNREADY;
-                    this.errMsg = "GroupId in StreamId-Mapping configuration is null";
-                    return false;
-                }
                 String strStreamIdNum = String.valueOf(this.streamIdNum);
-                confStreamId = confStreamIdMap.get(strStreamIdNum);
+                confStreamId = configManager.getStreamIdNameByIdNum(strGroupIdNum, strStreamIdNum);
                 if (StringUtils.isBlank(confStreamId)) {
-                    source.fileMetricEventInc(StatConstants.EVENT_WITHOUTGROUPID);
-                    this.errCode = DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE;
-                    this.errMsg = String.format("Non-existing GroupId(%s)-StreamId(%s) configuration",
-                            strGroupIdNum, strStreamIdNum);
+                    if (configManager.isStreamIdNumConfigEmpty()) {
+                        source.fileMetricEventInc(StatConstants.EVENT_SERVICE_UNREADY);
+                        this.errCode = DataProxyErrCode.CONF_SERVICE_UNREADY;
+                        this.errMsg = "StreamId-Mapping configuration is null";
+                    } else {
+                        source.fileMetricEventInc(StatConstants.EVENT_WITHOUTGROUPID);
+                        this.errCode = DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE;
+                        this.errMsg = String.format("Non-existing GroupId(%s)-StreamId(%s) configuration",
+                                strGroupIdNum, strStreamIdNum);
+                    }
                     return false;
                 }
                 if (StringUtils.isNotBlank(this.streamId) && !this.streamId.equalsIgnoreCase(confStreamId)) {
@@ -328,10 +322,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
                 this.streamId = confStreamId;
             }
             // check whether enable num 2 name translate
-            String enableTrans = (configManager.getGroupIdEnableMappingProperties() == null)
-                    ? null
-                    : configManager.getGroupIdEnableMappingProperties().get(strGroupIdNum);
-            if ("true".equalsIgnoreCase(enableTrans) && this.num2name) {
+            if (configManager.isEnableNum2NameTrans(strGroupIdNum) && this.num2name) {
                 this.transNum2Name = true;
             }
         } else {

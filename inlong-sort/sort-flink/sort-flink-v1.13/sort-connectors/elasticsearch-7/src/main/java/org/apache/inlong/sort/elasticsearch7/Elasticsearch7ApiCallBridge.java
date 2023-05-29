@@ -17,14 +17,15 @@
 
 package org.apache.inlong.sort.elasticsearch7;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.streaming.connectors.elasticsearch7.RestClientFactory;
-import org.apache.flink.util.Preconditions;
-import org.apache.http.HttpHost;
 import org.apache.inlong.sort.elasticsearch.BulkProcessorOptions;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchApiCallBridge;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
 import org.apache.inlong.sort.elasticsearch.RequestIndexer;
+
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.streaming.connectors.elasticsearch7.RestClientFactory;
+import org.apache.flink.util.Preconditions;
+import org.apache.http.HttpHost;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -41,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

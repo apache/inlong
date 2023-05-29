@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
-import org.apache.flink.api.common.typeutils.base.StringSerializer;
 import org.apache.inlong.sort.iceberg.sink.collections.RocksDBKVBuffer;
+
+import org.apache.flink.api.common.typeutils.base.StringSerializer;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

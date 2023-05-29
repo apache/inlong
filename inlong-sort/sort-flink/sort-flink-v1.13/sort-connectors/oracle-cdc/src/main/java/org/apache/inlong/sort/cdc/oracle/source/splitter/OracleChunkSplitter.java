@@ -17,8 +17,11 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.splitter;
 
-import static com.ververica.cdc.connectors.base.utils.ObjectUtils.doubleCompare;
-import static java.math.BigDecimal.ROUND_CEILING;
+import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
+import org.apache.inlong.sort.cdc.base.dialect.JdbcDataSourceDialect;
+import org.apache.inlong.sort.cdc.base.source.assigner.splitter.ChunkRange;
+import org.apache.inlong.sort.cdc.base.source.assigner.splitter.JdbcSourceChunkSplitter;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 
 import com.ververica.cdc.connectors.base.utils.ObjectUtils;
 import com.ververica.cdc.connectors.oracle.source.utils.OracleTypeUtils;
@@ -29,6 +32,13 @@ import io.debezium.relational.Column;
 import io.debezium.relational.Table;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
+import oracle.sql.ROWID;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.util.FlinkRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -38,17 +48,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import oracle.sql.ROWID;
-import org.apache.flink.table.types.DataType;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.base.config.JdbcSourceConfig;
-import org.apache.inlong.sort.cdc.base.dialect.JdbcDataSourceDialect;
-import org.apache.inlong.sort.cdc.base.source.assigner.splitter.ChunkRange;
-import org.apache.inlong.sort.cdc.base.source.assigner.splitter.JdbcSourceChunkSplitter;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static com.ververica.cdc.connectors.base.utils.ObjectUtils.doubleCompare;
+import static java.math.BigDecimal.ROUND_CEILING;
 
 /**
  * The {@code ChunkSplitter} used to split Oracle table into a set of chunks for JDBC data source.

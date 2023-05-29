@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.iceberg.sink.trick;
 
+import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
+import org.apache.iceberg.relocated.com.google.common.collect.Iterables;
+import org.apache.iceberg.relocated.com.google.common.collect.Iterators;
+import org.apache.iceberg.relocated.com.google.common.collect.Sets;
+import org.apache.iceberg.relocated.com.google.common.collect.Streams;
+import org.apache.iceberg.util.CharSequenceWrapper;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,12 +31,6 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
-import org.apache.iceberg.relocated.com.google.common.collect.Iterables;
-import org.apache.iceberg.relocated.com.google.common.collect.Iterators;
-import org.apache.iceberg.relocated.com.google.common.collect.Sets;
-import org.apache.iceberg.relocated.com.google.common.collect.Streams;
-import org.apache.iceberg.util.CharSequenceWrapper;
 
 /**
  * Copied from iceberg 1.1.x. Modify Set to concurrent Set.

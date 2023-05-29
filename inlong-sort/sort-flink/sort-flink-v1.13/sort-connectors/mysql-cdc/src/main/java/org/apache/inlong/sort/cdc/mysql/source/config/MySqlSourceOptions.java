@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.config;
 
+import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
+
 import org.apache.flink.annotation.Experimental;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
-import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
 
 import java.time.Duration;
 

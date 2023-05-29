@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.node.mysql;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -33,6 +31,9 @@ import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
 import org.apache.inlong.manager.service.resource.sink.mysql.MySQLJdbcUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

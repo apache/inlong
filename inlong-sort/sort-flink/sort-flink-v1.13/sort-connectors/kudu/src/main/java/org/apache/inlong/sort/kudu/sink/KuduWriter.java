@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.kudu.sink;
 
+import org.apache.inlong.sort.kudu.common.KuduTableInfo;
+
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.kudu.common.KuduTableInfo;
 import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.KuduException;
 import org.apache.kudu.client.KuduSession;

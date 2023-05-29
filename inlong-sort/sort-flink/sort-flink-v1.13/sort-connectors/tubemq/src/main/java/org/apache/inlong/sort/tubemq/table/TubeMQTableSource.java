@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import org.apache.inlong.sort.tubemq.FlinkTubeMQConsumer;
+import org.apache.inlong.sort.tubemq.table.DynamicTubeMQDeserializationSchema.MetadataConverter;
+import org.apache.inlong.tubemq.corebase.Message;
+
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -36,11 +40,9 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.tubemq.FlinkTubeMQConsumer;
-import org.apache.inlong.sort.tubemq.table.DynamicTubeMQDeserializationSchema.MetadataConverter;
-import org.apache.inlong.tubemq.corebase.Message;
 
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;

@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffsetSerializer;
+
 import io.debezium.DebeziumException;
 import io.debezium.util.HexConverter;
 import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataOutputSerializer;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffsetSerializer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -17,20 +17,22 @@
 
 package org.apache.inlong.sort.base.metric;
 
-import java.util.List;
+import org.apache.inlong.sort.util.AuditUtils;
+
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.apache.inlong.sort.util.AuditUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.apache.inlong.sort.base.Constants.AUDIT_SORT_INPUT;
 import static org.apache.inlong.sort.base.Constants.DELIMITER;

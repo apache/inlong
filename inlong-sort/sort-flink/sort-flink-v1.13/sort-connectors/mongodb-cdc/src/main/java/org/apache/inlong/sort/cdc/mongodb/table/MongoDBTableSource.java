@@ -17,6 +17,14 @@
 
 package org.apache.inlong.sort.cdc.mongodb.table;
 
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.mongodb.DebeziumSourceFunction;
+import org.apache.inlong.sort.cdc.mongodb.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.mongodb.debezium.table.MongoDBConnectorDeserializationSchema;
+import org.apache.inlong.sort.cdc.mongodb.source.MongoDBSource;
+import org.apache.inlong.sort.cdc.mongodb.source.MongoDBSourceBuilder;
+import org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKindValidator;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
@@ -30,15 +38,9 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.mongodb.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.mongodb.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.mongodb.debezium.table.MongoDBConnectorDeserializationSchema;
-import org.apache.inlong.sort.cdc.mongodb.source.MongoDBSource;
-import org.apache.inlong.sort.cdc.mongodb.source.MongoDBSourceBuilder;
-import org.apache.inlong.sort.cdc.mongodb.table.filter.MongoDBRowKindValidator;
 
 import javax.annotation.Nullable;
+
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;

@@ -19,6 +19,7 @@ package org.apache.inlong.sort.cdc.base.source.meta.split;
 
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
+
 import java.io.Serializable;
 import java.util.Map;
 

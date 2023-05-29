@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.base.format;
 
-import java.sql.Timestamp;
-import java.time.ZoneId;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -48,9 +46,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalQueries;

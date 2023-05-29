@@ -61,18 +61,6 @@ public class SourceConstants {
     public static final String SRCCXT_MAX_WORKER_THREADS = "max-threads";
     public static final int VAL_DEF_WORKER_THREADS = Runtime.getRuntime().availableProcessors();
     public static final int VAL_MIN_WORKER_THREADS = 1;
-    public static final int VAL_MAX_WORKER_THREADS = Runtime.getRuntime().availableProcessors() * 2;
-    // file metric statistic interval(second)
-    public static final String SRCCXT_STAT_INTERVAL_SEC = "stat-interval-sec";
-    public static final int VAL_DEF_STAT_INVL_SEC = 60;
-    public static final int VAL_MIN_STAT_INVL_SEC = 0;
-    // max file statistic key count
-    public static final String SRCCXT_MAX_MONITOR_STAT_CNT = "max-monitor-cnt";
-    public static final int VAL_DEF_MON_STAT_CNT = 1000000;
-    public static final int VAL_MIN_MON_STAT_CNT = 0;
-    // max file statistic key count
-    public static final String SRCCXT_FILE_METRIC_ON = "file-metric-on";
-    public static final boolean VAL_DEF_FILE_METRIC_ON = true;
     // max connection count
     public static final String SRCCXT_MAX_CONNECTION_CNT = "connections";
     public static final int VAL_DEF_MAX_CONNECTION_CNT = 5000;
@@ -81,12 +69,10 @@ public class SourceConstants {
     public static final String SRCCXT_RECEIVE_BUFFER_SIZE = "receiveBufferSize";
     public static final int VAL_DEF_RECEIVE_BUFFER_SIZE = 64 * 1024;
     public static final int VAL_MIN_RECEIVE_BUFFER_SIZE = 0;
-    public static final int VAL_MAX_RECEIVE_BUFFER_SIZE = 100 * 1024 * 1024;
     // max send buffer size
     public static final String SRCCXT_SEND_BUFFER_SIZE = "sendBufferSize";
     public static final int VAL_DEF_SEND_BUFFER_SIZE = 64 * 1024;
     public static final int VAL_MIN_SEND_BUFFER_SIZE = 0;
-    public static final int VAL_MAX_SEND_BUFFER_SIZE = 100 * 1024 * 1024;
     // tcp parameter no delay
     public static final String SRCCXT_TCP_NO_DELAY = "tcpNoDelay";
     public static final boolean VAL_DEF_TCP_NO_DELAY = true;
@@ -102,8 +88,9 @@ public class SourceConstants {
     public static final boolean VAL_DEF_TCP_ENABLE_BUSY_WAIT = false;
     // tcp parameters max read idle time
     public static final String SRCCXT_MAX_READ_IDLE_TIME_MS = "maxReadIdleTime";
-    public static final long VAL_DEF_READ_IDLE_TIME_MS = 70 * 60 * 1000;
+    public static final long VAL_DEF_READ_IDLE_TIME_MS = 3 * 60 * 1000;
     public static final long VAL_MIN_READ_IDLE_TIME_MS = 60 * 1000;
+    public static final long VAL_MAX_READ_IDLE_TIME_MS = 70 * 60 * 1000;
     // source protocol type
     public static final String SRC_PROTOCOL_TYPE_TCP = "tcp";
     public static final String SRC_PROTOCOL_TYPE_UDP = "udp";

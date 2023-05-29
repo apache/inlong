@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.cdc.base.relational.connection;
 
-import org.apache.flink.annotation.Experimental;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
+
+import org.apache.flink.annotation.Experimental;
 
 /** A pool collection that consists of multiple connection pools.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

@@ -17,11 +17,13 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges.TableChange;
+
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

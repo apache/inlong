@@ -17,11 +17,14 @@
 
 package org.apache.inlong.sort.cdc.base.source.reader.external;
 
-import java.util.Iterator;
-import javax.annotation.Nullable;
-import org.apache.flink.annotation.Experimental;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
 import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
+
+import org.apache.flink.annotation.Experimental;
+
+import javax.annotation.Nullable;
+
+import java.util.Iterator;
 
 /**
  * Fetcher to fetch data of a table split, the split is either snapshot split {@link SnapshotSplit}

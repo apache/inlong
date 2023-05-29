@@ -17,7 +17,6 @@
 
 package org.apache.inlong.dataproxy.source.tcp;
 
-import org.apache.flume.Event;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
@@ -31,6 +30,13 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePack;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePackHeader;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.apache.flume.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,12 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 
 /**
  * InlongTcpChannelHandler

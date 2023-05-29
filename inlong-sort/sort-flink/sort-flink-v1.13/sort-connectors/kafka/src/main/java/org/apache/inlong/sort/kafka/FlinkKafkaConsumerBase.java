@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.kafka;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema;
+
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -61,12 +68,6 @@ import org.apache.flink.streaming.runtime.operators.util.AssignerWithPeriodicWat
 import org.apache.flink.streaming.runtime.operators.util.AssignerWithPunctuatedWatermarksAdapter;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.SerializedValue;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

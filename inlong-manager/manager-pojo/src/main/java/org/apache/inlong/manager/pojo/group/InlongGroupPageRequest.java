@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.group;
 
+import org.apache.inlong.manager.pojo.common.PageRequest;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -24,7 +26,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.pojo.common.PageRequest;
 
 import java.util.List;
 
@@ -57,8 +58,8 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "The inlong cluster tag list")
     private List<String> clusterTagList;
 
-    @ApiModelProperty(value = "Standard mode: 0, Lightweight: 1")
-    private Integer lightweight;
+    @ApiModelProperty(value = "Standard mode: 0, DataSync mode: 1")
+    private Integer inlongGroupMode;
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;

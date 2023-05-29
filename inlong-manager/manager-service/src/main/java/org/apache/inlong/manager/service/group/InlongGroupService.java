@@ -31,6 +31,7 @@ import org.apache.inlong.manager.pojo.user.UserInfo;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
 import java.util.List;
 
 /**
@@ -89,7 +90,7 @@ public interface InlongGroupService {
      * @param operator name of operator
      * @return inlong group status statistics
      */
-    InlongGroupCountResponse countGroupByUser(String operator, Integer lightweight);
+    InlongGroupCountResponse countGroupByUser(String operator, Integer inlongGroupMode);
 
     /**
      * According to the group id, query the topic to which it belongs

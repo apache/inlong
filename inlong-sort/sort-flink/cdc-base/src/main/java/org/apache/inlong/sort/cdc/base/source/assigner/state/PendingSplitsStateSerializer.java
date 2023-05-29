@@ -17,25 +17,27 @@
 
 package org.apache.inlong.sort.cdc.base.source.assigner.state;
 
-import static org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer.readTableSchemas;
-import static org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer.writeTableSchemas;
+import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SchemalessSnapshotSplit;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer;
 
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
+import org.apache.flink.core.io.SimpleVersionedSerializer;
+import org.apache.flink.core.memory.DataInputDeserializer;
+import org.apache.flink.core.memory.DataOutputSerializer;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.flink.core.io.SimpleVersionedSerializer;
-import org.apache.flink.core.memory.DataInputDeserializer;
-import org.apache.flink.core.memory.DataOutputSerializer;
-import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SchemalessSnapshotSplit;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer;
+
+import static org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer.readTableSchemas;
+import static org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitSerializer.writeTableSchemas;
 
 /** The {@link SimpleVersionedSerializer Serializer} for the {@link PendingSplitsState}.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

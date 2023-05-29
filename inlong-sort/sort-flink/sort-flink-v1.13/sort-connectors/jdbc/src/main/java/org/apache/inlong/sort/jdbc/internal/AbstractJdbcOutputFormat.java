@@ -24,7 +24,6 @@ import org.apache.flink.connector.jdbc.internal.connection.JdbcConnectionProvide
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.util.Preconditions;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

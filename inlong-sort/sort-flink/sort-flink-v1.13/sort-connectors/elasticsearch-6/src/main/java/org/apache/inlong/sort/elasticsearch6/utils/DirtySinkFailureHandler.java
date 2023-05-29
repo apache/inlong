@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sort.elasticsearch6.utils;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.util.ExceptionUtils;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.elasticsearch.ActionRequestFailureHandler;
 import org.apache.inlong.sort.elasticsearch.RequestIndexer;
+
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.util.ExceptionUtils;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.index.IndexRequest;

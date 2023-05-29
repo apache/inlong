@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.task.context;
 
+import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
+import org.apache.inlong.sort.cdc.mysql.debezium.EmbeddedFlinkDatabaseHistory;
+import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl;
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
+
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.connector.base.ChangeEventQueue;
@@ -41,12 +48,6 @@ import io.debezium.schema.TopicSelector;
 import io.debezium.util.Clock;
 import io.debezium.util.Collect;
 import io.debezium.util.SchemaNameAdjuster;
-import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
-import org.apache.inlong.sort.cdc.mysql.debezium.EmbeddedFlinkDatabaseHistory;
-import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.apache.kafka.connect.data.Struct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

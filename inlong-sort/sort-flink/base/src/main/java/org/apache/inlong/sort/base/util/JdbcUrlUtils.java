@@ -17,12 +17,12 @@
 
 package org.apache.inlong.sort.base.util;
 
-import static org.apache.inlong.sort.base.Constants.AUTO_DESERIALIZE_FALSE;
-import static org.apache.inlong.sort.base.Constants.AUTO_DESERIALIZE_TRUE;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.inlong.sort.base.Constants.AUTO_DESERIALIZE_FALSE;
+import static org.apache.inlong.sort.base.Constants.AUTO_DESERIALIZE_TRUE;
 
 /**
  * utils for jdbc url

@@ -17,14 +17,15 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source;
 
-import static org.apache.flink.util.Preconditions.checkArgument;
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfigFactory;
 
 import com.ververica.cdc.connectors.base.options.StartupOptions;
 import org.apache.flink.annotation.Experimental;
 import org.apache.flink.annotation.PublicEvolving;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfigFactory;
+
+import static org.apache.flink.util.Preconditions.checkArgument;
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * The builder class for {@link MongoDBSource} to make it easier for the users to construct a {@link

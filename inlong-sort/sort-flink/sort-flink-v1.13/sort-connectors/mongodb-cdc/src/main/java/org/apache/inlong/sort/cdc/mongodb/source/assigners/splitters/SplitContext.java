@@ -17,16 +17,17 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.assigners.splitters;
 
-import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.clientFor;
-import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.collStats;
+import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
 
 import com.mongodb.client.MongoClient;
 import io.debezium.relational.TableId;
 import org.apache.flink.annotation.Internal;
-import org.apache.inlong.sort.cdc.mongodb.source.config.MongoDBSourceConfig;
 import org.bson.BsonBoolean;
 import org.bson.BsonDocument;
 import org.bson.BsonInt64;
+
+import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.clientFor;
+import static org.apache.inlong.sort.cdc.mongodb.source.utils.MongoUtils.collStats;
 
 /**
  * The split context used by {@link SplitStrategy} to split collection into a set of chunks for

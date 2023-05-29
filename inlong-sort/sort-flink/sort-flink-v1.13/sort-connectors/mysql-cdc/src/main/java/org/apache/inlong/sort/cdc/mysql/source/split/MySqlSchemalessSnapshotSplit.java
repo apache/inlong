@@ -17,12 +17,14 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
+import org.apache.flink.table.types.logical.RowType;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
 /**
  * The MySqlSnapshotSplit without schema information to reduce the memory usage.

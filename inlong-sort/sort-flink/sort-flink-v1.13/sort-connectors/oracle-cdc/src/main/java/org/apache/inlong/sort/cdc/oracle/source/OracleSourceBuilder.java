@@ -17,14 +17,6 @@
 
 package org.apache.inlong.sort.cdc.oracle.source;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
-import com.ververica.cdc.connectors.base.options.StartupOptions;
-import java.time.Duration;
-import java.util.Properties;
-import javax.annotation.Nullable;
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.connector.base.source.reader.RecordEmitter;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.base.source.jdbc.JdbcIncrementalSource;
@@ -34,6 +26,17 @@ import org.apache.inlong.sort.cdc.base.source.metrics.SourceReaderMetrics;
 import org.apache.inlong.sort.cdc.oracle.source.config.OracleSourceConfigFactory;
 import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffsetFactory;
 import org.apache.inlong.sort.cdc.oracle.source.reader.OracleRecordEmitter;
+
+import com.ververica.cdc.connectors.base.options.StartupOptions;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.connector.base.source.reader.RecordEmitter;
+
+import javax.annotation.Nullable;
+
+import java.time.Duration;
+import java.util.Properties;
+
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * The builder class for {@link OracleIncrementalSource} to make it easier for the users to

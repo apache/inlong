@@ -17,7 +17,12 @@
 
 package org.apache.inlong.sort.cdc.oracle.source.reader.fetch;
 
-import static org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset.NO_STOPPING_OFFSET;
+import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
+import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
+import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
+import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkKind;
+import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
+import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
 
 import io.debezium.DebeziumException;
 import io.debezium.config.Configuration;
@@ -30,16 +35,13 @@ import io.debezium.connector.oracle.logminer.LogMinerStreamingChangeEventSource;
 import io.debezium.pipeline.ErrorHandler;
 import io.debezium.pipeline.source.spi.ChangeEventSource;
 import io.debezium.util.Clock;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.inlong.sort.cdc.base.relational.JdbcSourceEventDispatcher;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
-import org.apache.inlong.sort.cdc.base.source.meta.split.StreamSplit;
-import org.apache.inlong.sort.cdc.base.source.meta.wartermark.WatermarkKind;
-import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
-import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset.NO_STOPPING_OFFSET;
 
 /** The task to work for fetching data of Oracle table stream split.
  *  Copy from com.ververica:flink-connector-oracle-cdc:2.3.0

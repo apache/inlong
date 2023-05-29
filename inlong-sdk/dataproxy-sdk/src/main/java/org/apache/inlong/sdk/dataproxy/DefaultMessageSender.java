@@ -29,6 +29,7 @@ import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.apache.inlong.sdk.dataproxy.threads.IndexCollectThread;
 import org.apache.inlong.sdk.dataproxy.threads.ManagerFetcherThread;
 import org.apache.inlong.sdk.dataproxy.utils.ProxyUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -17,17 +17,19 @@
 
 package org.apache.inlong.sort.formats.json.debezium;
 
+import org.apache.inlong.sort.protocol.ddl.operations.Operation;
+
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
-import java.util.List;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.inlong.sort.protocol.ddl.operations.Operation;
+
+import java.util.List;
+import java.util.Map;
 
 @Builder
 @JsonTypeName("canalJson")

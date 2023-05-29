@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sort.redis.common.schema;
 
-import java.io.Serializable;
-import java.util.List;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.table.data.RowData;
+
+import java.io.Serializable;
+import java.util.List;
 
 @FunctionalInterface
 public interface StateEncoder<T> extends Serializable {

@@ -17,7 +17,13 @@
 
 package org.apache.inlong.sort.cdc.postgres.table;
 
-import java.time.ZoneId;
+import org.apache.inlong.sort.base.filter.RowKindValidator;
+import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
+import org.apache.inlong.sort.cdc.postgres.DebeziumSourceFunction;
+import org.apache.inlong.sort.cdc.postgres.PostgreSQLSource;
+
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -30,6 +36,7 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +44,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.inlong.sort.cdc.base.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.base.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.base.debezium.table.RowDataDebeziumDeserializeSchema;
-import org.apache.inlong.sort.base.filter.RowKindValidator;
-import org.apache.inlong.sort.cdc.postgres.PostgreSQLSource;
-import org.apache.inlong.sort.cdc.postgres.DebeziumSourceFunction;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 

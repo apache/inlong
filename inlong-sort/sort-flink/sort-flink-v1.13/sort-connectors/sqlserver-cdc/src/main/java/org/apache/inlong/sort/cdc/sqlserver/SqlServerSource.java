@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.cdc.sqlserver;
 
+import org.apache.inlong.sort.cdc.sqlserver.table.DebeziumSourceFunction;
+
 import com.ververica.cdc.connectors.sqlserver.SqlServerValidator;
 import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
-import org.apache.inlong.sort.cdc.sqlserver.table.DebeziumSourceFunction;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import io.debezium.connector.sqlserver.SqlServerConnector;
 

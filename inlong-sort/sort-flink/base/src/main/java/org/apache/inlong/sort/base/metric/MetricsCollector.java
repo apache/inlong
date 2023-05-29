@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.base.metric;
 
-import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.formats.base.collectors.TimestampedCollector;
+
+import org.apache.flink.util.Collector;
 
 /**
  * sending metrics each time a record is collected.

@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
+import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverter;
+import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverterFactory;
+
 import com.esri.core.geometry.ogc.OGCGeometry;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,8 +33,6 @@ import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeFamily;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
-import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverter;
-import org.apache.inlong.sort.cdc.base.debezium.table.DeserializationRuntimeConverterFactory;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 

@@ -17,17 +17,18 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners.state;
 
+import org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSchemalessSnapshotSplit;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
+
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataOutputSerializer;
-import org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSchemalessSnapshotSplit;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 
 import java.io.IOException;
 import java.util.ArrayList;

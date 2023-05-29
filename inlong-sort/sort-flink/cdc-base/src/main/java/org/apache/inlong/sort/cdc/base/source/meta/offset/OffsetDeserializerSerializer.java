@@ -17,18 +17,20 @@
 
 package org.apache.inlong.sort.cdc.base.source.meta.offset;
 
-import static com.ververica.cdc.connectors.base.utils.SerializerUtils.serializedStringToObject;
-import static com.ververica.cdc.connectors.base.utils.SerializerUtils.serializedStringToRow;
+import org.apache.inlong.sort.cdc.base.source.meta.split.FinishedSnapshotSplitInfo;
 
 import io.debezium.relational.TableId;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Map;
 import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataOutputSerializer;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.base.source.meta.split.FinishedSnapshotSplitInfo;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Map;
+
+import static com.ververica.cdc.connectors.base.utils.SerializerUtils.serializedStringToObject;
+import static com.ververica.cdc.connectors.base.utils.SerializerUtils.serializedStringToRow;
 
 /** read {@link Offset} from input stream and write {@link Offset} to output stream.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

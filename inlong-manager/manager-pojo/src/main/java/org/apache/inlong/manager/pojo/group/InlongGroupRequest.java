@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.pojo.group;
 
+import org.apache.inlong.manager.common.validation.SaveValidation;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,15 +27,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import org.apache.inlong.manager.common.validation.SaveValidation;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+
 import java.util.List;
 
 /**
@@ -85,9 +86,9 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @Range(min = 0, max = 1, message = "default is 1, only supports [0: disable, 1: enable]")
     private Integer enableCreateResource = 1;
 
-    @ApiModelProperty(value = "Whether to use lightweight mode, 0: no, 1: yes")
-    @Range(min = 0, max = 1, message = "default is 0, only supports [0: no, 1: yes]")
-    private Integer lightweight = 0;
+    @ApiModelProperty(value = "Standard mode: 0, DataSync mode: 1")
+    @Range(min = 0, max = 1, message = "default is 0, only supports [0: Standard, 1: DataSync]")
+    private Integer inlongGroupMode = 0;
 
     @ApiModelProperty(value = "Data report type, default is 0.\n"
             + " 0: report to DataProxy and respond when the DataProxy received data.\n"

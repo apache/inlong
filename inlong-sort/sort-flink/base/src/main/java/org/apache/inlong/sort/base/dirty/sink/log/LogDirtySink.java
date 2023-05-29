@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.base.dirty.sink.log;
 
+import org.apache.inlong.sort.base.dirty.DirtyData;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.FormatUtils;
+import org.apache.inlong.sort.base.util.LabelUtils;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.formats.json.JsonOptions.MapNullKeyMode;
@@ -27,10 +32,6 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
-import org.apache.inlong.sort.base.dirty.DirtyData;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.base.dirty.utils.FormatUtils;
-import org.apache.inlong.sort.base.util.LabelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

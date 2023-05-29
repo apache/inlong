@@ -17,6 +17,24 @@
 
 package org.apache.inlong.sort.cdc.mongodb.source.assigners.splitters;
 
+import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
+
+import com.mongodb.client.MongoCollection;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.table.types.logical.RowType;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
+import org.bson.conversions.Bson;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static com.mongodb.client.model.Aggregates.bucketAuto;
 import static com.mongodb.client.model.Aggregates.sample;
 import static com.ververica.cdc.connectors.mongodb.internal.MongoDBEnvelope.ID_FIELD;
@@ -27,22 +45,6 @@ import static com.ververica.cdc.connectors.mongodb.source.utils.ChunkUtils.bound
 import static com.ververica.cdc.connectors.mongodb.source.utils.ChunkUtils.maxUpperBoundOfId;
 import static com.ververica.cdc.connectors.mongodb.source.utils.ChunkUtils.minLowerBoundOfId;
 import static com.ververica.cdc.connectors.mongodb.source.utils.MongoUtils.collectionFor;
-
-import com.mongodb.client.MongoCollection;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.base.source.meta.split.SnapshotSplit;
-import org.bson.BsonDocument;
-import org.bson.BsonValue;
-import org.bson.conversions.Bson;
 
 /**
  * The Sample Splitter.

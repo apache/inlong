@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.formats.json.canal;
 
+import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedEncodingFormat.WriteableMetadata;
+
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.formats.json.JsonOptions;
@@ -32,9 +34,9 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedEncodingFormat.WriteableMetadata;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;

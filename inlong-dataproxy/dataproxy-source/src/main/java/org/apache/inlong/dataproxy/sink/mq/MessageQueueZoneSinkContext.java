@@ -17,19 +17,21 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
-import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.CacheClusterConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
+import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.common.SinkContext;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
+
+import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -271,9 +273,11 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     public void processSendFail(BatchPackProfile currentRecord, String mqName, String topic, long sendTime) {
         if (currentRecord.isResend()) {
             dispatchQueue.offer(currentRecord);
+            fileMetricEventInc(StatConstants.EVENT_SINK_FAILRETRY);
             this.addSendResultMetric(currentRecord, mqName, topic, false, sendTime);
         } else {
             currentRecord.fail();
+            fileMetricEventInc(StatConstants.EVENT_SINK_FAILDROPPED);
         }
     }
 

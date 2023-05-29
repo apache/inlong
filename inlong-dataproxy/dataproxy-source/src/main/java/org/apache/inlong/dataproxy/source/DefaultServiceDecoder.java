@@ -17,7 +17,23 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.common.msg.MsgType;
+import org.apache.inlong.dataproxy.base.ProxyMessage;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.exception.ErrorCode;
+import org.apache.inlong.dataproxy.exception.MessageIDException;
+
 import com.google.common.base.Splitter;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xerial.snappy.Snappy;
+
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -26,20 +42,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.common.msg.MsgType;
-import org.apache.inlong.dataproxy.base.ProxyMessage;
-import org.apache.inlong.dataproxy.consts.AttrConstants;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.exception.ErrorCode;
-import org.apache.inlong.dataproxy.exception.MessageIDException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xerial.snappy.Snappy;
 
 public class DefaultServiceDecoder implements ServiceDecoder {
 

@@ -17,22 +17,23 @@
 
 package org.apache.inlong.dataproxy.config.remote;
 
+import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+
 import com.google.gson.Gson;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * http

@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.jdbc.internal;
 
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -27,13 +31,11 @@ import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecu
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatementImpl;
 import org.apache.flink.types.Row;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.DirtyType;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;

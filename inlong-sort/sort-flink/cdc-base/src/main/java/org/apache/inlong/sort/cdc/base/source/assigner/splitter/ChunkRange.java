@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sort.cdc.base.source.assigner.splitter;
 
-import static org.apache.flink.util.Preconditions.checkArgument;
+import javax.annotation.Nullable;
 
 import java.util.Objects;
-import javax.annotation.Nullable;
+
+import static org.apache.flink.util.Preconditions.checkArgument;
 
 /**
  * An internal structure describes a chunk range with a chunk start (inclusive) and chunk end

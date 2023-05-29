@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import org.apache.inlong.sort.base.sink.TableChange;
+import org.apache.inlong.sort.base.sink.TableChange.ColumnPosition;
+import org.apache.inlong.sort.base.sink.TableChange.UnknownColumnChange;
+import org.apache.inlong.sort.iceberg.FlinkTypeToType;
+
 import com.google.common.collect.Sets;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.Schema;
@@ -26,16 +31,12 @@ import org.apache.iceberg.relocated.com.google.common.base.Joiner;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.types.Type;
 import org.apache.iceberg.types.Types.NestedField;
-import org.apache.inlong.sort.base.sink.TableChange;
-import org.apache.inlong.sort.iceberg.FlinkTypeToType;
-import org.apache.inlong.sort.base.sink.TableChange.ColumnPosition;
-import org.apache.inlong.sort.base.sink.TableChange.UnknownColumnChange;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 public class SchemaChangeUtils {
@@ -64,7 +65,8 @@ public class SchemaChangeUtils {
 
         // step0: judge whether unknown change
         // just diff two different schema can not distinguish（add + delete) vs modify
-        // Example first [a, b, c] -> then delete c [a, b] -> add d [a, b, d], currently it is only judged as unknown change.
+        // Example first [a, b, c] -> then delete c [a, b] -> add d [a, b, d], currently it is only judged as unknown
+        // change.
         // In next version,we will judge it is [delete and add] or rename by using information extracted from DDL
         if (!colsToDelete.isEmpty() && !colsToAdd.isEmpty()) {
             tableChanges.add(new UnknownColumnChange(

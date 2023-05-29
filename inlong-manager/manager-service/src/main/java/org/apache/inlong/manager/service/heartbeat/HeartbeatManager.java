@@ -17,18 +17,6 @@
 
 package org.apache.inlong.manager.service.heartbeat;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.github.benmanes.caffeine.cache.RemovalCause;
-import com.github.benmanes.caffeine.cache.Scheduler;
-import com.google.common.base.Joiner;
-import com.google.gson.Gson;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
@@ -50,11 +38,26 @@ import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterNodeDTO;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperatorFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.Scheduler;
+import com.google.common.base.Joiner;
+import com.google.gson.Gson;
+import lombok.Getter;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -85,6 +88,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
 
+    @Value("${cluster.heartbeat.interval:30}")
+    private Long heartbeatIntervalFactor;
+
     /**
      * Check whether the configuration information carried in the heartbeat has been updated
      *
@@ -106,7 +112,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         // When the manager restarts, set the heartbeat timeout state of all nodes
         // and wait for the heartbeat report of the corresponding node
         clusterNodeMapper.updateStatus(null, NodeStatus.HEARTBEAT_TIMEOUT.getStatus(), NodeStatus.NORMAL.getStatus());
-        long expireTime = heartbeatInterval() * 2L;
+        long expireTime = heartbeatInterval() * heartbeatIntervalFactor;
         Scheduler evictScheduler = Scheduler.forScheduledExecutorService(Executors.newSingleThreadScheduledExecutor());
         heartbeatCache = Caffeine.newBuilder()
                 .scheduler(evictScheduler)

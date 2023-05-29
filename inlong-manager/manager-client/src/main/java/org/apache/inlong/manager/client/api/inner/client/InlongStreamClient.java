@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongStreamApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
@@ -30,6 +29,8 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 

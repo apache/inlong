@@ -17,9 +17,10 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import com.google.common.base.Splitter;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
+
+import com.google.common.base.Splitter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +43,7 @@ public class MQClusterConfigHolder extends PropertiesConfigHolder {
      * load from file
      */
     @Override
-    public boolean loadFromFileToHolder() {
+    protected boolean loadFromFileToHolder() {
         super.loadFromFileToHolder();
         Map<String, String> tmpUrl2token = new HashMap<>();
         for (Map.Entry<String, String> entry : getHolder().entrySet()) {

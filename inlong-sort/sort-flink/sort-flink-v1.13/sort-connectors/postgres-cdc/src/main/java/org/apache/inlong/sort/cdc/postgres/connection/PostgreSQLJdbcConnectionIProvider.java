@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.cdc.postgres.connection;
 
-import java.sql.Connection;
 import org.apache.flink.annotation.Internal;
+
+import java.sql.Connection;
 
 /**
  * connection provider.

@@ -17,17 +17,19 @@
 
 package org.apache.inlong.sort.cdc.base.dialect;
 
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import org.apache.flink.annotation.Experimental;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.source.assigner.splitter.ChunkSplitter;
 import org.apache.inlong.sort.cdc.base.source.meta.offset.Offset;
 import org.apache.inlong.sort.cdc.base.source.meta.split.SourceSplitBase;
 import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
+
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
+import org.apache.flink.annotation.Experimental;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The dialect of data source.

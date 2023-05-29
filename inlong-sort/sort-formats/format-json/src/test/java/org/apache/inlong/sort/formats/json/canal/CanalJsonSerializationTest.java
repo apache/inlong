@@ -17,19 +17,21 @@
 
 package org.apache.inlong.sort.formats.json.canal;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.sort.protocol.ddl.expressions.Column;
-import org.apache.inlong.sort.protocol.ddl.expressions.Position;
 import org.apache.inlong.sort.protocol.ddl.enums.AlterType;
 import org.apache.inlong.sort.protocol.ddl.enums.PositionType;
 import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
+import org.apache.inlong.sort.protocol.ddl.expressions.Column;
+import org.apache.inlong.sort.protocol.ddl.expressions.Position;
 import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
+
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Test for {@link CanalJson}.

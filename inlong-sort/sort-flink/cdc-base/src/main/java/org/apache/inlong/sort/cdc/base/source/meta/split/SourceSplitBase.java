@@ -19,10 +19,11 @@ package org.apache.inlong.sort.cdc.base.source.meta.split;
 
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
-import java.util.Map;
-import java.util.Objects;
 import org.apache.flink.annotation.Experimental;
 import org.apache.flink.api.connector.source.SourceSplit;
+
+import java.util.Map;
+import java.util.Objects;
 
 /** The split of table comes from a Table that splits by primary key.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

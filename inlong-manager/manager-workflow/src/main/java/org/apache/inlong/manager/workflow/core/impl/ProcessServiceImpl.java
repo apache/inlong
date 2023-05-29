@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
@@ -39,6 +37,9 @@ import org.apache.inlong.manager.workflow.core.ProcessService;
 import org.apache.inlong.manager.workflow.core.ProcessorExecutor;
 import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
+
+import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

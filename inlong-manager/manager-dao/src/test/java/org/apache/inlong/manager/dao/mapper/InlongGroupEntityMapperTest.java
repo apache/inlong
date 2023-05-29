@@ -20,6 +20,7 @@ package org.apache.inlong.manager.dao.mapper;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.dao.DaoBaseTest;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

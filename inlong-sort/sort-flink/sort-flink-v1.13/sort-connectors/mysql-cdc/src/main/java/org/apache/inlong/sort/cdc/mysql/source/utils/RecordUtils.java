@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
+import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
+
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
@@ -26,10 +31,6 @@ import io.debezium.relational.TableId;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.util.SchemaNameAdjuster;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;

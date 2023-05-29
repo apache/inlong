@@ -17,11 +17,6 @@
 
 package org.apache.inlong.sort.iceberg.sink.trick;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
 import org.apache.iceberg.DeleteFile;
 import org.apache.iceberg.FileFormat;
 import org.apache.iceberg.StructLike;
@@ -38,6 +33,12 @@ import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.types.Comparators;
 import org.apache.iceberg.util.CharSequenceSet;
 import org.apache.iceberg.util.CharSequenceWrapper;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 class SortedPosDeleteWriter<T> implements FileWriter<PositionDelete<T>, DeleteWriteResult> {
 

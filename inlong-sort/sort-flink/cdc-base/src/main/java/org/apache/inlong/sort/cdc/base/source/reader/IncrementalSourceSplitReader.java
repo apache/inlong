@@ -17,17 +17,6 @@
 
 package org.apache.inlong.sort.cdc.base.source.reader;
 
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Iterator;
-import java.util.Queue;
-import javax.annotation.Nullable;
-import org.apache.flink.annotation.Experimental;
-import org.apache.flink.annotation.VisibleForTesting;
-import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
-import org.apache.flink.connector.base.source.reader.splitreader.SplitReader;
-import org.apache.flink.connector.base.source.reader.splitreader.SplitsAddition;
-import org.apache.flink.connector.base.source.reader.splitreader.SplitsChange;
 import org.apache.inlong.sort.cdc.base.config.SourceConfig;
 import org.apache.inlong.sort.cdc.base.dialect.DataSourceDialect;
 import org.apache.inlong.sort.cdc.base.source.meta.split.ChangeEventRecords;
@@ -37,9 +26,23 @@ import org.apache.inlong.sort.cdc.base.source.reader.external.FetchTask;
 import org.apache.inlong.sort.cdc.base.source.reader.external.Fetcher;
 import org.apache.inlong.sort.cdc.base.source.reader.external.IncrementalSourceScanFetcher;
 import org.apache.inlong.sort.cdc.base.source.reader.external.IncrementalSourceStreamFetcher;
+
+import org.apache.flink.annotation.Experimental;
+import org.apache.flink.annotation.VisibleForTesting;
+import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+import org.apache.flink.connector.base.source.reader.splitreader.SplitReader;
+import org.apache.flink.connector.base.source.reader.splitreader.SplitsAddition;
+import org.apache.flink.connector.base.source.reader.splitreader.SplitsChange;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.Queue;
 
 /** Basic class read {@link SourceSplitBase} and return {@link SourceRecord}.
  * Copy from com.ververica:flink-cdc-base:2.3.0.

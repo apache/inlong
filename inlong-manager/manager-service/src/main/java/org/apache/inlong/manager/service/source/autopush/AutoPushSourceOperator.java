@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.source.autopush;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceStatus;
@@ -31,6 +30,8 @@ import org.apache.inlong.manager.pojo.source.autopush.AutoPushSourceDTO;
 import org.apache.inlong.manager.pojo.source.autopush.AutoPushSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

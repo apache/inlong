@@ -21,6 +21,7 @@ import io.debezium.relational.Column;
 import io.debezium.relational.Table;
 import io.debezium.relational.TableEditor;
 import io.debezium.relational.TableId;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

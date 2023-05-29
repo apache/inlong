@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sdk.sort.impl.decode;
 
-import com.google.protobuf.ByteString;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
@@ -31,11 +27,17 @@ import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.ClientContextImpl;
 import org.apache.inlong.sdk.sort.util.Utils;
+
+import com.google.protobuf.ByteString;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RunWith(PowerMockRunner.class)
 public class MessageDeserializerTest {

@@ -25,9 +25,9 @@ import io.debezium.relational.Tables;
 import io.debezium.relational.history.TableChanges;
 
 import static io.debezium.relational.RelationalDatabaseConnectorConfig.COLUMN_BLACKLIST;
-import static io.debezium.relational.RelationalDatabaseConnectorConfig.COLUMN_WHITELIST;
 import static io.debezium.relational.RelationalDatabaseConnectorConfig.COLUMN_EXCLUDE_LIST;
 import static io.debezium.relational.RelationalDatabaseConnectorConfig.COLUMN_INCLUDE_LIST;
+import static io.debezium.relational.RelationalDatabaseConnectorConfig.COLUMN_WHITELIST;
 
 /**
  * Utility class to Combining column.exclude.list/column.blacklist, column.include.list/column.whitelist parameters

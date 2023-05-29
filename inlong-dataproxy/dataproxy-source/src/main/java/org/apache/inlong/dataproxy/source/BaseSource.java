@@ -17,6 +17,16 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.monitor.MonitorIndex;
+import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
+import org.apache.inlong.dataproxy.utils.ConfStringUtils;
+import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
+
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -25,7 +35,6 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import java.lang.reflect.Constructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
@@ -34,17 +43,10 @@ import org.apache.flume.FlumeException;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.conf.Configurables;
 import org.apache.flume.source.AbstractSource;
-import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
-import org.apache.inlong.dataproxy.config.CommonConfigHolder;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.common.monitor.MonitorIndex;
-import org.apache.inlong.common.monitor.MonitorIndexExt;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
-import org.apache.inlong.dataproxy.utils.ConfStringUtils;
-import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
 
 /**
  * source base clase

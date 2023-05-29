@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.pojo.node;
 
+import org.apache.inlong.manager.pojo.common.PageRequest;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.pojo.common.PageRequest;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Pattern;

@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.node.kudu;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -34,6 +31,9 @@ import org.apache.inlong.manager.pojo.node.kudu.KuduDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.kudu.KuduDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
 import org.apache.inlong.manager.service.resource.sink.kudu.KuduResourceClient;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

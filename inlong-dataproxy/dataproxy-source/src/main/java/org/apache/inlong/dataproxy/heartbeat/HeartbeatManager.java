@@ -17,18 +17,6 @@
 
 package org.apache.inlong.dataproxy.heartbeat;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
@@ -41,10 +29,23 @@ import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -152,27 +153,26 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         heartbeatMsg.setInCharges(CommonConfigHolder.getInstance().getClusterIncharges());
         heartbeatMsg.setExtTag(CommonConfigHolder.getInstance().getClusterExtTag());
 
-        Map<String, String> groupIdMappings = configManager.getGroupIdMappingProperties();
-        Map<String, Map<String, String>> streamIdMappings = configManager.getStreamIdMappingProperties();
-        Map<String, String> groupIdEnableMappings = configManager.getGroupIdEnableMappingProperties();
+        ConcurrentHashMap<String, String> groupIdMappings =
+                configManager.getGroupIdNumMap();
+        ConcurrentHashMap<String, ConcurrentHashMap<String, String>> streamIdMappings =
+                configManager.getStreamIdNumMap();
         List<GroupHeartbeat> groupHeartbeats = new ArrayList<>();
         for (Entry<String, String> entry : groupIdMappings.entrySet()) {
             String groupIdNum = entry.getKey();
             String groupId = entry.getValue();
             GroupHeartbeat groupHeartbeat = new GroupHeartbeat();
             groupHeartbeat.setInlongGroupId(groupId);
-            String status = groupIdEnableMappings.getOrDefault(groupIdNum, "disabled");
-            status = status.equals("TRUE") ? "enabled" : "disabled";
+            String status = configManager.isEnableNum2NameTrans(groupIdNum) ? "enabled" : "disabled";
             groupHeartbeat.setStatus(status);
             groupHeartbeats.add(groupHeartbeat);
         }
         heartbeatMsg.setGroupHeartbeats(groupHeartbeats);
 
         List<StreamHeartbeat> streamHeartbeats = new ArrayList<>();
-        for (Entry<String, Map<String, String>> entry : streamIdMappings.entrySet()) {
+        for (Entry<String, ConcurrentHashMap<String, String>> entry : streamIdMappings.entrySet()) {
             String groupIdNum = entry.getKey();
-            String status = groupIdEnableMappings.getOrDefault(groupIdNum, "disabled");
-            status = status.equals("TRUE") ? "enabled" : "disabled";
+            String status = configManager.isEnableNum2NameTrans(groupIdNum) ? "enabled" : "disabled";
             String groupId = groupIdMappings.get(groupIdNum);
             for (Entry<String, String> streamEntry : entry.getValue().entrySet()) {
                 String streamId = streamEntry.getValue();
