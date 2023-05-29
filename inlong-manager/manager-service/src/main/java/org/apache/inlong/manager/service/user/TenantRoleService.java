@@ -15,26 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.service.user;
 
-import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
-import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
+import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
+import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
+import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
 
-import com.github.pagehelper.Page;
-import org.springframework.stereotype.Repository;
+/**
+ * Role service
+ */
+public interface TenantRoleService {
 
-@Repository
-public interface InlongTenantEntityMapper {
+    PageInfo<TenantRoleInfo> listByCondition(TenantRolePageRequest request);
 
-    int insert(InlongTenantEntity record);
+    int save(TenantRoleRequest record);
 
-    int insertSelective(InlongTenantEntity record);
+    boolean update(TenantRoleRequest record);
 
-    int updateById(InlongTenantEntity record);
-
-    int updateByIdSelective(InlongTenantEntity record);
-
-    Page<InlongTenantEntity> selectByCondition(InlongTenantPageRequest request);
-
-    InlongTenantEntity selectByName(String name);
+    TenantRoleInfo get(int id);
 }
