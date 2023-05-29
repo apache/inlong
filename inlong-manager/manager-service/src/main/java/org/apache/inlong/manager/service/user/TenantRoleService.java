@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.service.user;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
+
+import com.github.pagehelper.PageInfo;
 
 /**
  * Role service

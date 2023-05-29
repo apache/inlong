@@ -17,14 +17,14 @@
 
 package org.apache.inlong.manager.pojo.tenant;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
-import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;

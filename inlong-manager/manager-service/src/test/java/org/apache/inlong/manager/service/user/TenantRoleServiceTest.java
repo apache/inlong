@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.user;
 
-import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
@@ -25,6 +24,8 @@ import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.ServiceBaseTest;
+
+import com.github.pagehelper.PageInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
@@ -94,7 +95,7 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
     @Order(4)
     public void testList() {
         int max = 5;
-        TenantRoleRequest request  = new TenantRoleRequest();
+        TenantRoleRequest request = new TenantRoleRequest();
         request.setTenant("public");
         request.setRoleCode(UserRoleCode.OPERATOR);
         for (int i = 0; i < max; i++) {

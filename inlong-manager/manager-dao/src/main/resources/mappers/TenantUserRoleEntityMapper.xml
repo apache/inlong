@@ -19,8 +19,8 @@
 -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.apache.inlong.manager.dao.mapper.TenantRoleEntityMapper">
-    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TenantRoleEntity">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.TenantUserRoleEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TenantUserRoleEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="user_name" jdbcType="VARCHAR" property="username"/>
         <result column="role_code" jdbcType="VARCHAR" property="roleCode"/>
@@ -38,7 +38,7 @@
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
-            parameterType="org.apache.inlong.manager.dao.entity.TenantRoleEntity">
+            parameterType="org.apache.inlong.manager.dao.entity.TenantUserRoleEntity">
         insert into tenant_user_role (id, user_name, role_code, tenant,
                                disabled, creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{roleCode,jdbcType=VARCHAR},
@@ -74,7 +74,7 @@
     </select>
 
 
-    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.TenantRoleEntity">
+    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.TenantUserRoleEntity">
         update tenant_user_role
         set user_name  = #{username,jdbcType=VARCHAR},
             tenant     = #{tenant,jdbcType=VARCHAR},
