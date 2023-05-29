@@ -51,6 +51,7 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
     public void testSaveWithoutTenant() {
         TenantRoleRequest request = new TenantRoleRequest();
         request.setTenant("not exist tenant");
+        request.setRoleCode(UserRoleCode.ADMIN);
         request.setUsername(LoginUserUtils.getLoginUser().getName());
         int code = -1;
         try {
