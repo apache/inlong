@@ -75,11 +75,3 @@ ALTER TABLE tenant_user_role
         UNIQUE (user_name, tenant, is_deleted);
 CREATE INDEX tenant_user_role
     ON user_role (tenant);
-
-
-
-
-
-
-
-

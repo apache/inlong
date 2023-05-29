@@ -15,18 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.user;
+package org.apache.inlong.manager.service.user;
 
-/**
- * User role code.
- */
-public class UserRoleCode {
+import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
+import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
+import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
 
-    public static final String ADMIN = "ADMIN";
-    public static final String OPERATOR = "OPERATE";
+public interface InlongRoleService {
 
-    public static final String INLONG_ADMIN = "INLONG_ADMIN";
+    PageInfo<InlongRoleInfo> listByCondition(InlongRolePageRequest request);
 
-    public static final String INLONG_OPERATOR = "INLONG_OPERATE";
+    int save(InlongRoleRequest request);
 
+    boolean update(InlongRoleRequest request);
+
+    InlongRoleInfo get(int id);
 }

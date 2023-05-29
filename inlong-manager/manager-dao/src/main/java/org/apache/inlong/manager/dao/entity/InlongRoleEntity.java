@@ -15,18 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.user;
+package org.apache.inlong.manager.dao.entity;
 
-/**
- * User role code.
- */
-public class UserRoleCode {
+import lombok.Data;
 
-    public static final String ADMIN = "ADMIN";
-    public static final String OPERATOR = "OPERATE";
+import java.io.Serializable;
+import java.util.Date;
 
-    public static final String INLONG_ADMIN = "INLONG_ADMIN";
+@Data
+public class InlongRoleEntity implements Serializable {
 
-    public static final String INLONG_OPERATOR = "INLONG_OPERATE";
-
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String username;
+    private String roleCode;
+    private Integer disabled;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
+    private Integer version;
 }

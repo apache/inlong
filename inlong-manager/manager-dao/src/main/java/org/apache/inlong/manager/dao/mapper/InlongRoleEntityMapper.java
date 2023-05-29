@@ -15,18 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.user;
+package org.apache.inlong.manager.dao.mapper;
 
-/**
- * User role code.
- */
-public class UserRoleCode {
+import com.github.pagehelper.Page;
+import org.apache.inlong.manager.dao.entity.InlongRoleEntity;
+import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
+import org.springframework.stereotype.Repository;
 
-    public static final String ADMIN = "ADMIN";
-    public static final String OPERATOR = "OPERATE";
+@Repository
+public interface InlongRoleEntityMapper {
 
-    public static final String INLONG_ADMIN = "INLONG_ADMIN";
+    int insert(InlongRoleEntity record);
 
-    public static final String INLONG_OPERATOR = "INLONG_OPERATE";
+    InlongRoleEntity selectById(Integer id);
 
+    int updateById(InlongRoleEntity record);
+
+    Page<InlongRoleEntity> listByCondition(InlongRolePageRequest request);
 }

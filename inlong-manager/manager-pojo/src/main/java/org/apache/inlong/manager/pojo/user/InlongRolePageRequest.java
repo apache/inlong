@@ -17,16 +17,25 @@
 
 package org.apache.inlong.manager.pojo.user;
 
-/**
- * User role code.
- */
-public class UserRoleCode {
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.pojo.common.PageRequest;
 
-    public static final String ADMIN = "ADMIN";
-    public static final String OPERATOR = "OPERATE";
+@Data
+@EqualsAndHashCode(callSuper = false)
+@ApiModel("Inlong user paging query request")
+public class InlongRolePageRequest extends PageRequest {
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
 
-    public static final String INLONG_ADMIN = "INLONG_ADMIN";
+    @ApiModelProperty(value = "User name")
+    private String username;
 
-    public static final String INLONG_OPERATOR = "INLONG_OPERATE";
+    @ApiModelProperty(value = "Role code")
+    private String roleCode;
 
+    @ApiModelProperty(value = "If disabled")
+    private Integer disabled;
 }
