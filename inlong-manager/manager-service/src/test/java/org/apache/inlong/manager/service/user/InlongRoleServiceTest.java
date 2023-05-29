@@ -74,7 +74,7 @@ class InlongRoleServiceTest extends ServiceBaseTest {
         int max = 6;
         InlongRoleRequest request = new InlongRoleRequest();
         request.setRoleCode(UserRoleCode.INLONG_OPERATOR);
-        for(int i = 0; i < max; i++) {
+        for (int i = 0; i < max; i++) {
             request.setUsername("test" + i);
             inlongRoleService.save(request);
         }

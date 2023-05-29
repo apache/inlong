@@ -34,6 +34,7 @@ import java.util.Date;
 @AllArgsConstructor
 @ApiModel("Inlong user role info")
 public class InlongRoleInfo {
+
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 

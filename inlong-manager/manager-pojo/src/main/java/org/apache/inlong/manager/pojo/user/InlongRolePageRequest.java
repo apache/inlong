@@ -27,6 +27,7 @@ import org.apache.inlong.manager.pojo.common.PageRequest;
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Inlong user paging query request")
 public class InlongRolePageRequest extends PageRequest {
+
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
