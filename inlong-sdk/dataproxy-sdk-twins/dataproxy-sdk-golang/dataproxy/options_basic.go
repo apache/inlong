@@ -52,6 +52,13 @@ func WithURL(u string) Option {
 	}
 }
 
+// WithUpdateInterval sets UpdateInterval
+func WithUpdateInterval(u time.Duration) Option {
+	return func(o *Options) {
+		o.UpdateInterval = u
+	}
+}
+
 // WithConnTimeout sets ConnTimeout
 func WithConnTimeout(t time.Duration) Option {
 	return func(o *Options) {
