@@ -596,7 +596,7 @@ CREATE TABLE IF NOT EXISTS `inlong_user_role`
     `modify_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_user_role` (`user_name`, `role_code`, `is_deleted`)
+    UNIQUE KEY `unique_inlong_user_role` (`user_name`, `role_code`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong User Role Table';
 

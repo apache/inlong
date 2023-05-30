@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
 import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.InlongRoleService;
 
@@ -29,6 +30,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +49,7 @@ public class InlongRoleController {
 
     @RequestMapping(value = "/role/inlong/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get tenant role")
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<InlongRoleInfo> get(@PathVariable int id) {
         return Response.success(inlongRoleService.get(id));
@@ -54,6 +57,7 @@ public class InlongRoleController {
 
     @RequestMapping(value = "/role/inlong/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     @ApiOperation(value = "Save tenant role")
     public Response<Integer> save(@Validated @RequestBody InlongRoleRequest request) {
         return Response.success(inlongRoleService.save(request));
@@ -61,6 +65,7 @@ public class InlongRoleController {
 
     @RequestMapping(value = "/role/inlong/list", method = RequestMethod.POST)
     @ApiOperation(value = "List tenant by paginating")
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<PageInfo<InlongRoleInfo>> listByCondition(@RequestBody InlongRolePageRequest request) {
         return Response.success(inlongRoleService.listByCondition(request));
     }

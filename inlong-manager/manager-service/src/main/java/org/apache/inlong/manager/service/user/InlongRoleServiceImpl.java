@@ -43,7 +43,7 @@ public class InlongRoleServiceImpl implements InlongRoleService {
     @Override
     public PageInfo<InlongRoleInfo> listByCondition(InlongRolePageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<InlongUserRoleEntity> entityPage = inlongUserMapper.listByCondition(request);
+        Page<InlongUserRoleEntity> entityPage = inlongUserMapper.selectByCondition(request);
         return entityPage.toPageInfo(entity -> CommonBeanUtils.copyProperties(entity, InlongRoleInfo::new));
     }
 

@@ -39,8 +39,7 @@
         insert into inlong_user_role (id, user_name, role_code,
                                       disabled, creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{roleCode,jdbcType=VARCHAR},
-                #{disabled,jdbcType=SMALLINT},
-                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+                #{disabled,jdbcType=SMALLINT}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
@@ -67,7 +66,7 @@
         where id = #{id,jdbcType=INTEGER}
     </delete>
 
-    <select id="listByCondition"
+    <select id="selectByCondition"
             parameterType="org.apache.inlong.manager.pojo.user.InlongRolePageRequest"
             resultMap="BaseResultMap">
         select

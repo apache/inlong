@@ -32,5 +32,5 @@ public interface InlongUserRoleEntityMapper {
 
     int updateById(InlongUserRoleEntity record);
 
-    Page<InlongUserRoleEntity> listByCondition(InlongRolePageRequest request);
+    Page<InlongUserRoleEntity> selectByCondition(InlongRolePageRequest request);
 }
