@@ -154,7 +154,7 @@ func (options *Options) ValidateAndSetDefault() error {
 	}
 
 	if options.ReadBufferSize <= 0 {
-		options.ReadBufferSize = 14 * 1024 * 1024
+		options.ReadBufferSize = 16 * 1024 * 1024
 	}
 
 	if options.SocketSendBufferSize <= 0 {
