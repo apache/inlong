@@ -44,7 +44,7 @@ public enum InlongUserTypeEnum implements IntListValuable {
         this.code = code;
     }
 
-    private static final List<Integer> ARRAYS = Arrays.stream(values())
+    private static final List<Integer> TYPE_CODE_LIST = Arrays.stream(values())
             .map(InlongUserTypeEnum::getCode)
             .collect(Collectors.toList());
 
@@ -71,6 +71,6 @@ public enum InlongUserTypeEnum implements IntListValuable {
 
     @Override
     public List<Integer> valueList() {
-        return ARRAYS;
+        return TYPE_CODE_LIST;
     }
 }
