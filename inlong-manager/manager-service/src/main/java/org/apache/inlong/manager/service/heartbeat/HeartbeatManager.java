@@ -28,8 +28,10 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.ComponentHeartbeatEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
+import org.apache.inlong.manager.dao.mapper.ComponentHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
@@ -87,6 +89,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     private InlongClusterNodeEntityMapper clusterNodeMapper;
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
+    @Autowired
+    private ComponentHeartbeatEntityMapper componentHeartbeatMapper;
 
     @Value("${cluster.heartbeat.interval:30}")
     private Long heartbeatIntervalFactor;
@@ -222,6 +226,15 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             if (protocolTypes.length < ports.length) {
                 protocolTypes = null;
             }
+        }
+        // If the manager has multiple nodes, need to determine that the heartbeat is updated
+        // heartbeatInterval() is the reporting interval of cluster nodes, multiplied by two to prevent network
+        // fluctuations
+        ComponentHeartbeatEntity componentHeartbeatEntity = componentHeartbeatMapper.selectTimeOutHeartBeat(
+                componentHeartbeat.getComponentType(), componentHeartbeat.getIp(), heartbeatInterval() * 2L);
+        if (componentHeartbeatEntity != null) {
+            heartbeatCache.put(componentHeartbeat, heartbeat);
+            return;
         }
 
         for (int i = 0; i < ports.length; i++) {
