@@ -32,10 +32,19 @@
 
     <profiles>
         <profile>
-            <id>v1.13</id>
+            <id>flink-all-version</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <modules>
+                <module>cdc-base</module>
+                <module>base</module>
+                <module>sort-flink-v1.13</module>
+                <module>sort-flink-v1.15</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>v1.13</id>
             <modules>
                 <module>cdc-base</module>
                 <module>base</module>

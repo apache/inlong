@@ -23,7 +23,7 @@
 
     <parent>
         <groupId>org.apache.inlong</groupId>
-        <artifactId>sort-connectors</artifactId>
+        <artifactId>sort-connectors-v1.13</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
 
