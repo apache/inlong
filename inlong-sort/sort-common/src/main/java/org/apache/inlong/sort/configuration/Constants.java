@@ -116,7 +116,6 @@ public class Constants {
     public static final ConfigOption<String> NOT_NULL_ENFORCER =
             key("table.exec.sink.not-null-enforcer").defaultValue("ERROR").withDescription("Determines how Flink "
                     + "enforces NOT NULL column constraints when inserting null values.\n"
-                    + "\n"
                     + "Possible values:\n"
                     + "\"ERROR\": Throw a runtime exception when writing null values into NOT NULL column.\n"
                     + "\"DROP\": Drop records silently if a null value would have to be inserted into a NOT NULL "
