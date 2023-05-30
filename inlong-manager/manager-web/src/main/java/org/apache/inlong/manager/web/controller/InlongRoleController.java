@@ -48,7 +48,7 @@ public class InlongRoleController {
     private InlongRoleService inlongRoleService;
 
     @RequestMapping(value = "/role/inlong/get/{id}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get tenant role")
+    @ApiOperation(value = "Get inlong role")
     @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<InlongRoleInfo> get(@PathVariable int id) {
@@ -58,13 +58,13 @@ public class InlongRoleController {
     @RequestMapping(value = "/role/inlong/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
-    @ApiOperation(value = "Save tenant role")
+    @ApiOperation(value = "Save inlong role")
     public Response<Integer> save(@Validated @RequestBody InlongRoleRequest request) {
         return Response.success(inlongRoleService.save(request));
     }
 
     @RequestMapping(value = "/role/inlong/list", method = RequestMethod.POST)
-    @ApiOperation(value = "List tenant by paginating")
+    @ApiOperation(value = "List inlong roles by paginating")
     @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<PageInfo<InlongRoleInfo>> listByCondition(@RequestBody InlongRolePageRequest request) {
         return Response.success(inlongRoleService.listByCondition(request));

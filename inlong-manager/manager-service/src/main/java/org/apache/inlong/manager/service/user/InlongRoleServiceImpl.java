@@ -50,9 +50,9 @@ public class InlongRoleServiceImpl implements InlongRoleService {
     @Override
     public int save(InlongRoleRequest request) {
         String username = request.getUsername();
-        Preconditions.expectNotBlank(username, "Failed to save tenant user role, user should not be blank");
+        Preconditions.expectNotBlank(username, "Failed to save inlong user role, user should not be blank");
         Preconditions.expectNotBlank(request.getRoleCode(),
-                "Failed to save tenant user role, role code should not be blank");
+                "Failed to save inlong user role, role code should not be blank");
 
         InlongUserRoleEntity entity = CommonBeanUtils.copyProperties(request, InlongUserRoleEntity::new);
         String operator = LoginUserUtils.getLoginUser().getName();
