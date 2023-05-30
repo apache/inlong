@@ -66,12 +66,3 @@ CREATE TABLE IF NOT EXISTS `inlong_user_role`
 
 INSERT INTO `inlong_user_role` (`user_name`, `role_code`, `creator`)
 VALUES ('admin', 'INLONG_ADMIN', 'inlong_init');
-
-RENAME TABLE user_role TO tenant_user_role;
-ALTER TABLE tenant_user_role
-    ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL COMMENT 'User tenant';
-ALTER TABLE tenant_user_role
-    ADD CONSTRAINT unique_tenant_user
-        UNIQUE (user_name, tenant, is_deleted);
-CREATE INDEX tenant_user_role
-    ON user_role (tenant);
