@@ -37,6 +37,10 @@ import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.sub.SinkTopicMetricData;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
+import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
+import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
+import org.apache.inlong.sort.util.SchemaChangeUtils;
+import org.apache.inlong.sort.kafka.partitioner.SingleTablePrimaryKeyPartitioner;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,10 +88,10 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
      */
     private final int[] metadataPositions;
     private final String sinkMultipleFormat;
-    private boolean multipleSink;
-    private JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
     private final DirtyOptions dirtyOptions;
     private final @Nullable DirtySink<Object> dirtySink;
+    private boolean multipleSink;
+    private JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
     private int[] partitions;
 
     private int parallelInstanceId;
@@ -129,10 +133,6 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         this.dirtySink = dirtySink;
     }
 
-    public void setMetricData(SinkTopicMetricData metricData) {
-        this.metricData = metricData;
-    }
-
     static RowData createProjectedRow(
             RowData consumedRow, RowKind kind, RowData.FieldGetter[] fieldGetters) {
         final int arity = fieldGetters.length;
@@ -141,6 +141,10 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             genericRowData.setField(fieldPos, fieldGetters[fieldPos].getFieldOrNull(consumedRow));
         }
         return genericRowData;
+    }
+
+    public void setMetricData(SinkTopicMetricData metricData) {
+        this.metricData = metricData;
     }
 
     @Override
@@ -161,6 +165,10 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             multipleSink = true;
             jsonDynamicSchemaFormat =
                     (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
+        }
+
+        if (partitioner instanceof SingleTablePrimaryKeyPartitioner) {
+            ((SingleTablePrimaryKeyPartitioner<?>) partitioner).setValueFieldGetters(valueFieldGetters);
         }
     }
 
