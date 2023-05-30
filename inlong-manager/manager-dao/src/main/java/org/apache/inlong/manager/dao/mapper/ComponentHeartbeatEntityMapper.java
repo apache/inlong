@@ -38,6 +38,16 @@ public interface ComponentHeartbeatEntityMapper {
 
     List<ComponentHeartbeatEntity> selectByCondition(@Param("request") HeartbeatPageRequest request);
 
+    /**
+     * Get the heartbeat by heartbeat interval
+     *
+     * @param component component type
+     * @param instance component address
+     * @param beforeSeconds the modified time was beforeSeconds seconds ago
+     */
+    ComponentHeartbeatEntity selectTimeOutHeartBeat(@Param("component") String component,
+            @Param("instance") String instance, @Param("beforeSeconds") Long beforeSeconds);
+
     int deleteByPrimaryKey(Integer id);
 
 }

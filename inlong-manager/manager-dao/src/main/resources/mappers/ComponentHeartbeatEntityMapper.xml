@@ -77,6 +77,15 @@
         order by modify_time desc
     </select>
 
+    <select id="selectTimeOutHeartBeat" resultType="org.apache.inlong.manager.dao.entity.ComponentHeartbeatEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from component_heartbeat
+        where component = #{component, jdbcType=VARCHAR}
+        and instance = #{instance,jdbcType=VARCHAR}
+        and modify_time &gt;= DATE_ADD(NOW(), INTERVAL -#{beforeSeconds, jdbcType=INTEGER} SECOND)
+    </select>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete
         from component_heartbeat
