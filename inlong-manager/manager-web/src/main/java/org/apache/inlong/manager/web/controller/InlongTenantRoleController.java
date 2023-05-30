@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.TenantRoleService;
 
@@ -29,6 +30,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,22 +47,24 @@ public class InlongTenantRoleController {
     @Autowired
     private TenantRoleService tenantRoleService;
 
-    @RequestMapping(value = "/tenant/role/get/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/role/tenant/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get tenant role")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<TenantRoleInfo> get(@PathVariable int id) {
         return Response.success(tenantRoleService.get(id));
     }
 
-    @RequestMapping(value = "/tenant/role/save", method = RequestMethod.POST)
+    @RequestMapping(value = "/role/tenant/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save tenant role")
+    @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Integer> save(@Validated @RequestBody TenantRoleRequest request) {
         return Response.success(tenantRoleService.save(request));
     }
 
-    @RequestMapping(value = "/tenant/role/list", method = RequestMethod.POST)
-    @ApiOperation(value = "List tenant by paginating")
+    @RequestMapping(value = "/role/tenant/list", method = RequestMethod.POST)
+    @ApiOperation(value = "List tenant roles by paginating")
     public Response<PageInfo<TenantRoleInfo>> listByCondition(@RequestBody TenantRolePageRequest request) {
         return Response.success(tenantRoleService.listByCondition(request));
     }

@@ -28,11 +28,23 @@ import com.github.pagehelper.PageInfo;
  */
 public interface TenantRoleService {
 
+    /**
+     * List all tenant role by paginating
+     */
     PageInfo<TenantRoleInfo> listByCondition(TenantRolePageRequest request);
 
+    /**
+     * Save one tenant role
+     */
     int save(TenantRoleRequest record);
 
+    /**
+     * Update one tanant role
+     */
     boolean update(TenantRoleRequest record);
 
+    /**
+     * Get one tenant role by id
+     */
     TenantRoleInfo get(int id);
 }
