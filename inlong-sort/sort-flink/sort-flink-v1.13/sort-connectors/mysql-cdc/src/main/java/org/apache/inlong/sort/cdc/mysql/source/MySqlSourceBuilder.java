@@ -263,6 +263,11 @@ public class MySqlSourceBuilder<T> {
         return this;
     }
 
+    public MySqlSourceBuilder<T> migrateAll(boolean migrateAll) {
+        this.configFactory.migrateAll(migrateAll);
+        return this;
+    }
+
     /**
      * Build the {@link MySqlSource}.
      *

@@ -97,6 +97,7 @@ public final class MySqlRecordEmitter<T>
     private volatile Long snapDuration;
     private volatile long snapEarliestTime = 0L;
     private volatile long snapProcessTime = 0L;
+    private final boolean migrateAll;
 
     private boolean includeIncremental;
     private boolean ghostDdlChange;
@@ -115,6 +116,7 @@ public final class MySqlRecordEmitter<T>
                 sourceConfig.getDbzConfiguration(), ColumnFilterMode.CATALOG);
         this.ghostDdlChange = sourceConfig.isGhostDdlChange();
         this.ghostTableRegex = sourceConfig.getGhostTableRegex();
+        this.migrateAll = sourceConfig.isMigrateAll();
     }
 
     @Override
@@ -185,12 +187,16 @@ public final class MySqlRecordEmitter<T>
 
                         @Override
                         public void collect(final T t) {
-                            Struct value = (Struct) element.value();
-                            Struct source = value.getStruct(Envelope.FieldName.SOURCE);
-                            String databaseName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
-                            String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
+                            if (migrateAll) {
+                                Struct value = (Struct) element.value();
+                                Struct source = value.getStruct(Envelope.FieldName.SOURCE);
+                                String databaseName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
+                                String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
 
-                            sourceReaderMetrics.outputMetrics(databaseName, tableName, iSnapShot, t);
+                                sourceReaderMetrics.outputMetrics(databaseName, tableName, iSnapShot, t);
+                            } else {
+                                sourceReaderMetrics.outputMetrics(null, null, iSnapShot, t);
+                            }
                             output.collect(t);
                         }
 

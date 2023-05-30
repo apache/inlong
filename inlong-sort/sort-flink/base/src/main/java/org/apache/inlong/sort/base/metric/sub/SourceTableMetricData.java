@@ -153,6 +153,8 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
     public void outputMetricsWithEstimate(String database, String table, boolean isSnapshotRecord, Object data) {
         if (StringUtils.isBlank(database) || StringUtils.isBlank(table)) {
             outputMetricsWithEstimate(data);
+            // output read phase metric
+            outputReadPhaseMetrics((isSnapshotRecord) ? ReadPhase.SNAPSHOT_PHASE : ReadPhase.INCREASE_PHASE);
             return;
         }
         // output sub source metric
