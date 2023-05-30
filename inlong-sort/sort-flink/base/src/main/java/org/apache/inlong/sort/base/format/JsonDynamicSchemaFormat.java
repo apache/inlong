@@ -336,7 +336,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
         return new RowType(fields);
     }
 
-    private LogicalType sqlType2FlinkType(int jdbcType) {
+    public LogicalType sqlType2FlinkType(int jdbcType) {
         Map<Integer, LogicalType> typeMap = adaptSparkEngine
                 ? SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING
                 : SQL_TYPE_2_FLINK_TYPE_MAPPING;

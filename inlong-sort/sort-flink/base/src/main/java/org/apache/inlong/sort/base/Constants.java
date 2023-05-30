@@ -370,4 +370,17 @@ public final class Constants {
             .defaultValue("^_(.*)_(gho|ghc|del)$")
             .withDescription(
                     "Matcher the original table name from the ddl of gh-ost.");
+
+    public static final ConfigOption<Boolean> SINK_SCHEMA_CHANGE_ENABLE =
+            ConfigOptions.key("sink.schema-change.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether supports schema-change, default value is 'false'");
+
+    public static final ConfigOption<String> SINK_SCHEMA_CHANGE_POLICIES =
+            ConfigOptions.key("sink.schema-change.policies")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("The policies of schema-change, format is 'key1=value1&key2=value2', "
+                            + "the key is the type of schema-change and the value is the support policy of schema-change");
 }
