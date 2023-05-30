@@ -32,7 +32,7 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// NewDiscoverer news a Data Proxy discoverer
+// NewDiscoverer news a DataProxy discoverer
 func NewDiscoverer(url, groupID string, lookupInterval time.Duration, log logger.Logger) (discoverer.Discoverer, error) {
 	if url == "" {
 		return nil, errors.New("URL is not given")
@@ -185,7 +185,7 @@ func (d *dataProxyDiscoverer) update() {
 	}
 }
 
-// get gets endpoint list from Data Proxy service registry
+// get gets endpoint list from DataProxy service registry
 func (d *dataProxyDiscoverer) get(retry int) (*cluster, error) {
 	reqURL := fmt.Sprintf("%s/%s?protocolType=tcp", d.url, d.groupID)
 	client := resty.New().SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
@@ -223,7 +223,7 @@ type endpoint struct {
 	ProtocolType string `json:"protocolType"`
 }
 
-// cluster is the config of a Data Proxy cluster
+// cluster is the config of a DataProxy cluster
 type cluster struct {
 	ClusterID  int        `json:"clusterId"`
 	Load       int        `json:"load"`

@@ -1,6 +1,6 @@
 ## Overview
 
-dataproxy-sdk-golang is the golang version of InLong Data Proxy client SDK.
+dataproxy-sdk-golang is the golang version of InLong DataProxy client SDK.
 
 ## Features
 
@@ -139,7 +139,7 @@ func wait() {
 refer: dataproxy/options.go
 
 ``` go
-// Options is the Data Proxy go client configs
+// Options is the DataProxy go client configs
 type Options struct {
 	Set                     string                // the set name of the server
 	GroupID                 string                // InLong group ID
