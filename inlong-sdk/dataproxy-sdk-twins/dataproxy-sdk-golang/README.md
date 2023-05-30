@@ -1,10 +1,6 @@
-# dataproxy-sdk-golang
-
 ## Overview
 
-dataproxy-sdk-golang is the golang version of InLong data proxy client SDK.
-
-
+dataproxy-sdk-golang is the golang version of InLong Data Proxy client SDK.
 
 ## Features
 
@@ -21,7 +17,6 @@ dataproxy-sdk-golang is the golang version of InLong data proxy client SDK.
 - Snappy compress;
 - Additional column;
 - Server offline re-balance;
-
 
 ## Usage
 
@@ -144,7 +139,7 @@ func wait() {
 refer: dataproxy/options.go
 
 ``` go
-// Options is the data proxy go client configs
+// Options is the Data Proxy go client configs
 type Options struct {
 	Set                     string                // the set name of the server
 	GroupID                 string                // InLong group ID
@@ -176,22 +171,19 @@ type Options struct {
 }
 ```
 
-
-
 ## FAQ
 
 Q: Why should I provide a MetricsName option?
 
 A: It is used to isolate the prometheus metrics in the case you initialize more than one client in a process.
 
-
-
 Q: What is the purpose of the "AddColumns" option?
 
-A: In some case, you may need to add some meta/headers to you message, AddColumns can help you to do that. AddColumns can add some fix columns and values to your message. For example: \_\_addcol1\_\_worldid=xxx&\_\_addcol2\_\_ip=yyy, all the messages will be updated with 2 more columns with worldid=xxx and ip=yyy.
-
-
+A: In some case, you may need to add some meta/headers to you message, AddColumns can help you to do that. AddColumns
+can add some fix columns and values to your message. For example: \_\_addcol1\_\_worldid=xxx&\_\_addcol2\_\_ip=yyy, all
+the messages will be updated with 2 more columns with worldid=xxx and ip=yyy.
 
 Q: How to hook the debug logger?
 
-A: The debug logger is defined as an interface, while logrus logger and zap sugar logger are compatible with that interface, so you can pass a logrus logger or zap sugar logger as the debug logger.
+A: The debug logger is defined as an interface, while logrus logger and zap sugar logger are compatible with that
+interface, so you can pass a logrus logger or zap sugar logger as the debug logger.

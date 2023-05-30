@@ -33,12 +33,12 @@ const (
 )
 
 var (
-	// DefaultURL is the default URL of the data proxy service registry from where a discoverer can get data proxy endpoints
+	// DefaultURL is the default URL of the Data Proxy service registry from where a discoverer can get Data Proxy endpoints
 	DefaultURL = "http://127.0.0.1:8083/inlong/manager/openapi/dataproxy/getIpList"
 	localIP, _ = util.GetFirstPrivateIP()
 )
 
-// Options is the data proxy go client configs
+// Options is the Data Proxy go client configs
 type Options struct {
 	Set                     string                // the set name of the server
 	GroupID                 string                // InLong group ID

@@ -16,7 +16,7 @@
 
 package dataproxy
 
-// Callback is the callback function signature of the data proxy producer
+// Callback is the callback function signature of the Data Proxy producer
 type Callback func(message Message, err error)
 
 // Message is the message to send

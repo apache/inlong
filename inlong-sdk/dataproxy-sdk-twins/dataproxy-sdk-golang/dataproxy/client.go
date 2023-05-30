@@ -41,7 +41,7 @@ var (
 	ErrNoAvailableWorker = errors.New("no available worker")
 )
 
-// Client is the interface of a data proxy client
+// Client is the interface of a Data Proxy client
 type Client interface {
 	// Send sends a message and wait for the result.
 	Send(ctx context.Context, msg Message) error
