@@ -83,7 +83,7 @@
         from component_heartbeat
         where component = #{component, jdbcType=VARCHAR}
         and instance = #{instance,jdbcType=VARCHAR}
-        and modify_time &gt;= TIMESTAMPADD(SECOND, -#{beforeSeconds, jdbcType=INTEGER}, NOW())
+        and modify_time &gt;= DATE_ADD(NOW(), INTERVAL -#{beforeSeconds, jdbcType=INTEGER} SECOND)
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
