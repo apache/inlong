@@ -21,6 +21,7 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
@@ -31,6 +32,7 @@ import org.apache.inlong.manager.service.user.LoginUserUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,6 +56,7 @@ public class WorkflowApproverController {
     @PostMapping("/workflow/approver/save")
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save approver info")
+    @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Integer> save(@RequestBody ApproverRequest config) {
         return Response.success(workflowApproverService.save(config, LoginUserUtils.getLoginUser().getName()));
     }
@@ -62,7 +65,7 @@ public class WorkflowApproverController {
     @ApiOperation(value = "Get approver by ID")
     @ApiImplicitParam(name = "id", value = "Workflow approver ID", dataTypeClass = Integer.class, required = true)
     public Response<ApproverResponse> get(@PathVariable Integer id) {
-        return Response.success(workflowApproverService.get(id));
+        return Response.success(workflowApproverService.get(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @GetMapping("/workflow/approver/list")
@@ -76,6 +79,7 @@ public class WorkflowApproverController {
     @PostMapping("/workflow/approver/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update approver info")
+    @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Integer> update(@RequestBody ApproverRequest request) {
         return Response.success(workflowApproverService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
@@ -84,6 +88,7 @@ public class WorkflowApproverController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete approver by ID")
     @ApiImplicitParam(name = "id", value = "Workflow approver ID", dataTypeClass = Integer.class, required = true)
+    @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         workflowApproverService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success(true);

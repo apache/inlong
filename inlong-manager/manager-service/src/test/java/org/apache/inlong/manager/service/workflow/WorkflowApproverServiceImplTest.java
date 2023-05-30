@@ -43,7 +43,7 @@ public class WorkflowApproverServiceImplTest extends ServiceBaseTest {
         Assertions.assertTrue(approverList.getList().size() > 0);
 
         Integer id = approverList.getList().get(0).getId();
-        ApproverResponse approverResponse = workflowApproverService.get(id);
+        ApproverResponse approverResponse = workflowApproverService.get(id, "admin");
         Assertions.assertEquals(id, approverResponse.getId());
     }
 
