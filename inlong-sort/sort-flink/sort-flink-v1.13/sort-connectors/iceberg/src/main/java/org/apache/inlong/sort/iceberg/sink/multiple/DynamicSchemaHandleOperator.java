@@ -485,18 +485,9 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     }
 
     // =============================== Utils method =================================================================
-    // The way to judge compatibility is whether all the field names in the old schema exist in the new schema
+    // if newSchema is not same with oldSchema, return false. It include difference in name, type, position, and quantity
     private boolean isCompatible(Schema newSchema, Schema oldSchema) {
-        if (newSchema.columns().size() != oldSchema.columns().size()) {
-            return false;
-        }
-        for (NestedField oldField : oldSchema.columns()) {
-            NestedField newField = newSchema.findField(oldField.name());
-            if (newField == null || !oldField.type().equals(newField.type())) {
-                return false;
-            }
-        }
-        return true;
+        return oldSchema.sameSchema(newSchema);
     }
 
     private TableIdentifier parseId(JsonNode data) throws IOException {

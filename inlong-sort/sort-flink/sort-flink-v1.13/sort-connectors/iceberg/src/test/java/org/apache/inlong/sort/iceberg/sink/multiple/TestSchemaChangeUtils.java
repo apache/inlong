@@ -56,6 +56,8 @@ public class TestSchemaChangeUtils {
                 Types.NestedField.optional(4, "city", Types.StringType.get(), "city"),
                 Types.NestedField.optional(5, "sex", Types.StringType.get(), "sex"));
 
+        Assert.assertFalse(baseSchema.sameSchema(addColSchema));
+
         return SchemaChangeUtils.diffSchema(baseSchema, addColSchema);
     }
 
@@ -73,6 +75,8 @@ public class TestSchemaChangeUtils {
         Schema delColSchema = new Schema(
                 Types.NestedField.required(1, "id", Types.LongType.get(), "primary key"),
                 Types.NestedField.optional(2, "name", Types.StringType.get(), "name"));
+
+        Assert.assertFalse(baseSchema.sameSchema(delColSchema));
 
         return SchemaChangeUtils.diffSchema(baseSchema, delColSchema);
     }
@@ -100,6 +104,9 @@ public class TestSchemaChangeUtils {
                 Types.NestedField.required(1, "id", Types.DoubleType.get(), "primary key"),
                 Types.NestedField.optional(2, "name", Types.StringType.get(), "name"),
                 Types.NestedField.optional(3, "age", Types.LongType.get(), "age"));
+
+        Assert.assertFalse(baseSchema.sameSchema(updateTypeColSchema));
+
         return SchemaChangeUtils.diffSchema(baseSchema, updateTypeColSchema);
     }
 
@@ -108,17 +115,40 @@ public class TestSchemaChangeUtils {
                 Types.NestedField.required(1, "id", Types.LongType.get(), "primary key"),
                 Types.NestedField.optional(2, "name", Types.StringType.get(), "family_name"),
                 Types.NestedField.optional(3, "age", Types.IntegerType.get(), "age"));
+
+        Assert.assertFalse(baseSchema.sameSchema(updateCommentColSchema));
+
         return SchemaChangeUtils.diffSchema(baseSchema, updateCommentColSchema);
     }
 
     @Test
-    public void testUnknownColumn() {
-        Schema unknownColSchema = new Schema(
+    public void testRenameColumn() {
+        Schema renameColumnSchema = new Schema(
                 Types.NestedField.required(1, "id", Types.LongType.get(), "primary key"),
                 Types.NestedField.optional(2, "family_name", Types.StringType.get(), "name"),
                 Types.NestedField.optional(3, "age", Types.IntegerType.get(), "age"));
-        List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(baseSchema, unknownColSchema);
+
+        Assert.assertFalse(baseSchema.sameSchema(renameColumnSchema));
+
+        List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(baseSchema, renameColumnSchema);
         Assert.assertEquals("rename column is not supported.", 1, tableChanges.size());
+        for (TableChange tableChange : tableChanges) {
+            Assert.assertTrue("The table changes must be UnknownColumnChange ",
+                    tableChange instanceof TableChange.UnknownColumnChange);
+        }
+    }
+
+    @Test
+    public void testColumnPositionChange() {
+        Schema positionChangeSchema = new Schema(
+                Types.NestedField.required(1, "id", Types.LongType.get(), "primary key"),
+                Types.NestedField.optional(2, "age", Types.StringType.get(), "age"),
+                Types.NestedField.optional(3, "name", Types.IntegerType.get(), "name"));
+
+        Assert.assertFalse(baseSchema.sameSchema(positionChangeSchema));
+
+        List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(baseSchema, positionChangeSchema);
+        Assert.assertTrue(tableChanges.size() == 1);
         for (TableChange tableChange : tableChanges) {
             Assert.assertTrue("The table changes must be UnknownColumnChange ",
                     tableChange instanceof TableChange.UnknownColumnChange);
