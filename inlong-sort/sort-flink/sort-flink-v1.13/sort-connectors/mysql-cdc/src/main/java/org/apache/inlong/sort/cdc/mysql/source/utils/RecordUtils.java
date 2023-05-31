@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
 import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
+import org.apache.inlong.sort.cdc.mysql.debezium.reader.DebeziumReader;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
@@ -427,15 +428,8 @@ public class RecordUtils {
         } else if (splitKeyEnd == null) {
             return isGreaterThanOrEqualToLowerBoundary(key, splitKeyStart);
         } else {
-            int[] lowerBoundRes = new int[key.length];
-            int[] upperBoundRes = new int[key.length];
-            for (int i = 0; i < key.length; i++) {
-                lowerBoundRes[i] = compareObjects(key[i], splitKeyStart[i]);
-                upperBoundRes[i] = compareObjects(key[i], splitKeyEnd[i]);
-            }
-            return Arrays.stream(lowerBoundRes).anyMatch(value -> value >= 0)
-                    && (Arrays.stream(upperBoundRes).anyMatch(value -> value < 0)
-                            && Arrays.stream(upperBoundRes).allMatch(value -> value <= 0));
+            return isGreaterThanOrEqualToLowerBoundary(key, splitKeyStart)
+                    && isLessThanUpperBoundary(key, splitKeyEnd);
         }
     }
 
