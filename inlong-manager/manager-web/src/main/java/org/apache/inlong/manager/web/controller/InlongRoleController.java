@@ -30,6 +30,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -60,12 +61,21 @@ public class InlongRoleController {
     @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     @ApiOperation(value = "Save inlong role")
     public Response<Integer> save(@Validated @RequestBody InlongRoleRequest request) {
-        return Response.success(inlongRoleService.save(request));
+        String operator = LoginUserUtils.getLoginUser().getName();
+        return Response.success(inlongRoleService.save(request, operator));
+    }
+
+    @RequestMapping(value = "/role/inlong/update", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.UPDATE)
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
+    @ApiOperation(value = "Save inlong role")
+    public Response<Boolean> update(@Validated @RequestBody InlongRoleRequest request) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        return Response.success(inlongRoleService.update(request, operator));
     }
 
     @RequestMapping(value = "/role/inlong/list", method = RequestMethod.POST)
     @ApiOperation(value = "List inlong roles by paginating")
-    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     public Response<PageInfo<InlongRoleInfo>> listByCondition(@RequestBody InlongRolePageRequest request) {
         return Response.success(inlongRoleService.listByCondition(request));
     }

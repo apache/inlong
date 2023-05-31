@@ -27,9 +27,9 @@ public interface InlongRoleService {
 
     PageInfo<InlongRoleInfo> listByCondition(InlongRolePageRequest request);
 
-    int save(InlongRoleRequest request);
+    int save(InlongRoleRequest request, String operator);
 
-    boolean update(InlongRoleRequest request);
+    boolean update(InlongRoleRequest request, String operator);
 
     InlongRoleInfo get(int id);
 }
