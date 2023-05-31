@@ -59,7 +59,7 @@ public class UserController {
 
     @PostMapping("/user/register")
     @ApiOperation(value = "Register user")
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Integer> register(@Validated @RequestBody UserRequest userInfo) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(userService.save(userInfo, currentUser));
@@ -93,7 +93,7 @@ public class UserController {
 
     @DeleteMapping("/user/delete")
     @ApiOperation(value = "Delete user by id")
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Boolean> delete(@RequestParam("id") Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(userService.delete(id, currentUser));

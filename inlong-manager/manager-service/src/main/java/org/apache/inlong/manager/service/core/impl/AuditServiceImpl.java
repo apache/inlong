@@ -255,7 +255,7 @@ public class AuditServiceImpl implements AuditService {
     }
 
     private List<String> getAuditIds(String groupId, String streamId, String sinkNodeType) {
-        Set<String> auditSet = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN)
+        Set<String> auditSet = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.TENANT_ADMIN)
                 ? new HashSet<>(auditIdListForAdmin)
                 : new HashSet<>(auditIdListForUser);
 

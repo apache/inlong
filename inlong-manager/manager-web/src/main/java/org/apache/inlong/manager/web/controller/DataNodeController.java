@@ -63,7 +63,7 @@ public class DataNodeController {
     @PostMapping(value = "/node/save")
     @ApiOperation(value = "Save node")
     @OperationLog(operation = OperationType.CREATE)
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Integer> save(@Validated(SaveValidation.class) @RequestBody DataNodeRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(dataNodeService.save(request, currentUser));
@@ -106,7 +106,7 @@ public class DataNodeController {
     @ApiOperation(value = "Delete data node by id")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
@@ -118,7 +118,7 @@ public class DataNodeController {
             @ApiImplicitParam(name = "name", value = "Data node name", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "type", value = "Data node type", dataTypeClass = String.class, required = true)
     })
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Boolean> deleteByKey(@RequestParam String name, @RequestParam String type) {
         return Response.success(dataNodeService.deleteByKey(name, type,
                 LoginUserUtils.getLoginUser().getName()));

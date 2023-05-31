@@ -55,7 +55,7 @@ public class AnnoController {
     }
 
     @PostMapping("/anno/register")
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Integer> register(@Validated @RequestBody UserRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(userService.save(request, currentUser));

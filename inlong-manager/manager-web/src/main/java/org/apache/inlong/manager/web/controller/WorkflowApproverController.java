@@ -56,7 +56,7 @@ public class WorkflowApproverController {
     @PostMapping("/workflow/approver/save")
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save approver info")
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Integer> save(@RequestBody ApproverRequest config) {
         return Response.success(workflowApproverService.save(config, LoginUserUtils.getLoginUser().getName()));
     }
@@ -79,7 +79,7 @@ public class WorkflowApproverController {
     @PostMapping("/workflow/approver/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update approver info")
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Integer> update(@RequestBody ApproverRequest request) {
         return Response.success(workflowApproverService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
@@ -88,7 +88,7 @@ public class WorkflowApproverController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete approver by ID")
     @ApiImplicitParam(name = "id", value = "Workflow approver ID", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         workflowApproverService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success(true);
