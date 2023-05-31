@@ -55,7 +55,7 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
         request.setUsername(LoginUserUtils.getLoginUser().getName());
         int code = -1;
         try {
-            service.save(request);
+            service.save(request, LoginUserUtils.getLoginUser().getName());
         } catch (BusinessException e) {
             code = e.getCode();
         }
@@ -69,7 +69,7 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
         request.setTenant("public");
         request.setUsername(LoginUserUtils.getLoginUser().getName());
         request.setRoleCode(UserRoleCode.ADMIN);
-        int id = service.save(request);
+        int id = service.save(request, LoginUserUtils.getLoginUser().getName());
         TenantRoleInfo info = service.get(id);
         Assertions.assertEquals(request.getTenant(), info.getTenant());
         Assertions.assertEquals(request.getRoleCode(), info.getRoleCode());
@@ -84,10 +84,10 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
         request.setTenant("public");
         request.setUsername(newUser);
         request.setRoleCode(UserRoleCode.ADMIN);
-        int id = service.save(request);
+        int id = service.save(request, LoginUserUtils.getLoginUser().getName());
         TenantRoleInfo oldInfo = service.get(id);
         oldInfo.setRoleCode(UserRoleCode.OPERATOR);
-        service.update(oldInfo.genRequest());
+        service.update(oldInfo.genRequest(), LoginUserUtils.getLoginUser().getName());
         TenantRoleInfo newInfo = service.get(id);
         Assertions.assertEquals(UserRoleCode.OPERATOR, newInfo.getRoleCode());
     }
@@ -101,7 +101,7 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
         request.setRoleCode(UserRoleCode.OPERATOR);
         for (int i = 0; i < max; i++) {
             request.setUsername("testName" + i);
-            service.save(request);
+            service.save(request, LoginUserUtils.getLoginUser().getName());
         }
         TenantRolePageRequest pageRequest = new TenantRolePageRequest();
         pageRequest.setTenant("public");

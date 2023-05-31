@@ -24,6 +24,7 @@ import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.apache.inlong.manager.service.user.TenantRoleService;
 
 import com.github.pagehelper.PageInfo;
@@ -60,7 +61,17 @@ public class InlongTenantRoleController {
     @ApiOperation(value = "Save tenant role")
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Integer> save(@Validated @RequestBody TenantRoleRequest request) {
-        return Response.success(tenantRoleService.save(request));
+        String operator = LoginUserUtils.getLoginUser().getName();
+        return Response.success(tenantRoleService.save(request, operator));
+    }
+
+    @RequestMapping(value = "/role/tenant/update", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE)
+    @ApiOperation(value = "Update tenant role")
+    @RequiresRoles(value = UserRoleCode.ADMIN)
+    public Response<Boolean> update(@Validated @RequestBody TenantRoleRequest request) {
+        String operator = LoginUserUtils.getLoginUser().getName();
+        return Response.success(tenantRoleService.update(request, operator));
     }
 
     @RequestMapping(value = "/role/tenant/list", method = RequestMethod.POST)

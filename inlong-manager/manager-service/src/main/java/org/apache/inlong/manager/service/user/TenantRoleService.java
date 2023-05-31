@@ -36,12 +36,12 @@ public interface TenantRoleService {
     /**
      * Save one tenant role
      */
-    int save(TenantRoleRequest record);
+    int save(TenantRoleRequest record, String operator);
 
     /**
      * Update one tanant role
      */
-    boolean update(TenantRoleRequest record);
+    boolean update(TenantRoleRequest record, String operator);
 
     /**
      * Get one tenant role by id

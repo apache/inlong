@@ -60,7 +60,7 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     }
 
     @Override
-    public int save(TenantRoleRequest request) {
+    public int save(TenantRoleRequest request, String operator) {
         String tenantName = request.getTenant();
         String username = request.getUsername();
         Preconditions.expectNotBlank(tenantName, "Failed to save tenant user role, tenant should not be blank");
@@ -72,7 +72,6 @@ public class TenantRoleServiceImpl implements TenantRoleService {
         Preconditions.expectNotNull(tenant, TENANT_NOT_EXIST, String.format(TENANT_NOT_EXIST.getMessage(), tenantName));
 
         TenantUserRoleEntity entity = CommonBeanUtils.copyProperties(request, TenantUserRoleEntity::new);
-        String operator = LoginUserUtils.getLoginUser().getName();
         entity.setCreator(operator);
         entity.setModifier(operator);
         tenantUserRoleEntityMapper.insert(entity);
@@ -80,13 +79,12 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     }
 
     @Override
-    public boolean update(TenantRoleRequest request) {
+    public boolean update(TenantRoleRequest request, String operator) {
         TenantUserRoleEntity exist = tenantUserRoleEntityMapper.selectById(request.getId());
         Preconditions.expectNotNull(exist, ErrorCodeEnum.RECORD_NOT_FOUND,
                 String.format("tenant user role record not found by id=%s", request.getId()));
 
         TenantUserRoleEntity entity = CommonBeanUtils.copyProperties(request, TenantUserRoleEntity::new);
-        String operator = LoginUserUtils.getLoginUser().getName();
         entity.setModifier(operator);
         int rowCount = tenantUserRoleEntityMapper.updateById(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
