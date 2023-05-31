@@ -58,7 +58,6 @@ import org.apache.iceberg.exceptions.AlreadyExistsException;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
-import org.apache.iceberg.types.Types.NestedField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -485,7 +484,8 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     }
 
     // =============================== Utils method =================================================================
-    // if newSchema is not same with oldSchema, return false. It include difference in name, type, position, and quantity
+    // if newSchema is not same with oldSchema, return false. It include difference in name, type, position, and
+    // quantity
     private boolean isCompatible(Schema newSchema, Schema oldSchema) {
         return oldSchema.sameSchema(newSchema);
     }
