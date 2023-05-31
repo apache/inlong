@@ -50,7 +50,7 @@ public class InlongRoleRequest {
     @ApiModelProperty(value = "Version number")
     private Integer version;
 
-    public InlongRoleRequest gentRequest() {
+    public InlongRoleRequest genRequest() {
         return CommonBeanUtils.copyProperties(this, InlongRoleRequest::new);
     }
 }
