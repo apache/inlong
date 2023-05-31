@@ -178,9 +178,80 @@ public interface TableChange {
 
     final class DeleteColumn implements ColumnChange {
 
+        private final String[] fieldNames;
+
+        public DeleteColumn(String[] fieldsNames) {
+            Preconditions.checkArgument(fieldsNames.length > 0, "Invalid filed name: at least one is required");
+            this.fieldNames = fieldsNames;
+        }
+
         @Override
         public String[] fieldNames() {
-            return new String[0];
+            return fieldNames;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof DeleteColumn)) {
+                return false;
+            }
+            DeleteColumn that = (DeleteColumn) o;
+            return Arrays.equals(fieldNames, that.fieldNames);
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(fieldNames);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("DELETE COLUMNS `%s`", fieldNames[fieldNames.length - 1]);
+        }
+    }
+
+    final class UpdateColumn implements ColumnChange {
+
+        private final String[] fieldNames;
+        private final LogicalType dataType;
+        private final boolean isNullable;
+        private final String comment;
+
+        public UpdateColumn(String[] fieldNames, LogicalType dataType, boolean isNullable, String comment) {
+            Preconditions.checkArgument(fieldNames.length > 0, "Invalid filed name: at least one is required");
+            this.fieldNames = fieldNames;
+            this.dataType = dataType;
+            this.isNullable = isNullable;
+            this.comment = comment;
+        }
+
+        @Override
+        public String[] fieldNames() {
+            return fieldNames;
+        }
+
+        public LogicalType dataType() {
+            return dataType;
+        }
+
+        public boolean isNullable() {
+            return isNullable;
+        }
+
+        public String comment() {
+            return comment;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("UPDATE COLUMNS `%s` %s %s %s ",
+                    fieldNames[fieldNames.length - 1],
+                    dataType,
+                    isNullable ? "" : "NOT NULL",
+                    comment);
         }
     }
 
