@@ -37,18 +37,21 @@ import (
 )
 
 type producer struct {
-	clientID        string
-	config          *config.Config
-	nextAuth2Master int32
-	selector        selector.Selector
-	master          *selector.Node
-	client          rpc.RPCClient
-	masterHBRetry   int
-	unreportedTimes int
-	publishTopics   []string
-	brokerCheckSum  int64
-	brokerMap       map[string]*metadata.Node
-	brokerMu        sync.Mutex
+	clientID            string
+	config              *config.Config
+	nextAuth2Master     int32
+	selector            selector.Selector
+	master              *selector.Node
+	client              rpc.RPCClient
+	masterHBRetry       int
+	heartbeatManager    *heartbeatManager
+	unreportedTimes     int
+	publishTopics       []string
+	brokerCheckSum      int64
+	brokerMap           map[string]*metadata.Node
+	brokerMu            sync.Mutex
+	topicPartitionMap   map[string](map[int][]*metadata.Partition)
+	topicPartitionMapMu sync.Mutex
 }
 
 // NewProducer returns a producer which is constructed by a given config.
@@ -77,19 +80,29 @@ func NewProducer(config *config.Config) (Producer, error) {
 	client := rpc.New(pool, opts, config)
 
 	p := &producer{
-		config:          config,
-		clientID:        clientName,
-		selector:        selector,
-		client:          client,
-		unreportedTimes: 0,
-		brokerMap:       make(map[string]*metadata.Node),
-		publishTopics:   config.Producer.Topics,
+		config:            config,
+		clientID:          clientName,
+		selector:          selector,
+		client:            client,
+		unreportedTimes:   0,
+		brokerMap:         make(map[string]*metadata.Node),
+		publishTopics:     config.Producer.Topics,
+		topicPartitionMap: make(map[string](map[int][]*metadata.Partition)),
 	}
+
+	hbm := &heartbeatManager{
+		producer:   p,
+		heartbeats: make(map[string]*heartbeatMetadata),
+	}
+	p.heartbeatManager = hbm
 
 	err = p.register2Master(true)
 	if err != nil {
 		return nil, err
 	}
+
+	// invoke the heartbeat when creating the producer
+	p.heartbeatManager.registerMaster(p.master.Address)
 
 	log.Infof("[PRODUCER] start producer success, client=%s", clientID)
 	return p, nil
@@ -194,6 +207,51 @@ func (p *producer) updateBrokerInfoList(brokerInfos []string) {
 		node, _ := metadata.NewNode(true, strings.Trim(brokerInfo, " :"))
 		p.brokerMap[strconv.FormatUint(uint64(node.GetID()), 10)] = node
 
+	}
+}
+
+func (p *producer) updateTopicConfigure(topicInfos []string) {
+	p.topicPartitionMapMu.Lock()
+	defer p.topicPartitionMapMu.Unlock()
+
+	var topicInfoList []*metadata.TopicInfo
+	for _, topicInfo := range topicInfos {
+		topicInfo = strings.Trim(topicInfo, " ")
+		topicInfoTokens := strings.Split(topicInfo, "#")
+		topicInfoSet := strings.Split(topicInfoTokens[1], ",")
+		for _, s := range topicInfoSet {
+			topicMetas := strings.Split(s, ":")
+			brokerInfo := p.brokerMap[topicMetas[0]]
+			partitionNum, _ := strconv.Atoi(topicMetas[1])
+			storeNum, _ := strconv.Atoi(topicMetas[2])
+			newBrokerNode, _ := metadata.NewNode(true, brokerInfo.String())
+			topicInfoList = append(topicInfoList, metadata.NewTopicInfo(
+				newBrokerNode,
+				topicInfoTokens[0],
+				partitionNum,
+				storeNum,
+			))
+		}
+	}
+
+	for _, topicInfo := range topicInfoList {
+		_, ok := p.topicPartitionMap[topicInfo.GetTopic()]
+		if !ok {
+			p.topicPartitionMap[topicInfo.GetTopic()] = make(map[int][]*metadata.Partition)
+		}
+		for j := 0; j < topicInfo.GetStoreNum(); j++ {
+			for i := 0; i < topicInfo.GetPartitionNum(); i++ {
+				partitionStr := topicInfo.GetNode().String() + "#" + topicInfo.GetTopic() + ":" + strconv.Itoa(i)
+				part, err := metadata.NewPartition(partitionStr)
+				if err != nil {
+					println("New partition failed")
+				}
+				// p.topicPartitionMap[topicInfo.GetTopic()][int(topicInfo.GetNode().GetID())] = part
+				partList := p.topicPartitionMap[topicInfo.GetTopic()][int(topicInfo.GetNode().GetID())]
+				partList = append(partList, part)
+				p.topicPartitionMap[topicInfo.GetTopic()][int(topicInfo.GetNode().GetID())] = partList
+			}
+		}
 	}
 }
 

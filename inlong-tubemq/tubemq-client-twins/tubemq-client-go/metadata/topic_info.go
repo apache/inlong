@@ -15,28 +15,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package main
+package metadata
 
-import (
-	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/client"
-	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
-	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
-)
+type TopicInfo struct {
+	node         *Node
+	topic        string
+	partitionNum int
+	storeNum     int
+}
 
-func main() {
-	// Example for parseAddress
-	cfg, err := config.ParseAddress("127.0.0.1:8099?topic=demo")
-
-	if err != nil {
-		log.Errorf("Failed to parse address", err.Error())
-		panic(err)
+// New topicinfo
+func NewTopicInfo(node *Node, topic string, partitionNum int, storeNum int) *TopicInfo {
+	return &TopicInfo{
+		node:         node,
+		topic:        topic,
+		partitionNum: partitionNum,
+		storeNum:     storeNum,
 	}
+}
 
-	// Register to master
-	_, err = client.NewProducer(cfg)
-	if err != nil {
-		log.Errorf("new producer error %s", err.Error())
-		panic(err)
-	}
+func (p *TopicInfo) GetTopic() string {
+	return p.topic
+}
 
+func (p *TopicInfo) GetStoreNum() int {
+	return p.storeNum
+}
+
+func (p *TopicInfo) GetPartitionNum() int {
+	return p.partitionNum
+}
+
+func (p *TopicInfo) GetNode() *Node {
+	return p.node
 }
