@@ -57,8 +57,14 @@ public class MySQLSinkDTO {
 
         {
             put("autoDeserialize=true", "autoDeserialize=false");
+            put("autoDeserialize=yes", "autoDeserialize=false");
+
             put("allowLoadLocalInfile=true", "allowLoadLocalInfile=false");
+            put("allowLoadLocalInfile=yes", "allowLoadLocalInfile=false");
+
             put("allowUrlInLocalInfile=true", "allowUrlInLocalInfile=false");
+            put("allowUrlInLocalInfile=yes", "allowUrlInLocalInfile=false");
+
             put("allowLoadLocalInfileInPath=/", "allowLoadLocalInfileInPath=");
         }
     };

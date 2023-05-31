@@ -47,6 +47,11 @@ public class MySQLSinkDTOTest {
         Assertions.assertEquals(
                 "autoDeserialize=false&allowLoadLocalInfile=false&autoReconnect=true&allowUrlInLocalInfile=false&allowLoadLocalInfileInPath=",
                 originUrl);
+        originUrl = MySQLSinkDTO.filterSensitive(
+                "autoDeserialize=Yes&allowLoadLocalInfile = Yes&autoReconnect=true&allowUrlInLocalInfile=YEs&allowLoadLocalInfileInPath=/");
+        Assertions.assertEquals(
+                "autoDeserialize=false&allowLoadLocalInfile=false&autoReconnect=true&allowUrlInLocalInfile=false&allowLoadLocalInfileInPath=",
+                originUrl);
 
         // the sensitive params use url code
         originUrl = MySQLSinkDTO.filterSensitive(
@@ -72,6 +77,18 @@ public class MySQLSinkDTOTest {
         Assertions.assertEquals(
                 "autoDeserialize=false&allowLoadLocalInfile=false&autoReconnect=true&allowUrlInLocalInfile=false&allowLoadLocalInfileInPath=",
                 originUrl);
+
+        originUrl = MySQLSinkDTO.filterSensitive(
+                URLEncoder.encode(
+                        "autoDeserialize=Yes&allowLoadLocalInfile = yes&autoReconnect=true&allowUrlInLocalInfile=YES&allowLoadLocalInfileInPath=/",
+                        "UTF-8"));
+        Assertions.assertEquals(
+                "autoDeserialize=false&allowLoadLocalInfile=false&autoReconnect=true&allowUrlInLocalInfile=false&allowLoadLocalInfileInPath=",
+                originUrl);
+
+        originUrl = MySQLSinkDTO.filterSensitive(
+                "autoDeserialize=%59%65%73&allowLoadLocalInfile = yes&allowUrlInLocalInfil%65+=%74%72%75%45&allowLoadLocalInfileInPath=%2F#");
+        Assertions.assertEquals("autoDeserialize=false&allowLoadLocalInfile=false&allowUrlInLocalInfile=false&allowLoadLocalInfileInPath=#", originUrl);
     }
 
     @Test
