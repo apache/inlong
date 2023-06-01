@@ -21,17 +21,20 @@ import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.DirtySinkHelper;
 import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
+import org.apache.inlong.sort.base.schema.SchemaChangeHelper;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.iceberg.schema.IcebergSchemaChangeHelper;
 import org.apache.inlong.sort.schema.ColumnSchema;
 import org.apache.inlong.sort.schema.TableChange;
+import org.apache.inlong.sort.util.SchemaChangeUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.flink.api.common.state.ListState;
@@ -49,17 +52,14 @@ import org.apache.flink.streaming.runtime.tasks.ProcessingTimeCallback;
 import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.Transaction;
 import org.apache.iceberg.catalog.Catalog;
 import org.apache.iceberg.catalog.SupportsNamespaces;
 import org.apache.iceberg.catalog.TableIdentifier;
-import org.apache.iceberg.exceptions.AlreadyExistsException;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
-import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
 import org.apache.iceberg.types.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +101,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
 
     private transient Catalog catalog;
     private transient SupportsNamespaces asNamespaceCatalog;
-    private transient AbstractDynamicSchemaFormat<JsonNode> dynamicSchemaFormat;
+    private transient JsonDynamicSchemaFormat dynamicSchemaFormat;
     private transient ProcessingTimeService processingTimeService;
 
     // record cache, wait schema to consume record
@@ -121,18 +121,25 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     private @Nullable transient SinkTableMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
+    private SchemaChangeHelper schemaChangeHelper;
+    private String schemaChangePolicies;
+    private boolean enableSchemaChange;
 
     public DynamicSchemaHandleOperator(CatalogLoader catalogLoader,
             MultipleSinkOption multipleSinkOption,
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            boolean enableSchemaChange,
+            String schemaChangePolicies) {
         this.catalogLoader = catalogLoader;
         this.multipleSinkOption = multipleSinkOption;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
         this.dirtySinkHelper = new DirtySinkHelper<>(dirtyOptions, dirtySink);
+        this.schemaChangePolicies = schemaChangePolicies;
+        this.enableSchemaChange = enableSchemaChange;
     }
 
     @SuppressWarnings("unchecked")
@@ -143,7 +150,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         this.asNamespaceCatalog =
                 catalog instanceof SupportsNamespaces ? (SupportsNamespaces) catalog : null;
 
-        this.dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat(
+        this.dynamicSchemaFormat = (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(
                 multipleSinkOption.getFormat(), multipleSinkOption.getFormatOption());
 
         this.processingTimeService = getRuntimeContext().getProcessingTimeService();
@@ -168,6 +175,11 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             metricData = new SinkTableMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }
         this.dirtySinkHelper.open(new Configuration());
+        this.schemaChangeHelper = new IcebergSchemaChangeHelper(dynamicSchemaFormat,
+                enableSchemaChange, enableSchemaChange ? SchemaChangeUtils.deserialize(schemaChangePolicies) : null,
+                multipleSinkOption.getDatabasePattern(), multipleSinkOption.getTablePattern(),
+                multipleSinkOption.getSchemaUpdatePolicy(), metricData, dirtySinkHelper,
+                catalog, asNamespaceCatalog);
     }
 
     @Override
@@ -211,7 +223,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         }
         boolean isDDL = dynamicSchemaFormat.extractDDLFlag(jsonNode);
         if (isDDL) {
-            execDDL(jsonNode, tableId);
+            execDDL(element.getValue().getBinary(0), jsonNode);
         } else {
             execDML(jsonNode, tableId);
         }
@@ -307,8 +319,8 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         }
     }
 
-    private void execDDL(JsonNode jsonNode, TableIdentifier tableId) {
-        // todo:parse ddl sql
+    private void execDDL(byte[] originData, JsonNode jsonNode) {
+        schemaChangeHelper.process(originData, jsonNode);
     }
 
     private void execDML(JsonNode jsonNode, TableIdentifier tableId) {
@@ -437,30 +449,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
 
     // ================================ All coordinator handle method ==============================================
     private void handleTableCreateEventFromOperator(TableIdentifier tableId, Schema schema) {
-        if (!catalog.tableExists(tableId)) {
-            if (asNamespaceCatalog != null && !asNamespaceCatalog.namespaceExists(tableId.namespace())) {
-                try {
-                    asNamespaceCatalog.createNamespace(tableId.namespace());
-                    LOG.info("Auto create Database({}) in Catalog({}).", tableId.namespace(), catalog.name());
-                } catch (AlreadyExistsException e) {
-                    LOG.warn("Database({}) already exist in Catalog({})!", tableId.namespace(), catalog.name());
-                }
-            }
-            ImmutableMap.Builder<String, String> properties = ImmutableMap.builder();
-            properties.put("format-version", "2");
-            properties.put("write.upsert.enabled", "true");
-            properties.put("write.metadata.metrics.default", "full");
-            // for hive visible
-            properties.put("engine.hive.enabled", "true");
-            try {
-                catalog.createTable(tableId, schema, PartitionSpec.unpartitioned(), properties.build());
-                LOG.info("Auto create Table({}) in Database({}) in Catalog({})!",
-                        tableId.name(), tableId.namespace(), catalog.name());
-            } catch (AlreadyExistsException e) {
-                LOG.warn("Table({}) already exist in Database({}) in Catalog({})!",
-                        tableId.name(), tableId.namespace(), catalog.name());
-            }
-        }
+        IcebergSchemaChangeUtils.createTable(catalog, tableId, asNamespaceCatalog, schema);
         handleSchemaInfoEvent(tableId, catalog.loadTable(tableId).schema());
     }
 
