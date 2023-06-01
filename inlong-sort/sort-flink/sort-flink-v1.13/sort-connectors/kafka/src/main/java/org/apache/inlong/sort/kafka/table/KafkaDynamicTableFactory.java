@@ -334,6 +334,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         options.add(AUDIT_KEYS);
         options.add(SINK_MULTIPLE_FORMAT);
         options.add(SINK_MULTIPLE_PARTITION_PATTERN);
+        options.add(PATTERN_PARTITION_MAP);
+        options.add(DATASOURCE_PARTITION_MAP);
         options.add(SINK_SCHEMA_CHANGE_ENABLE);
         options.add(SINK_SCHEMA_CHANGE_POLICIES);
         return options;
