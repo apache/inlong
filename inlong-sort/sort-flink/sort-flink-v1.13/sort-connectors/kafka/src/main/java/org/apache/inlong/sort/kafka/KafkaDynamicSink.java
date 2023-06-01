@@ -22,6 +22,7 @@ import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.kafka.DynamicKafkaSerializationSchema.MetadataConverter;
 import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
 import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;

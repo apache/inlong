@@ -24,6 +24,9 @@ import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
 import org.apache.inlong.sort.kafka.partitioner.InLongFixedPartitionPartitioner;
 import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
+import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
+import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
+import org.apache.inlong.sort.util.SchemaChangeUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.Internal;
@@ -59,9 +62,6 @@ import org.apache.flink.table.formats.raw.RawFormatSerializationSchema;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
-import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
-import org.apache.inlong.sort.util.SchemaChangeUtils;
 
 import javax.annotation.Nullable;
 
@@ -108,8 +108,8 @@ import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
 import static org.apache.inlong.sort.base.Constants.*;
 import static org.apache.inlong.sort.base.Constants.DATASOURCE_PARTITION_MAP;
-import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_POLICIES;
 import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_POLICIES;
 import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
