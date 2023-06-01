@@ -35,6 +35,7 @@ import io.debezium.relational.Tables;
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlo
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getSplitKey;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getTableId;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isDataChangeRecord;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.splitKeyRangeContainsByBinarySearch;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getSplitInfoByBinarySearch;
 
 /**
  * A Debezium binlog reader implementation that also support reads binlog and filter overlapping
@@ -204,10 +205,18 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecord, MySqlSpli
                                 splitKeyType,
                                 sourceRecord,
                                 statefulTaskContext.getSchemaNameAdjuster());
-                FinishedSnapshotSplitInfo splitInfo = splitKeyRangeContainsByBinarySearch(
-                        finishedSplitsInfo.get(tableId), key);
-                if (splitInfo != null && position.isAfter(splitInfo.getHighWatermark())) {
-                    return true;
+                // currently, we only support using binary search algorithm for a single split key.
+                if (key.length == 1) {
+                    FinishedSnapshotSplitInfo splitInfo = getSplitInfoByBinarySearch(
+                            finishedSplitsInfo.get(tableId), key);
+                    return splitInfo != null && position.isAfter(splitInfo.getHighWatermark());
+                }
+                for (FinishedSnapshotSplitInfo splitInfo : finishedSplitsInfo.get(tableId)) {
+                    if (RecordUtils.splitKeyRangeContains(
+                            key, splitInfo.getSplitStart(), splitInfo.getSplitEnd())
+                            && position.isAfter(splitInfo.getHighWatermark())) {
+                        return true;
+                    }
                 }
             }
             // not in the monitored splits scope, do not emit

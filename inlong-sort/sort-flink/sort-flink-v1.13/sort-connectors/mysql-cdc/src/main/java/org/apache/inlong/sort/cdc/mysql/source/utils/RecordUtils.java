@@ -456,7 +456,7 @@ public class RecordUtils {
      * @param target the specific key.
      * @return A split which contain the specific key.
      */
-    public static FinishedSnapshotSplitInfo splitKeyRangeContainsByBinarySearch(
+    public static FinishedSnapshotSplitInfo getSplitInfoByBinarySearch(
             List<FinishedSnapshotSplitInfo> splitInfos, Object[] target) {
         int left = 0;
         int right = splitInfos.size() - 1;
