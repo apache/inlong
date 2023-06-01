@@ -1447,6 +1447,7 @@
                         <exclude>**/tubemq-client-go/go.mod</exclude>
                         <!-- Go sum -->
                         <exclude>**/tubemq-client-go/go.sum</exclude>
+                        <exclude>**/dataproxy-sdk-golang/go.sum</exclude>
                         <!-- Docker build-->
                         <exclude>**/docker/docker-compose/**/**</exclude>
 
