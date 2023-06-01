@@ -424,12 +424,28 @@ public class RecordUtils {
         }
         // first split
         if (splitKeyStart == null) {
-            return isLessThanUpperBoundary(key, splitKeyEnd);
+            int[] upperBoundRes = new int[key.length];
+            for (int i = 0; i < key.length; i++) {
+                upperBoundRes[i] = compareObjects(key[i], splitKeyEnd[i]);
+            }
+            return Arrays.stream(upperBoundRes).anyMatch(value -> value < 0)
+                    && Arrays.stream(upperBoundRes).allMatch(value -> value <= 0);
         } else if (splitKeyEnd == null) {
-            return isGreaterThanOrEqualToLowerBoundary(key, splitKeyStart);
+            int[] lowerBoundRes = new int[key.length];
+            for (int i = 0; i < key.length; i++) {
+                lowerBoundRes[i] = compareObjects(key[i], splitKeyStart[i]);
+            }
+            return Arrays.stream(lowerBoundRes).allMatch(value -> value >= 0);
         } else {
-            return isGreaterThanOrEqualToLowerBoundary(key, splitKeyStart)
-                    && isLessThanUpperBoundary(key, splitKeyEnd);
+            int[] lowerBoundRes = new int[key.length];
+            int[] upperBoundRes = new int[key.length];
+            for (int i = 0; i < key.length; i++) {
+                lowerBoundRes[i] = compareObjects(key[i], splitKeyStart[i]);
+                upperBoundRes[i] = compareObjects(key[i], splitKeyEnd[i]);
+            }
+            return Arrays.stream(lowerBoundRes).anyMatch(value -> value >= 0)
+                    && (Arrays.stream(upperBoundRes).anyMatch(value -> value < 0)
+                            && Arrays.stream(upperBoundRes).allMatch(value -> value <= 0));
         }
     }
 
@@ -452,8 +468,7 @@ public class RecordUtils {
             Object[] splitStart = splitInfo.getSplitStart();
             Object[] splitEnd = splitInfo.getSplitEnd();
 
-            if ((splitStart == null || isGreaterThanOrEqualToLowerBoundary(target, splitStart))
-                    && (splitEnd == null || isLessThanUpperBoundary(target, splitEnd))) {
+            if (splitKeyRangeContains(target, splitStart, splitEnd)) {
                 return splitInfo;
             } else if (splitStart != null && isLessThanUpperBoundary(target, splitStart)) {
                 right = mid - 1;
@@ -470,16 +485,7 @@ public class RecordUtils {
         for (int i = 0; i < key.length; i++) {
             upperBoundRes[i] = compareObjects(key[i], upperBoundary[i]);
         }
-        return Arrays.stream(upperBoundRes).anyMatch(value -> value < 0)
-                && Arrays.stream(upperBoundRes).allMatch(value -> value <= 0);
-    }
-
-    public static boolean isGreaterThanOrEqualToLowerBoundary(Object[] key, Object[] lowerBoundary) {
-        int[] lowerBoundRes = new int[key.length];
-        for (int i = 0; i < key.length; i++) {
-            lowerBoundRes[i] = compareObjects(key[i], lowerBoundary[i]);
-        }
-        return Arrays.stream(lowerBoundRes).allMatch(value -> value >= 0);
+        return Arrays.stream(upperBoundRes).allMatch(value -> value < 0);
     }
 
     private static int compareObjects(Object o1, Object o2) {

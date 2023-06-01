@@ -24,7 +24,6 @@ import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.apache.inlong.sort.cdc.mysql.source.utils.ChunkUtils;
-import org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils;
 
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.connector.mysql.MySqlOffsetContext;
