@@ -24,6 +24,8 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 /**
  * MessageQueueClusterProducer
  */
@@ -125,6 +127,10 @@ public class MessageQueueClusterProducer implements LifecycleAware {
      */
     public CacheClusterConfig getConfig() {
         return config;
+    }
+
+    public void publishTopic(Set<String> topicNames) {
+        this.handler.publishTopic(topicNames);
     }
 
 }

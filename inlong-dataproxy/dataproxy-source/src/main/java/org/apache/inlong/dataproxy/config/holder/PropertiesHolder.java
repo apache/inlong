@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config;
+package org.apache.inlong.dataproxy.config.holder;
+
+import org.apache.inlong.dataproxy.config.ConfigHolder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ObjectUtils;

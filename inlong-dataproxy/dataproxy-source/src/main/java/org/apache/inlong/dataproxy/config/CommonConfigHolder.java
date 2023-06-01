@@ -43,7 +43,7 @@ public class CommonConfigHolder {
 
     public static final Logger LOG = LoggerFactory.getLogger(CommonConfigHolder.class);
     // configure file name
-    private static final String COMMON_CONFIG_FILE_NAME = "common.properties";
+    public static final String COMMON_CONFIG_FILE_NAME = "common.properties";
     // **** allowed keys and default value, begin
     // cluster tag
     public static final String KEY_PROXY_CLUSTER_TAG = "proxy.cluster.tag";
@@ -69,8 +69,9 @@ public class CommonConfigHolder {
     // manager auth secret key
     public static final String KEY_MANAGER_AUTH_SECRET_KEY = "manager.auth.secretKey";
     // configure file check interval
+    private static final String KEY_META_CONFIG_SYNC_INTERVAL_MS = "meta.config.sync.interval.ms";
     private static final String KEY_CONFIG_CHECK_INTERVAL_MS = "configCheckInterval";
-    public static final long VAL_DEF_CONFIG_CHECK_INTERVAL_MS = 60000L;
+    public static final long VAL_DEF_CONFIG_SYNC_INTERVAL_MS = 60000L;
     // Whether to accept messages without mapping between groupId/streamId and topic
     public static final String KEY_NOTFOUND_TOPIC_ACCEPT = "source.topic.notfound.accept";
     public static final boolean VAL_DEF_NOTFOUND_TOPIC_ACCEPT = false;
@@ -146,7 +147,7 @@ public class CommonConfigHolder {
     private IManagerIpListParser ipListParser = null;
     private String managerAuthSecretId = "";
     private String managerAuthSecretKey = "";
-    private long configChkInvlMs = VAL_DEF_CONFIG_CHECK_INTERVAL_MS;
+    private long metaConfigSyncInvlMs = VAL_DEF_CONFIG_SYNC_INTERVAL_MS;
     private boolean enableAudit = VAL_DEF_ENABLE_AUDIT;
     private final HashSet<String> auditProxys = new HashSet<>();
     private String auditFilePath = VAL_DEF_AUDIT_FILE_PATH;
@@ -228,8 +229,8 @@ public class CommonConfigHolder {
         return clusterExtTag;
     }
 
-    public long getConfigChkInvlMs() {
-        return configChkInvlMs;
+    public long getMetaConfigSyncInvlMs() {
+        return metaConfigSyncInvlMs;
     }
 
     public boolean isNoTopicAccept() {
@@ -353,10 +354,13 @@ public class CommonConfigHolder {
         if (StringUtils.isNotEmpty(tmpValue)) {
             this.clusterExtTag = tmpValue.trim();
         }
-        // read configure check interval
-        tmpValue = this.props.get(KEY_CONFIG_CHECK_INTERVAL_MS);
+        // read configure sync interval
+        tmpValue = this.props.get(KEY_META_CONFIG_SYNC_INTERVAL_MS);
+        if (StringUtils.isBlank(tmpValue)) {
+            tmpValue = this.props.get(KEY_CONFIG_CHECK_INTERVAL_MS);
+        }
         if (StringUtils.isNotEmpty(tmpValue)) {
-            this.configChkInvlMs = NumberUtils.toLong(tmpValue.trim(), VAL_DEF_CONFIG_CHECK_INTERVAL_MS);
+            this.metaConfigSyncInvlMs = NumberUtils.toLong(tmpValue.trim(), VAL_DEF_CONFIG_SYNC_INTERVAL_MS);
         }
         // read whether accept msg without topic
         tmpValue = this.props.get(KEY_NOTFOUND_TOPIC_ACCEPT);

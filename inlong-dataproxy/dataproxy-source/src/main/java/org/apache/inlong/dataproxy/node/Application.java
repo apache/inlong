@@ -17,10 +17,8 @@
 
 package org.apache.inlong.dataproxy.node;
 
-import org.apache.inlong.common.config.IDataProxyConfigHolder;
 import org.apache.inlong.common.metric.MetricObserver;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.heartbeat.HeartbeatManager;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.sdk.commons.admin.AdminTask;
@@ -146,12 +144,6 @@ public class Application {
                 return;
             }
 
-            // start by manager configuration
-            if (commandLine.hasOption("load-conf-from-manager")) {
-                startByManagerConf(commandLine);
-                return;
-            }
-
             String agentName = commandLine.getOptionValue('n');
             boolean reload = !commandLine.hasOption("no-reload-conf");
 
@@ -234,37 +226,12 @@ public class Application {
     }
 
     /**
-     * Start by Manager config
-     */
-    private static void startByManagerConf(CommandLine commandLine) {
-        String proxyName = CommonConfigHolder.getInstance().getClusterName();
-        ManagerPropsConfigProvider configurationProvider = new ManagerPropsConfigProvider(proxyName);
-        Application application = new Application();
-        application.handleConfigurationEvent(configurationProvider.getConfiguration());
-        application.start();
-
-        final Application appReference = application;
-        Runtime.getRuntime().addShutdownHook(new Thread("data-proxy-shutdown-hook") {
-
-            @Override
-            public void run() {
-                appReference.stop();
-            }
-        });
-    }
-
-    /**
      * Start all components
      */
     public void start() {
         lifecycleLock.lock();
         try {
             for (LifecycleAware component : components) {
-                // update dataproxy config
-                if (component instanceof IDataProxyConfigHolder) {
-                    ((IDataProxyConfigHolder) component).setDataProxyConfig(
-                            RemoteConfigManager.getInstance().getCurrentClusterConfigRef());
-                }
                 supervisor.supervise(component, new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
             }
             // start admin task
