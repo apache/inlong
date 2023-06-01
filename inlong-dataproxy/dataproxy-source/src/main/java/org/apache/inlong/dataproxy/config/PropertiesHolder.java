@@ -212,6 +212,7 @@ public abstract class PropertiesHolder extends ConfigHolder {
         String filePath = getFilePath();
         if (StringUtils.isBlank(filePath)) {
             LOG.error("Error in writing file {} as the file path is null.", getFileName());
+            return isSuccess;
         }
         readWriteLock.writeLock().lock();
         try {
@@ -226,7 +227,7 @@ public abstract class PropertiesHolder extends ConfigHolder {
             FileUtils.copyFile(tmpNewFile, sourceFile);
             tmpNewFile.delete();
             isSuccess = true;
-            getFileChanged().set(true);
+            setFileChanged();
         } catch (Throwable ex) {
             LOG.error("Error in writing file {}", getFileName(), ex);
         } finally {

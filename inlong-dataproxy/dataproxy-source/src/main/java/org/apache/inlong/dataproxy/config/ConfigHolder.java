@@ -130,7 +130,7 @@ public abstract class ConfigHolder {
         }
     }
 
-    public AtomicBoolean getFileChanged() {
-        return fileChanged;
+    public void setFileChanged() {
+        fileChanged.set(true);
     }
 }

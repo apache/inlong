@@ -67,19 +67,6 @@ public class ConfigMessageServlet extends HttpServlet {
         return false;
     }
 
-    private boolean handleMxConfig(RequestContent requestContent) {
-        Map<String, String> groupIdToMValue = new HashMap<String, String>();
-        for (Map<String, String> item : requestContent.getContent()) {
-            groupIdToMValue.put(item.get("inlongGroupId"), item.get("m"));
-        }
-        if ("add".equals(requestContent.getOperationType())) {
-            return configManager.addMxProperties(groupIdToMValue);
-        } else if ("delete".equals(requestContent.getOperationType())) {
-            return configManager.deleteMxProperties(groupIdToMValue);
-        }
-        return false;
-    }
-
     private void responseToJson(HttpServletResponse response,
             ResponseResult result) throws IOException {
         response.setContentType("application/json");
@@ -97,26 +84,22 @@ public class ConfigMessageServlet extends HttpServlet {
         BufferedReader reader = null;
         try {
             reader = req.getReader();
-            boolean isSuccess = false;
             RequestContent requestContent = gson.fromJson(IOUtils.toString(reader),
                     RequestContent.class);
             if (requestContent.getRequestType() != null
                     && requestContent.getOperationType() != null) {
                 if ("topic".equals(requestContent.getRequestType())) {
-                    isSuccess = handleTopicConfig(requestContent);
+                    if (handleTopicConfig(requestContent)) {
+                        result.setCode(DataProxyErrCode.SUCCESS.getErrCode());
+                    } else {
+                        result.setMessage("cannot operate config update, please check it");
+                    }
                 } else if ("mx".equals(requestContent.getRequestType())) {
-                    isSuccess = handleMxConfig(requestContent);
+                    result.setMessage("Unsupported operation");
                 }
             } else {
                 result.setMessage("request format is not valid");
             }
-
-            if (isSuccess) {
-                result.setCode(DataProxyErrCode.SUCCESS.getErrCode());
-            } else {
-                result.setMessage("cannot operate config update, please check it");
-            }
-
         } catch (Exception ex) {
             LOG.error("error while do post", ex);
             result.setMessage(ex.getMessage());

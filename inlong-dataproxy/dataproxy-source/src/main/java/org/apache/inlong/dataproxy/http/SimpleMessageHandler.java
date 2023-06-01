@@ -127,12 +127,6 @@ public class SimpleMessageHandler implements MessageHandler {
                     .append(AttrConstants.BODY)
                     .append(" must exist and not empty!").toString());
         }
-        // get m attribute
-        String mxValue = "m=0";
-        String configedMxAttr = configManager.getMxProperties().get(groupId);
-        if (StringUtils.isNotEmpty(configedMxAttr)) {
-            mxValue = configedMxAttr.trim();
-        }
         // convert context to http request
         HttpServletRequest request =
                 (HttpServletRequest) context.get(AttrConstants.HTTP_REQUEST);
@@ -144,7 +138,7 @@ public class SimpleMessageHandler implements MessageHandler {
         strMsgCount = String.valueOf(intMsgCnt);
         // build message attributes
         InLongMsg inLongMsg = InLongMsg.newInLongMsg(true);
-        strBuff.append(mxValue).append("&groupId=").append(groupId)
+        strBuff.append("groupId=").append(groupId)
                 .append("&streamId=").append(streamId)
                 .append("&dt=").append(strDataTime)
                 .append("&NodeIP=").append(strRemoteIP)

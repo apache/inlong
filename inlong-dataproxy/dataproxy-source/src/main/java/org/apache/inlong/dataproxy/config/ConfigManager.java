@@ -24,7 +24,6 @@ import org.apache.inlong.dataproxy.config.holder.BlackListConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.config.holder.GroupIdNumConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.MQClusterConfigHolder;
-import org.apache.inlong.dataproxy.config.holder.MxPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.SourceReportConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
@@ -79,7 +78,6 @@ public class ConfigManager {
 
     private final MQClusterConfigHolder mqClusterConfigHolder = new MQClusterConfigHolder("mq_cluster.properties");
     private final PropertiesConfigHolder topicConfig = new PropertiesConfigHolder("topics.properties");
-    private final MxPropertiesHolder mxConfig = new MxPropertiesHolder("mx.properties");
     // source report configure holder
     private final SourceReportConfigHolder sourceReportConfigHolder = new SourceReportConfigHolder();
     // mq clusters ready
@@ -203,33 +201,12 @@ public class ConfigManager {
                 || whitelistConfigHolder.isIllegalIP(strRemoteIP);
     }
 
-    // get mx configure info
-    public Map<String, Map<String, String>> getMxPropertiesMaps() {
-        return mxConfig.getMxPropertiesMaps();
-    }
-
-    public Map<String, String> getMxProperties() {
-        return mxConfig.getHolder();
-    }
-
-    public boolean addMxProperties(Map<String, String> result) {
-        return updatePropertiesHolder(result, mxConfig, true);
-    }
-
-    public boolean deleteMxProperties(Map<String, String> result) {
-        return updatePropertiesHolder(result, mxConfig, false);
-    }
-
     public boolean updateTopicProperties(Map<String, String> result) {
         return updatePropertiesHolder(result, topicConfig);
     }
 
     public boolean updateMQClusterProperties(Map<String, String> result) {
         return updatePropertiesHolder(result, mqClusterConfigHolder);
-    }
-
-    public boolean updateMxProperties(Map<String, String> result) {
-        return updatePropertiesHolder(result, mxConfig);
     }
 
     public void addSourceReportInfo(String sourceIp, String sourcePort, String protocolType) {
@@ -410,7 +387,6 @@ public class ConfigManager {
                 // get groupId <-> topic and m value.
                 RemoteConfigJson configJson = gson.fromJson(returnStr, RemoteConfigJson.class);
                 Map<String, String> groupIdToTopic = new HashMap<>();
-                Map<String, String> groupIdToMValue = new HashMap<>();
                 // include url2token and other params
                 Map<String, String> mqConfig = new HashMap<>();
 
@@ -443,14 +419,10 @@ public class ConfigManager {
                                 || StringUtils.isBlank(topic.getTopic())) {
                             continue;
                         }
-                        if (!StringUtils.isEmpty(topic.getM())) {
-                            groupIdToMValue.put(topic.getInlongGroupId(), topic.getM());
-                        }
                         if (!StringUtils.isEmpty(topic.getTopic())) {
                             groupIdToTopic.put(topic.getInlongGroupId().trim(), topic.getTopic().trim());
                         }
                     }
-                    configManager.updateMxProperties(groupIdToMValue);
                     configManager.updateTopicProperties(groupIdToTopic);
                     // other params for mq
                     mqConfig.putAll(clusterSet.get(0).getParams());
