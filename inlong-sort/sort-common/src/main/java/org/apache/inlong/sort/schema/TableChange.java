@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.base.sink;
+package org.apache.inlong.sort.schema;
 
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.util.Preconditions;

@@ -29,9 +29,11 @@ import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
-import org.apache.inlong.sort.base.sink.TableChange;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.schema.ColumnSchema;
+import org.apache.inlong.sort.schema.TableChange;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
@@ -58,6 +60,7 @@ import org.apache.iceberg.exceptions.AlreadyExistsException;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
+import org.apache.iceberg.types.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -461,6 +464,25 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         handleSchemaInfoEvent(tableId, catalog.loadTable(tableId).schema());
     }
 
+    @VisibleForTesting
+    public static Map<String, ColumnSchema> extractColumnSchema(Schema schema) {
+        Map<String, ColumnSchema> columnSchemaMap = new HashMap<>();
+        List<Types.NestedField> nestedFieldList = schema.columns();
+        int n = nestedFieldList.size();
+        for (int i = 0; i < n; i++) {
+            Types.NestedField nestedField = nestedFieldList.get(i);
+            ColumnSchema columnSchema = new ColumnSchema();
+            columnSchema.setName(nestedField.name());
+            columnSchema.setType(FlinkSchemaUtil.convert(nestedField.type()));
+            columnSchema.setNullable(nestedField.isOptional());
+            columnSchema.setDoc(nestedField.doc());
+            columnSchema.setPosition(i == 0 ? TableChange.ColumnPosition.first()
+                    : TableChange.ColumnPosition.after(nestedFieldList.get(n - 1).name()));
+            columnSchemaMap.put(nestedField.name(), columnSchema);
+        }
+        return columnSchemaMap;
+    }
+
     private void handldAlterSchemaEventFromOperator(TableIdentifier tableId, Schema oldSchema, Schema newSchema) {
         Table table = catalog.loadTable(tableId);
         // The transactionality of changes is guaranteed by comparing the old schema with the current schema of the
@@ -469,14 +491,16 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         // for scenarios that cannot be changed, it is always considered that there is a problem with the data.
         Transaction transaction = table.newTransaction();
         if (table.schema().sameSchema(oldSchema)) {
-            List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(oldSchema, newSchema);
+            Map<String, ColumnSchema> oldColumnSchemas = extractColumnSchema(oldSchema);
+            Map<String, ColumnSchema> newColumnSchemas = extractColumnSchema(newSchema);
+            List<TableChange> tableChanges = IcebergSchemaChangeUtils.diffSchema(oldColumnSchemas, newColumnSchemas);
             for (TableChange tableChange : tableChanges) {
                 if (tableChange instanceof TableChange.UnknownColumnChange) {
                     throw new UnsupportedOperationException(
                             String.format("Unsupported table %s schema change: %s.", tableId.toString(), tableChange));
                 }
             }
-            SchemaChangeUtils.applySchemaChanges(transaction.updateSchema(), tableChanges);
+            IcebergSchemaChangeUtils.applySchemaChanges(transaction.updateSchema(), tableChanges);
             LOG.info("Schema evolution in table({}) for table change: {}", tableId, tableChanges);
         }
         transaction.commitTransaction();
