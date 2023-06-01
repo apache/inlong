@@ -24,7 +24,7 @@ import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
 import com.github.pagehelper.PageInfo;
 
 /**
- * Role service
+ * Tenant Role service
  */
 public interface TenantRoleService {
 

@@ -57,8 +57,7 @@
       select
         <include refid="Base_Column_List"/>
         from tenant_user_role
-        where
-            is_deleted = 0
+        where is_deleted = 0
         <if test="username != null and username != ''">
             and user_name = #{username, jdbcType=VARCHAR}
         </if>

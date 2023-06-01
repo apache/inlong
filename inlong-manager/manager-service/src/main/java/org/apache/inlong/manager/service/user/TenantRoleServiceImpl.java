@@ -40,7 +40,7 @@ import org.springframework.stereotype.Service;
 import static org.apache.inlong.manager.common.enums.ErrorCodeEnum.TENANT_NOT_EXIST;
 
 /**
- * Role operation
+ * Tenant Role operation
  */
 @Slf4j
 @Service

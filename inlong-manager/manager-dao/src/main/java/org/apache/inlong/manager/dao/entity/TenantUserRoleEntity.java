@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * User role entity, including username, role code, etc.
+ * Tenant User role entity, including username, role code, etc.
  */
 @Data
 public class TenantUserRoleEntity implements Serializable {
