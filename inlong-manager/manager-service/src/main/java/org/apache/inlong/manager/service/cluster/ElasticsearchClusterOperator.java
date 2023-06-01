@@ -33,6 +33,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Elasticsearch cluster operator.
  */
@@ -77,5 +80,13 @@ public class ElasticsearchClusterOperator extends AbstractClusterOperator {
             CommonBeanUtils.copyProperties(dto, info);
         }
         return info;
+    }
+
+    @Override
+    public Object getClusterInfo(InlongClusterEntity entity) {
+        ElasticsearchClusterInfo elasticsearchClusterInfo = (ElasticsearchClusterInfo) this.getFromEntity(entity);
+        Map<String, String> map = new HashMap<>();
+        map.put("url", elasticsearchClusterInfo.getUrl());
+        return map;
     }
 }
