@@ -223,13 +223,6 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             if (StringUtils.isNotEmpty(value)) {
                 topicInfo.set(value.trim());
             }
-
-            Map<String, String> mxValue = configManager.getMxPropertiesMaps().get(groupId);
-            if (mxValue != null && mxValue.size() != 0) {
-                message.getAttributeMap().putAll(mxValue);
-            } else {
-                message.getAttributeMap().putAll(mapSplitter.split(this.defaultMXAttr));
-            }
         } else {
             String num2name = commonAttrMap.get(AttrConstants.NUM2NAME);
             String groupIdNum = commonAttrMap.get(AttrConstants.GROUPID_NUM);
