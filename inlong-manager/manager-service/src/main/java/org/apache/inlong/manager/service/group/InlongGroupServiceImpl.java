@@ -538,6 +538,13 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
+    public Map<String, Object> detail(String groupId) {
+        InlongGroupInfo groupInfo = this.get(groupId);
+        InlongGroupOperator instance = groupOperatorFactory.getInstance(groupInfo.getMqType());
+        return instance.getDetailInfo(groupInfo);
+    }
+
+    @Override
     public InlongGroupInfo doDeleteCheck(String groupId, String operator) {
         InlongGroupInfo groupInfo = this.get(groupId);
         // only the person in charges can update
