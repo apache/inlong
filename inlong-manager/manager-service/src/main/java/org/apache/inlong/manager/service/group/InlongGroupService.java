@@ -33,6 +33,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Inlong group service layer interface
@@ -199,5 +200,11 @@ public interface InlongGroupService {
      * @return List of InlongGroupTopicInfo
      */
     List<InlongGroupTopicInfo> listTopics(InlongGroupTopicRequest clusterTag);
+
+    /**
+     * List group detail
+     * @return List of inlong group detail, including cluster info and sort info
+     */
+    Map<String, Object> detail(String groupId);
 
 }

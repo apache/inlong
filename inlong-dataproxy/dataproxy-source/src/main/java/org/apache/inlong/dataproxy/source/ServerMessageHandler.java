@@ -376,14 +376,6 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
             } else {
-                // get configured m value
-                Map<String, String> mxValue =
-                        configManager.getMxPropertiesMaps().get(groupId);
-                if (mxValue != null && mxValue.size() != 0) {
-                    message.getAttributeMap().putAll(mxValue);
-                } else {
-                    message.getAttributeMap().putAll(mapSplitter.split(this.defaultMXAttr));
-                }
                 // get configured topic name
                 configTopic = configManager.getTopicName(groupId, streamId);
             }

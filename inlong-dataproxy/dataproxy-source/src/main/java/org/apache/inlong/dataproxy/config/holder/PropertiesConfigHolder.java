@@ -105,7 +105,7 @@ public class PropertiesConfigHolder extends ConfigHolder {
             FileUtils.copyFile(tmpNewFile, sourceFile);
             tmpNewFile.delete();
             isSuccess = true;
-            getFileChanged().set(true);
+            setFileChanged();
         } catch (Exception ex) {
             LOG.error("error in writing file", ex);
         } finally {

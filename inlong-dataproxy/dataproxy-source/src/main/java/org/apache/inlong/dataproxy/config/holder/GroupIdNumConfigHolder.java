@@ -235,6 +235,7 @@ public class GroupIdNumConfigHolder extends PropertiesHolder {
                 storedMap.putAll(entry.getValue());
                 streamIdNumMap.put(entry.getKey(), storedMap);
             } else {
+                rmvKeys.clear();
                 newDataMap = entry.getValue();
                 for (Map.Entry<String, String> entry1 : newDataMap.entrySet()) {
                     if (!entry1.getValue().equals(storedMap.get(entry.getKey()))) {

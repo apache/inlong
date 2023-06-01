@@ -44,6 +44,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Pulsar cluster operator.
@@ -106,6 +108,16 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
 
         testConnectServiceUrl(pulsarInfo.getUrl());
         return testConnectAdminUrl(pulsarInfo);
+    }
+
+    @Override
+    public Object getClusterInfo(InlongClusterEntity entity) {
+        PulsarClusterInfo pulsarClusterInfo = (PulsarClusterInfo) this.getFromEntity(entity);
+        Map<String, String> map = new HashMap<>();
+        map.put("serverUrl", pulsarClusterInfo.getUrl());
+        map.put("adminUrl", pulsarClusterInfo.getAdminUrl());
+        map.put("defaultTenant", pulsarClusterInfo.getTenant());
+        return map;
     }
 
     /**
