@@ -15,26 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
-import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
+import lombok.Data;
 
-import com.github.pagehelper.Page;
-import org.springframework.stereotype.Repository;
+import java.io.Serializable;
+import java.util.Date;
 
-@Repository
-public interface InlongTenantEntityMapper {
+/**
+ * Tenant User role entity, including username, role code, etc.
+ */
+@Data
+public class TenantUserRoleEntity implements Serializable {
 
-    int insert(InlongTenantEntity record);
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String username;
+    private String roleCode;
+    private String tenant;
+    private Integer disabled;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
+    private Integer version;
 
-    int insertSelective(InlongTenantEntity record);
-
-    int updateById(InlongTenantEntity record);
-
-    int updateByIdSelective(InlongTenantEntity record);
-
-    Page<InlongTenantEntity> selectByCondition(InlongTenantPageRequest request);
-
-    InlongTenantEntity selectByName(String name);
 }

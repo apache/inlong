@@ -15,30 +15,58 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.pojo.user;
 
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
 import java.util.Date;
 
-/**
- * User role entity, including username, role code, etc.
- */
 @Data
-public class UserRoleEntity implements Serializable {
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Inlong tenant user role info")
+public class TenantRoleInfo {
 
-    private static final long serialVersionUID = 1L;
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
+
+    @ApiModelProperty(value = "User name")
     private String username;
+
+    @ApiModelProperty(value = "Role code")
     private String roleCode;
 
+    @ApiModelProperty(value = "Tenant")
+    private String tenant;
+
+    @ApiModelProperty(value = "If disabled")
     private Integer disabled;
-    private Integer isDeleted;
+
+    @ApiModelProperty(value = "Name of in creator")
     private String creator;
+
+    @ApiModelProperty(value = "Name of in modifier")
     private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
+
+    @ApiModelProperty(value = "Version number")
     private Integer version;
 
+    public TenantRoleRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, TenantRoleRequest::new);
+    }
 }

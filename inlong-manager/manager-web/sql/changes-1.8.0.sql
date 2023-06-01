@@ -39,9 +39,19 @@ CREATE TABLE IF NOT EXISTS `inlong_tenant`
     `modify_time`  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`      int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_user_role_key` (`tenant`, `is_deleted`)
+    UNIQUE KEY `unique_tenant_key` (`name`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8 COMMENT ='Inlong tenant table';
 
 INSERT INTO `inlong_tenant`(`name`, `description`, `creator`, `modifier`)
-VALUES ('public', 'Default tenant', 'admin', 'admin');
+VALUES ('public', 'Default tenant', 'inlong_init', 'inlong_init');
+
+-- To support distinguish inlong user permission and tenant permission control, please see https://github.com/apache/inlong/issues/8118
+RENAME TABLE user_role TO tenant_user_role;
+ALTER TABLE tenant_user_role
+    ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL comment 'User tenant';
+ALTER TABLE tenant_user_role
+    ADD CONSTRAINT unique_tenant_user
+        UNIQUE (user_name, tenant, is_deleted);
+CREATE INDEX tenant_user_role
+    ON user_role (tenant);

@@ -19,11 +19,12 @@
 -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.apache.inlong.manager.dao.mapper.UserRoleEntityMapper">
-    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.UserRoleEntity">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.TenantUserRoleEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TenantUserRoleEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="user_name" jdbcType="VARCHAR" property="username"/>
         <result column="role_code" jdbcType="VARCHAR" property="roleCode"/>
+        <result column="tenant" jdbcType="VARCHAR" property="tenant"/>
         <result column="disabled" jdbcType="SMALLINT" property="disabled"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
@@ -33,32 +34,49 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, user_name, role_code, disabled, is_deleted, creator, modifier, create_time, modify_time, version
+        id, user_name, role_code, tenant, disabled, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
-            parameterType="org.apache.inlong.manager.dao.entity.UserRoleEntity">
-        insert into user_role (id, user_name, role_code,
+            parameterType="org.apache.inlong.manager.dao.entity.TenantUserRoleEntity">
+        insert into tenant_user_role (id, user_name, role_code, tenant,
                                disabled, creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{roleCode,jdbcType=VARCHAR},
-                #{disabled,jdbcType=SMALLINT}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
+                #{tenant,jdbcType=VARCHAR},#{disabled,jdbcType=SMALLINT},
+                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from user_role
+        from tenant_user_role
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="listByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
-        select
+    <select id="listByCondition"
+            parameterType="org.apache.inlong.manager.pojo.user.TenantRolePageRequest"
+            resultMap="BaseResultMap">
+      select
         <include refid="Base_Column_List"/>
-        from user_role
-        where user_name = #{username,jdbcType=VARCHAR}
+        from tenant_user_role
+        where is_deleted = 0
+        <if test="username != null and username != ''">
+            and user_name = #{username, jdbcType=VARCHAR}
+        </if>
+        <if test="roleCode != null and roleCode != ''">
+            and role_code = #{roleCode,jdbcType=VARCHAR}
+        </if>
+        <if test="tenant != null and tenant != ''">
+            and tenant = #{tenant, jdbcType=VARCHAR}
+        </if>
+        <if test="disabled != null">
+            and disabled = #{disabled, jdbcType=SMALLINT}
+        </if>
     </select>
 
-    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.UserRoleEntity">
-        update user_role
+
+    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.TenantUserRoleEntity">
+        update tenant_user_role
         set user_name  = #{username,jdbcType=VARCHAR},
+            tenant     = #{tenant,jdbcType=VARCHAR},
             role_code  = #{roleCode,jdbcType=VARCHAR},
             disabled   = #{disabled,jdbcType=SMALLINT},
             is_deleted = #{isDeleted,jdbcType=INTEGER},
@@ -70,7 +88,7 @@
 
     <delete id="deleteById" parameterType="java.lang.Integer">
         delete
-        from user_role
+        from tenant_user_role
         where id = #{id,jdbcType=INTEGER}
     </delete>
 </mapper>

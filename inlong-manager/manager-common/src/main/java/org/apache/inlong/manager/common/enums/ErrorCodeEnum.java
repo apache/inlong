@@ -148,6 +148,8 @@ public enum ErrorCodeEnum {
     CONSUME_PERMISSION_DENIED(3005, "No permission to access this inlong consume"),
 
     AUDIT_ID_TYPE_NOT_SUPPORTED(4001, "Audit id type '%s' not supported"),
+
+    TENANT_NOT_EXIST(5001, "Tenant '%s' is not exist"),
     ;
 
     private final int code;
