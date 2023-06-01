@@ -610,6 +610,8 @@
   "pages.GroupDetail.Sources": "Sources",
   "pages.GroupDetail.Sinks": "Sinks",
   "pages.GroupDetail.Audit": "Audit",
+  "pages.GroupDetail.Resource": "Resource Detail",
+  "pages.GroupDetail.Resource.Info": " Info",
   "pages.GroupDetail.Audit.DataStream": "DataStream",
   "pages.GroupDetail.Audit.Date": "Date",
   "pages.GroupDetail.Audit.AuditIds": "Contents",
