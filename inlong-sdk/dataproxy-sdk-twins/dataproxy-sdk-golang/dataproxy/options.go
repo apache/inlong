@@ -33,7 +33,7 @@ const (
 )
 
 var (
-	// DefaultURL is the default URL of the DataProxy Manager from where a discoverer can get DataProxy endpoints
+	// DefaultURL is the default Manager URL for discovering the DataProxy cluster
 	DefaultURL = "http://127.0.0.1:8083/inlong/manager/openapi/dataproxy/getIpList"
 	localIP, _ = util.GetFirstPrivateIP()
 )
@@ -41,7 +41,7 @@ var (
 // Options is the DataProxy go client configs
 type Options struct {
 	GroupID                 string                // InLong group ID
-	URL                     string                // Manager URL from where the discoverer to get the endpoint list of a DataProxy cluster
+	URL                     string                // the Manager URL for discovering the DataProxy cluster
 	UpdateInterval          time.Duration         // interval to refresh the endpoint list, default: 5m
 	ConnTimeout             time.Duration         // connection timeout: default: 3000ms
 	WriteBufferSize         int                   // write buffer size in bytes, default: 16M

@@ -23,22 +23,6 @@ dataproxy-sdk-golang is the golang version of InLong DataProxy client SDK.
 ### example
 
 ``` go
-//
-// Licensed to the Apache Software Foundation (ASF) under one or more
-// contributor license agreements.  See the NOTICE file distributed with
-// this work for additional information regarding copyright ownership.
-// The ASF licenses this file to You under the Apache License, Version 2.0
-// (the "License"); you may not use this file except in compliance with
-// the License.  You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package main
 
 import (
@@ -84,9 +68,9 @@ func (f mapFlag) Set(value string) error {
 
 func main() {
 	addCols = make(map[string]string)
-	flag.StringVar(&url, "url", "http://127.0.0.1:8083/inlong/manager/openapi/dataproxy/getIpList", "DataProxy Manager URL")
-	flag.StringVar(&groupID, "group-id", "test_pusar_group", "DataProxy group ID")
-	flag.StringVar(&streamID, "stream-id", "test_pusar_stream", "DataProxy stream ID")
+	flag.StringVar(&url, "url", "http://127.0.0.1:8083/inlong/manager/openapi/dataproxy/getIpList", "the Manager URL")
+	flag.StringVar(&groupID, "group-id", "test_pusar_group", "Group ID")
+	flag.StringVar(&streamID, "stream-id", "test_pusar_stream", "Stream ID")
 	flag.StringVar(&payload, "payload", "sdk_test_1|1", "message payload")
 	flag.IntVar(&count, "count", 10, "send count")
 	flag.Var(&addCols, "col", "add columns, for example: -col k1=v1 -col k2=v2")
@@ -152,7 +136,7 @@ refer: [options.go](dataproxy/options.go)
 // Options is the DataProxy go client configs
 type Options struct {
 	GroupID                 string                // InLong group ID
-	URL                     string                // Manager URL from where the discoverer to get the endpoint list of a DataProxy cluster
+	URL                     string                // the Manager URL for discovering the DataProxy cluster
 	UpdateInterval          time.Duration         // interval to refresh the endpoint list, default: 5m
 	ConnTimeout             time.Duration         // connection timeout: default: 3000ms
 	WriteBufferSize         int                   // write buffer size in bytes, default: 16M
