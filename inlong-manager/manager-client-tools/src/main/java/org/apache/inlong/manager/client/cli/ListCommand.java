@@ -36,7 +36,7 @@ import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.client.cli.validator.ClusterTypeValidator;
 import org.apache.inlong.manager.client.cli.validator.UserTypeValidator;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -319,7 +319,7 @@ public class ListCommand extends AbstractCommand {
             try {
                 ClientUtils.initClientFactory();
                 UserRequest request = new UserRequest();
-                Integer integer = UserTypeEnum.parseName(type);
+                Integer integer = TenantUserTypeEnum.parseName(type);
                 request.setAccountType(integer);
                 request.setKeyword(username);
                 UserClient userClient = ClientUtils.clientFactory.getUserClient();

@@ -22,17 +22,13 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Role entity, including role code, role name, etc.
- */
 @Data
-public class RoleEntity implements Serializable {
+public class InlongUserRoleEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
+    private String username;
     private String roleCode;
-    private String roleName;
-
     private Integer disabled;
     private Integer isDeleted;
     private String creator;
@@ -40,5 +36,4 @@ public class RoleEntity implements Serializable {
     private Date createTime;
     private Date modifyTime;
     private Integer version;
-
 }

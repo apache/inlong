@@ -27,7 +27,7 @@ import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.validator.UserTypeValidator;
 import org.apache.inlong.manager.common.enums.DataFormat;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
@@ -254,7 +254,7 @@ public class CreateCommand extends AbstractCommand {
                 UserRequest request = new UserRequest();
                 request.setName(username);
                 request.setPassword(password);
-                request.setAccountType(UserTypeEnum.parseName(type));
+                request.setAccountType(TenantUserTypeEnum.parseName(type));
                 request.setValidDays(validDays);
                 ClientUtils.initClientFactory();
                 UserClient userClient = ClientUtils.clientFactory.getUserClient();

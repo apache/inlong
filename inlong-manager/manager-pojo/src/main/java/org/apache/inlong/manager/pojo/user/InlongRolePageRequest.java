@@ -15,21 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.cli.validator;
+package org.apache.inlong.manager.pojo.user;
 
-import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
+import org.apache.inlong.manager.pojo.common.PageRequest;
 
-import com.beust.jcommander.IParameterValidator;
-import com.beust.jcommander.ParameterException;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-public class UserTypeValidator implements IParameterValidator {
+@Data
+@EqualsAndHashCode(callSuper = false)
+@ApiModel("Inlong user paging query request")
+public class InlongRolePageRequest extends PageRequest {
 
-    @Override
-    public void validate(String name, String value) throws ParameterException {
-        try {
-            TenantUserTypeEnum.parseName(value);
-        } catch (Exception e) {
-            throw new ParameterException(e.getMessage());
-        }
-    }
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
+
+    @ApiModelProperty(value = "User name")
+    private String username;
+
+    @ApiModelProperty(value = "Role code")
+    private String roleCode;
+
+    @ApiModelProperty(value = "If disabled")
+    private Integer disabled;
 }

@@ -19,13 +19,13 @@ package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
-import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
-import org.apache.inlong.manager.pojo.user.TenantRoleRequest;
+import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
+import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
+import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
+import org.apache.inlong.manager.service.user.InlongRoleService;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
-import org.apache.inlong.manager.service.user.TenantRoleService;
 
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -42,42 +42,41 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-@Api(tags = "Tenant-API")
-public class InlongTenantRoleController {
+@Api(tags = "INLONG-USER-API")
+public class InlongRoleController {
 
     @Autowired
-    private TenantRoleService tenantRoleService;
+    private InlongRoleService inlongRoleService;
 
-    @RequestMapping(value = "/role/tenant/get/{id}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get tenant role")
+    @RequestMapping(value = "/role/inlong/get/{id}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get inlong role")
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
-    public Response<TenantRoleInfo> get(@PathVariable int id) {
-        return Response.success(tenantRoleService.get(id));
+    public Response<InlongRoleInfo> get(@PathVariable int id) {
+        return Response.success(inlongRoleService.get(id));
     }
 
-    @RequestMapping(value = "/role/tenant/save", method = RequestMethod.POST)
+    @RequestMapping(value = "/role/inlong/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
-    @ApiOperation(value = "Save tenant role")
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
-    public Response<Integer> save(@Validated @RequestBody TenantRoleRequest request) {
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
+    @ApiOperation(value = "Save inlong role")
+    public Response<Integer> save(@Validated @RequestBody InlongRoleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(tenantRoleService.save(request, operator));
+        return Response.success(inlongRoleService.save(request, operator));
     }
 
-    @RequestMapping(value = "/role/tenant/update", method = RequestMethod.POST)
-    @OperationLog(operation = OperationType.CREATE)
-    @ApiOperation(value = "Update tenant role")
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
-    public Response<Boolean> update(@Validated @RequestBody TenantRoleRequest request) {
+    @RequestMapping(value = "/role/inlong/update", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.UPDATE)
+    @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
+    @ApiOperation(value = "Save inlong role")
+    public Response<Boolean> update(@Validated @RequestBody InlongRoleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
-        return Response.success(tenantRoleService.update(request, operator));
+        return Response.success(inlongRoleService.update(request, operator));
     }
 
-    @RequestMapping(value = "/role/tenant/list", method = RequestMethod.POST)
-    @ApiOperation(value = "List tenant roles by paginating")
-    public Response<PageInfo<TenantRoleInfo>> listByCondition(@RequestBody TenantRolePageRequest request) {
-        return Response.success(tenantRoleService.listByCondition(request));
+    @RequestMapping(value = "/role/inlong/list", method = RequestMethod.POST)
+    @ApiOperation(value = "List inlong roles by paginating")
+    public Response<PageInfo<InlongRoleInfo>> listByCondition(@RequestBody InlongRolePageRequest request) {
+        return Response.success(inlongRoleService.listByCondition(request));
     }
-
 }

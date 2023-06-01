@@ -22,7 +22,7 @@ import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -286,7 +286,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         OrderTypeEnum.checkOrderType(request);
         List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
         List<StreamSourceEntity> filteredEntitys = Lists.newArrayList();
-        if (opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
+        if (opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
             filteredEntitys.addAll(entityList);
         } else {
             Set<String> totalGroupIds = new HashSet<>();

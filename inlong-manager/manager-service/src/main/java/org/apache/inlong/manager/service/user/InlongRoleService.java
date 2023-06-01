@@ -15,21 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.cli.validator;
+package org.apache.inlong.manager.service.user;
 
-import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
+import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
+import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
+import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
 
-import com.beust.jcommander.IParameterValidator;
-import com.beust.jcommander.ParameterException;
+import com.github.pagehelper.PageInfo;
 
-public class UserTypeValidator implements IParameterValidator {
+public interface InlongRoleService {
 
-    @Override
-    public void validate(String name, String value) throws ParameterException {
-        try {
-            TenantUserTypeEnum.parseName(value);
-        } catch (Exception e) {
-            throw new ParameterException(e.getMessage());
-        }
-    }
+    PageInfo<InlongRoleInfo> listByCondition(InlongRolePageRequest request);
+
+    int save(InlongRoleRequest request, String operator);
+
+    boolean update(InlongRoleRequest request, String operator);
+
+    InlongRoleInfo get(int id);
 }

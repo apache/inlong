@@ -17,19 +17,20 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.dao.entity.RoleEntity;
+import org.apache.inlong.manager.dao.entity.InlongUserRoleEntity;
+import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
 
+import com.github.pagehelper.Page;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RoleEntityMapper {
+public interface InlongUserRoleEntityMapper {
 
-    int insert(RoleEntity record);
+    int insert(InlongUserRoleEntity record);
 
-    RoleEntity selectById(Integer id);
+    InlongUserRoleEntity selectById(Integer id);
 
-    int updateById(RoleEntity record);
+    int updateById(InlongUserRoleEntity record);
 
-    int deleteById(Integer id);
-
+    Page<InlongUserRoleEntity> selectByCondition(InlongRolePageRequest request);
 }
