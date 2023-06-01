@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.client.api.inner;
 
 import org.apache.inlong.manager.client.api.inner.client.NoAuthClient;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserRequest;
@@ -49,7 +49,7 @@ public class NoAuthClientTest extends ClientFactoryTest {
         UserRequest request = UserRequest.builder()
                 .name("username")
                 .password("pwd")
-                .accountType(UserTypeEnum.ADMIN.getCode())
+                .accountType(TenantUserTypeEnum.TENANT_ADMIN.getCode())
                 .validDays(9999)
                 .build();
 

@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
@@ -72,7 +72,8 @@ public class WorkflowApproverController {
     @ApiOperation(value = "List workflow approvers")
     public Response<PageResult<ApproverResponse>> listByCondition(ApproverPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
-        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
+        request.setIsAdminRole(
+                LoginUserUtils.getLoginUser().getRoles().contains(TenantUserTypeEnum.TENANT_ADMIN.name()));
         return Response.success(workflowApproverService.listByCondition(request));
     }
 

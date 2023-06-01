@@ -21,7 +21,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.UserEntity;
@@ -132,7 +132,8 @@ public class ProcessServiceImpl implements ProcessService {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         UserEntity userEntity = userMapper.selectByName(user);
         boolean isInCharge = Preconditions.inSeparatedString(user, groupEntity.getInCharges(), InlongConstants.COMMA);
-        Preconditions.expectTrue(isInCharge || UserTypeEnum.ADMIN.getCode().equals(userEntity.getAccountType()),
+        Preconditions.expectTrue(
+                isInCharge || TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userEntity.getAccountType()),
                 errMsg);
     }
 

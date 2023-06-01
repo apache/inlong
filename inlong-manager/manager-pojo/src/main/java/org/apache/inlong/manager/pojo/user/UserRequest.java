@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.user;
 
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.validation.InEnumInt;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageRequest;
@@ -82,7 +82,7 @@ public class UserRequest extends PageRequest {
     private Integer encryptVersion;
 
     @NotNull(message = "accountType cannot be null")
-    @InEnumInt(UserTypeEnum.class)
+    @InEnumInt(TenantUserTypeEnum.class)
     @ApiModelProperty(value = "Account type: 0 - manager, 1 - operator", required = true)
     @Range(min = 0, max = 1, message = "only supports [0: manager, 1: operator]")
     private Integer accountType;

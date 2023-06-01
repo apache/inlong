@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
@@ -81,7 +81,8 @@ public class DataNodeController {
     @ApiOperation(value = "List data node")
     public Response<PageResult<DataNodeInfo>> list(@RequestBody DataNodePageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
-        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
+        request.setIsAdminRole(
+                LoginUserUtils.getLoginUser().getRoles().contains(TenantUserTypeEnum.TENANT_ADMIN.name()));
         return Response.success(dataNodeService.list(request));
     }
 
