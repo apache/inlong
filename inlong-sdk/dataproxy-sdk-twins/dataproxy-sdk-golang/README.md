@@ -55,7 +55,6 @@ import (
 )
 
 var (
-	set      string
 	url      string
 	groupID  string
 	streamID string
@@ -85,7 +84,6 @@ func (f mapFlag) Set(value string) error {
 
 func main() {
 	addCols = make(map[string]string)
-	flag.StringVar(&set, "set", "test_set", "DataProxy set")
 	flag.StringVar(&url, "url", "http://127.0.0.1:8083/inlong/manager/openapi/dataproxy/getIpList", "DataProxy Manager URL")
 	flag.StringVar(&groupID, "group-id", "test_pusar_group", "DataProxy group ID")
 	flag.StringVar(&streamID, "stream-id", "test_pusar_stream", "DataProxy stream ID")
@@ -97,7 +95,6 @@ func main() {
 
 	var err error
 	client, err := dataproxy.NewClient(
-		dataproxy.WithSet(set),
 		dataproxy.WithGroupID(groupID),
 		dataproxy.WithURL(url),
 		dataproxy.WithMetricsName("cli"),
@@ -154,7 +151,6 @@ refer: [options.go](dataproxy/options.go)
 ``` go
 // Options is the DataProxy go client configs
 type Options struct {
-	Set                     string                // the set name of the server
 	GroupID                 string                // InLong group ID
 	URL                     string                // Manager URL from where the discoverer to get the endpoint list of a DataProxy cluster
 	UpdateInterval          time.Duration         // interval to refresh the endpoint list, default: 5m

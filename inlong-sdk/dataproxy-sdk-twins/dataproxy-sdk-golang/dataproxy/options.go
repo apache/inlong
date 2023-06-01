@@ -40,7 +40,6 @@ var (
 
 // Options is the DataProxy go client configs
 type Options struct {
-	Set                     string                // the set name of the server
 	GroupID                 string                // InLong group ID
 	URL                     string                // Manager URL from where the discoverer to get the endpoint list of a DataProxy cluster
 	UpdateInterval          time.Duration         // interval to refresh the endpoint list, default: 5m
