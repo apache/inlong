@@ -36,7 +36,6 @@ import java.util.List;
 @ApiModel("Paging query request for Source")
 public class SourcePageRequest extends PageRequest {
 
-    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
     private String inlongGroupId;
 
