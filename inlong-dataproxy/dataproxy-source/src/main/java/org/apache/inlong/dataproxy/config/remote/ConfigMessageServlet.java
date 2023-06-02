@@ -18,7 +18,6 @@
 package org.apache.inlong.dataproxy.config.remote;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.dataproxy.config.ConfigManager;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
@@ -32,8 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * http
@@ -41,7 +38,6 @@ import java.util.Map;
 public class ConfigMessageServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigMessageServlet.class);
-    private static final ConfigManager configManager = ConfigManager.getInstance();
 
     private final Gson gson = new Gson();
 
@@ -52,19 +48,6 @@ public class ConfigMessageServlet extends HttpServlet {
     protected void doGet(
             HttpServletRequest req, HttpServletResponse resp) throws IOException {
         doPost(req, resp);
-    }
-
-    private boolean handleTopicConfig(RequestContent requestContent) {
-        Map<String, String> groupIdToTopic = new HashMap<String, String>();
-        for (Map<String, String> item : requestContent.getContent()) {
-            groupIdToTopic.put(item.get("inlongGroupId"), item.get("topic"));
-        }
-        if ("add".equals(requestContent.getOperationType())) {
-            return configManager.addTopicProperties(groupIdToTopic);
-        } else if ("delete".equals(requestContent.getOperationType())) {
-            return configManager.deleteTopicProperties(groupIdToTopic);
-        }
-        return false;
     }
 
     private void responseToJson(HttpServletResponse response,
@@ -88,15 +71,7 @@ public class ConfigMessageServlet extends HttpServlet {
                     RequestContent.class);
             if (requestContent.getRequestType() != null
                     && requestContent.getOperationType() != null) {
-                if ("topic".equals(requestContent.getRequestType())) {
-                    if (handleTopicConfig(requestContent)) {
-                        result.setCode(DataProxyErrCode.SUCCESS.getErrCode());
-                    } else {
-                        result.setMessage("cannot operate config update, please check it");
-                    }
-                } else if ("mx".equals(requestContent.getRequestType())) {
-                    result.setMessage("Unsupported operation");
-                }
+                result.setMessage("Unsupported operation");
             } else {
                 result.setMessage("request format is not valid");
             }

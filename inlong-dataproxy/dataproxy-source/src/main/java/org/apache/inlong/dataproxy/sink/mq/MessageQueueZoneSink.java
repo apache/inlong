@@ -17,6 +17,8 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.sink.common.SinkContext;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
@@ -38,11 +40,12 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * MessageQueueZoneSink
  */
-public class MessageQueueZoneSink extends AbstractSink implements Configurable {
+public class MessageQueueZoneSink extends AbstractSink implements Configurable, ConfigUpdateCallback {
 
     public static final Logger LOG = LoggerFactory.getLogger(MessageQueueZoneSink.class);
 
@@ -58,7 +61,12 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable {
     private ScheduledExecutorService scheduledPool;
 
     private MessageQueueZoneProducer zoneProducer;
-
+    // configure change notify
+    private final Object syncLock = new Object();
+    private final AtomicLong lastNotifyTime = new AtomicLong(0);
+    // changeListerThread
+    private Thread configListener;
+    private volatile boolean isShutdown = false;
     /**
      * configure
      * 
@@ -76,10 +84,12 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable {
     @Override
     public void start() {
         try {
+            ConfigManager.getInstance().regMetaConfigChgCallback(this);
+            // build dispatch queue
             this.dispatchQueue = SinkContext.createBufferQueue();
             this.context = new MessageQueueZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
             if (getChannel() == null) {
-                LOG.error("channel is null");
+                LOG.error(getName() + "'s channel is null");
             }
             this.context.start();
             this.dispatchManager = new BatchPackManager(parentContext, dispatchQueue);
@@ -89,12 +99,17 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable {
 
                 public void run() {
                     dispatchManager.setNeedOutputOvertimeData();
+                    zoneProducer.clearExpiredProducers();
                 }
             }, this.dispatchManager.getDispatchTimeout(), this.dispatchManager.getDispatchTimeout(),
                     TimeUnit.MILLISECONDS);
             // create producer
             this.zoneProducer = new MessageQueueZoneProducer(this.getName(), this.context);
             this.zoneProducer.start();
+            // start configure change listener thread
+            this.configListener = new Thread(new ConfigChangeProcessor());
+            this.configListener.setName(getName() + " configure listener");
+            this.configListener.start();
             // create worker
             for (int i = 0; i < context.getMaxThreads(); i++) {
                 MessageQueueZoneWorker worker = new MessageQueueZoneWorker(this.getName(), i, context, zoneProducer);
@@ -112,6 +127,18 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable {
      */
     @Override
     public void stop() {
+        this.isShutdown = true;
+        // stop configure listener thread
+        if (this.configListener != null) {
+            try {
+                this.configListener.interrupt();
+                configListener.join();
+                this.configListener = null;
+            } catch (Throwable ee) {
+                //
+            }
+        }
+        // stop queue worker
         for (MessageQueueZoneWorker worker : workers) {
             try {
                 worker.close();
@@ -176,6 +203,40 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable {
             return Status.BACKOFF;
         } finally {
             tx.close();
+        }
+    }
+
+    @Override
+    public void update() {
+        if (zoneProducer == null) {
+            return;
+        }
+        lastNotifyTime.set(System.currentTimeMillis());
+        syncLock.notifyAll();
+    }
+
+    private class ConfigChangeProcessor implements Runnable {
+
+        @Override
+        public void run() {
+            long lastCheckTime;
+            while (!isShutdown) {
+                try {
+                    syncLock.wait();
+                } catch (InterruptedException e) {
+                    LOG.error("{} config-change processor meet interrupt, exit!", getName());
+                    break;
+                } catch (Throwable e2) {
+                    //
+                }
+                if (zoneProducer == null) {
+                    continue;
+                }
+                do {
+                    lastCheckTime = lastNotifyTime.get();
+                    zoneProducer.reloadMetaConfig();
+                } while (lastCheckTime != lastNotifyTime.get());
+            }
         }
     }
 }

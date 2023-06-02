@@ -17,26 +17,31 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import org.apache.inlong.common.metric.MetricListener;
-import org.apache.inlong.dataproxy.config.CommonConfigHolder;
+import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.List;
 
 /**
- * Test for {@link CommonConfigHolder}
+ * Test for {@link MetaConfigHolder}
  */
-public class TestCommonConfigHolder {
+public class TestMetaConfigHolder {
 
     @Test
-    public void testCase() {
-        Assert.assertEquals("proxy_inlong5th_sz",
-                CommonConfigHolder.getInstance().getClusterName());
-        Assert.assertTrue(CommonConfigHolder.getInstance().isEnableWhiteList());
-        assertEquals("DataProxy",
-                CommonConfigHolder.getInstance().getProperties().get(MetricListener.KEY_METRIC_DOMAINS));
-        assertEquals(50, CommonConfigHolder.getInstance().getMetaConfigSyncInvlMs());
+    public void test() {
+        MetaConfigHolder metaConfigHolder = new MetaConfigHolder();
+        boolean result = metaConfigHolder.loadFromFileToHolder();
+        Assert.assertTrue(result);
+        Assert.assertEquals(metaConfigHolder.getConfigMd5(), "5a3f5939bb7368f493bf41c1d785b8f3");
+        Assert.assertEquals("test_group",
+                metaConfigHolder.getTopicName("test_group", "stream1"));
+        Assert.assertNull(metaConfigHolder.getTopicName("aaa", "stream1"));
+        List<CacheClusterConfig> clusterConfigs = metaConfigHolder.forkCachedCLusterConfig();
+        Assert.assertEquals(1, clusterConfigs.size());
+        Assert.assertEquals("test_tubemq", clusterConfigs.get(0).getClusterName());
+
     }
+
 }
