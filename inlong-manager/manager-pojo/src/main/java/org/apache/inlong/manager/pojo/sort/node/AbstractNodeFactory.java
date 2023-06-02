@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Abstract LoadNode Factory
+ * Abstract Node Factory
  */
 public interface AbstractNodeFactory {
 

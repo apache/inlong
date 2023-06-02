@@ -30,7 +30,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Abstract ExtractNode Factory
+ * Abstract Extract Node Factory
  */
 @Slf4j
 public abstract class ExtractNodeFactory implements AbstractNodeFactory {
