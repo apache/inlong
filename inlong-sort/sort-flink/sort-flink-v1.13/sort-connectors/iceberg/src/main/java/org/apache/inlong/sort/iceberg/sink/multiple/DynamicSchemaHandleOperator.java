@@ -73,6 +73,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -455,7 +456,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
 
     @VisibleForTesting
     public static Map<String, ColumnSchema> extractColumnSchema(Schema schema) {
-        Map<String, ColumnSchema> columnSchemaMap = new HashMap<>();
+        Map<String, ColumnSchema> columnSchemaMap = new LinkedHashMap<>();
         List<Types.NestedField> nestedFieldList = schema.columns();
         int n = nestedFieldList.size();
         for (int i = 0; i < n; i++) {
