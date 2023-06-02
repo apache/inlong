@@ -114,8 +114,8 @@
             </if>
             <if test="keyword != null and keyword != ''">
                 and (
-                ip like CONCAT('%', #{keyword}, '%')
-                or port like CONCAT('%', #{keyword}, '%')
+                ip  = #{keyword, jdbcType=VARCHAR}
+                or port = #{keyword, jdbcType=VARCHAR}
                 )
             </if>
         </where>
