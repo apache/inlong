@@ -228,6 +228,8 @@ public class MySqlSourceReader<T>
                     uncompletedBinlogSplits.remove(split.splitId());
                     MySqlBinlogSplit mySqlBinlogSplit =
                             discoverTableSchemasForBinlogSplit(split.asBinlogSplit());
+                    mySqlBinlogSplit.getFinishedSnapshotSplitInfos().sort(
+                            (a, b) -> getChunkId(a) - getChunkId(b));
                     unfinishedSplits.add(mySqlBinlogSplit);
                 }
             }
@@ -389,5 +391,12 @@ public class MySqlSourceReader<T>
     @Override
     protected MySqlSplit toSplitType(String splitId, MySqlSplitState splitState) {
         return splitState.toMySqlSplit();
+    }
+
+    /**
+     * get chunk id from split info
+     */
+    private int getChunkId(FinishedSnapshotSplitInfo splitInfo) {
+        return Integer.parseInt(splitInfo.getSplitId().substring(splitInfo.getSplitId().lastIndexOf(":") + 1));
     }
 }

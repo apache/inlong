@@ -189,8 +189,7 @@ public class MySqlHybridSplitAssigner implements MySqlSplitAssigner {
     private MySqlBinlogSplit createBinlogSplit() {
         final List<MySqlSchemalessSnapshotSplit> assignedSnapshotSplit =
                 snapshotSplitAssigner.getAssignedSplits().values().stream()
-                        .sorted(Comparator.comparing(split -> Integer
-                                .parseInt(split.splitId().substring(split.splitId().lastIndexOf(":") + 1))))
+                        .sorted(Comparator.comparing(MySqlSplit::splitId))
                         .collect(Collectors.toList());
 
         Map<String, BinlogOffset> splitFinishedOffsets =
