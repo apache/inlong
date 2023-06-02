@@ -22,6 +22,7 @@ import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
+import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
 import org.apache.inlong.sort.protocol.ddl.operations.CreateTableOperation;
 import org.apache.inlong.sort.protocol.ddl.operations.Operation;
@@ -36,6 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * Schema change helper
@@ -137,6 +142,112 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
         }
     }
 
+    @Override
+    public void handleAlterOperation(String database, String table, byte[] originData,
+                                     String originSchema, JsonNode data, AlterOperation operation) {
+        if (operation.getAlterColumns() == null || operation.getAlterColumns().isEmpty()) {
+            if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
+                throw new SchemaChangeHandleException(
+                        String.format("Alter columns is empty, origin schema: %s", originSchema));
+            }
+            LOGGER.warn("Alter columns is empty, origin schema: {}", originSchema);
+            return;
+        }
+
+        Map<SchemaChangeType, List<AlterColumn>> typeMap = new LinkedHashMap<>();
+        for (AlterColumn alterColumn : operation.getAlterColumns()) {
+            Set<SchemaChangeType> types = null;
+            try {
+                types = SchemaChangeUtils.extractSchemaChangeType(alterColumn);
+                Preconditions.checkState(!types.isEmpty(), "Schema change types is empty");
+            } catch (Exception e) {
+                if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
+                    throw new SchemaChangeHandleException(
+                            String.format("Extract schema change type failed, origin schema: %s", originSchema), e);
+                }
+                LOGGER.warn("Extract schema change type failed, origin schema: {}", originSchema, e);
+            }
+            if (types == null) {
+                continue;
+            }
+            if (types.size() == 1) {
+                SchemaChangeType type = types.stream().findFirst().get();
+                typeMap.computeIfAbsent(type, k -> new ArrayList<>()).add(alterColumn);
+            } else {
+                // Handle change column, it only exists change column type and rename column in this scenario for now.
+                for (SchemaChangeType type : types) {
+                    SchemaChangePolicy policy = policyMap.get(type);
+                    if (policy == SchemaChangePolicy.ENABLE) {
+                        LOGGER.warn("Unsupported for {}: {}", type, originSchema);
+                    } else {
+                        doSchemaChangeBase(type, policy, originSchema);
+                    }
+                }
+            }
+        }
+
+        if (!typeMap.isEmpty()) {
+            doAlterOperation(database, table, originData, originSchema, data, typeMap);
+        }
+    }
+
+    @Override
+    public String doAddColumn(SchemaChangeType type, String originSchema) {
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+    }
+
+    @Override
+    public String doChangeColumnType(SchemaChangeType type, String originSchema) {
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+    }
+
+    @Override
+    public String doRenameColumn(SchemaChangeType type, String originSchema) {
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+    }
+
+    @Override
+    public String doDropColumn(SchemaChangeType type, String originSchema) {
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+    }
+
+    @Override
+    public void doCreateTable(byte[] originData, String database, String table, SchemaChangeType type,
+                              String originSchema, JsonNode data, CreateTableOperation operation) {
+        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
+        if (policy == SchemaChangePolicy.ENABLE) {
+            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        }
+        doSchemaChangeBase(type, policy, originSchema);
+    }
+
+    @Override
+    public void doDropTable(SchemaChangeType type, String originSchema) {
+        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
+        if (policy == SchemaChangePolicy.ENABLE) {
+            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        }
+        doSchemaChangeBase(type, policy, originSchema);
+    }
+
+    @Override
+    public void doRenameTable(SchemaChangeType type, String originSchema) {
+        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
+        if (policy == SchemaChangePolicy.ENABLE) {
+            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        }
+        doSchemaChangeBase(type, policy, originSchema);
+    }
+
+    @Override
+    public void doTruncateTable(SchemaChangeType type, String originSchema) {
+        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
+        if (policy == SchemaChangePolicy.ENABLE) {
+            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        }
+        doSchemaChangeBase(type, policy, originSchema);
+    }
+
     protected void handleDirtyData(JsonNode data, byte[] originData, String database,
             String table, DirtyType dirtyType, Throwable e) {
         if (exceptionPolicy == SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE) {
@@ -156,5 +267,20 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
             LOGGER.warn("Parse value from pattern failed,the pattern: {}, data: {}", pattern, data);
         }
         return pattern;
+    }
+
+    protected void doSchemaChangeBase(SchemaChangeType type, SchemaChangePolicy policy, String schema) {
+        if (policy == null) {
+            LOGGER.warn("Unsupported for {}: {}", type, schema);
+            return;
+        }
+        switch (policy) {
+            case LOG:
+                LOGGER.warn("Unsupported for {}: {}", type, schema);
+                break;
+            case ERROR:
+                throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, schema));
+            default:
+        }
     }
 }

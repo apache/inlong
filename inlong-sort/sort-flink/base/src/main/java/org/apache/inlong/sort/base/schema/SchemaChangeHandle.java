@@ -17,11 +17,15 @@
 
 package org.apache.inlong.sort.base.schema;
 
+import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
 import org.apache.inlong.sort.protocol.ddl.operations.CreateTableOperation;
 import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+
+import java.util.List;
+import java.util.Map;
 
 public interface SchemaChangeHandle {
 
@@ -29,6 +33,16 @@ public interface SchemaChangeHandle {
 
     void handleAlterOperation(String database, String table, byte[] originData, String originSchema,
             JsonNode data, AlterOperation operation);
+
+    void doAlterOperation(String database, String table, byte[] originData, String originSchema, JsonNode data,
+                                  Map<SchemaChangeType, List<AlterColumn>> typeMap);
+    String doAddColumn(SchemaChangeType type, String originSchema);
+
+    String doChangeColumnType(SchemaChangeType type, String originSchema);
+
+    String doRenameColumn(SchemaChangeType type, String originSchema);
+
+    String doDropColumn(SchemaChangeType type, String originSchema);
 
     void doCreateTable(byte[] originData, String database, String table, SchemaChangeType type,
             String originSchema, JsonNode data, CreateTableOperation operation);

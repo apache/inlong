@@ -28,17 +28,14 @@ import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSchemaChangeUtils;
 import org.apache.inlong.sort.protocol.ddl.enums.PositionType;
 import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.protocol.ddl.expressions.Column;
-import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
 import org.apache.inlong.sort.protocol.ddl.operations.CreateTableOperation;
 import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
 import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
 import org.apache.inlong.sort.schema.TableChange;
-import org.apache.inlong.sort.util.SchemaChangeUtils;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.util.Preconditions;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.Transaction;
@@ -50,10 +47,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Iceberg schema change helper
@@ -77,130 +72,37 @@ public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
         this.asNamespaceCatalog = asNamespaceCatalog;
     }
     @Override
-    public void handleAlterOperation(String database, String table, byte[] originData,
-            String originSchema, JsonNode data, AlterOperation operation) {
-        if (operation.getAlterColumns() == null || operation.getAlterColumns().isEmpty()) {
-            if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
-                throw new SchemaChangeHandleException(
-                        String.format("Alter columns is empty, origin schema: %s", originSchema));
-            }
-            LOGGER.warn("Alter columns is empty, origin schema: {}", originSchema);
-            return;
-        }
-
-        Map<SchemaChangeType, List<AlterColumn>> typeMap = new LinkedHashMap<>();
-        for (AlterColumn alterColumn : operation.getAlterColumns()) {
-            Set<SchemaChangeType> types = null;
-            try {
-                types = SchemaChangeUtils.extractSchemaChangeType(alterColumn);
-                Preconditions.checkState(!types.isEmpty(), "Schema change types is empty");
-            } catch (Exception e) {
-                if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
-                    throw new SchemaChangeHandleException(
-                            String.format("Extract schema change type failed, origin schema: %s", originSchema), e);
-                }
-                LOGGER.warn("Extract schema change type failed, origin schema: {}", originSchema, e);
-            }
-            if (types == null) {
-                continue;
-            }
-            if (types.size() == 1) {
-                SchemaChangeType type = types.stream().findFirst().get();
-                typeMap.computeIfAbsent(type, k -> new ArrayList<>()).add(alterColumn);
-            } else {
-                // Handle change column, it only exists change column type and rename column in this scenario for now.
-                for (SchemaChangeType type : types) {
-                    SchemaChangePolicy policy = policyMap.get(type);
-                    if (policy == SchemaChangePolicy.ENABLE) {
-                        LOGGER.warn("Unsupported for {}: {}", type, originSchema);
-                    } else {
-                        doSchemaChangeBase(type, policy, originSchema);
+    public void doAlterOperation(String database, String table, byte[] originData, String originSchema, JsonNode data,
+                                 Map<SchemaChangeType, List<AlterColumn>> typeMap) {
+        for (Map.Entry<SchemaChangeType, List<AlterColumn>> kv : typeMap.entrySet()) {
+            SchemaChangePolicy policy = policyMap.get(kv.getKey());
+            doSchemaChangeBase(kv.getKey(), policy, originSchema);
+            if (policy == SchemaChangePolicy.ENABLE) {
+                try {
+                    switch (kv.getKey()) {
+                        case ADD_COLUMN:
+                            doAddColumn(kv.getValue(), TableIdentifier.of(database, table));
+                            break;
+                        case DROP_COLUMN:
+                            doDropColumn(kv.getKey(), originSchema);
+                            break;
+                        case RENAME_COLUMN:
+                            doRenameColumn(kv.getKey(), originSchema);
+                            break;
+                        case CHANGE_COLUMN_TYPE:
+                            doChangeColumnType(kv.getKey(), originSchema);
+                            break;
+                        default:
                     }
-                }
-            }
-        }
-
-        if (!typeMap.isEmpty()) {
-            for (Map.Entry<SchemaChangeType, List<AlterColumn>> kv : typeMap.entrySet()) {
-                SchemaChangePolicy policy = policyMap.get(kv.getKey());
-                doSchemaChangeBase(kv.getKey(), policy, originSchema);
-                if (policy == SchemaChangePolicy.ENABLE) {
-                    try {
-                        switch (kv.getKey()) {
-                            case ADD_COLUMN:
-                                doAddColumn(kv.getValue(), TableIdentifier.of(database, table));
-                                break;
-                            case DROP_COLUMN:
-                                doDropColumn(kv.getKey(), originSchema);
-                                break;
-                            case RENAME_COLUMN:
-                                doRenameColumn(kv.getKey(), originSchema);
-
-                                break;
-                            case CHANGE_COLUMN_TYPE:
-                                doChangeColumnType(kv.getKey(), originSchema);
-                                break;
-                            default:
-                        }
-                    } catch (Exception e) {
-                        if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
-                            throw new SchemaChangeHandleException(
-                                    String.format("Apply alter column failed, origin schema: %s", originSchema), e);
-                        }
-                        LOGGER.warn("Apply alter column failed, origin schema: {}", originSchema, e);
-                        handleDirtyData(data, originData, database, table, DirtyType.HANDLE_ALTER_TABLE_ERROR, e);
+                } catch (Exception e) {
+                    if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
+                        throw new SchemaChangeHandleException(
+                                String.format("Apply alter column failed, origin schema: %s", originSchema), e);
                     }
+                    LOGGER.warn("Apply alter column failed, origin schema: {}", originSchema, e);
+                    handleDirtyData(data, originData, database, table, DirtyType.HANDLE_ALTER_TABLE_ERROR, e);
                 }
             }
-        }
-    }
-
-    private void doAddColumn(List<AlterColumn> alterColumns, TableIdentifier tableId) {
-        List<TableChange> tableChanges = new ArrayList<>();
-        Table table = catalog.loadTable(tableId);
-        Transaction transaction = table.newTransaction();
-
-        alterColumns.forEach(alterColumn -> {
-            Column column = alterColumn.getNewColumn();
-            LogicalType dataType = dynamicSchemaFormat.sqlType2FlinkType(column.getJdbcType());
-            TableChange.ColumnPosition position =
-                    column.getPosition().getPositionType() == PositionType.FIRST ? TableChange.ColumnPosition.first()
-                            : TableChange.ColumnPosition.after(column.getName());
-            TableChange.AddColumn addColumn = new TableChange.AddColumn(new String[]{column.getName()},
-                    dataType, column.isNullable(), column.getComment(), position);
-            tableChanges.add(addColumn);
-        });
-        IcebergSchemaChangeUtils.applySchemaChanges(transaction.updateSchema(), tableChanges);
-        transaction.commitTransaction();
-    }
-
-    private String doChangeColumnType(SchemaChangeType type, String originSchema) {
-        LOGGER.warn("Unsupported for {}: {}", type, originSchema);
-        return null;
-    }
-
-    private String doRenameColumn(SchemaChangeType type, String originSchema) {
-        LOGGER.warn("Unsupported for {}: {}", type, originSchema);
-        return null;
-    }
-
-    private String doDropColumn(SchemaChangeType type, String originSchema) {
-        LOGGER.warn("Unsupported for {}: {}", type, originSchema);
-        return null;
-    }
-
-    private void doSchemaChangeBase(SchemaChangeType type, SchemaChangePolicy policy, String schema) {
-        if (policy == null) {
-            LOGGER.warn("Unsupported for {}: {}", type, schema);
-            return;
-        }
-        switch (policy) {
-            case LOG:
-                LOGGER.warn("Unsupported for {}: {}", type, schema);
-                break;
-            case ERROR:
-                throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, schema));
-            default:
         }
     }
 
@@ -228,33 +130,22 @@ public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
         doSchemaChangeBase(type, policy, originSchema);
     }
 
-    @Override
-    public void doDropTable(SchemaChangeType type, String originSchema) {
-        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            LOGGER.warn("Unsupported for {}: {}", type, originSchema);
-            return;
-        }
-        doSchemaChangeBase(type, policy, originSchema);
-    }
+    public void doAddColumn(List<AlterColumn> alterColumns, TableIdentifier tableId) {
+        List<TableChange> tableChanges = new ArrayList<>();
+        Table table = catalog.loadTable(tableId);
+        Transaction transaction = table.newTransaction();
 
-    @Override
-    public void doRenameTable(SchemaChangeType type, String originSchema) {
-        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.RENAME_TABLE);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            LOGGER.warn("Unsupported for {}: {}", type, originSchema);
-            return;
-        }
-        doSchemaChangeBase(type, policy, originSchema);
-    }
-
-    @Override
-    public void doTruncateTable(SchemaChangeType type, String originSchema) {
-        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.TRUNCATE_TABLE);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            LOGGER.warn("Unsupported for {}: {}", type, originSchema);
-            return;
-        }
-        doSchemaChangeBase(type, policy, originSchema);
+        alterColumns.forEach(alterColumn -> {
+            Column column = alterColumn.getNewColumn();
+            LogicalType dataType = dynamicSchemaFormat.sqlType2FlinkType(column.getJdbcType());
+            TableChange.ColumnPosition position =
+                    column.getPosition().getPositionType() == PositionType.FIRST ? TableChange.ColumnPosition.first()
+                            : TableChange.ColumnPosition.after(column.getName());
+            TableChange.AddColumn addColumn = new TableChange.AddColumn(new String[]{column.getName()},
+                    dataType, column.isNullable(), column.getComment(), position);
+            tableChanges.add(addColumn);
+        });
+        IcebergSchemaChangeUtils.applySchemaChanges(transaction.updateSchema(), tableChanges);
+        transaction.commitTransaction();
     }
 }
