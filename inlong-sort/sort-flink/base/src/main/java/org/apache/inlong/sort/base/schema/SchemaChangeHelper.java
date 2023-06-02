@@ -36,11 +36,11 @@ import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.List;
-import java.util.LinkedHashMap;
-import java.util.Set;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Schema change helper
@@ -144,7 +144,7 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
 
     @Override
     public void handleAlterOperation(String database, String table, byte[] originData,
-                                     String originSchema, JsonNode data, AlterOperation operation) {
+            String originSchema, JsonNode data, AlterOperation operation) {
         if (operation.getAlterColumns() == null || operation.getAlterColumns().isEmpty()) {
             if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
                 throw new SchemaChangeHandleException(
@@ -213,7 +213,7 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
 
     @Override
     public void doCreateTable(byte[] originData, String database, String table, SchemaChangeType type,
-                              String originSchema, JsonNode data, CreateTableOperation operation) {
+            String originSchema, JsonNode data, CreateTableOperation operation) {
         SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
         if (policy == SchemaChangePolicy.ENABLE) {
             throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));

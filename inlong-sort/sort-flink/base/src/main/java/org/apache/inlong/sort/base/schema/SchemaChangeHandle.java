@@ -35,7 +35,7 @@ public interface SchemaChangeHandle {
             JsonNode data, AlterOperation operation);
 
     void doAlterOperation(String database, String table, byte[] originData, String originSchema, JsonNode data,
-                                  Map<SchemaChangeType, List<AlterColumn>> typeMap);
+            Map<SchemaChangeType, List<AlterColumn>> typeMap);
     String doAddColumn(SchemaChangeType type, String originSchema);
 
     String doChangeColumnType(SchemaChangeType type, String originSchema);

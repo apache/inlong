@@ -73,7 +73,7 @@ public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
     }
     @Override
     public void doAlterOperation(String database, String table, byte[] originData, String originSchema, JsonNode data,
-                                 Map<SchemaChangeType, List<AlterColumn>> typeMap) {
+            Map<SchemaChangeType, List<AlterColumn>> typeMap) {
         for (Map.Entry<SchemaChangeType, List<AlterColumn>> kv : typeMap.entrySet()) {
             SchemaChangePolicy policy = policyMap.get(kv.getKey());
             doSchemaChangeBase(kv.getKey(), policy, originSchema);
