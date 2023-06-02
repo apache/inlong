@@ -287,13 +287,13 @@ public class SchemaChangeUtils {
             ColumnSchema oldCol = oldColumnSchemas.get(colName);
             ColumnSchema newCol = newColumnSchemas.get(colName);
             if (!oldCol.getType().equals(newCol.getType())
-                    || !oldCol.getDoc().equals(newCol.getDoc())) {
+                    || !oldCol.getComment().equals(newCol.getComment())) {
                 tableChanges.add(
                         new TableChange.UpdateColumn(
                                 new String[]{newCol.getName()},
                                 newCol.getType(),
                                 newCol.isNullable(),
-                                newCol.getDoc()));
+                                newCol.getComment()));
             }
         }
 
@@ -317,7 +317,7 @@ public class SchemaChangeUtils {
                                     new String[]{addCol.getName()},
                                     addCol.getType(),
                                     addCol.isNullable(),
-                                    addCol.getDoc(),
+                                    addCol.getComment(),
                                     addCol.getPosition()));
                 }
             }

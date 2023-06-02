@@ -23,7 +23,7 @@ import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 
-public interface SchemaChangeInterface {
+public interface SchemaChangeHandle {
 
     void process(byte[] originData, JsonNode data);
 

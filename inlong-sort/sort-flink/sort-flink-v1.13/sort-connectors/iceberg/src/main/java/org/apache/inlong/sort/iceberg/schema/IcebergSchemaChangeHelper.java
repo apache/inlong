@@ -55,6 +55,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Iceberg schema change helper
+ * */
 public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IcebergSchemaChangeHelper.class);

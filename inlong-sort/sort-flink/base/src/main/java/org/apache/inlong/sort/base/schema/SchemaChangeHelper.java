@@ -37,7 +37,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public abstract class SchemaChangeHelper implements SchemaChangeInterface {
+/**
+ * Schema change helper
+ * */
+public abstract class SchemaChangeHelper implements SchemaChangeHandle {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaChangeHelper.class);
     private final boolean schemaChange;

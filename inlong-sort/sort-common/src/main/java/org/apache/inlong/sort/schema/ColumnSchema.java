@@ -20,12 +20,15 @@ package org.apache.inlong.sort.schema;
 import lombok.Data;
 import org.apache.flink.table.types.logical.LogicalType;
 
+/**
+ * Schema information contained in a column.
+ * */
 @Data
 public class ColumnSchema {
 
     private String name;
     private LogicalType type;
     private boolean isNullable;
-    private String doc;
+    private String comment;
     private TableChange.ColumnPosition position;
 }
