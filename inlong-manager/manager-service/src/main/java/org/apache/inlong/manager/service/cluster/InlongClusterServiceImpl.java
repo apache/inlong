@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.cluster;
 
+import com.google.common.collect.Lists;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.pojo.audit.AuditConfig;
@@ -1196,8 +1197,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         if (groupEntity == null) {
             String msg = "inlong group not exists for groupId=" + groupId;
-            LOGGER.debug(msg);
-            throw new BusinessException(msg);
+            LOGGER.info(msg);
+            return Lists.newArrayList();
         }
 
         String clusterTag = groupEntity.getInlongClusterTag();
