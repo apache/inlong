@@ -193,22 +193,42 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
 
     @Override
     public String doAddColumn(SchemaChangeType type, String originSchema) {
-        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
+        if (policy == SchemaChangePolicy.ENABLE) {
+            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        }
+        doSchemaChangeBase(type, policy, originSchema);
+        return null;
     }
 
     @Override
     public String doChangeColumnType(SchemaChangeType type, String originSchema) {
-        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
+        if (policy == SchemaChangePolicy.ENABLE) {
+            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        }
+        doSchemaChangeBase(type, policy, originSchema);
+        return null;
     }
 
     @Override
     public String doRenameColumn(SchemaChangeType type, String originSchema) {
-        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
+        if (policy == SchemaChangePolicy.ENABLE) {
+            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        }
+        doSchemaChangeBase(type, policy, originSchema);
+        return null;
     }
 
     @Override
     public String doDropColumn(SchemaChangeType type, String originSchema) {
-        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
+        if (policy == SchemaChangePolicy.ENABLE) {
+            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
+        }
+        doSchemaChangeBase(type, policy, originSchema);
+        return null;
     }
 
     @Override
