@@ -28,6 +28,10 @@
     <artifactId>audit-docker</artifactId>
     <name>Apache InLong - Audit Docker</name>
 
+    <properties>
+        <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>

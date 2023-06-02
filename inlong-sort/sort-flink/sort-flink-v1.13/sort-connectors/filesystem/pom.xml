@@ -26,8 +26,11 @@
     </parent>
 
     <artifactId>sort-connector-filesystem</artifactId>
-    <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-filesystem</name>
+
+    <properties>
+        <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
+    </properties>
 
     <dependencies>
         <dependency>
