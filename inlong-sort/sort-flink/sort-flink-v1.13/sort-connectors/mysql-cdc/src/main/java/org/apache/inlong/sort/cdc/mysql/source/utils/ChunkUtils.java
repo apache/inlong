@@ -21,6 +21,7 @@ import org.apache.inlong.sort.cdc.mysql.schema.MySqlTypeUtils;
 
 import io.debezium.relational.Column;
 import io.debezium.relational.Table;
+import io.debezium.relational.TableId;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.util.Preconditions;
@@ -80,4 +81,19 @@ public class ChunkUtils {
                 ? (receivedMetaNum / metaGroupSize)
                 : (receivedMetaNum / metaGroupSize) + 1;
     }
+
+    /**
+     *  return split id
+     */
+    public static String splitId(TableId tableId, int chunkId) {
+        return tableId.toString() + ":" + chunkId;
+    }
+
+    /**
+     * get chunk id from split id
+     */
+    public static int chunkId(String splitId) {
+        return Integer.parseInt(splitId.substring(splitId.lastIndexOf(":") + 1));
+    }
+
 }
