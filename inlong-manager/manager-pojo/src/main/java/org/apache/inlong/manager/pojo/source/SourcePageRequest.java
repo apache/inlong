@@ -24,8 +24,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotBlank;
-
 import java.util.List;
 
 /**
@@ -36,7 +34,6 @@ import java.util.List;
 @ApiModel("Paging query request for Source")
 public class SourcePageRequest extends PageRequest {
 
-    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
     private String inlongGroupId;
 
