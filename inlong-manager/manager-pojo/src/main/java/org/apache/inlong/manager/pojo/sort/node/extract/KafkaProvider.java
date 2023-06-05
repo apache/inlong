@@ -36,23 +36,11 @@ import java.util.Map;
  */
 public class KafkaProvider implements ExtractNodeProvider {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sourceType the specified source type
-     * @return Does it match
-     */
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.KAFKA.equals(sourceType);
     }
 
-    /**
-     * Create Kafka extract node
-     *
-     * @param streamNodeInfo Kafka source info
-     * @return Kafka extract node info
-     */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
         KafkaSource kafkaSource = (KafkaSource) streamNodeInfo;

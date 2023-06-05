@@ -36,23 +36,11 @@ import java.util.Map;
  */
 public class OracleProvider implements ExtractNodeProvider {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sourceType the specified source type
-     * @return Does it match
-     */
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.ORACLE.equals(sourceType);
     }
 
-    /**
-     * Create Oracle extract node
-     *
-     * @param streamNodeInfo Oracle source info
-     * @return oracle extract node info
-     */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
         OracleSource source = (OracleSource) streamNodeInfo;

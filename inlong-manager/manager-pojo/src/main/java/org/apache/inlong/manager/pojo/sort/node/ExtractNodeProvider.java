@@ -17,17 +17,12 @@
 
 package org.apache.inlong.manager.pojo.sort.node;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
@@ -36,6 +31,12 @@ import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.format.RawFormat;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Interface of the extract node provider
@@ -54,7 +55,7 @@ public interface ExtractNodeProvider extends NodeProvider {
      * Create extract node by stream node info
      *
      * @param nodeInfo stream node info
-     * @return extract node
+     * @return the extract node
      */
     ExtractNode createNode(StreamNode nodeInfo);
 

@@ -33,23 +33,11 @@ import java.util.Map;
  */
 public class MongoProvider implements ExtractNodeProvider {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sourceType the specified source type
-     * @return Does it match
-     */
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.MONGODB.equals(sourceType);
     }
 
-    /**
-     * Create MongoDB extract node
-     *
-     * @param streamNodeInfo MongoDB source info
-     * @return MongoDB extract node info
-     */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
         MongoDBSource source = (MongoDBSource) streamNodeInfo;

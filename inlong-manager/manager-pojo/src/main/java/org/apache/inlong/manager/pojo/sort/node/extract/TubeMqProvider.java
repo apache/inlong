@@ -33,23 +33,11 @@ import java.util.Map;
  */
 public class TubeMqProvider implements ExtractNodeProvider {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sourceType the specified source type
-     * @return Does it match
-     */
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.TUBEMQ.equals(sourceType);
     }
 
-    /**
-     * Create TubeMQ extract node
-     *
-     * @param streamNodeInfo TubeMQ source info
-     * @return TubeMQ extract node info
-     */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
         TubeMQSource source = (TubeMQSource) streamNodeInfo;

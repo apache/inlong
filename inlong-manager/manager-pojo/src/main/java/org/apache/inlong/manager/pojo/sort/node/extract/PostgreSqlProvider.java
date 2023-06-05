@@ -33,23 +33,11 @@ import java.util.Map;
  */
 public class PostgreSqlProvider implements ExtractNodeProvider {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sourceType the specified source type
-     * @return Does it match
-     */
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.POSTGRESQL.equals(sourceType);
     }
 
-    /**
-     * Create PostgreSQL extract node
-     *
-     * @param streamNodeInfo PostgreSQL source info
-     * @return PostgreSQL extract node info
-     */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
         PostgreSQLSource postgreSQLSource = (PostgreSQLSource) streamNodeInfo;
