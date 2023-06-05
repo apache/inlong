@@ -23,25 +23,31 @@ import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
 import org.apache.inlong.sort.protocol.ddl.operations.Operation;
 import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
 import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
+import org.apache.inlong.sort.schema.ColumnSchema;
+import org.apache.inlong.sort.schema.TableChange;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Schema-change Utils
  */
-public final class SchemaChangeUtils {
+public class SchemaChangeUtils {
 
     private final static String DELIMITER = "&";
     private final static String KEY_VALUE_DELIMITER = "=";
 
-    private SchemaChangeUtils() {
+    public SchemaChangeUtils() {
     }
 
     /**
@@ -225,5 +231,97 @@ public final class SchemaChangeUtils {
             return false;
         }
         return !column.getName().trim().isEmpty();
+    }
+
+    /**
+     * Compare two schemas and get the schema changes that happened in them.
+     * TODO: currently only support add column,delete column and column type change, rename column and column position change are not supported
+     *
+     * @param oldColumnSchemas
+     * @param newColumnSchemas
+     * @return
+     */
+    public static List<TableChange> diffSchema(Map<String, ColumnSchema> oldColumnSchemas,
+            Map<String, ColumnSchema> newColumnSchemas) {
+        List<String> oldFields = oldColumnSchemas.values().stream()
+                .map(ColumnSchema::getName).collect(Collectors.toList());
+        List<String> newFields = newColumnSchemas.values().stream()
+                .map(ColumnSchema::getName).collect(Collectors.toList());
+        Set<String> oldFieldSet = new HashSet<>(oldFields);
+        Set<String> newFieldSet = new HashSet<>(newFields);
+
+        Set<String> intersectColSet = Sets.intersection(oldFieldSet, newFieldSet);
+        Set<String> colsToDelete = Sets.difference(oldFieldSet, newFieldSet);
+        Set<String> colsToAdd = Sets.difference(newFieldSet, oldFieldSet);
+
+        List<TableChange> tableChanges = new ArrayList<>();
+
+        // step0: judge whether unknown change
+        // 1.just diff two different schema can not distinguish（add + delete) vs modify
+        // Example first [a, b, c] -> then delete c [a, b] -> add d [a, b, d], currently it is only judged as unknown
+        // change.
+        // In next version,we will judge it is [delete and add] or rename by using information extracted from DDL
+        if (!colsToDelete.isEmpty() && !colsToAdd.isEmpty()) {
+            tableChanges.add(new TableChange.UnknownColumnChange(
+                    String.format(" Old ColumnSchema: [%s] and new ColumnSchema: [%s], it is unknown column change",
+                            oldColumnSchemas, newColumnSchemas)));
+            return tableChanges;
+        }
+
+        // 2.if some filed positions in new schema are not same with old schema, there is no way to deal with it.
+        // This situation only is regarded as unknown column change
+        if (colsToDelete.isEmpty() && colsToAdd.isEmpty() && oldFieldSet.equals(newFieldSet)
+                && !oldFields.equals(newFields)) {
+            tableChanges.add(
+                    new TableChange.UnknownColumnChange(
+                            String.format(
+                                    " Old ColumnSchema: [%s] and new ColumnSchema: [%s], "
+                                            + " they are same but some filed positions are not same."
+                                            + " This situation only is regarded as unknown column change at present",
+                                    oldColumnSchemas, newColumnSchemas)));
+            return tableChanges;
+        }
+
+        // step1: judge whether column type change
+        for (String colName : intersectColSet) {
+            ColumnSchema oldCol = oldColumnSchemas.get(colName);
+            ColumnSchema newCol = newColumnSchemas.get(colName);
+            if (!oldCol.getType().equals(newCol.getType())
+                    || !oldCol.getComment().equals(newCol.getComment())) {
+                tableChanges.add(
+                        new TableChange.UpdateColumn(
+                                new String[]{newCol.getName()},
+                                newCol.getType(),
+                                newCol.isNullable(),
+                                newCol.getComment()));
+            }
+        }
+
+        // step2: judge whether delete column
+        for (String colName : oldFields) {
+            if (colsToDelete.contains(colName)) {
+                tableChanges.add(
+                        new TableChange.DeleteColumn(
+                                new String[]{colName}));
+            }
+        }
+
+        // step3: judge whether add column
+        if (!colsToAdd.isEmpty()) {
+            for (int i = 0; i < newFields.size(); i++) {
+                String colName = newFields.get(i);
+                if (colsToAdd.contains(colName)) {
+                    ColumnSchema addCol = newColumnSchemas.get(colName);
+                    tableChanges.add(
+                            new TableChange.AddColumn(
+                                    new String[]{addCol.getName()},
+                                    addCol.getType(),
+                                    addCol.isNullable(),
+                                    addCol.getComment(),
+                                    addCol.getPosition()));
+                }
+            }
+        }
+        return tableChanges;
     }
 }
