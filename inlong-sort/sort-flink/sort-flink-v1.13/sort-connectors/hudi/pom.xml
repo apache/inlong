@@ -26,10 +26,10 @@
     </parent>
 
     <artifactId>sort-connector-hudi</artifactId>
-    <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-hudi</name>
 
     <properties>
+        <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
         <stax2-api.version>4.2.1</stax2-api.version>
         <guava.version>31.0.1-jre</guava.version>
         <woodstox-core.version>5.3.0</woodstox-core.version>

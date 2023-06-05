@@ -20,15 +20,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>inlong-sort</artifactId>
     <packaging>pom</packaging>
-
     <name>Apache InLong - Sort</name>
 
     <modules>
@@ -40,7 +39,9 @@
         <module>sort-end-to-end-tests</module>
         <module>sort-flink</module>
     </modules>
+
     <properties>
+        <inlong.root.dir>${project.parent.basedir}</inlong.root.dir>
         <debezium.version>1.5.4.Final</debezium.version>
         <kafka.clients.version>2.7.0</kafka.clients.version>
         <rat.basedir>${basedir}</rat.basedir>
@@ -48,6 +49,7 @@
         <iceberg.hive.version>2.3.7</iceberg.hive.version>
         <hudi.hive.version>2.3.7</hudi.hive.version>
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

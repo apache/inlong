@@ -35,6 +35,10 @@
         <module>dataproxy-sdk</module>
     </modules>
 
+    <properties>
+        <inlong.root.dir>${project.parent.basedir}</inlong.root.dir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.flume</groupId>
