@@ -262,12 +262,6 @@ public final class Constants {
                     .withDescription("Because spark do not support iceberg data type: `timestamp without time zone` and"
                             + "`time`, so type conversions must be mapped to types supported by spark.");
 
-    public static final ConfigOption<Boolean> APPEND_MODE =
-            ConfigOptions.key("append-mode")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("Whether works as append source.");
-
     public static final ConfigOption<PartitionPolicy> SINK_PARTITION_POLICY =
             ConfigOptions.key("sink.partition.policy")
                     .enumType(PartitionPolicy.class)

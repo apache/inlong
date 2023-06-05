@@ -19,7 +19,7 @@ package org.apache.inlong.sort.base.sink;
 
 public enum PartitionPolicy {
 
-    PROC_TIME("partition table by flink proccessing time"),
+    PROC_TIME("partition table by flink processing time"),
     ASSIGN_FIELD("partition table by assigning fields"),
     SOURCE_DATE_FIELD("partition table by date or timestamp field from source generic data"),
     NONE("do not partition table");

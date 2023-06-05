@@ -202,46 +202,32 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
             StorageDescriptor sd;
             Properties tableProps = new Properties();
             Class hiveOutputFormatClz;
-            HiveWriterFactory writerFactory;
-            boolean sinkMultipleEnable = Boolean.parseBoolean(
-                    catalogTable.getOptions().getOrDefault(SINK_MULTIPLE_ENABLE.key(), "false"));
             boolean isCompressed =
                     jobConf.getBoolean(HiveConf.ConfVars.COMPRESSRESULT.varname, false);
             if (sinkMultipleEnable) {
                 sd = new StorageDescriptor();
                 SerDeInfo serDeInfo = new SerDeInfo();
-                serDeInfo.setSerializationLib("org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe");
+                serDeInfo.setSerializationLib(this.serializationLib);
                 sd.setSerdeInfo(serDeInfo);
                 String defaultFs = jobConf.get("fs.defaultFS", "");
                 sd.setLocation(defaultFs + "/tmp");
                 hiveOutputFormatClz = hiveShim.getHiveOutputFormatClass(HiveIgnoreKeyTextOutputFormat.class);
-
-                writerFactory = new HiveWriterFactory(
-                        jobConf,
-                        hiveOutputFormatClz,
-                        sd,
-                        tableSchema,
-                        getPartitionKeyArray(),
-                        tableProps,
-                        hiveShim,
-                        isCompressed,
-                        sinkMultipleEnable);
             } else {
                 Table table = client.getTable(dbName, identifier.getObjectName());
                 sd = table.getSd();
                 tableProps = HiveReflectionUtils.getTableMetadata(hiveShim, table);
                 hiveOutputFormatClz = hiveShim.getHiveOutputFormatClass(Class.forName(sd.getOutputFormat()));
-                writerFactory = new HiveWriterFactory(
-                        jobConf,
-                        hiveOutputFormatClz,
-                        sd,
-                        tableSchema,
-                        getPartitionKeyArray(),
-                        tableProps,
-                        hiveShim,
-                        isCompressed,
-                        sinkMultipleEnable);
             }
+            HiveWriterFactory writerFactory = new HiveWriterFactory(
+                    jobConf,
+                    hiveOutputFormatClz,
+                    sd,
+                    tableSchema,
+                    getPartitionKeyArray(),
+                    tableProps,
+                    hiveShim,
+                    isCompressed,
+                    sinkMultipleEnable);
 
             String extension =
                     Utilities.getFileExtension(

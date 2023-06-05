@@ -34,8 +34,6 @@ import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.table.catalog.ObjectIdentifier;
 import org.apache.flink.table.catalog.hive.client.HiveMetastoreClientFactory;
 import org.apache.flink.table.catalog.hive.client.HiveMetastoreClientWrapper;
-import org.apache.flink.table.catalog.hive.client.HiveShim;
-import org.apache.flink.table.catalog.hive.client.HiveShimLoader;
 import org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions;
 import org.apache.flink.table.filesystem.EmptyMetaStoreFactory;
 import org.apache.flink.table.filesystem.FileSystemFactory;
@@ -109,8 +107,6 @@ public class PartitionCommitter extends AbstractStreamOperator<Void>
 
     private transient List<PartitionCommitPolicy> policies;
 
-    private final HiveShim hiveShim;
-
     private final String hiveVersion;
 
     private final boolean sinkMultipleEnable;
@@ -132,7 +128,6 @@ public class PartitionCommitter extends AbstractStreamOperator<Void>
                 metaStoreFactory instanceof EmptyMetaStoreFactory,
                 conf.get(SINK_PARTITION_COMMIT_POLICY_KIND));
         this.hiveVersion = conf.get(HiveCatalogFactoryOptions.HIVE_VERSION);
-        this.hiveShim = HiveShimLoader.loadHiveShim(this.hiveVersion);
         this.sinkMultipleEnable = conf.get(SINK_MULTIPLE_ENABLE);
     }
 

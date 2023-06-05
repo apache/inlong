@@ -153,7 +153,7 @@ public class HadoopRenameFileCommitter implements HadoopFileCommitter {
 
         while (true) {
             Path candidate =
-                    new Path(parent, "." + name + ".inprogress." + UUID.randomUUID().toString());
+                    new Path(parent, "." + name + ".inprogress." + UUID.randomUUID());
             if (!fileSystem.exists(candidate)) {
                 return candidate;
             }
