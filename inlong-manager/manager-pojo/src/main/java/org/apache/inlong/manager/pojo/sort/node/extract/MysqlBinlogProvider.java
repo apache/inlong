@@ -35,23 +35,11 @@ import java.util.Map;
  */
 public class MysqlBinlogProvider implements ExtractNodeProvider {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sourceType the specified source type
-     * @return Does it match
-     */
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.MYSQL_BINLOG.equals(sourceType);
     }
 
-    /**
-     * Create MySql extract node
-     *
-     * @param streamNodeInfo MySql binlog source info
-     * @return MySql extract node info
-     */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
         MySQLBinlogSource binlogSource = (MySQLBinlogSource) streamNodeInfo;

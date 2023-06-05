@@ -33,23 +33,11 @@ import java.util.Map;
  */
 public class SqlServerProvider implements ExtractNodeProvider {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sourceType the specified source type
-     * @return Does it match
-     */
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.SQLSERVER.equals(sourceType);
     }
 
-    /**
-     * Create SQLServer extract node
-     *
-     * @param streamNodeInfo SQLServer source info
-     * @return SQLServer extract node info
-     */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
         SQLServerSource source = (SQLServerSource) streamNodeInfo;

@@ -34,23 +34,11 @@ import java.util.Map;
  */
 public class HudiProvider implements ExtractNodeProvider {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sourceType the specified source type
-     * @return Does it match
-     */
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.HUDI.equals(sourceType);
     }
 
-    /**
-     * Create Hudi extract node
-     *
-     * @param streamNodeInfo hudi source info
-     * @return hudi extract source info
-     */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
         HudiSource source = (HudiSource) streamNodeInfo;

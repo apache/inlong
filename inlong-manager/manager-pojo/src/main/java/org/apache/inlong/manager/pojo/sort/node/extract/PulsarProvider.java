@@ -37,23 +37,11 @@ import java.util.Map;
  */
 public class PulsarProvider implements ExtractNodeProvider {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sourceType the specified source type
-     * @return Does it match
-     */
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.PULSAR.equals(sourceType);
     }
 
-    /**
-     * Create Pulsar extract node
-     *
-     * @param streamNodeInfo Pulsar source info
-     * @return Pulsar extract node info
-     */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
         PulsarSource pulsarSource = (PulsarSource) streamNodeInfo;

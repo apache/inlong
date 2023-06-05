@@ -37,23 +37,11 @@ import java.util.Map;
  */
 public class RedisProvider implements ExtractNodeProvider {
 
-    /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sourceType the specified source type
-     * @return Does it match
-     */
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.REDIS.equals(sourceType);
     }
 
-    /**
-     * Create Redis extract node
-     *
-     * @param streamNodeInfo redis source info
-     * @return redis extract source info
-     */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
         RedisSource source = (RedisSource) streamNodeInfo;
