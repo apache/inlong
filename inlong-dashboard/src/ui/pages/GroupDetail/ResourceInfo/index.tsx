@@ -23,6 +23,7 @@ import FormGenerator, { useForm } from '@/ui/components/FormGenerator';
 import { useRequest } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { CommonInterface } from '../common';
+import { clusters } from '@/plugins/clusters';
 
 type Props = CommonInterface;
 
@@ -30,41 +31,6 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
   const { t } = useTranslation();
 
   const [form] = useForm();
-
-  const title = [
-    {
-      label: 'Agent',
-      value: 'AGENT',
-    },
-    {
-      label: 'DataProxy',
-      value: 'DATAPROXY',
-    },
-    {
-      label: 'Pulsar',
-      value: 'PULSAR',
-    },
-    {
-      label: 'TubeMQ',
-      value: 'TUBEMQ',
-    },
-    {
-      label: 'SortZookeeper',
-      value: 'ZOOKEEPER',
-    },
-    {
-      label: 'DbsyncZk',
-      value: 'DBSYNC_ZK',
-    },
-    {
-      label: 'SortThive',
-      value: 'SORT_THIVE',
-    },
-    {
-      label: 'SortCK',
-      value: 'SORT_CK',
-    },
-  ];
 
   const isUpdate = useMemo(() => {
     return !!inlongGroupId;
@@ -113,7 +79,7 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
         return (
           <>
             <Divider orientation="left">
-              {title.find(c => c.value === item)?.label || item}{' '}
+              {clusters.find(c => c.value === item)?.label || item}{' '}
               {t('pages.GroupDetail.Resource.Info')}
             </Divider>
             <FormGenerator
