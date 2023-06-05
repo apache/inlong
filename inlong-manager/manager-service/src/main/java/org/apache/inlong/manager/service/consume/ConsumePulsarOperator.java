@@ -119,7 +119,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         consumeInfo.setClusterInfos(clusterInfos);
 
         // First get the tenant from the InlongGroup, and then get it from the PulsarCluster.
-        String tenant = ((InlongPulsarInfo) groupInfo).getTenant();
+        String tenant = ((InlongPulsarInfo) groupInfo).getPulsarTenant();
         if (StringUtils.isBlank(tenant)) {
             // If there are multiple Pulsar clusters, take the first one.
             // Note that the tenants in multiple Pulsar clusters must be identical.

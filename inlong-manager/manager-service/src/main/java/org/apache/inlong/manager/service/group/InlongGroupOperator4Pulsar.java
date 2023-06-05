@@ -124,7 +124,7 @@ public class InlongGroupOperator4Pulsar extends AbstractGroupOperator {
                 groupInfo.getInlongClusterTag(), null, ClusterType.PULSAR);
 
         // First get the tenant from the InlongGroup, and then get it from the PulsarCluster.
-        String tenant = ((InlongPulsarInfo) groupInfo).getTenant();
+        String tenant = ((InlongPulsarInfo) groupInfo).getPulsarTenant();
         if (StringUtils.isBlank(tenant)) {
             tenant = pulsarCluster.getTenant();
         }

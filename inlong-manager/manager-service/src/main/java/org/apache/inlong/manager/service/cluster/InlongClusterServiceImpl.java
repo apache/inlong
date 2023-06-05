@@ -1263,7 +1263,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
                 InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupInfo.getExtParams());
                 // First get the tenant from the InlongGroup, and then get it from the PulsarCluster.
-                String tenant = pulsarDTO.getTenant();
+                String tenant = pulsarDTO.getPulsarTenant();
                 if (StringUtils.isBlank(tenant)) {
                     // If there are multiple Pulsar clusters, take the first one.
                     // Note that the tenants in multiple Pulsar clusters must be identical.

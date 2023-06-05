@@ -91,7 +91,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
         }
 
         InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
-        String tenant = pulsarInfo.getTenant();
+        String tenant = pulsarInfo.getPulsarTenant();
         // get pulsar cluster via the inlong cluster tag from the inlong group
         List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR);
         for (ClusterInfo clusterInfo : clusterInfos) {
@@ -219,7 +219,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     private void createTopic(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster, String topicName)
             throws Exception {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            String tenant = pulsarInfo.getTenant();
+            String tenant = pulsarInfo.getPulsarTenant();
             if (StringUtils.isBlank(tenant)) {
                 tenant = pulsarCluster.getTenant();
             }
@@ -241,7 +241,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     private void createSubscription(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster, String topicName,
             String streamId) throws Exception {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            String tenant = pulsarInfo.getTenant();
+            String tenant = pulsarInfo.getPulsarTenant();
             if (StringUtils.isBlank(tenant)) {
                 tenant = pulsarCluster.getTenant();
             }
@@ -285,7 +285,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     private void deletePulsarTopic(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster, String topicName)
             throws Exception {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            String tenant = pulsarInfo.getTenant();
+            String tenant = pulsarInfo.getPulsarTenant();
             if (StringUtils.isBlank(tenant)) {
                 tenant = pulsarCluster.getTenant();
             }
