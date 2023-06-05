@@ -121,24 +121,30 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
         }
 
         // 2. Apply schema change;
-        switch (type) {
-            case ALTER:
-                handleAlterOperation(database, table, originData, originSchema, data, (AlterOperation) operation);
-                break;
-            case CREATE_TABLE:
-                doCreateTable(originData, database, table, type, originSchema, data, (CreateTableOperation) operation);
-                break;
-            case DROP_TABLE:
-                doDropTable(type, originSchema);
-                break;
-            case RENAME_TABLE:
-                doRenameTable(type, originSchema);
-                break;
-            case TRUNCATE_TABLE:
-                doTruncateTable(type, originSchema);
-                break;
-            default:
-                LOGGER.warn("Unsupported for {}: {}", type, originSchema);
+        SchemaChangePolicy policy = policyMap.get(type);
+        if (policy != SchemaChangePolicy.ENABLE) {
+            doSchemaChangeBase(type, policy, originSchema);
+        } else {
+            switch (type) {
+                case ALTER:
+                    handleAlterOperation(database, table, originData, originSchema, data, (AlterOperation) operation);
+                    break;
+                case CREATE_TABLE:
+                    doCreateTable(originData, database, table, type, originSchema, data,
+                            (CreateTableOperation) operation);
+                    break;
+                case DROP_TABLE:
+                    doDropTable(type, originSchema);
+                    break;
+                case RENAME_TABLE:
+                    doRenameTable(type, originSchema);
+                    break;
+                case TRUNCATE_TABLE:
+                    doTruncateTable(type, originSchema);
+                    break;
+                default:
+                    LOGGER.warn("Unsupported for {}: {}", type, originSchema);
+            }
         }
     }
 
@@ -176,12 +182,7 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
             } else {
                 // Handle change column, it only exists change column type and rename column in this scenario for now.
                 for (SchemaChangeType type : types) {
-                    SchemaChangePolicy policy = policyMap.get(type);
-                    if (policy == SchemaChangePolicy.ENABLE) {
-                        LOGGER.warn("Unsupported for {}: {}", type, originSchema);
-                    } else {
-                        doSchemaChangeBase(type, policy, originSchema);
-                    }
+                    LOGGER.warn("Unsupported for {}: {}", type, originSchema);
                 }
             }
         }
@@ -192,80 +193,44 @@ public abstract class SchemaChangeHelper implements SchemaChangeHandle {
     }
 
     @Override
-    public String doAddColumn(SchemaChangeType type, String originSchema) {
-        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
-        }
-        doSchemaChangeBase(type, policy, originSchema);
-        return null;
+    public void doAddColumn(SchemaChangeType type, String originSchema) {
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
     }
 
     @Override
-    public String doChangeColumnType(SchemaChangeType type, String originSchema) {
-        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
-        }
-        doSchemaChangeBase(type, policy, originSchema);
-        return null;
+    public void doChangeColumnType(SchemaChangeType type, String originSchema) {
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
     }
 
     @Override
-    public String doRenameColumn(SchemaChangeType type, String originSchema) {
-        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
-        }
-        doSchemaChangeBase(type, policy, originSchema);
-        return null;
+    public void doRenameColumn(SchemaChangeType type, String originSchema) {
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
     }
 
     @Override
-    public String doDropColumn(SchemaChangeType type, String originSchema) {
-        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
-        }
-        doSchemaChangeBase(type, policy, originSchema);
-        return null;
+    public void doDropColumn(SchemaChangeType type, String originSchema) {
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
     }
 
     @Override
     public void doCreateTable(byte[] originData, String database, String table, SchemaChangeType type,
             String originSchema, JsonNode data, CreateTableOperation operation) {
-        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
-        }
-        doSchemaChangeBase(type, policy, originSchema);
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
     }
 
     @Override
     public void doDropTable(SchemaChangeType type, String originSchema) {
-        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
-        }
-        doSchemaChangeBase(type, policy, originSchema);
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
     }
 
     @Override
     public void doRenameTable(SchemaChangeType type, String originSchema) {
-        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
-        }
-        doSchemaChangeBase(type, policy, originSchema);
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
     }
 
     @Override
     public void doTruncateTable(SchemaChangeType type, String originSchema) {
-        SchemaChangePolicy policy = policyMap.get(SchemaChangeType.DROP_TABLE);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
-        }
-        doSchemaChangeBase(type, policy, originSchema);
+        throw new SchemaChangeHandleException(String.format("Unsupported for %s: %s", type, originSchema));
     }
 
     protected void handleDirtyData(JsonNode data, byte[] originData, String database,

@@ -75,33 +75,29 @@ public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
     public void doAlterOperation(String database, String table, byte[] originData, String originSchema, JsonNode data,
             Map<SchemaChangeType, List<AlterColumn>> typeMap) {
         for (Map.Entry<SchemaChangeType, List<AlterColumn>> kv : typeMap.entrySet()) {
-            SchemaChangePolicy policy = policyMap.get(kv.getKey());
-            doSchemaChangeBase(kv.getKey(), policy, originSchema);
-            if (policy == SchemaChangePolicy.ENABLE) {
-                try {
-                    switch (kv.getKey()) {
-                        case ADD_COLUMN:
-                            doAddColumn(kv.getValue(), TableIdentifier.of(database, table));
-                            break;
-                        case DROP_COLUMN:
-                            doDropColumn(kv.getKey(), originSchema);
-                            break;
-                        case RENAME_COLUMN:
-                            doRenameColumn(kv.getKey(), originSchema);
-                            break;
-                        case CHANGE_COLUMN_TYPE:
-                            doChangeColumnType(kv.getKey(), originSchema);
-                            break;
-                        default:
-                    }
-                } catch (Exception e) {
-                    if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
-                        throw new SchemaChangeHandleException(
-                                String.format("Apply alter column failed, origin schema: %s", originSchema), e);
-                    }
-                    LOGGER.warn("Apply alter column failed, origin schema: {}", originSchema, e);
-                    handleDirtyData(data, originData, database, table, DirtyType.HANDLE_ALTER_TABLE_ERROR, e);
+            try {
+                switch (kv.getKey()) {
+                    case ADD_COLUMN:
+                        doAddColumn(kv.getValue(), TableIdentifier.of(database, table));
+                        break;
+                    case DROP_COLUMN:
+                        doDropColumn(kv.getKey(), originSchema);
+                        break;
+                    case RENAME_COLUMN:
+                        doRenameColumn(kv.getKey(), originSchema);
+                        break;
+                    case CHANGE_COLUMN_TYPE:
+                        doChangeColumnType(kv.getKey(), originSchema);
+                        break;
+                    default:
                 }
+            } catch (Exception e) {
+                if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
+                    throw new SchemaChangeHandleException(
+                            String.format("Apply alter column failed, origin schema: %s", originSchema), e);
+                }
+                LOGGER.warn("Apply alter column failed, origin schema: {}", originSchema, e);
+                handleDirtyData(data, originData, database, table, DirtyType.HANDLE_ALTER_TABLE_ERROR, e);
             }
         }
     }
@@ -109,25 +105,21 @@ public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
     @Override
     public void doCreateTable(byte[] originData, String database, String table, SchemaChangeType type,
             String originSchema, JsonNode data, CreateTableOperation operation) {
-        SchemaChangePolicy policy = policyMap.get(type);
-        if (policy == SchemaChangePolicy.ENABLE) {
-            try {
-                TableIdentifier tableId = TableIdentifier.of(database, table);
-                List<String> pkListStr = dynamicSchemaFormat.extractPrimaryKeyNames(data);
-                RowType rowType = dynamicSchemaFormat.extractSchema(data, pkListStr);
-                Schema schema = FlinkSchemaUtil.convert(FlinkSchemaUtil.toSchema(rowType));
-                IcebergSchemaChangeUtils.createTable(catalog, tableId, asNamespaceCatalog, schema);
-                return;
-            } catch (Exception e) {
-                if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
-                    throw new SchemaChangeHandleException(
-                            String.format("Drop column failed, origin schema: %s", originSchema), e);
-                }
-                handleDirtyData(data, originData, database, table, DirtyType.CREATE_TABLE_ERROR, e);
-                return;
+        try {
+            TableIdentifier tableId = TableIdentifier.of(database, table);
+            List<String> pkListStr = dynamicSchemaFormat.extractPrimaryKeyNames(data);
+            RowType rowType = dynamicSchemaFormat.extractSchema(data, pkListStr);
+            Schema schema = FlinkSchemaUtil.convert(FlinkSchemaUtil.toSchema(rowType));
+            IcebergSchemaChangeUtils.createTable(catalog, tableId, asNamespaceCatalog, schema);
+            return;
+        } catch (Exception e) {
+            if (exceptionPolicy == SchemaUpdateExceptionPolicy.THROW_WITH_STOP) {
+                throw new SchemaChangeHandleException(
+                        String.format("Drop column failed, origin schema: %s", originSchema), e);
             }
+            handleDirtyData(data, originData, database, table, DirtyType.CREATE_TABLE_ERROR, e);
+            return;
         }
-        doSchemaChangeBase(type, policy, originSchema);
     }
 
     public void doAddColumn(List<AlterColumn> alterColumns, TableIdentifier tableId) {

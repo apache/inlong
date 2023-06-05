@@ -467,7 +467,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
             columnSchema.setNullable(nestedField.isOptional());
             columnSchema.setComment(nestedField.doc());
             columnSchema.setPosition(i == 0 ? TableChange.ColumnPosition.first()
-                    : TableChange.ColumnPosition.after(nestedFieldList.get(n - 1).name()));
+                    : TableChange.ColumnPosition.after(nestedFieldList.get(i - 1).name()));
             columnSchemaMap.put(nestedField.name(), columnSchema);
         }
         return columnSchemaMap;

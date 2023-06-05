@@ -27,29 +27,56 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Schema change helper interface
+ * */
 public interface SchemaChangeHandle {
 
+    /**
+     * execute ddl statement
+     * */
     void process(byte[] originData, JsonNode data);
-
+    /**
+     * Handle modify column operations
+     * */
     void handleAlterOperation(String database, String table, byte[] originData, String originSchema,
             JsonNode data, AlterOperation operation);
-
+    /**
+     * apply the modify column operation
+     * */
     void doAlterOperation(String database, String table, byte[] originData, String originSchema, JsonNode data,
             Map<SchemaChangeType, List<AlterColumn>> typeMap);
-    String doAddColumn(SchemaChangeType type, String originSchema);
-
-    String doChangeColumnType(SchemaChangeType type, String originSchema);
-
-    String doRenameColumn(SchemaChangeType type, String originSchema);
-
-    String doDropColumn(SchemaChangeType type, String originSchema);
-
+    /**
+     * apply the add column operation
+     * */
+    void doAddColumn(SchemaChangeType type, String originSchema);
+    /**
+     * apply the operation of changing the column type
+     * */
+    void doChangeColumnType(SchemaChangeType type, String originSchema);
+    /**
+     * apply the change column name operation
+     * */
+    void doRenameColumn(SchemaChangeType type, String originSchema);
+    /**
+     * apply the delete column operation
+     * */
+    void doDropColumn(SchemaChangeType type, String originSchema);
+    /**
+     * handle the create table operation
+     * */
     void doCreateTable(byte[] originData, String database, String table, SchemaChangeType type,
             String originSchema, JsonNode data, CreateTableOperation operation);
-
+    /**
+     * handle drop table operation
+     * */
     void doDropTable(SchemaChangeType type, String originSchema);
-
+    /**
+     * handle rename table operation
+     * */
     void doRenameTable(SchemaChangeType type, String originSchema);
-
+    /**
+     * handle truncate table operation
+     * */
     void doTruncateTable(SchemaChangeType type, String originSchema);
 }
