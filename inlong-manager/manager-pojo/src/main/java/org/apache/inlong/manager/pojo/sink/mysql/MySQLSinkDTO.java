@@ -38,7 +38,6 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -254,8 +253,8 @@ public class MySQLSinkDTO {
                 }
 
                 List<String> paramList = new ArrayList<>();
-                for(Map.Entry<String, String> entry: queryMap.entrySet()) {
-                    if(SENSITIVE_REMOVE_PARAM_MAP.contains(entry.getKey())) {
+                for (Map.Entry<String, String> entry : queryMap.entrySet()) {
+                    if (SENSITIVE_REMOVE_PARAM_MAP.contains(entry.getKey())) {
                         continue;
                     }
 
