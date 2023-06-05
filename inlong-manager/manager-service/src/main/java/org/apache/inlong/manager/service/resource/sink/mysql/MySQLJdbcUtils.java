@@ -1,4 +1,4 @@
- /*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -31,18 +31,17 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.*;
 
-
- /**
-  * Utils for MySQL JDBC.
-  */
+/**
+ * Utils for MySQL JDBC.
+ */
 public class MySQLJdbcUtils {
 
     private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql";
     private static final String MYSQL_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
 
     private static final Map<String, String> SENSITIVE_REPLACE_PARAM_MAP = new HashMap<String, String>() {
+
         {
             put("autoDeserialize", "false");
             put("allowLoadLocalInfile", "false");
@@ -51,6 +50,7 @@ public class MySQLJdbcUtils {
     };
 
     private static final Set<String> SENSITIVE_REMOVE_PARAM_MAP = new HashSet<String>() {
+
         {
             add("allowLoadLocalInfileInPath");
         }
@@ -111,14 +111,14 @@ public class MySQLJdbcUtils {
 
                 LinkedHashMap<String, String> queryMap = new LinkedHashMap<>();
                 String queryString = StringUtils.substringAfter(url, InlongConstants.QUESTION_MARK);
-                for(String param : queryString.split("&")){
+                for (String param : queryString.split("&")) {
                     queryMap.put(StringUtils.substringBefore(param, "="),
                             StringUtils.substringAfter(param, "="));
                 }
 
                 queryMap.entrySet().removeIf(entry -> SENSITIVE_REMOVE_PARAM_MAP.contains(entry.getKey()));
                 queryMap.entrySet().forEach(entry -> {
-                    if(SENSITIVE_REPLACE_PARAM_MAP.containsKey(entry.getKey())) {
+                    if (SENSITIVE_REPLACE_PARAM_MAP.containsKey(entry.getKey())) {
                         entry.setValue(SENSITIVE_REPLACE_PARAM_MAP.get(entry.getKey()));
                     }
                 });
