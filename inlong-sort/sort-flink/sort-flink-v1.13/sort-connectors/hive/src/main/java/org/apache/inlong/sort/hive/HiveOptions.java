@@ -66,4 +66,17 @@ public class HiveOptions {
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
+
+    public static final ConfigOption<String> SINK_PARTITION_NAME =
+            ConfigOptions.key("sink.partition.name")
+                    .stringType()
+                    .defaultValue("pt")
+                    .withDescription("The default partition name for creating new hive table.");
+
+    public static final ConfigOption<Integer> HIVE_SCHEMA_SCAN_INTERVAL =
+            ConfigOptions.key("sink.schema.scan.interval")
+                    .intType()
+                    .defaultValue(10)
+                    .withDescription("The interval milliseconds to scan if source table schema changed.");
+
 }
