@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.pojo.sort.node.extract;
 
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeFactory;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.source.redis.RedisLookupOptions;
 import org.apache.inlong.manager.pojo.source.redis.RedisSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
@@ -32,9 +33,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Factory for creating Redis extract nodes.
+ * The Provider for creating Redis extract nodes.
  */
-public class RedisFactory extends ExtractNodeFactory {
+public class RedisProvider implements ExtractNodeProvider {
+
+    /**
+     * Determines whether the current instance matches the specified type.
+     *
+     * @param sourceType the specified source type
+     * @return Does it match
+     */
+    @Override
+    public Boolean accept(String sourceType) {
+        return SourceType.REDIS.equals(sourceType);
+    }
 
     /**
      * Create Redis extract node

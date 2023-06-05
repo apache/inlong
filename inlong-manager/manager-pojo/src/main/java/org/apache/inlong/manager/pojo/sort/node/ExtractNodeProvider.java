@@ -23,17 +23,22 @@ import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Abstract Extract Node Factory
+ * Interface of the extract node provider
  */
-@Slf4j
-public abstract class ExtractNodeFactory implements AbstractNodeFactory {
+public interface ExtractNodeProvider extends NodeProvider {
+
+    /**
+     * Determines whether the current instance matches the specified type.
+     *
+     * @param sourceType the specified source type
+     * @return whether the current instance matches the specified type
+     */
+    Boolean accept(String sourceType);
 
     /**
      * Create extract node by stream node info
@@ -41,7 +46,7 @@ public abstract class ExtractNodeFactory implements AbstractNodeFactory {
      * @param nodeInfo stream node info
      * @return extract node
      */
-    public abstract ExtractNode createNode(StreamNode nodeInfo);
+    ExtractNode createNode(StreamNode nodeInfo);
 
     /**
      * Parse FieldInfos
@@ -50,7 +55,7 @@ public abstract class ExtractNodeFactory implements AbstractNodeFactory {
      * @param nodeId The node id
      * @return FieldInfo list
      */
-    protected static List<FieldInfo> parseFieldInfos(List<StreamField> streamFields, String nodeId) {
+    default List<FieldInfo> parseFieldInfos(List<StreamField> streamFields, String nodeId) {
         // Filter constant fields
         return streamFields.stream().filter(s -> Objects.isNull(s.getFieldValue()))
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, nodeId))

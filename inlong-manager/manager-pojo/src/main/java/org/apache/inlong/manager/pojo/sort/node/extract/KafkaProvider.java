@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.pojo.sort.node.extract;
 
-import org.apache.inlong.common.enums.DataTypeEnum;
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeFactory;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.sort.util.FieldFormatUtils;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
@@ -26,24 +27,26 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
-import org.apache.inlong.sort.protocol.node.format.AvroFormat;
-import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
-import org.apache.inlong.sort.protocol.node.format.CsvFormat;
-import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
-import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
-import org.apache.inlong.sort.protocol.node.format.JsonFormat;
-import org.apache.inlong.sort.protocol.node.format.RawFormat;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The Factory for creating Kafka extract nodes.
+ * The Provider for creating Kafka extract nodes.
  */
-public class KafkaFactory extends ExtractNodeFactory {
+public class KafkaProvider implements ExtractNodeProvider {
+
+    /**
+     * Determines whether the current instance matches the specified type.
+     *
+     * @param sourceType the specified source type
+     * @return Does it match
+     */
+    @Override
+    public Boolean accept(String sourceType) {
+        return SourceType.KAFKA.equals(sourceType);
+    }
 
     /**
      * Create Kafka extract node
@@ -60,7 +63,7 @@ public class KafkaFactory extends ExtractNodeFactory {
         String topic = kafkaSource.getTopic();
         String bootstrapServers = kafkaSource.getBootstrapServers();
 
-        Format format = parsingFormat(
+        Format format = FieldFormatUtils.parsingFormat(
                 kafkaSource.getSerializationType(),
                 kafkaSource.isWrapWithInlongMsg(),
                 kafkaSource.getDataSeparator(),
@@ -99,60 +102,5 @@ public class KafkaFactory extends ExtractNodeFactory {
                 groupId,
                 partitionOffset,
                 scanTimestampMillis);
-    }
-
-    /**
-     * Parse format
-     *
-     * @param serializationType data serialization, support: csv, json, canal, avro, etc
-     * @param wrapWithInlongMsg whether wrap content with {@link InLongMsgFormat}
-     * @param separatorStr the separator of data content
-     * @param ignoreParseErrors whether ignore deserialization error data
-     * @return the format for serialized content
-     */
-    public static Format parsingFormat(
-            String serializationType,
-            boolean wrapWithInlongMsg,
-            String separatorStr,
-            boolean ignoreParseErrors) {
-        Format format;
-        DataTypeEnum dataType = DataTypeEnum.forType(serializationType);
-        switch (dataType) {
-            case CSV:
-                if (StringUtils.isNumeric(separatorStr)) {
-                    char dataSeparator = (char) Integer.parseInt(separatorStr);
-                    separatorStr = Character.toString(dataSeparator);
-                }
-                CsvFormat csvFormat = new CsvFormat(separatorStr);
-                csvFormat.setIgnoreParseErrors(ignoreParseErrors);
-                format = csvFormat;
-                break;
-            case AVRO:
-                format = new AvroFormat();
-                break;
-            case JSON:
-                JsonFormat jsonFormat = new JsonFormat();
-                jsonFormat.setIgnoreParseErrors(ignoreParseErrors);
-                format = jsonFormat;
-                break;
-            case CANAL:
-                format = new CanalJsonFormat();
-                break;
-            case DEBEZIUM_JSON:
-                DebeziumJsonFormat debeziumJsonFormat = new DebeziumJsonFormat();
-                debeziumJsonFormat.setIgnoreParseErrors(ignoreParseErrors);
-                format = debeziumJsonFormat;
-                break;
-            case RAW:
-                format = new RawFormat();
-                break;
-            default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s", dataType));
-        }
-        if (wrapWithInlongMsg) {
-            Format innerFormat = format;
-            format = new InLongMsgFormat(innerFormat, false);
-        }
-        return format;
     }
 }

@@ -17,44 +17,59 @@
 
 package org.apache.inlong.manager.pojo.sort.node.extract;
 
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeFactory;
-import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSource;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.source.sqlserver.SQLServerSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The Factory for creating TubeMQ extract nodes.
+ * The Provider for creating SQLServer extract nodes.
  */
-public class TubeMqFactory extends ExtractNodeFactory {
+public class SqlServerProvider implements ExtractNodeProvider {
 
     /**
-     * Create TubeMQ extract node
+     * Determines whether the current instance matches the specified type.
      *
-     * @param streamNodeInfo TubeMQ source info
-     * @return TubeMQ extract node info
+     * @param sourceType the specified source type
+     * @return Does it match
+     */
+    @Override
+    public Boolean accept(String sourceType) {
+        return SourceType.SQLSERVER.equals(sourceType);
+    }
+
+    /**
+     * Create SQLServer extract node
+     *
+     * @param streamNodeInfo SQLServer source info
+     * @return SQLServer extract node info
      */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
-        TubeMQSource source = (TubeMQSource) streamNodeInfo;
+        SQLServerSource source = (SQLServerSource) streamNodeInfo;
         List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
         Map<String, String> properties = parseProperties(source.getProperties());
 
-        return new TubeMQExtractNode(
+        return new SqlServerExtractNode(
                 source.getSourceName(),
                 source.getSourceName(),
                 fieldInfos,
                 null,
                 properties,
-                source.getMasterRpc(),
-                source.getTopic(),
-                source.getSerializationType(),
-                source.getGroupId(),
-                source.getSessionKey(),
-                source.getTid());
+                source.getPrimaryKey(),
+                source.getHostname(),
+                source.getPort(),
+                source.getUsername(),
+                source.getPassword(),
+                source.getDatabase(),
+                source.getSchemaName(),
+                source.getTableName(),
+                source.getServerTimezone());
     }
 }

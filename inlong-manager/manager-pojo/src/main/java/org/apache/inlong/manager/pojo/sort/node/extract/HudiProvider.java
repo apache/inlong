@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.pojo.sort.node.extract;
 
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeFactory;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.source.hudi.HudiSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -29,9 +30,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Factory for creating Hudi extract nodes.
+ * The Provider for creating Hudi extract nodes.
  */
-public class HudiFactory extends ExtractNodeFactory {
+public class HudiProvider implements ExtractNodeProvider {
+
+    /**
+     * Determines whether the current instance matches the specified type.
+     *
+     * @param sourceType the specified source type
+     * @return Does it match
+     */
+    @Override
+    public Boolean accept(String sourceType) {
+        return SourceType.HUDI.equals(sourceType);
+    }
 
     /**
      * Create Hudi extract node

@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.pojo.sort.node.extract;
 
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeFactory;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -30,9 +31,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Factory for creating MysqlBinlog extract nodes.
+ * The Provider for creating MysqlBinlog extract nodes.
  */
-public class MysqlBinlogFactory extends ExtractNodeFactory {
+public class MysqlBinlogProvider implements ExtractNodeProvider {
+
+    /**
+     * Determines whether the current instance matches the specified type.
+     *
+     * @param sourceType the specified source type
+     * @return Does it match
+     */
+    @Override
+    public Boolean accept(String sourceType) {
+        return SourceType.MYSQL_BINLOG.equals(sourceType);
+    }
 
     /**
      * Create MySql extract node
