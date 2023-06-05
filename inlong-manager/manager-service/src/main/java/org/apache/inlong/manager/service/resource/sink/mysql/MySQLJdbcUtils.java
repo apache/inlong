@@ -40,7 +40,6 @@ public class MySQLJdbcUtils {
 
     private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql";
     private static final String MYSQL_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLJdbcUtils.class);
 
     /**

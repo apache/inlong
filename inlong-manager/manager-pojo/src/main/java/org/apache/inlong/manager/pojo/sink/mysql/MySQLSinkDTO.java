@@ -57,6 +57,7 @@ public class MySQLSinkDTO {
      * The sensitive param may lead the attack.
      */
     private static final Map<String, String> SENSITIVE_REPLACE_PARAM_MAP = new HashMap<String, String>() {
+
         {
             put("autoDeserialize", "false");
             put("allowLoadLocalInfile", "false");
@@ -65,6 +66,7 @@ public class MySQLSinkDTO {
     };
 
     private static final Set<String> SENSITIVE_REMOVE_PARAM_MAP = new HashSet<String>() {
+
         {
             add("allowLoadLocalInfileInPath");
         }
@@ -236,7 +238,6 @@ public class MySQLSinkDTO {
                 resultUrl = URLDecoder.decode(resultUrl, "UTF-8");
             }
             resultUrl = resultUrl.replaceAll(InlongConstants.BLANK, "");
-            LOGGER.info("result URL is {}", resultUrl);
 
             if (resultUrl.contains(InlongConstants.QUESTION_MARK)) {
                 StringBuilder builder = new StringBuilder();
