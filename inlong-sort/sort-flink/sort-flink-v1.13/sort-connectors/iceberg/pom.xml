@@ -143,8 +143,8 @@
                                     <shadedPattern>org.apache.inlong.sort.iceberg.shaded.com.amazonaws</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.apache.inlong.sort.base</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.org.apache.inlong.sort.base</shadedPattern>
+                                    <pattern>org.apache.inlong.sort</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.org.apache.inlong.sort</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
