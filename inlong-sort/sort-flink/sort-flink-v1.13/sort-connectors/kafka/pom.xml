@@ -140,6 +140,10 @@
                                     <pattern>org.apache.commons.lang3</pattern>
                                     <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.commons.lang3</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.inlong.sort</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>

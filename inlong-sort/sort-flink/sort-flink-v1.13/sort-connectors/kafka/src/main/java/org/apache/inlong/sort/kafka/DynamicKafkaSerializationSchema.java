@@ -306,12 +306,12 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                     jsonDynamicSchemaFormat.objectMapper.convertValue(operationNode, new TypeReference<Operation>() {
                     }), "Operation is null");
         } catch (Exception e) {
-            LOG.warn("Extract Operation from origin data failed", e);
-            return null;
+            LOG.error("Extract Operation from origin data failed", e);
+            return Collections.emptySet();
         }
         String originSchema = jsonDynamicSchemaFormat.extractDDL(rootNode);
         Set<SchemaChangeType> types = SchemaChangeUtils.extractSchemaChangeTypes(operation);
-        if (types == null) {
+        if (types.isEmpty()) {
             LOG.warn("Unsupported for schema-change: {}", originSchema);
         }
         return types;
@@ -339,7 +339,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             boolean isDDL = jsonDynamicSchemaFormat.extractDDLFlag(rootNode);
             if (isDDL) {
                 Set<SchemaChangeType> types = extractSchemaChangeType(rootNode);
-                if (types == null) {
+                if (types.isEmpty()) {
                     return values;
                 }
 
