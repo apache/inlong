@@ -19,7 +19,6 @@ package org.apache.inlong.manager.pojo.sort.node.extract;
 
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
-import org.apache.inlong.manager.pojo.sort.util.FieldFormatUtils;
 import org.apache.inlong.manager.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -64,7 +63,7 @@ public class PulsarProvider implements ExtractNodeProvider {
         String fullTopicName =
                 pulsarSource.getTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
 
-        Format format = FieldFormatUtils.parsingFormat(pulsarSource.getSerializationType(),
+        Format format = parsingFormat(pulsarSource.getSerializationType(),
                 pulsarSource.isWrapWithInlongMsg(),
                 pulsarSource.getDataSeparator(),
                 pulsarSource.isIgnoreParseError());

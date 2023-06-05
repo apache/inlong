@@ -19,7 +19,6 @@ package org.apache.inlong.manager.pojo.sort.node.extract;
 
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
-import org.apache.inlong.manager.pojo.sort.util.FieldFormatUtils;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
@@ -63,7 +62,7 @@ public class KafkaProvider implements ExtractNodeProvider {
         String topic = kafkaSource.getTopic();
         String bootstrapServers = kafkaSource.getBootstrapServers();
 
-        Format format = FieldFormatUtils.parsingFormat(
+        Format format = parsingFormat(
                 kafkaSource.getSerializationType(),
                 kafkaSource.isWrapWithInlongMsg(),
                 kafkaSource.getDataSeparator(),

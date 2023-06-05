@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
@@ -27,16 +26,6 @@ import org.apache.inlong.manager.pojo.fieldformat.MapFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat.Element;
 import org.apache.inlong.manager.pojo.fieldformat.VarBinaryFormat;
-import org.apache.inlong.sort.protocol.node.format.AvroFormat;
-import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
-import org.apache.inlong.sort.protocol.node.format.CsvFormat;
-import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
-import org.apache.inlong.sort.protocol.node.format.Format;
-import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
-import org.apache.inlong.sort.protocol.node.format.JsonFormat;
-import org.apache.inlong.sort.protocol.node.format.RawFormat;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -88,60 +77,5 @@ public class FieldFormatUtils {
 
     public static StructFormat parseStructFormat(String formatJson) {
         return JsonUtils.parseObject(formatJson, StructFormat.class);
-    }
-
-    /**
-     * Parse format
-     *
-     * @param serializationType data serialization, support: csv, json, canal, avro, etc
-     * @param wrapWithInlongMsg whether wrap content with {@link InLongMsgFormat}
-     * @param separatorStr the separator of data content
-     * @param ignoreParseErrors whether ignore deserialization error data
-     * @return the format for serialized content
-     */
-    public static Format parsingFormat(
-            String serializationType,
-            boolean wrapWithInlongMsg,
-            String separatorStr,
-            boolean ignoreParseErrors) {
-        Format format;
-        DataTypeEnum dataType = DataTypeEnum.forType(serializationType);
-        switch (dataType) {
-            case CSV:
-                if (StringUtils.isNumeric(separatorStr)) {
-                    char dataSeparator = (char) Integer.parseInt(separatorStr);
-                    separatorStr = Character.toString(dataSeparator);
-                }
-                CsvFormat csvFormat = new CsvFormat(separatorStr);
-                csvFormat.setIgnoreParseErrors(ignoreParseErrors);
-                format = csvFormat;
-                break;
-            case AVRO:
-                format = new AvroFormat();
-                break;
-            case JSON:
-                JsonFormat jsonFormat = new JsonFormat();
-                jsonFormat.setIgnoreParseErrors(ignoreParseErrors);
-                format = jsonFormat;
-                break;
-            case CANAL:
-                format = new CanalJsonFormat();
-                break;
-            case DEBEZIUM_JSON:
-                DebeziumJsonFormat debeziumJsonFormat = new DebeziumJsonFormat();
-                debeziumJsonFormat.setIgnoreParseErrors(ignoreParseErrors);
-                format = debeziumJsonFormat;
-                break;
-            case RAW:
-                format = new RawFormat();
-                break;
-            default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s", dataType));
-        }
-        if (wrapWithInlongMsg) {
-            Format innerFormat = format;
-            format = new InLongMsgFormat(innerFormat, false);
-        }
-        return format;
     }
 }
