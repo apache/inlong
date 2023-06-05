@@ -57,6 +57,8 @@ import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_PK_AUTO_GENERA
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
+import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_POLICIES;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_DISTRIBUTION_MODE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_PARALLELISM;
 
@@ -121,6 +123,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
 
         final ReadableConfig tableOptions = Configuration.fromMap(catalogTable.getOptions());
         boolean multipleSink = tableOptions.get(SINK_MULTIPLE_ENABLE);
+        boolean schemaChange = tableOptions.get(SINK_SCHEMA_CHANGE_ENABLE);
+        String schemaChangePolicies = tableOptions.getOptional(SINK_SCHEMA_CHANGE_POLICIES).orElse(null);
         if (multipleSink) {
             return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
                     .overwrite(overwrite)
@@ -142,6 +146,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                     .action(actionsProvider)
                     .tableOptions(tableOptions)
                     .distributionMode(DistributionMode.fromName(tableOptions.get(WRITE_DISTRIBUTION_MODE)))
+                    .enableSchemaChange(schemaChange)
+                    .schemaChangePolicies(schemaChangePolicies)
                     .append();
         } else {
             return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
