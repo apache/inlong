@@ -24,6 +24,9 @@ import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
 import org.apache.inlong.sort.kafka.partitioner.InLongFixedPartitionPartitioner;
 import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
+import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
+import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
+import org.apache.inlong.sort.util.SchemaChangeUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.Internal;
@@ -105,6 +108,8 @@ import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
 import static org.apache.inlong.sort.base.Constants.*;
 import static org.apache.inlong.sort.base.Constants.DATASOURCE_PARTITION_MAP;
+import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_POLICIES;
 import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
@@ -329,6 +334,10 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         options.add(AUDIT_KEYS);
         options.add(SINK_MULTIPLE_FORMAT);
         options.add(SINK_MULTIPLE_PARTITION_PATTERN);
+        options.add(PATTERN_PARTITION_MAP);
+        options.add(DATASOURCE_PARTITION_MAP);
+        options.add(SINK_SCHEMA_CHANGE_ENABLE);
+        options.add(SINK_SCHEMA_CHANGE_POLICIES);
         return options;
     }
 
@@ -448,6 +457,11 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
         final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         final boolean multipleSink = tableOptions.getOptional(SINK_MULTIPLE_FORMAT).isPresent();
+        final String schemaChangePolicies = tableOptions.getOptional(SINK_SCHEMA_CHANGE_POLICIES).orElse(null);
+        final boolean enableSchemaChange = tableOptions.get(SINK_SCHEMA_CHANGE_ENABLE);
+        final Map<SchemaChangeType, SchemaChangePolicy> policyMap =
+                enableSchemaChange ? SchemaChangeUtils.deserialize(schemaChangePolicies) : Collections.emptyMap();
+
         return createKafkaTableSink(
                 physicalDataType,
                 keyEncodingFormat.orElse(null),
@@ -467,7 +481,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 tableOptions.getOptional(TOPIC_PATTERN).orElse(null),
                 dirtyOptions,
                 dirtySink,
-                multipleSink);
+                multipleSink,
+                policyMap);
     }
 
     private void validateSinkMultipleFormatAndPhysicalDataType(DataType physicalDataType,
@@ -555,7 +570,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             @Nullable String topicPattern,
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
-            boolean multipleSink) {
+            boolean multipleSink,
+            Map<SchemaChangeType, SchemaChangePolicy> policyMap) {
         return new KafkaDynamicSink(
                 physicalDataType,
                 physicalDataType,
@@ -578,6 +594,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 topicPattern,
                 dirtyOptions,
                 dirtySink,
-                multipleSink);
+                multipleSink,
+                policyMap);
     }
 }
