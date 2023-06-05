@@ -17,43 +17,56 @@
 
 package org.apache.inlong.manager.pojo.sort.node.extract;
 
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeFactory;
-import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSource;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The Factory for creating Mongo extract nodes.
+ * The Provider for creating TubeMQ extract nodes.
  */
-public class MongoFactory extends ExtractNodeFactory {
+public class TubeMqProvider implements ExtractNodeProvider {
 
     /**
-     * Create MongoDB extract node
+     * Determines whether the current instance matches the specified type.
      *
-     * @param streamNodeInfo MongoDB source info
-     * @return MongoDB extract node info
+     * @param sourceType the specified source type
+     * @return Does it match
+     */
+    @Override
+    public Boolean accept(String sourceType) {
+        return SourceType.TUBEMQ.equals(sourceType);
+    }
+
+    /**
+     * Create TubeMQ extract node
+     *
+     * @param streamNodeInfo TubeMQ source info
+     * @return TubeMQ extract node info
      */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
-        MongoDBSource source = (MongoDBSource) streamNodeInfo;
+        TubeMQSource source = (TubeMQSource) streamNodeInfo;
         List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
         Map<String, String> properties = parseProperties(source.getProperties());
 
-        return new MongoExtractNode(
+        return new TubeMQExtractNode(
                 source.getSourceName(),
                 source.getSourceName(),
                 fieldInfos,
                 null,
                 properties,
-                source.getCollection(),
-                source.getHosts(),
-                source.getUsername(),
-                source.getPassword(),
-                source.getDatabase());
+                source.getMasterRpc(),
+                source.getTopic(),
+                source.getSerializationType(),
+                source.getGroupId(),
+                source.getSessionKey(),
+                source.getTid());
     }
 }

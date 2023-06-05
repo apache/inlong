@@ -22,9 +22,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Abstract Node Factory
+ * Interface of the node provider
  */
-public interface AbstractNodeFactory {
+public interface NodeProvider {
 
     /**
      * Parse properties

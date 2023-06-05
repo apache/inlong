@@ -17,47 +17,55 @@
 
 package org.apache.inlong.manager.pojo.sort.node.extract;
 
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeFactory;
-import org.apache.inlong.manager.pojo.source.sqlserver.SQLServerSource;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The Factory for creating SQLServer extract nodes.
+ * The Provider for creating Mongo extract nodes.
  */
-public class SqlServerFactory extends ExtractNodeFactory {
+public class MongoProvider implements ExtractNodeProvider {
 
     /**
-     * Create SQLServer extract node
+     * Determines whether the current instance matches the specified type.
      *
-     * @param streamNodeInfo SQLServer source info
-     * @return SQLServer extract node info
+     * @param sourceType the specified source type
+     * @return Does it match
+     */
+    @Override
+    public Boolean accept(String sourceType) {
+        return SourceType.MONGODB.equals(sourceType);
+    }
+
+    /**
+     * Create MongoDB extract node
+     *
+     * @param streamNodeInfo MongoDB source info
+     * @return MongoDB extract node info
      */
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
-        SQLServerSource source = (SQLServerSource) streamNodeInfo;
+        MongoDBSource source = (MongoDBSource) streamNodeInfo;
         List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
         Map<String, String> properties = parseProperties(source.getProperties());
 
-        return new SqlServerExtractNode(
+        return new MongoExtractNode(
                 source.getSourceName(),
                 source.getSourceName(),
                 fieldInfos,
                 null,
                 properties,
-                source.getPrimaryKey(),
-                source.getHostname(),
-                source.getPort(),
+                source.getCollection(),
+                source.getHosts(),
                 source.getUsername(),
                 source.getPassword(),
-                source.getDatabase(),
-                source.getSchemaName(),
-                source.getTableName(),
-                source.getServerTimezone());
+                source.getDatabase());
     }
 }

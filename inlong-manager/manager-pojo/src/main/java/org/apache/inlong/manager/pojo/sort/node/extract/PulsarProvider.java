@@ -17,7 +17,9 @@
 
 package org.apache.inlong.manager.pojo.sort.node.extract;
 
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeFactory;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.sort.util.FieldFormatUtils;
 import org.apache.inlong.manager.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -32,9 +34,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Factory for creating Pulsar extract nodes.
+ * The Provider for creating Pulsar extract nodes.
  */
-public class PulsarFactory extends ExtractNodeFactory {
+public class PulsarProvider implements ExtractNodeProvider {
+
+    /**
+     * Determines whether the current instance matches the specified type.
+     *
+     * @param sourceType the specified source type
+     * @return Does it match
+     */
+    @Override
+    public Boolean accept(String sourceType) {
+        return SourceType.PULSAR.equals(sourceType);
+    }
 
     /**
      * Create Pulsar extract node
@@ -51,7 +64,7 @@ public class PulsarFactory extends ExtractNodeFactory {
         String fullTopicName =
                 pulsarSource.getTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
 
-        Format format = KafkaFactory.parsingFormat(pulsarSource.getSerializationType(),
+        Format format = FieldFormatUtils.parsingFormat(pulsarSource.getSerializationType(),
                 pulsarSource.isWrapWithInlongMsg(),
                 pulsarSource.getDataSeparator(),
                 pulsarSource.isIgnoreParseError());

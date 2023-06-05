@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.pojo.sort.node.extract;
 
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeFactory;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.source.oracle.OracleSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -31,9 +32,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Factory for creating Oracle extract nodes.
+ * The Provider for creating Oracle extract nodes.
  */
-public class OracleFactory extends ExtractNodeFactory {
+public class OracleProvider implements ExtractNodeProvider {
+
+    /**
+     * Determines whether the current instance matches the specified type.
+     *
+     * @param sourceType the specified source type
+     * @return Does it match
+     */
+    @Override
+    public Boolean accept(String sourceType) {
+        return SourceType.ORACLE.equals(sourceType);
+    }
 
     /**
      * Create Oracle extract node
