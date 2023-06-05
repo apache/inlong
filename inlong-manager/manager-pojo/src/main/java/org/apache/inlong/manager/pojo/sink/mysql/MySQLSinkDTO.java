@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import javax.validation.constraints.NotNull;
 
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -252,22 +253,19 @@ public class MySQLSinkDTO {
                             StringUtils.substringAfter(param, "="));
                 }
 
-                Iterator<Map.Entry<String, String>> iterator = queryMap.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    Map.Entry<String, String> entry = iterator.next();
+                List<String> paramList = new ArrayList<>();
+                for(Map.Entry<String, String> entry: queryMap.entrySet()) {
+                    if(SENSITIVE_REMOVE_PARAM_MAP.contains(entry.getKey())) {
+                        continue;
+                    }
 
                     if (SENSITIVE_REPLACE_PARAM_MAP.containsKey(entry.getKey())) {
                         entry.setValue(SENSITIVE_REPLACE_PARAM_MAP.get(entry.getKey()));
                     }
-
-                    if(SENSITIVE_REMOVE_PARAM_MAP.contains(entry.getKey())) {
-                        iterator.remove();
-                    }
+                    paramList.add(entry.getKey() + "=" + entry.getValue());
                 }
 
-                String params = StringUtils.join(
-                        queryMap.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).toArray(),
-                        "&");
+                String params = StringUtils.join(paramList, "&");
                 builder.append(params);
                 resultUrl = builder.toString();
             }
