@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.reader;
 
+import java.util.Comparator;
 import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
 import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
@@ -230,7 +231,7 @@ public class MySqlSourceReader<T>
                     MySqlBinlogSplit mySqlBinlogSplit =
                             discoverTableSchemasForBinlogSplit(split.asBinlogSplit());
                     mySqlBinlogSplit.getFinishedSnapshotSplitInfos()
-                            .sort((a, b) -> chunkId(a.getSplitId()) - chunkId(b.getSplitId()));
+                            .sort(Comparator.comparingInt(splitInfo -> chunkId(splitInfo.getSplitId())));
                     unfinishedSplits.add(mySqlBinlogSplit);
                 }
             }
