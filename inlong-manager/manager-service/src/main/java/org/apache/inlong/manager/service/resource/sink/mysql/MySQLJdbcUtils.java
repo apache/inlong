@@ -1,4 +1,4 @@
-/*
+ /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink.mysql;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
 
@@ -25,21 +26,36 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-/**
- * Utils for MySQL JDBC.
- */
+
+ /**
+  * Utils for MySQL JDBC.
+  */
 public class MySQLJdbcUtils {
 
     private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql";
     private static final String MYSQL_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
+
+    private static final Map<String, String> SENSITIVE_REPLACE_PARAM_MAP = new HashMap<String, String>() {
+        {
+            put("autoDeserialize", "false");
+            put("allowLoadLocalInfile", "false");
+            put("allowUrlInLocalInfile", "false");
+        }
+    };
+
+    private static final Set<String> SENSITIVE_REMOVE_PARAM_MAP = new HashSet<String>() {
+        {
+            add("allowLoadLocalInfileInPath");
+        }
+    };
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLJdbcUtils.class);
 
     /**
@@ -57,6 +73,7 @@ public class MySQLJdbcUtils {
         }
 
         Connection conn;
+        url = filterSensitive(url);
         try {
             Class.forName(MYSQL_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
@@ -70,6 +87,54 @@ public class MySQLJdbcUtils {
         }
         LOGGER.info("get MySQL connection success for url={}", url);
         return conn;
+    }
+
+    /**
+     * Filter the sensitive params for the given URL.
+     *
+     * @param url str may have some sensitive params
+     * @return {@link String}
+     * @throws Exception on get connection error
+     */
+    public static String filterSensitive(String url) throws Exception {
+        try {
+            String resultUrl = url;
+            while (resultUrl.contains(InlongConstants.PERCENT)) {
+                resultUrl = URLDecoder.decode(resultUrl, "UTF-8");
+            }
+            resultUrl = resultUrl.replaceAll(InlongConstants.BLANK, "");
+
+            if (resultUrl.contains(InlongConstants.QUESTION_MARK)) {
+                StringBuilder builder = new StringBuilder();
+                builder.append(StringUtils.substringBefore(resultUrl, InlongConstants.QUESTION_MARK));
+                builder.append(InlongConstants.QUESTION_MARK);
+
+                LinkedHashMap<String, String> queryMap = new LinkedHashMap<>();
+                String queryString = StringUtils.substringAfter(url, InlongConstants.QUESTION_MARK);
+                for(String param : queryString.split("&")){
+                    queryMap.put(StringUtils.substringBefore(param, "="),
+                            StringUtils.substringAfter(param, "="));
+                }
+
+                queryMap.entrySet().removeIf(entry -> SENSITIVE_REMOVE_PARAM_MAP.contains(entry.getKey()));
+                queryMap.entrySet().forEach(entry -> {
+                    if(SENSITIVE_REPLACE_PARAM_MAP.containsKey(entry.getKey())) {
+                        entry.setValue(SENSITIVE_REPLACE_PARAM_MAP.get(entry.getKey()));
+                    }
+                });
+
+                String params = StringUtils.join(
+                        queryMap.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).toArray(),
+                        "&");
+                builder.append(params);
+                resultUrl = builder.toString();
+            }
+
+            LOGGER.info("the origin url [{}] was replaced to: [{}]", url, resultUrl);
+            return resultUrl;
+        } catch (Exception e) {
+            throw new Exception("Filter the sensitive params for the given URL failed.");
+        }
     }
 
     /**
