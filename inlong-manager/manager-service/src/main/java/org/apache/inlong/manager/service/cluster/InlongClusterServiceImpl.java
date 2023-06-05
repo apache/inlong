@@ -1274,7 +1274,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                         continue;
                     }
                     PulsarClusterDTO cluster = PulsarClusterDTO.getFromJson(pulsarClusters.get(0).getExtParams());
-                    tenant = cluster.getTenant();
+                    tenant = cluster.getPulsarTenant();
                 }
 
                 List<InlongStreamBriefInfo> streamList = streamMapper.selectBriefList(groupId);

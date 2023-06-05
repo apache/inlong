@@ -591,7 +591,7 @@ public class AgentServiceImpl implements AgentService {
                         // Note that the tenants in multiple Pulsar clusters must be identical.
                         PulsarClusterDTO pulsarCluster = PulsarClusterDTO.getFromJson(
                                 mqClusterList.get(0).getExtParams());
-                        tenant = pulsarCluster.getTenant();
+                        tenant = pulsarCluster.getPulsarTenant();
                     }
 
                     String topic = String.format(InlongConstants.PULSAR_TOPIC_FORMAT,

@@ -46,7 +46,7 @@ public class PulsarSource extends StreamSource {
 
     @ApiModelProperty("Pulsar tenant")
     @Builder.Default
-    private String tenant = "public";
+    private String pulsarTenant = "public";
 
     @ApiModelProperty("Pulsar namespace")
     private String namespace;

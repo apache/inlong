@@ -124,7 +124,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
             // If there are multiple Pulsar clusters, take the first one.
             // Note that the tenants in multiple Pulsar clusters must be identical.
             PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfos.get(0);
-            tenant = pulsarCluster.getTenant();
+            tenant = pulsarCluster.getPulsarTenant();
         }
 
         consumeInfo.setTopic(getFullPulsarTopic(groupInfo, tenant, entity.getTopic()));

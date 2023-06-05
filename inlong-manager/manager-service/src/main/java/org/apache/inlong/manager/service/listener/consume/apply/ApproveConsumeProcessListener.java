@@ -135,10 +135,10 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
             InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
             String tenant = pulsarDTO.getPulsarTenant();
             if (StringUtils.isBlank(tenant)) {
-                tenant = pulsarCluster.getTenant();
+                tenant = pulsarCluster.getPulsarTenant();
             }
             PulsarTopicInfo topicMessage = new PulsarTopicInfo();
-            topicMessage.setTenant(tenant);
+            topicMessage.setPulsarTenant(tenant);
             topicMessage.setNamespace(mqResource);
 
             List<String> topics = Arrays.asList(entity.getTopic().split(InlongConstants.COMMA));

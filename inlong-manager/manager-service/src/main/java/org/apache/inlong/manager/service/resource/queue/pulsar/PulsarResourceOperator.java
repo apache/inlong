@@ -99,7 +99,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
             try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
                 // create pulsar tenant and namespace
                 if (StringUtils.isBlank(tenant)) {
-                    tenant = pulsarCluster.getTenant();
+                    tenant = pulsarCluster.getPulsarTenant();
                 }
 
                 // if the group was not successful, need create tenant and namespace
@@ -221,11 +221,11 @@ public class PulsarResourceOperator implements QueueResourceOperator {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             String tenant = pulsarInfo.getPulsarTenant();
             if (StringUtils.isBlank(tenant)) {
-                tenant = pulsarCluster.getTenant();
+                tenant = pulsarCluster.getPulsarTenant();
             }
             String namespace = pulsarInfo.getMqResource();
             PulsarTopicInfo topicInfo = PulsarTopicInfo.builder()
-                    .tenant(tenant)
+                    .pulsarTenant(tenant)
                     .namespace(namespace)
                     .topicName(topicName)
                     .queueModule(pulsarInfo.getQueueModule())
@@ -243,7 +243,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             String tenant = pulsarInfo.getPulsarTenant();
             if (StringUtils.isBlank(tenant)) {
-                tenant = pulsarCluster.getTenant();
+                tenant = pulsarCluster.getPulsarTenant();
             }
             String namespace = pulsarInfo.getMqResource();
             String fullTopicName = tenant + "/" + namespace + "/" + topicName;
@@ -287,11 +287,11 @@ public class PulsarResourceOperator implements QueueResourceOperator {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             String tenant = pulsarInfo.getPulsarTenant();
             if (StringUtils.isBlank(tenant)) {
-                tenant = pulsarCluster.getTenant();
+                tenant = pulsarCluster.getPulsarTenant();
             }
             String namespace = pulsarInfo.getMqResource();
             PulsarTopicInfo topicInfo = PulsarTopicInfo.builder()
-                    .tenant(tenant)
+                    .pulsarTenant(tenant)
                     .namespace(namespace)
                     .topicName(topicName)
                     .build();
