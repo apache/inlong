@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
+import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.agent.AgentClusterDTO;
@@ -35,6 +36,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Agent cluster operator.
@@ -87,6 +93,19 @@ public class AgentClusterOperator extends AbstractClusterOperator {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT,
                     String.format("serialize extParams of Agent Cluster failure: %s", e.getMessage()));
         }
+    }
+
+    @Override
+    public Object getClusterInfo(InlongClusterEntity entity) {
+        List<InlongClusterNodeEntity> clusterNodeEntityList =
+                clusterNodeEntityMapper.selectByParentId(entity.getId(), null);
+        Map<String, Object> map = new HashMap<>();
+        List<String> urlList = new ArrayList<>();
+        for (InlongClusterNodeEntity clusterNodeEntity : clusterNodeEntityList) {
+            urlList.add(clusterNodeEntity.getIp() + ":" + clusterNodeEntity.getPort());
+        }
+        map.put("urls", urlList);
+        return map;
     }
 
 }

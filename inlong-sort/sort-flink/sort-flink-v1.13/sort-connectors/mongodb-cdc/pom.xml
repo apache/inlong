@@ -26,10 +26,10 @@
     </parent>
 
     <artifactId>sort-connector-mongodb-cdc</artifactId>
-    <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-mongodb-cdc</name>
 
     <properties>
+        <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
         <debezium.version>1.6.4.Final</debezium.version>
     </properties>
 

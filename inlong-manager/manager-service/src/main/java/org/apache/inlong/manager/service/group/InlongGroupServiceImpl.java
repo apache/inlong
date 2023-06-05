@@ -22,7 +22,7 @@ import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -359,7 +359,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         OrderTypeEnum.checkOrderType(request);
         for (InlongGroupEntity groupEntity : groupMapper.selectByCondition(request)) {
             // only the person in charges can query
-            if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
+            if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
                 List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
                 if (!inCharges.contains(opInfo.getName())) {
                     continue;
@@ -535,6 +535,13 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         LOGGER.info("success list group topic infos under clusterTag={}, size={}",
                 request.getClusterTag(), topicInfos.size());
         return topicInfos;
+    }
+
+    @Override
+    public Map<String, Object> detail(String groupId) {
+        InlongGroupInfo groupInfo = this.get(groupId);
+        InlongGroupOperator instance = groupOperatorFactory.getInstance(groupInfo.getMqType());
+        return instance.getDetailInfo(groupInfo);
     }
 
     @Override

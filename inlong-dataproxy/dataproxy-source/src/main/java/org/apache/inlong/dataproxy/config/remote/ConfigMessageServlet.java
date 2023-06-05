@@ -18,7 +18,6 @@
 package org.apache.inlong.dataproxy.config.remote;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.dataproxy.config.ConfigManager;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
@@ -32,8 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * http
@@ -41,7 +38,6 @@ import java.util.Map;
 public class ConfigMessageServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigMessageServlet.class);
-    private static final ConfigManager configManager = ConfigManager.getInstance();
 
     private final Gson gson = new Gson();
 
@@ -52,32 +48,6 @@ public class ConfigMessageServlet extends HttpServlet {
     protected void doGet(
             HttpServletRequest req, HttpServletResponse resp) throws IOException {
         doPost(req, resp);
-    }
-
-    private boolean handleTopicConfig(RequestContent requestContent) {
-        Map<String, String> groupIdToTopic = new HashMap<String, String>();
-        for (Map<String, String> item : requestContent.getContent()) {
-            groupIdToTopic.put(item.get("inlongGroupId"), item.get("topic"));
-        }
-        if ("add".equals(requestContent.getOperationType())) {
-            return configManager.addTopicProperties(groupIdToTopic);
-        } else if ("delete".equals(requestContent.getOperationType())) {
-            return configManager.deleteTopicProperties(groupIdToTopic);
-        }
-        return false;
-    }
-
-    private boolean handleMxConfig(RequestContent requestContent) {
-        Map<String, String> groupIdToMValue = new HashMap<String, String>();
-        for (Map<String, String> item : requestContent.getContent()) {
-            groupIdToMValue.put(item.get("inlongGroupId"), item.get("m"));
-        }
-        if ("add".equals(requestContent.getOperationType())) {
-            return configManager.addMxProperties(groupIdToMValue);
-        } else if ("delete".equals(requestContent.getOperationType())) {
-            return configManager.deleteMxProperties(groupIdToMValue);
-        }
-        return false;
     }
 
     private void responseToJson(HttpServletResponse response,
@@ -97,26 +67,14 @@ public class ConfigMessageServlet extends HttpServlet {
         BufferedReader reader = null;
         try {
             reader = req.getReader();
-            boolean isSuccess = false;
             RequestContent requestContent = gson.fromJson(IOUtils.toString(reader),
                     RequestContent.class);
             if (requestContent.getRequestType() != null
                     && requestContent.getOperationType() != null) {
-                if ("topic".equals(requestContent.getRequestType())) {
-                    isSuccess = handleTopicConfig(requestContent);
-                } else if ("mx".equals(requestContent.getRequestType())) {
-                    isSuccess = handleMxConfig(requestContent);
-                }
+                result.setMessage("Unsupported operation");
             } else {
                 result.setMessage("request format is not valid");
             }
-
-            if (isSuccess) {
-                result.setCode(DataProxyErrCode.SUCCESS.getErrCode());
-            } else {
-                result.setMessage("cannot operate config update, please check it");
-            }
-
         } catch (Exception ex) {
             LOG.error("error while do post", ex);
             result.setMessage(ex.getMessage());

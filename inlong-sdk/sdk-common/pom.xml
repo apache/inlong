@@ -25,9 +25,13 @@
         <artifactId>inlong-sdk</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.apache.inlong</groupId>
+
     <artifactId>sdk-common</artifactId>
     <name>Apache InLong - SDK Common</name>
+
+    <properties>
+        <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+    </properties>
 
     <dependencies>
         <dependency>

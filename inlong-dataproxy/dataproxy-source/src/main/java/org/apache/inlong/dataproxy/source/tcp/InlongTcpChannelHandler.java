@@ -202,8 +202,8 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
     private void processAndResponse(ChannelHandlerContext ctx, MessagePack packObject, List<ProxyEvent> events)
             throws Exception {
         for (ProxyEvent event : events) {
-            String uid = event.getUid();
-            String topic = sourceContext.getIdHolder().getTopic(uid);
+            String topic = ConfigManager.getInstance().getTopicName(
+                    event.getInlongGroupId(), event.getInlongStreamId());
             if (topic != null) {
                 event.setTopic(topic);
             }

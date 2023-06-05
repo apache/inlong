@@ -18,8 +18,6 @@
 package org.apache.inlong.dataproxy.sink.mq;
 
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
-import org.apache.inlong.dataproxy.config.holder.CacheClusterConfigHolder;
-import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -52,8 +50,6 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     private final String nodeId;
     private final Context producerContext;
     //
-    private final IdTopicConfigHolder idTopicHolder;
-    private final CacheClusterConfigHolder cacheHolder;
     private final INLONG_COMPRESSED_TYPE compressType;
 
     /**
@@ -73,14 +69,6 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         // producerContext
         Map<String, String> producerParams = context.getSubProperties(PREFIX_PRODUCER);
         this.producerContext = new Context(producerParams);
-        // idTopicHolder
-        Context commonPropertiesContext =
-                new Context(CommonConfigHolder.getInstance().getProperties());
-        this.idTopicHolder = new IdTopicConfigHolder();
-        this.idTopicHolder.configure(commonPropertiesContext);
-        // cacheHolder
-        this.cacheHolder = new CacheClusterConfigHolder();
-        this.cacheHolder.configure(commonPropertiesContext);
     }
 
     /**
@@ -88,8 +76,6 @@ public class MessageQueueZoneSinkContext extends SinkContext {
      */
     public void start() {
         super.start();
-        this.idTopicHolder.start();
-        this.cacheHolder.start();
     }
 
     /**
@@ -97,8 +83,6 @@ public class MessageQueueZoneSinkContext extends SinkContext {
      */
     public void close() {
         super.close();
-        this.idTopicHolder.close();
-        this.cacheHolder.close();
     }
 
     /**
@@ -126,24 +110,6 @@ public class MessageQueueZoneSinkContext extends SinkContext {
      */
     public Context getProducerContext() {
         return producerContext;
-    }
-
-    /**
-     * get idTopicHolder
-     * 
-     * @return the idTopicHolder
-     */
-    public IdTopicConfigHolder getIdTopicHolder() {
-        return idTopicHolder;
-    }
-
-    /**
-     * get cacheHolder
-     * 
-     * @return the cacheHolder
-     */
-    public CacheClusterConfigHolder getCacheHolder() {
-        return cacheHolder;
     }
 
     /**

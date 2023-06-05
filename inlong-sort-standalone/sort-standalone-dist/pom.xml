@@ -30,6 +30,10 @@
     <packaging>pom</packaging>
     <name>Apache InLong - Sort Standalone Dist</name>
 
+    <properties>
+        <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

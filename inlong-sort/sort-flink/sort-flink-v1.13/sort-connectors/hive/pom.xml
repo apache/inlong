@@ -27,8 +27,11 @@
     </parent>
 
     <artifactId>sort-connector-hive</artifactId>
-    <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-hive</name>
+
+    <properties>
+        <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
+    </properties>
 
     <dependencies>
         <dependency>

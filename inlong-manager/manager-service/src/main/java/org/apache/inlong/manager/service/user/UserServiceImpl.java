@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.user;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -156,7 +156,7 @@ public class UserServiceImpl implements UserService {
         UserEntity entity = userMapper.selectById(userId);
         Preconditions.expectNotNull(entity, "User not exists with id " + userId);
         UserEntity curUser = userMapper.selectByName(currentUser);
-        Preconditions.expectTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
+        Preconditions.expectTrue(Objects.equals(TenantUserTypeEnum.TENANT_ADMIN.getCode(), curUser.getAccountType())
                 || Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to get other users' info");
 
@@ -224,13 +224,13 @@ public class UserServiceImpl implements UserService {
         // Whether the current user is a manager
         UserEntity currentUserEntity = userMapper.selectByName(currentUser);
         String updateName = request.getName();
-        boolean isAdmin = Objects.equals(UserTypeEnum.ADMIN.getCode(), currentUserEntity.getAccountType());
+        boolean isAdmin = Objects.equals(TenantUserTypeEnum.TENANT_ADMIN.getCode(), currentUserEntity.getAccountType());
         Preconditions.expectTrue(isAdmin || Objects.equals(updateName, currentUser),
                 "You are not a manager and do not have permission to update other users");
 
         // manager cannot set himself as an ordinary
         boolean managerToOrdinary = isAdmin
-                && Objects.equals(UserTypeEnum.OPERATOR.getCode(), request.getAccountType())
+                && Objects.equals(TenantUserTypeEnum.TENANT_OPERATOR.getCode(), request.getAccountType())
                 && Objects.equals(currentUser, updateName);
         Preconditions.expectFalse(managerToOrdinary, "You are a manager and you cannot change to an ordinary user");
 
@@ -287,7 +287,7 @@ public class UserServiceImpl implements UserService {
         // Whether the current user is an administrator
         UserEntity curUser = userMapper.selectByName(currentUser);
         UserEntity entity = userMapper.selectById(userId);
-        Preconditions.expectTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        Preconditions.expectTrue(curUser.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode()),
                 "Current user is not a manager and does not have permission to delete users");
         Preconditions.expectTrue(!Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to delete himself");
@@ -351,7 +351,8 @@ public class UserServiceImpl implements UserService {
     public void checkUser(String inCharges, String user, String errMsg) {
         UserEntity userEntity = userMapper.selectByName(user);
         boolean isInCharge = Preconditions.inSeparatedString(user, inCharges, InlongConstants.COMMA);
-        Preconditions.expectTrue(isInCharge || UserTypeEnum.ADMIN.getCode().equals(userEntity.getAccountType()),
+        Preconditions.expectTrue(
+                isInCharge || TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userEntity.getAccountType()),
                 errMsg);
     }
 

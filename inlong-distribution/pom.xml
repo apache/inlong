@@ -29,6 +29,10 @@
     <packaging>pom</packaging>
     <name>Apache InLong - Distribution</name>
 
+    <properties>
+        <inlong.root.dir>${project.parent.basedir}</inlong.root.dir>
+    </properties>
+
     <build>
         <plugins>
             <plugin>

@@ -52,6 +52,9 @@
     </modules>
 
     <properties>
+        <!-- the root directory of the inlong project -->
+        <inlong.root.dir>${project.basedir}</inlong.root.dir>
+
         <project.build.encoding>UTF-8</project.build.encoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -1284,6 +1287,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
+
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
@@ -1291,10 +1295,10 @@
                 <configuration>
                     <java>
                         <eclipse>
-                            <file>codestyle/spotless_inlong_formatter.xml</file>
+                            <file>${inlong.root.dir}/codestyle/spotless_inlong_formatter.xml</file>
                         </eclipse>
                         <licenseHeader>
-                            <file>codestyle/license-header</file>
+                            <file>${inlong.root.dir}/codestyle/license-header</file>
                         </licenseHeader>
 
                         <importOrder>
@@ -1342,14 +1346,16 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>compile-format</id>
+                        <id>compile-apply-format</id>
                         <goals>
+                            <!-- apply the format when compile the project  -->
                             <goal>apply</goal>
                         </goals>
                         <phase>compile</phase>
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
@@ -1358,6 +1364,7 @@
                     <!-- here add configures -->
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
@@ -1447,6 +1454,7 @@
                         <exclude>**/tubemq-client-go/go.mod</exclude>
                         <!-- Go sum -->
                         <exclude>**/tubemq-client-go/go.sum</exclude>
+                        <exclude>**/dataproxy-sdk-golang/go.sum</exclude>
                         <!-- Docker build-->
                         <exclude>**/docker/docker-compose/**/**</exclude>
 
@@ -1463,6 +1471,7 @@
             </plugin>
         </plugins>
     </build>
+
     <url>https://github.com/apache/inlong</url>
     <inceptionYear>2013</inceptionYear>
 

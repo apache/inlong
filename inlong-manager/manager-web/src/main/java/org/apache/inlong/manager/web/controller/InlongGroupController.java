@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.validation.SaveValidation;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -52,6 +52,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Inlong group control layer
@@ -119,7 +120,8 @@ public class InlongGroupController {
     @ApiOperation(value = "List inlong groups by paginating")
     public Response<PageResult<InlongGroupBriefInfo>> listBrief(@RequestBody InlongGroupPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
-        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserTypeEnum.ADMIN.name()));
+        request.setIsAdminRole(
+                LoginUserUtils.getLoginUser().getRoles().contains(TenantUserTypeEnum.TENANT_ADMIN.name()));
         return Response.success(groupService.listBrief(request));
     }
 
@@ -195,4 +197,12 @@ public class InlongGroupController {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.resetGroupStatus(request, operator));
     }
+
+    @RequestMapping(value = "/group/detail/{groupId}", method = RequestMethod.GET)
+    @ApiOperation(value = "get group detail")
+    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    public Response<Map<String, Object>> detail(@PathVariable String groupId) {
+        return Response.success(groupService.detail(groupId));
+    }
+
 }

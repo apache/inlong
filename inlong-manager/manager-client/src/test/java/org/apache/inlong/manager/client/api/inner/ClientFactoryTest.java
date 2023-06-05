@@ -37,7 +37,7 @@ import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -1007,7 +1007,7 @@ class ClientFactoryTest {
         request.setName("test_user");
         request.setPassword("test_pwd");
         request.setNewPassword("test_new_pwd");
-        request.setAccountType(UserTypeEnum.ADMIN.getCode());
+        request.setAccountType(TenantUserTypeEnum.TENANT_ADMIN.getCode());
         Integer userId = userClient.update(request);
         Assertions.assertEquals(userId, 1);
     }

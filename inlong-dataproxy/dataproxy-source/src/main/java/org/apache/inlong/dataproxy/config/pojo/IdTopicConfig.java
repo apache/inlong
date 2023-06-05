@@ -17,7 +17,9 @@
 
 package org.apache.inlong.dataproxy.config.pojo;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.sdk.commons.protocol.InlongId;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +33,7 @@ public class IdTopicConfig {
     private String inlongGroupId;
     private String inlongStreamid;
     private String topicName;
+    private String nameSpace;
     private DataType dataType = DataType.TEXT;
     private String fieldDelimiter = "|";
     private String fileDelimiter = "\n";
@@ -43,28 +46,6 @@ public class IdTopicConfig {
      */
     public String getUid() {
         return uid;
-    }
-
-    /**
-     * generateUid
-     * @param  inlongGroupId
-     * @param  inlongStreamId
-     * @return
-     */
-    public static String generateUid(String inlongGroupId, String inlongStreamId) {
-        if (StringUtils.isBlank(inlongGroupId)) {
-            if (StringUtils.isBlank(inlongStreamId)) {
-                return "";
-            } else {
-                return inlongStreamId;
-            }
-        } else {
-            if (StringUtils.isBlank(inlongStreamId)) {
-                return inlongGroupId;
-            } else {
-                return inlongGroupId + "." + inlongStreamId;
-            }
-        }
     }
 
     /**
@@ -81,7 +62,33 @@ public class IdTopicConfig {
      */
     public void setInlongGroupId(String inlongGroupId) {
         this.inlongGroupId = inlongGroupId;
-        this.uid = generateUid(this.inlongGroupId, this.inlongStreamid);
+        this.uid = InlongId.generateUid(this.inlongGroupId, this.inlongStreamid);
+    }
+
+    /**
+     * set inlongGroupId
+     * @param inlongGroupId the inlongGroupId to set
+     * @param inlongStreamid the inlongStreamid to set
+     */
+    public void setInlongGroupIdAndStreamId(String inlongGroupId, String inlongStreamid) {
+        this.inlongGroupId = inlongGroupId;
+        this.inlongStreamid = inlongStreamid;
+        this.uid = InlongId.generateUid(this.inlongGroupId, this.inlongStreamid);
+    }
+
+    public String getPulsarTopicName(String clusterTenant, String clusterNameSpace) {
+        StringBuilder builder = new StringBuilder(256);
+        if (clusterTenant != null) {
+            builder.append(clusterTenant).append("/");
+        }
+        String namespace = clusterNameSpace;
+        if (namespace == null) {
+            namespace = this.nameSpace;
+        }
+        if (namespace != null) {
+            builder.append(namespace).append("/");
+        }
+        return builder.append(topicName).toString();
     }
 
     /**
@@ -90,15 +97,6 @@ public class IdTopicConfig {
      */
     public String getInlongStreamid() {
         return inlongStreamid;
-    }
-
-    /**
-     * set inlongStreamid
-     * @param inlongStreamid the inlongStreamid to set
-     */
-    public void setInlongStreamid(String inlongStreamid) {
-        this.inlongStreamid = inlongStreamid;
-        this.uid = generateUid(this.inlongGroupId, this.inlongStreamid);
     }
 
     /**
@@ -166,6 +164,22 @@ public class IdTopicConfig {
     }
 
     /**
+     * get nameSpace
+     * @return the nameSpace
+     */
+    public String getNameSpace() {
+        return nameSpace;
+    }
+
+    /**
+     * set nameSpace
+     * @param nameSpace the nameSpace to set
+     */
+    public void setNameSpace(String nameSpace) {
+        this.nameSpace = nameSpace;
+    }
+
+    /**
      * get params
      * @return the params
      */
@@ -181,16 +195,18 @@ public class IdTopicConfig {
         this.params = params;
     }
 
-    /**
-     * formatTopicName<br>
-     * change full topic name "pulsar-9xn9wp35pbxb/test/atta_topic_1" to base topic name "atta_topic_1"<br>
-     */
-    public void formatTopicName() {
-        if (this.topicName != null) {
-            int index = this.topicName.lastIndexOf('/');
-            if (index >= 0) {
-                this.topicName = this.topicName.substring(index + 1);
-            }
-        }
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("uid", uid)
+                .append("inlongGroupId", inlongGroupId)
+                .append("inlongStreamid", inlongStreamid)
+                .append("topicName", topicName)
+                .append("nameSpace", nameSpace)
+                .append("dataType", dataType)
+                .append("fieldDelimiter", fieldDelimiter)
+                .append("fileDelimiter", fileDelimiter)
+                .append("params", params)
+                .toString();
     }
 }

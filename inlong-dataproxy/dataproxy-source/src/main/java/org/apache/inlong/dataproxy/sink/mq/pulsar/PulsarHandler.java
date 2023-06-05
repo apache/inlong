@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.sink.mq.pulsar;
 
 import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.consts.StatConstants;
@@ -49,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -188,6 +190,11 @@ public class PulsarHandler implements MessageQueueHandler {
         LOG.info("pulsar handler stopped");
     }
 
+    @Override
+    public void publishTopic(Set<String> topicSet) {
+        //
+    }
+
     /**
      * send
      * @param event
@@ -197,7 +204,8 @@ public class PulsarHandler implements MessageQueueHandler {
     public boolean send(BatchPackProfile event) {
         try {
             // idConfig
-            IdTopicConfig idConfig = sinkContext.getIdTopicHolder().getIdConfig(event.getUid());
+            IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
+                    event.getInlongGroupId(), event.getInlongStreamId());
             if (idConfig == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOUID);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
@@ -205,16 +213,8 @@ public class PulsarHandler implements MessageQueueHandler {
                 event.fail();
                 return false;
             }
-            String baseTopic = idConfig.getTopicName();
-            if (baseTopic == null) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
-                sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.fail();
-                return false;
-            }
             // topic
-            String producerTopic = this.getProducerTopic(baseTopic, idConfig);
+            String producerTopic = idConfig.getPulsarTopicName(tenant, namespace);
             if (producerTopic == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
@@ -265,25 +265,6 @@ public class PulsarHandler implements MessageQueueHandler {
             LOG.error(e.getMessage(), e);
             return false;
         }
-    }
-
-    /**
-     * getProducerTopic
-     */
-    private String getProducerTopic(String baseTopic, IdTopicConfig config) {
-        StringBuilder builder = new StringBuilder();
-        if (tenant != null) {
-            builder.append(tenant).append("/");
-        }
-        String namespace = this.namespace;
-        if (namespace == null) {
-            namespace = config.getParams().get(PulsarHandler.KEY_NAMESPACE);
-        }
-        if (namespace != null) {
-            builder.append(namespace).append("/");
-        }
-        builder.append(baseTopic);
-        return builder.toString();
     }
 
     /**

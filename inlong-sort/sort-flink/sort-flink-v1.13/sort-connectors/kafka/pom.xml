@@ -27,8 +27,11 @@
     </parent>
 
     <artifactId>sort-connector-kafka</artifactId>
-    <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-kafka</name>
+
+    <properties>
+        <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -43,6 +46,12 @@
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>audit-sdk</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-common</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
@@ -133,6 +142,18 @@
                                 <relocation>
                                     <pattern>org.apache.commons.lang3</pattern>
                                     <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.commons.lang3</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.configuration</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.inlong.sort.configuration</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.protocol</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.inlong.sort.protocol</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.util</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.kafka.shaded.org.apache.inlong.sort.util</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

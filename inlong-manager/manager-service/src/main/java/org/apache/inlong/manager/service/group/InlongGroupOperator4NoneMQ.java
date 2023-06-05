@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * Inlong group operator without MQ.
  */
@@ -68,6 +70,12 @@ public class InlongGroupOperator4NoneMQ extends AbstractGroupOperator {
     @Override
     public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
         LOGGER.info("return null topic for inlong group without MQ");
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getMqInfo(InlongGroupInfo groupInfo) {
+        LOGGER.info("return null for inlong group without MQ");
         return null;
     }
 

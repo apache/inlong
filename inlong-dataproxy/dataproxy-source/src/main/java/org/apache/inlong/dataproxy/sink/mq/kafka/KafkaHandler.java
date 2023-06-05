@@ -17,7 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mq.kafka;
 
-import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.consts.StatConstants;
@@ -29,7 +29,6 @@ import org.apache.inlong.dataproxy.sink.mq.OrderBatchPackProfileV0;
 import org.apache.inlong.dataproxy.sink.mq.SimpleBatchPackProfileV0;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -42,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * KafkaHandler
@@ -92,6 +92,11 @@ public class KafkaHandler implements MessageQueueHandler {
         }
     }
 
+    @Override
+    public void publishTopic(Set<String> topicSet) {
+        //
+    }
+
     /**
      * stop
      */
@@ -111,7 +116,8 @@ public class KafkaHandler implements MessageQueueHandler {
     public boolean send(BatchPackProfile event) {
         try {
             // idConfig
-            IdTopicConfig idConfig = sinkContext.getIdTopicHolder().getIdConfig(event.getUid());
+            IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
+                    event.getInlongGroupId(), event.getInlongStreamId());
             if (idConfig == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOUID);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
@@ -119,15 +125,14 @@ public class KafkaHandler implements MessageQueueHandler {
                 event.fail();
                 return false;
             }
-            String baseTopic = idConfig.getTopicName();
-            if (baseTopic == null) {
+            String topic = idConfig.getTopicName();
+            if (topic == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.fail();
                 return false;
             }
-            String topic = getProducerTopic(baseTopic, idConfig);
             // create producer failed
             if (producer == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOPRODUCER);
@@ -149,17 +154,6 @@ public class KafkaHandler implements MessageQueueHandler {
             LOG.error(e.getMessage(), e);
             return false;
         }
-    }
-
-    /**
-     * getProducerTopic
-     */
-    private String getProducerTopic(String baseTopic, IdTopicConfig config) {
-        String namespace = config.getParams().get(KEY_NAMESPACE);
-        if (StringUtils.isNotEmpty(namespace)) {
-            return String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT, namespace, baseTopic);
-        }
-        return baseTopic;
     }
 
     /**

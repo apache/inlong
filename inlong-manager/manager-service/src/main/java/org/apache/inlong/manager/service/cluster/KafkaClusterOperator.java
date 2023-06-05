@@ -40,6 +40,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -110,6 +112,14 @@ public class KafkaClusterOperator extends AbstractClusterOperator {
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
+    }
+
+    @Override
+    public Object getClusterInfo(InlongClusterEntity entity) {
+        KafkaClusterInfo kafkaClusterInfo = (KafkaClusterInfo) this.getFromEntity(entity);
+        Map<String, String> map = new HashMap<>();
+        map.put("url", kafkaClusterInfo.getUrl());
+        return map;
     }
 
 }

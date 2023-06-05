@@ -34,7 +34,7 @@ public interface InlongTenantEntityMapper {
 
     int updateByIdSelective(InlongTenantEntity record);
 
-    Page<InlongTenantEntity> selectByCondition(InlongTenantPageRequest pageRequest);
+    Page<InlongTenantEntity> selectByCondition(InlongTenantPageRequest request);
 
     InlongTenantEntity selectByName(String name);
 }

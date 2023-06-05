@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.NodeStatus;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -212,7 +212,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (CollectionUtils.isNotEmpty(clusterTagEntities)) {
             for (InlongClusterTagEntity tagEntity : clusterTagEntities) {
                 // only the person in charges can query
-                if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
+                if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
                     List<String> inCharges = Arrays.asList(tagEntity.getInCharges().split(InlongConstants.COMMA));
                     if (!inCharges.contains(opInfo.getName())) {
                         continue;
@@ -525,7 +525,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         List<InlongClusterEntity> filterResult = new ArrayList<>();
         for (InlongClusterEntity entity : clusterEntities) {
             // only the person in charges can query
-            if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
+            if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
                 List<String> inCharges = Arrays.asList(entity.getInCharges().split(InlongConstants.COMMA));
                 if (!inCharges.contains(opInfo.getName())) {
                     continue;
@@ -937,7 +937,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     clusterMapper.selectByKey(request.getClusterTag(), request.getName(), request.getType());
             for (InlongClusterEntity cluster : clusterList) {
                 // only the person in charges can query
-                if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
+                if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
                     List<String> inCharges = Arrays.asList(cluster.getInCharges().split(InlongConstants.COMMA));
                     if (!inCharges.contains(opInfo.getName())) {
                         continue;

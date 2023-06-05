@@ -20,7 +20,6 @@ package org.apache.inlong.manager.pojo.tenant;
 import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
 import org.apache.inlong.manager.common.validation.UpdateByKeyValidation;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -35,7 +34,6 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Tenant request")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
 public class InlongTenantRequest {
 
     @ApiModelProperty(value = "Primary key")

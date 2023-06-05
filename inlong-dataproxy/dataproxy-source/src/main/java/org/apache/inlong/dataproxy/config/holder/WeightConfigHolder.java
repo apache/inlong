@@ -17,8 +17,6 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import org.apache.inlong.dataproxy.config.PropertiesHolder;
-
 import com.google.common.util.concurrent.AtomicDouble;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

@@ -22,11 +22,15 @@
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-tubemq</artifactId>
         <version>1.8.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
+
     <artifactId>tubemq-client</artifactId>
     <name>Apache InLong - TubeMQ Client</name>
     <description>Client functionality for TubeMQ</description>
+
+    <properties>
+        <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+    </properties>
 
     <dependencies>
         <dependency>

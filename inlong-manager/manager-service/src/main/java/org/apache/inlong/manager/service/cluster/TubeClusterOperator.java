@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -111,6 +113,15 @@ public class TubeClusterOperator extends AbstractClusterOperator {
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
+    }
+
+    @Override
+    public Object getClusterInfo(InlongClusterEntity entity) {
+        TubeClusterInfo tubeClusterInfo = (TubeClusterInfo) this.getFromEntity(entity);
+        Map<String, String> map = new HashMap<>();
+        map.put("RPC Url", tubeClusterInfo.getUrl());
+        map.put("Web url", tubeClusterInfo.getMasterWebUrl());
+        return map;
     }
 
 }
