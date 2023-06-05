@@ -44,7 +44,6 @@ require (
 )
 
 require (
-	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/klauspost/compress v1.15.15
 	go.uber.org/atomic v1.11.0
 	go.uber.org/zap v1.24.0 // indirect

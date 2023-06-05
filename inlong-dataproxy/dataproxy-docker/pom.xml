@@ -25,8 +25,13 @@
         <artifactId>inlong-dataproxy</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>dataproxy-docker</artifactId>
     <name>Apache InLong - DataProxy Docker</name>
+
+    <properties>
+        <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+    </properties>
 
     <dependencies>
         <dependency>

@@ -22,8 +22,6 @@ dataproxy-sdk-golang is the golang version of InLong DataProxy client SDK.
 
 ### example
 
-refer: cli/main.go
-
 ``` go
 package main
 
@@ -36,13 +34,11 @@ import (
 	"strings"
 	"time"
 
-	"go.uber.org/atomic"
-
 	"github.com/apache/inlong/inlong-sdk/dataproxy-sdk-twins/dataproxy-sdk-golang/dataproxy"
+	"go.uber.org/atomic"
 )
 
 var (
-	set      string
 	url      string
 	groupID  string
 	streamID string
@@ -72,11 +68,10 @@ func (f mapFlag) Set(value string) error {
 
 func main() {
 	addCols = make(map[string]string)
-	flag.StringVar(&set, "set", "SH_IEG", "dataproxy set")
-	flag.StringVar(&url, "url", dataproxy.DefaultURL, "dataproxy URL")
-	flag.StringVar(&groupID, "group-id", "b_ieg_tglogv3_test", "dataproxy group ID")
-	flag.StringVar(&streamID, "stream-id", "GameSvrState", "dataproxy stream ID")
-	flag.StringVar(&payload, "payload", "GameSvrState|GameSvrId-Test|2023-01-11 10:08:30|127.0.0.1|1", "message payload")
+	flag.StringVar(&url, "url", "http://127.0.0.1:8083/inlong/manager/openapi/dataproxy/getIpList", "the Manager URL")
+	flag.StringVar(&groupID, "group-id", "test_pusar_group", "Group ID")
+	flag.StringVar(&streamID, "stream-id", "test_pusar_stream", "Stream ID")
+	flag.StringVar(&payload, "payload", "sdk_test_1|1", "message payload")
 	flag.IntVar(&count, "count", 10, "send count")
 	flag.Var(&addCols, "col", "add columns, for example: -col k1=v1 -col k2=v2")
 	flag.BoolVar(&async, "async", false, "send asynchronously")
@@ -84,10 +79,9 @@ func main() {
 
 	var err error
 	client, err := dataproxy.NewClient(
-		dataproxy.WithSet(set),
 		dataproxy.WithGroupID(groupID),
 		dataproxy.WithURL(url),
-		dataproxy.WithMetricsName("clit"),
+		dataproxy.WithMetricsName("cli"),
 		dataproxy.WithAddColumns(addCols),
 	)
 
@@ -136,14 +130,13 @@ func wait() {
 
 ### Options
 
-refer: dataproxy/options.go
+refer: [options.go](dataproxy/options.go)
 
 ``` go
 // Options is the DataProxy go client configs
 type Options struct {
-	Set                     string                // the set name of the server
 	GroupID                 string                // InLong group ID
-	URL                     string                // URL where the discoverer to get the endpoint list of the server
+	URL                     string                // the Manager URL for discovering the DataProxy cluster
 	UpdateInterval          time.Duration         // interval to refresh the endpoint list, default: 5m
 	ConnTimeout             time.Duration         // connection timeout: default: 3000ms
 	WriteBufferSize         int                   // write buffer size in bytes, default: 16M
@@ -159,7 +152,7 @@ type Options struct {
 	MetricsName             string                // the unique metrics name of this SDK, used to isolate metrics in the case that more than 1 client are initialized in one process
 	MetricsRegistry         prometheus.Registerer // metrics registry, default: prometheus.DefaultRegisterer
 	WorkerNum               int                   // worker number, default: 8
-	SendTimeout             time.Duration         // send timeout, default: 20000ms
+	SendTimeout             time.Duration         // send timeout, default: 30000ms
 	MaxRetries              int                   // max retry count, default: 2
 	BatchingMaxPublishDelay time.Duration         // the time period within which the messages sent will be batched, default: 10ms
 	BatchingMaxMessages     int                   // the maximum number of messages permitted in a batch, default: 10
@@ -179,11 +172,8 @@ A: It is used to isolate the prometheus metrics in the case you initialize more 
 
 Q: What is the purpose of the "AddColumns" option?
 
-A: In some case, you may need to add some meta/headers to you message, AddColumns can help you to do that. AddColumns
-can add some fix columns and values to your message. For example: \_\_addcol1\_\_worldid=xxx&\_\_addcol2\_\_ip=yyy, all
-the messages will be updated with 2 more columns with worldid=xxx and ip=yyy.
+A: In some case, you may need to add some meta/headers to you message, AddColumns can help you to do that. AddColumns can add some fix columns and values to your message. For example: \_\_addcol1\_\_worldid=xxx&\_\_addcol2\_\_ip=yyy, all the messages will be updated with 2 more columns with worldid=xxx and ip=yyy.
 
 Q: How to hook the debug logger?
 
-A: The debug logger is defined as an interface, while logrus logger and zap sugar logger are compatible with that
-interface, so you can pass a logrus logger or zap sugar logger as the debug logger.
+A: The debug logger is defined as an interface, while logrus logger and zap sugar logger are compatible with that interface, so you can pass a logrus logger or zap sugar logger as the debug logger.

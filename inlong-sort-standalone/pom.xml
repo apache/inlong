@@ -25,6 +25,7 @@
         <artifactId>inlong</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>inlong-sort-standalone</artifactId>
     <packaging>pom</packaging>
     <name>Apache InLong - Sort Standalone</name>
@@ -34,6 +35,10 @@
         <module>sort-standalone-source</module>
         <module>sort-standalone-dist</module>
     </modules>
+
+    <properties>
+        <inlong.root.dir>${project.parent.basedir}</inlong.root.dir>
+    </properties>
 
     <dependencies>
         <dependency>

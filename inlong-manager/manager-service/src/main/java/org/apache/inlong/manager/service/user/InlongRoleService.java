@@ -15,26 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config;
+package org.apache.inlong.manager.service.user;
 
-import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
+import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
+import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
 
-public class RemoteConfigJson {
+import com.github.pagehelper.PageInfo;
 
-    private boolean success;
-    private String errMsg;
-    private DataProxyConfig data;
+public interface InlongRoleService {
 
-    public boolean isSuccess() {
-        return success;
-    }
+    PageInfo<InlongRoleInfo> listByCondition(InlongRolePageRequest request);
 
-    public String getErrMsg() {
-        return errMsg;
-    }
+    int save(InlongRoleRequest request, String operator);
 
-    public DataProxyConfig getData() {
-        return data;
-    }
+    boolean update(InlongRoleRequest request, String operator);
 
+    InlongRoleInfo get(int id);
 }

@@ -17,8 +17,6 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import org.apache.inlong.dataproxy.config.PropertiesHolder;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +36,11 @@ public class GroupIdNumConfigHolder extends PropertiesHolder {
     private static final String GROUPID_VALUE_SPLITTER = "#";
     private static final Logger LOG = LoggerFactory.getLogger(GroupIdNumConfigHolder.class);
 
-    private ConcurrentHashMap<String, String> groupIdNumMap =
+    private final ConcurrentHashMap<String, String> groupIdNumMap =
             new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, String>> streamIdNumMap =
+    private final ConcurrentHashMap<String, ConcurrentHashMap<String, String>> streamIdNumMap =
             new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, Boolean> groupIdNumEnableMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Boolean> groupIdNumEnableMap = new ConcurrentHashMap<>();
 
     public GroupIdNumConfigHolder() {
         super(groupIdNumConfigFileName);

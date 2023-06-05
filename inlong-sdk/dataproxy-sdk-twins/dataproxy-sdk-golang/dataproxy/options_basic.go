@@ -28,16 +28,6 @@ import (
 // Option is the Options helper.
 type Option func(*Options)
 
-// WithSet sets Set
-func WithSet(s string) Option {
-	return func(o *Options) {
-		if s == "" {
-			return
-		}
-		o.Set = s
-	}
-}
-
 // WithGroupID sets GroupID
 func WithGroupID(g string) Option {
 	return func(o *Options) {

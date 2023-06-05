@@ -22,7 +22,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.enums.TenantUserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -319,7 +319,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     public PageResult<? extends StreamSink> listByCondition(SinkPageRequest request, String operator) {
         Preconditions.expectNotBlank(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         UserInfo userInfo = userService.getByName(operator);
-        boolean isAdmin = UserTypeEnum.ADMIN.getCode().equals(userInfo.getAccountType());
+        boolean isAdmin = TenantUserTypeEnum.TENANT_ADMIN.getCode().equals(userInfo.getAccountType());
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
@@ -379,7 +379,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                     continue;
                 }
                 // only the person in charges can query
-                if (!opInfo.getAccountType().equals(UserTypeEnum.ADMIN.getCode())) {
+                if (!opInfo.getAccountType().equals(TenantUserTypeEnum.TENANT_ADMIN.getCode())) {
                     List<String> inCharges = Arrays.asList(groupEntity.getInCharges().split(InlongConstants.COMMA));
                     if (!inCharges.contains(opInfo.getName())) {
                         continue;

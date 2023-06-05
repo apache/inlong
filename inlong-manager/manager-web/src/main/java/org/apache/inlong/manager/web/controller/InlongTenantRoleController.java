@@ -51,7 +51,7 @@ public class InlongTenantRoleController {
     @RequestMapping(value = "/role/tenant/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get tenant role")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<TenantRoleInfo> get(@PathVariable int id) {
         return Response.success(tenantRoleService.get(id));
     }
@@ -59,7 +59,7 @@ public class InlongTenantRoleController {
     @RequestMapping(value = "/role/tenant/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save tenant role")
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Integer> save(@Validated @RequestBody TenantRoleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(tenantRoleService.save(request, operator));
@@ -68,7 +68,7 @@ public class InlongTenantRoleController {
     @RequestMapping(value = "/role/tenant/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Update tenant role")
-    @RequiresRoles(value = UserRoleCode.ADMIN)
+    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
     public Response<Boolean> update(@Validated @RequestBody TenantRoleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(tenantRoleService.update(request, operator));

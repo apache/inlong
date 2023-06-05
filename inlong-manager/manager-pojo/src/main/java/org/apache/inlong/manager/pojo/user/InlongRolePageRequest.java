@@ -15,17 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config.loader;
+package org.apache.inlong.manager.pojo.user;
 
-import java.util.List;
+import org.apache.inlong.manager.pojo.common.PageRequest;
 
-/**
- * 
- * ConfigLoader
- */
-public interface ConfigLoader<T> {
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-    String RELOAD_INTERVAL = "reloadInterval";
+@Data
+@EqualsAndHashCode(callSuper = false)
+@ApiModel("Inlong user paging query request")
+public class InlongRolePageRequest extends PageRequest {
 
-    List<T> load();
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
+
+    @ApiModelProperty(value = "User name")
+    private String username;
+
+    @ApiModelProperty(value = "Role code")
+    private String roleCode;
+
+    @ApiModelProperty(value = "If disabled")
+    private Integer disabled;
 }

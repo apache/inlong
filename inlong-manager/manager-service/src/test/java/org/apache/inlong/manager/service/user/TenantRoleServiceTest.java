@@ -51,7 +51,7 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
     public void testSaveWithoutTenant() {
         TenantRoleRequest request = new TenantRoleRequest();
         request.setTenant("not exist tenant");
-        request.setRoleCode(UserRoleCode.ADMIN);
+        request.setRoleCode(UserRoleCode.TENANT_ADMIN);
         request.setUsername(LoginUserUtils.getLoginUser().getName());
         int code = -1;
         try {
@@ -68,7 +68,7 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
         TenantRoleRequest request = new TenantRoleRequest();
         request.setTenant("public");
         request.setUsername(LoginUserUtils.getLoginUser().getName());
-        request.setRoleCode(UserRoleCode.ADMIN);
+        request.setRoleCode(UserRoleCode.TENANT_ADMIN);
         int id = service.save(request, LoginUserUtils.getLoginUser().getName());
         TenantRoleInfo info = service.get(id);
         Assertions.assertEquals(request.getTenant(), info.getTenant());
@@ -83,13 +83,13 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
         TenantRoleRequest request = new TenantRoleRequest();
         request.setTenant("public");
         request.setUsername(newUser);
-        request.setRoleCode(UserRoleCode.ADMIN);
+        request.setRoleCode(UserRoleCode.TENANT_ADMIN);
         int id = service.save(request, LoginUserUtils.getLoginUser().getName());
         TenantRoleInfo oldInfo = service.get(id);
-        oldInfo.setRoleCode(UserRoleCode.OPERATOR);
+        oldInfo.setRoleCode(UserRoleCode.TENANT_OPERATOR);
         service.update(oldInfo.genRequest(), LoginUserUtils.getLoginUser().getName());
         TenantRoleInfo newInfo = service.get(id);
-        Assertions.assertEquals(UserRoleCode.OPERATOR, newInfo.getRoleCode());
+        Assertions.assertEquals(UserRoleCode.TENANT_OPERATOR, newInfo.getRoleCode());
     }
 
     @Test
@@ -98,7 +98,7 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
         int max = 5;
         TenantRoleRequest request = new TenantRoleRequest();
         request.setTenant("public");
-        request.setRoleCode(UserRoleCode.OPERATOR);
+        request.setRoleCode(UserRoleCode.TENANT_OPERATOR);
         for (int i = 0; i < max; i++) {
             request.setUsername("testName" + i);
             service.save(request, LoginUserUtils.getLoginUser().getName());

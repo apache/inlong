@@ -25,8 +25,11 @@
     </parent>
 
     <artifactId>sort-connector-elasticsearch7</artifactId>
-    <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-elasticsearch7</name>
+
+    <properties>
+        <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
+    </properties>
 
     <dependencies>
         <dependency>

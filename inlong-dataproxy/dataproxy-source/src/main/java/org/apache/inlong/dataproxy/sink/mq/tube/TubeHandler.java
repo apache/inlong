@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.sink.mq.tube;
 
 import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -37,7 +38,6 @@ import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
 import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.Message;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,6 +104,21 @@ public class TubeHandler implements MessageQueueHandler {
         }
     }
 
+    @Override
+    public void publishTopic(Set<String> topicSet) {
+        if (this.producer == null || topicSet == null || topicSet.isEmpty()) {
+            return;
+        }
+        Set<String> published;
+        try {
+            published = producer.publish(topicSet);
+            LOG.info("Publish topics to {}, need publish are {}, published are {}",
+                    this.clusterName, topicSet, published);
+        } catch (Throwable e) {
+            LOG.warn("Publish topics to {} failure", this.clusterName, e);
+        }
+    }
+
     /**
      * initTubeConfig
      * @return
@@ -160,23 +175,14 @@ public class TubeHandler implements MessageQueueHandler {
         LOG.info("tube handler stopped");
     }
 
-    private String getTubeTopic(IdTopicConfig idConfig) {
-        // consider first using group mq resource as tube topic, for example, group id
-        String topic = idConfig.getParams().get(KEY_NAMESPACE);
-        if (StringUtils.isBlank(topic)) {
-            // use whatever user specifies in stream mq resource
-            topic = idConfig.getTopicName();
-        }
-        return topic;
-    }
-
     /**
      * send
      */
     public boolean send(BatchPackProfile event) {
         try {
             // idConfig
-            IdTopicConfig idConfig = sinkContext.getIdTopicHolder().getIdConfig(event.getUid());
+            IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
+                    event.getInlongGroupId(), event.getInlongStreamId());
             if (idConfig == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOUID);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
@@ -184,7 +190,7 @@ public class TubeHandler implements MessageQueueHandler {
                 event.fail();
                 return false;
             }
-            String topic = getTubeTopic(idConfig);
+            String topic = idConfig.getTopicName();
             if (topic == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);

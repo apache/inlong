@@ -27,39 +27,39 @@ import java.util.stream.Collectors;
 /**
  * User type enum
  */
-public enum UserTypeEnum implements IntListValuable {
+public enum TenantUserTypeEnum implements IntListValuable {
 
     /**
      * Has all privilege
      */
-    ADMIN(0),
+    TENANT_ADMIN(0),
     /**
      * No privilege to manage the system
      */
-    OPERATOR(1),
+    TENANT_OPERATOR(1),
     ;
 
     @Getter
     @JsonValue
     private final Integer code;
 
-    UserTypeEnum(Integer code) {
+    TenantUserTypeEnum(Integer code) {
         this.code = code;
     }
 
-    private static final List<Integer> ARRAYS = Arrays.stream(values())
-            .map(UserTypeEnum::getCode)
+    private static final List<Integer> TYPE_CODE_LIST = Arrays.stream(values())
+            .map(TenantUserTypeEnum::getCode)
             .collect(Collectors.toList());
 
-    public static UserTypeEnum parseCode(Integer value) {
-        return Arrays.stream(UserTypeEnum.class.getEnumConstants())
+    public static TenantUserTypeEnum parseCode(Integer value) {
+        return Arrays.stream(TenantUserTypeEnum.class.getEnumConstants())
                 .filter(x -> x.getCode().equals(value))
                 .findAny()
                 .orElse(null);
     }
 
     public static Integer parseName(String value) {
-        for (UserTypeEnum type : UserTypeEnum.values()) {
+        for (TenantUserTypeEnum type : TenantUserTypeEnum.values()) {
             if (type.name().equals(value)) {
                 return type.code;
             }
@@ -74,7 +74,7 @@ public enum UserTypeEnum implements IntListValuable {
 
     @Override
     public List<Integer> valueList() {
-        return ARRAYS;
+        return TYPE_CODE_LIST;
     }
 
 }

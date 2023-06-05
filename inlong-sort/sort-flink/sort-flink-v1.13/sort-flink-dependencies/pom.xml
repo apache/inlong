@@ -29,6 +29,10 @@
     <artifactId>sort-flink-dependencies-v1.13</artifactId>
     <name>Apache InLong - Sort Flink Dependencies v1.13</name>
 
+    <properties>
+        <inlong.root.dir>${project.parent.parent.parent.parent.basedir}</inlong.root.dir>
+    </properties>
+
     <dependencies>
         <!--flink 1.13.5-->
         <dependency>

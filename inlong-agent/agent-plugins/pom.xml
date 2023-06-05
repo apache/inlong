@@ -25,10 +25,12 @@
         <artifactId>inlong-agent</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>agent-plugins</artifactId>
     <name>Apache InLong - Agent Plugins</name>
 
     <properties>
+        <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
         <debezium.version>1.8.0.Final</debezium.version>
     </properties>
 

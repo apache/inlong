@@ -37,5 +37,6 @@ public class TestCommonConfigHolder {
         Assert.assertTrue(CommonConfigHolder.getInstance().isEnableWhiteList());
         assertEquals("DataProxy",
                 CommonConfigHolder.getInstance().getProperties().get(MetricListener.KEY_METRIC_DOMAINS));
+        assertEquals(50, CommonConfigHolder.getInstance().getMetaConfigSyncInvlMs());
     }
 }

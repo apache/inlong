@@ -27,8 +27,13 @@
         <artifactId>inlong-manager</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>manager-docker</artifactId>
     <name>Apache InLong - Manager Docker</name>
+
+    <properties>
+        <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+    </properties>
 
     <dependencies>
         <!-- copy manager-web.tar.gz to the manager-docker/target path -->

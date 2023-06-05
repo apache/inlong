@@ -15,17 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.config;
+package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
+import org.apache.inlong.manager.dao.entity.InlongUserRoleEntity;
+import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
 
-import java.util.concurrent.atomic.AtomicReference;
+import com.github.pagehelper.Page;
+import org.springframework.stereotype.Repository;
 
-/**
- * 
- * IDataProxyConfigHolder
- */
-public interface IDataProxyConfigHolder {
+@Repository
+public interface InlongUserRoleEntityMapper {
 
-    void setDataProxyConfig(AtomicReference<DataProxyCluster> proxyClusterObjectRef);
+    int insert(InlongUserRoleEntity record);
+
+    InlongUserRoleEntity selectById(Integer id);
+
+    int updateById(InlongUserRoleEntity record);
+
+    Page<InlongUserRoleEntity> selectByCondition(InlongRolePageRequest request);
 }
