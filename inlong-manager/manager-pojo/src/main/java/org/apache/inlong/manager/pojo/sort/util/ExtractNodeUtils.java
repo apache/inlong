@@ -226,7 +226,7 @@ public class ExtractNodeUtils {
     public static PulsarExtractNode createExtractNode(PulsarSource pulsarSource) {
         List<FieldInfo> fieldInfos = parseFieldInfos(pulsarSource.getFieldList(), pulsarSource.getSourceName());
         String fullTopicName =
-                pulsarSource.getTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
+                pulsarSource.getPulsarTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
 
         Format format = parsingFormat(pulsarSource.getSerializationType(),
                 pulsarSource.isWrapWithInlongMsg(),

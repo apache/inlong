@@ -585,13 +585,13 @@ public class AgentServiceImpl implements AgentService {
                 if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
                     // first get the tenant from the InlongGroup, and then get it from the PulsarCluster.
                     InlongPulsarDTO pulsarDTO = InlongPulsarDTO.getFromJson(groupEntity.getExtParams());
-                    String tenant = pulsarDTO.getTenant();
+                    String tenant = pulsarDTO.getPulsarTenant();
                     if (StringUtils.isBlank(tenant)) {
                         // If there are multiple Pulsar clusters, take the first one.
                         // Note that the tenants in multiple Pulsar clusters must be identical.
                         PulsarClusterDTO pulsarCluster = PulsarClusterDTO.getFromJson(
                                 mqClusterList.get(0).getExtParams());
-                        tenant = pulsarCluster.getTenant();
+                        tenant = pulsarCluster.getPulsarTenant();
                     }
 
                     String topic = String.format(InlongConstants.PULSAR_TOPIC_FORMAT,

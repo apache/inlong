@@ -45,7 +45,7 @@ public class PulsarClusterRequest extends ClusterRequest {
     private String adminUrl;
 
     @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
-    private String tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+    private String pulsarTenant = InlongConstants.DEFAULT_PULSAR_TENANT;
 
     public PulsarClusterRequest() {
         this.setType(ClusterType.PULSAR);

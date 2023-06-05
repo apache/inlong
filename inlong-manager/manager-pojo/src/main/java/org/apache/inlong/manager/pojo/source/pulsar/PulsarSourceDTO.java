@@ -41,7 +41,7 @@ import java.util.Map;
 public class PulsarSourceDTO {
 
     @ApiModelProperty("Pulsar tenant")
-    private String tenant;
+    private String pulsarTenant;
 
     @ApiModelProperty("Pulsar namespace")
     private String namespace;
@@ -85,7 +85,7 @@ public class PulsarSourceDTO {
         return PulsarSourceDTO.builder()
                 .adminUrl(request.getAdminUrl())
                 .serviceUrl(request.getServiceUrl())
-                .tenant(request.getTenant())
+                .pulsarTenant(request.getPulsarTenant())
                 .namespace(request.getNamespace())
                 .topic(request.getTopic())
                 .subscription(request.getSubscription())

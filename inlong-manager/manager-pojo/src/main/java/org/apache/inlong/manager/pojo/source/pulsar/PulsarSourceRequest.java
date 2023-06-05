@@ -40,7 +40,7 @@ import java.nio.charset.StandardCharsets;
 public class PulsarSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Pulsar tenant")
-    private String tenant = "default";
+    private String pulsarTenant = "default";
 
     @ApiModelProperty("Pulsar namespace")
     private String namespace;

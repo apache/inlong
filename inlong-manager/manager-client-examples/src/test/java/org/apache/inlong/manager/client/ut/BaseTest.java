@@ -104,7 +104,7 @@ public class BaseTest {
         pulsarInfo.setInCharges(IN_CHARGES);
 
         // pulsar conf
-        pulsarInfo.setTenant(TENANT);
+        pulsarInfo.setPulsarTenant(TENANT);
         pulsarInfo.setMqResource(NAMESPACE);
 
         // set enable zk, create resource, group mode, and cluster tag

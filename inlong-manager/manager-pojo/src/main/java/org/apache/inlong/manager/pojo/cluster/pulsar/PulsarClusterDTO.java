@@ -50,7 +50,7 @@ public class PulsarClusterDTO {
     private String serviceUrl;
 
     @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
-    private String tenant;
+    private String pulsarTenant;
 
     /**
      * Saved to ext_params field, it is convenient for DataProxy to obtain.
@@ -65,7 +65,7 @@ public class PulsarClusterDTO {
         return PulsarClusterDTO.builder()
                 .adminUrl(request.getAdminUrl())
                 .serviceUrl(request.getUrl())
-                .tenant(request.getTenant())
+                .pulsarTenant(request.getPulsarTenant())
                 .build();
     }
 

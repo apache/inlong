@@ -355,7 +355,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
                 + "&producer=true"
                 + "&consumer=" + (isConsumable ? "true" : "false");
         request.setExtTag(extTag);
-        request.setExtParams("{\"tenant\":\"testTenant\","
+        request.setExtParams("{\"pulsarTenant\":\"testTenant\","
                 + "\"authentication\":\"testAuth\",\"adminUrl\":\"testAdmin\"}");
         clusterService.save(request, "test operator");
     }

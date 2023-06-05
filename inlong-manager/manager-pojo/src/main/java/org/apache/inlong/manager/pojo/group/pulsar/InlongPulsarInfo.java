@@ -41,7 +41,7 @@ import lombok.ToString;
 public class InlongPulsarInfo extends InlongGroupInfo {
 
     @ApiModelProperty(value = "Pulsar tenant")
-    private String tenant;
+    private String pulsarTenant;
 
     @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
             + "serial: single partition, low throughput, and orderly messages")

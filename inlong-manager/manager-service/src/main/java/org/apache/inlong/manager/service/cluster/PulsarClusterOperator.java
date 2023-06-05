@@ -116,7 +116,7 @@ public class PulsarClusterOperator extends AbstractClusterOperator {
         Map<String, String> map = new HashMap<>();
         map.put("serverUrl", pulsarClusterInfo.getUrl());
         map.put("adminUrl", pulsarClusterInfo.getAdminUrl());
-        map.put("defaultTenant", pulsarClusterInfo.getTenant());
+        map.put("defaultTenant", pulsarClusterInfo.getPulsarTenant());
         return map;
     }
 
