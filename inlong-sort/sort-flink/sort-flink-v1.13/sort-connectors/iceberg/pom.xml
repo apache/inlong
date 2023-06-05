@@ -143,8 +143,20 @@
                                     <shadedPattern>org.apache.inlong.sort.iceberg.shaded.com.amazonaws</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.apache.inlong.sort</pattern>
-                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.org.apache.inlong.sort</shadedPattern>
+                                    <pattern>org.apache.inlong.sort.configuration</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.org.apache.inlong.sort.configuration</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.protocol</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.org.apache.inlong.sort.protocol</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.schema</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.org.apache.inlong.sort.schema</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.inlong.sort.util</pattern>
+                                    <shadedPattern>org.apache.inlong.sort.iceberg.shaded.org.apache.inlong.sort.util</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
