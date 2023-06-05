@@ -26,10 +26,10 @@
     </parent>
 
     <artifactId>sort-connector-hbase</artifactId>
-    <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-hbase</name>
 
     <properties>
+        <inlong.root.dir>${project.parent.parent.parent.parent.parent.basedir}</inlong.root.dir>
         <zookeeper.version>3.4.14</zookeeper.version>
     </properties>
 

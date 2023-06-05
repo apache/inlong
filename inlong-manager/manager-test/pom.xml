@@ -27,6 +27,10 @@
     <artifactId>manager-test</artifactId>
     <name>Apache InLong - Manager Test</name>
 
+    <properties>
+        <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>

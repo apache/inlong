@@ -23,10 +23,12 @@
         <artifactId>tubemq-connectors</artifactId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>tubemq-connector-flink</artifactId>
     <name>Apache InLong - TubeMQ Connectors-flink</name>
 
     <properties>
+        <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
         <flink.version>1.13.5</flink.version>
         <scala.binary.version>2.11</scala.binary.version>
     </properties>

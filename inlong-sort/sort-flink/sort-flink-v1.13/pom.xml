@@ -36,6 +36,7 @@
     </modules>
 
     <properties>
+        <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
         <flink.version>1.13.5</flink.version>
         <flink.connector.mongodb.cdc.version>2.3.0</flink.connector.mongodb.cdc.version>
         <flink.connector.redis>1.1.0</flink.connector.redis>
@@ -53,6 +54,7 @@
         <sqlserver.jdbc.version>7.2.2.jre8</sqlserver.jdbc.version>
         <thrift.version>0.9.3</thrift.version>
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <!-- flink connector-->

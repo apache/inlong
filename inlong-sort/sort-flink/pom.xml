@@ -30,6 +30,10 @@
     <packaging>pom</packaging>
     <name>Apache InLong - Sort Flink</name>
 
+    <properties>
+        <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+    </properties>
+
     <profiles>
         <profile>
             <id>flink-all-version</id>

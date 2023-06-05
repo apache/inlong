@@ -24,7 +24,6 @@
         <groupId>org.apache.inlong</groupId>
         <artifactId>sort-flink-v1.13</artifactId>
         <version>1.8.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>sort-connectors-v1.13</artifactId>
@@ -56,6 +55,10 @@
         <module>hudi</module>
         <module>kudu</module>
     </modules>
+
+    <properties>
+        <inlong.root.dir>${project.parent.parent.parent.parent.basedir}</inlong.root.dir>
+    </properties>
 
     <dependencies>
         <dependency>

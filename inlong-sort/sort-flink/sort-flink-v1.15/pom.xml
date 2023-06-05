@@ -36,6 +36,7 @@
     </modules>
 
     <properties>
+        <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
         <flink.version>1.15.4</flink.version>
         <debezium.version>2.0.1.Final</debezium.version>
         <flink.connector.mongodb.cdc.version>2.3.0</flink.connector.mongodb.cdc.version>
