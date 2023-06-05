@@ -148,7 +148,7 @@ public class PulsarOperator {
      */
     public void createTopic(PulsarAdmin pulsarAdmin, PulsarTopicInfo topicInfo) throws PulsarAdminException {
         Preconditions.expectNotNull(topicInfo, "pulsar topic info cannot be empty");
-        String tenant = topicInfo.getTenant();
+        String tenant = topicInfo.getPulsarTenant();
         String namespace = topicInfo.getNamespace();
         String topicName = topicInfo.getTopicName();
         String fullTopicName = tenant + "/" + namespace + "/" + topicName;
@@ -205,7 +205,7 @@ public class PulsarOperator {
     public void forceDeleteTopic(PulsarAdmin pulsarAdmin, PulsarTopicInfo topicInfo) throws PulsarAdminException {
         Preconditions.expectNotNull(topicInfo, "pulsar topic info cannot be empty");
 
-        String tenant = topicInfo.getTenant();
+        String tenant = topicInfo.getPulsarTenant();
         String namespace = topicInfo.getNamespace();
         String topic = topicInfo.getTopicName();
         String fullTopicName = tenant + "/" + namespace + "/" + topic;
@@ -254,7 +254,7 @@ public class PulsarOperator {
             List<String> topicList) throws PulsarAdminException {
         for (String topic : topicList) {
             topicInfo.setTopicName(topic);
-            String fullTopicName = topicInfo.getTenant() + "/" + topicInfo.getNamespace() + "/" + topic;
+            String fullTopicName = topicInfo.getPulsarTenant() + "/" + topicInfo.getNamespace() + "/" + topic;
             this.createSubscription(pulsarAdmin, fullTopicName, topicInfo.getQueueModule(), subscription);
         }
         LOGGER.info("success to create subscription={} for multiple topics={}", subscription, topicList);

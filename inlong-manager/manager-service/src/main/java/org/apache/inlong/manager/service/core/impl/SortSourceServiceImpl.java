@@ -81,7 +81,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         }
     };
     private static final String KEY_AUTH = "authentication";
-    private static final String KEY_TENANT = "tenant";
+    private static final String KEY_TENANT = "pulsarTenant";
 
     private static final int RESPONSE_CODE_SUCCESS = 0;
     private static final int RESPONSE_CODE_NO_UPDATE = 1;
