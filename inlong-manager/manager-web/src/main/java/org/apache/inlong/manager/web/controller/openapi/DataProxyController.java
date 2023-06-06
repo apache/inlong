@@ -79,7 +79,7 @@ public class DataProxyController {
     }
 
     @PostMapping("/dataproxy/getMetaConfig")
-    @ApiOperation(value = "Get all proxy config")
+    @ApiOperation(value = "Get all DataProxy meta config")
     public String getMetaConfig(@RequestBody DataProxyConfigRequest request) {
         return clusterService.getMetaConfig(request.getClusterName(), request.getMd5());
     }
