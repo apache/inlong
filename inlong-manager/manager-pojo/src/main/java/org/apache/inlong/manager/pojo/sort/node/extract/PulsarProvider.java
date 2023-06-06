@@ -49,7 +49,7 @@ public class PulsarProvider implements ExtractNodeProvider {
         Map<String, String> properties = parseProperties(pulsarSource.getProperties());
 
         String fullTopicName =
-                pulsarSource.getTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
+                pulsarSource.getPulsarTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
 
         Format format = parsingFormat(pulsarSource.getSerializationType(),
                 pulsarSource.isWrapWithInlongMsg(),
