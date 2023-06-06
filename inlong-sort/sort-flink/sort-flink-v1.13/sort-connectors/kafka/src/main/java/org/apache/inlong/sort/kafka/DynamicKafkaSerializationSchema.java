@@ -25,10 +25,15 @@ import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.metric.sub.SinkTopicMetricData;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
+import org.apache.inlong.sort.protocol.ddl.operations.Operation;
+import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
+import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
+import org.apache.inlong.sort.util.SchemaChangeUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.streaming.connectors.kafka.KafkaContextAware;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
@@ -53,6 +58,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A specific {@link KafkaSerializationSchema} for {@link KafkaDynamicSink}.
@@ -96,6 +103,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
 
     private int numParallelInstances;
     private SinkTopicMetricData metricData;
+    final private Map<SchemaChangeType, SchemaChangePolicy> policyMap;
 
     DynamicKafkaSerializationSchema(
             String topic,
@@ -110,7 +118,8 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             @Nullable String sinkMultipleFormat,
             @Nullable String topicPattern,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            Map<SchemaChangeType, SchemaChangePolicy> policyMap) {
         if (upsertMode) {
             Preconditions.checkArgument(
                     keySerialization != null && keyFieldGetters.length > 0,
@@ -129,6 +138,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         this.topicPattern = topicPattern;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
+        this.policyMap = policyMap;
     }
 
     public void setMetricData(SinkTopicMetricData metricData) {
@@ -287,6 +297,26 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         }
     }
 
+    public Set<SchemaChangeType> extractSchemaChangeType(JsonNode rootNode) {
+        Operation operation;
+        try {
+            JsonNode operationNode = Preconditions.checkNotNull(rootNode.get("operation"),
+                    "Operation node is null");
+            operation = Preconditions.checkNotNull(
+                    jsonDynamicSchemaFormat.objectMapper.convertValue(operationNode, new TypeReference<Operation>() {
+                    }), "Operation is null");
+        } catch (Exception e) {
+            LOG.error("Extract Operation from origin data failed", e);
+            return Collections.emptySet();
+        }
+        String originSchema = jsonDynamicSchemaFormat.extractDDL(rootNode);
+        Set<SchemaChangeType> types = SchemaChangeUtils.extractSchemaChangeTypes(operation);
+        if (types.isEmpty()) {
+            LOG.warn("Unsupported for schema-change: {}", originSchema);
+        }
+        return types;
+    }
+
     /**
      * Serialize for list it is used for multiple sink scenes when a record contains mulitple real records.
      *
@@ -308,6 +338,19 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             JsonNode rootNode = jsonDynamicSchemaFormat.deserialize(consumedRow.getBinary(0));
             boolean isDDL = jsonDynamicSchemaFormat.extractDDLFlag(rootNode);
             if (isDDL) {
+                Set<SchemaChangeType> types = extractSchemaChangeType(rootNode);
+                if (types.isEmpty()) {
+                    return values;
+                }
+
+                Set<SchemaChangeType> enableTypes = types.stream()
+                        .filter((type) -> SchemaChangePolicy.ENABLE.equals(policyMap.get(type)))
+                        .collect(Collectors.toSet());
+
+                if (enableTypes.isEmpty()) {
+                    return values;
+                }
+
                 values.add(new ProducerRecord<>(
                         jsonDynamicSchemaFormat.parse(rootNode, topicPattern),
                         extractPartition(consumedRow, null, consumedRow.getBinary(0)),

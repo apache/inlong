@@ -72,7 +72,7 @@ public class BaseExample {
         pulsarInfo.setInCharges("admin");
 
         // pulsar conf
-        pulsarInfo.setTenant(tenant);
+        pulsarInfo.setPulsarTenant(tenant);
         pulsarInfo.setMqResource(namespace);
 
         // set enable zk, create resource, group mode, and cluster tag

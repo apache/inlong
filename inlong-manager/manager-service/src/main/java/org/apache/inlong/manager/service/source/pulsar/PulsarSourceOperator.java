@@ -122,9 +122,9 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
         String serviceUrl = pulsarCluster.getUrl();
 
         // First get the tenant from the InlongGroup, and then get it from the PulsarCluster.
-        String tenant = ((InlongPulsarInfo) groupInfo).getTenant();
+        String tenant = ((InlongPulsarInfo) groupInfo).getPulsarTenant();
         if (StringUtils.isBlank(tenant)) {
-            tenant = pulsarCluster.getTenant();
+            tenant = pulsarCluster.getPulsarTenant();
         }
 
         Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
@@ -132,7 +132,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             PulsarSource pulsarSource = new PulsarSource();
             String streamId = streamInfo.getInlongStreamId();
             pulsarSource.setSourceName(streamId);
-            pulsarSource.setTenant(tenant);
+            pulsarSource.setPulsarTenant(tenant);
             pulsarSource.setNamespace(groupInfo.getMqResource());
             pulsarSource.setTopic(streamInfo.getMqResource());
             pulsarSource.setAdminUrl(adminUrl);

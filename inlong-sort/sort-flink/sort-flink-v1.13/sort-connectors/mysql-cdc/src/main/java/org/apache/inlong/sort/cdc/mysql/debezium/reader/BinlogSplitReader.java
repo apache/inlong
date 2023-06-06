@@ -52,6 +52,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getSplitInfoByBinarySearch;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getSplitKey;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getTableId;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isDataChangeRecord;
@@ -204,6 +205,12 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecord, MySqlSpli
                                 splitKeyType,
                                 sourceRecord,
                                 statefulTaskContext.getSchemaNameAdjuster());
+                // currently, we only support using binary search algorithm for a single split key.
+                if (key.length == 1) {
+                    FinishedSnapshotSplitInfo splitInfo = getSplitInfoByBinarySearch(
+                            finishedSplitsInfo.get(tableId), key);
+                    return splitInfo != null && position.isAfter(splitInfo.getHighWatermark());
+                }
                 for (FinishedSnapshotSplitInfo splitInfo : finishedSplitsInfo.get(tableId)) {
                     if (RecordUtils.splitKeyRangeContains(
                             key, splitInfo.getSplitStart(), splitInfo.getSplitEnd())

@@ -35,9 +35,12 @@ import org.slf4j.LoggerFactory;
 import javax.validation.constraints.NotNull;
 
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,13 +56,19 @@ public class MySQLSinkDTO {
     /**
      * The sensitive param may lead the attack.
      */
-    private static final Map<String, String> SENSITIVE_PARAM_MAP = new HashMap<String, String>() {
+    private static final Map<String, String> SENSITIVE_REPLACE_PARAM_MAP = new HashMap<String, String>() {
 
         {
-            put("autoDeserialize=true", "autoDeserialize=false");
-            put("allowLoadLocalInfile=true", "allowLoadLocalInfile=false");
-            put("allowUrlInLocalInfile=true", "allowUrlInLocalInfile=false");
-            put("allowLoadLocalInfileInPath=/", "allowLoadLocalInfileInPath=");
+            put("autoDeserialize", "false");
+            put("allowLoadLocalInfile", "false");
+            put("allowUrlInLocalInfile", "false");
+        }
+    };
+
+    private static final Set<String> SENSITIVE_REMOVE_PARAM_MAP = new HashSet<String>() {
+
+        {
+            add("allowLoadLocalInfileInPath");
         }
     };
 
@@ -222,18 +231,40 @@ public class MySQLSinkDTO {
         if (StringUtils.isBlank(url)) {
             return url;
         }
+
         try {
             String resultUrl = url;
             while (resultUrl.contains(InlongConstants.PERCENT)) {
                 resultUrl = URLDecoder.decode(resultUrl, "UTF-8");
             }
             resultUrl = resultUrl.replaceAll(InlongConstants.BLANK, "");
-            for (String sensitiveParam : SENSITIVE_PARAM_MAP.keySet()) {
-                if (StringUtils.containsIgnoreCase(resultUrl, sensitiveParam)) {
-                    resultUrl = StringUtils.replaceIgnoreCase(resultUrl, sensitiveParam,
-                            SENSITIVE_PARAM_MAP.get(sensitiveParam));
+
+            if (resultUrl.contains(InlongConstants.QUESTION_MARK)) {
+                StringBuilder builder = new StringBuilder();
+                builder.append(StringUtils.substringBefore(resultUrl, InlongConstants.QUESTION_MARK));
+                builder.append(InlongConstants.QUESTION_MARK);
+
+                List<String> paramList = new ArrayList<>();
+                String queryString = StringUtils.substringAfter(resultUrl, InlongConstants.QUESTION_MARK);
+                for (String param : queryString.split("&")) {
+                    String key = StringUtils.substringBefore(param, "=");
+                    String value = StringUtils.substringAfter(param, "=");
+
+                    if (SENSITIVE_REMOVE_PARAM_MAP.contains(key)) {
+                        continue;
+                    }
+
+                    if (SENSITIVE_REPLACE_PARAM_MAP.containsKey(key)) {
+                        value = SENSITIVE_REPLACE_PARAM_MAP.get(key);
+                    }
+                    paramList.add(key + "=" + value);
                 }
+
+                String params = StringUtils.join(paramList, "&");
+                builder.append(params);
+                resultUrl = builder.toString();
             }
+
             LOGGER.info("the origin url [{}] was replaced to: [{}]", url, resultUrl);
             return resultUrl;
         } catch (Exception e) {

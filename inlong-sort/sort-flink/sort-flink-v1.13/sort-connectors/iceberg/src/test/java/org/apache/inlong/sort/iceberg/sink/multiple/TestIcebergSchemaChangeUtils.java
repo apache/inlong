@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
-import org.apache.inlong.sort.base.sink.TableChange;
+import org.apache.inlong.sort.schema.TableChange;
 
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.types.Types;
@@ -27,7 +27,9 @@ import org.junit.Test;
 
 import java.util.List;
 
-public class TestSchemaChangeUtils {
+import static org.apache.inlong.sort.iceberg.sink.multiple.DynamicSchemaHandleOperator.extractColumnSchema;
+
+public class TestIcebergSchemaChangeUtils {
 
     private Schema baseSchema;
 
@@ -58,7 +60,7 @@ public class TestSchemaChangeUtils {
 
         Assert.assertFalse(baseSchema.sameSchema(addColSchema));
 
-        return SchemaChangeUtils.diffSchema(baseSchema, addColSchema);
+        return IcebergSchemaChangeUtils.diffSchema(extractColumnSchema(baseSchema), extractColumnSchema(addColSchema));
     }
 
     @Test
@@ -78,7 +80,7 @@ public class TestSchemaChangeUtils {
 
         Assert.assertFalse(baseSchema.sameSchema(delColSchema));
 
-        return SchemaChangeUtils.diffSchema(baseSchema, delColSchema);
+        return IcebergSchemaChangeUtils.diffSchema(extractColumnSchema(baseSchema), extractColumnSchema(delColSchema));
     }
 
     @Test
@@ -107,7 +109,8 @@ public class TestSchemaChangeUtils {
 
         Assert.assertFalse(baseSchema.sameSchema(updateTypeColSchema));
 
-        return SchemaChangeUtils.diffSchema(baseSchema, updateTypeColSchema);
+        return IcebergSchemaChangeUtils.diffSchema(extractColumnSchema(baseSchema),
+                extractColumnSchema(updateTypeColSchema));
     }
 
     public List<TableChange> testCommentTypeColumn() {
@@ -118,7 +121,8 @@ public class TestSchemaChangeUtils {
 
         Assert.assertFalse(baseSchema.sameSchema(updateCommentColSchema));
 
-        return SchemaChangeUtils.diffSchema(baseSchema, updateCommentColSchema);
+        return IcebergSchemaChangeUtils.diffSchema(extractColumnSchema(baseSchema),
+                extractColumnSchema(updateCommentColSchema));
     }
 
     @Test
@@ -130,7 +134,8 @@ public class TestSchemaChangeUtils {
 
         Assert.assertFalse(baseSchema.sameSchema(renameColumnSchema));
 
-        List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(baseSchema, renameColumnSchema);
+        List<TableChange> tableChanges = IcebergSchemaChangeUtils.diffSchema(extractColumnSchema(baseSchema),
+                extractColumnSchema(renameColumnSchema));
         Assert.assertEquals("rename column is not supported.", 1, tableChanges.size());
         for (TableChange tableChange : tableChanges) {
             Assert.assertTrue("The table changes must be UnknownColumnChange ",
@@ -147,7 +152,8 @@ public class TestSchemaChangeUtils {
 
         Assert.assertFalse(baseSchema.sameSchema(positionChangeSchema));
 
-        List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(baseSchema, positionChangeSchema);
+        List<TableChange> tableChanges = IcebergSchemaChangeUtils.diffSchema(extractColumnSchema(baseSchema),
+                extractColumnSchema(positionChangeSchema));
         Assert.assertTrue(tableChanges.size() == 1);
         for (TableChange tableChange : tableChanges) {
             Assert.assertTrue("The table changes must be UnknownColumnChange ",

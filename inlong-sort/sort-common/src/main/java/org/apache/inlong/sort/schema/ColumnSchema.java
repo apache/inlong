@@ -15,31 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.queue.pulsar;
+package org.apache.inlong.sort.schema;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.apache.flink.table.types.logical.LogicalType;
 
 /**
- * Pulsar topic bean, including tenant, namespace, etc.
- */
+ * Schema information contained in a column.
+ * */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PulsarTopicInfo {
+public class ColumnSchema {
 
-    private String pulsarTenant;
-
-    private String namespace;
-
-    private String topicName;
-
-    private String queueModule;
-
-    @Builder.Default
-    private Integer numPartitions = 0;
-
+    private String name;
+    private LogicalType type;
+    private boolean isNullable;
+    private String comment;
+    private TableChange.ColumnPosition position;
 }

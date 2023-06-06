@@ -44,7 +44,7 @@ public class PulsarClusterInfo extends ClusterInfo {
     private String adminUrl;
 
     @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
-    private String tenant;
+    private String pulsarTenant;
 
     public PulsarClusterInfo() {
         this.setType(ClusterType.PULSAR);

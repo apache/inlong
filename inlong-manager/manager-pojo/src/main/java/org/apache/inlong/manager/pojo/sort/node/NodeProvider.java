@@ -15,31 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.queue.pulsar;
+package org.apache.inlong.manager.pojo.sort.node;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
- * Pulsar topic bean, including tenant, namespace, etc.
+ * Interface of the node provider
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PulsarTopicInfo {
+public interface NodeProvider {
 
-    private String pulsarTenant;
-
-    private String namespace;
-
-    private String topicName;
-
-    private String queueModule;
-
-    @Builder.Default
-    private Integer numPartitions = 0;
-
+    /**
+     * Parse properties
+     *
+     * @param properties The properties with string key and object value
+     * @return The properties with string key and string value
+     */
+    default Map<String, String> parseProperties(Map<String, Object> properties) {
+        return properties.entrySet().stream()
+                .filter(v -> Objects.nonNull(v.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+    }
 }

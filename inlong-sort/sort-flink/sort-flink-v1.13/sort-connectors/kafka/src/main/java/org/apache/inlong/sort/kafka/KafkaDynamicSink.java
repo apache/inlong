@@ -20,6 +20,8 @@ package org.apache.inlong.sort.kafka;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.kafka.DynamicKafkaSerializationSchema.MetadataConverter;
+import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
+import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.SerializationSchema;
@@ -161,6 +163,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     protected DataType consumedDataType;
 
     private boolean multipleSink;
+    private Map<SchemaChangeType, SchemaChangePolicy> policyMap;
 
     /**
      * Constructor of KafkaDynamicSink.
@@ -187,7 +190,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             @Nullable String topicPattern,
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
-            boolean multipleSink) {
+            boolean multipleSink,
+            Map<SchemaChangeType, SchemaChangePolicy> policyMap) {
         // Format attributes
         this.consumedDataType =
                 checkNotNull(consumedDataType, "Consumed data type must not be null.");
@@ -221,6 +225,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
         this.multipleSink = multipleSink;
+        this.policyMap = policyMap;
     }
 
     @Override
@@ -327,7 +332,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         topicPattern,
                         dirtyOptions,
                         dirtySink,
-                        multipleSink);
+                        multipleSink,
+                        policyMap);
         copy.metadataKeys = metadataKeys;
         return copy;
     }
@@ -441,7 +447,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         sinkMultipleFormat,
                         topicPattern,
                         dirtyOptions,
-                        dirtySink);
+                        dirtySink,
+                        policyMap);
 
         return new FlinkKafkaProducer<>(
                 topic,
