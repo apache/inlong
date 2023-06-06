@@ -47,11 +47,13 @@ type producer struct {
 	heartbeatManager    *heartbeatManager
 	unreportedTimes     int
 	publishTopics       []string
+	publishTopicsMu     sync.Mutex
 	brokerCheckSum      int64
 	brokerMap           map[string]*metadata.Node
 	brokerMu            sync.Mutex
 	topicPartitionMap   map[string](map[int][]*metadata.Partition)
 	topicPartitionMapMu sync.Mutex
+	partitionRouter     *RoundRobinPartitionRouter
 }
 
 // NewProducer returns a producer which is constructed by a given config.
@@ -88,6 +90,7 @@ func NewProducer(config *config.Config) (Producer, error) {
 		brokerMap:         make(map[string]*metadata.Node),
 		publishTopics:     config.Producer.Topics,
 		topicPartitionMap: make(map[string](map[int][]*metadata.Partition)),
+		partitionRouter:   NewPartitionRouter(),
 	}
 
 	hbm := &heartbeatManager{
@@ -106,6 +109,33 @@ func NewProducer(config *config.Config) (Producer, error) {
 
 	log.Infof("[PRODUCER] start producer success, client=%s", clientID)
 	return p, nil
+}
+
+func (p *producer) Publish(topics []string) {
+	p.publishTopicsMu.Lock()
+	defer p.publishTopicsMu.Unlock()
+
+	p.publishTopics = topics
+}
+
+func (p *producer) SendMessage(message *Message) (bool, int32, string) {
+	partition := p.selectPartition(message)
+
+	m := &metadata.Metadata{}
+	node := &metadata.Node{}
+	node.SetHost(util.GetLocalHost())
+	node.SetAddress(partition.GetBroker().GetAddress())
+	m.SetNode(node)
+
+	ctx, cancel := context.WithTimeout(context.Background(), p.config.Net.ReadTimeout)
+	defer cancel()
+
+	rsp, err := p.client.SendMessageRequestP2B(ctx, m, p.clientID, partition, message.Data, message.Flag)
+	if err != nil {
+		log.Infof("[PRODUCER]SendMessage error %s", err.Error())
+	}
+
+	return rsp.GetSuccess(), rsp.GetErrCode(), rsp.GetErrMsg()
 }
 
 func (p *producer) register2Master(needChange bool) error {
@@ -255,6 +285,12 @@ func (p *producer) updateTopicConfigure(topicInfos []string) {
 	}
 }
 
-func (p *producer) Publish(topics []string) {
-	println("todo in later commits")
+func (p *producer) selectPartition(message *Message) *metadata.Partition {
+	topicName := message.Topic
+	var partitionList []*metadata.Partition
+	for brokerId := range p.topicPartitionMap[topicName] {
+		partitionList = append(partitionList, p.topicPartitionMap[topicName][brokerId]...)
+	}
+	selectIndex := p.partitionRouter.GetPartition(message, partitionList)
+	return partitionList[selectIndex]
 }
