@@ -93,43 +93,43 @@ const Comp = ({ inlongGroupId, isCreate }: Props, ref) => {
         );
       })}
       {data?.hasOwnProperty('PULSAR') && (
-        <Divider orientation="left" style={{ marginTop: 40 }}>
-          Pulsar {t('pages.GroupDetail.Resource.Info')}
-        </Divider>
-      )}
-      {data?.hasOwnProperty('PULSAR') && (
-        <Table
-          size="small"
-          columns={[
-            { title: 'Default Tenant', dataIndex: 'defaultTenant' },
-            { title: 'Server Url', dataIndex: 'serverUrl' },
-            { title: 'Admin Url', dataIndex: 'adminUrl' },
-          ]}
-          style={{ marginTop: 20 }}
-          dataSource={data?.PULSAR}
-          pagination={false}
-          rowKey="name"
-        ></Table>
-      )}
-      {data?.hasOwnProperty('SortInfo') && (
-        <Divider orientation="left" style={{ marginTop: 60 }}>
-          Sort {t('pages.GroupDetail.Resource.Info')}
-        </Divider>
+        <>
+          <Divider orientation="left" style={{ marginTop: 40 }}>
+            Pulsar {t('pages.GroupDetail.Resource.Info')}
+          </Divider>
+          <Table
+            size="small"
+            columns={[
+              { title: 'Default Tenant', dataIndex: 'defaultTenant' },
+              { title: 'Server Url', dataIndex: 'serverUrl' },
+              { title: 'Admin Url', dataIndex: 'adminUrl' },
+            ]}
+            style={{ marginTop: 20 }}
+            dataSource={data?.PULSAR}
+            pagination={false}
+            rowKey="name"
+          ></Table>
+        </>
       )}
       {data?.hasOwnProperty('SortInfo') && (
-        <Table
-          size="small"
-          columns={[
-            { title: 'inlongStreamId', dataIndex: 'inlongStreamId' },
-            { title: 'dataflowId', dataIndex: 'id' },
-            { title: 'sinkName', dataIndex: 'sinkName' },
-            { title: 'topoName', dataIndex: 'inlongClusterName' },
-          ]}
-          style={{ marginTop: 20 }}
-          dataSource={data?.SortInfo}
-          pagination={false}
-          rowKey="name"
-        ></Table>
+        <>
+          <Divider orientation="left" style={{ marginTop: 60 }}>
+            Sort {t('pages.GroupDetail.Resource.Info')}
+          </Divider>
+          <Table
+            size="small"
+            columns={[
+              { title: 'inlongStreamId', dataIndex: 'inlongStreamId' },
+              { title: 'dataflowId', dataIndex: 'id' },
+              { title: 'sinkName', dataIndex: 'sinkName' },
+              { title: 'topoName', dataIndex: 'inlongClusterName' },
+            ]}
+            style={{ marginTop: 20 }}
+            dataSource={data?.SortInfo}
+            pagination={false}
+            rowKey="name"
+          ></Table>
+        </>
       )}
     </div>
   );
