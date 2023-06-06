@@ -35,7 +35,6 @@ public class HiveOutputFormatFactory implements OutputFormatFactory<Row> {
 
     private final HiveWriterFactory factory;
 
-
     public HiveOutputFormatFactory(HiveWriterFactory factory) {
         this.factory = factory;
     }
