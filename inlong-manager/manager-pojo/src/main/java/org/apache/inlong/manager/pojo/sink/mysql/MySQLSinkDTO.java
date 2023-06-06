@@ -38,7 +38,6 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -245,23 +244,20 @@ public class MySQLSinkDTO {
                 builder.append(StringUtils.substringBefore(resultUrl, InlongConstants.QUESTION_MARK));
                 builder.append(InlongConstants.QUESTION_MARK);
 
-                LinkedHashMap<String, String> queryMap = new LinkedHashMap<>();
+                List<String> paramList = new ArrayList<>();
                 String queryString = StringUtils.substringAfter(resultUrl, InlongConstants.QUESTION_MARK);
                 for (String param : queryString.split("&")) {
-                    queryMap.put(StringUtils.substringBefore(param, "="),
-                            StringUtils.substringAfter(param, "="));
-                }
+                    String key = StringUtils.substringBefore(param, "=");
+                    String value = StringUtils.substringAfter(param, "=");
 
-                List<String> paramList = new ArrayList<>();
-                for (Map.Entry<String, String> entry : queryMap.entrySet()) {
-                    if (SENSITIVE_REMOVE_PARAM_MAP.contains(entry.getKey())) {
+                    if (SENSITIVE_REMOVE_PARAM_MAP.contains(key)) {
                         continue;
                     }
 
-                    if (SENSITIVE_REPLACE_PARAM_MAP.containsKey(entry.getKey())) {
-                        entry.setValue(SENSITIVE_REPLACE_PARAM_MAP.get(entry.getKey()));
+                    if (SENSITIVE_REPLACE_PARAM_MAP.containsKey(key)) {
+                        value = SENSITIVE_REPLACE_PARAM_MAP.get(key);
                     }
-                    paramList.add(entry.getKey() + "=" + entry.getValue());
+                    paramList.add(key + "=" + value);
                 }
 
                 String params = StringUtils.join(paramList, "&");
