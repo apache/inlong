@@ -78,10 +78,10 @@ public class DataProxyController {
         return clusterService.getAllConfig(request.getClusterName(), request.getMd5());
     }
 
-    @PostMapping("/v2/dataproxy/getAllConfig")
+    @PostMapping("/dataproxy/getMetaConfig")
     @ApiOperation(value = "Get all proxy config")
-    public String getAllConfigV2(@RequestBody DataProxyConfigRequest request) {
-        return clusterService.getAllConfigV2(request.getClusterName(), request.getMd5());
+    public String getMetaConfig(@RequestBody DataProxyConfigRequest request) {
+        return clusterService.getMetaConfig(request.getClusterName(), request.getMd5());
     }
 
     @RequestMapping(value = "/changeClusterTag", method = RequestMethod.PUT)

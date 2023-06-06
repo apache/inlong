@@ -1374,7 +1374,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public String getAllConfigV2(String clusterName, String md5) {
+    public String getMetaConfig(String clusterName, String md5) {
         DataProxyConfigResponse response = new DataProxyConfigResponse();
         String configMd5 = proxyRepositoryV2.getProxyMd5(clusterName);
         if (configMd5 == null) {

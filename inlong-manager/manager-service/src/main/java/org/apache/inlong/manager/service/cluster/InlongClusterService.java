@@ -416,7 +416,8 @@ public interface InlongClusterService {
     /**
      * Get data proxy cluster list by the given cluster name
      *
-     * This method was deprecated since version 1.8.0
+     * This method was deprecated since version 1.8.0,
+     * new method please see {@link InlongClusterService#getMetaConfig(String, String)}
      *
      * @return data proxy config
      */
@@ -430,7 +431,7 @@ public interface InlongClusterService {
      *
      * @return data proxy config
      */
-    String getAllConfigV2(String clusterName, String md5);
+    String getMetaConfig(String clusterName, String md5);
 
     /**
      * Get the MQ info by cluster tag for Audit
