@@ -85,6 +85,8 @@ public class DataProxyConfigRepository implements IRepository {
     public static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
 
     public static final String KEY_NAMESPACE = "namespace";
+    public static final String KEY_NEW_TENANT_KEY = "pulsarTenant";
+    public static final String KEY_OLD_TENANT_KEY = "tenant";
     public static final String KEY_BACKUP_CLUSTER_TAG = "backup_cluster_tag";
     public static final String KEY_BACKUP_TOPIC = "backup_topic";
     public static final String KEY_SORT_TASK_NAME = "defaultSortTaskName";
@@ -317,6 +319,12 @@ public class DataProxyConfigRepository implements IRepository {
         } catch (Exception e) {
             LOGGER.error("parse json string to map error", e);
         }
+
+        // to be compatible with multi-tenancy #7914
+        String tenant = mapObj.get(KEY_NEW_TENANT_KEY);
+        mapObj.remove(KEY_NEW_TENANT_KEY);
+        mapObj.put(KEY_OLD_TENANT_KEY, tenant);
+
         return mapObj;
     }
 

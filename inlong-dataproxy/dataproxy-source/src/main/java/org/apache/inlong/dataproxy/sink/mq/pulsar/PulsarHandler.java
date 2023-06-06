@@ -66,7 +66,7 @@ public class PulsarHandler implements MessageQueueHandler {
     // log print count
     private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
 
-    public static final String KEY_TENANT = "pulsarTenant";
+    public static final String KEY_TENANT = "tenant";
     public static final String KEY_NAMESPACE = "namespace";
 
     public static final String KEY_SERVICE_URL = "serviceUrl";
@@ -92,7 +92,7 @@ public class PulsarHandler implements MessageQueueHandler {
     private String clusterName;
     private MessageQueueZoneSinkContext sinkContext;
 
-    private String pulsarTenant;
+    private String tenant;
     private String namespace;
     private ThreadLocal<EventHandler> handlerLocal = new ThreadLocal<>();
 
@@ -113,7 +113,7 @@ public class PulsarHandler implements MessageQueueHandler {
         this.config = config;
         this.clusterName = config.getClusterName();
         this.sinkContext = sinkContext;
-        this.pulsarTenant = config.getParams().get(KEY_TENANT);
+        this.tenant = config.getParams().get(KEY_TENANT);
         this.namespace = config.getParams().get(KEY_NAMESPACE);
     }
 
@@ -214,7 +214,7 @@ public class PulsarHandler implements MessageQueueHandler {
                 return false;
             }
             // topic
-            String producerTopic = idConfig.getPulsarTopicName(pulsarTenant, namespace);
+            String producerTopic = idConfig.getPulsarTopicName(tenant, namespace);
             if (producerTopic == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
                 sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
