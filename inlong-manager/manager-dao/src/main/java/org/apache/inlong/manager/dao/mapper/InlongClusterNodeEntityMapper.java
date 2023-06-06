@@ -44,6 +44,8 @@ public interface InlongClusterNodeEntityMapper {
 
     List<InlongClusterNodeEntity> selectByIpAndType(@Param("ip") String ip, @Param("type") String type);
 
+    List<InlongClusterNodeEntity> selectByParentIdAndIp(@Param("parentId") Integer parentId, @Param("ip") String ip);
+
     int updateById(InlongClusterNodeEntity record);
 
     int updateByIdSelective(InlongClusterNodeEntity record);
