@@ -508,12 +508,7 @@ public class AgentServiceImpl implements AgentService {
         if (clusterEntity == null) {
             return null;
         }
-
-        ClusterPageRequest nodeRequest = new ClusterPageRequest();
-        nodeRequest.setKeyword(ip);
-        nodeRequest.setParentId(clusterEntity.getId());
-        nodeRequest.setType(ClusterType.AGENT);
-        return clusterNodeMapper.selectByCondition(nodeRequest).stream().findFirst().orElse(null);
+        return clusterNodeMapper.selectByParentIdAndIp(clusterEntity.getId(), ip).stream().findFirst().orElse(null);
     }
 
     private int getOp(int status) {
