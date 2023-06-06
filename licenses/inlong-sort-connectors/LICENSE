@@ -469,6 +469,14 @@
       inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HiveOptions.java
       inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HadoopFileSystemFactory.java
       inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/table/HiveTableInlongFactory.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/filesystem/DefaultHadoopFileCommitterFactory.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/filesystem/HadoopPathBasedBulkFormatBuilder.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/filesystem/HadoopPathBasedPartFileWriter.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/filesystem/HadoopRenameFileCommitter.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/filesystem/PartitionCommitter.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HiveBulkWriterFactory.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HiveOutputFormatFactory.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HiveWriterFactory.java
  Source  : flink-connector-hive 1.13.5 (Please note that the software have been modified.)
  License : https://github.com/apache/flink/blob/master/LICENSE
 

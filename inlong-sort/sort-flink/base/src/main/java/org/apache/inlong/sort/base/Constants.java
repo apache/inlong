@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.base;
 
+import org.apache.inlong.sort.base.sink.PartitionPolicy;
 import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 
 import org.apache.flink.configuration.ConfigOption;
@@ -260,6 +261,20 @@ public final class Constants {
                     .defaultValue(false)
                     .withDescription("Because spark do not support iceberg data type: `timestamp without time zone` and"
                             + "`time`, so type conversions must be mapped to types supported by spark.");
+
+    public static final ConfigOption<PartitionPolicy> SINK_PARTITION_POLICY =
+            ConfigOptions.key("sink.partition.policy")
+                    .enumType(PartitionPolicy.class)
+                    .defaultValue(PartitionPolicy.PROC_TIME)
+                    .withDescription("The policy of partitioning table.");
+
+    public static final ConfigOption<String> SOURCE_PARTITION_FIELD_NAME =
+            ConfigOptions.key("source.partition.field.name")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "The field name in source generic raw data, partition table by the field value dynamically."
+                                    + "Support regex expressions to match many fields in source generic raw data.");
 
     // ========================================= dirty configuration =========================================
     public static final String DIRTY_PREFIX = "dirty.";

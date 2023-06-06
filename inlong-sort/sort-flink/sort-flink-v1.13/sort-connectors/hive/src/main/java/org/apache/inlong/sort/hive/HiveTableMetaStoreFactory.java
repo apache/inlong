@@ -48,7 +48,7 @@ public class HiveTableMetaStoreFactory implements TableMetaStoreFactory {
     private final String database;
     private final String tableName;
 
-    HiveTableMetaStoreFactory(JobConf conf, String hiveVersion, String database, String tableName) {
+    public HiveTableMetaStoreFactory(JobConf conf, String hiveVersion, String database, String tableName) {
         this.conf = new JobConfWrapper(conf);
         this.hiveVersion = hiveVersion;
         this.database = database;
@@ -60,7 +60,15 @@ public class HiveTableMetaStoreFactory implements TableMetaStoreFactory {
         return new HiveTableMetaStore();
     }
 
-    private class HiveTableMetaStore implements TableMetaStore {
+    public String getDatabase() {
+        return database;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public class HiveTableMetaStore implements TableMetaStore {
 
         private HiveMetastoreClientWrapper client;
         private StorageDescriptor sd;

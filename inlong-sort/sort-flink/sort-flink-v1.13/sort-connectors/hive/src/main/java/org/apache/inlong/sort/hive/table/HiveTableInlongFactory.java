@@ -20,6 +20,8 @@ package org.apache.inlong.sort.hive.table;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
+import org.apache.inlong.sort.base.sink.PartitionPolicy;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.hive.HiveTableSink;
 
 import com.google.common.base.Preconditions;
@@ -50,27 +52,30 @@ import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOp
 import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions.HIVE_CONF_DIR;
 import static org.apache.flink.table.catalog.hive.factories.HiveCatalogFactoryOptions.HIVE_VERSION;
 import static org.apache.flink.table.factories.FactoryUtil.PROPERTY_VERSION;
+import static org.apache.flink.table.filesystem.FileSystemOptions.PARTITION_TIME_EXTRACTOR_TIMESTAMP_PATTERN;
 import static org.apache.flink.table.filesystem.FileSystemOptions.STREAMING_SOURCE_ENABLE;
 import static org.apache.flink.table.filesystem.FileSystemOptions.STREAMING_SOURCE_PARTITION_INCLUDE;
 import static org.apache.inlong.sort.base.Constants.AUDIT_KEYS;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
+import static org.apache.inlong.sort.base.Constants.SINK_PARTITION_POLICY;
+import static org.apache.inlong.sort.base.Constants.SOURCE_PARTITION_FIELD_NAME;
 import static org.apache.inlong.sort.hive.HiveOptions.HIVE_DATABASE;
+import static org.apache.inlong.sort.hive.HiveOptions.HIVE_STORAGE_INPUT_FORMAT;
+import static org.apache.inlong.sort.hive.HiveOptions.HIVE_STORAGE_OUTPUT_FORMAT;
+import static org.apache.inlong.sort.hive.HiveOptions.HIVE_STORAGE_SERIALIZATION_LIB;
 
 /**
  * DynamicTableSourceFactory for hive table source
  */
 public class HiveTableInlongFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
-    private final HiveConf hiveConf;
-
-    public HiveTableInlongFactory() {
-        this.hiveConf = new HiveConf();
-    }
-
-    public HiveTableInlongFactory(HiveConf hiveConf) {
-        this.hiveConf = hiveConf;
-    }
+    private static final HiveConf hiveConf = new HiveConf();
 
     @Override
     public String factoryIdentifier() {
@@ -94,26 +99,39 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
         options.add(AUDIT_KEYS);
+        options.add(SINK_MULTIPLE_ENABLE);
+        options.add(SINK_MULTIPLE_DATABASE_PATTERN);
+        options.add(SINK_MULTIPLE_TABLE_PATTERN);
+        options.add(SINK_MULTIPLE_FORMAT);
+        options.add(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
+        options.add(SOURCE_PARTITION_FIELD_NAME);
         return options;
     }
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
+        final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         final boolean isHiveTable = HiveCatalog.isHiveTable(context.getCatalogTable().getOptions());
         Map<String, String> options = context.getCatalogTable().getOptions();
         // temporary table doesn't have the IS_GENERIC flag but we still consider it generic
         if (isHiveTable) {
             updateHiveConf(options);
             // new HiveValidator().validate(properties);
-            Integer configuredParallelism =
-                    Configuration.fromMap(context.getCatalogTable().getOptions())
-                            .get(FileSystemOptions.SINK_PARALLELISM);
-            final String inlongMetric = context.getCatalogTable().getOptions()
-                    .getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue());
-            final String auditHostAndPorts = context.getCatalogTable().getOptions()
-                    .getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue());
+            Integer configuredParallelism = helper.getOptions().get(FileSystemOptions.SINK_PARALLELISM);
+            final String inlongMetric = helper.getOptions().get(INLONG_METRIC);
+            final String auditHostAndPorts = helper.getOptions().get(INLONG_AUDIT);
             final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(Configuration.fromMap(options));
             final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
+            SchemaUpdateExceptionPolicy schemaUpdatePolicy = helper.getOptions()
+                    .get(SINK_MULTIPLE_SCHEMA_UPDATE_POLICY);
+            PartitionPolicy partitionPolicy = helper.getOptions().get(SINK_PARTITION_POLICY);
+            String partitionField = helper.getOptions().get(SOURCE_PARTITION_FIELD_NAME);
+            String timestampPattern = helper.getOptions().getOptional(PARTITION_TIME_EXTRACTOR_TIMESTAMP_PATTERN)
+                    .orElse("yyyy-MM-dd");
+            boolean sinkMultipleEnable = helper.getOptions().get(SINK_MULTIPLE_ENABLE);
+            String inputFormat = helper.getOptions().get(HIVE_STORAGE_INPUT_FORMAT);
+            String outputFormat = helper.getOptions().get(HIVE_STORAGE_OUTPUT_FORMAT);
+            String serializationLib = helper.getOptions().get(HIVE_STORAGE_SERIALIZATION_LIB);
             return new HiveTableSink(
                     context.getConfiguration(),
                     new JobConf(hiveConf),
@@ -123,7 +141,15 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
                     inlongMetric,
                     auditHostAndPorts,
                     dirtyOptions,
-                    dirtySink);
+                    dirtySink,
+                    schemaUpdatePolicy,
+                    partitionPolicy,
+                    partitionField,
+                    timestampPattern,
+                    sinkMultipleEnable,
+                    inputFormat,
+                    outputFormat,
+                    serializationLib);
         } else {
             return FactoryUtil.createTableSink(
                     null, // we already in the factory of catalog
@@ -193,5 +219,9 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             hiveConf.set(entry.getKey(), entry.getValue());
         }
+    }
+
+    public static HiveConf getHiveConf() {
+        return hiveConf;
     }
 }

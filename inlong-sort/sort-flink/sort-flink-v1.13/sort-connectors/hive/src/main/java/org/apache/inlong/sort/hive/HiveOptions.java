@@ -66,4 +66,35 @@ public class HiveOptions {
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
+
+    public static final ConfigOption<String> SINK_PARTITION_NAME =
+            ConfigOptions.key("sink.partition.name")
+                    .stringType()
+                    .defaultValue("pt")
+                    .withDescription("The default partition name for creating new hive table.");
+
+    public static final ConfigOption<Integer> HIVE_SCHEMA_SCAN_INTERVAL =
+            ConfigOptions.key("sink.schema.scan.interval")
+                    .intType()
+                    .defaultValue(10)
+                    .withDescription("The interval milliseconds to scan if source table schema changed.");
+
+    public static final ConfigOption<String> HIVE_STORAGE_INPUT_FORMAT =
+            ConfigOptions.key("hive.storage.input.format")
+                    .stringType()
+                    .defaultValue("org.apache.hadoop.mapred.TextInputFormat")
+                    .withDescription("The input format of storage descriptor");
+
+    public static final ConfigOption<String> HIVE_STORAGE_OUTPUT_FORMAT =
+            ConfigOptions.key("hive.storage.output.format")
+                    .stringType()
+                    .defaultValue("org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat")
+                    .withDescription("The output format of storage descriptor");
+
+    public static final ConfigOption<String> HIVE_STORAGE_SERIALIZATION_LIB =
+            ConfigOptions.key("hive.storage.serialization.lib")
+                    .stringType()
+                    .defaultValue("org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe")
+                    .withDescription("The serialization library of storage descriptor");
+
 }

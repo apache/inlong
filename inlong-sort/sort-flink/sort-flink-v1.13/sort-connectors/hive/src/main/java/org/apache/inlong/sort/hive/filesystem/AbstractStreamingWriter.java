@@ -17,15 +17,12 @@
 
 package org.apache.inlong.sort.hive.filesystem;
 
-import org.apache.inlong.sort.base.dirty.DirtyData;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.util.CalculateObjectSizeUtils;
+import org.apache.inlong.sort.base.metric.sub.SinkTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 
 import org.apache.flink.api.common.state.ListState;
@@ -51,8 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-
-import java.io.IOException;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
@@ -83,7 +78,6 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     private @Nullable final String auditHostAndPorts;
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
-
     // --------------------------- runtime fields -----------------------------
 
     private transient Buckets<IN, String> buckets;
@@ -93,12 +87,9 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     private transient long currentWatermark;
 
     @Nullable
-    private transient SinkMetricData metricData;
+    private transient SinkTableMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
-
-    private Long dataSize = 0L;
-    private Long rowSize = 0L;
 
     public AbstractStreamingWriter(
             long bucketCheckInterval,
@@ -141,11 +132,6 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     protected void commitUpToCheckpoint(long checkpointId) throws Exception {
         try {
             helper.commitUpToCheckpoint(checkpointId);
-            if (metricData != null) {
-                metricData.invoke(rowSize, dataSize);
-            }
-            rowSize = 0L;
-            dataSize = 0L;
         } catch (Exception e) {
             LOG.error("hive sink commitUpToCheckpoint occurs error.", e);
             throw e;
@@ -155,18 +141,6 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     @Override
     public void open() throws Exception {
         super.open();
-        MetricOption metricOption = MetricOption.builder()
-                .withInlongLabels(inlongMetric)
-                .withAuditAddress(auditHostAndPorts)
-                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
-                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
-                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
-                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
-                .withRegisterMetric(RegisteredMetric.ALL)
-                .build();
-        if (metricOption != null) {
-            metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
-        }
         if (dirtySink != null) {
             dirtySink.open(new Configuration());
         }
@@ -175,6 +149,39 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     @Override
     public void initializeState(StateInitializationContext context) throws Exception {
         super.initializeState(context);
+
+        // init metric state
+        if (this.inlongMetric != null) {
+            this.metricStateListState = context.getOperatorStateStore().getUnionListState(
+                    new ListStateDescriptor<>(
+                            INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+                            })));
+        }
+
+        if (context.isRestored()) {
+            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
+                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
+
+        }
+
+        MetricOption metricOption = MetricOption.builder().withInlongLabels(inlongMetric)
+                .withAuditAddress(auditHostAndPorts)
+                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
+                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
+                .withRegisterMetric(RegisteredMetric.ALL).build();
+
+        if (metricOption != null) {
+            metricData = new SinkTableMetricData(metricOption, getRuntimeContext().getMetricGroup());
+            metricData.registerSubMetricsGroup(metricState);
+            if (this.bucketsBuilder instanceof HadoopPathBasedBulkFormatBuilder) {
+                ((HadoopPathBasedBulkFormatBuilder) this.bucketsBuilder).setMetricData(metricData);
+            }
+        }
+
+        // metricData must be initialized first, then HadoopPathBasedPartFileWriter can use this metricData to upload
+        // metric data.
         buckets = bucketsBuilder.createBuckets(getRuntimeContext().getIndexOfThisSubtask());
 
         // Set listener before the initialization of Buckets.
@@ -203,18 +210,6 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
                         bucketCheckInterval);
 
         currentWatermark = Long.MIN_VALUE;
-
-        // init metric state
-        if (this.inlongMetric != null) {
-            this.metricStateListState = context.getOperatorStateStore().getUnionListState(
-                    new ListStateDescriptor<>(
-                            INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                            })));
-        }
-        if (context.isRestored()) {
-            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
-                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
-        }
     }
 
     @Override
@@ -235,44 +230,11 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
 
     @Override
     public void processElement(StreamRecord<IN> element) throws Exception {
-        try {
-            helper.onElement(
-                    element.getValue(),
-                    getProcessingTimeService().getCurrentProcessingTime(),
-                    element.hasTimestamp() ? element.getTimestamp() : null,
-                    currentWatermark);
-            rowSize = rowSize + 1;
-            if (element.getValue() != null) {
-                dataSize = dataSize + CalculateObjectSizeUtils.getDataSize(element.getValue());
-            }
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            LOGGER.error("StreamingWriter write failed", e);
-            if (!dirtyOptions.ignoreDirty()) {
-                throw new RuntimeException(e);
-            }
-            if (metricData != null) {
-                metricData.invokeDirtyWithEstimate(element.getValue());
-            }
-            if (dirtySink != null) {
-                DirtyData.Builder<Object> builder = DirtyData.builder();
-                try {
-                    builder.setData(element.getValue())
-                            .setDirtyType(DirtyType.UNDEFINED)
-                            .setLabels(dirtyOptions.getLabels())
-                            .setLogTag(dirtyOptions.getLogTag())
-                            .setDirtyMessage(e.getMessage())
-                            .setIdentifier(dirtyOptions.getIdentifier());
-                    dirtySink.invoke(builder.build());
-                } catch (Exception ex) {
-                    if (!dirtyOptions.ignoreSideOutputErrors()) {
-                        throw new RuntimeException(ex);
-                    }
-                    LOGGER.warn("Dirty sink failed", ex);
-                }
-            }
-        }
+        helper.onElement(
+                element.getValue(),
+                getProcessingTimeService().getCurrentProcessingTime(),
+                element.hasTimestamp() ? element.getTimestamp() : null,
+                currentWatermark);
     }
 
     @Override
