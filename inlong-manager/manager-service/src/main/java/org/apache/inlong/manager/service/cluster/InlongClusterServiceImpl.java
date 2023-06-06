@@ -1196,8 +1196,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private List<InlongClusterNodeEntity> getClusterNodes(String groupId, String clusterType, String protocolType) {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         if (groupEntity == null) {
-            String msg = "inlong group not exists for groupId=" + groupId;
-            LOGGER.warn(msg);
+            LOGGER.warn("inlong group not exists for groupId={}", groupId);
             return Lists.newArrayList();
         }
 
