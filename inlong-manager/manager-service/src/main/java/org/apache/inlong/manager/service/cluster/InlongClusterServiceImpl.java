@@ -66,6 +66,7 @@ import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperator;
 import org.apache.inlong.manager.service.cluster.node.InlongClusterNodeOperatorFactory;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
+import org.apache.inlong.manager.service.repository.DataProxyConfigRepositoryV2;
 import org.apache.inlong.manager.service.user.UserService;
 
 import com.github.pagehelper.Page;
@@ -120,9 +121,15 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
+
     @Lazy
     @Autowired
+    @Deprecated
     private DataProxyConfigRepository proxyRepository;
+
+    @Lazy
+    @Autowired
+    private DataProxyConfigRepositoryV2 proxyRepositoryV2;
 
     @Override
     public Integer saveTag(ClusterTagRequest request, String operator) {
@@ -1337,6 +1344,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
+    @Deprecated
     public String getAllConfig(String clusterName, String md5) {
         DataProxyConfigResponse response = new DataProxyConfigResponse();
         String configMd5 = proxyRepository.getProxyMd5(clusterName);
@@ -1356,6 +1364,35 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         String configJson = proxyRepository.getProxyConfigJson(clusterName);
+        if (configJson == null) {
+            response.setResult(false);
+            response.setErrCode(DataProxyConfigResponse.REQ_PARAMS_ERROR);
+            return GSON.toJson(response);
+        }
+
+        return configJson;
+    }
+
+    @Override
+    public String getMetaConfig(String clusterName, String md5) {
+        DataProxyConfigResponse response = new DataProxyConfigResponse();
+        String configMd5 = proxyRepositoryV2.getProxyMd5(clusterName);
+        if (configMd5 == null) {
+            response.setResult(false);
+            response.setErrCode(DataProxyConfigResponse.REQ_PARAMS_ERROR);
+            return GSON.toJson(response);
+        }
+
+        // same config
+        if (configMd5.equals(md5)) {
+            response.setResult(true);
+            response.setErrCode(DataProxyConfigResponse.NOUPDATE);
+            response.setMd5(configMd5);
+            response.setData(new DataProxyCluster());
+            return GSON.toJson(response);
+        }
+
+        String configJson = proxyRepositoryV2.getProxyConfigJson(clusterName);
         if (configJson == null) {
             response.setResult(false);
             response.setErrCode(DataProxyConfigResponse.REQ_PARAMS_ERROR);
