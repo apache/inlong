@@ -71,6 +71,7 @@ import org.apache.inlong.manager.service.user.UserService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
@@ -1195,9 +1196,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private List<InlongClusterNodeEntity> getClusterNodes(String groupId, String clusterType, String protocolType) {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         if (groupEntity == null) {
-            String msg = "inlong group not exists for groupId=" + groupId;
-            LOGGER.debug(msg);
-            throw new BusinessException(msg);
+            LOGGER.warn("inlong group not exists for groupId={}", groupId);
+            return Lists.newArrayList();
         }
 
         String clusterTag = groupEntity.getInlongClusterTag();
