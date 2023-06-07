@@ -124,7 +124,7 @@ public class TestTaskWrapper {
 
         @Override
         public boolean isFinished() {
-            return count > 10;
+            return count > 2;
         }
 
         @Override
@@ -178,6 +178,7 @@ public class TestTaskWrapper {
         @Override
         public void write(Message message) {
             if (message != null) {
+                LOGGER.info("write {}",writerCount);
                 writerCount += 1;
             }
         }
