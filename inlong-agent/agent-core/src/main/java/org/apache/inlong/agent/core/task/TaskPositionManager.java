@@ -134,33 +134,22 @@ public class TaskPositionManager extends AbstractDaemon {
     /**
      * update job sink position
      *
-     * @param size add this size to beforePosition
+     * @param newPosition
      */
-    public void updateSinkPosition(String jobInstanceId, String sourcePath, long size, boolean reset) {
+    public void updateSinkPosition(String jobInstanceId, String sourcePath, long newPosition) {
+        LOGGER.info("updateSinkPosition jobInstanceId {} sourcePath {} newPosition {}", jobInstanceId, sourcePath,
+                newPosition);
         ConcurrentHashMap<String, Long> positionTemp = new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, Long> position = jobTaskPositionMap.putIfAbsent(jobInstanceId, positionTemp);
-        if (position == null) {
-            JobProfile jobProfile = jobConfDb.getJobById(jobInstanceId);
-            if (jobProfile == null) {
-                return;
-            }
-            positionTemp.put(sourcePath, jobProfile.getLong(sourcePath + POSITION_SUFFIX, 0));
-            position = positionTemp;
-        }
-
-        if (!reset) {
-            Long beforePosition = position.getOrDefault(sourcePath, 0L);
-            position.put(sourcePath, beforePosition + size);
+        ConcurrentHashMap<String, Long> lastPosition = jobTaskPositionMap.putIfAbsent(jobInstanceId, positionTemp);
+        if (lastPosition == null) {
+            positionTemp.put(sourcePath, newPosition);
         } else {
-            position.put(sourcePath, size);
+            lastPosition.put(sourcePath, newPosition);
         }
     }
 
-    public ConcurrentHashMap<String, Long> getTaskPositionMap(String jobId) {
-        return jobTaskPositionMap.get(jobId);
-    }
-
-    public ConcurrentHashMap<String, ConcurrentHashMap<String, Long>> getJobTaskPosition() {
-        return jobTaskPositionMap;
+    public long getPosition(String sourcePath, String jobInstanceId) {
+        JobProfile jobProfile = jobConfDb.getJobById(jobInstanceId);
+        return jobProfile.getLong(sourcePath + POSITION_SUFFIX, 0);
     }
 }

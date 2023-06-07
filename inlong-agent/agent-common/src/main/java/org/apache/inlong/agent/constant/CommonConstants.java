@@ -58,9 +58,6 @@ public class CommonConstants {
     // max size of message list
     public static final String PROXY_PACKAGE_MAX_SIZE = "proxy.package.maxSize";
 
-    // determine if the send method is sync or async
-    public static final String PROXY_SEND_SYNC = "proxy.sync";
-
     // the same task must have the same Partition Key if choose sync
     public static final String PROXY_SEND_PARTITION_KEY = "proxy.partitionKey";
 

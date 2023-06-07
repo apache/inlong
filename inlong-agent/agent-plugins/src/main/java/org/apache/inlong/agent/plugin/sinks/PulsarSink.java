@@ -197,6 +197,7 @@ public class PulsarSink extends AbstractSink {
             AgentUtils.silenceSleepInMs(batchFlushInterval);
         }
         shutdown = true;
+        EXECUTOR_SERVICE.shutdown();
         if (CollectionUtils.isNotEmpty(pulsarSenders)) {
             for (PulsarTopicSender sender : pulsarSenders) {
                 sender.close();
@@ -299,7 +300,6 @@ public class PulsarSink extends AbstractSink {
                     updateSuccessSendMetrics(batchMsg);
                 }
             });
-
         } else {
             try {
                 producer.newMessage().eventTime(batchMsg.getDataTime()).value(message.buildArray()).send();
@@ -319,9 +319,6 @@ public class PulsarSink extends AbstractSink {
                 batchMsg.getStreamId(), batchMsg.getDataTime(), batchMsg.getMsgCnt(),
                 batchMsg.getTotalSize());
         sinkMetric.pluginSendSuccessCount.addAndGet(batchMsg.getMsgCnt());
-        if (sourceName != null) {
-            taskPositionManager.updateSinkPosition(batchMsg.getJobId(), sourceName, batchMsg.getMsgCnt(), false);
-        }
     }
 
     private Producer selectProducer() {

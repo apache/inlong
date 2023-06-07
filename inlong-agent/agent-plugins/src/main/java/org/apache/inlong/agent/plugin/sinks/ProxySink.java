@@ -41,6 +41,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FIELD_SPLITTER;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PACKAGE_MAX_SIZE;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
 
 /**
  * sink message data to inlong-dataproxy
@@ -56,12 +58,22 @@ public class ProxySink extends AbstractSink {
     private SenderManager senderManager;
     private byte[] fieldSplitter;
     private volatile boolean shutdown = false;
+    private int maxPackSize;
 
     public ProxySink() {
     }
 
     @Override
     public void write(Message message) {
+        if (message == null) {
+            return;
+        }
+        // if the message size is greater than max pack size,should drop it.
+        if (message.getBody().length > maxPackSize) {
+            LOGGER.warn("message size is {}, greater than max pack size {}, drop it!",
+                    message.getBody().length, maxPackSize);
+            return;
+        }
         boolean suc = false;
         while (!suc) {
             suc = putInCache(message);
@@ -163,6 +175,7 @@ public class ProxySink extends AbstractSink {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
+        this.maxPackSize = jobConf.getInt(PROXY_PACKAGE_MAX_SIZE, DEFAULT_PROXY_PACKAGE_MAX_SIZE);
         messageFilter = initMessageFilter(jobConf);
         fieldSplitter = jobConf.get(CommonConstants.FIELD_SPLITTER, DEFAULT_FIELD_SPLITTER).getBytes(
                 StandardCharsets.UTF_8);
