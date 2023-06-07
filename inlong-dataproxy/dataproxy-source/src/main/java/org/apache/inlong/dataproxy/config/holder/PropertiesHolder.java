@@ -84,7 +84,7 @@ public abstract class PropertiesHolder extends ConfigHolder {
         try {
             Map<String, String> loadMap = loadConfigFromFile();
             if (loadMap == null || loadMap.isEmpty()) {
-                LOG.info("Load changed properties {}, but no records configured", getFileName());
+                LOG.debug("Load changed properties {}, but no records configured", getFileName());
                 return false;
             }
             // filter blank items

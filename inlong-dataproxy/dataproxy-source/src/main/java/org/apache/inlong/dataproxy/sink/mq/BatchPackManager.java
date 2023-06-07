@@ -17,10 +17,13 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
+import org.apache.inlong.sdk.commons.protocol.InlongId;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.flume.event.SimpleEvent;
 import org.slf4j.Logger;
@@ -28,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,8 +54,8 @@ public class BatchPackManager {
     private final long dispatchTimeout;
     private final long maxPackCount;
     private final long maxPackSize;
-    private BufferQueue<BatchPackProfile> dispatchQueue;
-    private ConcurrentHashMap<String, BatchPackProfile> profileCache = new ConcurrentHashMap<>();
+    private BufferQueue<PackProfile> dispatchQueue;
+    private ConcurrentHashMap<String, PackProfile> profileCache = new ConcurrentHashMap<>();
     // flag that manager need to output overtime data.
     private AtomicBoolean needOutputOvertimeData = new AtomicBoolean(false);
     private AtomicLong inCounter = new AtomicLong(0);
@@ -63,7 +67,7 @@ public class BatchPackManager {
      * @param context
      * @param dispatchQueue
      */
-    public BatchPackManager(Context context, BufferQueue<BatchPackProfile> dispatchQueue) {
+    public BatchPackManager(Context context, BufferQueue<PackProfile> dispatchQueue) {
         this.dispatchQueue = dispatchQueue;
         this.dispatchTimeout = context.getLong(KEY_DISPATCH_TIMEOUT, DEFAULT_DISPATCH_TIMEOUT);
         this.maxPackCount = context.getLong(KEY_DISPATCH_MAX_PACKCOUNT, DEFAULT_DISPATCH_MAX_PACKCOUNT);
@@ -80,7 +84,7 @@ public class BatchPackManager {
         long dispatchTime = event.getMsgTime() - event.getMsgTime() % MINUTE_MS;
         String dispatchKey = eventUid + "." + dispatchTime;
         // find dispatch profile
-        BatchPackProfile dispatchProfile = this.profileCache.get(dispatchKey);
+        PackProfile dispatchProfile = this.profileCache.get(dispatchKey);
         if (dispatchProfile == null) {
             dispatchProfile = new BatchPackProfile(eventUid, event.getInlongGroupId(), event.getInlongStreamId(),
                     dispatchTime);
@@ -91,7 +95,7 @@ public class BatchPackManager {
         if (!addResult) {
             BatchPackProfile newDispatchProfile = new BatchPackProfile(eventUid, event.getInlongGroupId(),
                     event.getInlongStreamId(), dispatchTime);
-            BatchPackProfile oldDispatchProfile = this.profileCache.put(dispatchKey, newDispatchProfile);
+            PackProfile oldDispatchProfile = this.profileCache.put(dispatchKey, newDispatchProfile);
             this.dispatchQueue.acquire(oldDispatchProfile.getSize());
             this.dispatchQueue.offer(oldDispatchProfile);
             outCounter.addAndGet(dispatchProfile.getCount());
@@ -141,10 +145,17 @@ public class BatchPackManager {
      * @param event
      */
     public void addSimpleEvent(SimpleEvent event) {
-        BatchPackProfile dispatchProfile = SimpleBatchPackProfileV0.create(event);
-        this.dispatchQueue.acquire(dispatchProfile.getSize());
-        this.dispatchQueue.offer(dispatchProfile);
-        outCounter.addAndGet(dispatchProfile.getCount());
+        Map<String, String> headers = event.getHeaders();
+        String inlongGroupId = headers.get(AttributeConstants.GROUP_ID);
+        String inlongStreamId = headers.get(AttributeConstants.STREAM_ID);
+        String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
+        long msgTime = NumberUtils.toLong(headers.get(AttributeConstants.DATA_TIME), System.currentTimeMillis());
+        long dispatchTime = msgTime - msgTime % MINUTE_MS;
+        SimplePackProfile profile = new SimplePackProfile(uid, inlongGroupId, inlongStreamId, dispatchTime);
+        profile.addEvent(event, maxPackCount, maxPackSize);
+        this.dispatchQueue.acquire(profile.getSize());
+        this.dispatchQueue.offer(profile);
+        outCounter.addAndGet(profile.getCount());
         inCounter.incrementAndGet();
     }
 
@@ -163,8 +174,8 @@ public class BatchPackManager {
         long createThreshold = currentTime - dispatchTimeout;
         List<String> removeKeys = new ArrayList<>();
         long eventCount = 0;
-        for (Entry<String, BatchPackProfile> entry : this.profileCache.entrySet()) {
-            BatchPackProfile dispatchProfile = entry.getValue();
+        for (Entry<String, PackProfile> entry : this.profileCache.entrySet()) {
+            PackProfile dispatchProfile = entry.getValue();
             eventCount += dispatchProfile.getCount();
             if (!dispatchProfile.isTimeout(createThreshold)) {
                 continue;
@@ -173,7 +184,7 @@ public class BatchPackManager {
         }
         // output
         removeKeys.forEach((key) -> {
-            BatchPackProfile dispatchProfile = this.profileCache.remove(key);
+            PackProfile dispatchProfile = this.profileCache.remove(key);
             if (dispatchProfile != null) {
                 this.dispatchQueue.acquire(dispatchProfile.getSize());
                 dispatchQueue.offer(dispatchProfile);

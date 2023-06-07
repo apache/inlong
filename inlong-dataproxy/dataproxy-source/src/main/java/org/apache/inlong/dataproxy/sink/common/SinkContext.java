@@ -24,8 +24,8 @@ import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
-import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
+import org.apache.inlong.dataproxy.sink.mq.PackProfile;
 import org.apache.inlong.dataproxy.sink.mq.pulsar.PulsarHandler;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
 
@@ -275,7 +275,7 @@ public class SinkContext {
      * createBufferQueue
      * @return
      */
-    public static BufferQueue<BatchPackProfile> createBufferQueue() {
+    public static BufferQueue<PackProfile> createBufferQueue() {
         return new BufferQueue<>(CommonConfigHolder.getInstance().getMaxBufferQueueSizeKb());
     }
 }
