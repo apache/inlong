@@ -31,7 +31,6 @@ import org.apache.flink.table.data.RowData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -146,7 +145,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
         int writtenSize = errorPositions.get(0);
         long writtenBytes = 0L;
         if (writtenSize > 0) {
-            writtenBytes = (long) batch.get(0).toString().getBytes(StandardCharsets.UTF_8).length * writtenSize;
+            writtenBytes = CalculateObjectSizeUtils.getDataSize(batch.get(0)) * writtenSize;
         }
         if (!multipleSink) {
             sinkMetricData.invoke(writtenSize, writtenBytes);
@@ -186,7 +185,7 @@ public final class TableMetricStatementExecutor implements JdbcBatchStatementExe
                     sinkMetricData.invokeWithEstimate(rowData);
                 } else {
                     metric[0] += 1;
-                    metric[1] += rowData.toString().getBytes().length;
+                    metric[1] += CalculateObjectSizeUtils.getDataSize(rowData);
                 }
             } catch (Exception e) {
                 st.clearParameters();
