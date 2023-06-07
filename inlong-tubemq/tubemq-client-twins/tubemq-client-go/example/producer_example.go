@@ -18,16 +18,22 @@
 package main
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/client"
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
 	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/util"
 )
 
 func main() {
 	// Example for parseAddress
-	cfg, err := config.ParseAddress("127.0.0.1:8715?topic=demo")
+	cfg, err := config.ParseAddress("127.0.0.1:8715?topic=demo_0")
+	cfg.Producer.Topics = []string{"demo", "demo_0", "demo_1"}
+	msgCount := 100
+	msgDataSize := 1024
+	sentData := util.BuildTestData(msgDataSize)
 
 	if err != nil {
 		log.Errorf("Failed to parse address", err.Error())
@@ -35,12 +41,29 @@ func main() {
 	}
 
 	// Register to master
-	_, err = client.NewProducer(cfg)
+	p, err := client.NewProducer(cfg)
 	if err != nil {
 		log.Errorf("new producer error %s", err.Error())
 		panic(err)
 	}
 
 	// wait the first heartbeat completed
-	time.Sleep(20 * time.Second)
+	time.Sleep(10 * time.Second)
+
+	topicNum := len(cfg.Producer.Topics)
+	for i := 0; i < msgCount; i++ {
+		tmpSentData := sentData + strconv.Itoa(i)
+		msg := client.Message{
+			Topic:   cfg.Producer.Topics[i%topicNum],
+			Data:    []byte(tmpSentData),
+			DataLen: int32(len(tmpSentData)),
+		}
+		success, errCode, errMsg := p.SendMessage(&msg)
+
+		if !success {
+			println("Send fail: errCode: %d, errMsg: %s", errCode, errMsg)
+		} else {
+			println("Send success!!!")
+		}
+	}
 }
