@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.filter;
 
 import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.manager.web.WebBaseTest;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
@@ -33,20 +34,22 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
+import java.io.IOException;
 
 public class EmptyTenantFilterTest extends WebBaseTest {
 
     @Test
     public void testNoTenant() {
         MockHttpServletRequest req = new MockHttpServletRequest();
-        Servlet servlet = new HttpServlet() {};
+        Servlet servlet = new HttpServlet() {
+        };
         MockHttpServletResponse res = new MockHttpServletResponse();
         HttpServletRequestFilter httpServletRequestFilter = new HttpServletRequestFilter();
         EmptyTenantFilter emptyTenantFilter = new EmptyTenantFilter();
         FilterChecker checker = new FilterChecker(BasicAuth.DEFAULT_TENANT);
-        MockFilterChain filterChain = new MockFilterChain(servlet, httpServletRequestFilter, emptyTenantFilter, checker);
+        MockFilterChain filterChain =
+                new MockFilterChain(servlet, httpServletRequestFilter, emptyTenantFilter, checker);
         Assertions.assertDoesNotThrow(() -> filterChain.doFilter(req, res));
     }
 
@@ -55,15 +58,16 @@ public class EmptyTenantFilterTest extends WebBaseTest {
         MockHttpServletRequest req = new MockHttpServletRequest();
         String testTenant = "testTenant";
         req.addHeader(BasicAuth.BASIC_AUTH_TENANT_HEADER, testTenant);
-        Servlet servlet = new HttpServlet() {};
+        Servlet servlet = new HttpServlet() {
+        };
         MockHttpServletResponse res = new MockHttpServletResponse();
         HttpServletRequestFilter httpServletRequestFilter = new HttpServletRequestFilter();
         EmptyTenantFilter emptyTenantFilter = new EmptyTenantFilter();
         FilterChecker checker = new FilterChecker(testTenant);
-        MockFilterChain filterChain = new MockFilterChain(servlet, httpServletRequestFilter, emptyTenantFilter, checker);
+        MockFilterChain filterChain =
+                new MockFilterChain(servlet, httpServletRequestFilter, emptyTenantFilter, checker);
         Assertions.assertDoesNotThrow(() -> filterChain.doFilter(req, res));
     }
-
 
     class FilterChecker implements Filter {
 
