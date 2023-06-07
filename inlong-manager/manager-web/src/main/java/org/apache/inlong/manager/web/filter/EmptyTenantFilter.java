@@ -19,7 +19,7 @@ package org.apache.inlong.manager.web.filter;
 
 import org.apache.inlong.manager.web.utils.InlongRequestWrapper;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -30,21 +30,23 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 
+import static org.apache.inlong.common.util.BasicAuth.BASIC_AUTH_TENANT_HEADER;
+import static org.apache.inlong.common.util.BasicAuth.DEFAULT_TENANT;
+
 /**
- * HttpServletRequestFilter
- * Make all request body modifiable
+ * Empty tenant filter.
+ * Add default tenant to header if the tenant has not been specified.
  */
-@Slf4j
-public class HttpServletRequestFilter implements Filter {
+public class EmptyTenantFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        if (servletRequest instanceof HttpServletRequest) {
-            ServletRequest requestWrapper = new InlongRequestWrapper((HttpServletRequest) servletRequest);
-            filterChain.doFilter(requestWrapper, servletResponse);
-        } else {
-            filterChain.doFilter(servletRequest, servletResponse);
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        String tenant = request.getHeader(BASIC_AUTH_TENANT_HEADER);
+        if (StringUtils.isBlank(tenant)) {
+            ((InlongRequestWrapper) servletRequest).addHeader(BASIC_AUTH_TENANT_HEADER, DEFAULT_TENANT);
         }
+        filterChain.doFilter(servletRequest, servletResponse);
     }
 }
