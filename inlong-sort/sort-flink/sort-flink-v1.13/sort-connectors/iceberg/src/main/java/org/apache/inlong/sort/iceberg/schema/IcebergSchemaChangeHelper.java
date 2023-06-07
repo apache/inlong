@@ -43,6 +43,7 @@ import org.apache.iceberg.catalog.Catalog;
 import org.apache.iceberg.catalog.SupportsNamespaces;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
+import org.apache.iceberg.types.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +123,7 @@ public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
         }
     }
 
-    public void doAddColumn(List<AlterColumn> alterColumns, TableIdentifier tableId) {
+    private void doAddColumn(List<AlterColumn> alterColumns, TableIdentifier tableId) {
         List<TableChange> tableChanges = new ArrayList<>();
         Table table = catalog.loadTable(tableId);
         Transaction transaction = table.newTransaction();
@@ -130,9 +131,17 @@ public class IcebergSchemaChangeHelper extends SchemaChangeHelper {
         alterColumns.forEach(alterColumn -> {
             Column column = alterColumn.getNewColumn();
             LogicalType dataType = dynamicSchemaFormat.sqlType2FlinkType(column.getJdbcType());
-            TableChange.ColumnPosition position =
-                    column.getPosition().getPositionType() == PositionType.FIRST ? TableChange.ColumnPosition.first()
-                            : TableChange.ColumnPosition.after(column.getName());
+            TableChange.ColumnPosition position;
+            if (column.getPosition() != null && column.getPosition().getColumnName() != null) {
+                position =
+                        column.getPosition().getPositionType() == PositionType.FIRST
+                                ? TableChange.ColumnPosition.first()
+                                : TableChange.ColumnPosition.after(column.getPosition().getColumnName());
+            } else {
+                List<Types.NestedField> columns = table.schema().columns();
+                Types.NestedField lastField = columns.get(columns.size() - 1);
+                position = TableChange.ColumnPosition.after(lastField.name());
+            }
             TableChange.AddColumn addColumn = new TableChange.AddColumn(new String[]{column.getName()},
                     dataType, column.isNullable(), column.getComment(), position);
             tableChanges.add(addColumn);

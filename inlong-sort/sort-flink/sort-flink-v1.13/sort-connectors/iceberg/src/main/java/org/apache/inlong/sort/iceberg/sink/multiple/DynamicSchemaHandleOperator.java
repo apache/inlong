@@ -177,10 +177,11 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         }
         this.dirtySinkHelper.open(new Configuration());
         this.schemaChangeHelper = new IcebergSchemaChangeHelper(dynamicSchemaFormat,
-                enableSchemaChange, enableSchemaChange ? SchemaChangeUtils.deserialize(schemaChangePolicies) : null,
-                multipleSinkOption.getDatabasePattern(), multipleSinkOption.getTablePattern(),
-                multipleSinkOption.getSchemaUpdatePolicy(), metricData, dirtySinkHelper,
-                catalog, asNamespaceCatalog);
+                enableSchemaChange, enableSchemaChange ? SchemaChangeUtils.deserialize(schemaChangePolicies)
+                        : Collections.emptyMap(),
+                multipleSinkOption.getDatabasePattern(),
+                multipleSinkOption.getTablePattern(), multipleSinkOption.getSchemaUpdatePolicy(), metricData,
+                dirtySinkHelper, catalog, asNamespaceCatalog);
     }
 
     @Override
