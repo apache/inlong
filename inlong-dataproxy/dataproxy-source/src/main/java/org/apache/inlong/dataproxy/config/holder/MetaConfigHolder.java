@@ -30,6 +30,7 @@ import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.CacheType;
 import org.apache.inlong.dataproxy.config.pojo.DataType;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 
 import com.google.gson.Gson;
@@ -54,8 +55,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_NAMESPACE;
 
 /**
  * Json to object
@@ -333,6 +332,7 @@ public class MetaConfigHolder extends ConfigHolder {
         String groupId;
         String streamId;
         String topicName;
+        String tenant;
         String nameSpace;
         for (InLongIdObject idObject : inLongIds) {
             if (idObject == null
@@ -359,7 +359,8 @@ public class MetaConfigHolder extends ConfigHolder {
             if (index >= 0) {
                 topicName = topicName.substring(index + 1).trim();
             }
-            nameSpace = idObject.getParams().getOrDefault(KEY_NAMESPACE, "");
+            tenant = idObject.getParams().getOrDefault(ConfigConstants.KEY_TENANT, "");
+            nameSpace = idObject.getParams().getOrDefault(ConfigConstants.KEY_NAMESPACE, "");
             if (mqType.equals(CacheType.TUBE)) {
                 if (StringUtils.isNotBlank(nameSpace)) {
                     topicName = nameSpace;
@@ -371,7 +372,7 @@ public class MetaConfigHolder extends ConfigHolder {
             }
             IdTopicConfig tmpConfig = new IdTopicConfig();
             tmpConfig.setInlongGroupIdAndStreamId(groupId, streamId);
-            tmpConfig.setNameSpace(nameSpace);
+            tmpConfig.setTenantAndNameSpace(tenant, nameSpace);
             tmpConfig.setTopicName(topicName);
             tmpConfig.setParams(idObject.getParams());
             tmpConfig.setDataType(DataType.convert(
@@ -384,7 +385,7 @@ public class MetaConfigHolder extends ConfigHolder {
                     && tmpTopicConfigMap.get(tmpConfig.getInlongGroupId()) == null) {
                 IdTopicConfig tmpConfig2 = new IdTopicConfig();
                 tmpConfig2.setInlongGroupIdAndStreamId(groupId, "");
-                tmpConfig2.setNameSpace(nameSpace);
+                tmpConfig.setTenantAndNameSpace(tenant, nameSpace);
                 tmpConfig2.setTopicName(topicName);
                 tmpConfig2.setDataType(tmpConfig.getDataType());
                 tmpConfig2.setFieldDelimiter(tmpConfig.getFieldDelimiter());
