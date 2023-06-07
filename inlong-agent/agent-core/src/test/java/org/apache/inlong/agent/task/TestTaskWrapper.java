@@ -178,7 +178,6 @@ public class TestTaskWrapper {
         @Override
         public void write(Message message) {
             if (message != null) {
-                LOGGER.info("write {}",writerCount);
                 writerCount += 1;
             }
         }

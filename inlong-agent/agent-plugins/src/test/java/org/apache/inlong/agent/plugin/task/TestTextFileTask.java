@@ -237,7 +237,7 @@ public class TestTextFileTask {
         TestUtils.write(file.getAbsolutePath(), sb);
 
         await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 10);
-        synchronized (this){
+        synchronized (this) {
             String collectData = sink.getResult().stream().map(message -> {
                 String content = new String(message.getBody(), StandardCharsets.UTF_8);
                 Map<String, String> logJson = GSON.fromJson(content, Map.class);
