@@ -32,7 +32,7 @@ import java.io.IOException;
 
 /**
  * HttpServletRequestFilter
- * Make All
+ * Make all request body modifiable
  */
 @Slf4j
 public class HttpServletRequestFilter implements Filter {

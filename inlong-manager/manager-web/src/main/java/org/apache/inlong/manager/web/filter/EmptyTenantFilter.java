@@ -33,6 +33,10 @@ import java.io.IOException;
 import static org.apache.inlong.common.util.BasicAuth.BASIC_AUTH_TENANT_HEADER;
 import static org.apache.inlong.common.util.BasicAuth.DEFAULT_TENANT;
 
+/**
+ * Empty tenant filter.
+ * Add default tenant to header if the tenant has not been specified.
+ */
 public class EmptyTenantFilter implements Filter {
 
     @Override
