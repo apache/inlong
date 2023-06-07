@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
@@ -46,10 +46,10 @@ public class HiveProvider implements LoadNodeProvider {
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         HiveSink hiveSink = (HiveSink) nodeInfo;
         Map<String, String> properties = parseProperties(hiveSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(hiveSink.getSinkFieldList(), hiveSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(hiveSink.getSinkFieldList(), hiveSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(hiveSink.getSinkFieldList(), constantFieldMap);
         List<FieldInfo> partitionFields = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(hiveSink.getPartitionFieldList())) {

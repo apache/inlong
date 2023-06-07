@@ -15,16 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
-import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.consts.StreamType;
 import org.apache.inlong.manager.pojo.sink.hudi.HudiSink;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
+import org.apache.inlong.manager.pojo.source.hudi.HudiSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.HudiConstant;
+import org.apache.inlong.sort.protocol.constant.HudiConstant.CatalogType;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.extract.HudiExtractNode;
 import org.apache.inlong.sort.protocol.node.load.HudiLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
@@ -32,20 +37,43 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating Hudi load nodes.
+ * The Provider for creating Hudi extract or load nodes.
  */
-public class HudiProvider implements LoadNodeProvider {
+public class HudiProvider implements ExtractNodeProvider, LoadNodeProvider {
 
     @Override
-    public Boolean accept(String sinkType) {
-        return SinkType.HUDI.equals(sinkType);
+    public Boolean accept(String streamType) {
+        return StreamType.HUDI.equals(streamType);
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
+        HudiSource source = (HudiSource) streamNodeInfo;
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName());
+        Map<String, String> properties = parseProperties(source.getProperties());
+
+        return new HudiExtractNode(
+                source.getSourceName(),
+                source.getSourceName(),
+                fieldInfos,
+                null,
+                source.getCatalogUri(),
+                source.getWarehouse(),
+                source.getDbName(),
+                source.getTableName(),
+                CatalogType.HIVE,
+                source.getCheckIntervalInMinus(),
+                source.isReadStreamingSkipCompaction(),
+                source.getReadStartCommit(),
+                properties,
+                source.getExtList());
+    }
+
+    @Override
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         HudiSink hudiSink = (HudiSink) nodeInfo;
         Map<String, String> properties = parseProperties(hudiSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(hudiSink.getSinkFieldList(), hudiSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(hudiSink.getSinkFieldList(), hudiSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(hudiSink.getSinkFieldList(), constantFieldMap);
         HudiConstant.CatalogType catalogType = HudiConstant.CatalogType.forName(hudiSink.getCatalogType());
 

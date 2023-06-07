@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
@@ -41,10 +41,10 @@ public class ClickHouseProvider implements LoadNodeProvider {
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         ClickHouseSink streamSink = (ClickHouseSink) nodeInfo;
         Map<String, String> properties = parseProperties(streamSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(streamSink.getSinkFieldList(), streamSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(streamSink.getSinkFieldList(), streamSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(streamSink.getSinkFieldList(), constantFieldMap);
         return new ClickHouseLoadNode(
                 streamSink.getSinkName(),

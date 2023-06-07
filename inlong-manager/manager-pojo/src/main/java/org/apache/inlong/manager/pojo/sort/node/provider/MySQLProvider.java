@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
@@ -44,10 +44,10 @@ public class MySQLProvider implements LoadNodeProvider {
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         MySQLSink mysqlSink = (MySQLSink) nodeInfo;
         Map<String, String> properties = parseProperties(mysqlSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(mysqlSink.getSinkFieldList(), mysqlSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(mysqlSink.getSinkFieldList(), mysqlSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(mysqlSink.getSinkFieldList(), constantFieldMap);
 
         return new MySqlLoadNode(

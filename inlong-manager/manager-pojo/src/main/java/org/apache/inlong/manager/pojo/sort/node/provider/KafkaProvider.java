@@ -15,16 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
-import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.consts.StreamType;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
+import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
+import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
@@ -42,20 +48,70 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating Kafka load nodes.
+ * The Provider for creating Kafka extract or load nodes.
  */
-public class KafkaProvider implements LoadNodeProvider {
+public class KafkaProvider implements ExtractNodeProvider, LoadNodeProvider {
 
     @Override
-    public Boolean accept(String sinkType) {
-        return SinkType.KAFKA.equals(sinkType);
+    public Boolean accept(String streamType) {
+        return StreamType.KAFKA.equals(streamType);
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
+        KafkaSource kafkaSource = (KafkaSource) streamNodeInfo;
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(kafkaSource.getFieldList(), kafkaSource.getSourceName());
+        Map<String, String> properties = parseProperties(kafkaSource.getProperties());
+
+        String topic = kafkaSource.getTopic();
+        String bootstrapServers = kafkaSource.getBootstrapServers();
+
+        Format format = parsingFormat(
+                kafkaSource.getSerializationType(),
+                kafkaSource.isWrapWithInlongMsg(),
+                kafkaSource.getDataSeparator(),
+                kafkaSource.isIgnoreParseErrors());
+
+        KafkaOffset kafkaOffset = KafkaOffset.forName(kafkaSource.getAutoOffsetReset());
+        KafkaScanStartupMode startupMode;
+        switch (kafkaOffset) {
+            case EARLIEST:
+                startupMode = KafkaScanStartupMode.EARLIEST_OFFSET;
+                break;
+            case SPECIFIC:
+                startupMode = KafkaScanStartupMode.SPECIFIC_OFFSETS;
+                break;
+            case TIMESTAMP_MILLIS:
+                startupMode = KafkaScanStartupMode.TIMESTAMP_MILLIS;
+                break;
+            case LATEST:
+            default:
+                startupMode = KafkaScanStartupMode.LATEST_OFFSET;
+        }
+        final String primaryKey = kafkaSource.getPrimaryKey();
+        String groupId = kafkaSource.getGroupId();
+        String partitionOffset = kafkaSource.getPartitionOffsets();
+        String scanTimestampMillis = kafkaSource.getTimestampMillis();
+        return new KafkaExtractNode(kafkaSource.getSourceName(),
+                kafkaSource.getSourceName(),
+                fieldInfos,
+                null,
+                properties,
+                topic,
+                bootstrapServers,
+                format,
+                startupMode,
+                primaryKey,
+                groupId,
+                partitionOffset,
+                scanTimestampMillis);
+    }
+
+    @Override
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         KafkaSink kafkaSink = (KafkaSink) nodeInfo;
         Map<String, String> properties = parseProperties(kafkaSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(kafkaSink.getSinkFieldList(), kafkaSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(kafkaSink.getSinkFieldList(), kafkaSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(kafkaSink.getSinkFieldList(), constantFieldMap);
         Integer sinkParallelism = null;
         if (StringUtils.isNotEmpty(kafkaSink.getPartitionNum())) {

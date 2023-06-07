@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -48,11 +48,11 @@ public class ElasticsearchProvider implements LoadNodeProvider {
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         ElasticsearchSink elasticsearchSink = (ElasticsearchSink) nodeInfo;
         Map<String, String> properties = parseProperties(elasticsearchSink.getProperties());
         List<SinkField> sinkFieldList = elasticsearchSink.getSinkFieldList();
-        List<FieldInfo> fieldInfos = parseFieldInfos(sinkFieldList, elasticsearchSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(sinkFieldList, elasticsearchSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(sinkFieldList, constantFieldMap);
         Format format = null;
         if (elasticsearchSink.getSinkMultipleEnable() != null && elasticsearchSink.getSinkMultipleEnable()

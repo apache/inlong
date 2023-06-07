@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SinkType;
@@ -47,10 +47,10 @@ public class StarRocksProvider implements LoadNodeProvider {
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         StarRocksSink starRocksSink = (StarRocksSink) nodeInfo;
         Map<String, String> properties = parseProperties(starRocksSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(starRocksSink.getSinkFieldList(), starRocksSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(starRocksSink.getSinkFieldList(), starRocksSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(starRocksSink.getSinkFieldList(), constantFieldMap);
 
         Format format = null;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.extract;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
@@ -39,9 +39,9 @@ public class MongoProvider implements ExtractNodeProvider {
     }
 
     @Override
-    public ExtractNode createNode(StreamNode streamNodeInfo) {
+    public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         MongoDBSource source = (MongoDBSource) streamNodeInfo;
-        List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName());
         Map<String, String> properties = parseProperties(source.getProperties());
 
         return new MongoExtractNode(

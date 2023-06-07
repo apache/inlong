@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.hdfs.HDFSSink;
@@ -46,10 +46,10 @@ public class HDFSProvider implements LoadNodeProvider {
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         HDFSSink hdfsSink = (HDFSSink) nodeInfo;
         Map<String, String> properties = parseProperties(hdfsSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(hdfsSink.getSinkFieldList(), hdfsSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(hdfsSink.getSinkFieldList(), hdfsSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(hdfsSink.getSinkFieldList(), constantFieldMap);
         List<FieldInfo> partitionFields = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(hdfsSink.getPartitionFieldList())) {

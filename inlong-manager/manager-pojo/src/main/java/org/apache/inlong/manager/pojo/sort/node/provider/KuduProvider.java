@@ -15,55 +15,49 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.pojo.sink.hbase.HBaseSink;
+import org.apache.inlong.manager.pojo.sink.kudu.KuduSink;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
+import org.apache.inlong.sort.protocol.node.load.KuduLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
-
-import com.google.common.collect.Lists;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating HBase load nodes.
+ * The Provider for creating Kudu load nodes.
  */
-public class HBaseProvider implements LoadNodeProvider {
+public class KuduProvider implements LoadNodeProvider {
 
     @Override
     public Boolean accept(String sinkType) {
-        return SinkType.HBASE.equals(sinkType);
+        return SinkType.KUDU.equals(sinkType);
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
-        HBaseSink hbaseSink = (HBaseSink) nodeInfo;
-        Map<String, String> properties = parseProperties(hbaseSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(hbaseSink.getSinkFieldList(), hbaseSink.getSinkName());
-        List<FieldRelation> fieldRelations = parseSinkFields(hbaseSink.getSinkFieldList(), constantFieldMap);
-        return new HbaseLoadNode(
-                hbaseSink.getSinkName(),
-                hbaseSink.getSinkName(),
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+        KuduSink kuduSink = (KuduSink) nodeInfo;
+        Map<String, String> properties = parseProperties(kuduSink.getProperties());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(kuduSink.getSinkFieldList(), kuduSink.getSinkName());
+        List<FieldRelation> fieldRelations = parseSinkFields(kuduSink.getSinkFieldList(), constantFieldMap);
+
+        return new KuduLoadNode(
+                kuduSink.getSinkName(),
+                kuduSink.getSinkName(),
                 fieldInfos,
                 fieldRelations,
-                Lists.newArrayList(),
+                null,
                 null,
                 null,
                 properties,
-                hbaseSink.getTableName(),
-                hbaseSink.getNamespace(),
-                hbaseSink.getZkQuorum(),
-                hbaseSink.getRowKey(),
-                hbaseSink.getBufferFlushMaxSize(),
-                hbaseSink.getZkNodeParent(),
-                hbaseSink.getBufferFlushMaxRows(),
-                hbaseSink.getBufferFlushInterval());
+                kuduSink.getMasters(),
+                kuduSink.getTableName(),
+                kuduSink.getPartitionKey());
     }
 }

@@ -27,6 +27,14 @@ import java.util.stream.Collectors;
 public interface NodeProvider {
 
     /**
+     * Determines whether the current instance matches the specified type.
+     *
+     * @param streamType the specified type
+     * @return whether the current instance matches the specified type
+     */
+    Boolean accept(String streamType);
+
+    /**
      * Parse properties
      *
      * @param properties The properties with string key and object value

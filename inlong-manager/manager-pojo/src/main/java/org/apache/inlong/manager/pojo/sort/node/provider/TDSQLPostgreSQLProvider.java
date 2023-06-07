@@ -15,55 +15,53 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.constant.IcebergConstant;
-import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
+import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating Iceberg load nodes.
+ * The Provider for creating TDSQLPostgreSQL load nodes.
  */
-public class IcebergProvider implements LoadNodeProvider {
+public class TDSQLPostgreSQLProvider implements LoadNodeProvider {
 
     @Override
     public Boolean accept(String sinkType) {
-        return SinkType.ICEBERG.equals(sinkType);
+        return SinkType.TDSQLPOSTGRESQL.equals(sinkType);
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
-        IcebergSink icebergSink = (IcebergSink) nodeInfo;
-        Map<String, String> properties = parseProperties(icebergSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(icebergSink.getSinkFieldList(), icebergSink.getSinkName());
-        List<FieldRelation> fieldRelations = parseSinkFields(icebergSink.getSinkFieldList(), constantFieldMap);
-        IcebergConstant.CatalogType catalogType = CatalogType.forName(icebergSink.getCatalogType());
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+        TDSQLPostgreSQLSink tdsqlPostgreSQLSink = (TDSQLPostgreSQLSink) nodeInfo;
+        Map<String, String> properties = parseProperties(tdsqlPostgreSQLSink.getProperties());
+        List<SinkField> sinkFieldList = tdsqlPostgreSQLSink.getSinkFieldList();
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(sinkFieldList, tdsqlPostgreSQLSink.getSinkName());
+        List<FieldRelation> fieldRelations = parseSinkFields(sinkFieldList, constantFieldMap);
 
-        return new IcebergLoadNode(
-                icebergSink.getSinkName(),
-                icebergSink.getSinkName(),
+        return new TDSQLPostgresLoadNode(
+                tdsqlPostgreSQLSink.getSinkName(),
+                tdsqlPostgreSQLSink.getSinkName(),
                 fieldInfos,
                 fieldRelations,
                 null,
                 null,
                 null,
                 properties,
-                icebergSink.getDbName(),
-                icebergSink.getTableName(),
-                icebergSink.getPrimaryKey(),
-                catalogType,
-                icebergSink.getCatalogUri(),
-                icebergSink.getWarehouse());
+                tdsqlPostgreSQLSink.getJdbcUrl(),
+                tdsqlPostgreSQLSink.getUsername(),
+                tdsqlPostgreSQLSink.getPassword(),
+                tdsqlPostgreSQLSink.getSchemaName() + "." + tdsqlPostgreSQLSink.getTableName(),
+                tdsqlPostgreSQLSink.getPrimaryKey());
     }
 }

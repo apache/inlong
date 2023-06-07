@@ -15,15 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
-import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.consts.StreamType;
 import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerSink;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
+import org.apache.inlong.manager.pojo.source.sqlserver.SQLServerSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
@@ -31,20 +35,43 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating SQLServer load nodes.
+ * The Provider for creating SQLServer extract or load nodes.
  */
-public class SQLServerProvider implements LoadNodeProvider {
+public class SQLServerProvider implements ExtractNodeProvider, LoadNodeProvider {
 
     @Override
-    public Boolean accept(String sinkType) {
-        return SinkType.SQLSERVER.equals(sinkType);
+    public Boolean accept(String streamType) {
+        return StreamType.SQLSERVER.equals(streamType);
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
+        SQLServerSource source = (SQLServerSource) streamNodeInfo;
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName());
+        Map<String, String> properties = parseProperties(source.getProperties());
+
+        return new SqlServerExtractNode(
+                source.getSourceName(),
+                source.getSourceName(),
+                fieldInfos,
+                null,
+                properties,
+                source.getPrimaryKey(),
+                source.getHostname(),
+                source.getPort(),
+                source.getUsername(),
+                source.getPassword(),
+                source.getDatabase(),
+                source.getSchemaName(),
+                source.getTableName(),
+                source.getServerTimezone());
+    }
+
+    @Override
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         SQLServerSink sqlServerSink = (SQLServerSink) nodeInfo;
         Map<String, String> properties = parseProperties(sqlServerSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(sqlServerSink.getSinkFieldList(), sqlServerSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(sqlServerSink.getSinkFieldList(), sqlServerSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(sqlServerSink.getSinkFieldList(), constantFieldMap);
 
         return new SqlServerLoadNode(

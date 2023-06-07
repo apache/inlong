@@ -15,49 +15,55 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.pojo.sink.kudu.KuduSink;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.IcebergConstant;
+import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.node.load.KuduLoadNode;
+import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating Kudu load nodes.
+ * The Provider for creating Iceberg load nodes.
  */
-public class KuduProvider implements LoadNodeProvider {
+public class IcebergProvider implements LoadNodeProvider {
 
     @Override
     public Boolean accept(String sinkType) {
-        return SinkType.KUDU.equals(sinkType);
+        return SinkType.ICEBERG.equals(sinkType);
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
-        KuduSink kuduSink = (KuduSink) nodeInfo;
-        Map<String, String> properties = parseProperties(kuduSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(kuduSink.getSinkFieldList(), kuduSink.getSinkName());
-        List<FieldRelation> fieldRelations = parseSinkFields(kuduSink.getSinkFieldList(), constantFieldMap);
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+        IcebergSink icebergSink = (IcebergSink) nodeInfo;
+        Map<String, String> properties = parseProperties(icebergSink.getProperties());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(icebergSink.getSinkFieldList(), icebergSink.getSinkName());
+        List<FieldRelation> fieldRelations = parseSinkFields(icebergSink.getSinkFieldList(), constantFieldMap);
+        IcebergConstant.CatalogType catalogType = CatalogType.forName(icebergSink.getCatalogType());
 
-        return new KuduLoadNode(
-                kuduSink.getSinkName(),
-                kuduSink.getSinkName(),
+        return new IcebergLoadNode(
+                icebergSink.getSinkName(),
+                icebergSink.getSinkName(),
                 fieldInfos,
                 fieldRelations,
                 null,
                 null,
                 null,
                 properties,
-                kuduSink.getMasters(),
-                kuduSink.getTableName(),
-                kuduSink.getPartitionKey());
+                icebergSink.getDbName(),
+                icebergSink.getTableName(),
+                icebergSink.getPrimaryKey(),
+                catalogType,
+                icebergSink.getCatalogUri(),
+                icebergSink.getWarehouse());
     }
 }

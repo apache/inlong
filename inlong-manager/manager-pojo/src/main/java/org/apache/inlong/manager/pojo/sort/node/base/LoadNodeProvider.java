@@ -45,21 +45,13 @@ import java.util.stream.Collectors;
 public interface LoadNodeProvider extends NodeProvider {
 
     /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sinkType the specified sink type
-     * @return whether the current instance matches the specified type
-     */
-    Boolean accept(String sinkType);
-
-    /**
      * Create load node by stream node info
      *
      * @param nodeInfo stream node info
      * @param constantFieldMap the constant field map
      * @return the load node
      */
-    LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap);
+    LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap);
 
     /**
      * Parse FieldInfos
@@ -68,7 +60,7 @@ public interface LoadNodeProvider extends NodeProvider {
      * @param nodeId The node id
      * @return FieldInfo list
      */
-    default List<FieldInfo> parseFieldInfos(List<SinkField> sinkFields, String nodeId) {
+    default List<FieldInfo> parseSinkFieldInfos(List<SinkField> sinkFields, String nodeId) {
         return sinkFields.stream().map(field -> FieldInfoUtils.parseSinkFieldInfo(field, nodeId))
                 .collect(Collectors.toList());
     }

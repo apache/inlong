@@ -20,22 +20,22 @@ package org.apache.inlong.manager.pojo.sort.node;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.HudiProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.KafkaProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.MongoProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.MySQLBinlogProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.OracleProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.PostgreSQLProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.PulsarProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.RedisProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.SQLServerProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.TubeMqProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.HudiProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.KafkaProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.MongoProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.MySQLBinlogProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.OracleProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.PostgreSQLProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.PulsarProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.RedisProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.SQLServerProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.TubeMqProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Factory of the extract node provider
+ * Factory of the extract node provider.
  */
 public class ExtractNodeProviderFactory {
 

@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * The node factory.
+ * The node factory
  */
 public class NodeFactory {
 
@@ -44,7 +44,7 @@ public class NodeFactory {
         }
         return sourceInfos.stream().map(v -> {
             String sourceType = v.getSourceType();
-            return ExtractNodeProviderFactory.getExtractNodeProvider(sourceType).createNode(v);
+            return ExtractNodeProviderFactory.getExtractNodeProvider(sourceType).createExtractNode(v);
         }).collect(Collectors.toList());
     }
 
@@ -58,7 +58,7 @@ public class NodeFactory {
         }
         return sinkInfos.stream().map(v -> {
             String sinkType = v.getSinkType();
-            return LoadNodeProviderFactory.getLoadNodeProvider(sinkType).createNode(v, constantFieldMap);
+            return LoadNodeProviderFactory.getLoadNodeProvider(sinkType).createLoadNode(v, constantFieldMap);
         }).collect(Collectors.toList());
     }
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSink;
@@ -41,10 +41,10 @@ public class GreenplumProvider implements LoadNodeProvider {
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         GreenplumSink greenplumSink = (GreenplumSink) nodeInfo;
         Map<String, String> properties = parseProperties(greenplumSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(greenplumSink.getSinkFieldList(), greenplumSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(greenplumSink.getSinkFieldList(), greenplumSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(greenplumSink.getSinkFieldList(), constantFieldMap);
         return new GreenplumLoadNode(
                 greenplumSink.getSinkName(),

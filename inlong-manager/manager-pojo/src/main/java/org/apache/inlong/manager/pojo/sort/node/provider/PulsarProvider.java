@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.extract;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
@@ -43,9 +43,9 @@ public class PulsarProvider implements ExtractNodeProvider {
     }
 
     @Override
-    public ExtractNode createNode(StreamNode streamNodeInfo) {
+    public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         PulsarSource pulsarSource = (PulsarSource) streamNodeInfo;
-        List<FieldInfo> fieldInfos = parseFieldInfos(pulsarSource.getFieldList(), pulsarSource.getSourceName());
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(pulsarSource.getFieldList(), pulsarSource.getSourceName());
         Map<String, String> properties = parseProperties(pulsarSource.getProperties());
 
         String fullTopicName =

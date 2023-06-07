@@ -15,16 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
-import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.sink.redis.RedisSink;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
+import org.apache.inlong.manager.pojo.source.redis.RedisLookupOptions;
+import org.apache.inlong.manager.pojo.source.redis.RedisSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.LookupOptions;
+import org.apache.inlong.sort.protocol.enums.RedisCommand;
+import org.apache.inlong.sort.protocol.enums.RedisMode;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.extract.RedisExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
@@ -42,20 +50,106 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating Redis load nodes.
+ * The Provider for creating Redis extract or load nodes.
  */
-public class RedisProvider implements LoadNodeProvider {
+public class RedisProvider implements ExtractNodeProvider, LoadNodeProvider {
 
     @Override
-    public Boolean accept(String sinkType) {
-        return SinkType.REDIS.equals(sinkType);
+    public Boolean accept(String sourceType) {
+        return SourceType.REDIS.equals(sourceType);
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
+        RedisSource source = (RedisSource) streamNodeInfo;
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName());
+        Map<String, String> properties = parseProperties(source.getProperties());
+
+        RedisMode redisMode = RedisMode.forName(source.getRedisMode());
+        switch (redisMode) {
+            case STANDALONE:
+                return new RedisExtractNode(
+                        source.getSourceName(),
+                        source.getSourceName(),
+                        fieldInfos,
+                        null,
+                        properties,
+                        source.getPrimaryKey(),
+                        RedisCommand.forName(source.getCommand()),
+                        source.getHost(),
+                        source.getPort(),
+                        source.getPassword(),
+                        source.getAdditionalKey(),
+                        source.getDatabase(),
+                        source.getTimeout(),
+                        source.getSoTimeout(),
+                        source.getMaxTotal(),
+                        source.getMaxIdle(),
+                        source.getMinIdle(),
+                        parseLookupOptions(source.getLookupOptions()));
+            case SENTINEL:
+                return new RedisExtractNode(
+                        source.getSourceName(),
+                        source.getSourceName(),
+                        fieldInfos,
+                        null,
+                        properties,
+                        source.getPrimaryKey(),
+                        RedisCommand.forName(source.getCommand()),
+                        source.getMasterName(),
+                        source.getSentinelsInfo(),
+                        source.getPassword(),
+                        source.getAdditionalKey(),
+                        source.getDatabase(),
+                        source.getTimeout(),
+                        source.getSoTimeout(),
+                        source.getMaxTotal(),
+                        source.getMaxIdle(),
+                        source.getMinIdle(),
+                        parseLookupOptions(source.getLookupOptions()));
+            case CLUSTER:
+                return new RedisExtractNode(
+                        source.getSourceName(),
+                        source.getSourceName(),
+                        fieldInfos,
+                        null,
+                        properties,
+                        source.getPrimaryKey(),
+                        RedisCommand.forName(source.getCommand()),
+                        source.getClusterNodes(),
+                        source.getPassword(),
+                        source.getAdditionalKey(),
+                        source.getDatabase(),
+                        source.getTimeout(),
+                        source.getSoTimeout(),
+                        source.getMaxTotal(),
+                        source.getMaxIdle(),
+                        source.getMinIdle(),
+                        parseLookupOptions(source.getLookupOptions()));
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported redis-mode=%s for Inlong", redisMode));
+        }
+    }
+
+    /**
+     * Parse LookupOptions
+     *
+     * @param options RedisLookupOptions
+     * @return LookupOptions
+     */
+    private static LookupOptions parseLookupOptions(RedisLookupOptions options) {
+        if (options == null) {
+            return null;
+        }
+        return new LookupOptions(options.getLookupCacheMaxRows(), options.getLookupCacheTtl(),
+                options.getLookupMaxRetries(), options.getLookupAsync());
+    }
+
+    @Override
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         RedisSink redisSink = (RedisSink) nodeInfo;
         Map<String, String> properties = parseProperties(redisSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(redisSink.getSinkFieldList(), redisSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(redisSink.getSinkFieldList(), redisSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(redisSink.getSinkFieldList(), constantFieldMap);
 
         String clusterMode = redisSink.getClusterMode();
@@ -76,7 +170,7 @@ public class RedisProvider implements LoadNodeProvider {
         Integer minIdle = redisSink.getMinIdle();
         Integer maxRetries = redisSink.getMaxRetries();
 
-        Format format = parsingFormat(
+        Format format = parsingDataFormat(
                 redisSink.getFormatDataType(),
                 false,
                 redisSink.getFormatDataSeparator(),
@@ -120,7 +214,7 @@ public class RedisProvider implements LoadNodeProvider {
      * @param ignoreParseErrors whether ignore deserialization error data
      * @return the format for serialized content
      */
-    private static Format parsingFormat(
+    private Format parsingDataFormat(
             String formatName,
             boolean wrapWithInlongMsg,
             String separatorStr,

@@ -15,36 +15,69 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.load;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
-import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.consts.StreamType;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSink;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
+import org.apache.inlong.manager.pojo.source.oracle.OracleSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.OracleConstant.ScanStartUpMode;
+import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating Oracle load nodes.
+ * The Provider for creating Oracle extract or load nodes.
  */
-public class OracleProvider implements LoadNodeProvider {
+public class OracleProvider implements ExtractNodeProvider, LoadNodeProvider {
 
     @Override
-    public Boolean accept(String sinkType) {
-        return SinkType.ORACLE.equals(sinkType);
+    public Boolean accept(String streamType) {
+        return StreamType.ORACLE.equals(streamType);
     }
 
     @Override
-    public LoadNode createNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+    public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
+        OracleSource source = (OracleSource) streamNodeInfo;
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName());
+        Map<String, String> properties = parseProperties(source.getProperties());
+
+        ScanStartUpMode scanStartupMode = StringUtils.isBlank(source.getScanStartupMode())
+                ? null
+                : ScanStartUpMode.forName(source.getScanStartupMode());
+        return new OracleExtractNode(
+                source.getSourceName(),
+                source.getSourceName(),
+                fieldInfos,
+                null,
+                properties,
+                source.getPrimaryKey(),
+                source.getHostname(),
+                source.getUsername(),
+                source.getPassword(),
+                source.getDatabase(),
+                source.getSchemaName(),
+                source.getTableName(),
+                source.getPort(),
+                scanStartupMode);
+    }
+
+    @Override
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         OracleSink oracleSink = (OracleSink) nodeInfo;
         Map<String, String> properties = parseProperties(oracleSink.getProperties());
-        List<FieldInfo> fieldInfos = parseFieldInfos(oracleSink.getSinkFieldList(), oracleSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(oracleSink.getSinkFieldList(), oracleSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(oracleSink.getSinkFieldList(), constantFieldMap);
 
         return new OracleLoadNode(
