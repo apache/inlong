@@ -128,6 +128,11 @@ public class InlongRequestWrapper extends HttpServletRequestWrapper {
         return new BufferedReader(new InputStreamReader(this.getInputStream()));
     }
 
+    @Override
+    public String getHeader(String name) {
+        return this.headers.get(name);
+    }
+
     public void addHeader(String name, String value) {
         headers.put(name, value);
     }
