@@ -21,8 +21,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sort.node.NodeProviderFactory;
-import org.apache.inlong.manager.pojo.sort.util.LoadNodeUtils;
+import org.apache.inlong.manager.pojo.sort.node.NodeFactory;
 import org.apache.inlong.manager.pojo.sort.util.NodeRelationUtils;
 import org.apache.inlong.manager.pojo.sort.util.TransformNodeUtils;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -211,9 +210,9 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     private List<Node> createNodes(List<StreamSource> sources, List<TransformResponse> transformResponses,
             List<StreamSink> sinks, Map<String, StreamField> constantFieldMap) {
         List<Node> nodes = new ArrayList<>();
-        nodes.addAll(NodeProviderFactory.createExtractNodes(sources));
+        nodes.addAll(NodeFactory.createExtractNodes(sources));
         nodes.addAll(TransformNodeUtils.createTransformNodes(transformResponses, constantFieldMap));
-        nodes.addAll(LoadNodeUtils.createLoadNodes(sinks, constantFieldMap));
+        nodes.addAll(NodeFactory.createLoadNodes(sinks, constantFieldMap));
         return nodes;
     }
 

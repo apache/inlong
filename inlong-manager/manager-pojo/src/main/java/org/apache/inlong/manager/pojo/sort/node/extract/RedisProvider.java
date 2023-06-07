@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.pojo.sort.node.extract;
 
 import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.source.redis.RedisLookupOptions;
 import org.apache.inlong.manager.pojo.source.redis.RedisSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;

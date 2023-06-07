@@ -18,46 +18,47 @@
 package org.apache.inlong.manager.pojo.sort.node.extract;
 
 import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
-import org.apache.inlong.manager.pojo.source.sqlserver.SQLServerSource;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.source.postgresql.PostgreSQLSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating SQLServer extract nodes.
+ * The Provider for creating PostgreSQL extract nodes.
  */
-public class SqlServerProvider implements ExtractNodeProvider {
+public class PostgreSQLProvider implements ExtractNodeProvider {
 
     @Override
     public Boolean accept(String sourceType) {
-        return SourceType.SQLSERVER.equals(sourceType);
+        return SourceType.POSTGRESQL.equals(sourceType);
     }
 
     @Override
     public ExtractNode createNode(StreamNode streamNodeInfo) {
-        SQLServerSource source = (SQLServerSource) streamNodeInfo;
-        List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
-        Map<String, String> properties = parseProperties(source.getProperties());
+        PostgreSQLSource postgreSQLSource = (PostgreSQLSource) streamNodeInfo;
+        List<FieldInfo> fieldInfos = parseFieldInfos(postgreSQLSource.getFieldList(), postgreSQLSource.getSourceName());
+        Map<String, String> properties = parseProperties(postgreSQLSource.getProperties());
 
-        return new SqlServerExtractNode(
-                source.getSourceName(),
-                source.getSourceName(),
+        return new PostgresExtractNode(postgreSQLSource.getSourceName(),
+                postgreSQLSource.getSourceName(),
                 fieldInfos,
                 null,
                 properties,
-                source.getPrimaryKey(),
-                source.getHostname(),
-                source.getPort(),
-                source.getUsername(),
-                source.getPassword(),
-                source.getDatabase(),
-                source.getSchemaName(),
-                source.getTableName(),
-                source.getServerTimezone());
+                postgreSQLSource.getPrimaryKey(),
+                postgreSQLSource.getTableNameList(),
+                postgreSQLSource.getHostname(),
+                postgreSQLSource.getUsername(),
+                postgreSQLSource.getPassword(),
+                postgreSQLSource.getDatabase(),
+                postgreSQLSource.getSchema(),
+                postgreSQLSource.getPort(),
+                postgreSQLSource.getDecodingPluginName(),
+                postgreSQLSource.getServerTimeZone(),
+                postgreSQLSource.getScanStartupMode());
     }
 }

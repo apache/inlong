@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node;
+package org.apache.inlong.manager.pojo.sort.node.base;
 
 import java.util.Map;
 import java.util.Objects;
