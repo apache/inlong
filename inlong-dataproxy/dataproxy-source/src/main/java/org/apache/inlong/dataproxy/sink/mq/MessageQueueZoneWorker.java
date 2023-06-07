@@ -72,19 +72,19 @@ public class MessageQueueZoneWorker extends Thread {
     public void run() {
         LOG.info(String.format("start MessageQueueZoneWorker:%s", this.workerName));
         while (status != LifecycleState.STOP) {
-            BatchPackProfile event = null;
+            PackProfile profile = null;
             try {
-                event = context.getDispatchQueue().pollRecord();
-                if (event == null) {
+                profile = context.getDispatchQueue().pollRecord();
+                if (profile == null) {
                     this.sleepOneInterval();
                     continue;
                 }
                 // send
-                this.zoneProducer.send(event);
+                this.zoneProducer.send(profile);
             } catch (Throwable e) {
                 LOG.error(e.getMessage(), e);
-                if (event != null) {
-                    context.getDispatchQueue().offer(event);
+                if (profile != null) {
+                    context.getDispatchQueue().offer(profile);
                 }
                 this.sleepOneInterval();
             }

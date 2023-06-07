@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 
 import org.junit.Assert;
@@ -31,6 +32,7 @@ public class TestMetaConfigHolder {
 
     @Test
     public void test() {
+        ConfigManager.handshakeManagerOk.set(true);
         MetaConfigHolder metaConfigHolder = new MetaConfigHolder();
         boolean result = metaConfigHolder.loadFromFileToHolder();
         Assert.assertTrue(result);

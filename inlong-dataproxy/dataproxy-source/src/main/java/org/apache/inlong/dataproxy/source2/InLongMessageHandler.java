@@ -149,7 +149,8 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
                     throw new Exception("Unknown V0 message type, type = " + msgTypeValue);
                 } else if (MsgType.MSG_HEARTBEAT == msgType) {
                     // send response message
-                    flushV0MsgPackage(source, channel, buildHeartBeatMsgRspPackage(), MsgType.MSG_HEARTBEAT.name());
+                    flushV0MsgPackage(source, channel,
+                            buildHeartBeatMsgRspPackage(), MsgType.MSG_HEARTBEAT.name());
                     return;
                 } else if (MsgType.MSG_BIN_HEARTBEAT == msgType) {
                     procBinHeartbeatMsg(source, channel, cb, totalDataLen);
@@ -524,8 +525,8 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
                     + bodyLen + BIN_HB_ATTRLEN_SIZE, attrData, 0, attrLen);
         }
         // build and send response message
-        flushV0MsgPackage(source, channel, buildHBRspPackage(attrData, version, 0),
-                MsgType.MSG_BIN_HEARTBEAT.name());
+        flushV0MsgPackage(source, channel,
+                buildHBRspPackage(attrData, version, 0), MsgType.MSG_BIN_HEARTBEAT.name());
     }
 
     /**
@@ -535,7 +536,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
      * @param uniqVal sequence Id
      * @return ByteBuf
      */
-    private ByteBuf buildBinMsgRspPackage(String attrs, long uniqVal) {
+    public static ByteBuf buildBinMsgRspPackage(String attrs, long uniqVal) {
         // calculate total length
         // binTotalLen = mstType + uniq + attrsLen + attrs + magic
         int binTotalLen = 1 + 4 + 2 + 2;
@@ -569,7 +570,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
      * @param attrs    the return attribute
      * @return ByteBuf
      */
-    private ByteBuf buildTxtMsgRspPackage(MsgType msgType, String attrs) {
+    public static ByteBuf buildTxtMsgRspPackage(MsgType msgType, String attrs) {
         int attrsLen = 0;
         int bodyLen = 0;
         if (attrs != null) {

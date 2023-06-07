@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
@@ -44,7 +45,7 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     public static final String PREFIX_PRODUCER = "producer.";
     public static final String KEY_COMPRESS_TYPE = "compressType";
 
-    private final BufferQueue<BatchPackProfile> dispatchQueue;
+    private final BufferQueue<PackProfile> dispatchQueue;
 
     private final String proxyClusterId;
     private final String nodeId;
@@ -56,7 +57,7 @@ public class MessageQueueZoneSinkContext extends SinkContext {
      * Constructor
      */
     public MessageQueueZoneSinkContext(String sinkName, Context context, Channel channel,
-            BufferQueue<BatchPackProfile> dispatchQueue) {
+            BufferQueue<PackProfile> dispatchQueue) {
         super(sinkName, context, channel);
         this.dispatchQueue = dispatchQueue;
         // proxyClusterId
@@ -99,7 +100,7 @@ public class MessageQueueZoneSinkContext extends SinkContext {
      * 
      * @return the dispatchQueue
      */
-    public BufferQueue<BatchPackProfile> getDispatchQueue() {
+    public BufferQueue<PackProfile> getDispatchQueue() {
         return dispatchQueue;
     }
 
@@ -133,24 +134,24 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     /**
      * addSendResultMetric
      */
-    public void addSendResultMetric(BatchPackProfile currentRecord, String mqName, String topic, boolean result,
+    public void addSendResultMetric(PackProfile currentRecord, String mqName, String topic, boolean result,
             long sendTime) {
-        if (currentRecord instanceof SimpleBatchPackProfileV0) {
+        if (currentRecord instanceof SimplePackProfile) {
             AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS,
-                    ((SimpleBatchPackProfileV0) currentRecord).getSimpleProfile());
+                    ((SimplePackProfile) currentRecord).getEvent());
             return;
         }
-
+        BatchPackProfile batchProfile = (BatchPackProfile) currentRecord;
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, "-");
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, "-");
         // metric
-        fillInlongId(currentRecord, dimensions);
+        fillInlongId(batchProfile, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, mqName);
         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, topic);
         final long currentTime = System.currentTimeMillis();
-        currentRecord.getEvents().forEach(event -> {
+        batchProfile.getEvents().forEach(event -> {
             long msgTime = event.getMsgTime();
             long auditFormatTime =
                     msgTime - msgTime % CommonConfigHolder.getInstance().getAuditFormatInvlMs();
@@ -178,7 +179,7 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     /**
      * addSendMetric
      */
-    public void addSendMetric(BatchPackProfile currentRecord, String mqName, String topic, int sendPackSize) {
+    public void addSendMetric(PackProfile currentRecord, String mqName, String topic, int sendPackSize) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, "-");
@@ -224,7 +225,7 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     /**
      * fillInlongId
      */
-    public static void fillInlongId(BatchPackProfile currentRecord, Map<String, String> dimensions) {
+    public static void fillInlongId(PackProfile currentRecord, Map<String, String> dimensions) {
         String inlongGroupId = currentRecord.getInlongGroupId();
         inlongGroupId = (StringUtils.isBlank(inlongGroupId)) ? "-" : inlongGroupId;
         String inlongStreamId = currentRecord.getInlongStreamId();
@@ -236,13 +237,15 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     /**
      * processSendFail
      */
-    public void processSendFail(BatchPackProfile currentRecord, String mqName, String topic, long sendTime) {
+    public void processSendFail(PackProfile currentRecord,
+            String mqName, String topic, long sendTime,
+            DataProxyErrCode errCode, String errMsg) {
         if (currentRecord.isResend()) {
             dispatchQueue.offer(currentRecord);
             fileMetricEventInc(StatConstants.EVENT_SINK_FAILRETRY);
             this.addSendResultMetric(currentRecord, mqName, topic, false, sendTime);
         } else {
-            currentRecord.fail();
+            currentRecord.fail(errCode, errMsg);
             fileMetricEventInc(StatConstants.EVENT_SINK_FAILDROPPED);
         }
     }

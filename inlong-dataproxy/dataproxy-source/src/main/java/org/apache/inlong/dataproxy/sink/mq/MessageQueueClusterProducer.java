@@ -90,10 +90,10 @@ public class MessageQueueClusterProducer implements LifecycleAware {
     /**
      * send
      * 
-     * @param event
+     * @param profile
      */
-    public boolean send(BatchPackProfile event) {
-        return this.handler.send(event);
+    public boolean send(PackProfile profile) {
+        return this.handler.send(profile);
     }
 
     /**
