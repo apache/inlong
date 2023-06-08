@@ -150,6 +150,13 @@ public class TaskPositionManager extends AbstractDaemon {
 
     public long getPosition(String sourcePath, String jobInstanceId) {
         JobProfile jobProfile = jobConfDb.getJobById(jobInstanceId);
+        if (jobProfile == null) {
+            LOGGER.error("getPosition but jobProfile not exist! sourcePath {} jobInstanceId {} return position 0",
+                    sourcePath,
+                    jobInstanceId);
+            return 0;
+        }
+
         return jobProfile.getLong(sourcePath + POSITION_SUFFIX, 0);
     }
 }
