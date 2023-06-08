@@ -212,7 +212,7 @@ public class MetaConfigHolder extends ConfigHolder {
                 LOG.warn("Load failed json config from {}, malformed content, data is null", getFileName());
                 return false;
             }
-            if (!CommonConfigHolder.getInstance().isEnableNodeStartViaMetaConfigFile()
+            if (!CommonConfigHolder.getInstance().isEnableStartupUsingLocalMetaFile()
                     && !ConfigManager.handshakeManagerOk.get()) {
                 LOG.info("Failed to load json config from {}, don't obtain metadata from the Manager,"
                         + " and the startup via the cache file is false", getFileName());

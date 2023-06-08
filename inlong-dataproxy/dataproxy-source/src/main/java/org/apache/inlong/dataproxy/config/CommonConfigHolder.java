@@ -73,10 +73,10 @@ public class CommonConfigHolder {
     private static final String KEY_CONFIG_CHECK_INTERVAL_MS = "configCheckInterval";
     public static final long VAL_DEF_CONFIG_SYNC_INTERVAL_MS = 60000L;
     public static final long VAL_MIN_CONFIG_SYNC_INTERVAL_MS = 10000L;
-    // whether the node startup is allowed to start via the metadata configuration file
-    private static final String KEY_ENABLE_NODE_START_VIA_META_CONFIG_FILE =
-            "node.startup.via.meta.config.file.enable";
-    public static final boolean VAL_DEF_ENABLE_NODE_START_VIA_META_CONFIG_FILE = false;
+    // whether to startup using the local metadata.json file without connecting to the Manager
+    private static final String KEY_ENABLE_STARTUP_USING_LOCAL_META_FILE =
+            "startup.using.local.meta.file.enable";
+    public static final boolean VAL_DEF_ENABLE_STARTUP_USING_LOCAL_META_FILE = false;
     // whether to accept messages without mapping between groupId/streamId and topic
     public static final String KEY_NOTFOUND_TOPIC_ACCEPT = "source.topic.notfound.accept";
     public static final boolean VAL_DEF_NOTFOUND_TOPIC_ACCEPT = false;
@@ -152,7 +152,7 @@ public class CommonConfigHolder {
     private IManagerIpListParser ipListParser = null;
     private String managerAuthSecretId = "";
     private String managerAuthSecretKey = "";
-    private boolean enableNodeStartViaMetaConfigFile = VAL_DEF_ENABLE_NODE_START_VIA_META_CONFIG_FILE;
+    private boolean enableStartupUsingLocalMetaFile = VAL_DEF_ENABLE_STARTUP_USING_LOCAL_META_FILE;
     private long metaConfigSyncInvlMs = VAL_DEF_CONFIG_SYNC_INTERVAL_MS;
     private boolean enableAudit = VAL_DEF_ENABLE_AUDIT;
     private final HashSet<String> auditProxys = new HashSet<>();
@@ -307,8 +307,8 @@ public class CommonConfigHolder {
         return maxBufferQueueSizeKb;
     }
 
-    public boolean isEnableNodeStartViaMetaConfigFile() {
-        return enableNodeStartViaMetaConfigFile;
+    public boolean isEnableStartupUsingLocalMetaFile() {
+        return enableStartupUsingLocalMetaFile;
     }
 
     public String getEventHandler() {
@@ -375,10 +375,10 @@ public class CommonConfigHolder {
                 this.metaConfigSyncInvlMs = tmpSyncInvMs;
             }
         }
-        // read enable node startup via meta configure file
-        tmpValue = this.props.get(KEY_ENABLE_NODE_START_VIA_META_CONFIG_FILE);
+        // read enable startup using local meta file
+        tmpValue = this.props.get(KEY_ENABLE_STARTUP_USING_LOCAL_META_FILE);
         if (StringUtils.isNotEmpty(tmpValue)) {
-            this.enableNodeStartViaMetaConfigFile = "TRUE".equalsIgnoreCase(tmpValue.trim());
+            this.enableStartupUsingLocalMetaFile = "TRUE".equalsIgnoreCase(tmpValue.trim());
         }
         // read whether accept msg without topic
         tmpValue = this.props.get(KEY_NOTFOUND_TOPIC_ACCEPT);
