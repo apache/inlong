@@ -145,12 +145,9 @@ public class MetaConfigHolder extends ConfigHolder {
     }
 
     public boolean updateConfigMap(String inDataMd5, String inDataJsonStr) {
-        if (StringUtils.isBlank(inDataMd5) || StringUtils.isBlank(inDataJsonStr)) {
-            return false;
-        }
-        if (inDataMd5.equalsIgnoreCase(dataMd5)) {
-            LOG.info("Update json {}, but the stored md5sum {} is equals to changed md5sum {}",
-                    getFileName(), dataMd5, inDataMd5);
+        if (StringUtils.isBlank(inDataMd5)
+                || StringUtils.isBlank(inDataJsonStr)
+                || inDataMd5.equalsIgnoreCase(dataMd5)) {
             return false;
         }
         if (storeConfigToFile(inDataJsonStr)) {
@@ -368,12 +365,15 @@ public class MetaConfigHolder extends ConfigHolder {
             }
             tenant = idObject.getParams().getOrDefault(ConfigConstants.KEY_TENANT, "");
             nameSpace = idObject.getParams().getOrDefault(ConfigConstants.KEY_NAMESPACE, "");
+            if (StringUtils.isBlank(idObject.getTopic())) {
+                // namespace field must exist and value not be empty,
+                // otherwise it is an illegal configuration item.
+                continue;
+            }
             if (mqType.equals(CacheType.TUBE)) {
-                if (StringUtils.isNotBlank(nameSpace)) {
-                    topicName = nameSpace;
-                }
+                topicName = nameSpace;
             } else if (mqType.equals(CacheType.KAFKA)) {
-                if (StringUtils.isNotBlank(nameSpace)) {
+                if (topicName.equals(streamId)) {
                     topicName = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT, nameSpace, topicName);
                 }
             }
