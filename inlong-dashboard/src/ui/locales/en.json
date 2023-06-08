@@ -64,7 +64,7 @@
   "meta.Sources.PostgreSQL.Username": "Username",
   "meta.Sources.PostgreSQL.Password": "Password",
   "meta.Sources.PostgreSQL.Database": "Database",
-  "meta.Sources.PostgreSQL.SchemaName": "SchemaName",
+  "meta.Sources.PostgreSQL.SchemaName": "Model",
   "meta.Sources.PostgreSQL.TableName": "TableName",
   "meta.Sources.PostgreSQL.TableNameHelp": "Multiple table names are supported, separated by commas",
   "meta.Sources.PostgreSQL.decodingPluginName": "Decoding Plugin Name",
