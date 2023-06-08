@@ -47,6 +47,9 @@ public class AuditRequest {
     @ApiModelProperty(value = "audit id list", required = true)
     private List<String> auditIds;
 
+    @ApiModelProperty(value = "sink id")
+    private Integer sinkId;
+
     @ApiModelProperty(value = "query date, format by 'yyyy-MM-dd'", required = true, example = "2022-01-01")
     @NotBlank(message = "dt not be blank")
     private String dt;
