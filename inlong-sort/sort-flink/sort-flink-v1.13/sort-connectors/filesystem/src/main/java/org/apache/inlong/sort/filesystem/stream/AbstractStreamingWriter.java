@@ -247,7 +247,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
                 throw new RuntimeException(e);
             }
             if (sinkMetricData != null) {
-                sinkMetricData.invokeWithEstimate(element.getValue());
+                sinkMetricData.invokeDirtyWithEstimate(element.getValue());
             }
             if (dirtySink != null) {
                 DirtyData.Builder<Object> builder = DirtyData.builder();
