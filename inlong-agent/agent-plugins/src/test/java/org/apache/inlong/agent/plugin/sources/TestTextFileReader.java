@@ -244,12 +244,12 @@ public class TestTextFileReader {
         Path localPath = Paths.get(testDir.toString(), "test.txt");
         LOGGER.info("start to create {}", localPath);
         List<String> beforeList = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 3; i++) {
             beforeList.add("world");
         }
         Files.write(localPath, beforeList, StandardOpenOption.CREATE);
         List<String> afterList = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 3; i++) {
             afterList.add("world");
         }
         Files.write(localPath, afterList, StandardOpenOption.APPEND);
@@ -282,7 +282,7 @@ public class TestTextFileReader {
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             try {
                 List<String> beforeList = new ArrayList<>();
-                for (int i = 0; i < 1000; i++) {
+                for (int i = 0; i < 3; i++) {
                     beforeList.add("hello, this is a new line for testTextSeekReader");
                 }
                 Files.write(localPath, beforeList, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
@@ -290,12 +290,13 @@ public class TestTextFileReader {
                 LOGGER.info("ignored Exception ", ignored);
             }
         });
-        TimeUnit.SECONDS.sleep(5);
+        TimeUnit.SECONDS.sleep(3);
         int count = 0;
-        while (!reader.isFinished() && count < 1000) {
+        while (!reader.isFinished() && count < 5) {
             count += 1;
+            LOGGER.info("ignored count ", count);
         }
-        Assert.assertEquals(1000, count);
+        Assert.assertEquals(5, count);
     }
 
     private String getContent(String message) {

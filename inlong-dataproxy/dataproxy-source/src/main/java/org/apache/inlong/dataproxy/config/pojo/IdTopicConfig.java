@@ -19,6 +19,7 @@ package org.apache.inlong.dataproxy.config.pojo;
 
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.HashMap;
@@ -29,16 +30,22 @@ import java.util.Map;
  */
 public class IdTopicConfig {
 
+    private static final String DEFAULT_PULSAR_TENANT = "public";
     private String uid;
     private String inlongGroupId;
     private String inlongStreamid;
     private String topicName;
+    private String tenant;
     private String nameSpace;
     private DataType dataType = DataType.TEXT;
     private String fieldDelimiter = "|";
     private String fileDelimiter = "\n";
 
     private Map<String, String> params = new HashMap<>();
+
+    public IdTopicConfig() {
+
+    }
 
     /**
      * get uid
@@ -78,16 +85,23 @@ public class IdTopicConfig {
 
     public String getPulsarTopicName(String clusterTenant, String clusterNameSpace) {
         StringBuilder builder = new StringBuilder(256);
-        if (clusterTenant != null) {
-            builder.append(clusterTenant).append("/");
+        // build tenant
+        if (StringUtils.isBlank(tenant)) {
+            if (StringUtils.isBlank(clusterTenant)) {
+                builder.append(DEFAULT_PULSAR_TENANT).append("/");
+            } else {
+                builder.append(clusterTenant).append("/");
+            }
+        } else {
+            builder.append(tenant).append("/");
         }
-        String namespace = clusterNameSpace;
-        if (namespace == null) {
-            namespace = this.nameSpace;
+        // build name space
+        if (StringUtils.isBlank(this.nameSpace)) {
+            builder.append(clusterNameSpace).append("/");
+        } else {
+            builder.append(this.nameSpace).append("/");
         }
-        if (namespace != null) {
-            builder.append(namespace).append("/");
-        }
+        // build topic name
         return builder.append(topicName).toString();
     }
 
@@ -164,18 +178,13 @@ public class IdTopicConfig {
     }
 
     /**
-     * get nameSpace
-     * @return the nameSpace
-     */
-    public String getNameSpace() {
-        return nameSpace;
-    }
-
-    /**
-     * set nameSpace
+     * set tenant and nameSpace
+     *
+     * @param tenant  the tenant to set
      * @param nameSpace the nameSpace to set
      */
-    public void setNameSpace(String nameSpace) {
+    public void setTenantAndNameSpace(String tenant, String nameSpace) {
+        this.tenant = tenant;
         this.nameSpace = nameSpace;
     }
 
