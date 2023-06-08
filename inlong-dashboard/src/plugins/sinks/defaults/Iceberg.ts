@@ -133,6 +133,28 @@ export default class IcebergSink
   tableName: string;
 
   @FieldDecorator({
+    type: 'radio',
+    rules: [{ required: true }],
+    initialValue: 1,
+    tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: 1,
+        },
+        {
+          label: i18n.t('basic.No'),
+          value: 0,
+        },
+      ],
+    }),
+  })
+  @I18n('meta.Sinks.EnableCreateResource')
+  enableCreateResource: number;
+
+  @FieldDecorator({
     type: NodeSelect,
     rules: [{ required: true }],
     props: values => ({
@@ -142,6 +164,59 @@ export default class IcebergSink
   })
   @I18n('meta.Sinks.DataNodeName')
   dataNodeName: string;
+
+  @FieldDecorator({
+    type: 'select',
+    rules: [{ required: true }],
+    initialValue: 'Parquet',
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: 'Parquet',
+          value: 'Parquet',
+        },
+        {
+          label: 'Orc',
+          value: 'Orc',
+        },
+        {
+          label: 'Avro',
+          value: 'Avro',
+        },
+      ],
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.Iceberg.FileFormat')
+  fileFormat: string;
+
+  @FieldDecorator({
+    type: EditableTable,
+    initialValue: [],
+    props: values => ({
+      size: 'small',
+      columns: [
+        {
+          title: 'Key',
+          dataIndex: 'keyName',
+          props: {
+            disabled: [110, 130].includes(values?.status),
+          },
+        },
+        {
+          title: 'Value',
+          dataIndex: 'keyValue',
+          props: {
+            disabled: [110, 130].includes(values?.status),
+          },
+        },
+      ],
+    }),
+  })
+  @ColumnDecorator()
+  @I18n('meta.Sinks.Iceberg.ExtList')
+  extList: string;
 
   @FieldDecorator({
     type: 'select',
