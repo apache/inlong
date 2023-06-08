@@ -15,26 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node;
-
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+package org.apache.inlong.manager.common.consts;
 
 /**
- * Interface of the node provider
+ * Constant for stream types, indicating that both StreamSource and StreamSink support these types.
  */
-public interface NodeProvider {
+public class StreamType {
 
-    /**
-     * Parse properties
-     *
-     * @param properties The properties with string key and object value
-     * @return The properties with string key and string value
-     */
-    default Map<String, String> parseProperties(Map<String, Object> properties) {
-        return properties.entrySet().stream()
-                .filter(v -> Objects.nonNull(v.getValue()))
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
-    }
+    public static final String KAFKA = "KAFKA";
+    public static final String HUDI = "HUDI";
+    public static final String POSTGRESQL = "POSTGRESQL";
+    public static final String SQLSERVER = "SQLSERVER";
+    public static final String ORACLE = "ORACLE";
+
 }

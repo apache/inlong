@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.extract;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -31,9 +31,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating MysqlBinlog extract nodes.
+ * The Provider for creating MySQLBinlog extract nodes.
  */
-public class MysqlBinlogProvider implements ExtractNodeProvider {
+public class MySQLBinlogProvider implements ExtractNodeProvider {
 
     @Override
     public Boolean accept(String sourceType) {
@@ -41,9 +41,9 @@ public class MysqlBinlogProvider implements ExtractNodeProvider {
     }
 
     @Override
-    public ExtractNode createNode(StreamNode streamNodeInfo) {
+    public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         MySQLBinlogSource binlogSource = (MySQLBinlogSource) streamNodeInfo;
-        List<FieldInfo> fieldInfos = parseFieldInfos(binlogSource.getFieldList(), binlogSource.getSourceName());
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(binlogSource.getFieldList(), binlogSource.getSourceName());
         Map<String, String> properties = parseProperties(binlogSource.getProperties());
 
         final String database = binlogSource.getDatabaseWhiteList();
