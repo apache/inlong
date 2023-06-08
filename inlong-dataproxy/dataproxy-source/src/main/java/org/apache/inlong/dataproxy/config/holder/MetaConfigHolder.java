@@ -26,6 +26,7 @@ import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
 import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigHolder;
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.CacheType;
 import org.apache.inlong.dataproxy.config.pojo.DataType;
@@ -209,6 +210,12 @@ public class MetaConfigHolder extends ConfigHolder {
             DataProxyCluster clusterObj = metaConfig.getData();
             if (clusterObj == null) {
                 LOG.warn("Load failed json config from {}, malformed content, data is null", getFileName());
+                return false;
+            }
+            if (!CommonConfigHolder.getInstance().isEnableStartupUsingLocalMetaFile()
+                    && !ConfigManager.handshakeManagerOk.get()) {
+                LOG.info("Failed to load json config from {}, don't obtain metadata from the Manager,"
+                        + " and the startup via the cache file is false", getFileName());
                 return false;
             }
             // update cache data

@@ -41,7 +41,7 @@ public class MessageQueueZoneProducer {
 
     public static final Logger LOG = LoggerFactory.getLogger(MessageQueueZoneProducer.class);
     private static final long MAX_RESERVED_TIME = 60 * 1000L;
-    private final String workerName;
+    private final MessageQueueZoneSink zoneSink;
     private final MessageQueueZoneSinkContext context;
     private final CacheClusterSelector cacheClusterSelector;
 
@@ -57,11 +57,11 @@ public class MessageQueueZoneProducer {
     /**
      * Constructor
      * 
-     * @param workerName
+     * @param zoneSink
      * @param context
      */
-    public MessageQueueZoneProducer(String workerName, MessageQueueZoneSinkContext context) {
-        this.workerName = workerName;
+    public MessageQueueZoneProducer(MessageQueueZoneSink zoneSink, MessageQueueZoneSinkContext context) {
+        this.zoneSink = zoneSink;
         this.context = context;
         this.cacheClusterSelector = context.createCacheClusterSelector();
     }
@@ -71,7 +71,7 @@ public class MessageQueueZoneProducer {
      */
     public void start() {
         try {
-            LOG.info("start MessageQueueZoneProducer:{}", workerName);
+            LOG.info("start MessageQueueZoneProducer:{}", zoneSink.getName());
             this.reloadMetaConfig();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -140,15 +140,15 @@ public class MessageQueueZoneProducer {
                 tmpProducer.stop();
             }
         }
-        LOG.info("Clear {}'s expired cluster producer {}", workerName, expired);
+        LOG.info("Clear {}'s expired cluster producer {}", zoneSink.getName(), expired);
     }
 
     /**
      * send
      * 
-     * @param event
+     * @param profile
      */
-    public boolean send(BatchPackProfile event) {
+    public boolean send(PackProfile profile) {
         String clusterName;
         MessageQueueClusterProducer clusterProducer;
         readWriteLock.readLock().lock();
@@ -163,7 +163,7 @@ public class MessageQueueZoneProducer {
                 if (clusterProducer == null) {
                     continue;
                 }
-                return clusterProducer.send(event);
+                return clusterProducer.send(profile);
             } while (true);
         } finally {
             readWriteLock.readLock().unlock();
@@ -176,7 +176,6 @@ public class MessageQueueZoneProducer {
             List<CacheClusterConfig> allConfigList = ConfigManager.getInstance().getCachedCLusterConfig();
             List<CacheClusterConfig> newConfigList = this.cacheClusterSelector.select(allConfigList);
             if (newConfigList == null || newConfigList.size() == 0) {
-                LOG.info("Reload {}'s cluster info, but empty", workerName);
                 return;
             }
             // check added clusters
@@ -218,7 +217,7 @@ public class MessageQueueZoneProducer {
                         continue;
                     }
                     // create
-                    tmpCluster = new MessageQueueClusterProducer(workerName, config, context);
+                    tmpCluster = new MessageQueueClusterProducer(zoneSink.getName(), config, context);
                     tmpCluster.start();
                     usingClusterMap.put(config.getClusterName(), tmpCluster);
                     usingTimeMap.put(config.getClusterName(), curTime);
@@ -264,14 +263,15 @@ public class MessageQueueZoneProducer {
             if (!changed) {
                 return;
             }
-            if (ConfigManager.getInstance().isMqClusterReady()) {
+            if (zoneSink.isMqClusterStarted()) {
                 LOG.info("Reload {}'s cluster info, current cluster are {}, removed {}, created {}",
-                        workerName, lastClusterNames, needRmvs, addedItems);
+                        zoneSink.getName(), lastClusterNames, needRmvs, addedItems);
             } else {
+                zoneSink.setMQClusterStarted();
+                ConfigManager.getInstance().setMqClusterReady();
                 LOG.info(
                         "Reload {}'s cluster info, and updated sink status, current cluster are {}, removed {}, created {}",
-                        workerName, lastClusterNames, needRmvs, addedItems);
-                ConfigManager.getInstance().updMqClusterStatus(true);
+                        zoneSink.getName(), lastClusterNames, needRmvs, addedItems);
             }
         } catch (Throwable e) {
             LOG.error("Reload cluster info failure", e);
@@ -284,7 +284,7 @@ public class MessageQueueZoneProducer {
             return;
         }
         LOG.info("Reload {}'s topics changed, current topics are {}, last topics are {}",
-                workerName, curTopicSet, lastRefreshTopics);
+                zoneSink.getName(), curTopicSet, lastRefreshTopics);
         lastRefreshTopics.addAll(curTopicSet);
         for (MessageQueueClusterProducer clusterProducer : this.usingClusterMap.values()) {
             if (clusterProducer == null) {

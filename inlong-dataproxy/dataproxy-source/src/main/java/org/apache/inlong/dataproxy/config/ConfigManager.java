@@ -62,6 +62,8 @@ public class ConfigManager {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
 
     public static final List<ConfigHolder> CONFIG_HOLDER_LIST = new ArrayList<>();
+    // whether handshake manager ok
+    public static final AtomicBoolean handshakeManagerOk = new AtomicBoolean(false);
     private static volatile boolean isInit = false;
     private static ConfigManager instance = null;
     // node weight configure
@@ -77,7 +79,7 @@ public class ConfigManager {
     // source report configure holder
     private final SourceReportConfigHolder sourceReportConfigHolder = new SourceReportConfigHolder();
     // mq clusters ready
-    private final AtomicBoolean mqClusterReady = new AtomicBoolean(false);
+    private volatile boolean mqClusterReady = false;
 
     /**
      * get instance for config manager
@@ -95,8 +97,8 @@ public class ConfigManager {
                 ReloadConfigWorker reloadProperties = ReloadConfigWorker.create(instance);
                 reloadProperties.setDaemon(true);
                 reloadProperties.start();
+                isInit = true;
             }
-            isInit = true;
         }
         return instance;
     }
@@ -209,11 +211,11 @@ public class ConfigManager {
     }
 
     public boolean isMqClusterReady() {
-        return mqClusterReady.get();
+        return mqClusterReady;
     }
 
-    public void updMqClusterStatus(boolean isStarted) {
-        mqClusterReady.set(isStarted);
+    public void setMqClusterReady() {
+        mqClusterReady = true;
     }
 
     /**
@@ -243,6 +245,7 @@ public class ConfigManager {
             long count = 0;
             long startTime;
             long wstTime;
+            boolean fisrtCheck = true;
             LOG.info("Reload-Config Worker started!");
             while (isRunning) {
                 count += 1;
@@ -254,10 +257,17 @@ public class ConfigManager {
                             holder.executeCallbacks();
                         }
                     }
-                    // wait for 3 * check-time to update remote config
-                    if (count % 3 == 0) {
+                    // connect to manager
+                    if (fisrtCheck) {
+                        fisrtCheck = false;
                         checkRemoteConfig();
                         count = 0;
+                    } else {
+                        // wait for 3 * check-time to update remote config
+                        if (count % 3 == 0) {
+                            checkRemoteConfig();
+                            count = 0;
+                        }
                     }
                     // check processing time
                     wstTime = System.currentTimeMillis() - startTime;
@@ -339,7 +349,7 @@ public class ConfigManager {
                 }
                 httpPost.setEntity(HttpUtils.getEntity(request));
                 // request with post
-                LOG.debug("Start to request {} to get config info with params {}", url, request);
+                LOG.info("Start to request {} to get config info with params {}", url, request);
                 CloseableHttpResponse response = httpClient.execute(httpPost);
                 String returnStr = EntityUtils.toString(response.getEntity());
                 if (response.getStatusLine().getStatusCode() != 200) {
@@ -366,7 +376,10 @@ public class ConfigManager {
                     return true;
                 }
                 // update meta configure
-                configManager.updateMetaConfigInfo(proxyResponse.getMd5(), returnStr);
+                if (configManager.updateMetaConfigInfo(proxyResponse.getMd5(), returnStr)) {
+                    ConfigManager.handshakeManagerOk.set(true);
+                    LOG.info("Get meta config info and set handshake status is ok!");
+                }
                 return true;
             } catch (Throwable ex) {
                 LOG.error("Request remote manager failure", ex);

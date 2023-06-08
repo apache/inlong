@@ -56,6 +56,10 @@ public class SinkRspEvent implements Event {
         event.setBody(bytes);
     }
 
+    public Event getEvent() {
+        return this.event;
+    }
+
     /**
      * Get event reported channel context
      *

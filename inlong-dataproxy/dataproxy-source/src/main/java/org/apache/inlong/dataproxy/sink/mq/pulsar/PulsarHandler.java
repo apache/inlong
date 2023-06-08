@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mq.pulsar;
 
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
@@ -26,10 +27,9 @@ import org.apache.inlong.dataproxy.sink.common.EventHandler;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
-import org.apache.inlong.dataproxy.sink.mq.OrderBatchPackProfileV0;
-import org.apache.inlong.dataproxy.sink.mq.SimpleBatchPackProfileV0;
+import org.apache.inlong.dataproxy.sink.mq.PackProfile;
+import org.apache.inlong.dataproxy.sink.mq.SimplePackProfile;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
@@ -197,29 +197,29 @@ public class PulsarHandler implements MessageQueueHandler {
 
     /**
      * send
-     * @param event
+     * @param profile
      * @return
      */
     @Override
-    public boolean send(BatchPackProfile event) {
+    public boolean send(PackProfile profile) {
         try {
             // idConfig
             IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
-                    event.getInlongGroupId(), event.getInlongStreamId());
+                    profile.getInlongGroupId(), profile.getInlongStreamId());
             if (idConfig == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOUID);
-                sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.fail();
+                sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
+                sinkContext.getDispatchQueue().release(profile.getSize());
+                profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
                 return false;
             }
             // topic
             String producerTopic = idConfig.getPulsarTopicName(tenant, namespace);
             if (producerTopic == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
-                sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.fail();
+                sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
+                sinkContext.getDispatchQueue().release(profile.getSize());
+                profile.fail(DataProxyErrCode.TOPIC_IS_BLANK, "");
                 return false;
             }
             // get producer
@@ -247,22 +247,22 @@ public class PulsarHandler implements MessageQueueHandler {
             // create producer failed
             if (producer == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOPRODUCER);
-                sinkContext.processSendFail(event, clusterName, producerTopic, 0);
+                sinkContext.processSendFail(profile, clusterName, producerTopic, 0,
+                        DataProxyErrCode.PRODUCER_IS_NULL, "");
                 return false;
             }
             // send
-            if (event instanceof SimpleBatchPackProfileV0) {
-                this.sendSimpleProfileV0((SimpleBatchPackProfileV0) event, idConfig, producer, producerTopic);
-            } else if (event instanceof OrderBatchPackProfileV0) {
-                this.sendOrderProfileV0((OrderBatchPackProfileV0) event, idConfig, producer, producerTopic);
+            if (profile instanceof SimplePackProfile) {
+                this.sendSimplePackProfile((SimplePackProfile) profile, idConfig, producer, producerTopic);
             } else {
-                this.sendProfileV1(event, idConfig, producer, producerTopic);
+                this.sendBatchPackProfile((BatchPackProfile) profile, idConfig, producer, producerTopic);
             }
             return true;
-        } catch (Exception e) {
+        } catch (Exception ex) {
             sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SENDEXCEPT);
-            sinkContext.processSendFail(event, clusterName, event.getUid(), 0);
-            LOG.error(e.getMessage(), e);
+            sinkContext.processSendFail(profile, clusterName, profile.getUid(), 0,
+                    DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
+            LOG.error(ex.getMessage(), ex);
             return false;
         }
     }
@@ -291,9 +291,9 @@ public class PulsarHandler implements MessageQueueHandler {
     }
 
     /**
-     * sendProfileV1
+     * send BatchPackProfile
      */
-    private void sendProfileV1(BatchPackProfile event, IdTopicConfig idConfig, Producer<byte[]> producer,
+    private void sendBatchPackProfile(BatchPackProfile batchProfile, IdTopicConfig idConfig, Producer<byte[]> producer,
             String producerTopic) throws Exception {
         EventHandler handler = handlerLocal.get();
         if (handler == null) {
@@ -301,12 +301,12 @@ public class PulsarHandler implements MessageQueueHandler {
             handlerLocal.set(handler);
         }
         // headers
-        Map<String, String> headers = handler.parseHeader(idConfig, event, sinkContext.getNodeId(),
+        Map<String, String> headers = handler.parseHeader(idConfig, batchProfile, sinkContext.getNodeId(),
                 sinkContext.getCompressType());
         // compress
-        byte[] bodyBytes = handler.parseBody(idConfig, event, sinkContext.getCompressType());
+        byte[] bodyBytes = handler.parseBody(idConfig, batchProfile, sinkContext.getCompressType());
         // metric
-        sinkContext.addSendMetric(event, clusterName, producerTopic, bodyBytes.length);
+        sinkContext.addSendMetric(batchProfile, clusterName, producerTopic, bodyBytes.length);
         // sendAsync
         long sendTime = System.currentTimeMillis();
         CompletableFuture<MessageId> future = producer.newMessage().properties(headers)
@@ -315,32 +315,30 @@ public class PulsarHandler implements MessageQueueHandler {
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
-                sinkContext.processSendFail(event, clusterName, producerTopic, sendTime);
+                sinkContext.processSendFail(batchProfile, clusterName, producerTopic, sendTime,
+                        DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 LOG.error("Send ProfileV1 to Pulsar failure", ex);
             } else {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
-                sinkContext.addSendResultMetric(event, clusterName, producerTopic, true, sendTime);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.ack();
+                sinkContext.addSendResultMetric(batchProfile, clusterName, producerTopic, true, sendTime);
+                sinkContext.getDispatchQueue().release(batchProfile.getSize());
+                batchProfile.ack();
             }
         });
     }
 
     /**
-     * sendSimpleProfileV0
+     * send SimplePackProfile
      */
-    private void sendSimpleProfileV0(SimpleBatchPackProfileV0 event, IdTopicConfig idConfig,
+    private void sendSimplePackProfile(SimplePackProfile simpleProfile, IdTopicConfig idConfig,
             Producer<byte[]> producer,
             String producerTopic) throws Exception {
         // headers
-        Map<String, String> headers = event.getProperties();
-        if (MapUtils.isEmpty(headers)) {
-            headers = event.getSimpleProfile().getHeaders();
-        }
+        Map<String, String> headers = simpleProfile.getProperties();
         // body
-        byte[] bodyBytes = event.getSimpleProfile().getBody();
+        byte[] bodyBytes = simpleProfile.getEvent().getBody();
         // metric
-        sinkContext.addSendMetric(event, clusterName, producerTopic, bodyBytes.length);
+        sinkContext.addSendMetric(simpleProfile, clusterName, producerTopic, bodyBytes.length);
         // sendAsync
         long sendTime = System.currentTimeMillis();
         CompletableFuture<MessageId> future = producer.newMessage().properties(headers)
@@ -349,44 +347,14 @@ public class PulsarHandler implements MessageQueueHandler {
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
-                sinkContext.processSendFail(event, clusterName, producerTopic, sendTime);
+                sinkContext.processSendFail(simpleProfile, clusterName, producerTopic, sendTime,
+                        DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 LOG.error("Send SimpleProfileV0 to Pulsar failure", ex);
             } else {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
-                sinkContext.addSendResultMetric(event, clusterName, producerTopic, true, sendTime);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.ack();
-            }
-        });
-    }
-
-    /**
-     * sendOrderProfileV0
-     */
-    private void sendOrderProfileV0(OrderBatchPackProfileV0 event, IdTopicConfig idConfig, Producer<byte[]> producer,
-            String producerTopic) throws Exception {
-        // headers
-        Map<String, String> headers = event.getOrderProfile().getHeaders();
-        // compress
-        byte[] bodyBytes = event.getOrderProfile().getBody();
-        // metric
-        sinkContext.addSendMetric(event, clusterName, producerTopic, bodyBytes.length);
-        // sendAsync
-        long sendTime = System.currentTimeMillis();
-        CompletableFuture<MessageId> future = producer.newMessage().properties(headers)
-                .value(bodyBytes).sendAsync();
-        // callback
-        future.whenCompleteAsync((msgId, ex) -> {
-            if (ex != null) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
-                sinkContext.processSendFail(event, clusterName, producerTopic, sendTime);
-                LOG.error("Send OrderProfileV0 to Pulsar failure", ex);
-            } else {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
-                sinkContext.addSendResultMetric(event, clusterName, producerTopic, true, sendTime);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.ack();
-                event.ackOrder();
+                sinkContext.addSendResultMetric(simpleProfile, clusterName, producerTopic, true, sendTime);
+                sinkContext.getDispatchQueue().release(simpleProfile.getSize());
+                simpleProfile.ack();
             }
         });
     }
