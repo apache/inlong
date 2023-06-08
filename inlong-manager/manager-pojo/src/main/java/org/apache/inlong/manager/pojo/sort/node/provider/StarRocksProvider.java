@@ -54,9 +54,8 @@ public class StarRocksProvider implements LoadNodeProvider {
         List<FieldRelation> fieldRelations = parseSinkFields(starRocksSink.getSinkFieldList(), constantFieldMap);
 
         Format format = null;
-        if (starRocksSink.getSinkMultipleEnable() != null && starRocksSink.getSinkMultipleEnable()
-                && StringUtils.isNotBlank(
-                        starRocksSink.getSinkMultipleFormat())) {
+        if (Boolean.TRUE.equals(starRocksSink.getSinkMultipleEnable())
+                && StringUtils.isNotBlank(starRocksSink.getSinkMultipleFormat())) {
             DataTypeEnum dataType = DataTypeEnum.forType(starRocksSink.getSinkMultipleFormat());
             switch (dataType) {
                 case CANAL:
