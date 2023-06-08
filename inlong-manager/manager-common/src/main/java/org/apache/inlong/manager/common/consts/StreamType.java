@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.common.consts;
 
 /**
- * Constants of stream type is sink source public constant type.
+ * Constant for stream types, indicating that both StreamSource and StreamSink support these types.
  */
 public class StreamType {
 
