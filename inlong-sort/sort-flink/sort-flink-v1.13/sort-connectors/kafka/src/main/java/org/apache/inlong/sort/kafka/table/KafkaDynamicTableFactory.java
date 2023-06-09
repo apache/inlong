@@ -22,6 +22,7 @@ import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
+import org.apache.inlong.sort.kafka.SingleTablePrimaryKeyPartitioner;
 import org.apache.inlong.sort.kafka.partitioner.InLongFixedPartitionPartitioner;
 import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
 import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
@@ -63,17 +64,6 @@ import org.apache.flink.table.formats.raw.RawFormatSerializationSchema;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.kafka.KafkaDynamicSink;
-import org.apache.inlong.sort.kafka.partitioner.InLongFixedPartitionPartitioner;
-import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
-import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
-import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
-import org.apache.inlong.sort.util.SchemaChangeUtils;
-import org.apache.inlong.sort.kafka.partitioner.SingleTablePrimaryKeyPartitioner;
 
 import javax.annotation.Nullable;
 
@@ -120,11 +110,10 @@ import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
 import static org.apache.inlong.sort.base.Constants.*;
 import static org.apache.inlong.sort.base.Constants.DATASOURCE_PARTITION_MAP;
-import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_ENABLE;
-import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_POLICIES;
-import static org.apache.inlong.sort.base.Constants.PATTERN_PARTITION_MAP;
 import static org.apache.inlong.sort.base.Constants.PATTERN_PARTITION_MAP;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_POLICIES;
 import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**

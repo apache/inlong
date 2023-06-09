@@ -55,13 +55,6 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
-import org.apache.inlong.sort.kafka.KafkaDynamicSink;
-import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
-import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
-import org.apache.inlong.sort.util.SchemaChangeUtils;
 
 import java.time.Duration;
 import java.util.Collections;

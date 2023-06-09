@@ -43,22 +43,9 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.formats.raw.RawFormatSerializationSchema;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.dirty.DirtyData;
-import org.apache.inlong.sort.base.dirty.DirtyOptions;
-import org.apache.inlong.sort.base.dirty.DirtyType;
-import org.apache.inlong.sort.base.dirty.sink.DirtySink;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
-import org.apache.inlong.sort.base.metric.sub.SinkTopicMetricData;
-import org.apache.inlong.sort.protocol.ddl.operations.Operation;
-import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
-import org.apache.inlong.sort.protocol.enums.SchemaChangePolicy;
-import org.apache.inlong.sort.protocol.enums.SchemaChangeType;
-import org.apache.inlong.sort.util.SchemaChangeUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.inlong.sort.kafka.SingleTablePrimaryKeyPartitioner;
 
 import javax.annotation.Nullable;
 
