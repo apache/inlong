@@ -283,6 +283,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
+
         // only the person in charges can query
         userService.checkUser(entity.getInCharges(), operator,
                 ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
@@ -291,6 +292,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         if (streamEntity == null) {
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
+
         InlongStreamBriefInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamBriefInfo::new);
         // Processing extParams
         unpackExtParams(streamEntity.getExtParams(), streamInfo);
