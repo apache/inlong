@@ -67,8 +67,9 @@ import javax.annotation.PostConstruct;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -235,9 +236,9 @@ public class AuditServiceImpl implements AuditService {
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
                 try (Connection connection = ClickHouseConfig.getCkConnection();
-                        Statement statement = connection.createStatement();
-                        ResultSet resultSet = statement.executeQuery(
-                                toAuditCkSql(groupId, streamId, auditId, request.getDt()))) {
+                     PreparedStatement statement =
+                                getAuditCkStatement(connection, groupId, streamId, auditId, request.getDt());
+                     ResultSet resultSet = statement.executeQuery()) {
                     List<AuditInfo> auditSet = new ArrayList<>();
                     while (resultSet.next()) {
                         AuditInfo vo = new AuditInfo();
@@ -304,28 +305,41 @@ public class AuditServiceImpl implements AuditService {
     }
 
     /**
-     * Convert to clickhouse search sql
+     * Get clickhouse Statement
      *
+     * @param connection The ClickHouse connection
      * @param groupId The groupId of inlong
      * @param streamId The streamId of inlong
      * @param auditId The auditId of request
      * @param dt The datetime of request
-     * @return clickhouse sql
+     * @return The clickhouse Statement
      */
-    private String toAuditCkSql(String groupId, String streamId, String auditId, String dt) {
+    private PreparedStatement getAuditCkStatement(Connection connection, String groupId, String streamId,
+            String auditId, String dt) throws SQLException {
         DateTimeFormatter formatter = DateTimeFormat.forPattern(DAY_FORMAT);
         DateTime date = formatter.parseDateTime(dt);
         String startDate = date.toString(SECOND_FORMAT);
         String endDate = date.plusDays(1).toString(SECOND_FORMAT);
-        return new SQL()
+
+        String sql = new SQL()
                 .SELECT("log_ts", "sum(count) as total")
                 .FROM("audit_data")
-                .WHERE("inlong_group_id = '" + groupId + "'", "inlong_stream_id = '" + streamId + "'",
-                        "audit_id = '" + auditId + "'")
-                .WHERE("log_ts >= '" + startDate + "'", "log_ts < '" + endDate + "'")
+                .WHERE("inlong_group_id = ?")
+                .WHERE("inlong_stream_id = ?")
+                .WHERE("audit_id = ?")
+                .WHERE("log_ts >= ?")
+                .WHERE("log_ts < ?")
                 .GROUP_BY("log_ts")
                 .ORDER_BY("log_ts")
                 .toString();
+
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, groupId);
+        statement.setString(2, streamId);
+        statement.setString(3, auditId);
+        statement.setString(4, startDate);
+        statement.setString(5, endDate);
+        return statement;
     }
 
     /**
