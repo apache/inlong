@@ -31,9 +31,11 @@ import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class InlongRoleServiceImpl implements InlongRoleService {
 
@@ -82,13 +84,18 @@ public class InlongRoleServiceImpl implements InlongRoleService {
     @Override
     public InlongRoleInfo get(int id) {
         InlongUserRoleEntity entity = inlongUserMapper.selectById(id);
+        if (entity == null) {
+            log.warn("find no inlong role for id={}", id);
+            return null;
+        }
         return CommonBeanUtils.copyProperties(entity, InlongRoleInfo::new);
     }
 
     @Override
-    public InlongRoleInfo getByName(String name) {
-        InlongUserRoleEntity entity = inlongUserMapper.selectByName(name);
+    public InlongRoleInfo getByUsername(String name) {
+        InlongUserRoleEntity entity = inlongUserMapper.selectByUsername(name);
         if (entity == null) {
+            log.warn("find no inlong role for name={}", name);
             return null;
         }
         return CommonBeanUtils.copyProperties(entity, InlongRoleInfo::new);

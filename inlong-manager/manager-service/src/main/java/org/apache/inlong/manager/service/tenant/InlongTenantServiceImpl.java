@@ -43,7 +43,7 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     private InlongTenantEntityMapper inlongTenantEntityMapper;
 
     @Override
-    public InlongTenantInfo get(String name) {
+    public InlongTenantInfo getByTenantName(String name) {
         InlongTenantEntity entity = inlongTenantEntityMapper.selectByName(name);
         if (entity == null) {
             return null;

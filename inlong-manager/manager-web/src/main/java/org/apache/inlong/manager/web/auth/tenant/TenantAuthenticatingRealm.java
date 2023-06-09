@@ -38,6 +38,9 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Shiro AuthenticatingRealm for tenant
+ */
 @Slf4j
 public class TenantAuthenticatingRealm extends AuthenticatingRealm {
 
@@ -64,15 +67,15 @@ public class TenantAuthenticatingRealm extends AuthenticatingRealm {
         String user = tenantToken.getUserName();
         String tenant = tenantToken.getTenant();
 
-        InlongTenantInfo tenantInfo = tenantService.get(tenant);
+        InlongTenantInfo tenantInfo = tenantService.getByTenantName(tenant);
         if (tenantInfo == null) {
             String errMsg = String.format("tenant=[%s] not found", tenant);
             log.error(errMsg);
             throw new AuthenticationException(errMsg);
         }
 
-        InlongRoleInfo inlongRoleInfo = inlongRoleService.getByName(user);
-        TenantRoleInfo tenantRoleInfo = tenantRoleService.getByNameAndTenant(user, tenant);
+        InlongRoleInfo inlongRoleInfo = inlongRoleService.getByUsername(user);
+        TenantRoleInfo tenantRoleInfo = tenantRoleService.getByUsernameAndTenant(user, tenant);
         if (inlongRoleInfo == null && tenantRoleInfo == null) {
             String errMsg = String.format("user=[%s] has no privilege for tenant=[%s]", user, tenant);
             log.error(errMsg);

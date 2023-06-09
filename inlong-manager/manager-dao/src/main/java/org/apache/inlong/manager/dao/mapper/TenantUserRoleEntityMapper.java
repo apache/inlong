@@ -31,7 +31,7 @@ public interface TenantUserRoleEntityMapper {
 
     TenantUserRoleEntity selectById(Integer id);
 
-    TenantUserRoleEntity selectByNameAndTenant(@Param("username") String username, @Param("tenant") String tenant);
+    TenantUserRoleEntity selectByUsernameAndTenant(@Param("username") String username, @Param("tenant") String tenant);
 
     Page<TenantUserRoleEntity> listByCondition(TenantRolePageRequest request);
 

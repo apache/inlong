@@ -50,7 +50,7 @@ public class InlongTenantController {
     @ApiOperation(value = "Get tenant")
     @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
     public Response<InlongTenantInfo> get(@PathVariable String name) {
-        return Response.success(tenantService.get(name));
+        return Response.success(tenantService.getByTenantName(name));
     }
 
     @RequestMapping(value = "/tenant/save", method = RequestMethod.POST)

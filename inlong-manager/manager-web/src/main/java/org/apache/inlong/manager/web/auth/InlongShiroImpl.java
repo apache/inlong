@@ -162,11 +162,11 @@ public class InlongShiroImpl implements InlongShiro {
             return filterNames[0];
         }
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         for (String filterName : filterNames) {
-            sb.append(filterName).append(",");
+            builder.append(filterName).append(",");
         }
-        sb.deleteCharAt(sb.length() - 1);
-        return sb.toString();
+        builder.deleteCharAt(builder.length() - 1);
+        return builder.toString();
     }
 }

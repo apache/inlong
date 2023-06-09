@@ -21,6 +21,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.shiro.authc.AuthenticationToken;
 
+/**
+ * Shiro AuthenticationToken for TenantAuthenticatingRealm
+ */
 @Data
 @AllArgsConstructor
 public class TenantToken implements AuthenticationToken {

@@ -36,6 +36,9 @@ import java.io.IOException;
 
 import static org.apache.inlong.common.util.BasicAuth.BASIC_AUTH_TENANT_HEADER;
 
+/**
+ * Shiro filter to check if the request user has the permission to target tenant.
+ */
 @Slf4j
 public class TenantAuthenticatingFilter implements Filter {
 

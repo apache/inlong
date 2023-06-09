@@ -33,7 +33,7 @@ public interface InlongTenantService {
      * @param name
      * @return
      */
-    InlongTenantInfo get(String name);
+    InlongTenantInfo getByTenantName(String name);
 
     /**
      * Save one tenant

@@ -50,7 +50,7 @@ class InlongRoleServiceTest extends ServiceBaseTest {
         request.setUsername("new admin");
         request.setRoleCode(UserRoleCode.INLONG_ADMIN);
         inlongRoleService.save(request, LoginUserUtils.getLoginUser().getName());
-        InlongRoleInfo info = inlongRoleService.getByName(request.getUsername());
+        InlongRoleInfo info = inlongRoleService.getByUsername(request.getUsername());
         Assertions.assertEquals(request.getRoleCode(), info.getRoleCode());
         Assertions.assertEquals(request.getUsername(), info.getUsername());
     }
@@ -62,10 +62,10 @@ class InlongRoleServiceTest extends ServiceBaseTest {
         request.setUsername("admin2");
         request.setRoleCode(UserRoleCode.INLONG_ADMIN);
         inlongRoleService.save(request, LoginUserUtils.getLoginUser().getName());
-        InlongRoleInfo info = inlongRoleService.getByName(request.getUsername());
+        InlongRoleInfo info = inlongRoleService.getByUsername(request.getUsername());
         info.setRoleCode(UserRoleCode.INLONG_OPERATOR);
         inlongRoleService.update(info.genRequest(), LoginUserUtils.getLoginUser().getName());
-        InlongRoleInfo updatedInfo = inlongRoleService.getByName(request.getUsername());
+        InlongRoleInfo updatedInfo = inlongRoleService.getByUsername(request.getUsername());
         Assertions.assertEquals(UserRoleCode.INLONG_OPERATOR, updatedInfo.getRoleCode());
     }
 

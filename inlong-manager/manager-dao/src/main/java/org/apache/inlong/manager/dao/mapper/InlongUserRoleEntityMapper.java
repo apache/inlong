@@ -30,7 +30,7 @@ public interface InlongUserRoleEntityMapper {
 
     InlongUserRoleEntity selectById(Integer id);
 
-    InlongUserRoleEntity selectByName(String userName);
+    InlongUserRoleEntity selectByUsername(String userName);
 
     int updateById(InlongUserRoleEntity record);
 
