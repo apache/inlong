@@ -231,7 +231,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         // heartbeatInterval() is the reporting interval of cluster nodes, multiplied by two to prevent network
         // fluctuations
         ComponentHeartbeatEntity componentHeartbeatEntity = componentHeartbeatMapper.selectTimeOutHeartBeat(
-                componentHeartbeat.getComponentType(), componentHeartbeat.getIp(), heartbeatInterval() * 2L);
+                componentHeartbeat.getComponentType(), componentHeartbeat.getIp(),
+                heartbeatInterval() * heartbeatIntervalFactor);
         if (componentHeartbeatEntity != null) {
             heartbeatCache.put(componentHeartbeat, heartbeat);
             return;
