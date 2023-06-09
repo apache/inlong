@@ -87,11 +87,6 @@ public class TestTextFileReader {
 
     @BeforeClass
     public static void setup() {
-        configuration = AgentConfiguration.getAgentConf();
-        String parentPath = configuration.get(AgentConstants.AGENT_HOME, AgentConstants.DEFAULT_AGENT_HOME);
-        String configPath = configuration.get(AgentConstants.AGENT_ROCKS_DB_PATH,
-                AgentConstants.DEFAULT_AGENT_ROCKS_DB_PATH);
-        LOGGER.info("parentPath {} configPath {} ", parentPath, configPath);
         agentManager = new AgentManager();
         helper = new AgentBaseTestsHelper(TestTextFileReader.class.getName()).setupAgentHome();
         testDir = helper.getTestRootDir();
