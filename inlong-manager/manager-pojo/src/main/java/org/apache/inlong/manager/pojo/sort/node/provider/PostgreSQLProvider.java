@@ -15,33 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.extract;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
-import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
+import org.apache.inlong.manager.common.consts.StreamType;
+import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
 import org.apache.inlong.manager.pojo.source.postgresql.PostgreSQLSource;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
+import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
+import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating PostgreSql extract nodes.
+ * The Provider for creating PostgreSQL extract or load nodes.
  */
-public class PostgreSqlProvider implements ExtractNodeProvider {
+public class PostgreSQLProvider implements ExtractNodeProvider, LoadNodeProvider {
 
     @Override
-    public Boolean accept(String sourceType) {
-        return SourceType.POSTGRESQL.equals(sourceType);
+    public Boolean accept(String streamType) {
+        return StreamType.POSTGRESQL.equals(streamType);
     }
 
     @Override
-    public ExtractNode createNode(StreamNode streamNodeInfo) {
+    public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         PostgreSQLSource postgreSQLSource = (PostgreSQLSource) streamNodeInfo;
-        List<FieldInfo> fieldInfos = parseFieldInfos(postgreSQLSource.getFieldList(), postgreSQLSource.getSourceName());
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(postgreSQLSource.getFieldList(),
+                postgreSQLSource.getSourceName());
         Map<String, String> properties = parseProperties(postgreSQLSource.getProperties());
 
         return new PostgresExtractNode(postgreSQLSource.getSourceName(),
@@ -60,5 +67,29 @@ public class PostgreSqlProvider implements ExtractNodeProvider {
                 postgreSQLSource.getDecodingPluginName(),
                 postgreSQLSource.getServerTimeZone(),
                 postgreSQLSource.getScanStartupMode());
+    }
+
+    @Override
+    public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
+        PostgreSQLSink postgreSQLSink = (PostgreSQLSink) nodeInfo;
+        Map<String, String> properties = parseProperties(postgreSQLSink.getProperties());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(postgreSQLSink.getSinkFieldList(),
+                postgreSQLSink.getSinkName());
+        List<FieldRelation> fieldRelations = parseSinkFields(postgreSQLSink.getSinkFieldList(), constantFieldMap);
+
+        return new PostgresLoadNode(
+                postgreSQLSink.getSinkName(),
+                postgreSQLSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                postgreSQLSink.getJdbcUrl(),
+                postgreSQLSink.getUsername(),
+                postgreSQLSink.getPassword(),
+                postgreSQLSink.getDbName() + "." + postgreSQLSink.getTableName(),
+                postgreSQLSink.getPrimaryKey());
     }
 }

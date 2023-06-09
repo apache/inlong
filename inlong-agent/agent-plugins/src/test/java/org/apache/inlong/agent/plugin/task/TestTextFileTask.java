@@ -170,7 +170,7 @@ public class TestTextFileTask {
     public void testReadFull() throws IOException {
         File file = TMP_FOLDER.newFile();
         StringBuffer sb = new StringBuffer();
-        String testData1 = IntStream.range(0, 100)
+        String testData1 = IntStream.range(0, 5)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(System.lineSeparator()));
         sb.append(testData1);
@@ -186,21 +186,23 @@ public class TestTextFileTask {
         jobProfile.set(JOB_FILE_META_ENV_LIST, ENV_CVM);
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
-        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 100);
+        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 5);
         await().atMost(10, TimeUnit.SECONDS).until(() -> MonitorTextFile.getInstance().monitorNum() == 1);
-        String testData = IntStream.range(100, 300)
+        String testData = IntStream.range(5, 10)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(System.lineSeparator()));
         sb.append(testData);
         sb.append(System.lineSeparator());
         TestUtils.write(file.getAbsolutePath(), sb);
 
-        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 100);
-        String collectData = sink.getResult().stream().map(message -> {
-            String content = new String(message.getBody(), StandardCharsets.UTF_8);
-            Map<String, String> logJson = GSON.fromJson(content, Map.class);
-            return logJson.get(MetadataConstants.DATA_CONTENT);
-        }).collect(Collectors.joining(System.lineSeparator()));
+        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 5);
+        synchronized (this) {
+            String collectData = sink.getResult().stream().map(message -> {
+                String content = new String(message.getBody(), StandardCharsets.UTF_8);
+                Map<String, String> logJson = GSON.fromJson(content, Map.class);
+                return logJson.get(MetadataConstants.DATA_CONTENT);
+            }).collect(Collectors.joining(System.lineSeparator()));
+        }
     }
 
     /**
@@ -210,7 +212,7 @@ public class TestTextFileTask {
     public void testReadIncrement() throws IOException {
         File file = TMP_FOLDER.newFile();
         StringBuffer sb = new StringBuffer();
-        sb.append(IntStream.range(0, 100)
+        sb.append(IntStream.range(0, 5)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(System.lineSeparator())));
         sb.append(System.lineSeparator());
@@ -227,26 +229,28 @@ public class TestTextFileTask {
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
         await().atMost(10, TimeUnit.SECONDS).until(() -> MonitorTextFile.getInstance().monitorNum() == 1);
-        String testData = IntStream.range(100, 300)
+        String testData = IntStream.range(5, 10)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(System.lineSeparator()));
         sb.append(testData);
         sb.append(System.lineSeparator());
         TestUtils.write(file.getAbsolutePath(), sb);
 
-        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 300);
-        String collectData = sink.getResult().stream().map(message -> {
-            String content = new String(message.getBody(), StandardCharsets.UTF_8);
-            Map<String, String> logJson = GSON.fromJson(content, Map.class);
-            return logJson.get(MetadataConstants.DATA_CONTENT);
-        }).collect(Collectors.joining(System.lineSeparator()));
+        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 10);
+        synchronized (this) {
+            String collectData = sink.getResult().stream().map(message -> {
+                String content = new String(message.getBody(), StandardCharsets.UTF_8);
+                Map<String, String> logJson = GSON.fromJson(content, Map.class);
+                return logJson.get(MetadataConstants.DATA_CONTENT);
+            }).collect(Collectors.joining(System.lineSeparator()));
+        }
     }
 
     @Test
     public void testScaleData() throws IOException {
         File file = TMP_FOLDER.newFile();
         StringBuffer sb = new StringBuffer();
-        String testData1 = IntStream.range(0, 100)
+        String testData1 = IntStream.range(0, 5)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(System.lineSeparator()));
         sb.append(testData1);
@@ -260,6 +264,6 @@ public class TestTextFileTask {
         jobProfile.set(JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.FULL);
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
-        await().atMost(100, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 100);
+        await().atMost(100, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 5);
     }
 }

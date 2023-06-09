@@ -64,7 +64,7 @@
   "meta.Sources.PostgreSQL.Username": "用户",
   "meta.Sources.PostgreSQL.Password": "密码",
   "meta.Sources.PostgreSQL.Database": "数据库名",
-  "meta.Sources.PostgreSQL.SchemaName": "架构名称",
+  "meta.Sources.PostgreSQL.SchemaName": "模式",
   "meta.Sources.PostgreSQL.TableName": "表格名称",
   "meta.Sources.PostgreSQL.TableNameHelp": "支持多个表格名称，以逗号分隔",
   "meta.Sources.PostgreSQL.decodingPluginName": "解码插件名称",

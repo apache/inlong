@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.mq.tube;
 
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
@@ -28,8 +29,8 @@ import org.apache.inlong.dataproxy.sink.common.TubeUtils;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
-import org.apache.inlong.dataproxy.sink.mq.OrderBatchPackProfileV0;
-import org.apache.inlong.dataproxy.sink.mq.SimpleBatchPackProfileV0;
+import org.apache.inlong.dataproxy.sink.mq.PackProfile;
+import org.apache.inlong.dataproxy.sink.mq.SimplePackProfile;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
@@ -71,8 +72,8 @@ public class TubeHandler implements MessageQueueHandler {
     // tube producer
     private TubeMultiSessionFactory sessionFactory;
     private MessageProducer producer;
-    private Set<String> topicSet = new HashSet<>();
-    private ThreadLocal<EventHandler> handlerLocal = new ThreadLocal<>();
+    private final Set<String> topicSet = new HashSet<>();
+    private final ThreadLocal<EventHandler> handlerLocal = new ThreadLocal<>();
 
     /**
      * init
@@ -112,6 +113,7 @@ public class TubeHandler implements MessageQueueHandler {
         Set<String> published;
         try {
             published = producer.publish(topicSet);
+            topicSet.addAll(published);
             LOG.info("Publish topics to {}, need publish are {}, published are {}",
                     this.clusterName, topicSet, published);
         } catch (Throwable e) {
@@ -178,30 +180,31 @@ public class TubeHandler implements MessageQueueHandler {
     /**
      * send
      */
-    public boolean send(BatchPackProfile event) {
+    public boolean send(PackProfile profile) {
         try {
             // idConfig
             IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
-                    event.getInlongGroupId(), event.getInlongStreamId());
+                    profile.getInlongGroupId(), profile.getInlongStreamId());
             if (idConfig == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOUID);
-                sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.fail();
+                sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
+                sinkContext.getDispatchQueue().release(profile.getSize());
+                profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
                 return false;
             }
             String topic = idConfig.getTopicName();
             if (topic == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
-                sinkContext.addSendResultMetric(event, clusterName, event.getUid(), false, 0);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.fail();
+                sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
+                sinkContext.getDispatchQueue().release(profile.getSize());
+                profile.fail(DataProxyErrCode.TOPIC_IS_BLANK, "");
                 return false;
             }
             // create producer failed
             if (producer == null) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOPRODUCER);
-                sinkContext.processSendFail(event, clusterName, topic, 0);
+                sinkContext.processSendFail(profile, clusterName, topic, 0,
+                        DataProxyErrCode.PRODUCER_IS_NULL, "");
                 LOG.error("producer is null");
                 return false;
             }
@@ -211,26 +214,25 @@ public class TubeHandler implements MessageQueueHandler {
                 this.topicSet.add(topic);
             }
             // send
-            if (event instanceof SimpleBatchPackProfileV0) {
-                this.sendSimpleProfileV0((SimpleBatchPackProfileV0) event, idConfig, topic);
-            } else if (event instanceof OrderBatchPackProfileV0) {
-                this.sendOrderProfileV0((OrderBatchPackProfileV0) event, idConfig, topic);
+            if (profile instanceof SimplePackProfile) {
+                this.sendSimplePackProfile((SimplePackProfile) profile, idConfig, topic);
             } else {
-                this.sendProfileV1(event, idConfig, topic);
+                this.sendBatchPackProfile((BatchPackProfile) profile, idConfig, topic);
             }
             return true;
-        } catch (Exception e) {
+        } catch (Exception ex) {
             sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SENDEXCEPT);
-            sinkContext.processSendFail(event, clusterName, event.getUid(), 0);
-            LOG.error(e.getMessage(), e);
+            sinkContext.processSendFail(profile, clusterName, profile.getUid(), 0,
+                    DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
+            LOG.error(ex.getMessage(), ex);
             return false;
         }
     }
 
     /**
-     * sendProfileV1
+     * send BatchPackProfile
      */
-    private void sendProfileV1(BatchPackProfile event, IdTopicConfig idConfig,
+    private void sendBatchPackProfile(BatchPackProfile batchProfile, IdTopicConfig idConfig,
             String topic) throws Exception {
         EventHandler handler = handlerLocal.get();
         if (handler == null) {
@@ -238,12 +240,12 @@ public class TubeHandler implements MessageQueueHandler {
             handlerLocal.set(handler);
         }
         // headers
-        Map<String, String> headers = handler.parseHeader(idConfig, event, sinkContext.getNodeId(),
+        Map<String, String> headers = handler.parseHeader(idConfig, batchProfile, sinkContext.getNodeId(),
                 sinkContext.getCompressType());
         // compress
-        byte[] bodyBytes = handler.parseBody(idConfig, event, sinkContext.getCompressType());
+        byte[] bodyBytes = handler.parseBody(idConfig, batchProfile, sinkContext.getCompressType());
         // metric
-        sinkContext.addSendMetric(event, clusterName, topic, bodyBytes.length);
+        sinkContext.addSendMetric(batchProfile, clusterName, topic, bodyBytes.length);
         // sendAsync
         Message message = new Message(topic, bodyBytes);
         // add headers
@@ -257,15 +259,16 @@ public class TubeHandler implements MessageQueueHandler {
             @Override
             public void onMessageSent(MessageSentResult result) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
-                sinkContext.addSendResultMetric(event, clusterName, topic, true, sendTime);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.ack();
+                sinkContext.addSendResultMetric(batchProfile, clusterName, topic, true, sendTime);
+                sinkContext.getDispatchQueue().release(batchProfile.getSize());
+                batchProfile.ack();
             }
 
             @Override
             public void onException(Throwable ex) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
-                sinkContext.processSendFail(event, clusterName, topic, sendTime);
+                sinkContext.processSendFail(batchProfile, clusterName, topic, sendTime,
+                        DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
                     LOG.error("Send ProfileV1 to tube failure", ex);
                 }
@@ -277,12 +280,12 @@ public class TubeHandler implements MessageQueueHandler {
     /**
      * sendSimpleProfileV0
      */
-    private void sendSimpleProfileV0(SimpleBatchPackProfileV0 event, IdTopicConfig idConfig,
+    private void sendSimplePackProfile(SimplePackProfile simpleProfile, IdTopicConfig idConfig,
             String topic) throws Exception {
         // build message
-        Message message = TubeUtils.buildMessage(topic, event.getSimpleProfile());
+        Message message = TubeUtils.buildMessage(topic, simpleProfile.getEvent());
         // metric
-        sinkContext.addSendMetric(event, clusterName, topic, event.getSimpleProfile().getBody().length);
+        sinkContext.addSendMetric(simpleProfile, clusterName, topic, simpleProfile.getEvent().getBody().length);
         // callback
         long sendTime = System.currentTimeMillis();
         MessageSentCallback callback = new MessageSentCallback() {
@@ -290,57 +293,18 @@ public class TubeHandler implements MessageQueueHandler {
             @Override
             public void onMessageSent(MessageSentResult result) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
-                sinkContext.addSendResultMetric(event, clusterName, topic, true, sendTime);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.ack();
+                sinkContext.addSendResultMetric(simpleProfile, clusterName, topic, true, sendTime);
+                sinkContext.getDispatchQueue().release(simpleProfile.getSize());
+                simpleProfile.ack();
             }
 
             @Override
             public void onException(Throwable ex) {
                 sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
-                sinkContext.processSendFail(event, clusterName, topic, sendTime);
+                sinkContext.processSendFail(simpleProfile, clusterName, topic, sendTime,
+                        DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
                     LOG.error("Send SimpleProfileV0 to tube failure", ex);
-                }
-            }
-        };
-        producer.sendMessage(message, callback);
-    }
-
-    /**
-     * sendOrderProfileV0
-     */
-    private void sendOrderProfileV0(OrderBatchPackProfileV0 event, IdTopicConfig idConfig, String topic)
-            throws Exception {
-        // headers
-        Map<String, String> headers = event.getOrderProfile().getHeaders();
-        // compress
-        byte[] bodyBytes = event.getOrderProfile().getBody();
-        // metric
-        sinkContext.addSendMetric(event, clusterName, topic, bodyBytes.length);
-        // sendAsync
-        Message message = new Message(topic, bodyBytes);
-        // add headers
-        headers.forEach(message::setAttrKeyVal);
-        // callback
-        long sendTime = System.currentTimeMillis();
-        MessageSentCallback callback = new MessageSentCallback() {
-
-            @Override
-            public void onMessageSent(MessageSentResult result) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
-                sinkContext.addSendResultMetric(event, clusterName, topic, true, sendTime);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.ack();
-                event.ackOrder();
-            }
-
-            @Override
-            public void onException(Throwable ex) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
-                sinkContext.processSendFail(event, clusterName, topic, sendTime);
-                if (logCounter.shouldPrint()) {
-                    LOG.error("Send OrderProfileV0 to tube failure", ex);
                 }
             }
         };

@@ -49,12 +49,14 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
 
     public static final Logger LOG = LoggerFactory.getLogger(MessageQueueZoneSink.class);
 
+    private final long MQ_CLUSTER_STATUS_CHECK_DUR_MS = 2000L;
+
     private Context parentContext;
     private MessageQueueZoneSinkContext context;
     private List<MessageQueueZoneWorker> workers = new ArrayList<>();
     // message group
     private BatchPackManager dispatchManager;
-    private BufferQueue<BatchPackProfile> dispatchQueue;
+    private BufferQueue<PackProfile> dispatchQueue;
     // scheduled thread pool
     // reload
     // dispatch
@@ -67,6 +69,8 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
     // changeListerThread
     private Thread configListener;
     private volatile boolean isShutdown = false;
+    // whether mq cluster connected
+    private volatile boolean mqClusterStarted = false;
     /**
      * configure
      * 
@@ -104,7 +108,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
             }, this.dispatchManager.getDispatchTimeout(), this.dispatchManager.getDispatchTimeout(),
                     TimeUnit.MILLISECONDS);
             // create producer
-            this.zoneProducer = new MessageQueueZoneProducer(this.getName(), this.context);
+            this.zoneProducer = new MessageQueueZoneProducer(this, this.context);
             this.zoneProducer.start();
             // start configure change listener thread
             this.configListener = new Thread(new ConfigChangeProcessor());
@@ -158,6 +162,16 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
      */
     @Override
     public Status process() throws EventDeliveryException {
+        // wait mq cluster started
+        while (!mqClusterStarted) {
+            try {
+                Thread.sleep(MQ_CLUSTER_STATUS_CHECK_DUR_MS);
+            } catch (InterruptedException e1) {
+                return Status.BACKOFF;
+            } catch (Throwable e2) {
+                //
+            }
+        }
         this.dispatchManager.outputOvertimeData();
         Channel channel = getChannel();
         Transaction tx = channel.getTransaction();
@@ -213,6 +227,14 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
         }
         lastNotifyTime.set(System.currentTimeMillis());
         syncLock.notifyAll();
+    }
+
+    public boolean isMqClusterStarted() {
+        return mqClusterStarted;
+    }
+
+    public void setMQClusterStarted() {
+        this.mqClusterStarted = true;
     }
 
     private class ConfigChangeProcessor implements Runnable {

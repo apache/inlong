@@ -19,30 +19,25 @@ package org.apache.inlong.manager.pojo.sort.node;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.sort.node.extract.HudiProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.KafkaProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.MongoProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.MysqlBinlogProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.OracleProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.PostgreSqlProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.PulsarProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.RedisProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.SqlServerProvider;
-import org.apache.inlong.manager.pojo.sort.node.extract.TubeMqProvider;
-import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.sort.protocol.node.ExtractNode;
-
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.HudiProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.KafkaProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.MongoProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.MySQLBinlogProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.OracleProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.PostgreSQLProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.PulsarProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.RedisProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.SQLServerProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.TubeMqProvider;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * The node provider factory.
+ * Factory of the extract node provider.
  */
-public class NodeProviderFactory {
+public class ExtractNodeProviderFactory {
 
     /**
      * The extract node provider collection
@@ -58,9 +53,9 @@ public class NodeProviderFactory {
         EXTRACT_NODE_PROVIDER_LIST.add(new PulsarProvider());
         EXTRACT_NODE_PROVIDER_LIST.add(new RedisProvider());
         EXTRACT_NODE_PROVIDER_LIST.add(new TubeMqProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new SqlServerProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new PostgreSqlProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new MysqlBinlogProvider());
+        EXTRACT_NODE_PROVIDER_LIST.add(new SQLServerProvider());
+        EXTRACT_NODE_PROVIDER_LIST.add(new PostgreSQLProvider());
+        EXTRACT_NODE_PROVIDER_LIST.add(new MySQLBinlogProvider());
 
     }
 
@@ -76,18 +71,5 @@ public class NodeProviderFactory {
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT,
                         String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT.getMessage(), sourceType)));
-    }
-
-    /**
-     * Create extract nodes from the given sources.
-     */
-    public static List<ExtractNode> createExtractNodes(List<StreamSource> sourceInfos) {
-        if (CollectionUtils.isEmpty(sourceInfos)) {
-            return Lists.newArrayList();
-        }
-        return sourceInfos.stream().map(v -> {
-            String sourceType = v.getSourceType();
-            return getExtractNodeProvider(sourceType).createNode(v);
-        }).collect(Collectors.toList());
     }
 }

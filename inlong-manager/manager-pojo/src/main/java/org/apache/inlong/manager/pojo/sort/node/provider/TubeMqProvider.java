@@ -15,45 +15,46 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node.extract;
+package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SourceType;
-import org.apache.inlong.manager.pojo.sort.node.ExtractNodeProvider;
-import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSource;
+import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
+import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating Mongo extract nodes.
+ * The Provider for creating TubeMQ extract nodes.
  */
-public class MongoProvider implements ExtractNodeProvider {
+public class TubeMqProvider implements ExtractNodeProvider {
 
     @Override
     public Boolean accept(String sourceType) {
-        return SourceType.MONGODB.equals(sourceType);
+        return SourceType.TUBEMQ.equals(sourceType);
     }
 
     @Override
-    public ExtractNode createNode(StreamNode streamNodeInfo) {
-        MongoDBSource source = (MongoDBSource) streamNodeInfo;
-        List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
+    public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
+        TubeMQSource source = (TubeMQSource) streamNodeInfo;
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName());
         Map<String, String> properties = parseProperties(source.getProperties());
 
-        return new MongoExtractNode(
+        return new TubeMQExtractNode(
                 source.getSourceName(),
                 source.getSourceName(),
                 fieldInfos,
                 null,
                 properties,
-                source.getCollection(),
-                source.getHosts(),
-                source.getUsername(),
-                source.getPassword(),
-                source.getDatabase());
+                source.getMasterRpc(),
+                source.getTopic(),
+                source.getSerializationType(),
+                source.getGroupId(),
+                source.getSessionKey(),
+                source.getTid());
     }
 }

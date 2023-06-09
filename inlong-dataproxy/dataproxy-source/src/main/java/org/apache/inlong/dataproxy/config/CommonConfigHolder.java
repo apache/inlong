@@ -72,7 +72,12 @@ public class CommonConfigHolder {
     private static final String KEY_META_CONFIG_SYNC_INTERVAL_MS = "meta.config.sync.interval.ms";
     private static final String KEY_CONFIG_CHECK_INTERVAL_MS = "configCheckInterval";
     public static final long VAL_DEF_CONFIG_SYNC_INTERVAL_MS = 60000L;
-    // Whether to accept messages without mapping between groupId/streamId and topic
+    public static final long VAL_MIN_CONFIG_SYNC_INTERVAL_MS = 10000L;
+    // whether to startup using the local metadata.json file without connecting to the Manager
+    private static final String KEY_ENABLE_STARTUP_USING_LOCAL_META_FILE =
+            "startup.using.local.meta.file.enable";
+    public static final boolean VAL_DEF_ENABLE_STARTUP_USING_LOCAL_META_FILE = false;
+    // whether to accept messages without mapping between groupId/streamId and topic
     public static final String KEY_NOTFOUND_TOPIC_ACCEPT = "source.topic.notfound.accept";
     public static final boolean VAL_DEF_NOTFOUND_TOPIC_ACCEPT = false;
     // whether enable whitelist, optional field.
@@ -147,6 +152,7 @@ public class CommonConfigHolder {
     private IManagerIpListParser ipListParser = null;
     private String managerAuthSecretId = "";
     private String managerAuthSecretKey = "";
+    private boolean enableStartupUsingLocalMetaFile = VAL_DEF_ENABLE_STARTUP_USING_LOCAL_META_FILE;
     private long metaConfigSyncInvlMs = VAL_DEF_CONFIG_SYNC_INTERVAL_MS;
     private boolean enableAudit = VAL_DEF_ENABLE_AUDIT;
     private final HashSet<String> auditProxys = new HashSet<>();
@@ -301,6 +307,10 @@ public class CommonConfigHolder {
         return maxBufferQueueSizeKb;
     }
 
+    public boolean isEnableStartupUsingLocalMetaFile() {
+        return enableStartupUsingLocalMetaFile;
+    }
+
     public String getEventHandler() {
         return eventHandler;
     }
@@ -360,7 +370,15 @@ public class CommonConfigHolder {
             tmpValue = this.props.get(KEY_CONFIG_CHECK_INTERVAL_MS);
         }
         if (StringUtils.isNotEmpty(tmpValue)) {
-            this.metaConfigSyncInvlMs = NumberUtils.toLong(tmpValue.trim(), VAL_DEF_CONFIG_SYNC_INTERVAL_MS);
+            long tmpSyncInvMs = NumberUtils.toLong(tmpValue.trim(), VAL_DEF_CONFIG_SYNC_INTERVAL_MS);
+            if (tmpSyncInvMs >= VAL_MIN_CONFIG_SYNC_INTERVAL_MS) {
+                this.metaConfigSyncInvlMs = tmpSyncInvMs;
+            }
+        }
+        // read enable startup using local meta file
+        tmpValue = this.props.get(KEY_ENABLE_STARTUP_USING_LOCAL_META_FILE);
+        if (StringUtils.isNotEmpty(tmpValue)) {
+            this.enableStartupUsingLocalMetaFile = "TRUE".equalsIgnoreCase(tmpValue.trim());
         }
         // read whether accept msg without topic
         tmpValue = this.props.get(KEY_NOTFOUND_TOPIC_ACCEPT);

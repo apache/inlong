@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort.node;
+package org.apache.inlong.manager.pojo.sort.node.base;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
@@ -44,29 +44,21 @@ import java.util.stream.Collectors;
 public interface ExtractNodeProvider extends NodeProvider {
 
     /**
-     * Determines whether the current instance matches the specified type.
-     *
-     * @param sourceType the specified source type
-     * @return whether the current instance matches the specified type
-     */
-    Boolean accept(String sourceType);
-
-    /**
      * Create extract node by stream node info
      *
      * @param nodeInfo stream node info
      * @return the extract node
      */
-    ExtractNode createNode(StreamNode nodeInfo);
+    ExtractNode createExtractNode(StreamNode nodeInfo);
 
     /**
-     * Parse FieldInfos
+     * Parse StreamFieldInfos
      *
      * @param streamFields The stream fields
      * @param nodeId The node id
      * @return FieldInfo list
      */
-    default List<FieldInfo> parseFieldInfos(List<StreamField> streamFields, String nodeId) {
+    default List<FieldInfo> parseStreamFieldInfos(List<StreamField> streamFields, String nodeId) {
         // Filter constant fields
         return streamFields.stream().filter(s -> Objects.isNull(s.getFieldValue()))
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, nodeId))

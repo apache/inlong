@@ -192,6 +192,7 @@ public abstract class AbsV0MsgCodec {
         headers.put(ConfigConstants.MSG_COUNTER_KEY, String.valueOf(msgCount));
         headers.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V0.getName());
         headers.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
+        headers.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
         // add extra key-value information
         String pkgTimeStr = attrMap.get(ConfigConstants.PKG_TIME_KEY);
         if (StringUtils.isBlank(pkgTimeStr)) {

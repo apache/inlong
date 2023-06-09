@@ -26,10 +26,12 @@ import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
 import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigHolder;
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.CacheType;
 import org.apache.inlong.dataproxy.config.pojo.DataType;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 
 import com.google.gson.Gson;
@@ -54,8 +56,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_NAMESPACE;
 
 /**
  * Json to object
@@ -145,12 +145,9 @@ public class MetaConfigHolder extends ConfigHolder {
     }
 
     public boolean updateConfigMap(String inDataMd5, String inDataJsonStr) {
-        if (StringUtils.isBlank(inDataMd5) || StringUtils.isBlank(inDataJsonStr)) {
-            return false;
-        }
-        if (inDataMd5.equalsIgnoreCase(dataMd5)) {
-            LOG.info("Update json {}, but the stored md5sum {} is equals to changed md5sum {}",
-                    getFileName(), dataMd5, inDataMd5);
+        if (StringUtils.isBlank(inDataMd5)
+                || StringUtils.isBlank(inDataJsonStr)
+                || inDataMd5.equalsIgnoreCase(dataMd5)) {
             return false;
         }
         if (storeConfigToFile(inDataJsonStr)) {
@@ -210,6 +207,12 @@ public class MetaConfigHolder extends ConfigHolder {
             DataProxyCluster clusterObj = metaConfig.getData();
             if (clusterObj == null) {
                 LOG.warn("Load failed json config from {}, malformed content, data is null", getFileName());
+                return false;
+            }
+            if (!CommonConfigHolder.getInstance().isEnableStartupUsingLocalMetaFile()
+                    && !ConfigManager.handshakeManagerOk.get()) {
+                LOG.info("Failed to load json config from {}, don't obtain metadata from the Manager,"
+                        + " and the startup via the cache file is false", getFileName());
                 return false;
             }
             // update cache data
@@ -333,6 +336,7 @@ public class MetaConfigHolder extends ConfigHolder {
         String groupId;
         String streamId;
         String topicName;
+        String tenant;
         String nameSpace;
         for (InLongIdObject idObject : inLongIds) {
             if (idObject == null
@@ -359,19 +363,23 @@ public class MetaConfigHolder extends ConfigHolder {
             if (index >= 0) {
                 topicName = topicName.substring(index + 1).trim();
             }
-            nameSpace = idObject.getParams().getOrDefault(KEY_NAMESPACE, "");
+            tenant = idObject.getParams().getOrDefault(ConfigConstants.KEY_TENANT, "");
+            nameSpace = idObject.getParams().getOrDefault(ConfigConstants.KEY_NAMESPACE, "");
+            if (StringUtils.isBlank(idObject.getTopic())) {
+                // namespace field must exist and value not be empty,
+                // otherwise it is an illegal configuration item.
+                continue;
+            }
             if (mqType.equals(CacheType.TUBE)) {
-                if (StringUtils.isNotBlank(nameSpace)) {
-                    topicName = nameSpace;
-                }
+                topicName = nameSpace;
             } else if (mqType.equals(CacheType.KAFKA)) {
-                if (StringUtils.isNotBlank(nameSpace)) {
+                if (topicName.equals(streamId)) {
                     topicName = String.format(Constants.DEFAULT_KAFKA_TOPIC_FORMAT, nameSpace, topicName);
                 }
             }
             IdTopicConfig tmpConfig = new IdTopicConfig();
             tmpConfig.setInlongGroupIdAndStreamId(groupId, streamId);
-            tmpConfig.setNameSpace(nameSpace);
+            tmpConfig.setTenantAndNameSpace(tenant, nameSpace);
             tmpConfig.setTopicName(topicName);
             tmpConfig.setParams(idObject.getParams());
             tmpConfig.setDataType(DataType.convert(
@@ -384,7 +392,7 @@ public class MetaConfigHolder extends ConfigHolder {
                     && tmpTopicConfigMap.get(tmpConfig.getInlongGroupId()) == null) {
                 IdTopicConfig tmpConfig2 = new IdTopicConfig();
                 tmpConfig2.setInlongGroupIdAndStreamId(groupId, "");
-                tmpConfig2.setNameSpace(nameSpace);
+                tmpConfig.setTenantAndNameSpace(tenant, nameSpace);
                 tmpConfig2.setTopicName(topicName);
                 tmpConfig2.setDataType(tmpConfig.getDataType());
                 tmpConfig2.setFieldDelimiter(tmpConfig.getFieldDelimiter());

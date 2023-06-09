@@ -28,6 +28,9 @@ import java.util.Base64;
 public class BasicAuth {
 
     public static final String BASIC_AUTH_HEADER = "Authorization";
+    public static final String BASIC_AUTH_TENANT_HEADER = "Tenant";
+
+    public static final String DEFAULT_TENANT = "public";
     public static final String BASIC_AUTH_PREFIX = "Basic";
     public static final String BASIC_AUTH_SEPARATOR = " ";
     public static final String BASIC_AUTH_JOINER = ":";
