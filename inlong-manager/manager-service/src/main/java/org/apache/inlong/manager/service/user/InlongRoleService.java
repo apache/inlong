@@ -32,4 +32,6 @@ public interface InlongRoleService {
     boolean update(InlongRoleRequest request, String operator);
 
     InlongRoleInfo get(int id);
+
+    InlongRoleInfo getByName(String name);
 }

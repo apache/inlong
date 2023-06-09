@@ -84,4 +84,13 @@ public class InlongRoleServiceImpl implements InlongRoleService {
         InlongUserRoleEntity entity = inlongUserMapper.selectById(id);
         return CommonBeanUtils.copyProperties(entity, InlongRoleInfo::new);
     }
+
+    @Override
+    public InlongRoleInfo getByName(String name) {
+        InlongUserRoleEntity entity = inlongUserMapper.selectByName(name);
+        if (entity == null) {
+            return null;
+        }
+        return CommonBeanUtils.copyProperties(entity, InlongRoleInfo::new);
+    }
 }

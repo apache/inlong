@@ -48,12 +48,19 @@
         where id = #{id,jdbcType=INTEGER}
     </select>
 
+    <select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_user_role
+        where is_deleted = 0
+        and user_name = #{username,jdbcType=VARCHAR}
+    </select>
+
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongUserRoleEntity">
         update inlong_user_role
         set user_name  = #{username,jdbcType=VARCHAR},
             role_code  = #{roleCode,jdbcType=VARCHAR},
             disabled   = #{disabled,jdbcType=SMALLINT},
-            is_deleted = #{isDeleted,jdbcType=INTEGER},
             modifier   = #{modifier,jdbcType=VARCHAR},
             version    = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}

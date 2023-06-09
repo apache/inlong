@@ -19,15 +19,21 @@ package org.apache.inlong.manager.web.auth;
 
 import org.apache.inlong.manager.common.auth.InlongShiro;
 import org.apache.inlong.manager.common.util.SHAUtils;
+import org.apache.inlong.manager.service.tenant.InlongTenantService;
+import org.apache.inlong.manager.service.user.InlongRoleService;
+import org.apache.inlong.manager.service.user.TenantRoleService;
 import org.apache.inlong.manager.service.user.UserService;
 import org.apache.inlong.manager.web.auth.openapi.OpenAPIAuthenticatingRealm;
 import org.apache.inlong.manager.web.auth.openapi.OpenAPIFilter;
+import org.apache.inlong.manager.web.auth.tenant.TenantAuthenticatingFilter;
+import org.apache.inlong.manager.web.auth.tenant.TenantAuthenticatingRealm;
 import org.apache.inlong.manager.web.auth.web.AuthenticationFilter;
 import org.apache.inlong.manager.web.auth.web.WebAuthorizingRealm;
 
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
@@ -58,8 +64,19 @@ public class InlongShiroImpl implements InlongShiro {
     private static final String FILTER_NAME_WEB = "authWeb";
     private static final String FILTER_NAME_API = "authAPI";
 
+    private static final String FILTER_NAME_TENANT = "authTenant";
+
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private InlongRoleService inlongRoleService;
+
+    @Autowired
+    private TenantRoleService tenantRoleService;
+
+    @Autowired
+    private InlongTenantService tenantService;
 
     @Value("${openapi.auth.enabled:false}")
     private Boolean openAPIAuthEnabled;
@@ -74,7 +91,9 @@ public class InlongShiroImpl implements InlongShiro {
         AuthorizingRealm webRealm = new WebAuthorizingRealm(userService);
         webRealm.setCredentialsMatcher(getCredentialsMatcher());
         Realm apiRealm = new OpenAPIAuthenticatingRealm(userService);
-        return Arrays.asList(webRealm, apiRealm);
+        Realm tenantRealm = new TenantAuthenticatingRealm(tenantRoleService, inlongRoleService,
+                userService, tenantService);
+        return Arrays.asList(webRealm, apiRealm, tenantRealm);
     }
 
     @Override
@@ -116,13 +135,16 @@ public class InlongShiroImpl implements InlongShiro {
         // openapi
         if (openAPIAuthEnabled) {
             filters.put(FILTER_NAME_API, new OpenAPIFilter());
-            pathDefinitions.put("/openapi/**/*", FILTER_NAME_API);
+            pathDefinitions.put("/openapi/**/*", genFiltersInOrder(FILTER_NAME_API, FILTER_NAME_TENANT));
         } else {
             pathDefinitions.put("/openapi/**/*", "anon");
         }
 
         // other web
-        pathDefinitions.put("/**", FILTER_NAME_WEB);
+        pathDefinitions.put("/**", genFiltersInOrder(FILTER_NAME_WEB, FILTER_NAME_TENANT));
+
+        // tenant filter
+        filters.put(FILTER_NAME_TENANT, new TenantAuthenticatingFilter());
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(pathDefinitions);
         return shiroFilterFactoryBean;
@@ -134,5 +156,18 @@ public class InlongShiroImpl implements InlongShiro {
                 new AuthorizationAttributeSourceAdvisor();
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
         return authorizationAttributeSourceAdvisor;
+    }
+
+    private String genFiltersInOrder(String... filterNames) {
+        if (filterNames.length == 1) {
+            return filterNames[0];
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (String filterName : filterNames) {
+            sb.append(filterName).append(",");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
     }
 }

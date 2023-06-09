@@ -79,7 +79,6 @@
             tenant     = #{tenant,jdbcType=VARCHAR},
             role_code  = #{roleCode,jdbcType=VARCHAR},
             disabled   = #{disabled,jdbcType=SMALLINT},
-            is_deleted = #{isDeleted,jdbcType=INTEGER},
             modifier   = #{modifier,jdbcType=VARCHAR},
             version    = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
@@ -91,4 +90,13 @@
         from tenant_user_role
         where id = #{id,jdbcType=INTEGER}
     </delete>
+    
+    <select id="selectByNameAndTenant" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tenant_user_role
+        where is_deleted = 0
+        and user_name = #{username, jdbcType=VARCHAR}
+        and tenant = #{tenant, jdbcType=VARCHAR}
+    </select>
 </mapper>

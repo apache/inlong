@@ -30,6 +30,8 @@ public interface InlongUserRoleEntityMapper {
 
     InlongUserRoleEntity selectById(Integer id);
 
+    InlongUserRoleEntity selectByName(String userName);
+
     int updateById(InlongUserRoleEntity record);
 
     Page<InlongUserRoleEntity> selectByCondition(InlongRolePageRequest request);

@@ -45,6 +45,9 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     @Override
     public InlongTenantInfo get(String name) {
         InlongTenantEntity entity = inlongTenantEntityMapper.selectByName(name);
+        if (entity == null) {
+            return null;
+        }
         return CommonBeanUtils.copyProperties(entity, InlongTenantInfo::new);
     }
 

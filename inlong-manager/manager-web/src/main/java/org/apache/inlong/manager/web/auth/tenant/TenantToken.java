@@ -15,28 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.web.auth.tenant;
 
-import org.apache.inlong.manager.dao.entity.TenantUserRoleEntity;
-import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import org.apache.shiro.authc.AuthenticationToken;
 
-import com.github.pagehelper.Page;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
+@Data
+@AllArgsConstructor
+public class TenantToken implements AuthenticationToken {
 
-@Repository
-public interface TenantUserRoleEntityMapper {
+    private String userName;
+    private String tenant;
 
-    int insert(TenantUserRoleEntity record);
+    @Override
+    public Object getPrincipal() {
+        return userName;
+    }
 
-    TenantUserRoleEntity selectById(Integer id);
-
-    TenantUserRoleEntity selectByNameAndTenant(@Param("username") String username, @Param("tenant") String tenant);
-
-    Page<TenantUserRoleEntity> listByCondition(TenantRolePageRequest request);
-
-    int updateById(TenantUserRoleEntity record);
-
-    int deleteById(Integer id);
-
+    @Override
+    public Object getCredentials() {
+        return tenant;
+    }
 }

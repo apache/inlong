@@ -99,6 +99,18 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     @Override
     public TenantRoleInfo get(int id) {
         TenantUserRoleEntity entity = tenantUserRoleEntityMapper.selectById(id);
+        if (entity == null) {
+            return null;
+        }
+        return CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new);
+    }
+
+    @Override
+    public TenantRoleInfo getByNameAndTenant(String name, String tenant) {
+        TenantUserRoleEntity entity = tenantUserRoleEntityMapper.selectByNameAndTenant(name, tenant);
+        if (entity == null) {
+            return null;
+        }
         return CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new);
     }
 
