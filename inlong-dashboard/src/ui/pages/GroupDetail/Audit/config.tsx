@@ -151,7 +151,7 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
         requestParams: {
           formatResult: result =>
             result?.list.map(item => ({
-              label: item.sinkName,
+              label: item.sinkName + ` ( ${sinks.find(c => c.value === item.sinkType)?.label} )`,
               value: item.id,
             })) || [],
         },
