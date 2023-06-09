@@ -117,7 +117,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 return true;
             }
         } catch (Exception ex) {
-            log.error("reportHeartbeat failed for url {}", url, ex);
+            log.error("reportHeartbeat failed for url {}, exception message is {}", url, ex.getMessage());
         }
         return false;
     }

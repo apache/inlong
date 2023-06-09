@@ -107,8 +107,7 @@ public class AuditUtils {
      */
     public static long getLogTime(Event event) {
         if (event != null) {
-            Map<String, String> headers = event.getHeaders();
-            return getLogTime(headers);
+            return getLogTime(event.getHeaders());
         }
         return System.currentTimeMillis();
     }

@@ -47,6 +47,7 @@ public class SimpleHttpSource extends BaseSource implements Configurable {
 
     public SimpleHttpSource() {
         super();
+        ConfigManager.getInstance().regIPVisitConfigChgCallback(this);
     }
 
     @Override

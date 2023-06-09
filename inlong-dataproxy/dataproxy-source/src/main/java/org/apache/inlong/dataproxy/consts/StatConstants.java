@@ -19,15 +19,30 @@ package org.apache.inlong.dataproxy.consts;
 
 public class StatConstants {
 
-    public static final java.lang.String EVENT_SERVICE_CLOSED = "source.srvclosed";
-    public static final java.lang.String EVENT_SERVICE_UNREADY = "sink.unready";
-    public static final java.lang.String EVENT_VISITIP_ILLEGAL = "links.illegal";
-    public static final java.lang.String EVENT_NOTOPIC = "config.notopic";
+    public static final java.lang.String EVENT_SERVICE_CLOSED = "service.closed";
+    public static final java.lang.String EVENT_SERVICE_SINK_UNREADY = "service.sink.unready";
+    // visit
+    public static final java.lang.String EVENT_VISIT_ILLEGAL = "visit.illegal";
+    public static final java.lang.String EVENT_VISIT_OVERMAX = "visit.overmax";
+    public static final java.lang.String EVENT_VISIT_LINKIN = "visit.linkin";
+    public static final java.lang.String EVENT_VISIT_LINKOUT = "visit.linkout";
+    public static final java.lang.String EVENT_VISIT_EXCEPTION = "visit.exception";
+    // configure
+    public static final java.lang.String EVENT_CONFIG_TOPIC_MISSING = "config.topic.missing";
     // source
-    public static final java.lang.String EVENT_LINKS_OVERMAX = "links.overmax";
-    public static final java.lang.String EVENT_LINKS_IN = "links.linkin";
-    public static final java.lang.String EVENT_LINKS_OUT = "links.linkout";
-    public static final java.lang.String EVENT_LINKS_EXCEPTION = "links.exception";
+    public static final java.lang.String EVENT_MSG_DECODE_FAIL = "msg.decode.failure";
+    public static final java.lang.String EVENT_MSG_METHOD_INVALID = "msg.method.invalid";
+    public static final java.lang.String EVENT_MSG_PATH_INVALID = "msg.path.invalid";
+    public static final java.lang.String EVENT_MSG_CONTYPE_INVALID = "msg.content.invalid";
+    public static final java.lang.String EVENT_MSG_GROUPID_MISSING = "msg.groupid.missing";
+    public static final java.lang.String EVENT_MSG_STREAMID_MISSING = "msg.streamid.missing";
+    public static final java.lang.String EVENT_MSG_BODY_MISSING = "msg.body.missing";
+    public static final java.lang.String EVENT_MSG_BODY_BLANK = "msg.body.blank";
+    public static final java.lang.String EVENT_MSG_BODY_OVERMAX = "msg.body.overmax";
+    public static final java.lang.String EVENT_MSG_HB_SUCCESS = "msg.hb.success";
+    public static final java.lang.String EVENT_MSG_POST_SUCCESS = "msg.post.success";
+    public static final java.lang.String EVENT_MSG_POST_FAILURE = "msg.post.failure";
+
     public static final java.lang.String EVENT_EMPTY = "socketmsg.empty";
     public static final java.lang.String EVENT_OVERMAXLEN = "socketmsg.overmaxlen";
     public static final java.lang.String EVENT_NOTEQUALLEN = "socketmsg.notequallen";
@@ -46,20 +61,6 @@ public class StatConstants {
     public static final java.lang.String EVENT_POST_SUCCESS = "socketmsg.success";
     public static final java.lang.String EVENT_POST_DROPPED = "socketmsg.dropped";
     // http
-    public static final java.lang.String EVENT_HTTP_DECFAIL = "httpmsg.decfailure";
-    public static final java.lang.String EVENT_HTTP_INVALIDMETHOD = "httpmsg.invmethod";
-    public static final java.lang.String EVENT_HTTP_BLANKURI = "httpmsg.blankuri";
-    public static final java.lang.String EVENT_HTTP_URIDECFAIL = "httpmsg.decurifail";
-    public static final java.lang.String EVENT_HTTP_INVALIDURI = "httpmsg.invuri";
-    public static final java.lang.String EVENT_HTTP_ILLEGAL_VISIT = "httpmsg.illegal";
-    public static final java.lang.String EVENT_HTTP_HB_SUCCESS = "httphb.success";
-    public static final java.lang.String EVENT_HTTP_WITHOUTGROUPID = "httpmsg.wogroupid";
-    public static final java.lang.String EVENT_HTTP_WITHOUTSTREAMID = "httpmsg.wostreamid";
-    public static final java.lang.String EVENT_HTTP_NOBODY = "httpmsg.nobody";
-    public static final java.lang.String EVENT_HTTP_EMPTYBODY = "httpmsg.emptybody";
-    public static final java.lang.String EVENT_HTTP_BODYOVERMAXLEN = "httpmsg.bodyovermax";
-    public static final java.lang.String EVENT_HTTP_POST_SUCCESS = "httpmsg.success";
-    public static final java.lang.String EVENT_HTTP_POST_DROPPED = "httpmsg.dropped";
 
     public static final java.lang.String EVENT_SINK_NOUID = "sink.nouid";
     public static final java.lang.String EVENT_SINK_NOTOPIC = "sink.notopic";

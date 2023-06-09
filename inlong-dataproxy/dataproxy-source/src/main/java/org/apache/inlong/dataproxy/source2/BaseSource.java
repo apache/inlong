@@ -23,16 +23,20 @@ import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.admin.ProxyServiceMBean;
 import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source2.httpMsg.InLongHttpMsgHandler;
+import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.ConfStringUtils;
 import org.apache.inlong.dataproxy.utils.FailoverChannelProcessorHolder;
 import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 
 import com.google.common.base.Preconditions;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
@@ -52,6 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -61,6 +66,7 @@ public abstract class BaseSource
         extends
             AbstractSource
         implements
+            ConfigUpdateCallback,
             ProxyServiceMBean,
             EventDrivenSource,
             Configurable {
@@ -280,6 +286,34 @@ public abstract class BaseSource
             this.workerGroup.shutdownGracefully();
         }
         logger.info("[STOP {} SOURCE]{} stopped", this.getProtocolName(), this.getName());
+    }
+
+    @Override
+    public void update() {
+        // check current all links
+        if (ConfigManager.getInstance().needChkIllegalIP()) {
+            int cnt = 0;
+            Channel channel;
+            String strRemoteIP;
+            long startTime = System.currentTimeMillis();
+            Iterator<Channel> iterator = allChannels.iterator();
+            while (iterator.hasNext()) {
+                channel = iterator.next();
+                strRemoteIP = AddressUtils.getChannelRemoteIP(channel);
+                if (strRemoteIP == null) {
+                    continue;
+                }
+                if (ConfigManager.getInstance().isIllegalIP(strRemoteIP)) {
+                    channel.disconnect();
+                    channel.close();
+                    allChannels.remove(channel);
+                    cnt++;
+                    logger.error(strRemoteIP + " is Illegal IP, so disconnect it !");
+                }
+            }
+            logger.info("Source {} channel check, disconnects {} Illegal channels, waist {} ms",
+                    getName(), cnt, (System.currentTimeMillis() - startTime));
+        }
     }
 
     /**

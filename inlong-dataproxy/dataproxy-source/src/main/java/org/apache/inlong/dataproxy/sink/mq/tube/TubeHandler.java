@@ -106,16 +106,16 @@ public class TubeHandler implements MessageQueueHandler {
     }
 
     @Override
-    public void publishTopic(Set<String> topicSet) {
-        if (this.producer == null || topicSet == null || topicSet.isEmpty()) {
+    public void publishTopic(Set<String> newTopicSet) {
+        if (this.producer == null || newTopicSet == null || newTopicSet.isEmpty()) {
             return;
         }
         Set<String> published;
         try {
-            published = producer.publish(topicSet);
-            topicSet.addAll(published);
+            published = producer.publish(newTopicSet);
+            this.topicSet.addAll(newTopicSet);
             LOG.info("Publish topics to {}, need publish are {}, published are {}",
-                    this.clusterName, topicSet, published);
+                    this.clusterName, newTopicSet, published);
         } catch (Throwable e) {
             LOG.warn("Publish topics to {} failure", this.clusterName, e);
         }

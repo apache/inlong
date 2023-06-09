@@ -148,7 +148,7 @@ public class CodecTextMsg extends AbsV0MsgCodec {
             if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
                 tmpTopicName = source.getDefTopic();
             } else {
-                source.fileMetricEventInc(StatConstants.EVENT_NOTOPIC);
+                source.fileMetricEventInc(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
                 this.errCode = DataProxyErrCode.TOPIC_IS_BLANK;
                 this.errMsg = String.format(
                         "Topic is null for inlongGroupId=(%s), inlongStreamId=(%s)", tmpGroupId, tmpStreamId);
