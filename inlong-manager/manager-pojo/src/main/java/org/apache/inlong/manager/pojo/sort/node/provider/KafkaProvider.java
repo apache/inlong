@@ -63,31 +63,16 @@ public class KafkaProvider implements ExtractNodeProvider, LoadNodeProvider {
         List<FieldInfo> fieldInfos = parseStreamFieldInfos(kafkaSource.getFieldList(), kafkaSource.getSourceName());
         Map<String, String> properties = parseProperties(kafkaSource.getProperties());
 
-        String topic = kafkaSource.getTopic();
-        String bootstrapServers = kafkaSource.getBootstrapServers();
-
         Format format = parsingFormat(
                 kafkaSource.getSerializationType(),
                 kafkaSource.isWrapWithInlongMsg(),
                 kafkaSource.getDataSeparator(),
                 kafkaSource.isIgnoreParseErrors());
 
-        KafkaOffset kafkaOffset = KafkaOffset.forName(kafkaSource.getAutoOffsetReset());
-        KafkaScanStartupMode startupMode;
-        switch (kafkaOffset) {
-            case EARLIEST:
-                startupMode = KafkaScanStartupMode.EARLIEST_OFFSET;
-                break;
-            case SPECIFIC:
-                startupMode = KafkaScanStartupMode.SPECIFIC_OFFSETS;
-                break;
-            case TIMESTAMP_MILLIS:
-                startupMode = KafkaScanStartupMode.TIMESTAMP_MILLIS;
-                break;
-            case LATEST:
-            default:
-                startupMode = KafkaScanStartupMode.LATEST_OFFSET;
-        }
+        KafkaScanStartupMode startupMode = parseStartupMode(kafkaSource.getAutoOffsetReset());
+        String topic = kafkaSource.getTopic();
+        String bootstrapServers = kafkaSource.getBootstrapServers();
+
         final String primaryKey = kafkaSource.getPrimaryKey();
         String groupId = kafkaSource.getGroupId();
         String partitionOffset = kafkaSource.getPartitionOffsets();
@@ -113,11 +98,61 @@ public class KafkaProvider implements ExtractNodeProvider, LoadNodeProvider {
         Map<String, String> properties = parseProperties(kafkaSink.getProperties());
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(kafkaSink.getSinkFieldList(), kafkaSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(kafkaSink.getSinkFieldList(), constantFieldMap);
-        Integer sinkParallelism = null;
-        if (StringUtils.isNotEmpty(kafkaSink.getPartitionNum())) {
-            sinkParallelism = Integer.parseInt(kafkaSink.getPartitionNum());
+
+        String partitionNum = kafkaSink.getPartitionNum();
+        Integer sinkParallelism = StringUtils.isNotBlank(partitionNum) ? Integer.parseInt(partitionNum) : null;
+        Format format = parseFormat(kafkaSink.getSerializationType());
+
+        return new KafkaLoadNode(
+                kafkaSink.getSinkName(),
+                kafkaSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                Lists.newArrayList(),
+                null,
+                kafkaSink.getTopicName(),
+                kafkaSink.getBootstrapServers(),
+                format,
+                sinkParallelism,
+                properties,
+                kafkaSink.getPrimaryKey());
+    }
+
+    /**
+     * parse Startup Mode
+     *
+     * @param autoOffsetReset The strategy of auto offset reset, including earliest, specific, latest (the
+     *         default), none
+     * @return kafka scan startup mode
+     */
+    private KafkaScanStartupMode parseStartupMode(String autoOffsetReset) {
+        KafkaOffset kafkaOffset = KafkaOffset.forName(autoOffsetReset);
+        KafkaScanStartupMode startupMode;
+        switch (kafkaOffset) {
+            case EARLIEST:
+                startupMode = KafkaScanStartupMode.EARLIEST_OFFSET;
+                break;
+            case SPECIFIC:
+                startupMode = KafkaScanStartupMode.SPECIFIC_OFFSETS;
+                break;
+            case TIMESTAMP_MILLIS:
+                startupMode = KafkaScanStartupMode.TIMESTAMP_MILLIS;
+                break;
+            case LATEST:
+            default:
+                startupMode = KafkaScanStartupMode.LATEST_OFFSET;
         }
-        DataTypeEnum dataType = DataTypeEnum.forType(kafkaSink.getSerializationType());
+        return startupMode;
+    }
+
+    /**
+     * parse Format
+     *
+     * @param serializationType data serialization, support: json, canal, avro
+     * @return the format for serialized content
+     */
+    private Format parseFormat(String serializationType) {
+        DataTypeEnum dataType = DataTypeEnum.forType(serializationType);
         Format format;
         switch (dataType) {
             case CSV:
@@ -141,19 +176,6 @@ public class KafkaProvider implements ExtractNodeProvider, LoadNodeProvider {
             default:
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for Kafka", dataType));
         }
-
-        return new KafkaLoadNode(
-                kafkaSink.getSinkName(),
-                kafkaSink.getSinkName(),
-                fieldInfos,
-                fieldRelations,
-                Lists.newArrayList(),
-                null,
-                kafkaSink.getTopicName(),
-                kafkaSink.getBootstrapServers(),
-                format,
-                sinkParallelism,
-                properties,
-                kafkaSink.getPrimaryKey());
+        return format;
     }
 }
