@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
-import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.doris.DorisSink;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
@@ -25,13 +24,9 @@ import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
-import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.load.DorisLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -52,21 +47,8 @@ public class DorisProvider implements LoadNodeProvider {
         Map<String, String> properties = parseProperties(dorisSink.getProperties());
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(dorisSink.getSinkFieldList(), dorisSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(dorisSink.getSinkFieldList(), constantFieldMap);
-        Format format = null;
-        if (dorisSink.getSinkMultipleEnable() != null && dorisSink.getSinkMultipleEnable() && StringUtils.isNotBlank(
-                dorisSink.getSinkMultipleFormat())) {
-            DataTypeEnum dataType = DataTypeEnum.forType(dorisSink.getSinkMultipleFormat());
-            switch (dataType) {
-                case CANAL:
-                    format = new CanalJsonFormat();
-                    break;
-                case DEBEZIUM_JSON:
-                    format = new DebeziumJsonFormat();
-                    break;
-                default:
-                    throw new IllegalArgumentException(String.format("Unsupported dataType=%s for doris", dataType));
-            }
-        }
+        Format format = parsingSinkMultipleFormat(dorisSink.getSinkMultipleEnable(), dorisSink.getSinkMultipleFormat());
+
         return new DorisLoadNode(
                 dorisSink.getSinkName(),
                 dorisSink.getSinkName(),
