@@ -240,9 +240,9 @@ public class AuditServiceImpl implements AuditService {
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
                 try (Connection connection = ClickHouseConfig.getCkConnection();
-                     PreparedStatement statement =
+                        PreparedStatement statement =
                                 getAuditCkStatement(connection, groupId, streamId, auditId, request.getDt());
-                     ResultSet resultSet = statement.executeQuery()) {
+                        ResultSet resultSet = statement.executeQuery()) {
                     List<AuditInfo> auditSet = new ArrayList<>();
                     while (resultSet.next()) {
                         AuditInfo vo = new AuditInfo();
