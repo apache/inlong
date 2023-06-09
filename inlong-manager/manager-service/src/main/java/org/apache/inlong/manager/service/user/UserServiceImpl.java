@@ -167,15 +167,15 @@ public class UserServiceImpl implements UserService {
         result.setAccountType(entity.getAccountType());
         result.setVersion(entity.getVersion());
 
-        if (StringUtils.isNotBlank(entity.getSecretKey())/* && StringUtils.isNotBlank(entity.getPublicKey()) */) {
+        if (StringUtils.isNotBlank(entity.getSecretKey()) && StringUtils.isNotBlank(entity.getPublicKey())) {
             try {
                 // decipher according to stored key version
                 // note that if the version is null then the string is treated as unencrypted plain text
                 Integer version = entity.getEncryptVersion();
                 byte[] secretKeyBytes = AESUtils.decryptAsString(entity.getSecretKey(), version);
-                // byte[] publicKeyBytes = AESUtils.decryptAsString(entity.getPublicKey(), version);
+                byte[] publicKeyBytes = AESUtils.decryptAsString(entity.getPublicKey(), version);
                 result.setSecretKey(new String(secretKeyBytes, StandardCharsets.UTF_8));
-                // result.setPublicKey(new String(publicKeyBytes, StandardCharsets.UTF_8));
+                result.setPublicKey(new String(publicKeyBytes, StandardCharsets.UTF_8));
             } catch (Exception e) {
                 String errMsg = String.format("decryption error: %s", e.getMessage());
                 LOGGER.error(errMsg, e);
