@@ -278,6 +278,32 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
+    public InlongStreamBriefInfo getBrief(String groupId, String streamId, String operator) {
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // only the person in charges can query
+        userService.checkUser(entity.getInCharges(), operator,
+                ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
+        // get stream information
+        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        if (streamEntity == null) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
+        }
+        InlongStreamBriefInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamBriefInfo::new);
+        // Processing extParams
+        unpackExtParams(streamEntity.getExtParams(), streamInfo);
+        // Load fields
+        List<StreamField> streamFields = getStreamFields(groupId, streamId);
+        streamInfo.setFieldList(streamFields);
+        List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
+        List<InlongStreamExtInfo> extInfos = CommonBeanUtils.copyListProperties(extEntities, InlongStreamExtInfo::new);
+        streamInfo.setExtList(extInfos);
+        return streamInfo;
+    }
+
+    @Override
     public List<InlongStreamInfo> list(String groupId) {
         LOGGER.debug("begin to list inlong streams by groupId={}", groupId);
         List<InlongStreamEntity> inlongStreamEntityList = streamMapper.selectByGroupId(groupId);
@@ -785,6 +811,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     /**
      * Parse fields from CSV format
+     *
      * @param statement CSV statement
      * @return List of StreamField
      */
@@ -826,6 +853,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         }
         return fields;
     }
+
     private List<StreamField> parseFieldsBySql(String sql) throws JSQLParserException {
         CCJSqlParserManager pm = new CCJSqlParserManager();
         Statement statement = pm.parse(new StringReader(sql));
