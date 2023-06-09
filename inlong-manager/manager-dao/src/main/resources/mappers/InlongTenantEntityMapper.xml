@@ -146,4 +146,10 @@
     and is_deleted = 0
   </select>
 
+  <delete id="deleteById" parameterType="java.lang.Integer">
+    delete
+    from inlong_tenant
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
 </mapper>
