@@ -70,4 +70,10 @@ public class InlongStreamBriefInfo {
     @ApiModelProperty(value = "Sink brief list")
     private List<SinkBriefInfo> sinkList;
 
+    @ApiModelProperty(value = "Field list")
+    private List<StreamField> fieldList;
+
+    @ApiModelProperty(value = "Inlong stream Extension properties")
+    private List<InlongStreamExtInfo> extList;
+
 }
