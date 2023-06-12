@@ -18,15 +18,12 @@
 package org.apache.inlong.dataproxy.source2;
 
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.ConfStringUtils;
 import org.apache.inlong.dataproxy.utils.EventLoopUtil;
 
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.flume.Context;
@@ -35,12 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.Iterator;
 
 /**
  * Simple tcp source
  */
-public class SimpleTcpSource extends BaseSource implements Configurable, ConfigUpdateCallback {
+public class SimpleTcpSource extends BaseSource implements Configurable {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleTcpSource.class);
 
@@ -121,34 +117,6 @@ public class SimpleTcpSource extends BaseSource implements Configurable, ConfigU
     @Override
     public String getProtocolName() {
         return SourceConstants.SRC_PROTOCOL_TYPE_TCP;
-    }
-
-    @Override
-    public void update() {
-        // check current all links
-        if (ConfigManager.getInstance().needChkIllegalIP()) {
-            int cnt = 0;
-            Channel channel;
-            String strRemoteIP;
-            long startTime = System.currentTimeMillis();
-            Iterator<Channel> iterator = allChannels.iterator();
-            while (iterator.hasNext()) {
-                channel = iterator.next();
-                strRemoteIP = AddressUtils.getChannelRemoteIP(channel);
-                if (strRemoteIP == null) {
-                    continue;
-                }
-                if (ConfigManager.getInstance().isIllegalIP(strRemoteIP)) {
-                    channel.disconnect();
-                    channel.close();
-                    allChannels.remove(channel);
-                    cnt++;
-                    logger.error(strRemoteIP + " is Illegal IP, so disconnect it !");
-                }
-            }
-            logger.info("Source {} channel check, disconnects {} Illegal channels, waist {} ms",
-                    getName(), cnt, (System.currentTimeMillis() - startTime));
-        }
     }
 
 }

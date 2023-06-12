@@ -193,31 +193,31 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        // check max allowed connection count
-        if (source.getAllChannels().size() >= source.getMaxConnections()) {
-            source.fileMetricEventInc(StatConstants.EVENT_LINKS_OVERMAX);
-            ctx.channel().disconnect();
-            ctx.channel().close();
-            logger.warn("{} refuse to connect = {} , connections = {}, maxConnections = {}",
-                    source.getName(), ctx.channel(), source.getAllChannels().size(), source.getMaxConnections());
-            return;
-        }
         // check illegal ip
         if (ConfigManager.getInstance().needChkIllegalIP()) {
             String strRemoteIp = AddressUtils.getChannelRemoteIP(ctx.channel());
             if (strRemoteIp != null
                     && ConfigManager.getInstance().isIllegalIP(strRemoteIp)) {
-                source.fileMetricEventInc(StatConstants.EVENT_VISITIP_ILLEGAL);
+                source.fileMetricEventInc(StatConstants.EVENT_VISIT_ILLEGAL);
                 ctx.channel().disconnect();
                 ctx.channel().close();
                 logger.error(strRemoteIp + " is Illegal IP, so refuse it !");
                 return;
             }
         }
+        // check max allowed connection count
+        if (source.getAllChannels().size() >= source.getMaxConnections()) {
+            source.fileMetricEventInc(StatConstants.EVENT_VISIT_OVERMAX);
+            ctx.channel().disconnect();
+            ctx.channel().close();
+            logger.warn("{} refuse to connect = {} , connections = {}, maxConnections = {}",
+                    source.getName(), ctx.channel(), source.getAllChannels().size(), source.getMaxConnections());
+            return;
+        }
         // add legal channel
         source.getAllChannels().add(ctx.channel());
         ctx.fireChannelActive();
-        source.fileMetricEventInc(StatConstants.EVENT_LINKS_IN);
+        source.fileMetricEventInc(StatConstants.EVENT_VISIT_LINKIN);
         logger.info("{} added new channel {}, current connections = {}, maxConnections = {}",
                 source.getName(), ctx.channel(), source.getAllChannels().size(), source.getMaxConnections());
     }
@@ -227,11 +227,12 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         logger.error("{} channel {} inactive", source.getName(), ctx.channel());
         ctx.fireChannelInactive();
         source.getAllChannels().remove(ctx.channel());
-        source.fileMetricEventInc(StatConstants.EVENT_LINKS_OUT);
+        source.fileMetricEventInc(StatConstants.EVENT_VISIT_LINKOUT);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        source.fileMetricEventInc(StatConstants.EVENT_VISIT_EXCEPTION);
         logger.error("{} channel {} throw exception", source.getName(), ctx.channel(), cause);
         ctx.fireExceptionCaught(cause);
         if (ctx.channel() != null) {
@@ -242,7 +243,6 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
                 //
             }
             source.getAllChannels().remove(ctx.channel());
-            source.fileMetricEventInc(StatConstants.EVENT_LINKS_EXCEPTION);
         }
         ctx.close();
     }
@@ -263,7 +263,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         }
         // check if the node is linked to the Manager.
         if (!ConfigManager.getInstance().isMqClusterReady()) {
-            source.fileMetricEventInc(StatConstants.EVENT_SERVICE_UNREADY);
+            source.fileMetricEventInc(StatConstants.EVENT_SERVICE_SINK_UNREADY);
             msgCodec.setFailureInfo(DataProxyErrCode.SINK_SERVICE_UNREADY);
             responseV0Msg(channel, msgCodec, strBuff);
             return;
@@ -418,7 +418,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
                 if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
                     topic = source.getDefTopic();
                 } else {
-                    source.fileMetricEventInc(StatConstants.EVENT_NOTOPIC);
+                    source.fileMetricEventInc(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
                     source.addMetric(false, event.getBody().length, event);
                     this.responsePackage(ctx, ProxySdk.ResultCode.ERR_ID_ERROR, packObject);
                     return;

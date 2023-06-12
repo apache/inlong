@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sort.node.base;
 
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
@@ -25,6 +26,9 @@ import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.formats.common.StringTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
+import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
+import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
@@ -96,5 +100,30 @@ public interface LoadNodeProvider extends NodeProvider {
                     }
                     return new FieldRelation(inputField, outputField);
                 }).collect(Collectors.toList());
+    }
+
+    /**
+     * Parse format
+     *
+     * @param multipleEnable whether to enable multi-write
+     * @param multipleFormat data serialization format
+     * @return the format for serialized content
+     */
+    default Format parsingSinkMultipleFormat(Boolean multipleEnable, String multipleFormat) {
+        Format format = null;
+        if (Boolean.TRUE.equals(multipleEnable) && StringUtils.isNotBlank(multipleFormat)) {
+            DataTypeEnum dataType = DataTypeEnum.forType(multipleFormat);
+            switch (dataType) {
+                case CANAL:
+                    format = new CanalJsonFormat();
+                    break;
+                case DEBEZIUM_JSON:
+                    format = new DebeziumJsonFormat();
+                    break;
+                default:
+                    throw new IllegalArgumentException(String.format("Unsupported dataType=%s", dataType));
+            }
+        }
+        return format;
     }
 }

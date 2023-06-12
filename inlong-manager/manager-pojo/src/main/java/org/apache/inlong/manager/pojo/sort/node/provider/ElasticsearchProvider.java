@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
-import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
@@ -26,13 +25,9 @@ import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
-import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -54,23 +49,9 @@ public class ElasticsearchProvider implements LoadNodeProvider {
         List<SinkField> sinkFieldList = elasticsearchSink.getSinkFieldList();
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(sinkFieldList, elasticsearchSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(sinkFieldList, constantFieldMap);
-        Format format = null;
-        if (elasticsearchSink.getSinkMultipleEnable() != null && elasticsearchSink.getSinkMultipleEnable()
-                && StringUtils.isNotBlank(
-                        elasticsearchSink.getSinkMultipleFormat())) {
-            DataTypeEnum dataType = DataTypeEnum.forType(elasticsearchSink.getSinkMultipleFormat());
-            switch (dataType) {
-                case CANAL:
-                    format = new CanalJsonFormat();
-                    break;
-                case DEBEZIUM_JSON:
-                    format = new DebeziumJsonFormat();
-                    break;
-                default:
-                    throw new IllegalArgumentException(
-                            String.format("Unsupported dataType=%s for elasticsearch", dataType));
-            }
-        }
+        Format format = parsingSinkMultipleFormat(elasticsearchSink.getSinkMultipleEnable(),
+                elasticsearchSink.getSinkMultipleFormat());
+
         return new ElasticsearchLoadNode(
                 elasticsearchSink.getSinkName(),
                 elasticsearchSink.getSinkName(),

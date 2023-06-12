@@ -86,6 +86,16 @@ public interface InlongStreamService {
     InlongStreamInfo get(String groupId, String streamId, UserInfo opInfo);
 
     /**
+     * Query the brief of the specified inlong stream
+     *
+     * @param groupId Inlong group id
+     * @param streamId Inlong stream id
+     * @param operator operator
+     * @return inlong stream brief
+     */
+    InlongStreamBriefInfo getBrief(String groupId, String streamId, String operator);
+
+    /**
      * List streams contained in one group
      *
      * @param groupId inlong group id.
@@ -237,7 +247,7 @@ public interface InlongStreamService {
     /**
      * Converts a statement to a streamFields
      *
-     * @param parseFieldRequest    parse field request
+     * @param parseFieldRequest parse field request
      * @return list of stream field
      */
     List<StreamField> parseFields(ParseFieldRequest parseFieldRequest);

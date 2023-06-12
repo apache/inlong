@@ -317,7 +317,7 @@ public class ConfigManager {
             }
             List<String> managerIpList = CommonConfigHolder.getInstance().getManagerHosts();
             if (managerIpList == null || managerIpList.size() == 0) {
-                LOG.error("Found remote manager ip list are empty, can't quest remote configure!");
+                LOG.error("Found manager ip list are empty, can't quest remote configure!");
                 return;
             }
             int managerIpSize = managerIpList.size();
@@ -333,10 +333,11 @@ public class ConfigManager {
          * reloadDataProxyConfig
          */
         private boolean reloadDataProxyConfig(String clusterName, String clusterTag, String host) {
+            String url = null;
             HttpPost httpPost = null;
             try {
-                String url =
-                        "http://" + host + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_GET_ALL_CONFIG_PATH;
+                url = "http://" + host + ConfigConstants.MANAGER_PATH
+                        + ConfigConstants.MANAGER_GET_ALL_CONFIG_PATH;
                 httpPost = new HttpPost(url);
                 httpPost.addHeader(HttpHeaders.CONNECTION, "close");
                 httpPost.addHeader(HttpHeaders.AUTHORIZATION, AuthUtils.genBasicAuth());
@@ -349,11 +350,12 @@ public class ConfigManager {
                 }
                 httpPost.setEntity(HttpUtils.getEntity(request));
                 // request with post
-                LOG.info("Start to request {} to get config info with params {}", url, request);
+                LOG.info("Start to request {} to get config info, with params {}", url, request);
                 CloseableHttpResponse response = httpClient.execute(httpPost);
                 String returnStr = EntityUtils.toString(response.getEntity());
                 if (response.getStatusLine().getStatusCode() != 200) {
-                    LOG.info("Failed to request {}, the response is {}", url, returnStr);
+                    LOG.warn("Failed to request {}, with params {}, the response is {}",
+                            url, request, returnStr);
                     return false;
                 }
                 LOG.info("End to request {} to get config info:{}", url, returnStr);
@@ -361,28 +363,33 @@ public class ConfigManager {
                 DataProxyConfigResponse proxyResponse =
                         gson.fromJson(returnStr, DataProxyConfigResponse.class);
                 if (!proxyResponse.isResult()) {
-                    LOG.info("Fail to get config info from url:{}, error code is {}", url, proxyResponse.getErrCode());
+                    LOG.warn("Fail to get config from url {}, with params {}, error code is {}",
+                            url, request, proxyResponse.getErrCode());
                     return false;
                 }
                 if (proxyResponse.getErrCode() != DataProxyConfigResponse.SUCC) {
-                    LOG.info("Get config info from url:{}, error code is {}", url, proxyResponse.getErrCode());
+                    if (proxyResponse.getErrCode() != DataProxyConfigResponse.NOUPDATE) {
+                        LOG.warn("Get config failure from url:{}, with params {}, error code is {}",
+                                url, request, proxyResponse.getErrCode());
+                    }
                     return true;
                 }
                 DataProxyCluster dataProxyCluster = proxyResponse.getData();
                 if (dataProxyCluster == null
                         || dataProxyCluster.getCacheClusterSet() == null
                         || dataProxyCluster.getCacheClusterSet().getCacheClusters().isEmpty()) {
-                    LOG.info("Get config info from url:{}, found cluster set is empty!", url);
+                    LOG.warn("Get config empty from url:{}, with params {}, return:{}, cluster is empty!",
+                            url, request, returnStr);
                     return true;
                 }
                 // update meta configure
                 if (configManager.updateMetaConfigInfo(proxyResponse.getMd5(), returnStr)) {
                     ConfigManager.handshakeManagerOk.set(true);
-                    LOG.info("Get meta config info and set handshake status is ok!");
+                    LOG.info("Get config success from manager and updated, set handshake status is ok!");
                 }
                 return true;
             } catch (Throwable ex) {
-                LOG.error("Request remote manager failure", ex);
+                LOG.error("Request manager {} failure, throw exception", url, ex);
                 return false;
             } finally {
                 if (httpPost != null) {

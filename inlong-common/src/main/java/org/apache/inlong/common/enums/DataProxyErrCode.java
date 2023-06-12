@@ -26,10 +26,17 @@ public enum DataProxyErrCode {
 
     SUCCESS(0, "Ok"),
 
-    SINK_SERVICE_UNREADY(1, "Service not ready"),
+    SINK_SERVICE_UNREADY(1, "Service sink not ready"),
     SERVICE_CLOSED(2, "Service closed"),
     CONF_SERVICE_UNREADY(3, "Configure Service not ready"),
     ILLEGAL_VISIT_IP(10, "Illegal visit ip"),
+
+    HTTP_DECODE_REQ_FAILURE(31, "Decode request failure"),
+    HTTP_UNSUPPORTED_METHOD(32, "Un-supported method"),
+    HTTP_REQ_URI_BLANK(33, "Request uri is blank"),
+    HTTP_DECODE_REQ_URI_FAILURE(34, "Decode uri failure"),
+    HTTP_UNSUPPORTED_SERVICE_URI(35, "Un-supported service uri"),
+    HTTP_UNSUPPORTED_CONTENT_TYPE(36, "Un-supported content type"),
 
     FIELD_VALUE_NOT_EQUAL(95, "Field value not equal"),
     UNCOMPRESS_DATA_ERROR(96, "Uncompress data error"),
