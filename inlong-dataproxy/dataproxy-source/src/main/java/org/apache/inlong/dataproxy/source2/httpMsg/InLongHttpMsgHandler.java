@@ -21,11 +21,10 @@ import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
-import org.apache.inlong.common.util.NetworkUtils;
-import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.consts.HttpAttrConst;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source2.BaseSource;
 import org.apache.inlong.dataproxy.utils.AddressUtils;
@@ -42,23 +41,25 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.CharsetUtil;
+import org.apache.commons.codec.CharEncoding;
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.event.EventBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
@@ -68,13 +69,9 @@ import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
  */
 public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-    private static final String hbSrvUrl = "/dataproxy/heartbeat";
-    private static final String msgSrvUrl = "/dataproxy/message";
-
     private static final Logger logger = LoggerFactory.getLogger(InLongHttpMsgHandler.class);
     // log print count
     private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
-
     private final BaseSource source;
 
     /**
@@ -88,120 +85,203 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
-        // check request decode result
-        if (!req.decoderResult().isSuccess()) {
-            source.fileMetricEventInc(StatConstants.EVENT_HTTP_DECFAIL);
-            sendErrorMsg(ctx, HttpResponseStatus.BAD_REQUEST, "Decode message failure!");
-            return;
-        }
-        // check request method
-        if (req.method() != HttpMethod.GET && req.method() != HttpMethod.POST) {
-            source.fileMetricEventInc(StatConstants.EVENT_HTTP_INVALIDMETHOD);
-            sendErrorMsg(ctx, HttpResponseStatus.METHOD_NOT_ALLOWED, "Only support Get and Post methods");
-            return;
-        }
         // process 100-continue request
         if (is100ContinueExpected(req)) {
             ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
         }
-        // get requested service
-        String reqUri = req.uri();
-        if (StringUtils.isBlank(reqUri)) {
-            source.fileMetricEventInc(StatConstants.EVENT_HTTP_BLANKURI);
-            sendErrorMsg(ctx, HttpResponseStatus.BAD_REQUEST, "Uri is blank!");
-            return;
-        }
-        try {
-            reqUri = URLDecoder.decode(reqUri, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            try {
-                reqUri = URLDecoder.decode(reqUri, "ISO-8859-1");
-            } catch (UnsupportedEncodingException e1) {
-                source.fileMetricEventInc(StatConstants.EVENT_HTTP_URIDECFAIL);
-                sendErrorMsg(ctx, HttpResponseStatus.BAD_REQUEST, "Decode uri failure!");
-                return;
-            }
-        }
-        // check requested service url
-        if (!reqUri.startsWith(hbSrvUrl) || !reqUri.startsWith(msgSrvUrl)) {
-            source.fileMetricEventInc(StatConstants.EVENT_HTTP_INVALIDURI);
-            sendErrorMsg(ctx, HttpResponseStatus.NOT_IMPLEMENTED, "Not supported uri!");
-            return;
-        }
         // get current time and clientIP
-        long msgRcvTime = System.currentTimeMillis();
-        String clientIp = AddressUtils.getChannelRemoteIP(ctx.channel());
-        // check illegal ip
-        if (ConfigManager.getInstance().needChkIllegalIP()
-                && ConfigManager.getInstance().isIllegalIP(clientIp)) {
-            source.fileMetricEventInc(StatConstants.EVENT_HTTP_ILLEGAL_VISIT);
-            sendResponse(ctx, DataProxyErrCode.ILLEGAL_VISIT_IP, true);
+        final long msgRcvTime = System.currentTimeMillis();
+        final String clientIp = AddressUtils.getChannelRemoteIP(ctx.channel());
+        // check request decode result
+        if (!req.decoderResult().isSuccess()) {
+            source.fileMetricEventInc(StatConstants.EVENT_MSG_DECODE_FAIL);
+            sendErrorMsg(ctx, DataProxyErrCode.HTTP_DECODE_REQ_FAILURE);
             return;
         }
         // check service status.
         if (source.isRejectService()) {
             source.fileMetricEventInc(StatConstants.EVENT_SERVICE_CLOSED);
-            sendResponse(ctx, DataProxyErrCode.SERVICE_CLOSED, true);
+            sendErrorMsg(ctx, DataProxyErrCode.SERVICE_CLOSED);
             return;
         }
         // check sink service status
         if (!ConfigManager.getInstance().isMqClusterReady()) {
-            source.fileMetricEventInc(StatConstants.EVENT_SERVICE_UNREADY);
-            sendResponse(ctx, DataProxyErrCode.SINK_SERVICE_UNREADY, true);
+            source.fileMetricEventInc(StatConstants.EVENT_SERVICE_SINK_UNREADY);
+            sendErrorMsg(ctx, DataProxyErrCode.SINK_SERVICE_UNREADY);
             return;
         }
-        // process hb service
-        if (reqUri.startsWith(hbSrvUrl)) {
-            source.fileMetricEventInc(StatConstants.EVENT_HTTP_HB_SUCCESS);
-            sendResponse(ctx, DataProxyErrCode.SUCCESS, checkClose(req));
+        // check request method
+        if (req.method() != HttpMethod.GET && req.method() != HttpMethod.POST) {
+            source.fileMetricEventInc(StatConstants.EVENT_MSG_METHOD_INVALID);
+            sendErrorMsg(ctx, DataProxyErrCode.HTTP_UNSUPPORTED_METHOD,
+                    "Only support [" + HttpMethod.GET.name() + ", "
+                            + HttpMethod.POST.name() + "] methods");
             return;
+        }
+        // parse request uri
+        QueryStringDecoder uriDecoder =
+                new QueryStringDecoder(req.uri(), Charsets.toCharset(CharEncoding.UTF_8));
+        // check requested service url
+        if (!HttpAttrConst.KEY_SRV_URL_HEARTBEAT.equals(uriDecoder.path())
+                && !HttpAttrConst.KEY_SRV_URL_REPORT_MSG.equals(uriDecoder.path())) {
+            if (!HttpAttrConst.KEY_URL_FAVICON_ICON.equals(uriDecoder.path())) {
+                source.fileMetricEventInc(StatConstants.EVENT_MSG_PATH_INVALID);
+                sendErrorMsg(ctx, DataProxyErrCode.HTTP_UNSUPPORTED_SERVICE_URI,
+                        "Only support [" + HttpAttrConst.KEY_SRV_URL_HEARTBEAT + ", "
+                                + HttpAttrConst.KEY_SRV_URL_REPORT_MSG + "] paths!");
+            }
+            return;
+        }
+        // get connection status
+        boolean closeConnection = isCloseConnection(req);
+        // process hb service
+        if (HttpAttrConst.KEY_SRV_URL_HEARTBEAT.equals(uriDecoder.path())) {
+            source.fileMetricEventInc(StatConstants.EVENT_MSG_HB_SUCCESS);
+            sendResponse(ctx, closeConnection);
+            return;
+        }
+        // get request attributes
+        final Map<String, String> reqAttrs = new HashMap<>();
+        getAttrsFromDecoder(uriDecoder, reqAttrs);
+        if (req.method() == HttpMethod.POST) {
+            // check and get content value
+            String cntLengthStr = req.headers().get(HttpHeaderNames.CONTENT_LENGTH);
+            if (StringUtils.isNotBlank(cntLengthStr) && NumberUtils.toInt(cntLengthStr, 0) > 0) {
+                String cntType = req.headers().get(HttpHeaderNames.CONTENT_TYPE);
+                if (StringUtils.isNotBlank(cntType)) {
+                    cntType = cntType.trim();
+                    if (!cntType.equalsIgnoreCase(
+                            HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())) {
+                        source.fileMetricEventInc(StatConstants.EVENT_MSG_CONTYPE_INVALID);
+                        sendErrorMsg(ctx, DataProxyErrCode.HTTP_UNSUPPORTED_CONTENT_TYPE,
+                                "Only support [" + HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED
+                                        + "] content type!");
+                        return;
+                    }
+                    String cntStr = req.content().toString(Charsets.toCharset(CharEncoding.UTF_8));
+                    QueryStringDecoder cntDecoder = new QueryStringDecoder(cntStr, false);
+                    getAttrsFromDecoder(cntDecoder, reqAttrs);
+                }
+            }
         }
         // process message request
-        processMessage(ctx, req, msgRcvTime, clientIp);
+        processMessage(ctx, reqAttrs, msgRcvTime, clientIp, closeConnection);
     }
 
-    private boolean processMessage(ChannelHandlerContext ctx, FullHttpRequest req,
-            long msgRcvTime, String clientIp) throws Exception {
-        // get and check groupId
-        HttpHeaders headers = req.headers();
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) {
+        ctx.flush();
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        source.fileMetricEventInc(StatConstants.EVENT_VISIT_LINKIN);
+        // check illegal ip
+        if (ConfigManager.getInstance().needChkIllegalIP()) {
+            String strRemoteIp = AddressUtils.getChannelRemoteIP(ctx.channel());
+            if (strRemoteIp != null
+                    && ConfigManager.getInstance().isIllegalIP(strRemoteIp)) {
+                source.fileMetricEventInc(StatConstants.EVENT_VISIT_ILLEGAL);
+                ctx.channel().disconnect();
+                ctx.channel().close();
+                if (logCounter.shouldPrint()) {
+                    logger.error(strRemoteIp + " is Illegal IP, so refuse it !");
+                }
+                return;
+            }
+        }
+        // check max allowed connection count
+        if (source.getAllChannels().size() >= source.getMaxConnections()) {
+            source.fileMetricEventInc(StatConstants.EVENT_VISIT_OVERMAX);
+            ctx.channel().disconnect();
+            ctx.channel().close();
+            if (logCounter.shouldPrint()) {
+                logger.warn("{} refuse to connect = {} , connections = {}, maxConnections = {}",
+                        source.getName(), ctx.channel(), source.getAllChannels().size(), source.getMaxConnections());
+            }
+            return;
+        }
+        // add legal channel
+        source.getAllChannels().add(ctx.channel());
+        ctx.fireChannelActive();
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        source.fileMetricEventInc(StatConstants.EVENT_VISIT_LINKOUT);
+        ctx.fireChannelInactive();
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        source.fileMetricEventInc(StatConstants.EVENT_VISIT_EXCEPTION);
+        if (cause instanceof IOException) {
+            if (logCounter.shouldPrint()) {
+                logger.warn("{} received an IOException from channel {}",
+                        source.getName(), ctx.channel(), cause);
+            }
+            ctx.close();
+        } else {
+            sendErrorMsg(ctx, DataProxyErrCode.UNKNOWN_ERROR,
+                    "Process message failure: " + cause.getMessage());
+        }
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (IdleStateEvent.class.isAssignableFrom(evt.getClass())) {
+            ctx.close();
+        }
+    }
+
+    /**
+     * Process http report message
+     *
+     * @param ctx the handler context
+     * @param reqAttrs the attributes
+     * @param msgRcvTime  the message received time
+     * @param clientIp  the report ip
+     * @param isCloseCon  whether close connection
+     *
+     * @return whether process success
+     */
+    private boolean processMessage(ChannelHandlerContext ctx, Map<String, String> reqAttrs,
+            long msgRcvTime, String clientIp, boolean isCloseCon) throws Exception {
         StringBuilder strBuff = new StringBuilder(512);
-        String groupId = headers.get(AttributeConstants.GROUP_ID);
-        if (StringUtils.isEmpty(groupId)) {
-            source.fileMetricEventInc(StatConstants.EVENT_HTTP_WITHOUTGROUPID);
+        String groupId = reqAttrs.get(HttpAttrConst.KEY_GROUP_ID);
+        if (StringUtils.isBlank(groupId)) {
+            source.fileMetricEventInc(StatConstants.EVENT_MSG_GROUPID_MISSING);
             sendResponse(ctx, DataProxyErrCode.MISS_REQUIRED_GROUPID_ARGUMENT.getErrCode(),
-                    strBuff.append("Field ").append(AttributeConstants.GROUP_ID)
+                    strBuff.append("Field ").append(HttpAttrConst.KEY_GROUP_ID)
                             .append(" must exist and not blank!").toString(),
-                    checkClose(req));
+                    isCloseCon);
             return false;
         }
         // get and check streamId
-        String streamId = headers.get(AttributeConstants.STREAM_ID);
-        if (StringUtils.isEmpty(streamId)) {
-            source.fileMetricEventInc(StatConstants.EVENT_HTTP_WITHOUTSTREAMID);
+        String streamId = reqAttrs.get(HttpAttrConst.KEY_STREAM_ID);
+        if (StringUtils.isBlank(streamId)) {
+            source.fileMetricEventInc(StatConstants.EVENT_MSG_STREAMID_MISSING);
             sendResponse(ctx, DataProxyErrCode.MISS_REQUIRED_STREAMID_ARGUMENT.getErrCode(),
-                    strBuff.append("Field ").append(AttributeConstants.STREAM_ID)
+                    strBuff.append("Field ").append(HttpAttrConst.KEY_STREAM_ID)
                             .append(" must exist and not blank!").toString(),
-                    checkClose(req));
+                    isCloseCon);
             return false;
         }
         // get and check topicName
         String topicName = ConfigManager.getInstance().getTopicName(groupId, streamId);
         if (StringUtils.isBlank(topicName)) {
-            if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
-                source.fileMetricEventInc(StatConstants.EVENT_NOTOPIC);
-                sendResponse(ctx, DataProxyErrCode.TOPIC_IS_BLANK.getErrCode(),
-                        strBuff.append("Topic is null for ").append(AttributeConstants.GROUP_ID)
-                                .append("(").append(groupId).append("),")
-                                .append(AttributeConstants.STREAM_ID)
-                                .append("(,").append(streamId).append(")").toString(),
-                        checkClose(req));
-                return false;
-            }
-            topicName = source.getDefTopic();
+            source.fileMetricEventInc(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
+            sendResponse(ctx, DataProxyErrCode.TOPIC_IS_BLANK.getErrCode(),
+                    strBuff.append("Topic not configured for ").append(HttpAttrConst.KEY_STREAM_ID)
+                            .append("(").append(groupId).append("),")
+                            .append(HttpAttrConst.KEY_STREAM_ID)
+                            .append("(,").append(streamId).append(")").toString(),
+                    isCloseCon);
+            return false;
         }
         // get and check dt
         long dataTime = msgRcvTime;
-        String dt = headers.get(AttributeConstants.DATA_TIME);
+        String dt = reqAttrs.get(HttpAttrConst.KEY_DATA_TIME);
         if (StringUtils.isNotEmpty(dt)) {
             try {
                 dataTime = Long.parseLong(dt);
@@ -209,45 +289,40 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
                 //
             }
         }
-        // get char set
-        String charset = headers.get(AttrConstants.CHARSET);
-        if (StringUtils.isBlank(charset)) {
-            charset = AttrConstants.CHARSET;
-        }
         // get and check body
-        String body = headers.get(AttrConstants.BODY);
+        String body = reqAttrs.get(HttpAttrConst.KEY_BODY);
         if (StringUtils.isBlank(body)) {
             if (body == null) {
-                source.fileMetricEventInc(StatConstants.EVENT_HTTP_NOBODY);
+                source.fileMetricEventInc(StatConstants.EVENT_MSG_BODY_MISSING);
                 sendResponse(ctx, DataProxyErrCode.MISS_REQUIRED_BODY_ARGUMENT.getErrCode(),
-                        strBuff.append("Field ").append(AttrConstants.BODY)
+                        strBuff.append("Field ").append(HttpAttrConst.KEY_BODY)
                                 .append(" is not exist!").toString(),
-                        checkClose(req));
+                        isCloseCon);
             } else {
-                source.fileMetricEventInc(StatConstants.EVENT_HTTP_EMPTYBODY);
+                source.fileMetricEventInc(StatConstants.EVENT_MSG_BODY_BLANK);
                 sendResponse(ctx, DataProxyErrCode.EMPTY_MSG.getErrCode(),
-                        strBuff.append("Field ").append(AttrConstants.BODY)
+                        strBuff.append("Field ").append(HttpAttrConst.KEY_BODY)
                                 .append(" is Blank!").toString(),
-                        checkClose(req));
+                        isCloseCon);
             }
             return false;
         }
         if (body.length() > source.getMaxMsgLength()) {
-            source.fileMetricEventInc(StatConstants.EVENT_HTTP_BODYOVERMAXLEN);
+            source.fileMetricEventInc(StatConstants.EVENT_MSG_BODY_OVERMAX);
             sendResponse(ctx, DataProxyErrCode.BODY_EXCEED_MAX_LEN.getErrCode(),
-                    strBuff.append("Error msg, the body length(").append(body.length())
+                    strBuff.append("Error msg, the ").append(HttpAttrConst.KEY_BODY)
+                            .append(" length(").append(body.length())
                             .append(") is bigger than allowed length(")
                             .append(source.getMaxMsgLength()).append(")").toString(),
-                    checkClose(req));
+                    isCloseCon);
             return false;
         }
         // get message count
-        String strMsgCount = headers.get(AttributeConstants.MESSAGE_COUNT);
-        int intMsgCnt = NumberUtils.toInt(strMsgCount, 1);
-        strMsgCount = String.valueOf(intMsgCnt);
+        int intMsgCnt = NumberUtils.toInt(reqAttrs.get(HttpAttrConst.KEY_MESSAGE_COUNT), 1);
+        String strMsgCount = String.valueOf(intMsgCnt);
         // build message attributes
         InLongMsg inLongMsg = InLongMsg.newInLongMsg(source.isCompressed());
-        strBuff.append("&groupId=").append(groupId)
+        strBuff.append("groupId=").append(groupId)
                 .append("&streamId=").append(streamId)
                 .append("&dt=").append(dataTime)
                 .append("&NodeIP=").append(clientIp)
@@ -255,7 +330,7 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
                 .append("&rt=").append(msgRcvTime)
                 .append(AttributeConstants.SEPARATOR).append(AttributeConstants.MSG_RPT_TIME)
                 .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(msgRcvTime);
-        inLongMsg.addMsg(strBuff.toString(), body.getBytes(charset));
+        inLongMsg.addMsg(strBuff.toString(), body.getBytes(HttpAttrConst.VAL_DEF_CHARSET));
         byte[] inlongMsgData = inLongMsg.buildArray();
         inLongMsg.reset();
         strBuff.delete(0, strBuff.length());
@@ -270,7 +345,6 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
         eventHeaders.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V0.getName());
         eventHeaders.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         Event event = EventBuilder.withBody(inlongMsgData, eventHeaders);
-        String msgProcType = "b2b";
         // build metric data item
         dataTime = dataTime / 1000 / 60 / 10;
         dataTime = dataTime * 1000 * 60 * 10;
@@ -278,77 +352,84 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
                 .append(AttrConstants.SEP_HASHTAG).append(topicName)
                 .append(AttrConstants.SEP_HASHTAG).append(streamId)
                 .append(AttrConstants.SEP_HASHTAG).append(clientIp)
-                .append(AttrConstants.SEP_HASHTAG).append(NetworkUtils.getLocalIp())
-                .append(AttrConstants.SEP_HASHTAG).append(msgProcType)
+                .append(AttrConstants.SEP_HASHTAG).append(source.getSrcHost())
+                .append(AttrConstants.SEP_HASHTAG).append("b2b")
                 .append(AttrConstants.SEP_HASHTAG).append(DateTimeUtils.ms2yyyyMMddHHmm(dataTime))
                 .append(AttrConstants.SEP_HASHTAG).append(DateTimeUtils.ms2yyyyMMddHHmm(msgRcvTime));
         try {
             source.getChannelProcessor().processEvent(event);
-            source.fileMetricEventInc(StatConstants.EVENT_HTTP_POST_SUCCESS);
-            source.fileMetricRecordAdd(strBuff.toString(), intMsgCnt, 1, body.length(), 0);
+            source.fileMetricEventInc(StatConstants.EVENT_MSG_POST_SUCCESS);
+            source.fileMetricRecordAdd(strBuff.toString(), intMsgCnt, 1, event.getBody().length, 0);
             strBuff.delete(0, strBuff.length());
             source.addMetric(true, event.getBody().length, event);
-            sendResponse(ctx, DataProxyErrCode.SUCCESS, false);
+            sendResponse(ctx, isCloseCon);
             return true;
-        } catch (ChannelException ex) {
-            source.fileMetricEventInc(StatConstants.EVENT_HTTP_POST_DROPPED);
+        } catch (Throwable ex) {
+            source.fileMetricEventInc(StatConstants.EVENT_MSG_POST_FAILURE);
             source.fileMetricRecordAdd(strBuff.toString(), 0, 0, 0, intMsgCnt);
             source.addMetric(false, event.getBody().length, event);
             strBuff.delete(0, strBuff.length());
-            sendResponse(ctx, DataProxyErrCode.UNKNOWN_ERROR.getErrCode(),
-                    strBuff.append("Put event to channel failure: ").append(ex.getMessage())
-                            .toString(),
-                    false);
+            sendErrorMsg(ctx, DataProxyErrCode.UNKNOWN_ERROR,
+                    strBuff.append("Put event to channel failure: ").append(ex.getMessage()).toString());
             if (logCounter.shouldPrint()) {
-                logger.error("Error write event to channel, data will discard.", ex);
+                logger.error("Error writing HTTP event to channel failure.", ex);
             }
             return false;
         }
     }
 
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) {
-        ctx.flush();
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        String clientIp = AddressUtils.getChannelRemoteIP(ctx.channel());
-        logger.error("Http process client={} error, cause:{}, msg:{}",
-                cause, clientIp, cause.getMessage());
-        sendErrorMsg(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR,
-                "Process message failure: " + cause.getMessage());
-        ctx.close();
-    }
-
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (IdleStateEvent.class.isAssignableFrom(evt.getClass())) {
-            ctx.close();
+    /**
+     * Get attributes from decoder
+     *
+     * @param decoder the decode object
+     * @param reqAttrs the attributes
+     */
+    private void getAttrsFromDecoder(QueryStringDecoder decoder, Map<String, String> reqAttrs) {
+        for (Map.Entry<String, List<String>> attr : decoder.parameters().entrySet()) {
+            if (attr == null
+                    || attr.getKey() == null
+                    || attr.getValue() == null
+                    || attr.getValue().isEmpty()) {
+                continue;
+            }
+            reqAttrs.put(attr.getKey(), attr.getValue().get(0));
         }
     }
 
-    private boolean checkClose(FullHttpRequest req) {
-        String connStatus = req.headers().get("Connection");
-        return !StringUtils.isBlank(connStatus) && "close".equalsIgnoreCase(connStatus);
+    private boolean isCloseConnection(FullHttpRequest req) {
+        String connStatus = req.headers().get(HttpHeaderNames.CONNECTION);
+        if (connStatus == null) {
+            return false;
+        }
+        connStatus = connStatus.trim();
+        return connStatus.equalsIgnoreCase(HttpHeaderValues.CLOSE.toString());
     }
 
-    private void sendErrorMsg(ChannelHandlerContext ctx, HttpResponseStatus status, String errMsg) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status,
-                Unpooled.copiedBuffer("Failure: " + status + ", "
-                        + errMsg + "\r\n", CharsetUtil.UTF_8));
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
-        ctx.writeAndFlush(response).addListener(new SendResultListener(true));
+    private void sendErrorMsg(ChannelHandlerContext ctx, DataProxyErrCode errCodeObj) {
+        sendResponse(ctx, errCodeObj.getErrCode(), errCodeObj.getErrMsg(), true);
     }
 
-    private void sendResponse(ChannelHandlerContext ctx, DataProxyErrCode errCodeObj, boolean isClose) {
-        sendResponse(ctx, errCodeObj.getErrCode(), errCodeObj.getErrMsg(), isClose);
+    private void sendErrorMsg(ChannelHandlerContext ctx, DataProxyErrCode errCodeObj, String errMsg) {
+        sendResponse(ctx, errCodeObj.getErrCode(), errMsg, true);
+    }
 
+    private void sendResponse(ChannelHandlerContext ctx, boolean isClose) {
+        sendResponse(ctx, DataProxyErrCode.SUCCESS.getErrCode(), DataProxyErrCode.SUCCESS.getErrMsg(), isClose);
     }
 
     private void sendResponse(ChannelHandlerContext ctx, int errCode, String errMsg, boolean isClose) {
+        if (ctx == null || ctx.channel() == null) {
+            return;
+        }
+        if (!ctx.channel().isWritable()) {
+            source.fileMetricEventInc(StatConstants.EVENT_CHANNEL_NOT_WRITABLE);
+            if (logCounter.shouldPrint()) {
+                logger.warn("Send msg but channel full, channel={}", ctx.channel());
+            }
+            return;
+        }
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json;charset=utf-8");
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpAttrConst.RET_CNT_TYPE);
         StringBuilder builder =
                 new StringBuilder().append("{\"code\":\"").append(errCode)
                         .append("\",\"msg\":\"").append(errMsg).append("\"}");

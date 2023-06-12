@@ -268,7 +268,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
             confGroupId = configManager.getGroupIdNameByNum(strGroupIdNum);
             if (StringUtils.isBlank(confGroupId)) {
                 if (configManager.isGroupIdNumConfigEmpty()) {
-                    source.fileMetricEventInc(StatConstants.EVENT_SERVICE_UNREADY);
+                    source.fileMetricEventInc(StatConstants.EVENT_SERVICE_SINK_UNREADY);
                     this.errCode = DataProxyErrCode.CONF_SERVICE_UNREADY;
                     this.errMsg = "GroupId-Mapping configuration is null";
                 } else {
@@ -300,7 +300,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
                 confStreamId = configManager.getStreamIdNameByIdNum(strGroupIdNum, strStreamIdNum);
                 if (StringUtils.isBlank(confStreamId)) {
                     if (configManager.isStreamIdNumConfigEmpty()) {
-                        source.fileMetricEventInc(StatConstants.EVENT_SERVICE_UNREADY);
+                        source.fileMetricEventInc(StatConstants.EVENT_SERVICE_SINK_UNREADY);
                         this.errCode = DataProxyErrCode.CONF_SERVICE_UNREADY;
                         this.errMsg = "StreamId-Mapping configuration is null";
                     } else {
@@ -338,7 +338,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
             if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
                 this.topicName = source.getDefTopic();
             } else {
-                source.fileMetricEventInc(StatConstants.EVENT_NOTOPIC);
+                source.fileMetricEventInc(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
                 this.errCode = DataProxyErrCode.TOPIC_IS_BLANK;
                 this.errMsg = String.format("Topic is null for inlongGroupId=(%s), inlongStreamId=(%s)",
                         this.groupId, this.streamId);
