@@ -22,7 +22,7 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.TenantUserRoleEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.TenantUserRoleEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="user_name" jdbcType="VARCHAR" property="username"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="role_code" jdbcType="VARCHAR" property="roleCode"/>
         <result column="tenant" jdbcType="VARCHAR" property="tenant"/>
         <result column="disabled" jdbcType="SMALLINT" property="disabled"/>
@@ -34,12 +34,12 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, user_name, role_code, tenant, disabled, is_deleted, creator, modifier, create_time, modify_time, version
+        id, username, role_code, tenant, disabled, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.TenantUserRoleEntity">
-        insert into tenant_user_role (id, user_name, role_code, tenant,
+        insert into tenant_user_role (id, username, role_code, tenant,
                                disabled, creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{roleCode,jdbcType=VARCHAR},
                 #{tenant,jdbcType=VARCHAR},#{disabled,jdbcType=SMALLINT},
@@ -59,7 +59,7 @@
         from tenant_user_role
         where is_deleted = 0
         <if test="username != null and username != ''">
-            and user_name = #{username, jdbcType=VARCHAR}
+            and username = #{username, jdbcType=VARCHAR}
         </if>
         <if test="roleCode != null and roleCode != ''">
             and role_code = #{roleCode,jdbcType=VARCHAR}
@@ -75,11 +75,10 @@
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.TenantUserRoleEntity">
         update tenant_user_role
-        set user_name  = #{username,jdbcType=VARCHAR},
+        set username  = #{username,jdbcType=VARCHAR},
             tenant     = #{tenant,jdbcType=VARCHAR},
             role_code  = #{roleCode,jdbcType=VARCHAR},
             disabled   = #{disabled,jdbcType=SMALLINT},
-            is_deleted = #{isDeleted,jdbcType=INTEGER},
             modifier   = #{modifier,jdbcType=VARCHAR},
             version    = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
@@ -91,4 +90,13 @@
         from tenant_user_role
         where id = #{id,jdbcType=INTEGER}
     </delete>
+    
+    <select id="selectByUsernameAndTenant" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tenant_user_role
+        where is_deleted = 0
+        and username = #{username, jdbcType=VARCHAR}
+        and tenant = #{tenant, jdbcType=VARCHAR}
+    </select>
 </mapper>

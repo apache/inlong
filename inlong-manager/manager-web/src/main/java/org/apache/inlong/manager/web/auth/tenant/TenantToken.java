@@ -15,24 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.user;
+package org.apache.inlong.manager.web.auth.tenant;
 
-import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
-import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
-import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import org.apache.shiro.authc.AuthenticationToken;
 
-import com.github.pagehelper.PageInfo;
+/**
+ * Shiro AuthenticationToken for TenantAuthenticatingRealm
+ */
+@Data
+@AllArgsConstructor
+public class TenantToken implements AuthenticationToken {
 
-public interface InlongRoleService {
+    private String username;
+    private String tenant;
 
-    PageInfo<InlongRoleInfo> listByCondition(InlongRolePageRequest request);
+    @Override
+    public Object getPrincipal() {
+        return username;
+    }
 
-    int save(InlongRoleRequest request, String operator);
-
-    boolean update(InlongRoleRequest request, String operator);
-
-    InlongRoleInfo get(int id);
-
-    InlongRoleInfo getByUsername(String username);
-
+    @Override
+    public Object getCredentials() {
+        return tenant;
+    }
 }

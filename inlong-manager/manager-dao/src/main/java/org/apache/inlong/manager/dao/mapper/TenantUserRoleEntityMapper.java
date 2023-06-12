@@ -21,6 +21,7 @@ import org.apache.inlong.manager.dao.entity.TenantUserRoleEntity;
 import org.apache.inlong.manager.pojo.user.TenantRolePageRequest;
 
 import com.github.pagehelper.Page;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -29,6 +30,8 @@ public interface TenantUserRoleEntityMapper {
     int insert(TenantUserRoleEntity record);
 
     TenantUserRoleEntity selectById(Integer id);
+
+    TenantUserRoleEntity selectByUsernameAndTenant(@Param("username") String username, @Param("tenant") String tenant);
 
     Page<TenantUserRoleEntity> listByCondition(TenantRolePageRequest request);
 

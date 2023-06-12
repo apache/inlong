@@ -99,6 +99,20 @@ public class TenantRoleServiceImpl implements TenantRoleService {
     @Override
     public TenantRoleInfo get(int id) {
         TenantUserRoleEntity entity = tenantUserRoleEntityMapper.selectById(id);
+        if (entity == null) {
+            log.warn("not found valid tenant role by id={}", id);
+            return null;
+        }
+        return CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new);
+    }
+
+    @Override
+    public TenantRoleInfo getByUsernameAndTenant(String name, String tenant) {
+        TenantUserRoleEntity entity = tenantUserRoleEntityMapper.selectByUsernameAndTenant(name, tenant);
+        if (entity == null) {
+            log.warn("not found valid tenant role for name={}, tenant={}", name, tenant);
+            return null;
+        }
         return CommonBeanUtils.copyProperties(entity, TenantRoleInfo::new);
     }
 

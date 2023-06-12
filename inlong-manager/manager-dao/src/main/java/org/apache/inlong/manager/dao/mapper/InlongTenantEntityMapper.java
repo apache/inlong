@@ -37,4 +37,7 @@ public interface InlongTenantEntityMapper {
     Page<InlongTenantEntity> selectByCondition(InlongTenantPageRequest request);
 
     InlongTenantEntity selectByName(String name);
+
+    int deleteById(Integer id);
+
 }

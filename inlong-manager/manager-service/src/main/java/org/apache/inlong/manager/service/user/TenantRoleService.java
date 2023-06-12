@@ -47,4 +47,9 @@ public interface TenantRoleService {
      * Get one tenant role by id
      */
     TenantRoleInfo get(int id);
+
+    /**
+     * Get one tenant role by name and tenant
+     */
+    TenantRoleInfo getByUsernameAndTenant(String name, String tenant);
 }

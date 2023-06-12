@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.service.tenant;
 
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
-
-import com.github.pagehelper.PageInfo;
 
 /**
  * Inlong tenant service
@@ -29,30 +28,34 @@ import com.github.pagehelper.PageInfo;
 public interface InlongTenantService {
 
     /**
-     * Get tenant info
-     * @param name
-     * @return
+     * Get tenant info by tenant name.
+     *
+     * @param name tenant name
+     * @return tenant info
      */
-    InlongTenantInfo get(String name);
+    InlongTenantInfo getByName(String name);
 
     /**
-     * Save one tenant
-     * @param request
-     * @return
+     * Save inlong tenant info
+     *
+     * @param request tenant info
+     * @return tenant id after saving
      */
     Integer save(InlongTenantRequest request);
 
     /**
-     * List tenants by condition
-     * @param request
-     * @return
+     * Paging query stream sink info based on conditions.
+     *
+     * @param request paging request
+     * @return tenant page list
      */
-    PageInfo<InlongTenantInfo> listByCondition(InlongTenantPageRequest request);
+    PageResult<InlongTenantInfo> listByCondition(InlongTenantPageRequest request);
 
     /**
      * Update one tenant
-     * @param request
-     * @return
+     *
+     * @param request tenant request that needs to be modified
+     * @return whether succeed
      */
     Boolean update(InlongTenantRequest request);
 

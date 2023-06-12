@@ -36,7 +36,6 @@ import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -70,9 +69,6 @@ import java.util.List;
 @RequestMapping("/api")
 @Api(tags = "Inlong-Stream-API")
 public class InlongStreamController {
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private InlongStreamService streamService;

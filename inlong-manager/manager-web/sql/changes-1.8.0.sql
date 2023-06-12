@@ -50,7 +50,7 @@ VALUES ('public', 'Default tenant', 'inlong_init', 'inlong_init');
 CREATE TABLE IF NOT EXISTS `inlong_user_role`
 (
     `id`          int(11)      NOT NULL AUTO_INCREMENT,
-    `user_name`   varchar(256) NOT NULL COMMENT 'Username',
+    `username`   varchar(256)  NOT NULL COMMENT 'Username',
     `role_code`   varchar(256) NOT NULL COMMENT 'User role code',
     `disabled`    tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Whether to disabled, 0: enabled, 1: disabled',
     `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
@@ -60,11 +60,11 @@ CREATE TABLE IF NOT EXISTS `inlong_user_role`
     `modify_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_inlong_user_role` (`user_name`, `role_code`, `is_deleted`)
+    UNIQUE KEY `unique_inlong_user_role` (`username`, `role_code`, `is_deleted`)
     ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong User Role Table';
 
-INSERT INTO `inlong_user_role` (`user_name`, `role_code`, `creator`)
+INSERT INTO `inlong_user_role` (`username`, `role_code`, `creator`)
 VALUES ('admin', 'INLONG_ADMIN', 'inlong_init');
 
 RENAME TABLE user_role TO tenant_user_role;
@@ -72,7 +72,7 @@ ALTER TABLE tenant_user_role
     ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL comment 'User tenant';
 ALTER TABLE tenant_user_role
     ADD CONSTRAINT unique_tenant_user
-        UNIQUE (user_name, tenant, is_deleted);
+        UNIQUE (username, tenant, is_deleted);
 CREATE INDEX index_tenant
     ON tenant_user_role (tenant, is_deleted);
 

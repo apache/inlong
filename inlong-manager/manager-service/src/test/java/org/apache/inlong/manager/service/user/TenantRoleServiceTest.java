@@ -69,8 +69,8 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
         request.setTenant("public");
         request.setUsername(LoginUserUtils.getLoginUser().getName());
         request.setRoleCode(UserRoleCode.TENANT_ADMIN);
-        int id = service.save(request, LoginUserUtils.getLoginUser().getName());
-        TenantRoleInfo info = service.get(id);
+        service.save(request, LoginUserUtils.getLoginUser().getName());
+        TenantRoleInfo info = service.getByUsernameAndTenant(request.getUsername(), request.getTenant());
         Assertions.assertEquals(request.getTenant(), info.getTenant());
         Assertions.assertEquals(request.getRoleCode(), info.getRoleCode());
         Assertions.assertEquals(request.getUsername(), info.getUsername());
@@ -84,11 +84,11 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
         request.setTenant("public");
         request.setUsername(newUser);
         request.setRoleCode(UserRoleCode.TENANT_ADMIN);
-        int id = service.save(request, LoginUserUtils.getLoginUser().getName());
-        TenantRoleInfo oldInfo = service.get(id);
+        service.save(request, LoginUserUtils.getLoginUser().getName());
+        TenantRoleInfo oldInfo = service.getByUsernameAndTenant(request.getUsername(), request.getTenant());
         oldInfo.setRoleCode(UserRoleCode.TENANT_OPERATOR);
         service.update(oldInfo.genRequest(), LoginUserUtils.getLoginUser().getName());
-        TenantRoleInfo newInfo = service.get(id);
+        TenantRoleInfo newInfo = service.getByUsernameAndTenant(request.getUsername(), request.getTenant());
         Assertions.assertEquals(UserRoleCode.TENANT_OPERATOR, newInfo.getRoleCode());
     }
 

@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongTenantEntity;
 import org.apache.inlong.manager.dao.mapper.InlongTenantEntityMapper;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
@@ -30,10 +31,11 @@ import org.apache.inlong.manager.service.user.LoginUserUtils;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -43,8 +45,12 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     private InlongTenantEntityMapper inlongTenantEntityMapper;
 
     @Override
-    public InlongTenantInfo get(String name) {
+    public InlongTenantInfo getByName(String name) {
         InlongTenantEntity entity = inlongTenantEntityMapper.selectByName(name);
+        if (entity == null) {
+            log.warn("not found valid inlong tenant by name={}", name);
+            return null;
+        }
         return CommonBeanUtils.copyProperties(entity, InlongTenantInfo::new);
     }
 
@@ -66,11 +72,15 @@ public class InlongTenantServiceImpl implements InlongTenantService {
     }
 
     @Override
-    public PageInfo<InlongTenantInfo> listByCondition(InlongTenantPageRequest request) {
+    public PageResult<InlongTenantInfo> listByCondition(InlongTenantPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongTenantEntity> entityPage = inlongTenantEntityMapper.selectByCondition(request);
-        return entityPage
-                .toPageInfo(entity -> CommonBeanUtils.copyProperties(entity, InlongTenantInfo::new));
+
+        List<InlongTenantInfo> tenantList = CommonBeanUtils.copyListProperties(entityPage, InlongTenantInfo::new);
+        PageResult<InlongTenantInfo> pageResult = new PageResult<>(tenantList,
+                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+
+        return pageResult;
     }
 
     @Override

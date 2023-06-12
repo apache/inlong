@@ -49,7 +49,7 @@ public class InlongRoleController {
     private InlongRoleService inlongRoleService;
 
     @RequestMapping(value = "/role/inlong/get/{id}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get inlong role")
+    @ApiOperation(value = "Get inlong role by ID")
     @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<InlongRoleInfo> get(@PathVariable int id) {
@@ -68,7 +68,7 @@ public class InlongRoleController {
     @RequestMapping(value = "/role/inlong/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @RequiresRoles(value = UserRoleCode.INLONG_ADMIN)
-    @ApiOperation(value = "Save inlong role")
+    @ApiOperation(value = "Update inlong role")
     public Response<Boolean> update(@Validated @RequestBody InlongRoleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(inlongRoleService.update(request, operator));

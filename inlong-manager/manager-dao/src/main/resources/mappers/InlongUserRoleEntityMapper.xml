@@ -20,7 +20,7 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.InlongUserRoleEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.InlongUserRoleEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="user_name" jdbcType="VARCHAR" property="username"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="role_code" jdbcType="VARCHAR" property="roleCode"/>
         <result column="disabled" jdbcType="SMALLINT" property="disabled"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
@@ -31,12 +31,12 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, user_name, role_code, disabled, is_deleted, creator, modifier, create_time, modify_time, version
+        id, username, role_code, disabled, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongUserRoleEntity">
-        insert into inlong_user_role (id, user_name, role_code,
+        insert into inlong_user_role (id, username, role_code,
                                       disabled, creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{roleCode,jdbcType=VARCHAR},
                 #{disabled,jdbcType=SMALLINT}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
@@ -48,12 +48,19 @@
         where id = #{id,jdbcType=INTEGER}
     </select>
 
+    <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_user_role
+        where is_deleted = 0
+        and username = #{username,jdbcType=VARCHAR}
+    </select>
+
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongUserRoleEntity">
         update inlong_user_role
-        set user_name  = #{username,jdbcType=VARCHAR},
+        set username  = #{username,jdbcType=VARCHAR},
             role_code  = #{roleCode,jdbcType=VARCHAR},
             disabled   = #{disabled,jdbcType=SMALLINT},
-            is_deleted = #{isDeleted,jdbcType=INTEGER},
             modifier   = #{modifier,jdbcType=VARCHAR},
             version    = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
@@ -75,7 +82,7 @@
         where
         is_deleted = 0
         <if test="username != null and username != ''">
-            and user_name = #{username, jdbcType=VARCHAR}
+            and username = #{username, jdbcType=VARCHAR}
         </if>
         <if test="roleCode != null and roleCode != ''">
             and role_code = #{roleCode,jdbcType=VARCHAR}

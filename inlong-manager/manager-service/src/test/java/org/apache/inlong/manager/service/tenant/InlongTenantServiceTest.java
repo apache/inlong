@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.tenant;
 
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
@@ -25,7 +26,6 @@ import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 
-import com.github.pagehelper.PageInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
@@ -51,7 +51,7 @@ public class InlongTenantServiceTest extends ServiceBaseTest {
         String name = "saveAndGet";
         request.setName(name);
         tenantService.save(request);
-        InlongTenantInfo info = tenantService.get(request.getName());
+        InlongTenantInfo info = tenantService.getByName(request.getName());
         Assertions.assertNotNull(info);
         Assertions.assertEquals(request.getName(), info.getName());
     }
@@ -73,11 +73,11 @@ public class InlongTenantServiceTest extends ServiceBaseTest {
         String name = "update";
         request.setName(name);
         tenantService.save(request);
-        InlongTenantInfo info = tenantService.get(name);
+        InlongTenantInfo info = tenantService.getByName(name);
         String desc = "update description";
         info.setDescription(desc);
         tenantService.update(info.genRequest());
-        InlongTenantInfo info2 = tenantService.get(name);
+        InlongTenantInfo info2 = tenantService.getByName(name);
         Assertions.assertEquals(desc, info2.getDescription());
     }
 
@@ -92,7 +92,7 @@ public class InlongTenantServiceTest extends ServiceBaseTest {
         }
         InlongTenantPageRequest pageRequest = new InlongTenantPageRequest();
         pageRequest.setKeyword("test");
-        PageInfo<InlongTenantInfo> infoPage = tenantService.listByCondition(pageRequest);
+        PageResult<InlongTenantInfo> infoPage = tenantService.listByCondition(pageRequest);
         Assertions.assertEquals(size, infoPage.getList().size());
     }
 }

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateByIdValidation;
+import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantPageRequest;
@@ -26,7 +27,6 @@ import org.apache.inlong.manager.pojo.tenant.InlongTenantRequest;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.tenant.InlongTenantService;
 
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -47,28 +47,28 @@ public class InlongTenantController {
     private InlongTenantService tenantService;
 
     @RequestMapping(value = "/tenant/get/{name}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get tenant")
+    @ApiOperation(value = "Get inlong tenant by name")
     @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
     public Response<InlongTenantInfo> get(@PathVariable String name) {
-        return Response.success(tenantService.get(name));
+        return Response.success(tenantService.getByName(name));
     }
 
     @RequestMapping(value = "/tenant/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
-    @ApiOperation(value = "Save tenant")
+    @ApiOperation(value = "Save inlong tenant")
     public Response<Integer> save(@Validated @RequestBody InlongTenantRequest request) {
         return Response.success(tenantService.save(request));
     }
 
     @RequestMapping(value = "/tenant/list", method = RequestMethod.POST)
     @ApiOperation(value = "List tenant by paginating")
-    public Response<PageInfo<InlongTenantInfo>> listByCondition(@RequestBody InlongTenantPageRequest request) {
+    public Response<PageResult<InlongTenantInfo>> listByCondition(@RequestBody InlongTenantPageRequest request) {
         return Response.success(tenantService.listByCondition(request));
     }
 
     @RequestMapping(value = "/tenant/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Update tenant")
+    @ApiOperation(value = "Update inlong tenant")
     public Response<Boolean> update(@Validated(UpdateByIdValidation.class) @RequestBody InlongTenantRequest request) {
         return Response.success(tenantService.update(request));
     }

@@ -97,7 +97,6 @@
   <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
     update inlong_tenant
     set description  = #{description,jdbcType=VARCHAR},
-        is_deleted   = #{isDeleted, jdbcType=INTEGER},
         modifier     = #{modifier, jdbcType=VARCHAR},
         version      = #{version, jdbcType=INTEGER} + 1
     where id = #{id, jdbcType=INTEGER}
@@ -137,8 +136,7 @@
     </where>
     order by modify_time desc
   </select>
-  <select id="selectByName"
-          parameterType="java.lang.String"
+  <select id="selectByName" parameterType="java.lang.String"
           resultType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
     select
     <include refid="Base_Column_List"/>
@@ -146,5 +144,11 @@
     where name = #{name, jdbcType=VARCHAR}
     and is_deleted = 0
   </select>
+
+  <delete id="deleteById" parameterType="java.lang.Integer">
+    delete
+    from inlong_tenant
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
 
 </mapper>
