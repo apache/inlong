@@ -137,7 +137,6 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     props: values => ({
       dropdownMatchSelectWidth: false,
       options: {
-        requestAuto: true,
         requestService: {
           url: '/sink/list',
           method: 'POST',
