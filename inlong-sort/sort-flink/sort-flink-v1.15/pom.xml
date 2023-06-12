@@ -38,7 +38,7 @@
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
         <flink.version>1.15.4</flink.version>
-        <debezium.version>2.0.1.Final</debezium.version>
+        <debezium.version>1.6.4.Final</debezium.version>
         <flink.connector.mongodb.cdc.version>2.3.0</flink.connector.mongodb.cdc.version>
         <flink.connector.oracle.cdc.version>2.3.0</flink.connector.oracle.cdc.version>
         <flink.connector.mysql.cdc.version>2.3.0</flink.connector.mysql.cdc.version>
@@ -53,6 +53,8 @@
         <sqlserver.jdbc.version>7.2.2.jre8</sqlserver.jdbc.version>
         <hudi.version>0.12.3</hudi.version>
         <thrift.version>0.9.3</thrift.version>
+        <kafka-clients.version>2.7.1</kafka-clients.version>
+        <flink-connector-debezium.version>2.3.0</flink-connector-debezium.version>
     </properties>
 
     <dependencyManagement>
@@ -94,6 +96,11 @@
                 <groupId>com.ververica</groupId>
                 <artifactId>flink-connector-sqlserver-cdc</artifactId>
                 <version>${flink.connector.sqlserver.cdc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ververica</groupId>
+                <artifactId>flink-connector-debezium</artifactId>
+                <version>${flink-connector-debezium.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.ververica</groupId>
@@ -217,6 +224,11 @@
                 <groupId>org.apache.pulsar</groupId>
                 <artifactId>pulsar-client-all</artifactId>
                 <version>${pulsar.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka-clients.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
