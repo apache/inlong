@@ -27,7 +27,7 @@
         <version>1.8.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sort-connector-postgres-cdc_${flink.version}</artifactId>
+    <artifactId>sort-connector-postgres-cdc-v1.15</artifactId>
     <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-postgres-cdc</name>
 

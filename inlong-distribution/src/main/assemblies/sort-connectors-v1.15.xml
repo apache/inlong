@@ -31,7 +31,7 @@
             <directory>../inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/jdbc/target</directory>
             <outputDirectory>inlong-sort/connectors</outputDirectory>
             <includes>
-                <include>sort-connector-jdbc-${project.version}-v1.15.jar</include>
+                <include>sort-connector-postgres-cdc-v1.15-${project.version}.jar</include>
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
