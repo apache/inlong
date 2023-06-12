@@ -87,7 +87,7 @@ public class FileReaderOperator extends AbstractReader {
     public static final int NEVER_STOP_SIGN = -1;
     public static final int BATCH_READ_SIZE = 10000;
     public static final int CACHE_QUEUE_SIZE = 10 * BATCH_READ_SIZE;
-    public static int DEFAULT_BUFFER_SIZE = 64 * 1024;
+    public static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
     private static final SimpleDateFormat RECORD_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private static final Gson GSON = new Gson();
 
@@ -477,7 +477,7 @@ public class FileReaderOperator extends AbstractReader {
                 isFirst = false;
             }
         }
-        LOGGER.info("isFirst {}, {}", file.getAbsolutePath(), isFirst);
+        LOGGER.info("is first store job {}, {}", file.getAbsolutePath(), isFirst);
         return isFirst;
     }
 }
