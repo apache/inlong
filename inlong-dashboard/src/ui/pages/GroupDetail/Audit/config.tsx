@@ -131,6 +131,33 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     rules: [{ required: true }],
   },
   {
+    type: 'select',
+    label: i18n.t('pages.GroupDetail.Audit.Sink'),
+    name: 'sinkId',
+    props: values => ({
+      dropdownMatchSelectWidth: false,
+      options: {
+        requestService: {
+          url: '/sink/list',
+          method: 'POST',
+          data: {
+            pageNum: 1,
+            pageSize: 1000,
+            inlongGroupId,
+            inlongStreamId: values.inlongStreamId,
+          },
+        },
+        requestParams: {
+          formatResult: result =>
+            result?.list.map(item => ({
+              label: item.sinkName + ` ( ${sinks.find(c => c.value === item.sinkType)?.label} )`,
+              value: item.id,
+            })) || [],
+        },
+      },
+    }),
+  },
+  {
     type: 'datepicker',
     label: i18n.t('pages.GroupDetail.Audit.Date'),
     name: 'dt',

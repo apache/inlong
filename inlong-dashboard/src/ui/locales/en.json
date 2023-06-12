@@ -623,6 +623,7 @@
   "pages.GroupDetail.Audit.Min": "Minute",
   "pages.GroupDetail.Audit.Hour": "Hour",
   "pages.GroupDetail.Audit.Day": "Day",
+  "pages.GroupDetail.Audit.Sink": "Sink",
   "pages.ApprovalDetail.GroupConfig.DataStorages": "DataStorages",
   "pages.ApprovalDetail.GroupConfig.ApprovalInformation": "Approval information",
   "pages.ApprovalDetail.GroupConfig.DataFlowInformation": "Data stream information",
