@@ -85,17 +85,17 @@ public class InlongRoleServiceImpl implements InlongRoleService {
     public InlongRoleInfo get(int id) {
         InlongUserRoleEntity entity = inlongUserMapper.selectById(id);
         if (entity == null) {
-            log.warn("find no inlong role for id={}", id);
+            log.warn("not found valid inlong role by id={}", id);
             return null;
         }
         return CommonBeanUtils.copyProperties(entity, InlongRoleInfo::new);
     }
 
     @Override
-    public InlongRoleInfo getByUsername(String name) {
-        InlongUserRoleEntity entity = inlongUserMapper.selectByUsername(name);
+    public InlongRoleInfo getByUsername(String username) {
+        InlongUserRoleEntity entity = inlongUserMapper.selectByUsername(username);
         if (entity == null) {
-            log.warn("find no inlong role for name={}", name);
+            log.warn("not found valid inlong role by name={}", username);
             return null;
         }
         return CommonBeanUtils.copyProperties(entity, InlongRoleInfo::new);

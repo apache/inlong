@@ -21,6 +21,7 @@ import org.apache.inlong.manager.dao.entity.InlongUserRoleEntity;
 import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
 
 import com.github.pagehelper.Page;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -30,7 +31,7 @@ public interface InlongUserRoleEntityMapper {
 
     InlongUserRoleEntity selectById(Integer id);
 
-    InlongUserRoleEntity selectByUsername(String userName);
+    InlongUserRoleEntity selectByUsername(@Param("username") String username);
 
     int updateById(InlongUserRoleEntity record);
 

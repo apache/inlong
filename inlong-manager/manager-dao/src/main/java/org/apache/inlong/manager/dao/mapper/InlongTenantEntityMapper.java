@@ -39,4 +39,5 @@ public interface InlongTenantEntityMapper {
     InlongTenantEntity selectByName(String name);
 
     int deleteById(Integer id);
+
 }

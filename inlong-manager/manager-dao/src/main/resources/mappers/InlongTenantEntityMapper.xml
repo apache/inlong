@@ -136,8 +136,7 @@
     </where>
     order by modify_time desc
   </select>
-  <select id="selectByName"
-          parameterType="java.lang.String"
+  <select id="selectByName" parameterType="java.lang.String"
           resultType="org.apache.inlong.manager.dao.entity.InlongTenantEntity">
     select
     <include refid="Base_Column_List"/>

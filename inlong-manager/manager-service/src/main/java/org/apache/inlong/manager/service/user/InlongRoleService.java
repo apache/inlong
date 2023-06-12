@@ -33,5 +33,6 @@ public interface InlongRoleService {
 
     InlongRoleInfo get(int id);
 
-    InlongRoleInfo getByUsername(String name);
+    InlongRoleInfo getByUsername(String username);
+
 }

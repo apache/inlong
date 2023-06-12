@@ -50,7 +50,7 @@ VALUES ('public', 'Default tenant', 'inlong_init', 'inlong_init');
 CREATE TABLE IF NOT EXISTS `inlong_user_role`
 (
     `id`          int(11)      NOT NULL AUTO_INCREMENT,
-    `username`   varchar(256) NOT NULL COMMENT 'Username',
+    `username`   varchar(256)  NOT NULL COMMENT 'Username',
     `role_code`   varchar(256) NOT NULL COMMENT 'User role code',
     `disabled`    tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Whether to disabled, 0: enabled, 1: disabled',
     `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',

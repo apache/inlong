@@ -28,12 +28,12 @@ import org.apache.shiro.authc.AuthenticationToken;
 @AllArgsConstructor
 public class TenantToken implements AuthenticationToken {
 
-    private String userName;
+    private String username;
     private String tenant;
 
     @Override
     public Object getPrincipal() {
-        return userName;
+        return username;
     }
 
     @Override
