@@ -234,7 +234,12 @@ public class FileReaderOperator extends AbstractReader {
                     .equals(JOB_FILE_MONITOR_DEFAULT_STATUS)) {
                 readEndpoint = Files.lines(file.toPath()).count();
             }
-            position = TaskPositionManager.getInstance().getPosition(getReadSource(), instanceId);
+            try {
+                position = TaskPositionManager.getInstance().getPosition(getReadSource(), instanceId);
+            } catch (Exception ex) {
+                position = 0;
+                LOGGER.error("get position from position manager error, only occur in ut: {}", ex.getMessage());
+            }
             this.bytePosition = getStartBytePosition(position);
             LOGGER.info("FileReaderOperator init file {} instanceId {} history position {}", getReadSource(),
                     instanceId,

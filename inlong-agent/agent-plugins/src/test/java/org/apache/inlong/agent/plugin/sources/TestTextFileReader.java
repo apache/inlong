@@ -17,13 +17,10 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.constant.MetadataConstants;
-import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
@@ -82,12 +79,9 @@ public class TestTextFileReader {
     private static final Gson GSON = new Gson();
     private static Path testDir;
     private static AgentBaseTestsHelper helper;
-    private static AgentManager agentManager;
-    private static AgentConfiguration configuration;
 
     @BeforeClass
     public static void setup() {
-        agentManager = new AgentManager();
         helper = new AgentBaseTestsHelper(TestTextFileReader.class.getName()).setupAgentHome();
         testDir = helper.getTestRootDir();
     }
@@ -95,7 +89,6 @@ public class TestTextFileReader {
     @AfterClass
     public static void teardown() throws Exception {
         helper.teardownAgentHome();
-        agentManager.stop();
     }
 
     @Test
