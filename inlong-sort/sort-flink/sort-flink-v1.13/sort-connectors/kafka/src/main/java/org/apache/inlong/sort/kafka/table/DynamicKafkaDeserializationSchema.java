@@ -153,14 +153,14 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
         // project output while emitting values
         outputCollector.inputRecord = record;
         outputCollector.physicalKeyRows = keyCollector.buffer;
-        outputCollector.outputCollector = collector;
+        outputCollector.outputCollector = new MetricsCollector<>(collector, metricData);
 
         if (record.value() == null && upsertMode) {
             // collect tombstone messages in upsert mode by hand
             outputCollector.collect(null);
         } else {
             deserializeWithDirtyHandle(record.value(), DirtyType.VALUE_DESERIALIZE_ERROR,
-                    valueDeserialization, new MetricsCollector<>(outputCollector, metricData));
+                    valueDeserialization, outputCollector);
         }
         keyCollector.buffer.clear();
     }
