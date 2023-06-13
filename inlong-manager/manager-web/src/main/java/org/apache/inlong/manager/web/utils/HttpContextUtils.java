@@ -43,7 +43,7 @@ public class HttpContextUtils {
      * @param request
      * @return
      */
-    public static Map<String, String> getParameterMapAll(HttpServletRequest request) {
+    public static Map<String, String> getParameterMapAll(ServletRequest request) {
         Enumeration<String> parameters = request.getParameterNames();
 
         Map<String, String> params = new HashMap<>();
@@ -104,7 +104,10 @@ public class HttpContextUtils {
                 }
             }
         } catch (IOException e) {
-            log.error("failed to get body string of request={}", request);
+            log.error("failed to get body string of request={}", request, e);
+        }
+        if (sb.length() == 0) {
+            return "{}";
         }
         return sb.toString();
     }

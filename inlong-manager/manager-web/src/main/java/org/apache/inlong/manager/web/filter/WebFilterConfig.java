@@ -46,4 +46,15 @@ public class WebFilterConfig {
         return bean;
     }
 
+    @Bean
+    public FilterRegistrationBean registerTenantInsertionFilter() {
+        FilterRegistrationBean<TenantInsertionFilter> bean = new FilterRegistrationBean<>();
+        bean.setOrder(1);
+        bean.setFilter(new TenantInsertionFilter());
+        bean.addUrlPatterns("/*");
+        bean.setMatchAfter(true);
+        bean.setName("tenantInsertionFilter");
+        return bean;
+    }
+
 }
