@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import org.apache.inlong.manager.common.datatype.strategy.PostgreSQLDataTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.PostgreSQLFieldTypeStrategy;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.IntTypeInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
@@ -35,7 +35,7 @@ public class FieldInfoUtilsTest {
         streamField.setFieldName("age");
         streamField.setFieldType("int4");
         FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
-                "nodeId", new PostgreSQLDataTypeStrategy());
+                "nodeId", new PostgreSQLFieldTypeStrategy());
         TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
         Assertions.assertTrue(typeInfo instanceof IntTypeInfo);
     }

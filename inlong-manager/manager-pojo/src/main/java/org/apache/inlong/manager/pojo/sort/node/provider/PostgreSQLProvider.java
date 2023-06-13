@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.StreamType;
-import org.apache.inlong.manager.common.datatype.strategy.DataTypeMappingStrategy;
-import org.apache.inlong.manager.common.datatype.strategy.PostgreSQLDataTypeStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.PostgreSQLFieldTypeStrategy;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class PostgreSQLProvider implements ExtractNodeProvider, LoadNodeProvider {
 
-    private static final DataTypeMappingStrategy DATATYPE_MAPPING_STRATEGY = new PostgreSQLDataTypeStrategy();
+    private static final FieldTypeMappingStrategy DATATYPE_MAPPING_STRATEGY = new PostgreSQLFieldTypeStrategy();
 
     @Override
     public Boolean accept(String streamType) {

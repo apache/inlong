@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.pojo.sort.util;
 
 import org.apache.inlong.common.enums.MetaField;
-import org.apache.inlong.manager.common.datatype.strategy.DataTypeMappingStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
 import org.apache.inlong.manager.pojo.fieldformat.BinaryFormat;
@@ -67,11 +67,11 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACK
 public class FieldInfoUtils {
 
     public static FieldInfo parseSinkFieldInfo(SinkField sinkField, String nodeId,
-            DataTypeMappingStrategy dataTypeMappingStrategy) {
+            FieldTypeMappingStrategy fieldTypeMappingStrategy) {
         boolean isMetaField = sinkField.getIsMetaField() == 1;
         String fieldType = sinkField.getFieldType();
-        if (dataTypeMappingStrategy != null) {
-            fieldType = dataTypeMappingStrategy.getMappingDataType(fieldType);
+        if (fieldTypeMappingStrategy != null) {
+            fieldType = fieldTypeMappingStrategy.getMappingDataType(fieldType);
         }
 
         FieldInfo fieldInfo = getFieldInfo(sinkField.getFieldName(),
@@ -82,11 +82,11 @@ public class FieldInfoUtils {
     }
 
     public static FieldInfo parseStreamFieldInfo(StreamField streamField, String nodeId,
-            DataTypeMappingStrategy dataTypeMappingStrategy) {
+            FieldTypeMappingStrategy fieldTypeMappingStrategy) {
         boolean isMetaField = streamField.getIsMetaField() == 1;
         String fieldType = streamField.getFieldType();
-        if (dataTypeMappingStrategy != null) {
-            fieldType = dataTypeMappingStrategy.getMappingDataType(fieldType);
+        if (fieldTypeMappingStrategy != null) {
+            fieldType = fieldTypeMappingStrategy.getMappingDataType(fieldType);
         }
 
         FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), fieldType,
@@ -100,11 +100,11 @@ public class FieldInfoUtils {
     }
 
     public static FieldInfo parseStreamField(StreamField streamField,
-            DataTypeMappingStrategy dataTypeMappingStrategy) {
+            FieldTypeMappingStrategy fieldTypeMappingStrategy) {
         boolean isMetaField = streamField.getIsMetaField() == 1;
         String fieldType = streamField.getFieldType();
-        if (dataTypeMappingStrategy != null) {
-            fieldType = dataTypeMappingStrategy.getMappingDataType(fieldType);
+        if (fieldTypeMappingStrategy != null) {
+            fieldType = fieldTypeMappingStrategy.getMappingDataType(fieldType);
         }
 
         FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), fieldType,

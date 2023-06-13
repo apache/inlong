@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.datatype.datasource;
+package org.apache.inlong.manager.common.fieldtype.datasource;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,9 +24,9 @@ import java.util.stream.Stream;
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
 
 /**
- * The enum of PostgreSQL data type mapping.
+ * The enum of PostgreSQL field type mapping.
  */
-public enum PostgreSQLDataType implements BaseDataType {
+public enum PostgreSQLFieldType implements BaseFieldType {
 
     /**
      * SMALLINT TYPE
@@ -132,7 +132,7 @@ public enum PostgreSQLDataType implements BaseDataType {
      */
     private final String targetType;
 
-    PostgreSQLDataType(String originalType, String targetType) {
+    PostgreSQLFieldType(String originalType, String targetType) {
         this.originalType = originalType;
         this.targetType = targetType;
     }
@@ -148,14 +148,14 @@ public enum PostgreSQLDataType implements BaseDataType {
     }
 
     /**
-     * Get the field type of inlong data type mapping by the original data type.
+     * Get the field type of inlong field type mapping by the original field type.
      *
-     * @param originalType the original data type
-     * @return the target data type of inlong data type mapping
+     * @param originalType the original field type
+     * @return the target field type of inlong field type mapping
      */
     public static String getMappingDataType(String originalType) {
         String dataType = StringUtils.substringBefore(originalType, LEFT_BRACKET).toUpperCase();
         return Stream.of(values()).filter(v -> v.getOriginalType().equals(dataType))
-                .map(PostgreSQLDataType::getTargetType).findFirst().orElse(originalType.toUpperCase());
+                .map(PostgreSQLFieldType::getTargetType).findFirst().orElse(originalType.toUpperCase());
     }
 }

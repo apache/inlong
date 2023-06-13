@@ -15,18 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.datatype.strategy;
+package org.apache.inlong.manager.common.fieldtype.strategy;
+
+import org.apache.inlong.manager.common.fieldtype.datasource.PostgreSQLFieldType;
 
 /**
- * The interface of base data type mapping strategy operation.
+ * The postgresql field type mapping strategy
  */
-public interface DataTypeMappingStrategy {
+public class PostgreSQLFieldTypeStrategy implements FieldTypeMappingStrategy {
 
-    /**
-     * Get the field type of inlong data type mapping by the original data type.
-     *
-     * @param originalType the original data type
-     * @return the target data type of inlong data type mapping
-     */
-    String getMappingDataType(String originalType);
+    @Override
+    public String getMappingDataType(String originalType) {
+        return PostgreSQLFieldType.getMappingDataType(originalType);
+    }
 }

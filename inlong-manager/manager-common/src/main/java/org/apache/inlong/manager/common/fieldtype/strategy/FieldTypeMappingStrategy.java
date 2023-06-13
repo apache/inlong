@@ -15,15 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.datatype.strategy;
+package org.apache.inlong.manager.common.fieldtype.strategy;
 
 /**
- * The default data type mapping strategy
+ * The interface of base field type mapping strategy operation.
  */
-public class DefaultDataTypeStrategy implements DataTypeMappingStrategy {
+public interface FieldTypeMappingStrategy {
 
-    @Override
-    public String getMappingDataType(String originalType) {
-        return originalType;
-    }
+    /**
+     * Get the field type of inlong field type mapping by the original field type.
+     *
+     * @param originalType the original field type
+     * @return the target field type of inlong field type mapping
+     */
+    String getMappingDataType(String originalType);
 }
