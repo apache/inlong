@@ -655,7 +655,7 @@ class ClientFactoryTest {
                         .id(6)
                         .sinkType(SinkType.KAFKA)
                         .topicName("test")
-                        .partitionNum("6")
+                        .partitionNum(6)
                         .build(),
                 PostgreSQLSink.builder()
                         .id(7)
