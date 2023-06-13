@@ -28,5 +28,5 @@ public interface FieldTypeMappingStrategy {
      * @param originalType the original field type
      * @return the target field type of inlong field type mapping
      */
-    String getMappingDataType(String originalType);
+    String getFieldTypeMapping(String originalType);
 }

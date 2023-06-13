@@ -26,7 +26,7 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACK
 /**
  * The enum of PostgreSQL field type mapping.
  */
-public enum PostgreSQLFieldType implements BaseFieldType {
+public enum PostgreSQLFieldTypeMapping implements BaseFieldTypeMapping {
 
     /**
      * SMALLINT TYPE
@@ -132,7 +132,7 @@ public enum PostgreSQLFieldType implements BaseFieldType {
      */
     private final String targetType;
 
-    PostgreSQLFieldType(String originalType, String targetType) {
+    PostgreSQLFieldTypeMapping(String originalType, String targetType) {
         this.originalType = originalType;
         this.targetType = targetType;
     }
@@ -156,6 +156,6 @@ public enum PostgreSQLFieldType implements BaseFieldType {
     public static String getMappingDataType(String originalType) {
         String dataType = StringUtils.substringBefore(originalType, LEFT_BRACKET).toUpperCase();
         return Stream.of(values()).filter(v -> v.getOriginalType().equals(dataType))
-                .map(PostgreSQLFieldType::getTargetType).findFirst().orElse(originalType.toUpperCase());
+                .map(PostgreSQLFieldTypeMapping::getTargetType).findFirst().orElse(originalType.toUpperCase());
     }
 }

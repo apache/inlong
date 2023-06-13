@@ -20,7 +20,7 @@ package org.apache.inlong.manager.common.fieldtype.datasource;
 /**
  * The interface of base field type mapping
  */
-public interface BaseFieldType {
+public interface BaseFieldTypeMapping {
 
     /**
      * Get the original field type.
