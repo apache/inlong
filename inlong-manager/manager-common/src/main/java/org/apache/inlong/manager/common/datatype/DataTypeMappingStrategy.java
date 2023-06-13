@@ -23,10 +23,10 @@ package org.apache.inlong.manager.common.datatype;
 public interface DataTypeMappingStrategy {
 
     /**
-     * Get the field type of flink data type mapping by the original data type.
+     * Get the field type of inlong data type mapping by the original data type.
      *
      * @param originalType the original data type
-     * @return the target data type of flink data type mapping
+     * @return the target data type of inlong data type mapping
      */
     String getMappingDataType(String originalType);
 }

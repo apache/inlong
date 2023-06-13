@@ -30,7 +30,7 @@ public interface BaseDataType {
     String getOriginalType();
 
     /**
-     * Get the target data type of flink data type mapping
+     * Get the target data type of inlong data type mapping
      *
      * @return The target data type
      */
