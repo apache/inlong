@@ -54,15 +54,16 @@ public class CodecTextMsg extends AbsV0MsgCodec {
         int bodyLen = cb.getInt(msgHeadPos + TXT_MSG_BODYLEN_OFFSET);
         if (bodyLen <= 0) {
             if (bodyLen == 0) {
-                source.fileMetricEventInc(StatConstants.EVENT_NOBODY);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_ZERO);
                 this.errCode = DataProxyErrCode.BODY_LENGTH_ZERO;
             } else {
-                source.fileMetricEventInc(StatConstants.EVENT_NEGBODY);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_NEGATIVE);
                 this.errCode = DataProxyErrCode.BODY_LENGTH_LESS_ZERO;
             }
             return false;
         }
         if (bodyLen + TXT_MSG_FORMAT_SIZE > totalDataLen + TXT_MSG_TOTALLEN_SIZE) {
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_TXT_LEN_MALFORMED);
             this.errCode = DataProxyErrCode.BODY_EXCEED_MAX_LEN;
             this.errMsg = String.format("Error msg, bodyLen(%d) + fixedLength(%d) > totalDataLen(%d) + 4",
                     bodyLen, TXT_MSG_FORMAT_SIZE, totalDataLen);
@@ -74,11 +75,13 @@ public class CodecTextMsg extends AbsV0MsgCodec {
         // get attribute length
         int attrLen = cb.getInt(msgHeadPos + TXT_MSG_BODY_OFFSET + bodyLen);
         if (attrLen < 0) {
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_ATTR_NEGATIVE);
             this.errCode = DataProxyErrCode.ATTR_LENGTH_LESS_ZERO;
             return false;
         }
         // check attribute length
         if (totalDataLen + TXT_MSG_TOTALLEN_SIZE != TXT_MSG_FORMAT_SIZE + bodyLen + attrLen) {
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_TXT_LEN_MALFORMED);
             this.errCode = DataProxyErrCode.BODY_EXCEED_MAX_LEN;
             this.errMsg = String.format(
                     "Error msg, totalDataLen(%d) + 4 != fixedLength(%d) + bodyLen(%d) + attrLen(%d)",
@@ -97,14 +100,14 @@ public class CodecTextMsg extends AbsV0MsgCodec {
                 unCompressedData = new byte[uncompressedLen];
                 Snappy.uncompress(bodyData, 0, bodyData.length, unCompressedData, 0);
             } catch (IOException e) {
-                source.fileMetricEventInc(StatConstants.EVENT_UNPRESSEXP);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_UNPRESS_EXP);
                 this.errCode = DataProxyErrCode.UNCOMPRESS_DATA_ERROR;
                 this.errMsg = String.format("Error to uncompress msg, compress type(%s), attr: (%s), error: (%s)",
                         attrMap.get(AttributeConstants.COMPRESS_TYPE), origAttr, e.getCause());
                 return false;
             }
             if (unCompressedData.length == 0) {
-                source.fileMetricEventInc(StatConstants.EVENT_UNPRESSEXP);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_UNPRESS_EXP);
                 this.errCode = DataProxyErrCode.UNCOMPRESS_DATA_ERROR;
                 this.errMsg = String.format("Error to uncompress msg, compress type(%s), attr: (%s), error: 2",
                         attrMap.get(AttributeConstants.COMPRESS_TYPE), origAttr);
@@ -120,7 +123,7 @@ public class CodecTextMsg extends AbsV0MsgCodec {
             while (bodyBuffer.remaining() > 0) {
                 singleMsgLen = bodyBuffer.getInt(readPos);
                 if (singleMsgLen <= 0 || singleMsgLen > bodyBuffer.remaining()) {
-                    source.fileMetricEventInc(StatConstants.EVENT_MALFORMED);
+                    source.fileMetricIncSumStats(StatConstants.EVENT_MSG_ITEM_LEN_MALFORMED);
                     this.errCode = DataProxyErrCode.BODY_EXCEED_MAX_LEN;
                     this.errMsg = String.format(
                             "Malformed data len, singleMsgLen(%d), buffer remaining(%d), attr: (%s)",
@@ -138,7 +141,7 @@ public class CodecTextMsg extends AbsV0MsgCodec {
         String tmpGroupId = attrMap.get(AttributeConstants.GROUP_ID);
         String tmpStreamId = attrMap.get(AttributeConstants.STREAM_ID);
         if (StringUtils.isBlank(tmpGroupId)) {
-            source.fileMetricEventInc(StatConstants.EVENT_WITHOUTGROUPID);
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_GROUPID_MISSING);
             this.errCode = DataProxyErrCode.MISS_REQUIRED_GROUPID_ARGUMENT;
             return false;
         }
@@ -148,10 +151,10 @@ public class CodecTextMsg extends AbsV0MsgCodec {
             if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
                 tmpTopicName = source.getDefTopic();
             } else {
-                source.fileMetricEventInc(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
+                source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
                 this.errCode = DataProxyErrCode.TOPIC_IS_BLANK;
                 this.errMsg = String.format(
-                        "Topic is null for inlongGroupId=(%s), inlongStreamId=(%s)", tmpGroupId, tmpStreamId);
+                        "Topic not configured for groupId=(%s), streamId=(%s)", tmpGroupId, tmpStreamId);
                 return false;
             }
         }

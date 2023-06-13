@@ -73,6 +73,16 @@ public class SourceConstants {
     public static final String SRCCXT_SEND_BUFFER_SIZE = "sendBufferSize";
     public static final int VAL_DEF_SEND_BUFFER_SIZE = 64 * 1024;
     public static final int VAL_MIN_SEND_BUFFER_SIZE = 0;
+    // connect backlog
+    public static final String SRCCXT_CONN_BACKLOG = "con-backlog";
+    public static final int VAL_DEF_CONN_BACKLOG = 128;
+    public static final int VAL_MIN_CONN_BACKLOG = 0;
+    // connect linger
+    public static final String SRCCXT_CONN_LINGER = "con-linger";
+    public static final int VAL_MIN_CONN_LINGER = 0;
+    // connect reuse address
+    public static final String SRCCXT_REUSE_ADDRESS = "reuse-address";
+    public static final boolean VAL_DEF_REUSE_ADDRESS = true;
     // tcp parameter no delay
     public static final String SRCCXT_TCP_NO_DELAY = "tcpNoDelay";
     public static final boolean VAL_DEF_TCP_NO_DELAY = true;

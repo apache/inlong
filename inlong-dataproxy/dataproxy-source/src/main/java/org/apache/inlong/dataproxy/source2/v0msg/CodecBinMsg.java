@@ -26,12 +26,10 @@ import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source2.BaseSource;
-import org.apache.inlong.dataproxy.utils.MessageUtils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flume.Event;
 import org.apache.flume.event.EventBuilder;
 
@@ -63,7 +61,6 @@ public class CodecBinMsg extends AbsV0MsgCodec {
     private long dataTimeSec;
     private boolean num2name = false;
     private boolean transNum2Name = false;
-    private boolean isOrderOrProxy = false;
     private boolean indexMsg = false;
     private boolean fileCheckMsg = false;
     private boolean needTraceMsg = false;
@@ -91,28 +88,32 @@ public class CodecBinMsg extends AbsV0MsgCodec {
                 + bodyLen + BIN_MSG_ATTRLEN_SIZE + attrLen);
         if (bodyLen <= 0) {
             if (bodyLen == 0) {
-                source.fileMetricEventInc(StatConstants.EVENT_NOBODY);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_ZERO);
                 this.errCode = DataProxyErrCode.BODY_LENGTH_ZERO;
             } else {
-                source.fileMetricEventInc(StatConstants.EVENT_NEGBODY);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_NEGATIVE);
                 this.errCode = DataProxyErrCode.BODY_LENGTH_LESS_ZERO;
             }
             return false;
         }
         // get attribute length
         if (attrLen < 0) {
-            source.fileMetricEventInc(StatConstants.EVENT_NEGATTR);
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_ATTR_NEGATIVE);
             this.errCode = DataProxyErrCode.ATTR_LENGTH_LESS_ZERO;
             return false;
         }
         // get msg magic
-        if ((msgMagic != BIN_MSG_MAGIC)
-                || (totalDataLen + BIN_MSG_TOTALLEN_SIZE < (bodyLen + attrLen + BIN_MSG_FORMAT_SIZE))) {
-            source.fileMetricEventInc(StatConstants.EVENT_MALFORMED);
-            this.errCode = DataProxyErrCode.FIELD_VALUE_NOT_EQUAL;
-            this.errMsg = String.format(
-                    "fixedLen(%d) + bodyLen(%d) + attrLen(%d) > totalDataLen(%d) + 4 or msgMagic(%d) != %d",
-                    BIN_MSG_FORMAT_SIZE, bodyLen, attrLen, totalDataLen, msgMagic, BIN_MSG_MAGIC);
+        if (msgMagic != BIN_MSG_MAGIC) {
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_MAGIC_UNEQUAL);
+            this.errCode = DataProxyErrCode.FIELD_MAGIC_NOT_EQUAL;
+            this.errMsg = String.format("magicInMsg(%d) != %d", msgMagic, BIN_MSG_MAGIC);
+            return false;
+        }
+        if (totalDataLen + BIN_MSG_TOTALLEN_SIZE < (bodyLen + attrLen + BIN_MSG_FORMAT_SIZE)) {
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BIN_LEN_MALFORMED);
+            this.errCode = DataProxyErrCode.FIELD_LENGTH_VALUE_NOT_EQUAL;
+            this.errMsg = String.format("fixedLen(%d) + bodyLen(%d) + attrLen(%d) > totalDataLen(%d) + 4",
+                    BIN_MSG_FORMAT_SIZE, bodyLen, attrLen, totalDataLen);
             return false;
         }
         // extract attr bytes
@@ -133,19 +134,13 @@ public class CodecBinMsg extends AbsV0MsgCodec {
         if (((extendField & 0x4) >> 2) == 0x0) {
             this.num2name = true;
         }
-        // parse required fields
-        Pair<Boolean, String> evenProcType =
-                MessageUtils.getEventProcType(attrMap.get(AttributeConstants.MESSAGE_SYNC_SEND),
-                        attrMap.get(AttributeConstants.MESSAGE_PROXY_SEND));
-        this.isOrderOrProxy = evenProcType.getLeft();
-        this.msgProcType = evenProcType.getRight();
         return true;
     }
 
     public boolean validAndFillFields(BaseSource source, StringBuilder strBuff) {
         // reject unsupported index messages
         if (indexMsg) {
-            source.fileMetricEventInc(StatConstants.EVENT_UNSUPMSG);
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_INDEXMSG_ILLEGAL);
             this.errCode = DataProxyErrCode.UNSUPPORTED_EXTEND_FIELD_VALUE;
             return false;
         }
@@ -257,7 +252,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
         this.streamId = this.attrMap.get(AttributeConstants.STREAM_ID);
         if (num2name) {
             if (this.groupIdNum == 0) {
-                source.fileMetricEventInc(StatConstants.EVENT_WITHOUTGROUPID);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_GROUPIDNUM_ZERO);
                 this.errCode = DataProxyErrCode.MISS_REQUIRED_GROUPID_ARGUMENT;
                 this.errMsg = "groupIdNum is 0 in message";
                 return false;
@@ -268,18 +263,18 @@ public class CodecBinMsg extends AbsV0MsgCodec {
             confGroupId = configManager.getGroupIdNameByNum(strGroupIdNum);
             if (StringUtils.isBlank(confGroupId)) {
                 if (configManager.isGroupIdNumConfigEmpty()) {
-                    source.fileMetricEventInc(StatConstants.EVENT_SERVICE_SINK_UNREADY);
+                    source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_IDNUM_EMPTY);
                     this.errCode = DataProxyErrCode.CONF_SERVICE_UNREADY;
                     this.errMsg = "GroupId-Mapping configuration is null";
                 } else {
-                    source.fileMetricEventInc(StatConstants.EVENT_WITHOUTGROUPID);
+                    source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_GROUPIDNUM_MISSING);
                     this.errCode = DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE;
                     this.errMsg = String.format("Non-existing groupIdNum(%s) configuration", strGroupIdNum);
                 }
                 return false;
             }
             if (StringUtils.isNotBlank(this.groupId) && !this.groupId.equalsIgnoreCase(confGroupId)) {
-                source.fileMetricEventInc(StatConstants.EVENT_INCONSGROUPORSTREAMID);
+                source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_GROUP_IDNUM_INCONSTANT);
                 this.errCode = DataProxyErrCode.GROUPID_OR_STREAMID_INCONSTANT;
                 this.errMsg = String.format(
                         "Inconstant GroupId not equal, (%s) in attr but (%s) in configure by groupIdNum(%s)",
@@ -290,7 +285,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
             // check streamId
             if (this.streamIdNum == 0) {
                 if (StringUtils.isNotBlank(this.streamId)) {
-                    source.fileMetricEventInc(StatConstants.EVENT_INCONSGROUPORSTREAMID);
+                    source.fileMetricIncSumStats(StatConstants.EVENT_MSG_STREAMIDNUM_ZERO);
                     this.errCode = DataProxyErrCode.GROUPID_OR_STREAMID_INCONSTANT;
                     this.errMsg = String.format("Inconstant streamId(%s) in attr but streamIdNum=0", this.streamId);
                     return false;
@@ -300,11 +295,11 @@ public class CodecBinMsg extends AbsV0MsgCodec {
                 confStreamId = configManager.getStreamIdNameByIdNum(strGroupIdNum, strStreamIdNum);
                 if (StringUtils.isBlank(confStreamId)) {
                     if (configManager.isStreamIdNumConfigEmpty()) {
-                        source.fileMetricEventInc(StatConstants.EVENT_SERVICE_SINK_UNREADY);
+                        source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_IDNUM_EMPTY);
                         this.errCode = DataProxyErrCode.CONF_SERVICE_UNREADY;
                         this.errMsg = "StreamId-Mapping configuration is null";
                     } else {
-                        source.fileMetricEventInc(StatConstants.EVENT_WITHOUTGROUPID);
+                        source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_STREAMIDNUM_MISSING);
                         this.errCode = DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE;
                         this.errMsg = String.format("Non-existing GroupId(%s)-StreamId(%s) configuration",
                                 strGroupIdNum, strStreamIdNum);
@@ -312,7 +307,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
                     return false;
                 }
                 if (StringUtils.isNotBlank(this.streamId) && !this.streamId.equalsIgnoreCase(confStreamId)) {
-                    source.fileMetricEventInc(StatConstants.EVENT_INCONSGROUPORSTREAMID);
+                    source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_STREAM_IDNUM_INCONSTANT);
                     this.errCode = DataProxyErrCode.GROUPID_OR_STREAMID_INCONSTANT;
                     this.errMsg = String.format(
                             "Inconstant StreamId, (%s) in attr but (%s) in configure by groupIdNum(%s), streamIdNum(%s)",
@@ -327,7 +322,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
             }
         } else {
             if (StringUtils.isBlank(groupId)) {
-                source.fileMetricEventInc(StatConstants.EVENT_WITHOUTGROUPID);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_GROUPID_MISSING);
                 this.errCode = DataProxyErrCode.MISS_REQUIRED_GROUPID_ARGUMENT;
                 return false;
             }
@@ -338,9 +333,9 @@ public class CodecBinMsg extends AbsV0MsgCodec {
             if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
                 this.topicName = source.getDefTopic();
             } else {
-                source.fileMetricEventInc(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
+                source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
                 this.errCode = DataProxyErrCode.TOPIC_IS_BLANK;
-                this.errMsg = String.format("Topic is null for inlongGroupId=(%s), inlongStreamId=(%s)",
+                this.errMsg = String.format("Topic not configured for groupId=(%s), streamId=(%s)",
                         this.groupId, this.streamId);
                 return false;
             }
