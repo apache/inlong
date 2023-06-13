@@ -42,7 +42,6 @@ import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -99,8 +98,7 @@ public class KafkaProvider implements ExtractNodeProvider, LoadNodeProvider {
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(kafkaSink.getSinkFieldList(), kafkaSink.getSinkName());
         List<FieldRelation> fieldRelations = parseSinkFields(kafkaSink.getSinkFieldList(), constantFieldMap);
 
-        String partitionNum = kafkaSink.getPartitionNum();
-        Integer sinkParallelism = StringUtils.isNotBlank(partitionNum) ? Integer.parseInt(partitionNum) : null;
+        Integer sinkParallelism = kafkaSink.getPartitionNum();
         Format format = parseFormat(kafkaSink.getSerializationType());
 
         return new KafkaLoadNode(

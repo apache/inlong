@@ -45,7 +45,7 @@ public class KafkaSinkRequest extends SinkRequest {
     private String topicName;
 
     @ApiModelProperty("Partition number of the topic")
-    private String partitionNum;
+    private Integer partitionNum;
 
     @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType = DataFormat.CANAL.getName();
