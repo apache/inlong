@@ -21,7 +21,6 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.constant.MetadataConstants;
-import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.task.Task;
 import org.apache.inlong.agent.core.task.TaskManager;
 import org.apache.inlong.agent.core.task.TaskWrapper;
@@ -49,8 +48,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,13 +73,11 @@ import static org.powermock.api.support.membermodification.MemberMatcher.field;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({TaskManager.class, MetricRegister.class})
-@PowerMockIgnore({"javax.net.ssl.*", "javax.management.*"})
+@PowerMockIgnore({"javax.management.*"})
 public class TestTextFileTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestTextFileTask.class);
     public static final TemporaryFolder TMP_FOLDER = new TemporaryFolder();
     private static final Gson GSON = new Gson();
-    private static AgentManager agentManager;
     private static TaskManager taskManager;
     private static AgentMetricItemSet agentMetricItemSet;
     private static AgentMetricItem agentMetricItem;
@@ -92,7 +87,6 @@ public class TestTextFileTask {
 
     @BeforeClass
     public static void setup() throws Exception {
-        agentManager = new AgentManager();
         atomicLong = new AtomicLong(0L);
         atomicCountLong = new AtomicLong(0L);
         taskCache = new ArrayList<>();
@@ -113,7 +107,6 @@ public class TestTextFileTask {
     @AfterClass
     public static void teardown() throws Exception {
         TMP_FOLDER.delete();
-        agentManager.stop();
     }
 
     @After
