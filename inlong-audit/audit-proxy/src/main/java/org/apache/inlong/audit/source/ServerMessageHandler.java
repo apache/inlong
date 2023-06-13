@@ -103,6 +103,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         } catch (Exception ex) {
             LOGGER.error("extract data error: ", ex);
             throw new IOException(ex);
+        } finally {
+            buf.release();
         }
         if (cmd == null) {
             LOGGER.warn("extract data from received msg is null");
@@ -190,6 +192,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             channel.writeAndFlush(buffer);
             return;
         }
+
+        buffer.release();
 
         String msg = String.format("remote channel=%s is not writable, please check remote client!", channel);
         LOGGER.warn(msg);
