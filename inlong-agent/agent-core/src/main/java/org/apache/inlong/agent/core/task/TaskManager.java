@@ -81,6 +81,7 @@ public class TaskManager extends AbstractDaemon {
         this.taskMetrics = new AgentMetricItemSet(this.getClass().getSimpleName());
         this.dimensions = new HashMap<>();
         this.dimensions.put(KEY_COMPONENT_NAME, this.getClass().getSimpleName());
+        MetricRegister.unregister(taskMetrics);
         MetricRegister.register(taskMetrics);
 
         tasks = new ConcurrentHashMap<>();
