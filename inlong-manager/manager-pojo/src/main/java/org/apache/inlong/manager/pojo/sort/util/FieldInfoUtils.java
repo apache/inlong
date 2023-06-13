@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.pojo.sort.util;
 
 import org.apache.inlong.common.enums.MetaField;
-import org.apache.inlong.manager.common.datatype.DataTypeMappingStrategy;
+import org.apache.inlong.manager.common.datatype.strategy.DataTypeMappingStrategy;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
 import org.apache.inlong.manager.pojo.fieldformat.BinaryFormat;
@@ -66,10 +66,6 @@ import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACK
 @Slf4j
 public class FieldInfoUtils {
 
-    public static FieldInfo parseSinkFieldInfo(SinkField sinkField, String nodeId) {
-        return parseSinkFieldInfo(sinkField, nodeId, null);
-    }
-
     public static FieldInfo parseSinkFieldInfo(SinkField sinkField, String nodeId,
             DataTypeMappingStrategy dataTypeMappingStrategy) {
         boolean isMetaField = sinkField.getIsMetaField() == 1;
@@ -83,10 +79,6 @@ public class FieldInfoUtils {
                 sinkField.getFieldFormat());
         fieldInfo.setNodeId(nodeId);
         return fieldInfo;
-    }
-
-    public static FieldInfo parseStreamFieldInfo(StreamField streamField, String nodeId) {
-        return parseStreamFieldInfo(streamField, nodeId, null);
     }
 
     public static FieldInfo parseStreamFieldInfo(StreamField streamField, String nodeId,

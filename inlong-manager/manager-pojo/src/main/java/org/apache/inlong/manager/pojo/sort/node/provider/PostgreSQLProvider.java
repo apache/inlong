@@ -18,7 +18,8 @@
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.StreamType;
-import org.apache.inlong.manager.common.datatype.DataTypeMappingStrategyEnum;
+import org.apache.inlong.manager.common.datatype.strategy.DataTypeMappingStrategy;
+import org.apache.inlong.manager.common.datatype.strategy.PostgreSQLDataTypeStrategy;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
@@ -40,6 +41,8 @@ import java.util.Map;
  */
 public class PostgreSQLProvider implements ExtractNodeProvider, LoadNodeProvider {
 
+    private static final DataTypeMappingStrategy DATATYPE_MAPPING_STRATEGY = new PostgreSQLDataTypeStrategy();
+
     @Override
     public Boolean accept(String streamType) {
         return StreamType.POSTGRESQL.equals(streamType);
@@ -49,7 +52,7 @@ public class PostgreSQLProvider implements ExtractNodeProvider, LoadNodeProvider
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         PostgreSQLSource postgreSQLSource = (PostgreSQLSource) streamNodeInfo;
         List<FieldInfo> fieldInfos = parseStreamFieldInfos(postgreSQLSource.getFieldList(),
-                postgreSQLSource.getSourceName(), DataTypeMappingStrategyEnum.POSTGRESQL_DATA_TYPE_STRATEGY);
+                postgreSQLSource.getSourceName(), DATATYPE_MAPPING_STRATEGY);
         Map<String, String> properties = parseProperties(postgreSQLSource.getProperties());
 
         return new PostgresExtractNode(postgreSQLSource.getSourceName(),
@@ -75,7 +78,7 @@ public class PostgreSQLProvider implements ExtractNodeProvider, LoadNodeProvider
         PostgreSQLSink postgreSQLSink = (PostgreSQLSink) nodeInfo;
         Map<String, String> properties = parseProperties(postgreSQLSink.getProperties());
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(postgreSQLSink.getSinkFieldList(),
-                postgreSQLSink.getSinkName(), DataTypeMappingStrategyEnum.POSTGRESQL_DATA_TYPE_STRATEGY);
+                postgreSQLSink.getSinkName(), DATATYPE_MAPPING_STRATEGY);
         List<FieldRelation> fieldRelations = parseSinkFields(postgreSQLSink.getSinkFieldList(), constantFieldMap);
 
         return new PostgresLoadNode(

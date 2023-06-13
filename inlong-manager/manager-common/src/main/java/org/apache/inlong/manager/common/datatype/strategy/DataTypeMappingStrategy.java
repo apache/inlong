@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.datatype;
+package org.apache.inlong.manager.common.datatype.strategy;
 
 /**
  * The interface of base data type mapping strategy operation.

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import org.apache.inlong.manager.common.datatype.DataTypeMappingStrategyEnum;
+import org.apache.inlong.manager.common.datatype.strategy.PostgreSQLDataTypeStrategy;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.IntTypeInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
@@ -29,13 +29,13 @@ import org.junit.jupiter.api.Test;
 public class FieldInfoUtilsTest {
 
     @Test
-    public void testIntTypeInfo() {
+    public void testPgIntTypeInfo() {
         StreamField streamField = new StreamField();
         streamField.setIsMetaField(0);
         streamField.setFieldName("age");
         streamField.setFieldType("int4");
         FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
-                "nodeId", DataTypeMappingStrategyEnum.POSTGRESQL_DATA_TYPE_STRATEGY);
+                "nodeId", new PostgreSQLDataTypeStrategy());
         TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
         Assertions.assertTrue(typeInfo instanceof IntTypeInfo);
     }

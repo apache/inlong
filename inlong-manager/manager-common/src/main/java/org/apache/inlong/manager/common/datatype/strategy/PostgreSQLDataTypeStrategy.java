@@ -15,27 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.datatype;
+package org.apache.inlong.manager.common.datatype.strategy;
 
 import org.apache.inlong.manager.common.datatype.datasource.PostgreSQLDataType;
 
 /**
- * The enum of data type mapping strategies for different data sources.
+ * The postgresql data type mapping strategy
  */
-public enum DataTypeMappingStrategyEnum implements DataTypeMappingStrategy {
-
-    /**
-     * postgresql data type mapping operation strategy
-     */
-    POSTGRESQL_DATA_TYPE_STRATEGY {
-
-        @Override
-        public String getMappingDataType(String originalType) {
-            return PostgreSQLDataType.getMappingDataType(originalType);
-        }
-    },
-    ;
+public class PostgreSQLDataTypeStrategy implements DataTypeMappingStrategy {
 
     @Override
-    public abstract String getMappingDataType(String originalType);
+    public String getMappingDataType(String originalType) {
+        return PostgreSQLDataType.getMappingDataType(originalType);
+    }
 }

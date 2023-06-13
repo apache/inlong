@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.pojo.sort.node.base;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
-import org.apache.inlong.manager.common.datatype.DataTypeMappingStrategy;
+import org.apache.inlong.manager.common.datatype.strategy.DataTypeMappingStrategy;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
