@@ -26,6 +26,6 @@ public class PostgreSQLFieldTypeStrategy implements FieldTypeMappingStrategy {
 
     @Override
     public String getFieldTypeMapping(String originalType) {
-        return PostgreSQLFieldTypeMapping.getMappingDataType(originalType);
+        return PostgreSQLFieldTypeMapping.getFieldTypeMapping(originalType);
     }
 }

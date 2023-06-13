@@ -153,7 +153,7 @@ public enum PostgreSQLFieldTypeMapping implements BaseFieldTypeMapping {
      * @param originalType the original field type
      * @return the target field type of inlong field type mapping
      */
-    public static String getMappingDataType(String originalType) {
+    public static String getFieldTypeMapping(String originalType) {
         String dataType = StringUtils.substringBefore(originalType, LEFT_BRACKET).toUpperCase();
         return Stream.of(values()).filter(v -> v.getOriginalType().equals(dataType))
                 .map(PostgreSQLFieldTypeMapping::getTargetType).findFirst().orElse(originalType.toUpperCase());
