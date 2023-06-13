@@ -28,7 +28,7 @@
     <fileSets>
         <!--connector plugin-->
         <fileSet>
-            <directory>../inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/jdbc/target</directory>
+            <directory>../inlong-sort/sort-flink/sort-flink-v1.15/sort-connectors/postgres-cdc/target</directory>
             <outputDirectory>inlong-sort/connectors</outputDirectory>
             <includes>
                 <include>sort-connector-postgres-cdc-v1.15-${project.version}.jar</include>
