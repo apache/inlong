@@ -164,7 +164,7 @@ public final class MonitorTextFile {
         }
 
         /**
-         * reset the position and bytePositionreset the position and bytePosition
+         * reset the position and bytePosition
          */
         private void resetPosition() {
             LOGGER.info("reset position {}", fileReaderOperator.file.toPath());
