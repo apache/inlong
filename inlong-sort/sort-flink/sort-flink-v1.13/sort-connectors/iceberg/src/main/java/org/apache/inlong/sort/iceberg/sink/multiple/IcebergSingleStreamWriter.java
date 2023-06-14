@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
-import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.data.GenericRowData;
-import org.apache.flink.table.data.RowData;
 import org.apache.inlong.sort.base.dirty.DirtyData;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
@@ -38,6 +35,9 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
+import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.data.GenericRowData;
+import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.io.TaskWriter;
@@ -47,9 +47,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
@@ -172,7 +172,8 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     }
 
     public void switchToAppend() throws Exception {
-        if (taskWriterFactory.isAppendMode()) return;
+        if (taskWriterFactory.isAppendMode())
+            return;
 
         taskWriterFactory.switchToAppend();
         prepareSnapshotPreBarrier(0);
