@@ -102,7 +102,7 @@ public class CommonConfigHolder {
     public static final String VAL_DEF_FILE_METRIC_SINK_OUTPUT_NAME = "Sink";
     // event metric statistic name
     public static final String KEY_FILE_METRIC_EVENT_OUTPUT_NAME = "file.metric.event.output.name";
-    public static final String VAL_DEF_FILE_METRIC_EVENT_OUTPUT_NAME = "DataProxy_monitors";
+    public static final String VAL_DEF_FILE_METRIC_EVENT_OUTPUT_NAME = "Stats";
     // Audit fields
     public static final String KEY_ENABLE_AUDIT = "audit.enable";
     public static final boolean VAL_DEF_ENABLE_AUDIT = true;

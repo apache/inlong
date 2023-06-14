@@ -17,10 +17,9 @@
 
 package org.apache.inlong.dataproxy.channel;
 
-import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
-import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.exception.MainChannelFullException;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 
 import com.google.common.base.Preconditions;
@@ -258,7 +257,7 @@ public class FailoverChannelProcessor
                 tx.commit();
 
             } catch (Throwable t) {
-                errMsg = "Unable to put event on channel" + reqChannel.getName()
+                errMsg = "Unable to put event on channel " + reqChannel.getName()
                         + ", error message is " + t.getMessage();
                 if (logPrinter.shouldPrint()) {
                     LOG.error("FailoverChannelProcessor Unable to put event on required channel: "
@@ -279,9 +278,7 @@ public class FailoverChannelProcessor
         }
         if (!success) {
             if (MessageUtils.isSyncSendForOrder(event)) {
-                MessageUtils.sinkReturnRspPackage((SinkRspEvent) event,
-                        DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE, errMsg);
-                return;
+                throw new MainChannelFullException(errMsg);
             }
             List<Channel> optionalChannels = selector.getOptionalChannels(event);
             for (Channel optChannel : optionalChannels) {

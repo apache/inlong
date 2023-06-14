@@ -38,7 +38,8 @@ public enum DataProxyErrCode {
     HTTP_UNSUPPORTED_SERVICE_URI(35, "Un-supported service uri"),
     HTTP_UNSUPPORTED_CONTENT_TYPE(36, "Un-supported content type"),
 
-    FIELD_VALUE_NOT_EQUAL(95, "Field value not equal"),
+    FIELD_MAGIC_NOT_EQUAL(94, "Magic value not equal"),
+    FIELD_LENGTH_VALUE_NOT_EQUAL(95, "Field length value not equal"),
     UNCOMPRESS_DATA_ERROR(96, "Uncompress data error"),
 
     MISS_REQUIRED_GROUPID_ARGUMENT(100, "Parameter groupId is required"),
@@ -67,6 +68,9 @@ public enum DataProxyErrCode {
     DUPLICATED_MESSAGE(120, "Duplicated message"),
     GROUPID_OR_STREAMID_NOT_CONFIGURE(121, "GroupId or StreamId not found in configure"),
     GROUPID_OR_STREAMID_INCONSTANT(122, "GroupId or StreamId inconstant"),
+
+    ATTR_ORDER_CONTROL_CONFLICT_ERROR(150, "Require order send but isAck is false"),
+    ATTR_PROXY_CONTROL_CONFLICT_ERROR(151, "Require proxy send but isAck is false"),
 
     UNKNOWN_ERROR(Integer.MAX_VALUE, "Unknown error");
 

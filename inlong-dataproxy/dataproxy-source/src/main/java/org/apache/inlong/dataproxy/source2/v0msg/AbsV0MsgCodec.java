@@ -61,6 +61,7 @@ public abstract class AbsV0MsgCodec {
     protected String topicName;
     protected String msgSeqId = "";
     protected long uniq = -1L;
+    protected boolean isOrderOrProxy = false;
     protected String msgProcType = "b2b";
     protected boolean needResp = true;
 
@@ -88,6 +89,10 @@ public abstract class AbsV0MsgCodec {
 
     public boolean isNeedResp() {
         return this.needResp;
+    }
+
+    public boolean isOrderOrProxy() {
+        return isOrderOrProxy;
     }
 
     public byte getMsgType() {
@@ -142,6 +147,11 @@ public abstract class AbsV0MsgCodec {
         return msgRcvTime;
     }
 
+    public void setSuccessInfo() {
+        this.errCode = DataProxyErrCode.SUCCESS;
+        this.errMsg = "";
+    }
+
     public void setFailureInfo(DataProxyErrCode errCode) {
         setFailureInfo(errCode, "");
     }
@@ -168,7 +178,7 @@ public abstract class AbsV0MsgCodec {
             try {
                 this.attrMap.putAll(mapSplitter.split(this.origAttr));
             } catch (Exception e) {
-                source.fileMetricEventInc(StatConstants.EVENT_INVALIDATTR);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_ATTR_INVALID);
                 this.errCode = DataProxyErrCode.SPLIT_ATTR_ERROR;
                 this.errMsg = String.format("Parse attr (%s) failure", this.origAttr);
                 return false;
@@ -177,6 +187,28 @@ public abstract class AbsV0MsgCodec {
         // get whether return request
         if ("false".equalsIgnoreCase(attrMap.get(AttributeConstants.MESSAGE_IS_ACK))) {
             this.needResp = false;
+        }
+        // get whether sync send
+        if ("true".equalsIgnoreCase(attrMap.get(AttributeConstants.MESSAGE_SYNC_SEND))) {
+            if (!this.needResp) {
+                this.needResp = true;
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_ORDER_ACK_INVALID);
+                this.errCode = DataProxyErrCode.ATTR_ORDER_CONTROL_CONFLICT_ERROR;
+                return false;
+            }
+            this.isOrderOrProxy = true;
+            this.msgProcType = "order";
+        }
+        // get whether proxy send
+        if ("true".equalsIgnoreCase(attrMap.get(AttributeConstants.MESSAGE_PROXY_SEND))) {
+            if (!this.needResp) {
+                this.needResp = true;
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_PROXY_ACK_INVALID);
+                this.errCode = DataProxyErrCode.ATTR_PROXY_CONTROL_CONFLICT_ERROR;
+                return false;
+            }
+            this.isOrderOrProxy = true;
+            this.msgProcType = "proxy";
         }
         return true;
     }

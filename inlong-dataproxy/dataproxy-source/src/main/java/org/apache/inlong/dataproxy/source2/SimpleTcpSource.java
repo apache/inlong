@@ -83,6 +83,11 @@ public class SimpleTcpSource extends BaseSource implements Configurable {
                 new DefaultThreadFactory(this.getName() + "-worker-group"));
         // init boostrap
         bootstrap = new ServerBootstrap();
+        if (conLinger >= 0) {
+            bootstrap.option(ChannelOption.SO_LINGER, conLinger);
+        }
+        bootstrap.option(ChannelOption.SO_BACKLOG, conBacklog);
+        bootstrap.option(ChannelOption.SO_REUSEADDR, reuseAddress);
         bootstrap.childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT);
         bootstrap.childOption(ChannelOption.TCP_NODELAY, tcpNoDelay);
         bootstrap.childOption(ChannelOption.SO_KEEPALIVE, tcpKeepAlive);

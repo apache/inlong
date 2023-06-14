@@ -53,6 +53,11 @@ public class SimpleUdpSource extends BaseSource implements Configurable {
         logger.info("start " + this.getName());
         bootstrap = new Bootstrap();
         bootstrap.channel(NioDatagramChannel.class);
+        if (conLinger >= 0) {
+            bootstrap.option(ChannelOption.SO_LINGER, conLinger);
+        }
+        bootstrap.option(ChannelOption.SO_BACKLOG, conBacklog);
+        bootstrap.option(ChannelOption.SO_REUSEADDR, reuseAddress);
         bootstrap.option(ChannelOption.SO_RCVBUF, maxRcvBufferSize);
         bootstrap.option(ChannelOption.SO_SNDBUF, maxSendBufferSize);
         bootstrap.handler(this.getChannelInitializerFactory());

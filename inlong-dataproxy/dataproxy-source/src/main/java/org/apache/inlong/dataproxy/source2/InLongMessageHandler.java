@@ -44,7 +44,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,8 +92,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg == null) {
-            source.fileMetricEventInc(StatConstants.EVENT_EMPTY);
-            logger.debug("Get null msg, just skip!");
+            source.fileMetricIncSumStats(StatConstants.EVENT_PKG_READABLE_EMPTY);
             return;
         }
         ByteBuf cb = (ByteBuf) msg;
@@ -102,12 +100,11 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             int readableLength = cb.readableBytes();
             if (readableLength == 0 && source.isFilterEmptyMsg()) {
                 cb.clear();
-                source.fileMetricEventInc(StatConstants.EVENT_EMPTY);
-                logger.debug("skip empty msg.");
+                source.fileMetricIncSumStats(StatConstants.EVENT_PKG_READABLE_EMPTY);
                 return;
             }
             if (readableLength > source.getMaxMsgLength()) {
-                source.fileMetricEventInc(StatConstants.EVENT_OVERMAXLEN);
+                source.fileMetricIncSumStats(StatConstants.EVENT_PKG_READABLE_OVERMAX);
                 throw new Exception("Error msg, readableLength(" + readableLength +
                         ") > max allowed message length (" + source.getMaxMsgLength() + ")");
             }
@@ -118,9 +115,9 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             if (readableLength < totalDataLen + INLONG_LENGTH_FIELD_LENGTH) {
                 // reset index when buffer is not satisfied.
                 cb.resetReaderIndex();
-                source.fileMetricEventInc(StatConstants.EVENT_NOTEQUALLEN);
-                throw new Exception("Error msg, channel buffer is not satisfied, and  readableLength="
-                        + readableLength + ", and totalPackLength=" + totalDataLen + " + 4");
+                source.fileMetricIncSumStats(StatConstants.EVENT_PKG_READABLE_UNFILLED);
+                throw new Exception("Error msg, buffer is unfilled, readableLength="
+                        + readableLength + ", totalPackLength=" + totalDataLen + " + 4");
             }
             // read type
             int msgTypeValue = cb.readByte();
@@ -133,7 +130,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
                     processV1Msg(ctx, cb, bodyLength);
                 } else {
                     // unknown message type
-                    source.fileMetricEventInc(StatConstants.EVENT_MSGUNKNOWN_V1);
+                    source.fileMetricIncSumStats(StatConstants.EVENT_PKG_MSGTYPE_V1_INVALID);
                     throw new Exception("Unknown V1 message version, version = " + msgTypeValue);
                 }
             } else {
@@ -142,7 +139,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
                 MsgType msgType = MsgType.valueOf(msgTypeValue);
                 final long msgRcvTime = System.currentTimeMillis();
                 if (MsgType.MSG_UNKNOWN == msgType) {
-                    source.fileMetricEventInc(StatConstants.EVENT_MSGUNKNOWN_V0);
+                    source.fileMetricIncSumStats(StatConstants.EVENT_PKG_MSGTYPE_V0_INVALID);
                     if (logger.isDebugEnabled()) {
                         logger.debug("Received unknown message, channel {}", channel);
                     }
@@ -162,7 +159,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
                 // check whether totalDataLen is valid.
                 if (MsgType.MSG_BIN_MULTI_BODY == msgType) {
                     if (totalDataLen < BIN_MSG_FIXED_CONTENT_SIZE) {
-                        source.fileMetricEventInc(StatConstants.EVENT_MALFORMED);
+                        source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BIN_TOTALLEN_BELOWMIN);
                         String errMsg = String.format("Malformed msg, totalDataLen(%d) < min bin7-msg length(%d)",
                                 totalDataLen, BIN_MSG_FIXED_CONTENT_SIZE);
                         if (logger.isDebugEnabled()) {
@@ -173,7 +170,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
                     msgCodec = new CodecBinMsg(totalDataLen, msgTypeValue, msgRcvTime, strRemoteIP);
                 } else {
                     if (totalDataLen < TXT_MSG_FIXED_CONTENT_SIZE) {
-                        source.fileMetricEventInc(StatConstants.EVENT_MALFORMED);
+                        source.fileMetricIncSumStats(StatConstants.EVENT_MSG_TXT_TOTALLEN_BELOWMIN);
                         String errMsg = String.format("Malformed msg, totalDataLen(%d) < min txt-msg length(%d)",
                                 totalDataLen, TXT_MSG_FIXED_CONTENT_SIZE);
                         if (logger.isDebugEnabled()) {
@@ -198,7 +195,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             String strRemoteIp = AddressUtils.getChannelRemoteIP(ctx.channel());
             if (strRemoteIp != null
                     && ConfigManager.getInstance().isIllegalIP(strRemoteIp)) {
-                source.fileMetricEventInc(StatConstants.EVENT_VISIT_ILLEGAL);
+                source.fileMetricIncSumStats(StatConstants.EVENT_VISIT_ILLEGAL);
                 ctx.channel().disconnect();
                 ctx.channel().close();
                 logger.error(strRemoteIp + " is Illegal IP, so refuse it !");
@@ -207,7 +204,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         }
         // check max allowed connection count
         if (source.getAllChannels().size() >= source.getMaxConnections()) {
-            source.fileMetricEventInc(StatConstants.EVENT_VISIT_OVERMAX);
+            source.fileMetricIncSumStats(StatConstants.EVENT_VISIT_OVERMAX);
             ctx.channel().disconnect();
             ctx.channel().close();
             logger.warn("{} refuse to connect = {} , connections = {}, maxConnections = {}",
@@ -217,32 +214,33 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         // add legal channel
         source.getAllChannels().add(ctx.channel());
         ctx.fireChannelActive();
-        source.fileMetricEventInc(StatConstants.EVENT_VISIT_LINKIN);
+        source.fileMetricIncSumStats(StatConstants.EVENT_VISIT_LINKIN);
         logger.info("{} added new channel {}, current connections = {}, maxConnections = {}",
                 source.getName(), ctx.channel(), source.getAllChannels().size(), source.getMaxConnections());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        logger.error("{} channel {} inactive", source.getName(), ctx.channel());
+        source.fileMetricIncSumStats(StatConstants.EVENT_VISIT_LINKOUT);
         ctx.fireChannelInactive();
         source.getAllChannels().remove(ctx.channel());
-        source.fileMetricEventInc(StatConstants.EVENT_VISIT_LINKOUT);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        source.fileMetricEventInc(StatConstants.EVENT_VISIT_EXCEPTION);
-        logger.error("{} channel {} throw exception", source.getName(), ctx.channel(), cause);
-        ctx.fireExceptionCaught(cause);
+        source.fileMetricIncSumStats(StatConstants.EVENT_VISIT_EXCEPTION);
+        if (logCounter.shouldPrint()) {
+            logger.warn("{} received an exception from channel {}",
+                    source.getName(), ctx.channel(), cause);
+        }
         if (ctx.channel() != null) {
+            source.getAllChannels().remove(ctx.channel());
             try {
                 ctx.channel().disconnect();
                 ctx.channel().close();
             } catch (Exception ex) {
                 //
             }
-            source.getAllChannels().remove(ctx.channel());
         }
         ctx.close();
     }
@@ -256,14 +254,14 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         }
         // check service status.
         if (source.isRejectService()) {
-            source.fileMetricEventInc(StatConstants.EVENT_SERVICE_CLOSED);
+            source.fileMetricIncSumStats(StatConstants.EVENT_SERVICE_CLOSED);
             msgCodec.setFailureInfo(DataProxyErrCode.SERVICE_CLOSED);
             responseV0Msg(channel, msgCodec, strBuff);
             return;
         }
         // check if the node is linked to the Manager.
         if (!ConfigManager.getInstance().isMqClusterReady()) {
-            source.fileMetricEventInc(StatConstants.EVENT_SERVICE_SINK_UNREADY);
+            source.fileMetricIncSumStats(StatConstants.EVENT_SERVICE_SINK_UNREADY);
             msgCodec.setFailureInfo(DataProxyErrCode.SINK_SERVICE_UNREADY);
             responseV0Msg(channel, msgCodec, strBuff);
             return;
@@ -278,29 +276,37 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         // build metric data item
         long longDataTime = msgCodec.getDataTimeMs() / 1000 / 60 / 10;
         longDataTime = longDataTime * 1000 * 60 * 10;
-        strBuff.append(source.getProtocolName()).append(AttrConstants.SEPARATOR)
-                .append(msgCodec.getTopicName()).append(AttrConstants.SEPARATOR)
-                .append(msgCodec.getStreamId()).append(AttrConstants.SEPARATOR)
-                .append(msgCodec.getStrRemoteIP()).append(AttrConstants.SEPARATOR)
-                .append(source.getStrPort()).append(AttrConstants.SEPARATOR)
-                .append(msgCodec.getMsgProcType()).append(AttrConstants.SEPARATOR)
-                .append(DateTimeUtils.ms2yyyyMMddHHmm(longDataTime))
-                .append(AttrConstants.SEPARATOR).append(
-                        DateTimeUtils.ms2yyyyMMddHHmm(msgCodec.getMsgRcvTime()));
+        String statsKey = strBuff.append(source.getProtocolName()).append(AttrConstants.SEP_HASHTAG)
+                .append(msgCodec.getGroupId()).append(AttrConstants.SEP_HASHTAG)
+                .append(msgCodec.getStreamId()).append(AttrConstants.SEP_HASHTAG)
+                .append(msgCodec.getStrRemoteIP()).append(AttrConstants.SEP_HASHTAG)
+                .append(source.getSrcHost()).append(AttrConstants.SEP_HASHTAG)
+                .append(msgCodec.getMsgProcType()).append(AttrConstants.SEP_HASHTAG)
+                .append(DateTimeUtils.ms2yyyyMMddHHmm(longDataTime)).append(AttrConstants.SEP_HASHTAG)
+                .append(DateTimeUtils.ms2yyyyMMddHHmm(msgCodec.getMsgRcvTime())).toString();
+        strBuff.delete(0, strBuff.length());
         try {
             source.getChannelProcessor().processEvent(event);
-            source.fileMetricEventInc(StatConstants.EVENT_POST_SUCCESS);
-            source.fileMetricRecordAdd(strBuff.toString(),
-                    msgCodec.getMsgCount(), 1, msgCodec.getBodyLength(), 0);
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_SUCCESS);
+            source.fileMetricAddSuccCnt(statsKey, msgCodec.getMsgCount(), 1, msgCodec.getBodyLength());
             source.addMetric(true, event.getBody().length, event);
-            strBuff.delete(0, strBuff.length());
+            if (msgCodec.isNeedResp() && !msgCodec.isOrderOrProxy()) {
+                msgCodec.setSuccessInfo();
+                responseV0Msg(channel, msgCodec, strBuff);
+            }
         } catch (Throwable ex) {
-            logger.error("Error writting to channel, data will discard.", ex);
-            source.fileMetricEventInc(StatConstants.EVENT_POST_DROPPED);
-            source.fileMetricRecordAdd(strBuff.toString(), 0, 0, 0, msgCodec.getMsgCount());
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_FAILURE);
+            source.fileMetricAddFailCnt(statsKey, msgCodec.getMsgCount());
             source.addMetric(false, event.getBody().length, event);
-            strBuff.delete(0, strBuff.length());
-            throw new ChannelException("ProcessEvent error can't write event to channel.");
+            if (msgCodec.isNeedResp() && !msgCodec.isOrderOrProxy()) {
+                msgCodec.setFailureInfo(DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE,
+                        strBuff.append("Put event to channel failure: ").append(ex.getMessage()).toString());
+                strBuff.delete(0, strBuff.length());
+                responseV0Msg(channel, msgCodec, strBuff);
+            }
+            if (logCounter.shouldPrint()) {
+                logger.error("Error writing event to channel failure.", ex);
+            }
         }
     }
 
@@ -313,7 +319,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         // reject service
         if (source.isRejectService()) {
             source.addMetric(false, 0, null);
-            source.fileMetricEventInc(StatConstants.EVENT_SERVICE_CLOSED);
+            source.fileMetricIncSumStats(StatConstants.EVENT_SERVICE_CLOSED);
             this.responsePackage(ctx, ProxySdk.ResultCode.ERR_REJECT, packObject);
             return;
         }
@@ -380,7 +386,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             source.getChannelProcessor().processEvent(packEvent);
             events.forEach(event -> {
                 source.addMetric(true, event.getBody().length, event);
-                source.fileMetricEventInc(StatConstants.EVENT_POST_SUCCESS);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V1_POST_SUCCESS);
             });
             boolean awaitResult = callback.getLatch().await(
                     CommonConfigHolder.getInstance().getMaxResAfterSaveTimeout(), TimeUnit.MILLISECONDS);
@@ -393,7 +399,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             logger.error("Process Controller Event error can't write event to channel.", ex);
             events.forEach(event -> {
                 source.addMetric(false, event.getBody().length, event);
-                source.fileMetricEventInc(StatConstants.EVENT_POST_DROPPED);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V1_POST_DROPPED);
             });
             if (!callback.getHasResponsed().getAndSet(true)) {
                 this.responsePackage(ctx, ProxySdk.ResultCode.ERR_REJECT, packObject);
@@ -418,7 +424,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
                 if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
                     topic = source.getDefTopic();
                 } else {
-                    source.fileMetricEventInc(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
+                    source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
                     source.addMetric(false, event.getBody().length, event);
                     this.responsePackage(ctx, ProxySdk.ResultCode.ERR_ID_ERROR, packObject);
                     return;
@@ -429,12 +435,12 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             try {
                 source.getChannelProcessor().processEvent(event);
                 source.addMetric(true, event.getBody().length, event);
-                source.fileMetricEventInc(StatConstants.EVENT_POST_SUCCESS);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V1_POST_SUCCESS);
             } catch (Throwable ex) {
                 logger.error("Process Controller Event error can't write event to channel.", ex);
                 source.addMetric(false, event.getBody().length, event);
                 this.responsePackage(ctx, ProxySdk.ResultCode.ERR_REJECT, packObject);
-                source.fileMetricEventInc(StatConstants.EVENT_POST_DROPPED);
+                source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V1_POST_DROPPED);
                 return;
             }
         }
@@ -447,7 +453,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
     private void responseV0Msg(Channel channel, AbsV0MsgCodec msgObj, StringBuilder strBuff) throws Exception {
         // check channel status
         if (channel == null || !channel.isWritable()) {
-            source.fileMetricEventInc(StatConstants.EVENT_CHANNEL_NOT_WRITABLE);
+            source.fileMetricIncSumStats(StatConstants.EVENT_REMOTE_UNWRITABLE);
             if (logCounter.shouldPrint()) {
                 logger.warn("Prepare send msg but channel full, msgType={}, attr={}, channel={}",
                         msgObj.getMsgType(), msgObj.getAttr(), channel);
@@ -491,7 +497,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             ByteBuf cb, int totalDataLen) throws Exception {
         // Check if the message is complete and legal
         if (totalDataLen < BIN_HB_FIXED_CONTENT_SIZE) {
-            source.fileMetricEventInc(StatConstants.EVENT_MALFORMED);
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_HB_TOTALLEN_BELOWMIN);
             String errMsg = String.format("Malformed msg, totalDataLen(%d) < min hb-msg length(%d)",
                     totalDataLen, BIN_HB_FIXED_CONTENT_SIZE);
             if (logger.isDebugEnabled()) {
@@ -505,12 +511,20 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         int attrLen = cb.getShort(msgHeadPos + BIN_HB_BODY_OFFSET + bodyLen);
         int msgMagic = cb.getUnsignedShort(msgHeadPos
                 + BIN_HB_BODY_OFFSET + bodyLen + BIN_HB_ATTRLEN_SIZE + attrLen);
-        if ((totalDataLen + BIN_HB_TOTALLEN_SIZE < (bodyLen + attrLen + BIN_HB_FORMAT_SIZE))
-                || (msgMagic != BIN_MSG_MAGIC)) {
-            source.fileMetricEventInc(StatConstants.EVENT_MALFORMED);
+        if (msgMagic != BIN_MSG_MAGIC) {
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_HB_MAGIC_UNEQUAL);
             String errMsg = String.format(
-                    "Malformed msg, bodyLen(%d) + attrLen(%d) > totalDataLen(%d) or msgMagic(%d) != %d",
-                    bodyLen, attrLen, totalDataLen, msgMagic, BIN_MSG_MAGIC);
+                    "Malformed msg, msgMagic(%d) != %d", msgMagic, BIN_MSG_MAGIC);
+            if (logger.isDebugEnabled()) {
+                logger.debug(errMsg + ", channel {}", channel);
+            }
+            throw new Exception(errMsg);
+        }
+        if (totalDataLen + BIN_HB_TOTALLEN_SIZE < (bodyLen + attrLen + BIN_HB_FORMAT_SIZE)) {
+            source.fileMetricIncSumStats(StatConstants.EVENT_MSG_HB_LEN_MALFORMED);
+            String errMsg = String.format(
+                    "Malformed msg, bodyLen(%d) + attrLen(%d) > totalDataLen(%d)",
+                    bodyLen, attrLen, totalDataLen);
             if (logger.isDebugEnabled()) {
                 logger.debug(errMsg + ", channel {}", channel);
             }
@@ -643,7 +657,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         if (channel == null || !channel.isWritable()) {
             // release allocated ByteBuf
             binBuffer.release();
-            source.fileMetricEventInc(StatConstants.EVENT_CHANNEL_NOT_WRITABLE);
+            source.fileMetricIncSumStats(StatConstants.EVENT_REMOTE_UNWRITABLE);
             if (logCounter.shouldPrint()) {
                 logger.warn("Send msg but channel full, attr={}, channel={}", orgAttr, channel);
             }

@@ -18,8 +18,6 @@
 package org.apache.inlong.dataproxy.source2;
 
 import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.common.monitor.MonitorIndex;
-import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.admin.ProxyServiceMBean;
 import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
@@ -29,6 +27,8 @@ import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
+import org.apache.inlong.dataproxy.metrics.stats.MonitorIndex;
+import org.apache.inlong.dataproxy.metrics.stats.MonitorStats;
 import org.apache.inlong.dataproxy.source2.httpMsg.InLongHttpMsgHandler;
 import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.ConfStringUtils;
@@ -105,6 +105,12 @@ public abstract class BaseSource
     protected long maxReadIdleTimeMs;
     // max connection count
     protected int maxConnections;
+    // reuse address
+    protected boolean reuseAddress;
+    // connect backlog
+    protected int conBacklog;
+    // connect linger
+    protected int conLinger = -1;
     // netty parameters
     protected EventLoopGroup acceptorGroup;
     protected EventLoopGroup workerGroup;
@@ -116,7 +122,7 @@ public abstract class BaseSource
     protected int maxSendBufferSize;
     // file metric statistic
     protected MonitorIndex monitorIndex = null;
-    private MonitorIndexExt monitorIndexExt = null;
+    private MonitorStats monitorStats = null;
     // metric set
     protected DataProxyMetricItemSet metricItemSet;
 
@@ -202,6 +208,24 @@ public abstract class BaseSource
         Preconditions.checkArgument(this.maxConnections >= SourceConstants.VAL_MIN_CONNECTION_CNT,
                 SourceConstants.SRCCXT_MAX_CONNECTION_CNT + " must be >= "
                         + SourceConstants.VAL_MIN_CONNECTION_CNT);
+        // get connect backlog
+        this.conBacklog = ConfStringUtils.getIntValue(context,
+                SourceConstants.SRCCXT_CONN_BACKLOG, SourceConstants.VAL_DEF_CONN_BACKLOG);
+        Preconditions.checkArgument(this.conBacklog >= SourceConstants.VAL_MIN_CONN_BACKLOG,
+                SourceConstants.SRCCXT_CONN_BACKLOG + " must be >= "
+                        + SourceConstants.VAL_MIN_CONN_BACKLOG);
+        // get connect linger
+        Integer tmpValue = context.getInteger(SourceConstants.SRCCXT_CONN_LINGER);
+        if (tmpValue != null && tmpValue >= 0) {
+            this.conLinger = tmpValue;
+        }
+        // get whether reuse address
+        this.reuseAddress = context.getBoolean(SourceConstants.SRCCXT_REUSE_ADDRESS,
+                SourceConstants.VAL_DEF_REUSE_ADDRESS);
+
+        // get whether custom channel processor
+        this.customProcessor = context.getBoolean(SourceConstants.SRCCXT_CUSTOM_CHANNEL_PROCESSOR,
+                SourceConstants.VAL_DEF_CUSTOM_CH_PROCESSOR);
         // get max receive buffer size
         this.maxRcvBufferSize = ConfStringUtils.getIntValue(context,
                 SourceConstants.SRCCXT_RECEIVE_BUFFER_SIZE, SourceConstants.VAL_DEF_RECEIVE_BUFFER_SIZE);
@@ -233,13 +257,15 @@ public abstract class BaseSource
         // init monitor logic
         if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
             this.monitorIndex = new MonitorIndex(CommonConfigHolder.getInstance().getFileMetricSourceOutName(),
-                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
+                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec() * 1000L,
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
-            this.monitorIndexExt = new MonitorIndexExt(
+            this.monitorIndex.start();
+            this.monitorStats = new MonitorStats(
                     CommonConfigHolder.getInstance().getFileMetricEventOutName()
                             + AttrConstants.SEP_HASHTAG + this.getProtocolName(),
-                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
+                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec() * 1000L,
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
+            this.monitorStats.start();
         }
         startSource();
         // register
@@ -269,21 +295,21 @@ public abstract class BaseSource
         }
         // stop super class
         super.stop();
-        // stop file statistic index
-        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            if (monitorIndex != null) {
-                monitorIndex.shutDown();
-            }
-            if (monitorIndexExt != null) {
-                monitorIndexExt.shutDown();
-            }
-        }
         // stop workers
         if (this.acceptorGroup != null) {
             this.acceptorGroup.shutdownGracefully();
         }
         if (this.workerGroup != null) {
             this.workerGroup.shutdownGracefully();
+        }
+        // stop file statistic index
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+            if (monitorIndex != null) {
+                monitorIndex.stop();
+            }
+            if (monitorStats != null) {
+                monitorStats.stop();
+            }
         }
         logger.info("[STOP {} SOURCE]{} stopped", this.getProtocolName(), this.getName());
     }
@@ -385,18 +411,29 @@ public abstract class BaseSource
         return maxWorkerThreads;
     }
 
-    public void fileMetricEventInc(String eventKey) {
+    public void fileMetricIncSumStats(String eventKey) {
         if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            monitorIndexExt.incrementAndGet(eventKey);
+            monitorStats.incSumStats(eventKey);
         }
     }
 
-    public void fileMetricRecordAdd(String key, int cnt, int packCnt, long packSize, int failCnt) {
+    public void fileMetricIncDetailStats(String eventKey) {
         if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            monitorIndex.addAndGet(key, cnt, packCnt, packSize, failCnt);
+            monitorStats.incDetailStats(eventKey);
         }
     }
 
+    public void fileMetricAddSuccCnt(String key, int cnt, int packCnt, long packSize) {
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+            monitorIndex.addSuccStats(key, cnt, packCnt, packSize);
+        }
+    }
+
+    public void fileMetricAddFailCnt(String key, int failCnt) {
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+            monitorIndex.addFailStats(key, failCnt);
+        }
+    }
     /**
      * addMetric
      *
