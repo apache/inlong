@@ -255,9 +255,6 @@ public class KafkaSink extends AbstractSink {
                 batchMsg.getStreamId(), batchMsg.getDataTime(), batchMsg.getMsgCnt(),
                 batchMsg.getTotalSize());
         sinkMetric.pluginSendSuccessCount.addAndGet(batchMsg.getMsgCnt());
-        if (sourceName != null) {
-            taskPositionManager.updateSinkPosition(batchMsg.getJobId(), sourceName, batchMsg.getMsgCnt(), false);
-        }
     }
 
     private KafkaProducer<String, byte[]> selectProducer() {

@@ -73,7 +73,7 @@ import static org.powermock.api.support.membermodification.MemberMatcher.field;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({TaskManager.class, MetricRegister.class})
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"javax.management.*"})
 public class TestTextFileTask {
 
     public static final TemporaryFolder TMP_FOLDER = new TemporaryFolder();
@@ -92,7 +92,6 @@ public class TestTextFileTask {
         taskCache = new ArrayList<>();
         TMP_FOLDER.create();
 
-        // mock metrics
         taskManager = new TaskManager(null);
         agentMetricItemSet = mock(AgentMetricItemSet.class);
         agentMetricItem = mock(AgentMetricItem.class);
@@ -106,7 +105,7 @@ public class TestTextFileTask {
     }
 
     @AfterClass
-    public static void teardown() {
+    public static void teardown() throws Exception {
         TMP_FOLDER.delete();
     }
 

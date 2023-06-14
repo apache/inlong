@@ -43,9 +43,7 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_INT
 public final class MonitorTextFile {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MonitorTextFile.class);
-    /**
-     * monitor thread pool
-      */
+    // monitor thread pool
     private static final ThreadPoolExecutor EXECUTOR_SERVICE = new ThreadPoolExecutor(
             0, Integer.MAX_VALUE,
             60L, TimeUnit.SECONDS,
@@ -136,12 +134,9 @@ public final class MonitorTextFile {
                 attributesAfter = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
                 currentPath = file.getCanonicalPath();
 
-                if (attributesAfter.fileKey() == null) {
-                    return;
-                }
-
                 // Determine whether the inode has changed
                 if (isInodeChanged(attributesAfter.fileKey().toString())) {
+                    LOGGER.info("{} inode changed resetPosition", fileReaderOperator.file.toPath());
                     resetPosition();
                 }
                 fileReaderOperator.fileKey = attributesAfter.fileKey().toString();
@@ -154,6 +149,7 @@ public final class MonitorTextFile {
 
             // if change symbolic links
             if (attributesAfter.isSymbolicLink() && !path.equals(currentPath)) {
+                LOGGER.info("{} symbolicLink changed resetPosition", fileReaderOperator.file.toPath());
                 resetPosition();
                 path = currentPath;
             }
@@ -168,7 +164,7 @@ public final class MonitorTextFile {
         }
 
         /**
-         * Reset the position and bytePosition
+         * reset the position and bytePosition
          */
         private void resetPosition() {
             LOGGER.info("reset position {}", fileReaderOperator.file.toPath());
@@ -178,22 +174,25 @@ public final class MonitorTextFile {
             String jobInstanceId = fileReaderOperator.getJobInstanceId();
             if (jobInstanceId != null) {
                 TaskPositionManager.getInstance().updateSinkPosition(
-                        jobInstanceId, fileReaderOperator.getReadSource(), 0, true);
+                        jobInstanceId, fileReaderOperator.getReadSource(), 0);
             }
         }
 
         /**
          * Determine whether the inode has changed
          *
-         * @param currentFileKey current file key
-         * @return true if the inode changed, otherwise false
+         * @param currentFileKey
+         * @return
          */
         private boolean isInodeChanged(String currentFileKey) {
             if (fileReaderOperator.fileKey == null || currentFileKey == null) {
                 return false;
             }
 
-            return !fileReaderOperator.fileKey.equals(currentFileKey);
+            if (fileReaderOperator.fileKey.equals(currentFileKey)) {
+                return false;
+            }
+            return true;
         }
     }
 }

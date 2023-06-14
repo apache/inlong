@@ -21,7 +21,6 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.FileTriggerType;
 import org.apache.inlong.agent.constant.MetadataConstants;
-import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
@@ -70,7 +69,8 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES;
 import static org.apache.inlong.agent.constant.MetadataConstants.ENV_CVM;
 
-@PowerMockIgnore({"javax.management.*", "javax.script.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*",
+@PowerMockIgnore({"javax.net.ssl.*", "javax.management.*", "javax.script.*", "com.sun.org.apache.xerces.*",
+        "javax.xml.*", "org.xml.*",
         "org.w3c.*"})
 @PrepareForTest({MetricRegister.class})
 public class TestTextFileReader {
@@ -87,7 +87,7 @@ public class TestTextFileReader {
     }
 
     @AfterClass
-    public static void teardown() {
+    public static void teardown() throws Exception {
         helper.teardownAgentHome();
     }
 
@@ -196,11 +196,11 @@ public class TestTextFileReader {
                 break;
             }
             String content = getContent(message.toString());
+            LOGGER.info("content is {}", content);
             Assert.assertTrue(
-                    content.equalsIgnoreCase("hello ")
-                            || content.equalsIgnoreCase(" aa" + System.lineSeparator() + "world ")
-                            || content.equalsIgnoreCase(System.lineSeparator() + "agent "));
-            LOGGER.info("message is {}", message.toString());
+                    content.equalsIgnoreCase("hello line-end-symbol aa")
+                            || content.equalsIgnoreCase("world line-end-symbol")
+                            || content.equalsIgnoreCase("agent line-end-symbol"));
         }
     }
 
@@ -240,7 +240,6 @@ public class TestTextFileReader {
 
     @Test
     public void testTextSeekReader() throws Exception {
-        final AgentManager agentManager = new AgentManager();
         Path localPath = Paths.get(testDir.toString(), "test.txt");
         LOGGER.info("start to create {}", localPath);
         List<String> beforeList = new ArrayList<>();

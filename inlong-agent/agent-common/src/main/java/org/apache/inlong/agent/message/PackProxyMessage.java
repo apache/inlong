@@ -144,15 +144,12 @@ public class PackProxyMessage {
             while (!messageQueue.isEmpty()) {
                 // pre check message size
                 ProxyMessage peekMessage = messageQueue.peek();
-                if (peekMessage == null) {
-                    break;
-                }
-
-                // if the message size is greater than max pack size,should drop it.
                 int peekMessageLength = peekMessage.getBody().length;
                 if (peekMessageLength > maxPackSize) {
                     LOGGER.warn("message size is {}, greater than max pack size {}, drop it!",
                             peekMessage.getBody().length, maxPackSize);
+                    int bodySize = peekMessage.getBody().length;
+                    queueSize.addAndGet(-bodySize);
                     messageQueue.remove();
                     break;
                 }
@@ -160,13 +157,11 @@ public class PackProxyMessage {
                     break;
                 }
                 ProxyMessage message = messageQueue.remove();
-                if (message != null) {
-                    int bodySize = message.getBody().length;
-                    resultBatchSize += bodySize;
-                    // decrease queue size.
-                    queueSize.addAndGet(-bodySize);
-                    result.add(message.getBody());
-                }
+                int bodySize = message.getBody().length;
+                resultBatchSize += bodySize;
+                // decrease queue size.
+                queueSize.addAndGet(-bodySize);
+                result.add(message.getBody());
             }
             // make sure result is not empty.
             if (!result.isEmpty()) {

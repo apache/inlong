@@ -346,9 +346,6 @@ public class SenderManager {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, msgCnt,
                         batchMessage.getTotalSize());
                 getMetricItem(groupId, streamId).pluginSendSuccessCount.addAndGet(msgCnt);
-                if (sourcePath != null) {
-                    taskPositionManager.updateSinkPosition(batchMessage.getJobId(), sourcePath, msgCnt, false);
-                }
             } else {
                 LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, jobId, dataTime, retry, result);
