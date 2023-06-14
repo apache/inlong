@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.reader;
 
-import com.github.shyiko.mysql.binlog.event.Event;
-import com.github.shyiko.mysql.binlog.event.EventType;
-import java.util.function.Predicate;
 import org.apache.inlong.sort.cdc.mysql.debezium.task.MySqlBinlogSplitReadTask;
 import org.apache.inlong.sort.cdc.mysql.debezium.task.context.StatefulTaskContext;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
@@ -30,6 +27,8 @@ import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.apache.inlong.sort.cdc.mysql.source.utils.ChunkUtils;
 import org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils;
 
+import com.github.shyiko.mysql.binlog.event.Event;
+import com.github.shyiko.mysql.binlog.event.EventType;
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.connector.mysql.MySqlOffsetContext;
 import io.debezium.connector.mysql.MySqlStreamingChangeEventSourceMetrics;
@@ -54,6 +53,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.function.Predicate;
 
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getSplitInfoByBinarySearch;
@@ -284,9 +284,8 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecord, MySqlSpli
             // Notes:
             // 1. Heartbeat event doesn't contain timestamp, so we just keep it
             // 2. Timestamp of event is in epoch millisecond
-            return event ->
-                    EventType.HEARTBEAT.equals(event.getHeader().getEventType())
-                            || event.getHeader().getTimestamp() >= startTimestampSec * 1000;
+            return event -> EventType.HEARTBEAT.equals(event.getHeader().getEventType())
+                    || event.getHeader().getTimestamp() >= startTimestampSec * 1000;
         }
         return event -> true;
     }
