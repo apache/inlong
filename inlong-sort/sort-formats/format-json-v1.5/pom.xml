@@ -26,14 +26,21 @@
         <version>1.8.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sort-format-base</artifactId>
-    <name>Apache InLong - Sort Format-base</name>
+    <artifactId>sort-format-json-v1.5</artifactId>
+    <name>Apache InLong - Sort Format-json-v1.5</name>
 
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
+        <flink.version>1.15.4</flink.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-json</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-format-common</artifactId>
@@ -43,18 +50,42 @@
 
         <dependency>
             <groupId>org.apache.flink</groupId>
+            <artifactId>flink-shaded-jackson</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-core</artifactId>
-            <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-common</artifactId>
-            <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-flink-dependencies-${sort.flink.version}</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -96,9 +96,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
 import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
 import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DERIVE_SCHEMA;
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
 
 /**

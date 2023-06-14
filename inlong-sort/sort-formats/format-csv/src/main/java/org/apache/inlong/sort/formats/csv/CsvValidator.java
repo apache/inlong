@@ -21,17 +21,20 @@ import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
-import org.apache.flink.table.descriptors.FormatDescriptorValidator;
+import org.apache.flink.table.descriptors.DescriptorValidator;
+
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_PROPERTY_VERSION;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_TYPE;
 
 /**
  * Validator for {@link Csv}.
  */
-public class CsvValidator extends FormatDescriptorValidator {
+public class CsvValidator implements DescriptorValidator {
 
     @Override
     public void validate(DescriptorProperties properties) {
-        super.validate(properties);
-
+        properties.validateString(FORMAT_TYPE, false, 1);
+        properties.validateString(FORMAT_PROPERTY_VERSION, true, 1);
         properties.validateString(TableFormatConstants.FORMAT_DELIMITER, true, 1, 1);
         properties.validateString(TableFormatConstants.FORMAT_ESCAPE_CHARACTER, true, 1, 1);
         properties.validateString(TableFormatConstants.FORMAT_QUOTE_CHARACTER, true, 1, 1);
