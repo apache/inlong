@@ -103,8 +103,8 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
     }
 
     public void switchToAppend() {
-        this.appendMode = false;
-        this.upsert = true;
+        this.appendMode = true;
+        this.upsert = false;
     }
 
     public boolean isAppendMode() {
