@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.pojo.sort.util;
 
 import org.apache.inlong.common.enums.MetaField;
-import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
 import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
 import org.apache.inlong.manager.pojo.fieldformat.BinaryFormat;
 import org.apache.inlong.manager.pojo.fieldformat.DecimalFormat;
