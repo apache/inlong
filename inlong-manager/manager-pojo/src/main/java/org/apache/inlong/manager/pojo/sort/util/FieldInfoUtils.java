@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import java.util.Objects;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
@@ -58,6 +57,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
 
