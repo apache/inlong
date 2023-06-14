@@ -52,8 +52,7 @@ import java.util.stream.Collectors;
  * */
 public class SnapshotSplitAssigner<C extends SourceConfig> implements SplitAssigner {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            com.ververica.cdc.connectors.base.source.assigner.SnapshotSplitAssigner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SnapshotSplitAssigner.class);
 
     private final List<TableId> alreadyProcessedTables;
     private final List<SchemalessSnapshotSplit> remainingSplits;
