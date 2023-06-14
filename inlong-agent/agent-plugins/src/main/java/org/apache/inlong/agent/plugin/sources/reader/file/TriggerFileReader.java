@@ -17,12 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
-
-import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -30,6 +29,8 @@ public class TriggerFileReader implements Reader {
 
     @NotNull
     private String triggerId;
+
+    public volatile boolean finished = false;
 
     @Override
     public Message read() {
@@ -44,7 +45,7 @@ public class TriggerFileReader implements Reader {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return finished;
     }
 
     @Override
@@ -69,7 +70,7 @@ public class TriggerFileReader implements Reader {
 
     @Override
     public void finishRead() {
-
+        finished = true;
     }
 
     @Override
