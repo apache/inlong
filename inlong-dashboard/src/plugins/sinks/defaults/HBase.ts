@@ -146,6 +146,8 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend, Rend
       size: 'small',
       editing: ![110, 130].includes(values?.status),
       columns: getFieldListColumns(values),
+      canBatchAdd: true,
+      upsertKey: 'fieldName',
     }),
   })
   sinkFieldList: Record<string, unknown>[];

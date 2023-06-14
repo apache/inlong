@@ -143,6 +143,8 @@ export default class OracleSink extends SinkInfo implements DataWithBackend, Ren
       size: 'small',
       editing: ![110, 130].includes(values?.status),
       columns: getFieldListColumns(values),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
     }),
   })
   sinkFieldList: Record<string, unknown>[];

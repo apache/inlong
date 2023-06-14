@@ -244,6 +244,8 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
       size: 'small',
       columns: getFieldListColumns(values),
       canDelete: ![110, 130].includes(values?.status),
+      canBatchAdd: true,
+      upsertByFieldKey: true,
     }),
   })
   sinkFieldList: Record<string, unknown>[];
