@@ -23,9 +23,16 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * AbsStatsDaemon
+ *
+ *
+ * Statistics daemon that periodically outputs metrics data to a file.
+ */
+
 public abstract class AbsStatsDaemon implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbsStatsDaemon.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbsStatsDaemon.class);
     private static final long MAX_PRINT_TIME_MS = 10000L;
     private final String name;
     private final String threadName;
@@ -46,7 +53,7 @@ public abstract class AbsStatsDaemon implements Runnable {
 
     public void start() {
         this.daemon.start();
-        logger.info("{} is started!", this.name);
+        LOGGER.info("{} is started!", this.name);
     }
 
     public boolean isStopped() {
@@ -58,7 +65,7 @@ public abstract class AbsStatsDaemon implements Runnable {
             return true;
         }
         if (this.shutdown.compareAndSet(false, true)) {
-            logger.info("{} is closing ......", this.name);
+            LOGGER.info("{} is closing ......", this.name);
             try {
                 if (this.daemon != null) {
                     this.daemon.interrupt();
@@ -67,7 +74,7 @@ public abstract class AbsStatsDaemon implements Runnable {
             } catch (Throwable e) {
                 //
             }
-            logger.info("{} is stopped", this.name);
+            LOGGER.info("{} is stopped", this.name);
             return false;
         }
         return true;
@@ -99,7 +106,7 @@ public abstract class AbsStatsDaemon implements Runnable {
     public void run() {
         int printCnt;
         long startTime;
-        logger.info("{} is started", this.threadName);
+        LOGGER.info("{} is started", this.threadName);
         // process daemon task
         while (!shutdown.get()) {
             try {
@@ -109,26 +116,26 @@ public abstract class AbsStatsDaemon implements Runnable {
                 printCnt = loopProcess(startTime);
                 checkAndPrintStatus(printCnt, System.currentTimeMillis() - startTime);
             } catch (InterruptedException e) {
-                logger.info("{} has been interrupted", this.threadName);
+                LOGGER.info("{} has been interrupted", this.threadName);
                 break;
             } catch (Throwable t) {
-                logger.info("{} throw a exception", this.threadName);
+                LOGGER.info("{} throw a exception", this.threadName);
             }
         }
         // process exit output
         startTime = System.currentTimeMillis();
         printCnt = exitProcess(startTime);
         checkAndPrintStatus(printCnt, System.currentTimeMillis() - startTime);
-        logger.info("{} is stopped", this.threadName);
+        LOGGER.info("{} is stopped", this.threadName);
     }
 
     private void checkAndPrintStatus(int printCnt, long outputTime) {
         if (printCnt > maxStatsCnt) {
-            logger.warn("{} print {} items, over max allowed count {}",
+            LOGGER.warn("{} print {} items, over max allowed count {}",
                     this.threadName, printCnt, this.maxStatsCnt);
         }
         if (outputTime > MAX_PRINT_TIME_MS) {
-            logger.warn("{} print items wasts {} ms", this.threadName, outputTime);
+            LOGGER.warn("{} print items wasts {} ms", this.threadName, outputTime);
         }
     }
 }

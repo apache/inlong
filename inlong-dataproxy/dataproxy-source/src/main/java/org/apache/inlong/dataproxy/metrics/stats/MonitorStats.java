@@ -24,9 +24,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 
+/**
+ * MonitorStats
+ *
+ *
+ * Summary statistics and detailed statistics on failure, output to file.
+ */
 public class MonitorStats extends AbsStatsDaemon {
 
-    private static final Logger logger = LoggerFactory.getLogger(MonitorStats.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonitorStats.class);
 
     private final StatsUnit[] statsUnits = new StatsUnit[2];
 
@@ -122,7 +128,7 @@ public class MonitorStats extends AbsStatsDaemon {
                 if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                     continue;
                 }
-                logger.info("{}.summary.{}={}", this.statsName, entry.getKey(), entry.getValue());
+                LOGGER.info("{}.summary.{}={}", this.statsName, entry.getKey(), entry.getValue());
                 sumCnt++;
             }
             // print detail info
@@ -130,7 +136,7 @@ public class MonitorStats extends AbsStatsDaemon {
                 if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                     continue;
                 }
-                logger.info("{}.detail.{}={}", this.statsName, entry.getKey(), entry.getValue());
+                LOGGER.info("{}.detail.{}={}", this.statsName, entry.getKey(), entry.getValue());
                 sumCnt++;
             }
             sumMap.clear();

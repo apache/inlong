@@ -19,6 +19,12 @@ package org.apache.inlong.dataproxy.exception;
 
 import org.apache.flume.ChannelException;
 
+/**
+ * MainChannelFullException
+ *
+ * When orderly sending and proxy sending messages, if the main channel is full,
+ * it will no longer cache and wait, and directly throw this exception.
+ */
 public class MainChannelFullException extends ChannelException {
 
     public MainChannelFullException(String message) {

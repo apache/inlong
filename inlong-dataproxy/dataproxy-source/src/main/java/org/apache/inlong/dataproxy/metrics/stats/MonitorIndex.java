@@ -25,11 +25,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
+/**
+ * MonitorIndex
+ *
+ *
+ * The index statistics received or sent by DataProxy nodes, and output to file.
+ */
 public class MonitorIndex extends AbsStatsDaemon {
 
-    private static final Logger logger = LoggerFactory.getLogger(MonitorIndex.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonitorIndex.class);
 
-    private static final AtomicLong recId = new AtomicLong(0);
+    private static final AtomicLong RECODE_ID = new AtomicLong(0);
     private final StatsUnit[] statsUnits = new StatsUnit[2];
 
     public MonitorIndex(String name, long intervalMill, int maxCnt) {
@@ -39,12 +45,12 @@ public class MonitorIndex extends AbsStatsDaemon {
     }
 
     /**
-     * addSuccStats
+     * Add success statistic
      *
-     * @param key
-     * @param msgCnt
-     * @param packCnt
-     * @param packSize
+     * @param key the statistic key
+     * @param msgCnt  the message count
+     * @param packCnt the package count
+     * @param packSize the package size
      */
     public void addSuccStats(String key, int msgCnt, int packCnt, long packSize) {
         if (isStopped()) {
@@ -54,10 +60,10 @@ public class MonitorIndex extends AbsStatsDaemon {
     }
 
     /**
-     * addSuccStats
+     * Add failure statistic
      *
-     * @param key
-     * @param failCnt
+     * @param key  the statistic key
+     * @param failCnt  the failure count
      */
     public void addFailStats(String key, int failCnt) {
         if (isStopped()) {
@@ -128,8 +134,8 @@ public class MonitorIndex extends AbsStatsDaemon {
                 if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                     continue;
                 }
-                logger.info("{}#{}_{}#{}#{}", this.statsName, printTime,
-                        recId.incrementAndGet(), entry.getKey(), entry.getValue().toString());
+                LOGGER.info("{}#{}_{}#{}#{}", this.statsName, printTime,
+                        RECODE_ID.incrementAndGet(), entry.getKey(), entry.getValue().toString());
                 printCnt++;
             }
             counterMap.clear();
