@@ -40,6 +40,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.sink.DiscardingSink;
+import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.RowData.FieldGetter;
@@ -62,7 +63,6 @@ import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.flink.FlinkWriteConf;
 import org.apache.iceberg.flink.FlinkWriteOptions;
 import org.apache.iceberg.flink.TableLoader;
-import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.flink.util.FlinkCompatibilityUtil;
 import org.apache.iceberg.io.WriteResult;
 import org.apache.iceberg.relocated.com.google.common.annotations.VisibleForTesting;
@@ -85,7 +85,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.apache.flink.table.api.DataTypes.FIELD;
+import static org.apache.flink.table.api.DataTypes.ROW;
 import static org.apache.iceberg.TableProperties.WRITE_DISTRIBUTION_MODE;
+import static org.apache.inlong.sort.base.Constants.META_INCREMENTAL;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_BUFFER_TYPE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_ENABLE;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_MINI_BATCH_PRE_AGG_ENABLE;
@@ -664,7 +667,7 @@ public class FlinkSink {
 
             IcebergProcessOperator<RowData, WriteResult> streamWriter = createStreamWriter(
                     table, flinkRowType, equalityFieldIds, flinkWriteConf, appendMode, inlongMetric,
-                    auditHostAndPorts, dirtyOptions, dirtySink, tableOptions.get(WRITE_MINI_BATCH_ENABLE));
+                    auditHostAndPorts, dirtyOptions, dirtySink, tableOptions.get(WRITE_MINI_BATCH_ENABLE), tableSchema);
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             SingleOutputStreamOperator<WriteResult> writerStream = inputWithMiniBatch
@@ -695,7 +698,7 @@ public class FlinkSink {
             IcebergProcessOperator streamWriter =
                     new IcebergProcessOperator(new IcebergMultipleStreamWriter(
                             appendMode, catalogLoader, inlongMetric, auditHostAndPorts,
-                            multipleSinkOption, dirtyOptions, dirtySink));
+                            multipleSinkOption, dirtyOptions, dirtySink, tableSchema));
             SingleOutputStreamOperator<MultipleWriteResult> writerStream = routeStream
                     .transform(operatorName(ICEBERG_MULTIPLE_STREAM_WRITER_NAME),
                             TypeInformation.of(IcebergProcessOperator.class),
@@ -778,18 +781,32 @@ public class FlinkSink {
 
     }
 
+    static DataType filterOutMetaField(TableSchema requestedSchema) {
+        DataTypes.Field[] fields =
+                requestedSchema.getTableColumns().stream()
+                        .filter(column -> !META_INCREMENTAL.equals(column.getName()))
+                        .map(column -> FIELD(column.getName(), column.getType()))
+                        .toArray(DataTypes.Field[]::new);
+        return ROW(fields).notNull();
+    }
+
     static RowType toFlinkRowType(Schema schema, TableSchema requestedSchema) {
         if (requestedSchema != null) {
             // Convert the flink schema to iceberg schema firstly, then reassign ids to match the existing iceberg
             // schema.
-            Schema writeSchema = TypeUtil.reassignIds(FlinkSchemaUtil.convert(requestedSchema), schema);
+            List<org.apache.iceberg.types.Types.NestedField> filteredFields = FlinkSchemaUtil.convert(requestedSchema)
+                    .columns()
+                    .stream()
+                    .filter(nestedField -> !META_INCREMENTAL.equals(nestedField.name()))
+                    .collect(Collectors.toList());
+            Schema writeSchema = TypeUtil.reassignIds(new Schema(filteredFields), schema);
             TypeUtil.validateWriteSchema(schema, writeSchema, true, true);
 
             // We use this flink schema to read values from RowData. The flink's TINYINT and SMALLINT will be promoted
             // to iceberg INTEGER, that means if we use iceberg's table schema to read TINYINT (backend by 1 'byte'),
             // we will read 4 bytes rather than 1 byte, it will mess up the byte array in BinaryRowData. So here we must
             // use flink schema.
-            return (RowType) requestedSchema.toRowDataType().getLogicalType();
+            return (RowType) filterOutMetaField(requestedSchema).getLogicalType();
         } else {
             return FlinkSchemaUtil.convert(schema);
         }
@@ -804,12 +821,13 @@ public class FlinkSink {
             String auditHostAndPorts,
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
-            boolean miniBatchMode) {
+            boolean miniBatchMode,
+            TableSchema tableSchema) {
         // flink A, iceberg a
         Preconditions.checkArgument(table != null, "Iceberg table should't be null");
 
         Table serializableTable = SerializableTable.copyOf(table);
-        TaskWriterFactory<RowData> taskWriterFactory =
+        RowDataTaskWriterFactory taskWriterFactory =
                 new RowDataTaskWriterFactory(
                         serializableTable,
                         serializableTable.schema(),
@@ -823,7 +841,7 @@ public class FlinkSink {
 
         return new IcebergProcessOperator<>(new IcebergSingleStreamWriter<>(
                 table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts,
-                null, dirtyOptions, dirtySink, false));
+                flinkRowType, dirtyOptions, dirtySink, false, tableSchema));
     }
 
 }

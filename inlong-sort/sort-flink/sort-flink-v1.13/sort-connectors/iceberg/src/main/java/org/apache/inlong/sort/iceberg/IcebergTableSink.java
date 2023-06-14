@@ -131,6 +131,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                     .appendMode(tableOptions.get(IGNORE_ALL_CHANGELOG))
                     .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT))
                     .catalogLoader(catalogLoader)
+                    .tableSchema(tableSchema)
                     .multipleSink(tableOptions.get(SINK_MULTIPLE_ENABLE))
                     .multipleSinkOption(MultipleSinkOption.builder()
                             .withFormat(tableOptions.get(SINK_MULTIPLE_FORMAT))

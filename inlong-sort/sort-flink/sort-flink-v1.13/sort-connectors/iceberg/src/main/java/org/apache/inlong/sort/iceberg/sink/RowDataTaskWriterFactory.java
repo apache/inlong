@@ -54,8 +54,8 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
     private final long targetFileSizeBytes;
     private final FileFormat format;
     private final List<Integer> equalityFieldIds;
-    private final boolean upsert;
-    private final boolean appendMode;
+    private boolean upsert;
+    private boolean appendMode;
     private final boolean miniBatchMode;
     private final FileAppenderFactory<RowData> appenderFactory;
 
@@ -95,6 +95,20 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
             this.appenderFactory = new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec,
                     ArrayUtil.toIntArray(equalityFieldIds), schema, null);
         }
+    }
+
+    public void switchToUpsert() {
+        this.appendMode = false;
+        this.upsert = true;
+    }
+
+    public void switchToAppend() {
+        this.appendMode = false;
+        this.upsert = true;
+    }
+
+    public boolean isAppendMode() {
+        return equalityFieldIds == null || equalityFieldIds.isEmpty() || appendMode;
     }
 
     @Override

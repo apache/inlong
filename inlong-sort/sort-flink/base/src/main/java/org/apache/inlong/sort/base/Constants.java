@@ -160,6 +160,8 @@ public final class Constants {
 
     public static final String GHOST_TAG = "/* gh-ost */";
 
+    public static final String META_INCREMENTAL = "meta.incremental";
+
     public static final ConfigOption<String> INLONG_METRIC =
             ConfigOptions.key("inlong.metric.labels")
                     .stringType()
