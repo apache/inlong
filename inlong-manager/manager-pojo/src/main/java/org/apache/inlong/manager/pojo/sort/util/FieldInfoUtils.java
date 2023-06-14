@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import java.util.Objects;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
@@ -70,7 +71,7 @@ public class FieldInfoUtils {
             FieldTypeMappingStrategy fieldTypeMappingStrategy) {
         boolean isMetaField = sinkField.getIsMetaField() == 1;
         String fieldType = sinkField.getFieldType();
-        if (fieldTypeMappingStrategy != null) {
+        if (Objects.nonNull(fieldTypeMappingStrategy)) {
             fieldType = fieldTypeMappingStrategy.getFieldTypeMapping(fieldType);
         }
 
@@ -85,7 +86,7 @@ public class FieldInfoUtils {
             FieldTypeMappingStrategy fieldTypeMappingStrategy) {
         boolean isMetaField = streamField.getIsMetaField() == 1;
         String fieldType = streamField.getFieldType();
-        if (fieldTypeMappingStrategy != null) {
+        if (Objects.nonNull(fieldTypeMappingStrategy)) {
             fieldType = fieldTypeMappingStrategy.getFieldTypeMapping(fieldType);
         }
 
@@ -103,7 +104,7 @@ public class FieldInfoUtils {
             FieldTypeMappingStrategy fieldTypeMappingStrategy) {
         boolean isMetaField = streamField.getIsMetaField() == 1;
         String fieldType = streamField.getFieldType();
-        if (fieldTypeMappingStrategy != null) {
+        if (Objects.nonNull(fieldTypeMappingStrategy)) {
             fieldType = fieldTypeMappingStrategy.getFieldTypeMapping(fieldType);
         }
 

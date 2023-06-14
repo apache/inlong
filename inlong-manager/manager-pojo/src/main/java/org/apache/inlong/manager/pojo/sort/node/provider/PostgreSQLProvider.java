@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class PostgreSQLProvider implements ExtractNodeProvider, LoadNodeProvider {
 
-    private static final FieldTypeMappingStrategy DATATYPE_MAPPING_STRATEGY = new PostgreSQLFieldTypeStrategy();
+    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new PostgreSQLFieldTypeStrategy();
 
     @Override
     public Boolean accept(String streamType) {
@@ -52,7 +52,7 @@ public class PostgreSQLProvider implements ExtractNodeProvider, LoadNodeProvider
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         PostgreSQLSource postgreSQLSource = (PostgreSQLSource) streamNodeInfo;
         List<FieldInfo> fieldInfos = parseStreamFieldInfos(postgreSQLSource.getFieldList(),
-                postgreSQLSource.getSourceName(), DATATYPE_MAPPING_STRATEGY);
+                postgreSQLSource.getSourceName(), FIELD_TYPE_MAPPING_STRATEGY);
         Map<String, String> properties = parseProperties(postgreSQLSource.getProperties());
 
         return new PostgresExtractNode(postgreSQLSource.getSourceName(),
@@ -78,7 +78,7 @@ public class PostgreSQLProvider implements ExtractNodeProvider, LoadNodeProvider
         PostgreSQLSink postgreSQLSink = (PostgreSQLSink) nodeInfo;
         Map<String, String> properties = parseProperties(postgreSQLSink.getProperties());
         List<FieldInfo> fieldInfos = parseSinkFieldInfos(postgreSQLSink.getSinkFieldList(),
-                postgreSQLSink.getSinkName(), DATATYPE_MAPPING_STRATEGY);
+                postgreSQLSink.getSinkName(), FIELD_TYPE_MAPPING_STRATEGY);
         List<FieldRelation> fieldRelations = parseSinkFields(postgreSQLSink.getSinkFieldList(), constantFieldMap);
 
         return new PostgresLoadNode(
