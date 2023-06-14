@@ -23,7 +23,7 @@ package org.apache.inlong.manager.common.fieldtype.strategy;
 public class DefaultFieldTypeStrategy implements FieldTypeMappingStrategy {
 
     @Override
-    public String getFieldTypeMapping(String originalType) {
-        return originalType;
+    public String getFieldTypeMapping(String sourceType) {
+        return sourceType;
     }
 }

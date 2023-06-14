@@ -26,6 +26,9 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Different data source field type conversion mapping test class.
+ */
 public class FieldInfoUtilsTest {
 
     @Test

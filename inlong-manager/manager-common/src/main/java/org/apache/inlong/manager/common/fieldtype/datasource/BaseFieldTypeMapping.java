@@ -23,11 +23,11 @@ package org.apache.inlong.manager.common.fieldtype.datasource;
 public interface BaseFieldTypeMapping {
 
     /**
-     * Get the original field type.
+     * Get the source field type
      *
-     * @return The original field type
+     * @return The source field type
      */
-    String getOriginalType();
+    String getSourceType();
 
     /**
      * Get the target field type of inlong field type mapping

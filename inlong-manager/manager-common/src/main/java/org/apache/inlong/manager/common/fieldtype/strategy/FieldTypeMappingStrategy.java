@@ -23,10 +23,10 @@ package org.apache.inlong.manager.common.fieldtype.strategy;
 public interface FieldTypeMappingStrategy {
 
     /**
-     * Get the field type of inlong field type mapping by the original field type.
+     * Get the field type of inlong field type mapping by the source field type.
      *
-     * @param originalType the original field type
+     * @param sourceType the source field type
      * @return the target field type of inlong field type mapping
      */
-    String getFieldTypeMapping(String originalType);
+    String getFieldTypeMapping(String sourceType);
 }

@@ -19,6 +19,8 @@ package org.apache.inlong.manager.common.fieldtype.datasource;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
@@ -123,23 +125,23 @@ public enum PostgreSQLFieldTypeMapping implements BaseFieldTypeMapping {
     ARRAY("ARRAY", "ARRAY");
 
     /**
-     * The original data type
+     * The source data field type
      */
-    private final String originalType;
+    private final String sourceType;
 
     /**
-     * The target data type
+     * The target data field type
      */
     private final String targetType;
 
-    PostgreSQLFieldTypeMapping(String originalType, String targetType) {
-        this.originalType = originalType;
+    PostgreSQLFieldTypeMapping(String sourceType, String targetType) {
+        this.sourceType = sourceType;
         this.targetType = targetType;
     }
 
     @Override
-    public String getOriginalType() {
-        return originalType;
+    public String getSourceType() {
+        return sourceType;
     }
 
     @Override
@@ -147,15 +149,20 @@ public enum PostgreSQLFieldTypeMapping implements BaseFieldTypeMapping {
         return targetType;
     }
 
+    private static final Map<String, String> FIELD_TYPE_MAPPING_MAP = new HashMap<>();
+
+    static {
+        Stream.of(values()).forEach(v -> FIELD_TYPE_MAPPING_MAP.put(v.getSourceType(), v.getTargetType()));
+    }
+
     /**
-     * Get the field type of inlong field type mapping by the original field type.
+     * Get the field type of inlong field type mapping by the source field type.
      *
-     * @param originalType the original field type
+     * @param sourceType the source field type
      * @return the target field type of inlong field type mapping
      */
-    public static String getFieldTypeMapping(String originalType) {
-        String dataType = StringUtils.substringBefore(originalType, LEFT_BRACKET).toUpperCase();
-        return Stream.of(values()).filter(v -> v.getOriginalType().equals(dataType))
-                .map(PostgreSQLFieldTypeMapping::getTargetType).findFirst().orElse(originalType.toUpperCase());
+    public static String getFieldTypeMapping(String sourceType) {
+        String dataType = StringUtils.substringBefore(sourceType, LEFT_BRACKET).toUpperCase();
+        return FIELD_TYPE_MAPPING_MAP.getOrDefault(dataType, sourceType.toUpperCase());
     }
 }

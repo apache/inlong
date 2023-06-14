@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.fieldtype.datasource.PostgreSQLFieldType
 public class PostgreSQLFieldTypeStrategy implements FieldTypeMappingStrategy {
 
     @Override
-    public String getFieldTypeMapping(String originalType) {
-        return PostgreSQLFieldTypeMapping.getFieldTypeMapping(originalType);
+    public String getFieldTypeMapping(String sourceType) {
+        return PostgreSQLFieldTypeMapping.getFieldTypeMapping(sourceType);
     }
 }
