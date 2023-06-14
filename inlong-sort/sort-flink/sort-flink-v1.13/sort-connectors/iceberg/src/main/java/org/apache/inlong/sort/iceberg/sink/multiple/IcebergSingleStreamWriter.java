@@ -196,8 +196,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
                         break;
                     }
                 }
-                RowData newRowData = fieldIndex != -1 ?
-                        removeField(rowData, fieldIndex, rowType) : rowData;
+                RowData newRowData = fieldIndex != -1 ? removeField(rowData, fieldIndex, rowType) : rowData;
                 if (incremental) {
                     switchToUpsert();
                 } else {
