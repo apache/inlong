@@ -71,6 +71,7 @@ import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 import org.apache.iceberg.types.TypeUtil;
+import org.apache.iceberg.types.Types.NestedField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -782,11 +783,10 @@ public class FlinkSink {
     }
 
     static DataType filterOutMetaField(TableSchema requestedSchema) {
-        DataTypes.Field[] fields =
-                requestedSchema.getTableColumns().stream()
-                        .filter(column -> !META_INCREMENTAL.equals(column.getName()))
-                        .map(column -> FIELD(column.getName(), column.getType()))
-                        .toArray(DataTypes.Field[]::new);
+        DataTypes.Field[] fields = requestedSchema.getTableColumns().stream()
+                .filter(column -> !META_INCREMENTAL.equals(column.getName()))
+                .map(column -> FIELD(column.getName(), column.getType()))
+                .toArray(DataTypes.Field[]::new);
         return ROW(fields).notNull();
     }
 
@@ -794,7 +794,7 @@ public class FlinkSink {
         if (requestedSchema != null) {
             // Convert the flink schema to iceberg schema firstly, then reassign ids to match the existing iceberg
             // schema.
-            List<org.apache.iceberg.types.Types.NestedField> filteredFields = FlinkSchemaUtil.convert(requestedSchema)
+            List<NestedField> filteredFields = FlinkSchemaUtil.convert(requestedSchema)
                     .columns()
                     .stream()
                     .filter(nestedField -> !META_INCREMENTAL.equals(nestedField.name()))

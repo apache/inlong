@@ -269,14 +269,13 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
 
                     try {
                         JsonNode originalData = recordWithSchema.getOriginalData();
-                        if (originalData.get(INCREMENTAL) != null) {
-                            boolean incremental = Boolean.parseBoolean(originalData.get(INCREMENTAL)
-                                    .get(0).toString());
-                            if (incremental) {
-                                multipleWriters.get(tableId).switchToUpsert();
-                            } else {
-                                multipleWriters.get(tableId).switchToAppend();
-                            }
+                        JsonNode incrementalJsonNode = originalData.get(INCREMENTAL);
+                        boolean incremental = incrementalJsonNode == null ? false
+                                : Boolean.parseBoolean(incrementalJsonNode.get(0).toString());
+                        if (incremental) {
+                            multipleWriters.get(tableId).switchToUpsert();
+                        } else {
+                            multipleWriters.get(tableId).switchToAppend();
                         }
                         multipleWriters.get(tableId).processElement(data);
                     } catch (Exception e) {
