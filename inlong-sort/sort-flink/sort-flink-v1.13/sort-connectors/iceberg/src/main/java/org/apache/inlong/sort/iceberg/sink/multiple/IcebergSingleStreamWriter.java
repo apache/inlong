@@ -187,7 +187,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
                 boolean incremental = false;
                 RowType rowType = (RowType) tableSchema.toRowDataType().getLogicalType();
                 List<RowType.RowField> fields = rowType.getFields();
-                int fieldIndex = 0;
+                int fieldIndex = -1;
                 for (int i = 0; i < fields.size(); i++) {
                     RowType.RowField rowField = fields.get(i);
                     if (META_INCREMENTAL.equals(rowField.getName())) {
@@ -196,9 +196,8 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
                         break;
                     }
                 }
-
-                RowData newRowData = removeField(rowData, fieldIndex, rowType);
-
+                RowData newRowData = fieldIndex != -1 ?
+                        removeField(rowData, fieldIndex, rowType) : rowData;
                 if (incremental) {
                     switchToUpsert();
                 } else {
