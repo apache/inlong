@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -106,7 +107,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.dirtySink = dirtySink;
         this.multipleSink = multipleSink;
         this.tableSchema = tableSchema;
-        this.cachedWriteResults = new LinkedList<>();
+        this.cachedWriteResults = new ArrayList<>();
     }
 
     public RowType getFlinkRowType() {
