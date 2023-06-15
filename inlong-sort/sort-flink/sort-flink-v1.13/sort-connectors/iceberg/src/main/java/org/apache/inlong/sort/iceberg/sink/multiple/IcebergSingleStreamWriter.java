@@ -50,7 +50,6 @@ import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
