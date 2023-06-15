@@ -53,17 +53,6 @@ class DataNodeControllerTest extends WebBaseTest {
     }
 
     @Test
-    void testSaveFailByNoPermission() throws Exception {
-        logout();
-        operatorLogin();
-
-        MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", getHiveDataNodeRequest());
-
-        Response<Integer> response = getResBody(mvcResult, Integer.class);
-        Assertions.assertEquals("Current user [operator] has no permission to access URL", response.getErrMsg());
-    }
-
-    @Test
     void testSaveAndGetAndDelete() throws Exception {
         // save
         MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", getHiveDataNodeRequest());

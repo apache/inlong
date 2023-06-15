@@ -50,8 +50,7 @@ public class Entrance {
                 config.getInteger(Constants.MIN_PAUSE_BETWEEN_CHECKPOINTS_MS));
         env.getCheckpointConfig().setCheckpointTimeout(config.getInteger(Constants.CHECKPOINT_TIMEOUT_MS));
         env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
-        EnvironmentSettings settings = EnvironmentSettings.newInstance().useBlinkPlanner()
-                .inStreamingMode().build();
+        EnvironmentSettings settings = EnvironmentSettings.newInstance().inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         tableEnv.getConfig().getConfiguration().setString(Constants.PIPELINE_NAME,
                 config.getString(Constants.JOB_NAME));
