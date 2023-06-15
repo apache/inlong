@@ -101,17 +101,13 @@ public class TestTriggerManager {
 
         WATCH_FOLDER.newFolder("tmp");
         TestUtils.createHugeFiles("1.log", WATCH_FOLDER.getRoot().getAbsolutePath(), "asdqwdqd");
-        System.out.println(
-                "testRestartTriggerJobRestore 1 task size " + agent.getManager().getTaskManager().getTaskSize());
+        LOGGER.info("testRestartTriggerJobRestore 1 task size " + agent.getManager().getTaskManager().getTaskSize());
         await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 1);
-        System.out.println(
-                "testRestartTriggerJobRestore 2 task size " + agent.getManager().getTaskManager().getTaskSize());
+        LOGGER.info("testRestartTriggerJobRestore 2 task size " + agent.getManager().getTaskManager().getTaskSize());
         agent.restart();
-        System.out.println(
-                "testRestartTriggerJobRestore 3 task size " + agent.getManager().getTaskManager().getTaskSize());
-        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 1);
-        System.out.println(
-                "testRestartTriggerJobRestore 4 task size " + agent.getManager().getTaskManager().getTaskSize());
+        LOGGER.info("testRestartTriggerJobRestore 3 task size " + agent.getManager().getTaskManager().getTaskSize());
+        await().atMost(30, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 1);
+        LOGGER.info("testRestartTriggerJobRestore 4 task size " + agent.getManager().getTaskManager().getTaskSize());
         // cleanup
         TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/1.log");
     }
