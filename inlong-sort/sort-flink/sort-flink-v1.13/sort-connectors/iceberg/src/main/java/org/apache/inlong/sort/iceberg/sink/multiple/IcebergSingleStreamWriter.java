@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
@@ -84,6 +85,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private @Nullable final DirtySink<Object> dirtySink;
     private boolean multipleSink;
     private TableSchema tableSchema;
+    private final List<WriteResult> cachedWriteResults;
 
     public IcebergSingleStreamWriter(
             String fullTableName,
@@ -104,6 +106,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.dirtySink = dirtySink;
         this.multipleSink = multipleSink;
         this.tableSchema = tableSchema;
+        this.cachedWriteResults = new LinkedList<>();
     }
 
     public RowType getFlinkRowType() {
@@ -147,12 +150,15 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
 
     @Override
     public void prepareSnapshotPreBarrier(long checkpointId) throws Exception {
+        // submit the cached write results
+        cachedWriteResults.forEach(writeResult -> emit(writeResult));
+
         // close all open files and emit files to downstream committer operator
         emit(writer.complete());
         this.writer = taskWriterFactory.create();
     }
 
-    public static RowData removeField(RowData rowData, int fieldIndex, RowType rowType) {
+    private RowData removeField(RowData rowData, int fieldIndex, RowType rowType) {
         GenericRowData newRowData = new GenericRowData(rowType.getFieldCount() - 1);
 
         for (int i = 0, j = 0; i < rowType.getFieldCount(); i++) {
@@ -164,19 +170,24 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         return newRowData;
     }
 
+    private void cacheWriteResultAndRecreateWriter() throws IOException {
+        // close all open file and cache writeResult
+        cachedWriteResults.add(writer.complete());
+        this.writer = taskWriterFactory.create();
+    }
+
     public void switchToUpsert() throws Exception {
         if (taskWriterFactory.isAppendMode()) {
             taskWriterFactory.switchToUpsert();
-            prepareSnapshotPreBarrier(0);
+            cacheWriteResultAndRecreateWriter();
         }
     }
 
     public void switchToAppend() throws Exception {
         if (taskWriterFactory.isAppendMode())
             return;
-
         taskWriterFactory.switchToAppend();
-        prepareSnapshotPreBarrier(0);
+        cacheWriteResultAndRecreateWriter();
     }
 
     @Override
