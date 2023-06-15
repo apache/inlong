@@ -32,6 +32,7 @@
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
         <flink.version>1.15.4</flink.version>
+        <flink.shaded.guava.version>18.0-13.0</flink.shaded.guava.version>
     </properties>
 
     <dependencies>
@@ -85,6 +86,12 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-shaded-guava</artifactId>
+            <version>${flink.shaded.guava.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
