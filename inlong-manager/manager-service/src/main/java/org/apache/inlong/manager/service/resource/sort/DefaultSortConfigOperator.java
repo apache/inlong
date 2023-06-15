@@ -129,6 +129,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                 auditIds.add(auditService.getAuditId(sink.getSinkType(), false));
             }
             for (StreamSource source : sources) {
+                source.setFieldList(inlongStream.getFieldList());
                 Map<String, Object> properties = source.getProperties();
                 properties.putIfAbsent("metrics.audit.key", String.join("&", auditIds));
             }
