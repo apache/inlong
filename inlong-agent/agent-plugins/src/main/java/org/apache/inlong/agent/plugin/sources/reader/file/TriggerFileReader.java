@@ -31,7 +31,7 @@ public class TriggerFileReader implements Reader {
     @NotNull
     private String triggerId;
 
-    public volatile boolean finished = false;
+    private volatile boolean finished = false;
 
     @Override
     public Message read() {
