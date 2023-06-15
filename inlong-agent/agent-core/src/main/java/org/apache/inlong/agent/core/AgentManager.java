@@ -25,8 +25,8 @@ import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.conf.ConfigJetty;
 import org.apache.inlong.agent.core.job.JobManager;
+import org.apache.inlong.agent.core.task.PositionManager;
 import org.apache.inlong.agent.core.task.TaskManager;
-import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.core.trigger.TriggerManager;
 import org.apache.inlong.agent.db.CommandDb;
 import org.apache.inlong.agent.db.Db;
@@ -57,7 +57,7 @@ public class AgentManager extends AbstractDaemon {
     private final JobManager jobManager;
     private final TaskManager taskManager;
     private final TriggerManager triggerManager;
-    private final TaskPositionManager taskPositionManager;
+    private final PositionManager positionManager;
     private final HeartbeatManager heartbeatManager;
     private final ProfileFetcher fetcher;
     private final AgentConfiguration conf;
@@ -82,7 +82,7 @@ public class AgentManager extends AbstractDaemon {
         taskManager = new TaskManager(this);
         fetcher = initFetcher(this);
         heartbeatManager = HeartbeatManager.getInstance(this);
-        taskPositionManager = TaskPositionManager.getInstance(this);
+        positionManager = PositionManager.getInstance(this);
         // need to be an option.
         if (conf.getBoolean(
                 AgentConstants.AGENT_ENABLE_HTTP, AgentConstants.DEFAULT_AGENT_ENABLE_HTTP)) {
@@ -174,8 +174,8 @@ public class AgentManager extends AbstractDaemon {
         return triggerManager;
     }
 
-    public TaskPositionManager getTaskPositionManager() {
-        return taskPositionManager;
+    public PositionManager getTaskPositionManager() {
+        return positionManager;
     }
 
     public TaskManager getTaskManager() {
@@ -206,7 +206,7 @@ public class AgentManager extends AbstractDaemon {
         LOGGER.info("starting heartbeat manager");
         heartbeatManager.start();
         LOGGER.info("starting task position manager");
-        taskPositionManager.start();
+        positionManager.start();
         LOGGER.info("starting read job from local");
         // read job profiles from local
         List<JobProfile> profileList = localProfile.readFromLocal();
@@ -249,7 +249,7 @@ public class AgentManager extends AbstractDaemon {
         jobManager.stop();
         taskManager.stop();
         heartbeatManager.stop();
-        taskPositionManager.stop();
+        positionManager.stop();
         agentConfMonitor.shutdown();
         this.db.close();
     }
