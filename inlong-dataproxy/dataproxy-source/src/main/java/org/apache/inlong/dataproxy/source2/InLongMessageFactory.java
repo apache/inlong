@@ -34,7 +34,7 @@ public class InLongMessageFactory extends ChannelInitializer<SocketChannel> {
 
     public static final int INLONG_LENGTH_FIELD_OFFSET = 0;
     public static final int INLONG_LENGTH_FIELD_LENGTH = 4;
-    public static final int INLONG_LENGTH_ADJUSTMENT = -4;
+    public static final int INLONG_LENGTH_ADJUSTMENT = 0;
     public static final int INLONG_INITIAL_BYTES_TO_STRIP = 0;
     public static final boolean DEFAULT_FAIL_FAST = true;
     private static final Logger LOG = LoggerFactory.getLogger(InLongMessageFactory.class);

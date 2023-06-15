@@ -19,6 +19,7 @@ package org.apache.inlong.dataproxy.sink.mq.tube;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
@@ -39,6 +40,7 @@ import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
 import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.Message;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +59,6 @@ public class TubeHandler implements MessageQueueHandler {
     private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
 
     private static String MASTER_HOST_PORT_LIST = "master-host-port-list";
-    public static final String KEY_NAMESPACE = "namespace";
 
     private CacheClusterConfig config;
     private String clusterName;
@@ -183,29 +184,35 @@ public class TubeHandler implements MessageQueueHandler {
     public boolean send(PackProfile profile) {
         try {
             // idConfig
+            String topic;
             IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
                     profile.getInlongGroupId(), profile.getInlongStreamId());
             if (idConfig == null) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOUID);
-                sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
-                sinkContext.getDispatchQueue().release(profile.getSize());
-                profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
-                return false;
-            }
-            String topic = idConfig.getTopicName();
-            if (topic == null) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
-                sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
-                sinkContext.getDispatchQueue().release(profile.getSize());
-                profile.fail(DataProxyErrCode.TOPIC_IS_BLANK, "");
-                return false;
+                if (!CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
+                    sinkContext.fileMetricIncWithDetailStats(
+                            StatConstants.EVENT_SINK_CONFIG_TOPIC_MISSING, profile.getUid());
+                    sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
+                    sinkContext.getDispatchQueue().release(profile.getSize());
+                    profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
+                    return false;
+                }
+                topic = CommonConfigHolder.getInstance().getRandDefTopics();
+                if (StringUtils.isEmpty(topic)) {
+                    sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_DEFAULT_TOPIC_MISSING);
+                    sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
+                    sinkContext.getDispatchQueue().release(profile.getSize());
+                    profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
+                    return false;
+                }
+                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_DEFAULT_TOPIC_USED);
+            } else {
+                topic = idConfig.getTopicName();
             }
             // create producer failed
             if (producer == null) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOPRODUCER);
+                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_PRODUCER_NULL);
                 sinkContext.processSendFail(profile, clusterName, topic, 0,
                         DataProxyErrCode.PRODUCER_IS_NULL, "");
-                LOG.error("producer is null");
                 return false;
             }
             // publish
@@ -221,7 +228,7 @@ public class TubeHandler implements MessageQueueHandler {
             }
             return true;
         } catch (Exception ex) {
-            sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SENDEXCEPT);
+            sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SEND_EXCEPTION);
             sinkContext.processSendFail(profile, clusterName, profile.getUid(), 0,
                     DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
             LOG.error(ex.getMessage(), ex);
@@ -258,7 +265,7 @@ public class TubeHandler implements MessageQueueHandler {
 
             @Override
             public void onMessageSent(MessageSentResult result) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
+                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
                 sinkContext.addSendResultMetric(batchProfile, clusterName, topic, true, sendTime);
                 sinkContext.getDispatchQueue().release(batchProfile.getSize());
                 batchProfile.ack();
@@ -266,7 +273,7 @@ public class TubeHandler implements MessageQueueHandler {
 
             @Override
             public void onException(Throwable ex) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
+                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
                 sinkContext.processSendFail(batchProfile, clusterName, topic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
@@ -292,7 +299,7 @@ public class TubeHandler implements MessageQueueHandler {
 
             @Override
             public void onMessageSent(MessageSentResult result) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
+                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
                 sinkContext.addSendResultMetric(simpleProfile, clusterName, topic, true, sendTime);
                 sinkContext.getDispatchQueue().release(simpleProfile.getSize());
                 simpleProfile.ack();
@@ -300,7 +307,7 @@ public class TubeHandler implements MessageQueueHandler {
 
             @Override
             public void onException(Throwable ex) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
+                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
                 sinkContext.processSendFail(simpleProfile, clusterName, topic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {

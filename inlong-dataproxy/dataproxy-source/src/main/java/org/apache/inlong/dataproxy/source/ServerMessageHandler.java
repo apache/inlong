@@ -381,7 +381,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             }
             // check topic configure
             if (StringUtils.isEmpty(configTopic)) {
-                if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
+                if (CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
                     configTopic = this.defaultTopic;
                 } else {
                     commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
@@ -518,7 +518,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 longDataTime = longDataTime / 1000 / 60 / 10;
                 longDataTime = longDataTime * 1000 * 60 * 10;
                 strBuff.append(protocolType).append(AttrConstants.SEPARATOR)
-                        .append(topicEntry.getKey()).append(AttrConstants.SEPARATOR)
+                        .append(groupId).append(AttrConstants.SEPARATOR)
                         .append(streamIdEntry.getKey()).append(AttrConstants.SEPARATOR)
                         .append(strRemoteIP).append(AttrConstants.SEPARATOR)
                         .append(getLocalIp()).append(AttrConstants.SEPARATOR)

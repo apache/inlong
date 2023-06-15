@@ -22,7 +22,6 @@ import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.util.NetworkUtils;
-import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -103,13 +102,9 @@ public class SimpleMessageHandler implements MessageHandler {
         // get topicName
         String topicName = configManager.getTopicName(groupId, streamId);
         if (StringUtils.isBlank(topicName)) {
-            if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
-                topicName = "test";
-            } else {
-                throw new MessageProcessException(strBuff
-                        .append("Topic for message is null, inlongGroupId = ")
-                        .append(groupId).append(", inlongStreamId = ").append(streamId).toString());
-            }
+            throw new MessageProcessException(strBuff
+                    .append("Topic for message is null, inlongGroupId = ")
+                    .append(groupId).append(", inlongStreamId = ").append(streamId).toString());
         }
         // get message data time
         final long msgRcvTime = System.currentTimeMillis();
@@ -171,7 +166,7 @@ public class SimpleMessageHandler implements MessageHandler {
         // build metric data item
         longDataTime = longDataTime / 1000 / 60 / 10;
         longDataTime = longDataTime * 1000 * 60 * 10;
-        strBuff.append("http").append(SEP_HASHTAG).append(topicName).append(SEP_HASHTAG)
+        strBuff.append("http").append(SEP_HASHTAG).append(groupId).append(SEP_HASHTAG)
                 .append(streamId).append(SEP_HASHTAG).append(strRemoteIP).append(SEP_HASHTAG)
                 .append(NetworkUtils.getLocalIp()).append(SEP_HASHTAG)
                 .append(evenProcType.getRight()).append(SEP_HASHTAG)

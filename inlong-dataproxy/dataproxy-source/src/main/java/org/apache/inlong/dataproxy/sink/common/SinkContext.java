@@ -18,12 +18,12 @@
 package org.apache.inlong.dataproxy.sink.common;
 
 import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.common.monitor.MonitorIndex;
-import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
+import org.apache.inlong.dataproxy.metrics.stats.MonitorIndex;
+import org.apache.inlong.dataproxy.metrics.stats.MonitorStats;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.PackProfile;
 import org.apache.inlong.dataproxy.sink.mq.pulsar.PulsarHandler;
@@ -65,7 +65,7 @@ public class SinkContext {
     protected Timer reloadTimer;
     // file metric statistic
     protected MonitorIndex monitorIndex = null;
-    private MonitorIndexExt monitorIndexExt = null;
+    private MonitorStats monitorStats = null;
 
     /**
      * Constructor
@@ -90,13 +90,15 @@ public class SinkContext {
         // init monitor logic
         if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
             this.monitorIndex = new MonitorIndex(CommonConfigHolder.getInstance().getFileMetricSinkOutName(),
-                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
+                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec() * 1000L,
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
-            this.monitorIndexExt = new MonitorIndexExt(
+            this.monitorStats = new MonitorStats(
                     CommonConfigHolder.getInstance().getFileMetricEventOutName()
                             + AttrConstants.SEP_HASHTAG + this.getSinkName(),
-                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec(),
+                    CommonConfigHolder.getInstance().getFileMetricStatInvlSec() * 1000L,
                     CommonConfigHolder.getInstance().getFileMetricStatCacheCnt());
+            this.monitorIndex.start();
+            this.monitorStats.start();
         }
         try {
             this.reload();
@@ -118,23 +120,36 @@ public class SinkContext {
         // stop file statistic index
         if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
             if (monitorIndex != null) {
-                monitorIndex.shutDown();
+                monitorIndex.stop();
             }
-            if (monitorIndexExt != null) {
-                monitorIndexExt.shutDown();
+            if (monitorStats != null) {
+                monitorStats.stop();
             }
         }
     }
 
-    public void fileMetricEventInc(String eventKey) {
+    public void fileMetricIncSumStats(String eventKey) {
         if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            monitorIndexExt.incrementAndGet(eventKey);
+            monitorStats.incSumStats(eventKey);
         }
     }
 
-    public void fileMetricRecordAdd(String key, int cnt, int packCnt, long packSize, int failCnt) {
+    public void fileMetricIncWithDetailStats(String eventKey, String detailInfoKey) {
         if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
-            monitorIndex.addAndGet(key, cnt, packCnt, packSize, failCnt);
+            monitorStats.incSumStats(eventKey);
+            monitorStats.incDetailStats(eventKey + "#" + detailInfoKey);
+        }
+    }
+
+    public void fileMetricAddSuccCnt(String key, int cnt, int packCnt, long packSize) {
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+            monitorIndex.addSuccStats(key, cnt, packCnt, packSize);
+        }
+    }
+
+    public void fileMetricAddFailCnt(String key, int failCnt) {
+        if (CommonConfigHolder.getInstance().isEnableFileMetric()) {
+            monitorIndex.addFailStats(key, failCnt);
         }
     }
 

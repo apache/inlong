@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -78,8 +81,11 @@ public class CommonConfigHolder {
             "startup.using.local.meta.file.enable";
     public static final boolean VAL_DEF_ENABLE_STARTUP_USING_LOCAL_META_FILE = false;
     // whether to accept messages without mapping between groupId/streamId and topic
-    public static final String KEY_NOTFOUND_TOPIC_ACCEPT = "source.topic.notfound.accept";
-    public static final boolean VAL_DEF_NOTFOUND_TOPIC_ACCEPT = false;
+    public static final String KEY_ENABLE_UNCONFIGURED_TOPIC_ACCEPT = "id2topic.unconfigured.accept.enable";
+    public static final boolean VAL_DEF_ENABLE_UNCONFIGURED_TOPIC_ACCEPT = false;
+    // default topics configure key, multiple topic settings are separated by "\\s+".
+    public static final String KEY_UNCONFIGURED_TOPIC_DEFAULT_TOPICS = "id2topic.unconfigured.default.topics";
+    public static final String VAL_DEFAULT_TOPIC = "test";
     // whether enable whitelist, optional field.
     public static final String KEY_ENABLE_WHITELIST = "proxy.enable.whitelist";
     public static final boolean VAL_DEF_ENABLE_WHITELIST = false;
@@ -161,7 +167,8 @@ public class CommonConfigHolder {
     private long auditFormatInvlMs = VAL_DEF_AUDIT_FORMAT_INTERVAL_MS;
     private boolean responseAfterSave = VAL_DEF_RESPONSE_AFTER_SAVE;
     private long maxResAfterSaveTimeout = VAL_DEF_MAX_RAS_TIMEOUT_MS;
-    private boolean noTopicAccept = VAL_DEF_NOTFOUND_TOPIC_ACCEPT;
+    private boolean enableUnConfigTopicAccept = VAL_DEF_ENABLE_UNCONFIGURED_TOPIC_ACCEPT;
+    private List<String> defaultTopics = Arrays.asList(VAL_DEFAULT_TOPIC);
     private boolean enableWhiteList = VAL_DEF_ENABLE_WHITELIST;
     private int maxBufferQueueSizeKb = VAL_DEF_MAX_BUFFERQUEUE_SIZE_KB;
     private String eventHandler = VAL_DEF_EVENT_HANDLER;
@@ -239,8 +246,20 @@ public class CommonConfigHolder {
         return metaConfigSyncInvlMs;
     }
 
-    public boolean isNoTopicAccept() {
-        return noTopicAccept;
+    public boolean isEnableUnConfigTopicAccept() {
+        return enableUnConfigTopicAccept;
+    }
+
+    public List<String> getDefTopics() {
+        return defaultTopics;
+    }
+
+    public String getRandDefTopics() {
+        if (defaultTopics.isEmpty()) {
+            return null;
+        }
+        SecureRandom rand = new SecureRandom();
+        return defaultTopics.get(rand.nextInt(defaultTopics.size()));
     }
 
     public boolean isEnableWhiteList() {
@@ -380,10 +399,27 @@ public class CommonConfigHolder {
         if (StringUtils.isNotEmpty(tmpValue)) {
             this.enableStartupUsingLocalMetaFile = "TRUE".equalsIgnoreCase(tmpValue.trim());
         }
-        // read whether accept msg without topic
-        tmpValue = this.props.get(KEY_NOTFOUND_TOPIC_ACCEPT);
+        // read whether accept msg without id2topic configure
+        tmpValue = this.props.get(KEY_ENABLE_UNCONFIGURED_TOPIC_ACCEPT);
         if (StringUtils.isNotEmpty(tmpValue)) {
-            this.noTopicAccept = "TRUE".equalsIgnoreCase(tmpValue.trim());
+            this.enableUnConfigTopicAccept = "TRUE".equalsIgnoreCase(tmpValue.trim());
+            if (enableUnConfigTopicAccept) {
+                // read default topics
+                tmpValue = this.props.get(KEY_UNCONFIGURED_TOPIC_DEFAULT_TOPICS);
+                if (StringUtils.isNotBlank(tmpValue)) {
+                    List<String> tmpList = new ArrayList<>();
+                    String[] topicItems = tmpValue.split("\\s+");
+                    for (String item : topicItems) {
+                        if (StringUtils.isBlank(item)) {
+                            continue;
+                        }
+                        tmpList.add(item.trim());
+                    }
+                    if (tmpList.size() > 0) {
+                        defaultTopics = tmpList;
+                    }
+                }
+            }
         }
         // read enable whitelist
         tmpValue = this.props.get(KEY_ENABLE_WHITELIST);

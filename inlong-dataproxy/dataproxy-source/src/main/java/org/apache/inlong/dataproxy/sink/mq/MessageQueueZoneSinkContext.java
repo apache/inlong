@@ -242,11 +242,11 @@ public class MessageQueueZoneSinkContext extends SinkContext {
             DataProxyErrCode errCode, String errMsg) {
         if (currentRecord.isResend()) {
             dispatchQueue.offer(currentRecord);
-            fileMetricEventInc(StatConstants.EVENT_SINK_FAILRETRY);
+            fileMetricIncSumStats(StatConstants.EVENT_SINK_FAILRETRY);
             this.addSendResultMetric(currentRecord, mqName, topic, false, sendTime);
         } else {
             currentRecord.fail(errCode, errMsg);
-            fileMetricEventInc(StatConstants.EVENT_SINK_FAILDROPPED);
+            fileMetricIncSumStats(StatConstants.EVENT_SINK_FAILDROPPED);
         }
     }
 

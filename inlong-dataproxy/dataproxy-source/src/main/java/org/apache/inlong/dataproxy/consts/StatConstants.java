@@ -57,6 +57,7 @@ public class StatConstants {
     public static final java.lang.String EVENT_MSG_BODY_NEGATIVE = "msg.body.negative";
     public static final java.lang.String EVENT_MSG_BODY_UNPRESS_EXP = "msg.body.unpress.exp";
     public static final java.lang.String EVENT_MSG_BODY_OVERMAX = "msg.body.overmax";
+    public static final java.lang.String EVENT_MSG_BODY_TRIP = "msg.body.trip";
     public static final java.lang.String EVENT_MSG_ATTR_NEGATIVE = "msg.attr.negative";
     public static final java.lang.String EVENT_MSG_MAGIC_UNEQUAL = "msg.magic.unequal";
     public static final java.lang.String EVENT_MSG_HB_TOTALLEN_BELOWMIN = "msg.hb.totallen.belowmin";
@@ -76,26 +77,16 @@ public class StatConstants {
     public static final java.lang.String EVENT_MSG_V0_POST_FAILURE = "msg.post.v0.failure";
     public static final java.lang.String EVENT_MSG_V1_POST_SUCCESS = "msg.post.v1.success";
     public static final java.lang.String EVENT_MSG_V1_POST_DROPPED = "msg.post.v1.dropped";
+    // sink
+    public static final java.lang.String EVENT_SINK_CONFIG_TOPIC_MISSING = "sink.topic.missing";
+    public static final java.lang.String EVENT_SINK_DEFAULT_TOPIC_MISSING = "default.topic.empty";
+    public static final java.lang.String EVENT_SINK_DEFAULT_TOPIC_USED = "default.topic.used";
+    public static final java.lang.String EVENT_SINK_PRODUCER_NULL = "sink.producer.null";
+    public static final java.lang.String EVENT_SINK_SEND_EXCEPTION = "sink.send.exception";
 
-    public static final java.lang.String EVENT_SINK_NOUID = "sink.nouid";
-    public static final java.lang.String EVENT_SINK_NOTOPIC = "sink.notopic";
-    public static final java.lang.String EVENT_SINK_NOPRODUCER = "sink.noproducer";
-    public static final java.lang.String EVENT_SINK_SENDEXCEPT = "sink.sendexcept";
     public static final java.lang.String EVENT_SINK_FAILRETRY = "sink.retry";
     public static final java.lang.String EVENT_SINK_FAILDROPPED = "sink.dropped";
     public static final java.lang.String EVENT_SINK_SUCCESS = "sink.success";
     public static final java.lang.String EVENT_SINK_RECEIVEEXCEPT = "sink.rcvexcept";
 
-    public static final java.lang.String METASINK_OTHEREXP = "metasink.otherexp";
-    public static final java.lang.String METASINK_NOSLAVE = "metasink.noslave";
-    public static final java.lang.String METASINK_MSG_NOTOPIC = "metasink.msgnotopic";
-    public static final java.lang.String METASINK_PROCESS_SPEED = "metasink.process.speed";
-    public static final java.lang.String EVENT_OTHEREXP = "socketmsg.otherexp";
-    public static final java.lang.String EVENT_INVALID = "socketmsg.invalid";
-
-    public static final java.lang.String AGENT_MESSAGES_SENT_SUCCESS = "agent.messages.success";
-    public static final java.lang.String AGENT_PACKAGES_SENT_SUCCESS = "agent.packages.success";
-    public static final java.lang.String MSG_COUNTER_KEY = "msgcnt";
-    public static final java.lang.String MSG_PKG_TIME_KEY = "msg.pkg.time";
-    public static final java.lang.String AGENT_MESSAGES_COUNT_PREFIX = "agent.messages.count.";
 }

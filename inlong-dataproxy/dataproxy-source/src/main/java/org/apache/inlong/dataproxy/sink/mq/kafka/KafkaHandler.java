@@ -18,6 +18,8 @@
 package org.apache.inlong.dataproxy.sink.mq.kafka;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
@@ -29,6 +31,7 @@ import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
 import org.apache.inlong.dataproxy.sink.mq.PackProfile;
 import org.apache.inlong.dataproxy.sink.mq.SimplePackProfile;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -50,7 +53,8 @@ import java.util.Set;
 public class KafkaHandler implements MessageQueueHandler {
 
     public static final Logger LOG = LoggerFactory.getLogger(KafkaHandler.class);
-    public static final String KEY_NAMESPACE = "namespace";
+    // log print count
+    private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
 
     private CacheClusterConfig config;
     private String clusterName;
@@ -115,27 +119,34 @@ public class KafkaHandler implements MessageQueueHandler {
     @Override
     public boolean send(PackProfile profile) {
         try {
-            // idConfig
+            String topic;
+            // get idConfig
             IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
                     profile.getInlongGroupId(), profile.getInlongStreamId());
             if (idConfig == null) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOUID);
-                sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
-                sinkContext.getDispatchQueue().release(profile.getSize());
-                profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
-                return false;
-            }
-            String topic = idConfig.getTopicName();
-            if (topic == null) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOTOPIC);
-                sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
-                sinkContext.getDispatchQueue().release(profile.getSize());
-                profile.fail(DataProxyErrCode.TOPIC_IS_BLANK, "");
-                return false;
+                if (!CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
+                    sinkContext.fileMetricIncWithDetailStats(
+                            StatConstants.EVENT_SINK_CONFIG_TOPIC_MISSING, profile.getUid());
+                    sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
+                    sinkContext.getDispatchQueue().release(profile.getSize());
+                    profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
+                    return false;
+                }
+                topic = CommonConfigHolder.getInstance().getRandDefTopics();
+                if (StringUtils.isEmpty(topic)) {
+                    sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_DEFAULT_TOPIC_MISSING);
+                    sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
+                    sinkContext.getDispatchQueue().release(profile.getSize());
+                    profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
+                    return false;
+                }
+                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_DEFAULT_TOPIC_USED);
+            } else {
+                topic = idConfig.getTopicName();
             }
             // create producer failed
             if (producer == null) {
-                sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_NOPRODUCER);
+                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_PRODUCER_NULL);
                 sinkContext.processSendFail(profile, clusterName, topic, 0, DataProxyErrCode.PRODUCER_IS_NULL, "");
                 return false;
             }
@@ -147,10 +158,12 @@ public class KafkaHandler implements MessageQueueHandler {
             }
             return true;
         } catch (Exception ex) {
-            sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SENDEXCEPT);
+            sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SEND_EXCEPTION);
             sinkContext.processSendFail(profile, clusterName, profile.getUid(), 0,
                     DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
-            LOG.error(ex.getMessage(), ex);
+            if (logCounter.shouldPrint()) {
+                LOG.error("Send Message to Kafka failure", ex);
+            }
             return false;
         }
     }
@@ -188,12 +201,14 @@ public class KafkaHandler implements MessageQueueHandler {
             @Override
             public void onCompletion(RecordMetadata arg0, Exception ex) {
                 if (ex != null) {
-                    sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
+                    sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
                     sinkContext.processSendFail(batchProfile, clusterName, topic, sendTime,
                             DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
-                    LOG.error("Send BatchPackProfile to Kafka failure", ex);
+                    if (logCounter.shouldPrint()) {
+                        LOG.error("Send BatchPackProfile to Kafka failure", ex);
+                    }
                 } else {
-                    sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
+                    sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
                     sinkContext.addSendResultMetric(batchProfile, clusterName, topic, true, sendTime);
                     sinkContext.getDispatchQueue().release(batchProfile.getSize());
                     batchProfile.ack();
@@ -230,12 +245,14 @@ public class KafkaHandler implements MessageQueueHandler {
             @Override
             public void onCompletion(RecordMetadata arg0, Exception ex) {
                 if (ex != null) {
-                    sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
+                    sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
                     sinkContext.processSendFail(simpleProfile, clusterName, topic, sendTime,
                             DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
-                    LOG.error("Send SimplePackProfile to Kafka failure", ex);
+                    if (logCounter.shouldPrint()) {
+                        LOG.error("Send SimplePackProfile to Kafka failure", ex);
+                    }
                 } else {
-                    sinkContext.fileMetricEventInc(StatConstants.EVENT_SINK_SUCCESS);
+                    sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
                     sinkContext.addSendResultMetric(simpleProfile, clusterName, topic, true, sendTime);
                     sinkContext.getDispatchQueue().release(simpleProfile.getSize());
                     simpleProfile.ack();

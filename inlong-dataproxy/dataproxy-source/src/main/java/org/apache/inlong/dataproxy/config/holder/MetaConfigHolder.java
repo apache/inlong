@@ -177,7 +177,12 @@ public class MetaConfigHolder extends ConfigHolder {
     }
 
     public Set<String> getAllTopicName() {
-        Set<String> result = new HashSet<>(defTopics);
+        Set<String> result = new HashSet<>();
+        // add default topics first
+        if (CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
+            result.addAll(CommonConfigHolder.getInstance().getDefTopics());
+        }
+        // add configured topics
         for (IdTopicConfig topicConfig : id2TopicMap.values()) {
             if (topicConfig == null) {
                 continue;
