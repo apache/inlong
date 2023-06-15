@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.sort.node.base;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.stream.StreamField;
@@ -65,7 +66,21 @@ public interface LoadNodeProvider extends NodeProvider {
      * @return FieldInfo list
      */
     default List<FieldInfo> parseSinkFieldInfos(List<SinkField> sinkFields, String nodeId) {
-        return sinkFields.stream().map(field -> FieldInfoUtils.parseSinkFieldInfo(field, nodeId))
+        return parseSinkFieldInfos(sinkFields, nodeId, null);
+    }
+
+    /**
+     * Parse FieldInfos
+     *
+     * @param sinkFields The stream sink fields
+     * @param nodeId The node id
+     * @param fieldTypeMappingStrategy The field type mapping operation strategy
+     * @return FieldInfo list
+     */
+    default List<FieldInfo> parseSinkFieldInfos(List<SinkField> sinkFields, String nodeId,
+            FieldTypeMappingStrategy fieldTypeMappingStrategy) {
+        return sinkFields.stream()
+                .map(field -> FieldInfoUtils.parseSinkFieldInfo(field, nodeId, fieldTypeMappingStrategy))
                 .collect(Collectors.toList());
     }
 

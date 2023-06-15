@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.pojo.sort.node.base;
 
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
 import org.apache.inlong.manager.pojo.sort.util.FieldInfoUtils;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
@@ -60,8 +61,23 @@ public interface ExtractNodeProvider extends NodeProvider {
      */
     default List<FieldInfo> parseStreamFieldInfos(List<StreamField> streamFields, String nodeId) {
         // Filter constant fields
+        return parseStreamFieldInfos(streamFields, nodeId, null);
+    }
+
+    /**
+     * Parse StreamFieldInfos
+     *
+     * @param streamFields The stream fields
+     * @param nodeId The node id
+     * @param fieldTypeMappingStrategy The field type mapping operation strategy
+     * @return FieldInfo list
+     */
+    default List<FieldInfo> parseStreamFieldInfos(List<StreamField> streamFields, String nodeId,
+            FieldTypeMappingStrategy fieldTypeMappingStrategy) {
+        // Filter constant fields
         return streamFields.stream().filter(s -> Objects.isNull(s.getFieldValue()))
-                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, nodeId))
+                .map(streamFieldInfo -> FieldInfoUtils
+                        .parseStreamFieldInfo(streamFieldInfo, nodeId, fieldTypeMappingStrategy))
                 .collect(Collectors.toList());
     }
 
