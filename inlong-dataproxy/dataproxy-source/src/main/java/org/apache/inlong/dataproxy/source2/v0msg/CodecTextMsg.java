@@ -21,7 +21,6 @@ import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.msg.MsgType;
-import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source2.BaseSource;
@@ -120,17 +119,19 @@ public class CodecTextMsg extends AbsV0MsgCodec {
             int readPos = 0;
             int singleMsgLen;
             ByteBuffer bodyBuffer = ByteBuffer.wrap(bodyData);
-            while (bodyBuffer.remaining() > 0) {
+            int remaining = bodyBuffer.remaining();
+            while (remaining > 0) {
                 singleMsgLen = bodyBuffer.getInt(readPos);
-                if (singleMsgLen <= 0 || singleMsgLen > bodyBuffer.remaining()) {
+                if (singleMsgLen <= 0 || singleMsgLen > remaining) {
                     source.fileMetricIncSumStats(StatConstants.EVENT_MSG_ITEM_LEN_MALFORMED);
                     this.errCode = DataProxyErrCode.BODY_EXCEED_MAX_LEN;
                     this.errMsg = String.format(
                             "Malformed data len, singleMsgLen(%d), buffer remaining(%d), attr: (%s)",
-                            singleMsgLen, bodyBuffer.remaining(), origAttr);
+                            singleMsgLen, remaining, origAttr);
                     return false;
                 }
                 readPos += 4 + singleMsgLen;
+                remaining -= 4 + singleMsgLen;
             }
         }
         return true;
@@ -148,15 +149,11 @@ public class CodecTextMsg extends AbsV0MsgCodec {
         // get and check topic configure
         String tmpTopicName = ConfigManager.getInstance().getTopicName(tmpGroupId, tmpStreamId);
         if (StringUtils.isBlank(tmpTopicName)) {
-            if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
-                tmpTopicName = source.getDefTopic();
-            } else {
-                source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
-                this.errCode = DataProxyErrCode.TOPIC_IS_BLANK;
-                this.errMsg = String.format(
-                        "Topic not configured for groupId=(%s), streamId=(%s)", tmpGroupId, tmpStreamId);
-                return false;
-            }
+            source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
+            this.errCode = DataProxyErrCode.TOPIC_IS_BLANK;
+            this.errMsg = String.format(
+                    "Topic not configured for groupId=(%s), streamId=(%s)", tmpGroupId, tmpStreamId);
+            return false;
         }
         this.groupId = tmpGroupId;
         this.topicName = tmpTopicName;
@@ -190,7 +187,7 @@ public class CodecTextMsg extends AbsV0MsgCodec {
         // process sequence id
         String sequenceId = attrMap.get(AttributeConstants.SEQUENCE_ID);
         if (StringUtils.isNotBlank(sequenceId)) {
-            strBuff.append(topicName).append(AttributeConstants.SEPARATOR).append(streamId)
+            strBuff.append(groupId).append(AttributeConstants.SEPARATOR).append(streamId)
                     .append(AttributeConstants.SEPARATOR).append(sequenceId)
                     .append("#").append(strRemoteIP);
             msgSeqId = strBuff.toString();
@@ -251,6 +248,18 @@ public class CodecTextMsg extends AbsV0MsgCodec {
             inLongMsg.addMsg(mapJoiner.join(attrMap), bodyData);
             attrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(this.msgCount));
         } else {
+            if (!"pb".equals(attrMap.get(AttributeConstants.MESSAGE_TYPE))) {
+                if (bodyData[bodyData.length - 1] == '\n') {
+                    int tripDataLen = bodyData.length - 1;
+                    if (bodyData[bodyData.length - 2] == '\r') {
+                        tripDataLen = bodyData.length - 2;
+                    }
+                    byte[] tripData = new byte[tripDataLen];
+                    System.arraycopy(bodyData, 0, tripData, 0, tripDataLen);
+                    bodyData = tripData;
+                    source.fileMetricIncSumStats(StatConstants.EVENT_MSG_BODY_TRIP);
+                }
+            }
             inLongMsg.addMsg(mapJoiner.join(attrMap), bodyData);
         }
         long pkgTime = inLongMsg.getCreatetime();
@@ -258,5 +267,4 @@ public class CodecTextMsg extends AbsV0MsgCodec {
         inLongMsg.reset();
         return event;
     }
-
 }

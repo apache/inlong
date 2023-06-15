@@ -22,7 +22,6 @@ import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.msg.MsgType;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
-import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source2.BaseSource;
@@ -149,7 +148,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
             return false;
         }
         // build message seqId
-        this.msgSeqId = strBuff.append(this.topicName)
+        this.msgSeqId = strBuff.append(this.groupId)
                 .append(AttributeConstants.SEPARATOR).append(this.streamId)
                 .append(AttributeConstants.SEPARATOR).append(strRemoteIP)
                 .append("#").append(dataTimeMs).append("#").append(uniq).toString();
@@ -330,15 +329,11 @@ public class CodecBinMsg extends AbsV0MsgCodec {
         // get and check topic configure
         this.topicName = configManager.getTopicName(this.groupId, this.streamId);
         if (StringUtils.isBlank(this.topicName)) {
-            if (CommonConfigHolder.getInstance().isNoTopicAccept()) {
-                this.topicName = source.getDefTopic();
-            } else {
-                source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
-                this.errCode = DataProxyErrCode.TOPIC_IS_BLANK;
-                this.errMsg = String.format("Topic not configured for groupId=(%s), streamId=(%s)",
-                        this.groupId, this.streamId);
-                return false;
-            }
+            source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_TOPIC_MISSING);
+            this.errCode = DataProxyErrCode.TOPIC_IS_BLANK;
+            this.errMsg = String.format("Topic not configured for groupId=(%s), streamId=(%s)",
+                    this.groupId, this.streamId);
+            return false;
         }
         if (StringUtils.isBlank(this.streamId)) {
             this.streamId = "";

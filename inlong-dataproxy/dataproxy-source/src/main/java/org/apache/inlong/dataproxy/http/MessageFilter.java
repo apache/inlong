@@ -106,7 +106,7 @@ public class MessageFilter implements Filter {
         // get and check topicName
         String topicName = ConfigManager.getInstance().getTopicName(groupId, streamId);
         if (StringUtils.isBlank(topicName)
-                && !CommonConfigHolder.getInstance().isNoTopicAccept()) {
+                && !CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept()) {
             returnRspPackage(resp, req.getCharacterEncoding(),
                     DataProxyErrCode.TOPIC_IS_BLANK.getErrCode(),
                     DataProxyErrCode.TOPIC_IS_BLANK.getErrMsg());

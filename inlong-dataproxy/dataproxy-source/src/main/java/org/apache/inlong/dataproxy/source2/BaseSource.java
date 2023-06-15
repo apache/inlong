@@ -153,11 +153,6 @@ public abstract class BaseSource
         Preconditions.checkArgument(StringUtils.isNotBlank(tmpVal),
                 SourceConstants.SRCCXT_MESSAGE_HANDLER_NAME + " config is blank");
         this.messageHandlerName = tmpVal;
-        // get default topic
-        tmpVal = context.getString(SourceConstants.SRCCXT_DEF_TOPIC);
-        if (StringUtils.isNotBlank(tmpVal)) {
-            this.defTopic = tmpVal.trim();
-        }
         // get default attributes
         tmpVal = context.getString(SourceConstants.SRCCXT_DEF_ATTR);
         if (StringUtils.isNotBlank(tmpVal)) {
@@ -365,10 +360,6 @@ public abstract class BaseSource
 
     public String getStrPort() {
         return strPort;
-    }
-
-    public String getDefTopic() {
-        return defTopic;
     }
 
     public String getDefAttr() {

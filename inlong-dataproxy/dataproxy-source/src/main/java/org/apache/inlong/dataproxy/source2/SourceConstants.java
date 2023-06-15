@@ -33,8 +33,6 @@ public class SourceConstants {
     public static final String SRCCXT_MSG_FACTORY_NAME = "msg-factory-name";
     // message handler name
     public static final String SRCCXT_MESSAGE_HANDLER_NAME = "message-handler-name";
-    // default topic name
-    public static final String SRCCXT_DEF_TOPIC = "topic";
     // default attributes
     public static final String SRCCXT_DEF_ATTR = "attr";
     // max message length
