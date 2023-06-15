@@ -695,11 +695,12 @@ public class FlinkSink {
                             TypeInformation.of(RecordWithSchema.class),
                             routeOperator)
                     .setParallelism(parallelism);
-
+            RowType tableSchemaRowType = (RowType) tableSchema.toRowDataType().getLogicalType();
+            int metaFieldIndex = getMetaFieldIndex(tableSchema);
             IcebergProcessOperator streamWriter =
                     new IcebergProcessOperator(new IcebergMultipleStreamWriter(
                             appendMode, catalogLoader, inlongMetric, auditHostAndPorts,
-                            multipleSinkOption, dirtyOptions, dirtySink, tableSchema));
+                            multipleSinkOption, dirtyOptions, dirtySink, tableSchemaRowType, metaFieldIndex));
             SingleOutputStreamOperator<MultipleWriteResult> writerStream = routeStream
                     .transform(operatorName(ICEBERG_MULTIPLE_STREAM_WRITER_NAME),
                             TypeInformation.of(IcebergProcessOperator.class),
@@ -812,6 +813,20 @@ public class FlinkSink {
         }
     }
 
+    static int getMetaFieldIndex(TableSchema tableSchema) {
+        RowType rowType = (RowType) tableSchema.toRowDataType().getLogicalType();
+        List<RowType.RowField> fields = rowType.getFields();
+        int metaFieldIndex = -1;
+        for (int i = 0; i < fields.size(); i++) {
+            RowType.RowField rowField = fields.get(i);
+            if (META_INCREMENTAL.equals(rowField.getName())) {
+                metaFieldIndex = i;
+                break;
+            }
+        }
+        return metaFieldIndex;
+    }
+
     static IcebergProcessOperator<RowData, WriteResult> createStreamWriter(Table table,
             RowType flinkRowType,
             List<Integer> equalityFieldIds,
@@ -839,9 +854,11 @@ public class FlinkSink {
                         appendMode,
                         miniBatchMode);
 
+        RowType tableSchemaRowType = (RowType) tableSchema.toRowDataType().getLogicalType();
+        int metaFieldIndex = getMetaFieldIndex(tableSchema);
         return new IcebergProcessOperator<>(new IcebergSingleStreamWriter<>(
                 table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts,
-                flinkRowType, dirtyOptions, dirtySink, false, tableSchema));
+                flinkRowType, dirtyOptions, dirtySink, false, tableSchemaRowType, metaFieldIndex));
     }
 
 }

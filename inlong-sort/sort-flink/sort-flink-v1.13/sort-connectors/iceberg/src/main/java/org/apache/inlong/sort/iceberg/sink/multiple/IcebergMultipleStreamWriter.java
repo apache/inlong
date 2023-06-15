@@ -39,10 +39,8 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.operators.BoundedOneInput;
-import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.FileFormat;
@@ -111,8 +109,8 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
     private transient MetricState metricState;
     private transient ListState<MetricState> metricStateListState;
     private transient RuntimeContext runtimeContext;
-    private final TableSchema tableSchema;
-    private final String INCREMENTAL = "incremental";
+    private final RowType tableSchemaRowType;
+    private final int metaFieldIndex;
 
     public IcebergMultipleStreamWriter(
             boolean appendMode,
@@ -122,7 +120,8 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             MultipleSinkOption multipleSinkOption,
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
-            TableSchema tableSchema) {
+            RowType tableSchemaRowType,
+            int metaFieldIndex) {
         this.appendMode = appendMode;
         this.catalogLoader = catalogLoader;
         this.inlongMetric = inlongMetric;
@@ -130,7 +129,8 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
         this.multipleSinkOption = multipleSinkOption;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
-        this.tableSchema = tableSchema;
+        this.tableSchemaRowType = tableSchemaRowType;
+        this.metaFieldIndex = metaFieldIndex;
     }
 
     @Override
@@ -237,7 +237,8 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                         .append(Constants.TABLE_NAME).append("=").append(tableId.name());
                 IcebergSingleStreamWriter<RowData> writer = new IcebergSingleStreamWriter<>(
                         tableId.toString(), taskWriterFactory, subWriterInlongMetric.toString(),
-                        auditHostAndPorts, flinkRowType, dirtyOptions, dirtySink, true, tableSchema);
+                        auditHostAndPorts, flinkRowType, dirtyOptions, dirtySink, true,
+                        tableSchemaRowType, metaFieldIndex);
                 writer.setup(getRuntimeContext(),
                         new CallbackCollector<>(
                                 writeResult -> collector.collect(new MultipleWriteResult(tableId, writeResult))),
@@ -268,11 +269,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                     long size = CalculateObjectSizeUtils.getDataSize(data);
 
                     try {
-                        JsonNode originalData = recordWithSchema.getOriginalData();
-                        JsonNode incrementalJsonNode = originalData.get(INCREMENTAL);
-                        boolean incremental = incrementalJsonNode == null ? false
-                                : Boolean.parseBoolean(incrementalJsonNode.get(0).toString());
-                        if (incremental) {
+                        if (recordWithSchema.isIncremental()) {
                             multipleWriters.get(tableId).switchToUpsert();
                         } else {
                             multipleWriters.get(tableId).switchToAppend();

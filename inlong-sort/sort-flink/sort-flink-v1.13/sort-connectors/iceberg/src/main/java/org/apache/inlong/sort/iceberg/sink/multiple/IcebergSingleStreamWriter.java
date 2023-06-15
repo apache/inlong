@@ -35,7 +35,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
-import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
@@ -55,7 +54,6 @@ import java.util.List;
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.META_INCREMENTAL;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
@@ -84,7 +82,8 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
     private boolean multipleSink;
-    private TableSchema tableSchema;
+    private final RowType tableSchemaRowType;
+    private final int metaFieldIndex;
     private final List<WriteResult> cachedWriteResults;
 
     public IcebergSingleStreamWriter(
@@ -96,7 +95,8 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
             boolean multipleSink,
-            TableSchema tableSchema) {
+            RowType tableSchemaRowType,
+            int metaFieldIndex) {
         this.fullTableName = fullTableName;
         this.taskWriterFactory = taskWriterFactory;
         this.inlongMetric = inlongMetric;
@@ -105,7 +105,8 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
         this.multipleSink = multipleSink;
-        this.tableSchema = tableSchema;
+        this.tableSchemaRowType = tableSchemaRowType;
+        this.metaFieldIndex = metaFieldIndex;
         this.cachedWriteResults = new ArrayList<>();
     }
 
@@ -193,30 +194,18 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     @Override
     public void processElement(T value) throws Exception {
         try {
-            if (!multipleSink) {
-                RowData rowData = (RowData) value;
-                boolean incremental = false;
-                RowType rowType = (RowType) tableSchema.toRowDataType().getLogicalType();
-                List<RowType.RowField> fields = rowType.getFields();
-                int fieldIndex = -1;
-                for (int i = 0; i < fields.size(); i++) {
-                    RowType.RowField rowField = fields.get(i);
-                    if (META_INCREMENTAL.equals(rowField.getName())) {
-                        incremental = rowData.getBoolean(i);
-                        fieldIndex = i;
-                        break;
-                    }
-                }
-                RowData newRowData = fieldIndex != -1 ? removeField(rowData, fieldIndex, rowType) : rowData;
-                if (incremental) {
-                    switchToUpsert();
-                } else {
-                    switchToAppend();
-                }
-                writer.write(newRowData);
-            } else {
+            if (multipleSink || metaFieldIndex == -1) {
                 writer.write((RowData) value);
+                return;
             }
+
+            RowData rowData = (RowData) value;
+            if (rowData.getBoolean(metaFieldIndex)) {
+                switchToUpsert();
+            } else {
+                switchToAppend();
+            }
+            writer.write(removeField(rowData, metaFieldIndex, tableSchemaRowType));
         } catch (Exception e) {
             if (multipleSink) {
                 throw e;
