@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import request from '@/core/utils/request';
 import Info from './Info';
 import DataStream from './SyncT';
+import i18n from '@/i18n';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
@@ -125,7 +126,7 @@ const Comp: React.FC = () => {
     <Space style={{ display: 'flex', justifyContent: 'center' }}>
       {current > 0 && (
         <Button disabled={confirmLoading} onClick={() => setCurrent(current - 1)}>
-          {t('pages.SynchronizeDetail.Info.Previous')}
+          {i18n.t('pages.SynchronizeDetail.Info.Previous')}
         </Button>
       )}
       {current !== list.length - 1 && (
