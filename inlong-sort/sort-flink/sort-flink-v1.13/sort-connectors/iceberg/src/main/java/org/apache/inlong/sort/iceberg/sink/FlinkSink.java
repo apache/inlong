@@ -188,6 +188,7 @@ public class FlinkSink {
         private ReadableConfig tableOptions = new Configuration();
         private boolean enableSchemaChange;
         private String schemaChangePolicies;
+        private boolean switchAppendUpsertEnable = false;
 
         private Builder() {
         }
@@ -258,6 +259,11 @@ public class FlinkSink {
 
         public Builder multipleSink(boolean multipleSink) {
             this.multipleSink = multipleSink;
+            return this;
+        }
+
+        public Builder switchAppendUpsertEnable(boolean switchAppendUpsertEnable) {
+            this.switchAppendUpsertEnable = switchAppendUpsertEnable;
             return this;
         }
 
@@ -668,7 +674,8 @@ public class FlinkSink {
 
             IcebergProcessOperator<RowData, WriteResult> streamWriter = createStreamWriter(
                     table, flinkRowType, equalityFieldIds, flinkWriteConf, appendMode, inlongMetric,
-                    auditHostAndPorts, dirtyOptions, dirtySink, tableOptions.get(WRITE_MINI_BATCH_ENABLE), tableSchema);
+                    auditHostAndPorts, dirtyOptions, dirtySink, tableOptions.get(WRITE_MINI_BATCH_ENABLE), tableSchema,
+                    switchAppendUpsertEnable);
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             SingleOutputStreamOperator<WriteResult> writerStream = inputWithMiniBatch
@@ -700,7 +707,8 @@ public class FlinkSink {
             IcebergProcessOperator streamWriter =
                     new IcebergProcessOperator(new IcebergMultipleStreamWriter(
                             appendMode, catalogLoader, inlongMetric, auditHostAndPorts,
-                            multipleSinkOption, dirtyOptions, dirtySink, tableSchemaRowType, metaFieldIndex));
+                            multipleSinkOption, dirtyOptions, dirtySink, tableSchemaRowType, metaFieldIndex,
+                            switchAppendUpsertEnable));
             SingleOutputStreamOperator<MultipleWriteResult> writerStream = routeStream
                     .transform(operatorName(ICEBERG_MULTIPLE_STREAM_WRITER_NAME),
                             TypeInformation.of(IcebergProcessOperator.class),
@@ -837,7 +845,8 @@ public class FlinkSink {
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
             boolean miniBatchMode,
-            TableSchema tableSchema) {
+            TableSchema tableSchema,
+            boolean switchAppendUpsertEnable) {
         // flink A, iceberg a
         Preconditions.checkArgument(table != null, "Iceberg table should't be null");
 
@@ -858,7 +867,8 @@ public class FlinkSink {
         int metaFieldIndex = getMetaFieldIndex(tableSchema);
         return new IcebergProcessOperator<>(new IcebergSingleStreamWriter<>(
                 table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts,
-                flinkRowType, dirtyOptions, dirtySink, false, tableSchemaRowType, metaFieldIndex));
+                flinkRowType, dirtyOptions, dirtySink, false,
+                tableSchemaRowType, metaFieldIndex, switchAppendUpsertEnable));
     }
 
 }

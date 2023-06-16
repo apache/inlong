@@ -57,6 +57,7 @@ import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_PK_AUTO_GENERA
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
+import static org.apache.inlong.sort.base.Constants.SWITCH_APPEND_UPSERT_ENABLE;
 import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_ENABLE;
 import static org.apache.inlong.sort.base.Constants.SINK_SCHEMA_CHANGE_POLICIES;
 import static org.apache.inlong.sort.iceberg.FlinkDynamicTableFactory.WRITE_DISTRIBUTION_MODE;
@@ -133,6 +134,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                     .catalogLoader(catalogLoader)
                     .tableSchema(tableSchema)
                     .multipleSink(tableOptions.get(SINK_MULTIPLE_ENABLE))
+                    .switchAppendUpsertEnable(tableOptions.get(SWITCH_APPEND_UPSERT_ENABLE))
                     .multipleSinkOption(MultipleSinkOption.builder()
                             .withFormat(tableOptions.get(SINK_MULTIPLE_FORMAT))
                             .withSparkEngineEnable(tableOptions.get(SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK))
@@ -164,6 +166,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                     .action(actionsProvider)
                     .tableOptions(tableOptions)
                     .distributionMode(DistributionMode.fromName(tableOptions.get(WRITE_DISTRIBUTION_MODE)))
+                    .switchAppendUpsertEnable(tableOptions.get(SWITCH_APPEND_UPSERT_ENABLE))
                     .append();
         }
     }

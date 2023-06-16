@@ -85,6 +85,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private final RowType tableSchemaRowType;
     private final int metaFieldIndex;
     private final List<WriteResult> cachedWriteResults;
+    private final boolean switchAppendUpsertEnable;
 
     public IcebergSingleStreamWriter(
             String fullTableName,
@@ -96,7 +97,8 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             @Nullable DirtySink<Object> dirtySink,
             boolean multipleSink,
             RowType tableSchemaRowType,
-            int metaFieldIndex) {
+            int metaFieldIndex,
+            boolean switchAppendUpsertEnable) {
         this.fullTableName = fullTableName;
         this.taskWriterFactory = taskWriterFactory;
         this.inlongMetric = inlongMetric;
@@ -108,6 +110,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
         this.tableSchemaRowType = tableSchemaRowType;
         this.metaFieldIndex = metaFieldIndex;
         this.cachedWriteResults = new ArrayList<>();
+        this.switchAppendUpsertEnable = switchAppendUpsertEnable;
     }
 
     public RowType getFlinkRowType() {
@@ -194,7 +197,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     @Override
     public void processElement(T value) throws Exception {
         try {
-            if (multipleSink || metaFieldIndex == -1) {
+            if (!switchAppendUpsertEnable || multipleSink || metaFieldIndex == -1) {
                 writer.write((RowData) value);
                 return;
             }

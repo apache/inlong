@@ -111,6 +111,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
     private transient RuntimeContext runtimeContext;
     private final RowType tableSchemaRowType;
     private final int metaFieldIndex;
+    private final boolean switchAppendUpsertEnable;
 
     public IcebergMultipleStreamWriter(
             boolean appendMode,
@@ -121,7 +122,8 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink,
             RowType tableSchemaRowType,
-            int metaFieldIndex) {
+            int metaFieldIndex,
+            boolean switchAppendUpsertEnable) {
         this.appendMode = appendMode;
         this.catalogLoader = catalogLoader;
         this.inlongMetric = inlongMetric;
@@ -131,6 +133,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
         this.dirtySink = dirtySink;
         this.tableSchemaRowType = tableSchemaRowType;
         this.metaFieldIndex = metaFieldIndex;
+        this.switchAppendUpsertEnable = switchAppendUpsertEnable;
     }
 
     @Override
@@ -238,7 +241,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                 IcebergSingleStreamWriter<RowData> writer = new IcebergSingleStreamWriter<>(
                         tableId.toString(), taskWriterFactory, subWriterInlongMetric.toString(),
                         auditHostAndPorts, flinkRowType, dirtyOptions, dirtySink, true,
-                        tableSchemaRowType, metaFieldIndex);
+                        tableSchemaRowType, metaFieldIndex, switchAppendUpsertEnable);
                 writer.setup(getRuntimeContext(),
                         new CallbackCollector<>(
                                 writeResult -> collector.collect(new MultipleWriteResult(tableId, writeResult))),
@@ -269,10 +272,12 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                     long size = CalculateObjectSizeUtils.getDataSize(data);
 
                     try {
-                        if (recordWithSchema.isIncremental()) {
-                            multipleWriters.get(tableId).switchToUpsert();
-                        } else {
-                            multipleWriters.get(tableId).switchToAppend();
+                        if (switchAppendUpsertEnable) {
+                            if (recordWithSchema.isIncremental()) {
+                                multipleWriters.get(tableId).switchToUpsert();
+                            } else {
+                                multipleWriters.get(tableId).switchToAppend();
+                            }
                         }
                         multipleWriters.get(tableId).processElement(data);
                     } catch (Exception e) {
