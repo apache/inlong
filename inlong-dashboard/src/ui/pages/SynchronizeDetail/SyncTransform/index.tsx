@@ -232,16 +232,14 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         size="small"
         title={
           <Badge size="small" count={data?.total} offset={[12, 3]}>
-            {/* {i18n.t('pages.GroupDetail.Sources')} */}
-            数据转换
+            {i18n.t('pages.SynchronizeDetail.Transform')}
           </Badge>
         }
         style={{ height: '100%' }}
         extra={[
           !readonly && (
             <Button key="create" type="link" onClick={() => setCreateModal({ open: true })}>
-              {/* {i18n.t('pages.GroupDetail.Sources.Create')} */}
-              新建数据转换
+              {i18n.t('pages.SynchronizeDetail.Transform.Create')}
             </Button>
           ),
 

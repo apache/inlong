@@ -119,7 +119,7 @@ const Comp: React.FC = () => {
       method: 'POST',
     });
     message.success(t('pages.SynchronizeDetail.Info.SubmittedSuccessfully'));
-    history.push('/group');
+    history.push('/sync');
   };
 
   const Footer = () => (

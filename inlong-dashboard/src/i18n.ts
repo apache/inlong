@@ -34,7 +34,7 @@ const resources = {
       'configs.menus.UserManagement': 'User Management',
       'configs.menus.ProcessManagement': 'Process Management',
       'configs.menus.Nodes': 'DataNodes',
-      'configs.menus.DataSynchronize': 'Synchronize',
+      'configs.menus.DataSynchronize': 'Synchronization',
     },
   },
   cn: {

@@ -778,6 +778,8 @@
   "pages.SynchronizeDetail.Info.Create": "新建数据流组",
   "pages.SynchronizeDetail.Sources.SavePrompt": "保存成功",
   "pages.SynchronizeDetail.Sync.Transform": "设置 Transform",
+  "pages.SynchronizeDetail.Transform": "数据转换",
+  "pages.SynchronizeDetail.Transform.Create": "新建数据转换",
   "components.FieldList.Source": "源字段",
   "components.FieldList.Sink": "目标字段",
   "components.FieldList.CreateSource": "新建源字段",
