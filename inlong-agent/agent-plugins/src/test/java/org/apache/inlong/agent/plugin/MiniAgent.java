@@ -23,7 +23,7 @@ import org.apache.inlong.agent.conf.ProfileFetcher;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.HeartbeatManager;
-import org.apache.inlong.agent.core.task.TaskPositionManager;
+import org.apache.inlong.agent.core.task.PositionManager;
 
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.api.support.membermodification.MemberModifier;
@@ -55,16 +55,16 @@ public class MiniAgent {
     }
 
     private void init() throws Exception {
-        TaskPositionManager taskPositionManager = PowerMockito.mock(TaskPositionManager.class);
+        PositionManager positionManager = PowerMockito.mock(PositionManager.class);
         HeartbeatManager heartbeatManager = PowerMockito.mock(HeartbeatManager.class);
         ProfileFetcher profileFetcher = PowerMockito.mock(ProfileFetcher.class);
-        PowerMockito.doNothing().when(taskPositionManager, "start");
-        PowerMockito.doNothing().when(taskPositionManager, "stop");
+        PowerMockito.doNothing().when(positionManager, "start");
+        PowerMockito.doNothing().when(positionManager, "stop");
         PowerMockito.doNothing().when(heartbeatManager, "start");
         PowerMockito.doNothing().when(heartbeatManager, "stop");
         PowerMockito.doNothing().when(profileFetcher, "start");
         PowerMockito.doNothing().when(profileFetcher, "stop");
-        MemberModifier.field(AgentManager.class, "taskPositionManager").set(manager, taskPositionManager);
+        MemberModifier.field(AgentManager.class, "positionManager").set(manager, positionManager);
         MemberModifier.field(AgentManager.class, "heartbeatManager").set(manager, heartbeatManager);
         MemberModifier.field(AgentManager.class, "fetcher").set(manager, profileFetcher);
     }
@@ -105,8 +105,8 @@ public class MiniAgent {
 
     public void cleanupTriggers() {
         triggerProfileCache
-                .forEach(triggerProfile -> manager.getTriggerManager().deleteTrigger(triggerProfile.getTriggerId(),
-                        false));
+                .forEach(triggerProfile -> manager.getTriggerManager()
+                        .deleteTrigger(triggerProfile.getTriggerId(), false));
         triggerProfileCache.clear();
     }
 }

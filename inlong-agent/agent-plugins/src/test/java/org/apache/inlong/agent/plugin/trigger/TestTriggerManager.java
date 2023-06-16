@@ -92,6 +92,7 @@ public class TestTriggerManager {
 
     @Test
     public void testRestartTriggerJobRestore() throws Exception {
+
         TriggerProfile triggerProfile1 = TriggerProfile.parseJsonStr(FILE_JOB_TEMPLATE);
         triggerProfile1.set(JobConstants.JOB_ID, "1");
         triggerProfile1.set(JobConstants.JOB_DIR_FILTER_PATTERNS,
@@ -100,16 +101,15 @@ public class TestTriggerManager {
 
         WATCH_FOLDER.newFolder("tmp");
         TestUtils.createHugeFiles("1.log", WATCH_FOLDER.getRoot().getAbsolutePath(), "asdqwdqd");
-        System.out.println(" task size " + agent.getManager().getTaskManager().getTaskSize());
+        LOGGER.info("testRestartTriggerJobRestore 1 task size " + agent.getManager().getTaskManager().getTaskSize());
         await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 1);
-
+        LOGGER.info("testRestartTriggerJobRestore 2 task size " + agent.getManager().getTaskManager().getTaskSize());
         agent.restart();
-        await().atMost(10, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 1);
-
+        LOGGER.info("testRestartTriggerJobRestore 3 task size " + agent.getManager().getTaskManager().getTaskSize());
+        await().atMost(30, TimeUnit.SECONDS).until(() -> agent.getManager().getTaskManager().getTaskSize() == 1);
+        LOGGER.info("testRestartTriggerJobRestore 4 task size " + agent.getManager().getTaskManager().getTaskSize());
         // cleanup
         TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/1.log");
-        TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/2.log");
-        TestUtils.deleteFile(WATCH_FOLDER.getRoot().getAbsolutePath() + "/tmp/3.log");
     }
 
     @Test

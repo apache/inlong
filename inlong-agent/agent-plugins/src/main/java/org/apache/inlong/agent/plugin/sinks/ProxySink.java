@@ -20,6 +20,7 @@ package org.apache.inlong.agent.plugin.sinks;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.core.task.MemoryManager;
 import org.apache.inlong.agent.message.BatchProxyMessage;
 import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.message.PackProxyMessage;
@@ -43,6 +44,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FIELD_SPLITTER;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_CHANNEL_PERMIT;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_GLOBAL_WRITER_PERMIT;
 
 /**
  * sink message data to inlong-dataproxy
@@ -66,12 +69,6 @@ public class ProxySink extends AbstractSink {
     @Override
     public void write(Message message) {
         if (message == null) {
-            return;
-        }
-        // if the message size is greater than max pack size,should drop it.
-        if (message.getBody().length > maxPackSize) {
-            LOGGER.warn("message size is {}, greater than max pack size {}, drop it!",
-                    message.getBody().length, maxPackSize);
             return;
         }
         boolean suc = false;
@@ -98,6 +95,13 @@ public class ProxySink extends AbstractSink {
             }
             AtomicBoolean suc = new AtomicBoolean(false);
             ProxyMessage proxyMessage = new ProxyMessage(message);
+            boolean writerPermitSuc = MemoryManager.getInstance()
+                    .tryAcquire(AGENT_GLOBAL_WRITER_PERMIT, message.getBody().length);
+            if (!writerPermitSuc) {
+                LOGGER.warn("writer tryAcquire failed");
+                MemoryManager.getInstance().printDetail(AGENT_GLOBAL_WRITER_PERMIT);
+                return false;
+            }
             // add proxy message to cache.
             cache.compute(proxyMessage.getBatchKey(),
                     (s, packProxyMessage) -> {
@@ -111,11 +115,11 @@ public class ProxySink extends AbstractSink {
                         return packProxyMessage;
                     });
             if (suc.get()) {
-                // semaphore should be acquired only when the message was put in cache successfully
-                senderManager.acquireSemaphore(1);
+                MemoryManager.getInstance().release(AGENT_GLOBAL_CHANNEL_PERMIT, message.getBody().length);
                 // increment the count of successful sinks
                 sinkMetric.sinkSuccessCount.incrementAndGet();
             } else {
+                MemoryManager.getInstance().release(AGENT_GLOBAL_WRITER_PERMIT, message.getBody().length);
                 // increment the count of failed sinks
                 sinkMetric.sinkFailCount.incrementAndGet();
             }
@@ -147,7 +151,7 @@ public class ProxySink extends AbstractSink {
      */
     private Runnable flushCache() {
         return () -> {
-            LOGGER.info("start flush cache thread for {} ProxySink", inlongGroupId);
+            LOGGER.info("start flush cache {}:{}", inlongGroupId, sourceName);
             while (!shutdown) {
                 try {
                     cache.forEach((batchKey, packProxyMessage) -> {
@@ -159,7 +163,6 @@ public class ProxySink extends AbstractSink {
                                     batchProxyMessage.getDataList().size(), jobInstanceId, sourceName,
                                     batchProxyMessage.getDataTime());
                         }
-
                     });
                 } catch (Exception ex) {
                     LOGGER.error("error caught", ex);
@@ -169,6 +172,7 @@ public class ProxySink extends AbstractSink {
                     AgentUtils.silenceSleepInMs(batchFlushInterval);
                 }
             }
+            LOGGER.info("stop flush cache {}:{}", inlongGroupId, sourceName);
         };
     }
 
@@ -182,7 +186,6 @@ public class ProxySink extends AbstractSink {
         executorService.execute(flushCache());
         senderManager = new SenderManager(jobConf, inlongGroupId, sourceName);
         try {
-            senderManager.addMessageSender();
             senderManager.Start();
         } catch (Throwable ex) {
             LOGGER.error("error while init sender for group id {}", inlongGroupId);
@@ -193,14 +196,15 @@ public class ProxySink extends AbstractSink {
 
     @Override
     public void destroy() {
-        LOGGER.info("destroy sink which sink from source name {}", sourceName);
+        LOGGER.info("destroy sink source name {}", sourceName);
         while (!sinkFinish()) {
-            LOGGER.info("job {} wait until cache all flushed to proxy", jobInstanceId);
+            LOGGER.info("sourceName {} wait until cache all flushed to proxy", sourceName);
             AgentUtils.silenceSleepInMs(batchFlushInterval);
         }
         shutdown = true;
         executorService.shutdown();
         senderManager.Stop();
+        LOGGER.info("destroy sink source name {} end", sourceName);
     }
 
     /**
