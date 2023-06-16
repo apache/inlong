@@ -43,7 +43,7 @@ public class HttpContextUtils {
      * @param request
      * @return
      */
-    public static Map<String, String> getParameterMapAll(HttpServletRequest request) {
+    public static Map<String, String> getParameterMapAll(ServletRequest request) {
         Enumeration<String> parameters = request.getParameterNames();
 
         Map<String, String> params = new HashMap<>();
@@ -94,19 +94,22 @@ public class HttpContextUtils {
      * @return
      */
     public static String getBodyString(ServletRequest request) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         try (InputStream inputStream = request.getInputStream()) {
             try (BufferedReader reader =
                     new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 String line = "";
                 while ((line = reader.readLine()) != null) {
-                    sb.append(line);
+                    builder.append(line);
                 }
             }
         } catch (IOException e) {
-            log.error("failed to get body string of request={}", request);
+            log.error("failed to get body string of request={}", request, e);
         }
-        return sb.toString();
+        if (builder.length() == 0) {
+            return "{}";
+        }
+        return builder.toString();
     }
 
 }

@@ -31,7 +31,9 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 import java.util.Map;
+import java.util.Vector;
 
 /**
  * Inlong http request wrapper
@@ -131,6 +133,11 @@ public class InlongRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public String getHeader(String name) {
         return this.headers.get(name);
+    }
+
+    @Override
+    public Enumeration<String> getParameterNames() {
+        return new Vector<>(params.keySet()).elements();
     }
 
     public void addHeader(String name, String value) {
