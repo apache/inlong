@@ -108,6 +108,7 @@ public class JobManager extends AbstractDaemon {
         this.dimensions = new HashMap<>();
         this.dimensions.put(KEY_COMPONENT_NAME, this.getClass().getSimpleName());
         this.jobMetrics = new AgentMetricItemSet(this.getClass().getSimpleName());
+        MetricRegister.unregister(jobMetrics);
         MetricRegister.register(jobMetrics);
     }
 

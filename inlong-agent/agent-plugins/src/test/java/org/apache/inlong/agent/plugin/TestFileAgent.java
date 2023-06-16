@@ -75,7 +75,7 @@ public class TestFileAgent {
             agent.start();
             testRootDir = helper.getTestRootDir();
         } catch (Exception e) {
-            LOGGER.error("setup failure");
+            LOGGER.error("setup failure", e);
         }
     }
 
