@@ -18,10 +18,12 @@
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffsetKind;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffsetSerializer;
 
 import io.debezium.DebeziumException;
 import io.debezium.util.HexConverter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataOutputSerializer;
 
@@ -53,7 +55,7 @@ public class SerializerUtils {
             throws IOException {
         switch (offsetVersion) {
             case 1:
-                return in.readBoolean() ? new BinlogOffset(in.readUTF(), in.readLong()) : null;
+                return in.readBoolean() ? BinlogOffset.ofBinlogFilePosition(in.readUTF(), in.readLong()) : null;
             case 2:
             case 3:
             case 4:
@@ -69,7 +71,22 @@ public class SerializerUtils {
             int binlogOffsetBytesLength = in.readInt();
             byte[] binlogOffsetBytes = new byte[binlogOffsetBytesLength];
             in.readFully(binlogOffsetBytes);
-            return BinlogOffsetSerializer.INSTANCE.deserialize(binlogOffsetBytes);
+            BinlogOffset offset = BinlogOffsetSerializer.INSTANCE.deserialize(binlogOffsetBytes);
+            // Old version of binlog offset without offset kind
+            if (offset.getOffsetKind() == null) {
+                if (StringUtils.isEmpty(offset.getFilename()) && offset.getPosition() == Long.MIN_VALUE) {
+                    return BinlogOffset.ofNonStopping();
+                }
+                if (StringUtils.isEmpty(offset.getFilename()) && offset.getPosition() == 0L) {
+                    return BinlogOffset.ofEarliest();
+                }
+                // For other cases we treat it as a specific offset
+                return BinlogOffset.builder()
+                        .setOffsetKind(BinlogOffsetKind.SPECIFIC)
+                        .setOffsetMap(offset.getOffset())
+                        .build();
+            }
+            return offset;
         } else {
             return null;
         }
