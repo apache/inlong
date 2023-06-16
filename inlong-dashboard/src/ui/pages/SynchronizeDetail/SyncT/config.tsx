@@ -17,24 +17,24 @@
  * under the License.
  */
 
-export type MetaExportStaticList<T> = {
-  label: string;
-  value: string;
-  LoadEntity: () => Promise<{ default: T }>;
-}[];
+import i18n from '@/i18n';
+import { statusList } from '@/plugins/streams/common/status';
 
-export type MetaExportWithBackendList<T> = {
-  label: string;
-  value: string;
-  LoadEntity: () => Promise<{ default: T }>;
-}[];
-
-export type { ClusterMetaType } from './clusters';
-export type { ConsumeMetaType } from './consumes';
-export type { GroupMetaType } from './groups';
-export type { NodeMetaType } from './nodes';
-export type { SourceMetaType } from './sources';
-export type { SinkMetaType } from './sinks';
-export type { StreamMetaType } from './streams';
-export type { SyncMetaType } from './sync';
-export type { TransformMetaType } from './transform';
+export const getFilterFormContent = (defaultValues = {} as any) => [
+  {
+    type: 'inputsearch',
+    name: 'keyword',
+    initialValue: defaultValues.keyword,
+  },
+  {
+    type: 'select',
+    name: 'status',
+    label: i18n.t('basic.Status'),
+    initialValue: defaultValues.status,
+    props: {
+      allowClear: true,
+      options: statusList,
+      dropdownMatchSelectWidth: false,
+    },
+  },
+];
