@@ -1,0 +1,88 @@
+source.type.to.target.type.converter:
+
+  - source.type: SMALLINT
+    target.type: SMALLINT
+
+  - source.type: INT2
+    target.type: SMALLINT
+
+  - source.type: SMALLSERIAL
+    target.type: SMALLINT
+
+  - source.type: SERIAL2
+    target.type: SMALLINT
+
+  - source.type: SERIAL
+    target.type: INT
+
+  - source.type: INT4
+    target.type: INT
+
+  - source.type: INT
+    target.type: INT
+
+  - source.type: INTEGER
+    target.type: INT
+
+  - source.type: INT8
+    target.type: BIGINT
+
+  - source.type: BIGINT
+    target.type: BIGINT
+
+  - source.type: BIGSERIAL
+    target.type: BIGINT
+
+  - source.type: REAL
+    target.type: FLOAT
+
+  - source.type: FLOAT4
+    target.type: FLOAT
+
+  - source.type: FLOAT8
+    target.type: DOUBLE
+
+  - source.type: DOUBLE
+    target.type: DOUBLE
+
+  - source.type: DOUBLE PRECISION
+    target.type: DOUBLE
+
+  - source.type: NUMERIC
+    target.type: DECIMAL
+
+  - source.type: DECIMAL
+    target.type: DECIMAL
+
+  - source.type: BOOLEAN
+    target.type: BOOLEAN
+
+  - source.type: DATE
+    target.type: DATE
+
+  - source.type: TIME
+    target.type: TIME
+
+  - source.type: TIMESTAMP
+    target.type: TIMESTAMP
+
+  - source.type: CHAR
+    target.type: STRING
+
+  - source.type: CHARACTER
+    target.type: STRING
+
+  - source.type: VARCHAR
+    target.type: STRING
+
+  - source.type: CHARACTER VARYING
+    target.type: STRING
+
+  - source.type: TEXT
+    target.type: STRING
+
+  - source.type: BYTEA
+    target.type: VARBINARY
+
+  - source.type: ARRAY
+    target.type: ARRAY

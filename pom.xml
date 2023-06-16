@@ -200,6 +200,7 @@
         <jedis.version>2.9.0</jedis.version>
         <poi.version>5.2.3</poi.version>
         <jsqlparser.version>4.2</jsqlparser.version>
+        <yamlparser.version>1.13</yamlparser.version>
     </properties>
 
     <dependencyManagement>
@@ -1258,6 +1259,12 @@
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
                 <version>${poi.version}</version>
+            </dependency>
+            <!-- parse yaml -->
+            <dependency>
+                <groupId>com.esotericsoftware.yamlbeans</groupId>
+                <artifactId>yamlbeans</artifactId>
+                <version>${yamlparser.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
