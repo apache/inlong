@@ -40,8 +40,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.function.Predicate;
 
-import static org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset.NO_STOPPING_OFFSET;
+import static org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffsetUtils.isNonStoppingOffset;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
 
 /**
@@ -56,6 +57,7 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
     private final EventDispatcherImpl<TableId> eventDispatcher;
     private final SignalEventDispatcher signalEventDispatcher;
     private final ErrorHandler errorHandler;
+    private final Predicate<Event> eventFilter;
     private ChangeEventSourceContext context;
     private final MySqlTaskContext taskContext;
 
@@ -72,7 +74,8 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
             MySqlTaskContext taskContext,
             MySqlStreamingChangeEventSourceMetrics metrics,
             String topic,
-            MySqlBinlogSplit binlogSplit) {
+            MySqlBinlogSplit binlogSplit,
+            Predicate<Event> eventFilter) {
         super(
                 connectorConfig,
                 offsetContext,
@@ -91,6 +94,7 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
         this.signalEventDispatcher =
                 new SignalEventDispatcher(
                         offsetContext.getPartition(), topic, eventDispatcher.getQueue());
+        this.eventFilter = eventFilter;
     }
 
     /**
@@ -124,6 +128,9 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
 
     @Override
     protected void handleEvent(Event event) {
+        if (!eventFilter.test(event)) {
+            return;
+        }
         super.handleEvent(event);
         // check do we need to stop for read binlog for snapshot split.
         if (isBoundedRead()) {
@@ -148,6 +155,6 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
     }
 
     private boolean isBoundedRead() {
-        return !NO_STOPPING_OFFSET.equals(binlogSplit.getEndingOffset());
+        return !isNonStoppingOffset(binlogSplit.getEndingOffset());
     }
 }

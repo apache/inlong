@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.inlong.sort.cdc.mysql.debezium.task.context.StatefulTaskContext.MySqlEventMetadataProvider.BINLOG_FILENAME_OFFSET_KEY;
+import static org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffsetUtils.initializeEffectiveOffset;
 
 /**
  * A stateful task context that contains entries the debezium mysql connector task required.
@@ -160,7 +161,7 @@ public class StatefulTaskContext {
                 changeEventSourceMetricsFactory.getStreamingMetrics(
                         taskContext, queue, metadataProvider);
         this.errorHandler =
-                new MySqlErrorHandler(connectorConfig.getLogicalName(), queue, taskContext);
+                new MySqlErrorHandler(connectorConfig.getLogicalName(), queue, taskContext, sourceConfig);
     }
 
     private void validateAndLoadDatabaseHistory(
@@ -176,8 +177,11 @@ public class StatefulTaskContext {
             OffsetContext.Loader loader, MySqlSplit mySqlSplit) {
         BinlogOffset offset =
                 mySqlSplit.isSnapshotSplit()
-                        ? BinlogOffset.INITIAL_OFFSET
-                        : mySqlSplit.asBinlogSplit().getStartingOffset();
+                        ? BinlogOffset.ofEarliest()
+                        : initializeEffectiveOffset(
+                                mySqlSplit.asBinlogSplit().getStartingOffset(), connection);
+
+        LOG.info("Starting offset is initialized to {}", offset);
 
         MySqlOffsetContext mySqlOffsetContext =
                 (MySqlOffsetContext) loader.load(offset.getOffset());

@@ -367,7 +367,7 @@ public class RecordUtils {
             List<FinishedSnapshotSplitInfo> finishedSnapshotSplits) {
         BinlogOffset startOffset =
                 finishedSnapshotSplits.isEmpty()
-                        ? BinlogOffset.INITIAL_OFFSET
+                        ? BinlogOffset.ofEarliest()
                         : finishedSnapshotSplits.get(0).getHighWatermark();
         for (FinishedSnapshotSplitInfo finishedSnapshotSplit : finishedSnapshotSplits) {
             if (finishedSnapshotSplit.getHighWatermark().isBefore(startOffset)) {
@@ -410,7 +410,7 @@ public class RecordUtils {
             offsetStrMap.put(
                     entry.getKey(), entry.getValue() == null ? null : entry.getValue().toString());
         }
-        return new BinlogOffset(offsetStrMap);
+        return BinlogOffset.builder().setOffsetMap(offsetStrMap).build();
     }
 
     /**

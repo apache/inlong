@@ -29,13 +29,10 @@ import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 
 import io.debezium.connector.mysql.MySqlConnection;
-import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.RelationalTableFilters;
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,14 +44,12 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.ververica.cdc.connectors.mysql.source.utils.TableDiscoveryUtils.listTables;
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.currentBinlogOffset;
 
 /**
  * A {@link MySqlSplitAssigner} which only read binlog from current binlog position.
  */
 public class MySqlBinlogSplitAssigner implements MySqlSplitAssigner {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MySqlBinlogSplitAssigner.class);
     private static final String BINLOG_SPLIT_ID = "binlog-split";
 
     private final MySqlSourceConfig sourceConfig;
@@ -149,17 +144,13 @@ public class MySqlBinlogSplitAssigner implements MySqlSplitAssigner {
 
     private MySqlBinlogSplit createBinlogSplit() {
         Map<TableId, TableChange> tableSchemas = discoverCapturedTableSchemas();
-        try (JdbcConnection jdbc = DebeziumUtils.openJdbcConnection(sourceConfig)) {
-            return new MySqlBinlogSplit(
-                    BINLOG_SPLIT_ID,
-                    currentBinlogOffset(jdbc),
-                    BinlogOffset.NO_STOPPING_OFFSET,
-                    new ArrayList<>(),
-                    tableSchemas,
-                    0);
-        } catch (Exception e) {
-            throw new FlinkRuntimeException("Read the binlog offset error", e);
-        }
+        return new MySqlBinlogSplit(
+                BINLOG_SPLIT_ID,
+                sourceConfig.getStartupOptions().binlogOffset,
+                BinlogOffset.ofNonStopping(),
+                new ArrayList<>(),
+                tableSchemas,
+                0);
     }
 
     private Map<TableId, TableChange> discoverCapturedTableSchemas() {

@@ -152,20 +152,13 @@ public class MySqlSourceReader<T>
         if (suspendedBinlogSplit != null) {
             unfinishedSplits.add(suspendedBinlogSplit);
         }
-        SourceTableMetricData sourceMetricData = sourceReaderMetrics.getSourceMetricData();
-        LOG.info("inlong-metric-states snapshot sourceMetricData:{}", sourceMetricData);
-        if (sourceMetricData != null) {
-            long countNumBytesIn = sourceMetricData.getNumBytesIn().getCount();
-            long countNumRecordsIn = sourceMetricData.getNumRecordsIn().getCount();
-            Map<String, Long> readPhaseMetricMap = sourceMetricData.getReadPhaseMetricMap().entrySet().stream().collect(
-                    Collectors.toMap(v -> v.getKey().getPhase(), e -> e.getValue().getReadPhase().getCount()));
-            Map<String, MySqlTableMetric> tableMetricMap = sourceMetricData.getSubSourceMetricMap().entrySet().stream()
-                    .collect(Collectors.toMap(Entry::getKey,
-                            e -> new MySqlTableMetric(e.getValue().getNumRecordsIn().getCount(),
-                                    e.getValue().getNumBytesIn().getCount())));
-            unfinishedSplits
-                    .add(new MySqlMetricSplit(countNumBytesIn, countNumRecordsIn, readPhaseMetricMap, tableMetricMap));
-        }
+
+        // add mysql metric split
+        addMySqlMetricSplit(unfinishedSplits);
+
+        // log current binlog offsets
+        logCurrentBinlogOffsets(unfinishedSplits, checkpointId);
+
         return unfinishedSplits;
     }
 
@@ -387,6 +380,36 @@ public class MySqlSourceReader<T>
             LOG.warn(
                     "Received binlog meta event for split {}, but the uncompleted split map does not contain it",
                     metadataEvent.getSplitId());
+        }
+    }
+
+    private void addMySqlMetricSplit(List<MySqlSplit> unfinishedSplits) {
+        SourceTableMetricData sourceMetricData = sourceReaderMetrics.getSourceMetricData();
+        LOG.info("inlong-metric-states snapshot sourceMetricData:{}", sourceMetricData);
+        if (sourceMetricData != null) {
+            long countNumBytesIn = sourceMetricData.getNumBytesIn().getCount();
+            long countNumRecordsIn = sourceMetricData.getNumRecordsIn().getCount();
+            Map<String, Long> readPhaseMetricMap = sourceMetricData.getReadPhaseMetricMap().entrySet().stream().collect(
+                    Collectors.toMap(v -> v.getKey().getPhase(), e -> e.getValue().getReadPhase().getCount()));
+            Map<String, MySqlTableMetric> tableMetricMap = sourceMetricData.getSubSourceMetricMap().entrySet().stream()
+                    .collect(Collectors.toMap(Entry::getKey,
+                            e -> new MySqlTableMetric(e.getValue().getNumRecordsIn().getCount(),
+                                    e.getValue().getNumBytesIn().getCount())));
+            unfinishedSplits
+                    .add(new MySqlMetricSplit(countNumBytesIn, countNumRecordsIn, readPhaseMetricMap, tableMetricMap));
+        }
+    }
+
+    private void logCurrentBinlogOffsets(List<MySqlSplit> splits, long checkpointId) {
+        if (!LOG.isInfoEnabled()) {
+            return;
+        }
+        for (MySqlSplit split : splits) {
+            if (!split.isBinlogSplit()) {
+                return;
+            }
+            BinlogOffset offset = split.asBinlogSplit().getStartingOffset();
+            LOG.info("Binlog offset on checkpoint {}: {}", checkpointId, offset);
         }
     }
 
