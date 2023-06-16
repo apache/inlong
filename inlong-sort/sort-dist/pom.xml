@@ -82,18 +82,6 @@
             <artifactId>sort-format-kv</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-csv</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-json</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-sql-avro</artifactId>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -149,12 +137,24 @@
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-parquet_${scala.binary.version}</artifactId>
-                    <version>1.13.5</version>
+                    <version>${flink.v13.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-orc_${scala.binary.version}</artifactId>
-                    <version>1.13.5</version>
+                    <version>${flink.v13.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-csv</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-json</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-sql-avro</artifactId>
                 </dependency>
             </dependencies>
         </profile>
@@ -166,7 +166,7 @@
             <dependencies>
                 <dependency>
                     <groupId>org.apache.inlong</groupId>
-                    <artifactId>sort-format-json-v1.5</artifactId>
+                    <artifactId>sort-format-json-v1.15</artifactId>
                     <version>${project.version}</version>
                 </dependency>
                 <dependency>
@@ -177,6 +177,21 @@
                 <dependency>
                     <groupId>org.apache.flink</groupId>
                     <artifactId>flink-sql-orc</artifactId>
+                    <version>${flink.v15.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-csv</artifactId>
+                    <version>${flink.v15.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-json</artifactId>
+                    <version>${flink.v15.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-sql-avro</artifactId>
                     <version>${flink.v15.version}</version>
                 </dependency>
             </dependencies>
