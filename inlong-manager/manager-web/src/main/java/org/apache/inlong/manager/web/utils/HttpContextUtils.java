@@ -94,22 +94,22 @@ public class HttpContextUtils {
      * @return
      */
     public static String getBodyString(ServletRequest request) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         try (InputStream inputStream = request.getInputStream()) {
             try (BufferedReader reader =
                     new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 String line = "";
                 while ((line = reader.readLine()) != null) {
-                    sb.append(line);
+                    builder.append(line);
                 }
             }
         } catch (IOException e) {
             log.error("failed to get body string of request={}", request, e);
         }
-        if (sb.length() == 0) {
+        if (builder.length() == 0) {
             return "{}";
         }
-        return sb.toString();
+        return builder.toString();
     }
 
 }

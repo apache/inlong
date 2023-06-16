@@ -39,6 +39,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Test for {@link TenantInsertionFilter}
+ */
 public class TenantInsertionFilterTest extends WebFilterConfig {
 
     @Test
