@@ -295,7 +295,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
             }
         } catch (Throwable ex) {
             source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_FAILURE);
-            source.fileMetricAddFailCnt(statsKey, msgCodec.getMsgCount());
+            source.fileMetricAddFailCnt(statsKey, 1);
             source.addMetric(false, event.getBody().length, event);
             if (msgCodec.isNeedResp() && !msgCodec.isOrderOrProxy()) {
                 msgCodec.setFailureInfo(DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE,

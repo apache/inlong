@@ -272,7 +272,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
                 }
                 return false;
             }
-            if (StringUtils.isNotBlank(this.groupId) && !this.groupId.equalsIgnoreCase(confGroupId)) {
+            if (StringUtils.isNotBlank(this.groupId) && !this.groupId.equals(confGroupId)) {
                 source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_GROUP_IDNUM_INCONSTANT);
                 this.errCode = DataProxyErrCode.GROUPID_OR_STREAMID_INCONSTANT;
                 this.errMsg = String.format(
@@ -305,7 +305,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
                     }
                     return false;
                 }
-                if (StringUtils.isNotBlank(this.streamId) && !this.streamId.equalsIgnoreCase(confStreamId)) {
+                if (StringUtils.isNotBlank(this.streamId) && !this.streamId.equals(confStreamId)) {
                     source.fileMetricIncSumStats(StatConstants.EVENT_CONFIG_STREAM_IDNUM_INCONSTANT);
                     this.errCode = DataProxyErrCode.GROUPID_OR_STREAMID_INCONSTANT;
                     this.errMsg = String.format(

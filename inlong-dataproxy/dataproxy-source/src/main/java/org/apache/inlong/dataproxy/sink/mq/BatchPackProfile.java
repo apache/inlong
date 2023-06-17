@@ -37,10 +37,10 @@ public class BatchPackProfile extends PackProfile {
     /**
      * Constructor
      *
-     * @param uid
-     * @param inlongGroupId
-     * @param inlongStreamId
-     * @param dispatchTime
+     * @param uid   the inlong id
+     * @param inlongGroupId   the group id
+     * @param inlongStreamId  the stream id
+     * @param dispatchTime    the dispatch time
      */
     public BatchPackProfile(String uid, String inlongGroupId, String inlongStreamId, long dispatchTime) {
         super(uid, inlongGroupId, inlongStreamId, dispatchTime);
@@ -49,10 +49,10 @@ public class BatchPackProfile extends PackProfile {
     /**
      * addEvent
      * 
-     * @param  event
-     * @param  maxPackCount
-     * @param  maxPackSize
-     * @return
+     * @param  event   the event to added
+     * @param  maxPackCount   the max package count to cached
+     * @param  maxPackSize    the max package size to cached
+     * @return  whether added the event
      */
     public boolean addEvent(Event event, long maxPackCount, long maxPackSize) {
         long eventLength = event.getBody().length;
@@ -94,7 +94,6 @@ public class BatchPackProfile extends PackProfile {
 
     /**
      * fail
-     * @return
      */
     public void fail(DataProxyErrCode errCode, String errMsg) {
         if (callback != null) {
@@ -104,10 +103,12 @@ public class BatchPackProfile extends PackProfile {
 
     /**
      * isResend
-     * @return
+     * @return  whether resend message
      */
     public boolean isResend() {
-        return callback == null;
+        return callback == null
+                && enableRetryAfterFailure
+                && (maxRetries < 0 || ++retries <= maxRetries);
     }
 
     /**
