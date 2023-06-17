@@ -206,7 +206,7 @@ public class InternalHttpSender {
 
                 if (jsonRes.has("code")) {
                     int code = jsonRes.get("code").getAsInt();
-                    if (code == 1) {
+                    if (code == 0) {
                         return SendResult.OK;
                     } else {
                         logger.debug("get error response {}", returnStr);
