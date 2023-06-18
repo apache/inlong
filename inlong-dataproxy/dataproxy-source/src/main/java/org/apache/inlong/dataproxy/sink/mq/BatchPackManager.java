@@ -54,18 +54,18 @@ public class BatchPackManager {
     private final long dispatchTimeout;
     private final long maxPackCount;
     private final long maxPackSize;
-    private BufferQueue<PackProfile> dispatchQueue;
-    private ConcurrentHashMap<String, PackProfile> profileCache = new ConcurrentHashMap<>();
+    private final BufferQueue<PackProfile> dispatchQueue;
+    private final ConcurrentHashMap<String, PackProfile> profileCache = new ConcurrentHashMap<>();
     // flag that manager need to output overtime data.
-    private AtomicBoolean needOutputOvertimeData = new AtomicBoolean(false);
-    private AtomicLong inCounter = new AtomicLong(0);
-    private AtomicLong outCounter = new AtomicLong(0);
+    private final AtomicBoolean needOutputOvertimeData = new AtomicBoolean(false);
+    private final AtomicLong inCounter = new AtomicLong(0);
+    private final AtomicLong outCounter = new AtomicLong(0);
 
     /**
      * Constructor
      * 
-     * @param context
-     * @param dispatchQueue
+     * @param context the process context
+     * @param dispatchQueue  the batch queue
      */
     public BatchPackManager(Context context, BufferQueue<PackProfile> dispatchQueue) {
         this.dispatchQueue = dispatchQueue;
@@ -76,7 +76,7 @@ public class BatchPackManager {
 
     /**
      * addEvent
-     * @param event
+     * @param event the event to add
      */
     public void addEvent(ProxyEvent event) {
         // parse
@@ -106,7 +106,7 @@ public class BatchPackManager {
 
     /**
      * addPackEvent
-     * @param packEvent
+     * @param packEvent  the event need to add
      */
     public void addPackEvent(ProxyPackEvent packEvent) {
         String eventUid = packEvent.getUid();
@@ -142,7 +142,7 @@ public class BatchPackManager {
 
     /**
      * addSimpleEvent
-     * @param event
+     * @param event  the event need to add
      */
     public void addSimpleEvent(SimpleEvent event) {
         Map<String, String> headers = event.getHeaders();
@@ -162,7 +162,6 @@ public class BatchPackManager {
     /**
      * outputOvertimeData
      * 
-     * @return
      */
     public void outputOvertimeData() {
         if (!needOutputOvertimeData.getAndSet(false)) {

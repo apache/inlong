@@ -53,10 +53,10 @@ public class SimplePackProfile extends PackProfile {
 
     /**
      * Constructor
-     * @param uid
-     * @param inlongGroupId
-     * @param inlongStreamId
-     * @param dispatchTime
+     * @param uid   the inlong id
+     * @param inlongGroupId   the group id
+     * @param inlongStreamId  the stream id
+     * @param dispatchTime    the received time
      */
     public SimplePackProfile(String uid, String inlongGroupId, String inlongStreamId, long dispatchTime) {
         super(uid, inlongGroupId, inlongStreamId, dispatchTime);
@@ -80,7 +80,9 @@ public class SimplePackProfile extends PackProfile {
 
     @Override
     public boolean isResend() {
-        return !needRspEvent;
+        return !needRspEvent
+                && enableRetryAfterFailure
+                && (maxRetries < 0 || ++retries <= maxRetries);
     }
 
     @Override
@@ -101,9 +103,9 @@ public class SimplePackProfile extends PackProfile {
     }
 
     /**
-     * create
-     * @param event
-     * @return
+     * create simple pack profile
+     * @param event  the event to process
+     * @return  the package profile
      */
     public static SimplePackProfile create(Event event) {
         Map<String, String> headers = event.getHeaders();

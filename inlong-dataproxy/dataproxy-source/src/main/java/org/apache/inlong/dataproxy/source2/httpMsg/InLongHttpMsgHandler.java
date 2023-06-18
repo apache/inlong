@@ -332,6 +332,7 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
                 .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(msgRcvTime);
         inLongMsg.addMsg(strBuff.toString(), body.getBytes(HttpAttrConst.VAL_DEF_CHARSET));
         byte[] inlongMsgData = inLongMsg.buildArray();
+        long pkgTime = inLongMsg.getCreatetime();
         inLongMsg.reset();
         strBuff.delete(0, strBuff.length());
         // build flume event
@@ -344,6 +345,7 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
         eventHeaders.put(ConfigConstants.MSG_COUNTER_KEY, strMsgCount);
         eventHeaders.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V0.getName());
         eventHeaders.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
+        eventHeaders.put(ConfigConstants.PKG_TIME_KEY, DateTimeUtils.ms2yyyyMMddHHmm(pkgTime));
         Event event = EventBuilder.withBody(inlongMsgData, eventHeaders);
         // build metric data item
         dataTime = dataTime / 1000 / 60 / 10;
@@ -366,7 +368,7 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
             return true;
         } catch (Throwable ex) {
             source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_FAILURE);
-            source.fileMetricAddFailCnt(statsKey, intMsgCnt);
+            source.fileMetricAddFailCnt(statsKey, 1);
             source.addMetric(false, event.getBody().length, event);
             sendErrorMsg(ctx, DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE,
                     strBuff.append("Put event to channel failure: ").append(ex.getMessage()).toString());

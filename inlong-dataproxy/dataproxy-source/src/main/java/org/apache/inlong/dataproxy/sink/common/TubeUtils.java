@@ -67,9 +67,8 @@ public class TubeUtils {
             message.putSystemHeader(headers.get(Constants.INLONG_STREAM_ID),
                     DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
         } else {
-            long dataTimeL = Long.parseLong(headers.get(AttributeConstants.DATA_TIME));
             message.putSystemHeader(headers.get(AttributeConstants.STREAM_ID),
-                    DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
+                    headers.get(ConfigConstants.PKG_TIME_KEY));
         }
         Map<String, String> extraAttrMap = MessageUtils.getXfsAttrs(headers, pkgVersion);
         for (Map.Entry<String, String> entry : extraAttrMap.entrySet()) {
