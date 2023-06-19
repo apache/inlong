@@ -87,7 +87,7 @@ public class FieldTypeMappingReader implements Serializable {
             for (Map<String, String> mapping : typeMappings) {
                 String sourceType = mapping.get("source.type");
                 String targetType = mapping.get("target.type");
-                if (StringUtils.isEmpty(sourceType) || StringUtils.isEmpty(targetType)) {
+                if (StringUtils.isBlank(sourceType) || StringUtils.isBlank(targetType)) {
                     throw new IllegalArgumentException(
                             String.format("Reader source type: %s, target type: %s are not valid.",
                                     sourceType, targetType));
