@@ -15,26 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.csv;
-
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
-import org.apache.inlong.sort.formats.util.ValidateDescriptorString;
+package org.apache.inlong.sort.formats.util;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
-import org.apache.flink.table.descriptors.DescriptorValidator;
 
-/**
- * Validator for {@link Csv}.
- */
-public class CsvValidator implements DescriptorValidator {
+import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_PROPERTY_VERSION;
+import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_TYPE;
 
-    @Override
-    public void validate(DescriptorProperties properties) {
-        properties = ValidateDescriptorString.getValidateProperties(properties);
-        properties.validateString(TableFormatConstants.FORMAT_DELIMITER, true, 1, 1);
-        properties.validateString(TableFormatConstants.FORMAT_QUOTE_CHARACTER, true, 1, 1);
+public class ValidateDescriptorString {
 
-        TableFormatUtils.validateSchema(properties);
+    public static DescriptorProperties getValidateProperties(DescriptorProperties properties) {
+        properties.validateString(FORMAT_TYPE, false, 1);
+        properties.validateString(FORMAT_PROPERTY_VERSION, true, 1);
+        return properties;
     }
 }

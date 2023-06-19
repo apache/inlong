@@ -19,12 +19,10 @@ package org.apache.inlong.sort.formats.inlongmsg;
 
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.util.ValidateDescriptorString;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
 import org.apache.flink.table.descriptors.DescriptorValidator;
-
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_PROPERTY_VERSION;
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_TYPE;
 
 /**
  * Validator for mixed inlongmsg formats.
@@ -33,8 +31,7 @@ public class InLongMsgValidator implements DescriptorValidator {
 
     @Override
     public void validate(DescriptorProperties properties) {
-        properties.validateString(FORMAT_TYPE, false, 1);
-        properties.validateString(FORMAT_PROPERTY_VERSION, true, 1);
+        properties = ValidateDescriptorString.getValidateProperties(properties);
         properties.validateString(TableFormatConstants.FORMAT_DELIMITER, true, 1, 1);
         properties.validateString(TableFormatConstants.FORMAT_ENTRY_DELIMITER, true, 1, 1);
         properties.validateString(TableFormatConstants.FORMAT_KV_DELIMITER, true, 1, 1);
