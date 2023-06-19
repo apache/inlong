@@ -238,7 +238,7 @@ CREATE TABLE IF NOT EXISTS `inlong_stream`
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Owning inlong group id',
     `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Inlong stream id, non-deleted globally unique',
-    `name`             varchar(64)           DEFAULT NULL COMMENT 'The name of the inlong stream page display, can be Chinese',
+    `name`             varchar(256)          DEFAULT NULL COMMENT 'The name of the inlong stream page display, can be Chinese',
     `description`      varchar(256)          DEFAULT '' COMMENT 'Description of inlong stream',
     `mq_resource`      varchar(128)          DEFAULT NULL COMMENT 'MQ resource, in one stream, corresponding to the filter ID of TubeMQ, corresponding to the topic of Pulsar',
     `data_type`        varchar(20)           DEFAULT NULL COMMENT 'Data type, including: CSV, KEY-VALUE, JSON, AVRO, etc.',
