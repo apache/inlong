@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.common.fieldtype;
 
-import com.esotericsoftware.yamlbeans.YamlReader;
 import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStreamReader;
 import java.io.Serializable;
@@ -64,10 +64,9 @@ public class FieldTypeMappingReader implements Serializable {
                         String.format("Resource for the field type mapping converter %s not found in classpath.",
                                 converterMappingFileName));
             }
-            YamlReader yamlReader = new YamlReader(
-                    new InputStreamReader(
-                            resource.openStream()));
-            Map<?, ?> converterConf = yamlReader.read(Map.class);
+            Yaml yamlReader = new Yaml();
+            Map<?, ?> converterConf = yamlReader.loadAs(new InputStreamReader(
+                    resource.openStream()), Map.class);
             readerOption(converterConf, SOURCE_TO_TARGET_KEY, FIELD_TYPE_MAPPING_MAP);
         } catch (Exception e) {
             log.error("Yaml reader reader option error", e);

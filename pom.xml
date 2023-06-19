@@ -200,7 +200,7 @@
         <jedis.version>2.9.0</jedis.version>
         <poi.version>5.2.3</poi.version>
         <jsqlparser.version>4.2</jsqlparser.version>
-        <yamlparser.version>1.13</yamlparser.version>
+        <snakeyaml.version>2.0</snakeyaml.version>
     </properties>
 
     <dependencyManagement>
@@ -1262,9 +1262,9 @@
             </dependency>
             <!-- parse yaml -->
             <dependency>
-                <groupId>com.esotericsoftware.yamlbeans</groupId>
-                <artifactId>yamlbeans</artifactId>
-                <version>${yamlparser.version}</version>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
