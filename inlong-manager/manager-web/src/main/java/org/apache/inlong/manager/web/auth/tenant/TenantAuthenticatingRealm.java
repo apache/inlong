@@ -91,6 +91,7 @@ public class TenantAuthenticatingRealm extends AuthenticatingRealm {
             addRole(userInfo, tenantRoleInfo.getRoleCode());
         }
 
+        userInfo.setTenant(tenant);
         return new SimpleAuthenticationInfo(userInfo, tenant, getName());
     }
 
