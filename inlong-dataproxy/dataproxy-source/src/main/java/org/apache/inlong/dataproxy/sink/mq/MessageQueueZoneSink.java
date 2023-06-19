@@ -53,7 +53,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
 
     private Context parentContext;
     private MessageQueueZoneSinkContext context;
-    private List<MessageQueueZoneWorker> workers = new ArrayList<>();
+    private final List<MessageQueueZoneWorker> workers = new ArrayList<>();
     // message group
     private BatchPackManager dispatchManager;
     private BufferQueue<PackProfile> dispatchQueue;
@@ -74,7 +74,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
     /**
      * configure
      * 
-     * @param context
+     * @param context the sink context
      */
     @Override
     public void configure(Context context) {
@@ -96,7 +96,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
                 LOG.error(getName() + "'s channel is null");
             }
             this.context.start();
-            this.dispatchManager = new BatchPackManager(parentContext, dispatchQueue);
+            this.dispatchManager = new BatchPackManager(getName(), parentContext, dispatchQueue);
             this.scheduledPool = Executors.newScheduledThreadPool(2);
             // dispatch
             this.scheduledPool.scheduleWithFixedDelay(new Runnable() {
@@ -157,7 +157,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
     /**
      * process
      * 
-     * @return                        Status
+     * @return  Status
      * @throws EventDeliveryException
      */
     @Override

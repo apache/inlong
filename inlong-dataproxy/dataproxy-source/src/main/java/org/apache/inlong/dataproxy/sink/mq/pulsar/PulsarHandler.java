@@ -266,8 +266,7 @@ public class PulsarHandler implements MessageQueueHandler {
             }
             return true;
         } catch (Exception ex) {
-            sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_SEND_EXCEPTION,
-                    profile.getUid() + "." + producerTopic);
+            sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_SEND_EXCEPTION, producerTopic);
             sinkContext.processSendFail(profile, clusterName, profile.getUid(), 0,
                     DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
             if (logCounter.shouldPrint()) {
@@ -346,7 +345,7 @@ public class PulsarHandler implements MessageQueueHandler {
             Producer<byte[]> producer,
             String producerTopic) throws Exception {
         // headers
-        Map<String, String> headers = simpleProfile.getProperties();
+        Map<String, String> headers = simpleProfile.getPropsToMQ();
         // body
         byte[] bodyBytes = simpleProfile.getEvent().getBody();
         // metric
