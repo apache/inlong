@@ -284,12 +284,12 @@ public class MessageQueueZoneSinkContext extends SinkContext {
         if (packProfile instanceof SimplePackProfile) {
             SimplePackProfile simpleProfile = (SimplePackProfile) packProfile;
             StringBuilder statsKey = new StringBuilder(512)
-                    .append(sinkName).append(AttrConstants.SEPARATOR)
-                    .append(simpleProfile.getInlongGroupId()).append(AttrConstants.SEPARATOR)
-                    .append(simpleProfile.getInlongStreamId()).append(AttrConstants.SEPARATOR)
-                    .append(topic).append(AttrConstants.SEPARATOR)
-                    .append(NetworkUtils.getLocalIp()).append(AttrConstants.SEPARATOR)
-                    .append(remoteId).append(AttrConstants.SEPARATOR)
+                    .append(sinkName).append(AttrConstants.SEP_HASHTAG)
+                    .append(simpleProfile.getInlongGroupId()).append(AttrConstants.SEP_HASHTAG)
+                    .append(simpleProfile.getInlongStreamId()).append(AttrConstants.SEP_HASHTAG)
+                    .append(topic).append(AttrConstants.SEP_HASHTAG)
+                    .append(NetworkUtils.getLocalIp()).append(AttrConstants.SEP_HASHTAG)
+                    .append(remoteId).append(AttrConstants.SEP_HASHTAG)
                     .append(simpleProfile.getProperties().get(ConfigConstants.PKG_TIME_KEY));
             monitorIndex.addSuccStats(statsKey.toString(), NumberUtils.toInt(
                     simpleProfile.getProperties().get(ConfigConstants.MSG_COUNTER_KEY), 1),

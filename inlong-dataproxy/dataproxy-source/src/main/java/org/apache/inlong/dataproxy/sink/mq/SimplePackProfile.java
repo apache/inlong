@@ -21,8 +21,12 @@ import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.MsgType;
+import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.source2.InLongMessageHandler;
+import org.apache.inlong.dataproxy.utils.Constants;
+import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 
 import io.netty.buffer.ByteBuf;
@@ -33,6 +37,7 @@ import org.apache.flume.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -140,6 +145,20 @@ public class SimplePackProfile extends PackProfile {
      */
     public Map<String, String> getProperties() {
         return event.getHeaders();
+    }
+
+    /**
+     * get required properties sent to MQ
+     *
+     * @return the properties
+     */
+    public Map<String, String> getPropsToMQ() {
+        Map<String, String> result = new HashMap<>();
+        result.put(Constants.HEADER_KEY_SOURCE_TIME, event.getHeaders().get(AttributeConstants.RCV_TIME));
+        result.put(ConfigConstants.MSG_ENCODE_VER, event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER));
+        result.put(EventConstants.HEADER_KEY_VERSION, event.getHeaders().get(EventConstants.HEADER_KEY_VERSION));
+        result.put(ConfigConstants.DATAPROXY_IP_KEY, NetworkUtils.getLocalIp());
+        return result;
     }
 
     /**

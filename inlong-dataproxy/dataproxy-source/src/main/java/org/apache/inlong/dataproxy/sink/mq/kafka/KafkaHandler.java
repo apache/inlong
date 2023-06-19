@@ -158,8 +158,7 @@ public class KafkaHandler implements MessageQueueHandler {
             }
             return true;
         } catch (Exception ex) {
-            sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_SEND_EXCEPTION,
-                    profile.getUid() + "." + topic);
+            sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_SEND_EXCEPTION, topic);
             sinkContext.processSendFail(profile, clusterName, profile.getUid(), 0,
                     DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
             if (logCounter.shouldPrint()) {
@@ -225,7 +224,7 @@ public class KafkaHandler implements MessageQueueHandler {
     private void sendSimplePackProfile(SimplePackProfile simpleProfile, IdTopicConfig idConfig,
             String topic) throws Exception {
         // headers
-        Map<String, String> headers = simpleProfile.getProperties();
+        Map<String, String> headers = simpleProfile.getPropsToMQ();
         // body
         byte[] bodyBytes = simpleProfile.getEvent().getBody();
         // metric

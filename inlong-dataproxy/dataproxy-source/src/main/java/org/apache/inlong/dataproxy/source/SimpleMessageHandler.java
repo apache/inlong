@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.msg.MsgType;
@@ -30,7 +31,7 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
-import org.apache.inlong.dataproxy.utils.InLongMsgVer;
+import org.apache.inlong.sdk.commons.protocol.EventConstants;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -426,9 +427,9 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                 commonHeaders.get(AttributeConstants.DATA_TIME));
         headers.put(Constants.HEADER_KEY_SOURCE_IP,
                 commonHeaders.get(AttributeConstants.NODE_IP));
-        headers.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V1.getName());
-        Event event = EventBuilder.withBody(proxyMessage.getData(), headers);
-        return event;
+        headers.put(ConfigConstants.MSG_ENCODE_VER, DataProxyMsgEncType.MSG_ENCODE_TYPE_PB.getStrId());
+        headers.put(EventConstants.HEADER_KEY_VERSION, DataProxyMsgEncType.MSG_ENCODE_TYPE_PB.getStrId());
+        return EventBuilder.withBody(proxyMessage.getData(), headers);
     }
 
     private void responsePackage(Map<String, String> commonAttrMap,

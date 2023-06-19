@@ -18,12 +18,13 @@
 package org.apache.inlong.dataproxy.source2.v0msg;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source2.BaseSource;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
-import org.apache.inlong.dataproxy.utils.InLongMsgVer;
+import org.apache.inlong.sdk.commons.protocol.EventConstants;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -222,15 +223,14 @@ public abstract class AbsV0MsgCodec {
         headers.put(AttributeConstants.DATA_TIME, String.valueOf(dataTimeMs));
         headers.put(ConfigConstants.REMOTE_IP_KEY, strRemoteIP);
         headers.put(ConfigConstants.MSG_COUNTER_KEY, String.valueOf(msgCount));
-        headers.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V0.getName());
+        headers.put(ConfigConstants.MSG_ENCODE_VER,
+                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
+        headers.put(EventConstants.HEADER_KEY_VERSION,
+                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
         headers.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         headers.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
+        headers.put(ConfigConstants.PKG_TIME_KEY, DateTimeUtils.ms2yyyyMMddHHmm(pkgTime));
         // add extra key-value information
-        String pkgTimeStr = attrMap.get(ConfigConstants.PKG_TIME_KEY);
-        if (StringUtils.isBlank(pkgTimeStr)) {
-            pkgTimeStr = DateTimeUtils.ms2yyyyMMddHHmm(pkgTime);
-        }
-        headers.put(ConfigConstants.PKG_TIME_KEY, pkgTimeStr);
         if (!needResp) {
             headers.put(AttributeConstants.MESSAGE_IS_ACK, "false");
         }

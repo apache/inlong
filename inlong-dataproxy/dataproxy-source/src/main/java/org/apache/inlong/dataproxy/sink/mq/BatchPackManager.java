@@ -54,6 +54,7 @@ public class BatchPackManager {
     private final long dispatchTimeout;
     private final long maxPackCount;
     private final long maxPackSize;
+    private final String sinkName;
     private final BufferQueue<PackProfile> dispatchQueue;
     private final ConcurrentHashMap<String, PackProfile> profileCache = new ConcurrentHashMap<>();
     // flag that manager need to output overtime data.
@@ -63,11 +64,13 @@ public class BatchPackManager {
 
     /**
      * Constructor
-     * 
+     *
+     * @param sinkName the sink name
      * @param context the process context
      * @param dispatchQueue  the batch queue
      */
-    public BatchPackManager(Context context, BufferQueue<PackProfile> dispatchQueue) {
+    public BatchPackManager(String sinkName, Context context, BufferQueue<PackProfile> dispatchQueue) {
+        this.sinkName = sinkName;
         this.dispatchQueue = dispatchQueue;
         this.dispatchTimeout = context.getLong(KEY_DISPATCH_TIMEOUT, DEFAULT_DISPATCH_TIMEOUT);
         this.maxPackCount = context.getLong(KEY_DISPATCH_MAX_PACKCOUNT, DEFAULT_DISPATCH_MAX_PACKCOUNT);
@@ -167,8 +170,8 @@ public class BatchPackManager {
         if (!needOutputOvertimeData.getAndSet(false)) {
             return;
         }
-        LOG.debug("start to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{}",
-                profileCache.size(), dispatchQueue.size());
+        int profileSize = profileCache.size();
+        int dispatchSize = dispatchQueue.size();
         long currentTime = System.currentTimeMillis();
         long createThreshold = currentTime - dispatchTimeout;
         List<String> removeKeys = new ArrayList<>();
@@ -190,10 +193,15 @@ public class BatchPackManager {
                 outCounter.addAndGet(dispatchProfile.getCount());
             }
         });
-        LOG.debug("end to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{},eventCount:{},"
-                + "inCounter:{},outCounter:{}",
-                profileCache.size(), dispatchQueue.size(), eventCount,
-                inCounter.getAndSet(0), outCounter.getAndSet(0));
+        long hisInCnt = inCounter.getAndSet(0);
+        long hisOutCnt = outCounter.getAndSet(0);
+        if (!removeKeys.isEmpty()) {
+            LOG.info("{} output overtime data, profileCacheSize: before={}, after={},"
+                    + " dispatchQueueSize: before={}, after={}, eventCount: {},"
+                    + " inCounter: {}, outCounter: {}",
+                    sinkName, profileSize, profileCache.size(), dispatchSize, dispatchQueue.size(),
+                    eventCount, hisInCnt, hisOutCnt);
+        }
     }
 
     /**

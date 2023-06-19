@@ -26,12 +26,13 @@ import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.sink.common.EventHandler;
-import org.apache.inlong.dataproxy.sink.common.TubeUtils;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
 import org.apache.inlong.dataproxy.sink.mq.PackProfile;
 import org.apache.inlong.dataproxy.sink.mq.SimplePackProfile;
+import org.apache.inlong.dataproxy.utils.DateTimeUtils;
+import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
@@ -228,8 +229,7 @@ public class TubeHandler implements MessageQueueHandler {
             }
             return true;
         } catch (Throwable ex) {
-            sinkContext.fileMetricIncWithDetailStats(
-                    StatConstants.EVENT_SINK_SEND_EXCEPTION, profile.getUid() + "." + topic);
+            sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_SEND_EXCEPTION, topic);
             sinkContext.processSendFail(profile, clusterName, profile.getUid(), 0,
                     DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
             if (logCounter.shouldPrint()) {
@@ -249,19 +249,18 @@ public class TubeHandler implements MessageQueueHandler {
             handler = this.sinkContext.createEventHandler();
             handlerLocal.set(handler);
         }
-        // headers
+        // get headers to mq
         Map<String, String> headers = handler.parseHeader(idConfig, batchProfile, sinkContext.getNodeId(),
                 sinkContext.getCompressType());
         // compress
         byte[] bodyBytes = handler.parseBody(idConfig, batchProfile, sinkContext.getCompressType());
-        // metric
-        sinkContext.addSendMetric(batchProfile, clusterName, topic, bodyBytes.length);
-        // sendAsync
         Message message = new Message(topic, bodyBytes);
         // add headers
-        headers.forEach((key, value) -> {
-            message.setAttrKeyVal(key, value);
-        });
+        long dataTimeL = Long.parseLong(headers.get(EventConstants.HEADER_KEY_PACK_TIME));
+        message.putSystemHeader(batchProfile.getInlongStreamId(), DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
+        headers.forEach(message::setAttrKeyVal);
+        // metric
+        sinkContext.addSendMetric(batchProfile, clusterName, topic, bodyBytes.length);
         // callback
         long sendTime = System.currentTimeMillis();
         MessageSentCallback callback = new MessageSentCallback() {
@@ -302,7 +301,12 @@ public class TubeHandler implements MessageQueueHandler {
     private void sendSimplePackProfile(SimplePackProfile simpleProfile, IdTopicConfig idConfig,
             String topic) throws Exception {
         // build message
-        Message message = TubeUtils.buildMessage(topic, simpleProfile.getEvent());
+        Message message = new Message(topic, simpleProfile.getEvent().getBody());
+        message.putSystemHeader(simpleProfile.getInlongStreamId(),
+                simpleProfile.getProperties().get(ConfigConstants.PKG_TIME_KEY));
+        // add headers
+        Map<String, String> headers = simpleProfile.getPropsToMQ();
+        headers.forEach(message::setAttrKeyVal);
         // metric
         sinkContext.addSendMetric(simpleProfile, clusterName, topic, simpleProfile.getEvent().getBody().length);
         // callback

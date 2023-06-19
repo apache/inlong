@@ -17,12 +17,12 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
-import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.corebase.Message;
@@ -62,7 +62,7 @@ public class TubeUtils {
         Map<String, String> headers = event.getHeaders();
         Message message = new Message(topicName, event.getBody());
         String pkgVersion = headers.get(ConfigConstants.MSG_ENCODE_VER);
-        if (InLongMsgVer.INLONG_V1.getName().equalsIgnoreCase(pkgVersion)) {
+        if (DataProxyMsgEncType.MSG_ENCODE_TYPE_PB.getStrId().equalsIgnoreCase(pkgVersion)) {
             long dataTimeL = Long.parseLong(headers.get(ConfigConstants.PKG_TIME_KEY));
             message.putSystemHeader(headers.get(Constants.INLONG_STREAM_ID),
                     DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
