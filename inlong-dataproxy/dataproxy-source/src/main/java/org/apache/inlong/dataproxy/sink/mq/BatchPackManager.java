@@ -197,8 +197,8 @@ public class BatchPackManager {
         long hisOutCnt = outCounter.getAndSet(0);
         if (!removeKeys.isEmpty()) {
             LOG.info("{} output overtime data, profileCacheSize: before={}, after={},"
-                            + " dispatchQueueSize: before={}, after={}, eventCount: {},"
-                            + " inCounter: {}, outCounter: {}",
+                    + " dispatchQueueSize: before={}, after={}, eventCount: {},"
+                    + " inCounter: {}, outCounter: {}",
                     sinkName, profileSize, profileCache.size(), dispatchSize, dispatchQueue.size(),
                     eventCount, hisInCnt, hisOutCnt);
         }
