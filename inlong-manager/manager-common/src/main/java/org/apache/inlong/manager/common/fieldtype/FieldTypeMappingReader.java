@@ -56,7 +56,6 @@ public class FieldTypeMappingReader implements Serializable {
         log.info("Field type mapping reader stream type:{}.", streamType);
         String converterMappingFileName = String
                 .format(FILE_TYPE_MAPPING_CONVERTER_TEMPLATE_NAME, streamType.toLowerCase());
-
         try {
             URL resource = Thread.currentThread().getContextClassLoader().getResource(converterMappingFileName);
             if (Objects.isNull(resource)) {
@@ -69,7 +68,7 @@ public class FieldTypeMappingReader implements Serializable {
                     resource.openStream()), Map.class);
             readerOption(converterConf, SOURCE_TO_TARGET_KEY, FIELD_TYPE_MAPPING_MAP);
         } catch (Exception e) {
-            log.error("Yaml reader reader option error", e);
+            log.error("Yaml reader read option error", e);
             throw new RuntimeException(e);
         }
     }
