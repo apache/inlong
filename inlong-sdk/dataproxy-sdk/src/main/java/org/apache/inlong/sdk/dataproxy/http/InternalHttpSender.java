@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.http;
 
+import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
@@ -206,7 +207,7 @@ public class InternalHttpSender {
 
                 if (jsonRes.has("code")) {
                     int code = jsonRes.get("code").getAsInt();
-                    if (code == 0) {
+                    if (code == ConfigConstants.HTTP_RES_CODE_SUCCESS) {
                         return SendResult.OK;
                     } else {
                         logger.debug("get error response {}", returnStr);

@@ -71,4 +71,6 @@ public class ConfigConstants {
     public static int DEFAULT_VIRTUAL_NODE = 1000;
     public static int DEFAULT_RANDOM_MAX_RETRY = 1000;
 
+    public static int HTTP_RES_CODE_SUCCESS = 0;
+    public static int HTTP_RES_CODE_FAIL = 1;
 }
