@@ -17,7 +17,7 @@
 
 package org.apache.inlong.dataproxy.http;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncVer;
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -158,9 +158,9 @@ public class SimpleMessageHandler implements MessageHandler {
         headers.put(ConfigConstants.REMOTE_IDC_KEY, DEFAULT_REMOTE_IDC_VALUE);
         headers.put(ConfigConstants.MSG_COUNTER_KEY, strMsgCount);
         headers.put(ConfigConstants.MSG_ENCODE_VER,
-                DataProxyMsgEncVer.MSG_ENCODE_VER_INLONGMSG.getStrId());
+                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
         headers.put(EventConstants.HEADER_KEY_VERSION,
-                DataProxyMsgEncVer.MSG_ENCODE_VER_INLONGMSG.getStrId());
+                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
         byte[] data = inLongMsg.buildArray();
         headers.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         Event event = EventBuilder.withBody(data, headers);

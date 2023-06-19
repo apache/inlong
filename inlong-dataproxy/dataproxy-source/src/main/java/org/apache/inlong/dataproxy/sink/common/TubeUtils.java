@@ -17,7 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncVer;
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -62,7 +62,7 @@ public class TubeUtils {
         Map<String, String> headers = event.getHeaders();
         Message message = new Message(topicName, event.getBody());
         String pkgVersion = headers.get(ConfigConstants.MSG_ENCODE_VER);
-        if (DataProxyMsgEncVer.MSG_ENCODE_VER_PB.getStrId().equalsIgnoreCase(pkgVersion)) {
+        if (DataProxyMsgEncType.MSG_ENCODE_TYPE_PB.getStrId().equalsIgnoreCase(pkgVersion)) {
             long dataTimeL = Long.parseLong(headers.get(ConfigConstants.PKG_TIME_KEY));
             message.putSystemHeader(headers.get(Constants.INLONG_STREAM_ID),
                     DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));

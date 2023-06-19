@@ -18,7 +18,7 @@
 package org.apache.inlong.dataproxy.source2.httpMsg;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.common.enums.DataProxyMsgEncVer;
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
@@ -345,9 +345,9 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
         eventHeaders.put(ConfigConstants.REMOTE_IP_KEY, clientIp);
         eventHeaders.put(ConfigConstants.MSG_COUNTER_KEY, strMsgCount);
         eventHeaders.put(ConfigConstants.MSG_ENCODE_VER,
-                DataProxyMsgEncVer.MSG_ENCODE_VER_INLONGMSG.getStrId());
+                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
         eventHeaders.put(EventConstants.HEADER_KEY_VERSION,
-                DataProxyMsgEncVer.MSG_ENCODE_VER_INLONGMSG.getStrId());
+                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
         eventHeaders.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         eventHeaders.put(ConfigConstants.PKG_TIME_KEY, DateTimeUtils.ms2yyyyMMddHHmm(pkgTime));
         Event event = EventBuilder.withBody(inlongMsgData, eventHeaders);

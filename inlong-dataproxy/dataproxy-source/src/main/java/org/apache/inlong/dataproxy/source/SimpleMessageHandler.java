@@ -17,7 +17,7 @@
 
 package org.apache.inlong.dataproxy.source;
 
-import org.apache.inlong.common.enums.DataProxyMsgEncVer;
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.msg.MsgType;
@@ -427,8 +427,8 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                 commonHeaders.get(AttributeConstants.DATA_TIME));
         headers.put(Constants.HEADER_KEY_SOURCE_IP,
                 commonHeaders.get(AttributeConstants.NODE_IP));
-        headers.put(ConfigConstants.MSG_ENCODE_VER, DataProxyMsgEncVer.MSG_ENCODE_VER_PB.getStrId());
-        headers.put(EventConstants.HEADER_KEY_VERSION, DataProxyMsgEncVer.MSG_ENCODE_VER_PB.getStrId());
+        headers.put(ConfigConstants.MSG_ENCODE_VER, DataProxyMsgEncType.MSG_ENCODE_TYPE_PB.getStrId());
+        headers.put(EventConstants.HEADER_KEY_VERSION, DataProxyMsgEncType.MSG_ENCODE_TYPE_PB.getStrId());
         return EventBuilder.withBody(proxyMessage.getData(), headers);
     }
 

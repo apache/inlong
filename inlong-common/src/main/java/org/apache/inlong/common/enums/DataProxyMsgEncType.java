@@ -20,14 +20,14 @@ package org.apache.inlong.common.enums;
 /**
  * Enumeration class of encoding format of data output from DataProxy to MQ
  */
-public enum DataProxyMsgEncVer {
+public enum DataProxyMsgEncType {
 
-    MSG_ENCODE_VER_RAW(0, "Raw", "Raw message without any InLong format"),
-    MSG_ENCODE_VER_PB(1, "PB", "The PB MessagePack encode format"),
-    MSG_ENCODE_VER_INLONGMSG(2, "InLongMsg", "The InLongMsg encode format"),
-    MSG_ENCODE_VER_UNKNOWN(99, "Unknown", "Unknown encode format");
+    MSG_ENCODE_TYPE_RAW(0, "Raw", "Raw message without any InLong format"),
+    MSG_ENCODE_TYPE_PB(1, "PB", "The PB MessagePack encode format"),
+    MSG_ENCODE_TYPE_INLONGMSG(2, "InLongMsg", "The InLongMsg encode format"),
+    MSG_ENCODE_TYPE_UNKNOWN(99, "Unknown", "Unknown encode format");
 
-    DataProxyMsgEncVer(int id, String name, String desc) {
+    DataProxyMsgEncType(int id, String name, String desc) {
         this.id = id;
         this.name = name;
         this.desc = desc;
@@ -49,13 +49,13 @@ public enum DataProxyMsgEncVer {
         return desc;
     }
 
-    public static DataProxyMsgEncVer valueOf(int value) {
-        for (DataProxyMsgEncVer msgEncVer : DataProxyMsgEncVer.values()) {
-            if (msgEncVer.getId() == value) {
-                return msgEncVer;
+    public static DataProxyMsgEncType valueOf(int value) {
+        for (DataProxyMsgEncType msgEncType : DataProxyMsgEncType.values()) {
+            if (msgEncType.getId() == value) {
+                return msgEncType;
             }
         }
-        return MSG_ENCODE_VER_UNKNOWN;
+        return MSG_ENCODE_TYPE_UNKNOWN;
     }
 
     private final int id;

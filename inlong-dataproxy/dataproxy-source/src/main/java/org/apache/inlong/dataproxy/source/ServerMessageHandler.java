@@ -18,7 +18,7 @@
 package org.apache.inlong.dataproxy.source;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.common.enums.DataProxyMsgEncVer;
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -475,9 +475,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 headers.put(ConfigConstants.MSG_COUNTER_KEY,
                         commonAttrMap.get(AttributeConstants.MESSAGE_COUNT));
                 headers.put(ConfigConstants.MSG_ENCODE_VER,
-                        DataProxyMsgEncVer.MSG_ENCODE_VER_INLONGMSG.getStrId());
+                        DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
                 headers.put(EventConstants.HEADER_KEY_VERSION,
-                        DataProxyMsgEncVer.MSG_ENCODE_VER_INLONGMSG.getStrId());
+                        DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
                 headers.put(AttributeConstants.RCV_TIME,
                         commonAttrMap.get(AttributeConstants.RCV_TIME));
                 headers.put(ConfigConstants.DECODER_ATTRS,

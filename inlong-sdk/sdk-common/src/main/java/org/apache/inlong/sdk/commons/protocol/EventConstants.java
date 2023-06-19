@@ -26,7 +26,7 @@ public interface EventConstants {
     @Deprecated // replace by ConfigConstants.MSG_ENCODE_VER
     String HEADER_KEY_VERSION = "version";
     String HEADER_SDK_VERSION_1 = "1";
-    @Deprecated // replace by DataProxyMsgEncVer.MSG_ENCODE_VER_PB
+    @Deprecated // replace by DataProxyMsgEncType.MSG_ENCODE_VER_PB
     String HEADER_CACHE_VERSION_1 = "1";
     // sdk
     String INLONG_GROUP_ID = "inlongGroupId";
