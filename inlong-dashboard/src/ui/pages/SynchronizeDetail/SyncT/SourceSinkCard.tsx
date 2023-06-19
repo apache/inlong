@@ -91,8 +91,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId }) => {
             <SyncSources inlongGroupId={inlongGroupId} inlongStreamId={inlongStreamId} />
           </Col>
           <Col span={2} onDoubleClick={openClick}>
-            <a type="link" style={{ marginTop: 50 }}>
-              <Button type="link" style={{ marginTop: 50 }}>
+            <a type="link" style={{ position: 'absolute', top: '50%' }}>
+              <Button type="link" style={{ position: 'absolute', top: '50%' }}>
                 {i18n.t('pages.SynchronizeDetail.Sync.Transform')}
               </Button>
             </a>
