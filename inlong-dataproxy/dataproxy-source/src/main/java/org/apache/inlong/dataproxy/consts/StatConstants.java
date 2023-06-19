@@ -87,6 +87,7 @@ public class StatConstants {
     public static final java.lang.String EVENT_SINK_FAILRETRY = "sink.retry";
     public static final java.lang.String EVENT_SINK_FAILDROPPED = "sink.dropped";
     public static final java.lang.String EVENT_SINK_SUCCESS = "sink.success";
+    public static final java.lang.String EVENT_SINK_FAILURE = "sink.failure";
     public static final java.lang.String EVENT_SINK_RECEIVEEXCEPT = "sink.rcvexcept";
 
 }

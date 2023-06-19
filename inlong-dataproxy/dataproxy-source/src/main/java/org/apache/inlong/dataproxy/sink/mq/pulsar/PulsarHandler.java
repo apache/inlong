@@ -95,7 +95,7 @@ public class PulsarHandler implements MessageQueueHandler {
 
     private String tenant;
     private String namespace;
-    private ThreadLocal<EventHandler> handlerLocal = new ThreadLocal<>();
+    private final ThreadLocal<EventHandler> handlerLocal = new ThreadLocal<>();
 
     /**
      * pulsar client
@@ -103,12 +103,12 @@ public class PulsarHandler implements MessageQueueHandler {
     private PulsarClient client;
     private ProducerBuilder<byte[]> baseBuilder;
 
-    private ConcurrentHashMap<String, Producer<byte[]>> producerMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Producer<byte[]>> producerMap = new ConcurrentHashMap<>();
 
     /**
      * init
-     * @param config
-     * @param sinkContext
+     * @param config   the Pulsar cluster configure
+     * @param sinkContext the sink context
      */
     public void init(CacheClusterConfig config, MessageQueueZoneSinkContext sinkContext) {
         this.config = config;
@@ -198,13 +198,13 @@ public class PulsarHandler implements MessageQueueHandler {
 
     /**
      * send
-     * @param profile
-     * @return
+     * @param profile   the profile to send
+     * @return   whether sent the profile
      */
     @Override
     public boolean send(PackProfile profile) {
+        String producerTopic = null;
         try {
-            String producerTopic;
             // get idConfig
             IdTopicConfig idConfig = ConfigManager.getInstance().getIdTopicConfig(
                     profile.getInlongGroupId(), profile.getInlongStreamId());
@@ -266,7 +266,8 @@ public class PulsarHandler implements MessageQueueHandler {
             }
             return true;
         } catch (Exception ex) {
-            sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SEND_EXCEPTION);
+            sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_SEND_EXCEPTION,
+                    profile.getUid() + "." + producerTopic);
             sinkContext.processSendFail(profile, clusterName, profile.getUid(), 0,
                     DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
             if (logCounter.shouldPrint()) {
@@ -323,7 +324,7 @@ public class PulsarHandler implements MessageQueueHandler {
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
-                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
+                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_FAILURE);
                 sinkContext.processSendFail(batchProfile, clusterName, producerTopic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
@@ -357,13 +358,15 @@ public class PulsarHandler implements MessageQueueHandler {
         // callback
         future.whenCompleteAsync((msgId, ex) -> {
             if (ex != null) {
-                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_RECEIVEEXCEPT);
+                sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_FAILURE, producerTopic);
+                sinkContext.fileMetricAddFailCnt(simpleProfile, producerTopic, msgId.toString());
                 sinkContext.processSendFail(simpleProfile, clusterName, producerTopic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
                     LOG.error("Send SimpleProfileV0 to Pulsar failure", ex);
                 }
             } else {
+                sinkContext.fileMetricAddSuccCnt(simpleProfile, producerTopic, msgId.toString());
                 sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
                 sinkContext.addSendResultMetric(simpleProfile, clusterName, producerTopic, true, sendTime);
                 sinkContext.getDispatchQueue().release(simpleProfile.getSize());

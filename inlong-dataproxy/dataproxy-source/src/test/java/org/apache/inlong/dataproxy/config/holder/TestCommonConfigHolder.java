@@ -38,5 +38,8 @@ public class TestCommonConfigHolder {
         Assert.assertEquals(10000, CommonConfigHolder.getInstance().getMetaConfigSyncInvlMs());
         Assert.assertTrue(CommonConfigHolder.getInstance().isEnableUnConfigTopicAccept());
         Assert.assertTrue(CommonConfigHolder.getInstance().getDefTopics().contains("test2"));
+        Assert.assertTrue(CommonConfigHolder.getInstance().isEnableSendRetryAfterFailure());
+        Assert.assertEquals(2, CommonConfigHolder.getInstance().getMaxRetriesAfterFailure());
     }
+
 }
