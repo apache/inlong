@@ -103,6 +103,8 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
      * Whether works append source.
      */
     private final boolean appendSource;
+
+    private final boolean schemaChange;
     /**
      * A wrapped output collector which is used to append metadata columns after physical columns.
      */
@@ -126,7 +128,8 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             ZoneId serverTimeZone,
             boolean appendSource,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory,
-            boolean migrateAll) {
+            boolean migrateAll,
+            boolean schemaChange) {
         this.hasMetadata = checkNotNull(metadataConverters).length > 0;
         this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters, migrateAll);
         this.migrateAll = migrateAll;
@@ -139,6 +142,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         this.resultTypeInfo = checkNotNull(resultTypeInfo);
         this.rowKindValidator = rowValidator;
         this.appendSource = checkNotNull(appendSource);
+        this.schemaChange = schemaChange;
     }
 
     /**
@@ -710,7 +714,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         Struct value = (Struct) record.value();
         Schema valueSchema = record.valueSchema();
 
-        if (RecordUtils.isDdlRecord(value)) {
+        if (schemaChange && RecordUtils.isDdlRecord(value)) {
             extractDdlRecord(record, out, tableSchema, value);
             return;
         }
@@ -807,6 +811,7 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
         private boolean migrateAll = false;
         private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
                 DeserializationRuntimeConverterFactory.DEFAULT;
+        private boolean schemaChange = false;
 
         public Builder setPhysicalRowType(RowType physicalRowType) {
             this.physicalRowType = physicalRowType;
@@ -843,6 +848,11 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
             return this;
         }
 
+        public Builder setSchemaChange(boolean schemaChange) {
+            this.schemaChange = schemaChange;
+            return this;
+        }
+
         public Builder setUserDefinedConverterFactory(
                 DeserializationRuntimeConverterFactory userDefinedConverterFactory) {
             this.userDefinedConverterFactory = userDefinedConverterFactory;
@@ -858,7 +868,8 @@ public final class RowDataDebeziumDeserializeSchema implements DebeziumDeseriali
                     serverTimeZone,
                     appendSource,
                     userDefinedConverterFactory,
-                    migrateAll);
+                    migrateAll,
+                    schemaChange);
         }
     }
 }

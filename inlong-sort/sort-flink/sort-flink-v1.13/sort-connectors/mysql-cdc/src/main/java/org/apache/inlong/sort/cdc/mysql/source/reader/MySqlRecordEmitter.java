@@ -145,7 +145,7 @@ public final class MySqlRecordEmitter<T>
                 }
             }
 
-            if (tableChanges.isEmpty()) {
+            if (includeSchemaChanges && tableChanges.isEmpty()) {
                 TableId tableId = RecordUtils.getTableId(element);
                 // if this table is one of the captured tables, output the ddl element.
                 if (splitState.getMySQLSplit().getTableSchemas().containsKey(tableId)
