@@ -63,7 +63,7 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_STATS_INTER
  */
 public class PulsarHandler implements MessageQueueHandler {
 
-    public static final Logger LOG = LoggerFactory.getLogger(PulsarHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(PulsarHandler.class);
     // log print count
     private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
 
@@ -166,9 +166,9 @@ public class PulsarHandler implements MessageQueueHandler {
                     .enableBatching(context.getBoolean(KEY_ENABLEBATCHING, true))
                     .compressionType(this.getPulsarCompressionType());
         } catch (Throwable e) {
-            LOG.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
-        LOG.info("pulsar handler started");
+        logger.info("pulsar handler started");
     }
 
     /**
@@ -180,15 +180,15 @@ public class PulsarHandler implements MessageQueueHandler {
             try {
                 entry.getValue().close();
             } catch (PulsarClientException e) {
-                LOG.error(e.getMessage(), e);
+                logger.error(e.getMessage(), e);
             }
         }
         try {
             this.client.close();
         } catch (PulsarClientException e) {
-            LOG.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
-        LOG.info("pulsar handler stopped");
+        logger.info("pulsar handler stopped");
     }
 
     @Override
@@ -213,7 +213,7 @@ public class PulsarHandler implements MessageQueueHandler {
                     sinkContext.fileMetricIncWithDetailStats(
                             StatConstants.EVENT_SINK_CONFIG_TOPIC_MISSING, profile.getUid());
                     sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
-                    sinkContext.getDispatchQueue().release(profile.getSize());
+                    sinkContext.getMqZoneSink().releaseAcquiredSizePermit(profile);
                     profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
                     return false;
                 }
@@ -221,7 +221,7 @@ public class PulsarHandler implements MessageQueueHandler {
                 if (StringUtils.isEmpty(producerTopic)) {
                     sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_DEFAULT_TOPIC_MISSING);
                     sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
-                    sinkContext.getDispatchQueue().release(profile.getSize());
+                    sinkContext.getMqZoneSink().releaseAcquiredSizePermit(profile);
                     profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
                     return false;
                 }
@@ -233,22 +233,22 @@ public class PulsarHandler implements MessageQueueHandler {
             Producer<byte[]> producer = this.producerMap.get(producerTopic);
             if (producer == null) {
                 try {
-                    LOG.info("try to new a object for topic " + producerTopic);
+                    logger.info("try to new a object for topic " + producerTopic);
                     SecureRandom secureRandom = new SecureRandom(
                             (producerTopic + System.currentTimeMillis()).getBytes());
                     String producerName = producerTopic + "-" + secureRandom.nextLong();
                     producer = baseBuilder.clone().topic(producerTopic)
                             .producerName(producerName)
                             .create();
-                    LOG.info("create new producer success:{}", producer.getProducerName());
+                    logger.info("create new producer success:{}", producer.getProducerName());
                     Producer<byte[]> oldProducer = this.producerMap.putIfAbsent(producerTopic, producer);
                     if (oldProducer != null) {
                         producer.close();
-                        LOG.info("close producer success:{}", producer.getProducerName());
+                        logger.info("close producer success:{}", producer.getProducerName());
                         producer = oldProducer;
                     }
                 } catch (Throwable ex) {
-                    LOG.error("create new producer failed", ex);
+                    logger.error("create new producer failed", ex);
                 }
             }
             // create producer failed
@@ -270,7 +270,7 @@ public class PulsarHandler implements MessageQueueHandler {
             sinkContext.processSendFail(profile, clusterName, profile.getUid(), 0,
                     DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
             if (logCounter.shouldPrint()) {
-                LOG.error("Send Message to Pulsar failure", ex);
+                logger.error("Send Message to Pulsar failure", ex);
             }
             return false;
         }
@@ -327,12 +327,12 @@ public class PulsarHandler implements MessageQueueHandler {
                 sinkContext.processSendFail(batchProfile, clusterName, producerTopic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
-                    LOG.error("Send ProfileV1 to Pulsar failure", ex);
+                    logger.error("Send ProfileV1 to Pulsar failure", ex);
                 }
             } else {
                 sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
                 sinkContext.addSendResultMetric(batchProfile, clusterName, producerTopic, true, sendTime);
-                sinkContext.getDispatchQueue().release(batchProfile.getSize());
+                sinkContext.getMqZoneSink().releaseAcquiredSizePermit(batchProfile);
                 batchProfile.ack();
             }
         });
@@ -362,13 +362,13 @@ public class PulsarHandler implements MessageQueueHandler {
                 sinkContext.processSendFail(simpleProfile, clusterName, producerTopic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
-                    LOG.error("Send SimpleProfileV0 to Pulsar failure", ex);
+                    logger.error("Send SimpleProfileV0 to Pulsar failure", ex);
                 }
             } else {
                 sinkContext.fileMetricAddSuccCnt(simpleProfile, producerTopic, msgId.toString());
                 sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
                 sinkContext.addSendResultMetric(simpleProfile, clusterName, producerTopic, true, sendTime);
-                sinkContext.getDispatchQueue().release(simpleProfile.getSize());
+                sinkContext.getMqZoneSink().releaseAcquiredSizePermit(simpleProfile);
                 simpleProfile.ack();
             }
         });

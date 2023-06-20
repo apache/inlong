@@ -26,7 +26,6 @@ import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.common.SinkContext;
-import org.apache.inlong.dataproxy.utils.BufferQueue;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 
 import org.apache.commons.lang.ClassUtils;
@@ -49,8 +48,7 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     public static final String PREFIX_PRODUCER = "producer.";
     public static final String KEY_COMPRESS_TYPE = "compressType";
 
-    private final BufferQueue<PackProfile> dispatchQueue;
-
+    private final MessageQueueZoneSink mqZoneSink;
     private final String proxyClusterId;
     private final String nodeId;
     private final Context producerContext;
@@ -60,10 +58,9 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     /**
      * Constructor
      */
-    public MessageQueueZoneSinkContext(String sinkName, Context context, Channel channel,
-            BufferQueue<PackProfile> dispatchQueue) {
-        super(sinkName, context, channel);
-        this.dispatchQueue = dispatchQueue;
+    public MessageQueueZoneSinkContext(MessageQueueZoneSink mqZoneSink, Context context, Channel channel) {
+        super(mqZoneSink.getName(), context, channel);
+        this.mqZoneSink = mqZoneSink;
         // proxyClusterId
         this.proxyClusterId = CommonConfigHolder.getInstance().getClusterName();
         // nodeId
@@ -100,12 +97,12 @@ public class MessageQueueZoneSinkContext extends SinkContext {
     }
 
     /**
-     * get dispatchQueue
-     * 
-     * @return the dispatchQueue
+     * get message queue zone sink
+     *
+     * @return the zone sink
      */
-    public BufferQueue<PackProfile> getDispatchQueue() {
-        return dispatchQueue;
+    public MessageQueueZoneSink getMqZoneSink() {
+        return mqZoneSink;
     }
 
     /**
@@ -245,12 +242,13 @@ public class MessageQueueZoneSinkContext extends SinkContext {
             String mqName, String topic, long sendTime,
             DataProxyErrCode errCode, String errMsg) {
         if (currentRecord.isResend()) {
-            dispatchQueue.offer(currentRecord);
+            this.mqZoneSink.offerDispatchRecord(currentRecord);
             fileMetricIncSumStats(StatConstants.EVENT_SINK_FAILRETRY);
             this.addSendResultMetric(currentRecord, mqName, topic, false, sendTime);
         } else {
-            currentRecord.fail(errCode, errMsg);
+            this.mqZoneSink.releaseAcquiredSizePermit(currentRecord);
             fileMetricIncSumStats(StatConstants.EVENT_SINK_FAILDROPPED);
+            currentRecord.fail(errCode, errMsg);
         }
     }
 
@@ -267,11 +265,10 @@ public class MessageQueueZoneSinkContext extends SinkContext {
                 configurable.configure(new Context(CommonConfigHolder.getInstance().getProperties()));
             }
             if (selectorObject instanceof CacheClusterSelector) {
-                CacheClusterSelector selector = (CacheClusterSelector) selectorObject;
-                return selector;
+                return (CacheClusterSelector) selectorObject;
             }
         } catch (Throwable t) {
-            LOG.error("Fail to init CacheClusterSelector,selectorClass:{},error:{}",
+            logger.error("Fail to init CacheClusterSelector,selectorClass:{},error:{}",
                     strSelectorClass, t.getMessage(), t);
         }
         return null;
