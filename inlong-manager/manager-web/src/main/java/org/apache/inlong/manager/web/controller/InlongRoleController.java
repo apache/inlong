@@ -25,7 +25,7 @@ import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.InlongRoleService;
-import org.apache.inlong.manager.service.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;

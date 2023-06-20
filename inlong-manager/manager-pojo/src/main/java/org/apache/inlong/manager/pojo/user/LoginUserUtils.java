@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.user;
+package org.apache.inlong.manager.pojo.user;
 
 import org.apache.inlong.manager.pojo.user.UserInfo;
 

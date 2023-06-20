@@ -20,7 +20,7 @@ package org.apache.inlong.manager.web.auth.web;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.user.UserInfo;
-import org.apache.inlong.manager.service.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;

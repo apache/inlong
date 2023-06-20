@@ -21,7 +21,7 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.util.NetworkUtils;
 import org.apache.inlong.manager.dao.entity.OperationLogEntity;
 import org.apache.inlong.manager.pojo.user.UserInfo;
-import org.apache.inlong.manager.service.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
