@@ -46,6 +46,16 @@ public class FieldTypeMappingReader implements Serializable {
      */
     private static final String SOURCE_TO_TARGET_KEY = "source.type.to.target.type.converter";
 
+    /**
+     * Field type mapping source type key
+     */
+    private static final String MAPPING_SOURCE_TYPE_KEY = "source.type";
+
+    /**
+     * Field type mapping target type key
+     */
+    private static final String MAPPING_TARGET_TYPE_KEY = "target.type";
+
     @Getter
     protected final String streamType;
     @Getter
@@ -85,8 +95,8 @@ public class FieldTypeMappingReader implements Serializable {
         if (converterConf.containsKey(key)) {
             List<Map<String, String>> typeMappings = (List<Map<String, String>>) converterConf.get(key);
             for (Map<String, String> mapping : typeMappings) {
-                String sourceType = mapping.get("source.type");
-                String targetType = mapping.get("target.type");
+                String sourceType = mapping.get(MAPPING_SOURCE_TYPE_KEY);
+                String targetType = mapping.get(MAPPING_TARGET_TYPE_KEY);
                 if (StringUtils.isBlank(sourceType) || StringUtils.isBlank(targetType)) {
                     throw new IllegalArgumentException(
                             String.format("Reader source type: %s, target type: %s are not valid.",
