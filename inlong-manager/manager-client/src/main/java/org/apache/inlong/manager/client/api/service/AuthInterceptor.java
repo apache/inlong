@@ -52,7 +52,7 @@ public class AuthInterceptor implements Interceptor {
         Request newRequest = oldRequest.newBuilder()
                 .method(oldRequest.method(), oldRequest.body())
                 .url(builder.build())
-                .addHeader("tenant",tenantGetter.get())
+                .addHeader("tenant", tenantGetter.get())
                 .build();
         return chain.proceed(newRequest);
     }
