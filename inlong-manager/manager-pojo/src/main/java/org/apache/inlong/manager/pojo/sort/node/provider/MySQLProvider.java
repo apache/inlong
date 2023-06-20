@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.MySQLFieldTypeStrategy;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
@@ -38,6 +40,8 @@ import java.util.Map;
  */
 public class MySQLProvider implements LoadNodeProvider {
 
+    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new MySQLFieldTypeStrategy();
+
     @Override
     public Boolean accept(String sinkType) {
         return SinkType.MYSQL.equals(sinkType);
@@ -47,7 +51,8 @@ public class MySQLProvider implements LoadNodeProvider {
     public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         MySQLSink mysqlSink = (MySQLSink) nodeInfo;
         Map<String, String> properties = parseProperties(mysqlSink.getProperties());
-        List<FieldInfo> fieldInfos = parseSinkFieldInfos(mysqlSink.getSinkFieldList(), mysqlSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(mysqlSink.getSinkFieldList(), mysqlSink.getSinkName(),
+                FIELD_TYPE_MAPPING_STRATEGY);
         List<FieldRelation> fieldRelations = parseSinkFields(mysqlSink.getSinkFieldList(), constantFieldMap);
 
         return new MySqlLoadNode(

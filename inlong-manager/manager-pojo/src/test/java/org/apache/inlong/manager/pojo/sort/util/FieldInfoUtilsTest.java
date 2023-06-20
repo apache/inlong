@@ -17,9 +17,11 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import org.apache.inlong.manager.common.fieldtype.strategy.MySQLFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.PostgreSQLFieldTypeStrategy;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.IntTypeInfo;
+import org.apache.inlong.sort.formats.common.ShortTypeInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
@@ -32,7 +34,7 @@ import org.junit.jupiter.api.Test;
 public class FieldInfoUtilsTest {
 
     @Test
-    public void testPgIntTypeInfo() {
+    public void testPostgreSQLFieldTypeInfo() {
         StreamField streamField = new StreamField();
         streamField.setIsMetaField(0);
         streamField.setFieldName("age");
@@ -41,5 +43,17 @@ public class FieldInfoUtilsTest {
                 "nodeId", new PostgreSQLFieldTypeStrategy());
         TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
         Assertions.assertTrue(typeInfo instanceof IntTypeInfo);
+    }
+
+    @Test
+    public void testMySQLFieldTypeInfo() {
+        StreamField streamField = new StreamField();
+        streamField.setIsMetaField(0);
+        streamField.setFieldName("age");
+        streamField.setFieldType("tinyint unsigned");
+        FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
+                "nodeId", new MySQLFieldTypeStrategy());
+        TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
+        Assertions.assertTrue(typeInfo instanceof ShortTypeInfo);
     }
 }
