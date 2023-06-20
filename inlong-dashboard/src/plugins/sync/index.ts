@@ -17,24 +17,12 @@
  * under the License.
  */
 
-export type MetaExportStaticList<T> = {
-  label: string;
-  value: string;
-  LoadEntity: () => Promise<{ default: T }>;
-}[];
+import { syncLoader } from '@/loaders';
+import type { SyncMetaType } from './types';
+import { allDefaultSyncs } from './defaults';
 
-export type MetaExportWithBackendList<T> = {
-  label: string;
-  value: string;
-  LoadEntity: () => Promise<{ default: T }>;
-}[];
+export type { SyncMetaType };
 
-export type { ClusterMetaType } from './clusters';
-export type { ConsumeMetaType } from './consumes';
-export type { GroupMetaType } from './groups';
-export type { NodeMetaType } from './nodes';
-export type { SourceMetaType } from './sources';
-export type { SinkMetaType } from './sinks';
-export type { StreamMetaType } from './streams';
-export type { SyncMetaType } from './sync';
-export type { TransformMetaType } from './transform';
+export const sync = syncLoader.loadPluginList<SyncMetaType>(allDefaultSyncs);
+
+export const defaultValue = syncLoader.loadDefaultPlugin<SyncMetaType>(sync);

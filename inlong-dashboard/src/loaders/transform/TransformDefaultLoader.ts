@@ -17,24 +17,15 @@
  * under the License.
  */
 
-export type MetaExportStaticList<T> = {
-  label: string;
-  value: string;
-  LoadEntity: () => Promise<{ default: T }>;
-}[];
+import { Loader } from '@/loaders/Loader';
+import { MetaExportWithBackendList } from '@/plugins/types';
 
-export type MetaExportWithBackendList<T> = {
-  label: string;
-  value: string;
-  LoadEntity: () => Promise<{ default: T }>;
-}[];
+export class TransformDefaultLoader implements Loader {
+  loadPluginList<T>(defaultsList: MetaExportWithBackendList<T>): MetaExportWithBackendList<T> {
+    return defaultsList;
+  }
 
-export type { ClusterMetaType } from './clusters';
-export type { ConsumeMetaType } from './consumes';
-export type { GroupMetaType } from './groups';
-export type { NodeMetaType } from './nodes';
-export type { SourceMetaType } from './sources';
-export type { SinkMetaType } from './sinks';
-export type { StreamMetaType } from './streams';
-export type { SyncMetaType } from './sync';
-export type { TransformMetaType } from './transform';
+  loadDefaultPlugin<T>(pluginList: MetaExportWithBackendList<T>) {
+    return pluginList[0].value;
+  }
+}

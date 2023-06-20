@@ -17,24 +17,33 @@
  * under the License.
  */
 
-export type MetaExportStaticList<T> = {
-  label: string;
-  value: string;
-  LoadEntity: () => Promise<{ default: T }>;
-}[];
+import type { MetaExportWithBackendList } from '@/plugins/types';
+import type { TransformMetaType } from '../types';
 
-export type MetaExportWithBackendList<T> = {
-  label: string;
-  value: string;
-  LoadEntity: () => Promise<{ default: T }>;
-}[];
-
-export type { ClusterMetaType } from './clusters';
-export type { ConsumeMetaType } from './consumes';
-export type { GroupMetaType } from './groups';
-export type { NodeMetaType } from './nodes';
-export type { SourceMetaType } from './sources';
-export type { SinkMetaType } from './sinks';
-export type { StreamMetaType } from './streams';
-export type { SyncMetaType } from './sync';
-export type { TransformMetaType } from './transform';
+export const allDefaultSources: MetaExportWithBackendList<TransformMetaType> = [
+  {
+    label: 'ALL',
+    value: '',
+    LoadEntity: () => import('../common/TransformInfo').then(r => ({ default: r.TransformInfo })),
+  },
+  {
+    label: '时间格式转换',
+    value: 'MYSQL_BINLOG',
+    LoadEntity: () => import('./MySQLBinlog'),
+  },
+  {
+    label: '值转换',
+    value: 'MONGODB',
+    LoadEntity: () => import('./Mongodb'),
+  },
+  {
+    label: '字符串替换',
+    value: 'MQTT',
+    LoadEntity: () => import('./MQTT'),
+  },
+  {
+    label: '数据加密',
+    value: 'ORACLE',
+    LoadEntity: () => import('./Oracle'),
+  },
+];
