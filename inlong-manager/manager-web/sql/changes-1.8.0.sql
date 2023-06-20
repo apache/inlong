@@ -79,3 +79,5 @@ CREATE INDEX index_tenant
 -- To avoid the ambiguity, rename "tenant" in PulsarGroup & PulsarCluster to "pulsarTenant"
 UPDATE inlong_group SET ext_params = replace(ext_params, '"tenant"', '"pulsarTenant"');
 UPDATE inlong_cluster SET ext_params = replace(ext_params, '"tenant"', '"pulsarTenant"');
+
+ALTER TABLE `inlong_stream` MODIFY COLUMN `name` varchar(256) DEFAULT NULL COMMENT 'The name of the inlong stream page display, can be Chinese';

@@ -46,18 +46,18 @@ public class InlongStreamRequest extends BaseInlongStream {
 
     @ApiModelProperty(value = "Inlong group id")
     @NotBlank(message = "inlongGroupId cannot be blank")
-    @Length(min = 4, max = 100, message = "length must be between 4 and 100")
-    @Pattern(regexp = "^[a-z0-9_.-]{4,100}$", message = "only supports lowercase letters, numbers, '-', or '_'")
+    @Length(min = 4, max = 200, message = "length must be between 4 and 200")
+    @Pattern(regexp = "^[a-zA-Z0-9_.-]{4,200}$", message = "only supports letters, numbers, '.', '-', or '_'")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong stream id")
     @NotBlank(message = "inlongStreamId cannot be blank")
-    @Length(min = 1, max = 100, message = "inlongStreamId length must be between 1 and 100")
-    @Pattern(regexp = "^[a-z0-9_.-]{1,100}$", message = "inlongStreamId only supports lowercase letters, numbers, '-', or '_'")
+    @Length(min = 1, max = 200, message = "inlongStreamId length must be between 1 and 200")
+    @Pattern(regexp = "^[a-zA-Z0-9_.-]{1,200}$", message = "inlongStreamId only supports letters, numbers, '.', '-', or '_'")
     private String inlongStreamId;
 
     @ApiModelProperty(value = "Inlong stream name", required = true)
-    @Length(max = 64, message = "length must be less than or equal to 64")
+    @Length(max = 200, message = "length must be less than or equal to 200")
     private String name;
 
     @ApiModelProperty(value = "Inlong stream description")
