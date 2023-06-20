@@ -75,7 +75,7 @@ public class ClientUtils {
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(
-                        new AuthInterceptor(defaultAuthentication.getUsername(), defaultAuthentication.getPassword()))
+                        new AuthInterceptor(defaultAuthentication.getUsername(), defaultAuthentication.getPassword(),configuration::getTenant))
                 .connectTimeout(configuration.getConnectTimeout(), configuration.getTimeUnit())
                 .readTimeout(configuration.getReadTimeout(), configuration.getTimeUnit())
                 .writeTimeout(configuration.getWriteTimeout(), configuration.getTimeUnit())

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import java.util.function.Supplier;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -32,10 +33,12 @@ public class AuthInterceptor implements Interceptor {
 
     private final String username;
     private final String password;
+    private final Supplier<String> tenantGetter;
 
-    public AuthInterceptor(String username, String password) {
+    public AuthInterceptor(String username, String password, Supplier<String> tenantGetter) {
         this.username = username;
         this.password = password;
+        this.tenantGetter = tenantGetter;
     }
 
     @Override
@@ -49,8 +52,8 @@ public class AuthInterceptor implements Interceptor {
         Request newRequest = oldRequest.newBuilder()
                 .method(oldRequest.method(), oldRequest.body())
                 .url(builder.build())
+                .addHeader("tenant",tenantGetter.get())
                 .build();
-
         return chain.proceed(newRequest);
     }
 }
