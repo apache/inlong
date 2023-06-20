@@ -557,23 +557,19 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                         .append(topicName).append(")!\"}");
                 return sb;
             } else {
-                List<String> transferMessageList = new ArrayList<>();
                 List<TransferedMessage> tmpMsgList = getMessageResult.transferedMessageList;
                 List<Message> messageList = DataConverterUtil.convertMessage(topicName, tmpMsgList);
-                int startPos = Math.max(messageList.size() - msgCount, 0);
-                for (; startPos < messageList.size(); startPos++) {
-                    String msgItem = new String(
-                            Base64.encodeBase64(messageList.get(startPos).getData()));
-                    transferMessageList.add(msgItem);
-                }
                 int i = 0;
+                int startPos = Math.max(messageList.size() - msgCount, 0);
                 sb.append("{\"result\":true,\"errCode\":200,\"errMsg\":\"Success!\",\"dataSet\":[");
-                for (String msgData : transferMessageList) {
+                for (; startPos < messageList.size(); startPos++) {
                     if (i > 0) {
                         sb.append(",");
                     }
-                    sb.append("{\"index\":").append(i++)
-                            .append(",\"data\":\"").append(msgData).append("\"}");
+                    sb.append("{\"index\":").append(i++).append(",\"data\":\"")
+                            .append(new String(Base64.encodeBase64(messageList.get(startPos).getData())))
+                            .append("\",\"attr\":\"").append(messageList.get(startPos).getAttribute())
+                            .append("\"}");
                 }
                 sb.append("]}");
                 return sb;
