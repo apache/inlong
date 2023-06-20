@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.http;
 
-import org.apache.inlong.sdk.dataproxy.ConfigConstants;
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.HostInfo;
@@ -187,7 +187,7 @@ public class InternalHttpSender {
             JsonObject jsonResponse = JsonParser.parseString(returnStr).getAsJsonObject();
             JsonElement codeElement = jsonResponse.get("code");
             if (codeElement != null) {
-                if (ConfigConstants.HTTP_RESPONSE_CODE_SUCCESS == codeElement.getAsInt()) {
+                if (DataProxyErrCode.SUCCESS.getErrCode() == codeElement.getAsInt()) {
                     return SendResult.OK;
                 } else {
                     return SendResult.INVALID_DATA;
