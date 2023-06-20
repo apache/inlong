@@ -17,15 +17,27 @@
 
 package org.apache.inlong.manager.common.fieldtype.strategy;
 
-import org.apache.inlong.manager.common.fieldtype.datasource.PostgreSQLFieldTypeMapping;
+import org.apache.inlong.manager.common.consts.StreamType;
+import org.apache.inlong.manager.common.fieldtype.FieldTypeMappingReader;
+
+import org.apache.commons.lang3.StringUtils;
+
+import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
 
 /**
  * The postgresql field type mapping strategy
  */
 public class PostgreSQLFieldTypeStrategy implements FieldTypeMappingStrategy {
 
+    private final FieldTypeMappingReader reader;
+
+    public PostgreSQLFieldTypeStrategy() {
+        this.reader = new FieldTypeMappingReader(StreamType.POSTGRESQL);
+    }
+
     @Override
     public String getFieldTypeMapping(String sourceType) {
-        return PostgreSQLFieldTypeMapping.getFieldTypeMapping(sourceType);
+        String dataType = StringUtils.substringBefore(sourceType, LEFT_BRACKET).toUpperCase();
+        return reader.getFIELD_TYPE_MAPPING_MAP().getOrDefault(dataType, sourceType.toUpperCase());
     }
 }
