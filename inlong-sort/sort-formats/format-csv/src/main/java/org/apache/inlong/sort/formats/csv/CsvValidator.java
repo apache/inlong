@@ -19,7 +19,6 @@ package org.apache.inlong.sort.formats.csv;
 
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
-import org.apache.inlong.sort.formats.util.ValidateDescriptorString;
 
 import org.apache.flink.table.descriptors.DescriptorProperties;
 import org.apache.flink.table.descriptors.DescriptorValidator;
@@ -31,7 +30,7 @@ public class CsvValidator implements DescriptorValidator {
 
     @Override
     public void validate(DescriptorProperties properties) {
-        properties = ValidateDescriptorString.getValidateProperties(properties);
+        TableFormatUtils.getValidateProperties(properties);
         properties.validateString(TableFormatConstants.FORMAT_DELIMITER, true, 1, 1);
         properties.validateString(TableFormatConstants.FORMAT_QUOTE_CHARACTER, true, 1, 1);
 
