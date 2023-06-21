@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.stream;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.consume.DisplayMessage;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
@@ -256,4 +257,7 @@ public interface InlongStreamService {
      * Converts an Excel file to a streamFields
      */
     List<StreamField> parseFields(MultipartFile file);
+
+    List<DisplayMessage> queryMessage(String groupId, String streamId, Integer messageNumber, String operator);
+
 }

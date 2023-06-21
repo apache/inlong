@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.consume.DisplayMessage;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -245,5 +246,14 @@ public class InlongStreamClient {
         Preconditions.expectNotBlank(statement, "The statement must not empty");
         ParseFieldRequest request = ParseFieldRequest.builder().method(method).statement(statement).build();
         return parseFields(request);
+    }
+
+    public List<DisplayMessage> queryMessage(String groupId, String streamId, Integer position) {
+        Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
+        Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
+        Response<List<DisplayMessage>> response = ClientUtils.executeHttpCall(
+                inlongStreamApi.queryMessage(groupId, streamId, position));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
     }
 }

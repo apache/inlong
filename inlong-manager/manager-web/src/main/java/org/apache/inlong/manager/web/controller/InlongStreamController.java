@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.tool.excel.ExcelTool;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.consume.DisplayMessage;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -232,6 +233,19 @@ public class InlongStreamController {
             throw new BusinessException(ErrorCodeEnum.INVALID_PARAMETER,
                     String.format("can not properly download template file: %s", e.getMessage()));
         }
+    }
+
+    @RequestMapping(value = "/stream/queryMessage", method = RequestMethod.GET)
+    @ApiOperation(value = "Get inlong stream message")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "position", dataTypeClass = String.class, required = true)
+    })
+    public Response<List<DisplayMessage>> queryMessage(@RequestParam String groupId, @RequestParam String streamId,
+            @RequestParam Integer messageNumber) {
+        String username = LoginUserUtils.getLoginUser().getName();
+        return Response.success(streamService.queryMessage(groupId, streamId, messageNumber, username));
     }
 
 }

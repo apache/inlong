@@ -17,11 +17,16 @@
 
 package org.apache.inlong.manager.service.resource.queue;
 
+import org.apache.inlong.manager.pojo.consume.DisplayMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
+import org.apache.pulsar.client.api.PulsarClientException;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
+import java.util.List;
 
 /**
  * Interface of the message queue resource operator
@@ -69,6 +74,12 @@ public interface QueueResourceOperator {
      * @param operator operator name
      */
     default void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
+    }
+
+    default List<DisplayMessage> queryLastestMessage(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
+            Integer messageNumber)
+            throws PulsarClientException {
+        return null;
     }
 
 }

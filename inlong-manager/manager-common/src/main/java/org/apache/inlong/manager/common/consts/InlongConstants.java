@@ -183,4 +183,10 @@ public class InlongConstants {
      */
     public static final String BATCH_PARSING_FILED_JSON_COMMENT_PROP = "desc";
 
+    private static final int COMPRESS_TYPE_NONE = 0;
+
+    private static final int COMPRESS_TYPE_GZIP = 1;
+
+    private static final int COMPRESS_TYPE_SNAPPY = 2;
+
 }

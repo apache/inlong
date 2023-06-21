@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.pojo.consume.DisplayMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
@@ -44,9 +45,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.admin.PulsarAdmin;
+import org.apache.pulsar.client.api.PulsarClientException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,6 +63,8 @@ public class PulsarResourceOperator implements QueueResourceOperator {
      * The name rule for Pulsar subscription: clusterTag_topicName_sinkId_consumer_group
      */
     public static final String PULSAR_SUBSCRIPTION = "%s_%s_%s_consumer_group";
+
+    public static final String PULSAR_SUBSCRIPTION_REAL_TIME_REVIEW = "%s_%s_consumer_group_real_time_review";
 
     @Autowired
     private InlongClusterService clusterService;
@@ -297,6 +302,36 @@ public class PulsarResourceOperator implements QueueResourceOperator {
                     .build();
             pulsarOperator.forceDeleteTopic(pulsarAdmin, topicInfo);
         }
+    }
+
+    public List<DisplayMessage> queryLastestMessage(InlongGroupInfo groupInfo,
+            InlongStreamInfo streamInfo, Integer messageNumber) throws PulsarClientException {
+        String groupId = streamInfo.getInlongGroupId();
+        InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
+        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(groupInfo.getInlongClusterTag(),
+                null,
+                ClusterType.PULSAR);
+        List<DisplayMessage> displayMessages = new ArrayList<>();
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
+            String tenant = inlongPulsarInfo.getPulsarTenant();
+            if (StringUtils.isBlank(tenant)) {
+                tenant = pulsarCluster.getPulsarTenant();
+            }
+            String namespace = groupInfo.getMqResource();
+            String topicName = streamInfo.getMqResource();
+            String fullTopicName = tenant + "/" + namespace + "/" + topicName;
+            String clusterTag = inlongPulsarInfo.getInlongClusterTag();
+            String subs = String.format(PULSAR_SUBSCRIPTION_REAL_TIME_REVIEW, clusterTag, topicName);
+            log.info("begin to query message by subs={} for groupId={}, topic={}", subs, groupId, fullTopicName);
+            displayMessages =
+                    pulsarOperator.queryLastMessage(pulsarAdmin, fullTopicName, subs, messageNumber, streamInfo);
+            log.info("success query message by subs={} for groupId={}, topic={}", subs, groupId, topicName);
+            // insert the consumer group info into the inlong_consume table
+            Integer id = consumeService.saveBySystem(groupInfo, topicName, subs);
+            log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
+                    id, subs, groupId, topicName);
+        }
+        return displayMessages;
     }
 
 }
