@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.web.config;
 
+import org.apache.inlong.manager.common.tenant.MultitenancyQueryFilter;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -51,6 +52,11 @@ public class InlongGlobalConfig {
         // register all JSON subtype
         JsonUtils.initJsonTypeDefine(objectMapper);
         return objectMapper;
+    }
+
+    @Bean
+    public void queryMethodFilter() {
+        MultitenancyQueryFilter.init();
     }
 
 }
