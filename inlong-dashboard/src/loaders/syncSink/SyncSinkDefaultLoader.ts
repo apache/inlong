@@ -17,14 +17,18 @@
  * under the License.
  */
 
-export { clusterLoader } from './clusters';
-export { consumeLoader } from './consumes';
-export { groupLoader } from './groups';
-export { nodeLoader } from './nodes';
-export { sinkLoader } from './sinks';
-export { sourceLoader } from './sources';
-export { streamLoader } from './streams';
-export { syncLoader } from './sync';
-export { syncSinkLoader } from './syncSink';
-export { syncSourceLoader } from './syncSource';
-export { transformLoader } from './transform';
+import { Loader } from '@/loaders/Loader';
+import { MetaExportWithBackendList } from '@/plugins/types';
+
+export class SyncSinkDefaultLoader implements Loader {
+  loadPluginList<T>(
+    defaultsList: MetaExportWithBackendList<T>,
+    extendsList: MetaExportWithBackendList<T>,
+  ): MetaExportWithBackendList<T> {
+    return defaultsList.concat(extendsList);
+  }
+
+  loadDefaultPlugin<T>(pluginList: MetaExportWithBackendList<T>) {
+    return pluginList[0].value;
+  }
+}

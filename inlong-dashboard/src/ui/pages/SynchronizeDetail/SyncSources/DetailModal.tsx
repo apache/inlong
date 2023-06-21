@@ -46,11 +46,11 @@ const Comp: React.FC<Props> = ({
   const [form] = useForm();
   const { t } = useTranslation();
 
-  const { defaultValue } = useDefaultMeta('source');
+  const { defaultValue } = useDefaultMeta('syncSource');
 
   const [type, setType] = useState(defaultValue);
 
-  const { loading, Entity } = useLoadMeta<SourceMetaType>('source', type);
+  const { loading, Entity } = useLoadMeta<SourceMetaType>('syncSource', type);
 
   const { data, run: getData } = useRequest(
     id => ({

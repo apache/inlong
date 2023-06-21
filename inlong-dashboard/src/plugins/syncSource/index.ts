@@ -17,14 +17,16 @@
  * under the License.
  */
 
-export { clusterLoader } from './clusters';
-export { consumeLoader } from './consumes';
-export { groupLoader } from './groups';
-export { nodeLoader } from './nodes';
-export { sinkLoader } from './sinks';
-export { sourceLoader } from './sources';
-export { streamLoader } from './streams';
-export { syncLoader } from './sync';
-export { syncSinkLoader } from './syncSink';
-export { syncSourceLoader } from './syncSource';
-export { transformLoader } from './transform';
+import { syncSourceLoader } from '@/loaders';
+import { allDefaultSources } from './defaults';
+import { allExtendsSources } from './extends';
+import type { SyncSourceMetaType } from './types';
+
+export type { SyncSourceMetaType };
+
+export const syncSources = syncSourceLoader.loadPluginList<SyncSourceMetaType>(
+  allDefaultSources,
+  allExtendsSources,
+);
+
+export const defaultValue = syncSourceLoader.loadDefaultPlugin<SyncSourceMetaType>(syncSources);

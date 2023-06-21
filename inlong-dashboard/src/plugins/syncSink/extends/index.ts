@@ -17,14 +17,9 @@
  * under the License.
  */
 
-export { clusterLoader } from './clusters';
-export { consumeLoader } from './consumes';
-export { groupLoader } from './groups';
-export { nodeLoader } from './nodes';
-export { sinkLoader } from './sinks';
-export { sourceLoader } from './sources';
-export { streamLoader } from './streams';
-export { syncLoader } from './sync';
-export { syncSinkLoader } from './syncSink';
-export { syncSourceLoader } from './syncSource';
-export { transformLoader } from './transform';
+import type { MetaExportWithBackendList } from '@/plugins/types';
+import type { SyncSinkMetaType } from '../types';
+
+export const allExtendsSinks: MetaExportWithBackendList<SyncSinkMetaType> = [
+  // You can extends at here...
+];

@@ -50,7 +50,7 @@ const Comp: React.FC<DetailModalProps> = ({
 
   const [sinkType, setSinkType] = useState('');
 
-  const { loading: pluginLoading, Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
+  const { loading: pluginLoading, Entity } = useLoadMeta<SinkMetaType>('syncSink', sinkType);
 
   const { data: groupData, run: getGroupData } = useRequest(`/group/get/${inlongGroupId}`, {
     manual: true,

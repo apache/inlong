@@ -17,14 +17,8 @@
  * under the License.
  */
 
-export { clusterLoader } from './clusters';
-export { consumeLoader } from './consumes';
-export { groupLoader } from './groups';
-export { nodeLoader } from './nodes';
-export { sinkLoader } from './sinks';
-export { sourceLoader } from './sources';
-export { streamLoader } from './streams';
-export { syncLoader } from './sync';
-export { syncSinkLoader } from './syncSink';
-export { syncSourceLoader } from './syncSource';
-export { transformLoader } from './transform';
+import { SyncSinkDefaultLoader } from './SyncSinkDefaultLoader';
+
+export class SyncSinkLoader extends SyncSinkDefaultLoader {
+  // You can extends SinkLoader at here...
+}

@@ -44,7 +44,7 @@ interface Props extends CommonInterface {
 const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   const [mode, setMode] = useState('list');
 
-  const { defaultValue } = useDefaultMeta('sink');
+  const { defaultValue } = useDefaultMeta('syncSink');
 
   const defaultOptions = {
     // keyword: '',
