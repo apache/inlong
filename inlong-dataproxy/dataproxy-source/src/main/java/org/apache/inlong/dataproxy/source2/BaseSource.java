@@ -121,10 +121,10 @@ public abstract class BaseSource
     // send buffer size
     protected int maxSendBufferSize;
     // file metric statistic
-    protected MonitorIndex monitorIndex = null;
+    private MonitorIndex monitorIndex = null;
     private MonitorStats monitorStats = null;
     // metric set
-    protected DataProxyMetricItemSet metricItemSet;
+    private DataProxyMetricItemSet metricItemSet;
 
     public BaseSource() {
         super();
@@ -133,6 +133,7 @@ public abstract class BaseSource
 
     @Override
     public void configure(Context context) {
+        logger.info("{} start to configure context:{}.", this.getName(), context.toString());
         this.context = context;
         this.srcHost = getHostIp(context);
         this.srcPort = getHostPort(context);
