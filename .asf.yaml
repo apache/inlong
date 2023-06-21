@@ -43,7 +43,7 @@ github:
     # disable rebase button:
     rebase:  false
   # enable the dependabot_alerts
-  dependabot_alerts: true≈
+  dependabot_alerts: true
   # disable the dependabot_updates
   dependabot_updates: false
 
