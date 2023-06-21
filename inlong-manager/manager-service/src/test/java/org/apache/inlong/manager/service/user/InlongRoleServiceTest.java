@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.user;
 import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
 import org.apache.inlong.manager.pojo.user.InlongRolePageRequest;
 import org.apache.inlong.manager.pojo.user.InlongRoleRequest;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.ServiceBaseTest;

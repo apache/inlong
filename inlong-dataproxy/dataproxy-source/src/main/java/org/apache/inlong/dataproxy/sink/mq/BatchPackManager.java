@@ -18,7 +18,6 @@
 package org.apache.inlong.dataproxy.sink.mq;
 
 import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.dataproxy.utils.BufferQueue;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
@@ -42,7 +41,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class BatchPackManager {
 
-    public static final Logger LOG = LoggerFactory.getLogger(BatchPackManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(BatchPackManager.class);
+
     public static final String KEY_DISPATCH_TIMEOUT = "dispatchTimeout";
     public static final String KEY_DISPATCH_MAX_PACKCOUNT = "dispatchMaxPackCount";
     public static final String KEY_DISPATCH_MAX_PACKSIZE = "dispatchMaxPackSize";
@@ -54,8 +54,7 @@ public class BatchPackManager {
     private final long dispatchTimeout;
     private final long maxPackCount;
     private final long maxPackSize;
-    private final String sinkName;
-    private final BufferQueue<PackProfile> dispatchQueue;
+    private final MessageQueueZoneSink mqZoneSink;
     private final ConcurrentHashMap<String, PackProfile> profileCache = new ConcurrentHashMap<>();
     // flag that manager need to output overtime data.
     private final AtomicBoolean needOutputOvertimeData = new AtomicBoolean(false);
@@ -65,13 +64,11 @@ public class BatchPackManager {
     /**
      * Constructor
      *
-     * @param sinkName the sink name
+     * @param mqZoneSink the mq zone sink
      * @param context the process context
-     * @param dispatchQueue  the batch queue
      */
-    public BatchPackManager(String sinkName, Context context, BufferQueue<PackProfile> dispatchQueue) {
-        this.sinkName = sinkName;
-        this.dispatchQueue = dispatchQueue;
+    public BatchPackManager(MessageQueueZoneSink mqZoneSink, Context context) {
+        this.mqZoneSink = mqZoneSink;
         this.dispatchTimeout = context.getLong(KEY_DISPATCH_TIMEOUT, DEFAULT_DISPATCH_TIMEOUT);
         this.maxPackCount = context.getLong(KEY_DISPATCH_MAX_PACKCOUNT, DEFAULT_DISPATCH_MAX_PACKCOUNT);
         this.maxPackSize = context.getLong(KEY_DISPATCH_MAX_PACKSIZE, DEFAULT_DISPATCH_MAX_PACKSIZE);
@@ -89,22 +86,22 @@ public class BatchPackManager {
         // find dispatch profile
         PackProfile dispatchProfile = this.profileCache.get(dispatchKey);
         if (dispatchProfile == null) {
-            dispatchProfile = new BatchPackProfile(eventUid, event.getInlongGroupId(), event.getInlongStreamId(),
-                    dispatchTime);
+            dispatchProfile = new BatchPackProfile(eventUid, event.getInlongGroupId(),
+                    event.getInlongStreamId(), dispatchTime);
             this.profileCache.put(dispatchKey, dispatchProfile);
         }
         // add event
-        boolean addResult = dispatchProfile.addEvent(event, maxPackCount, maxPackSize);
-        if (!addResult) {
+        if (!dispatchProfile.addEvent(event, maxPackCount, maxPackSize)) {
             BatchPackProfile newDispatchProfile = new BatchPackProfile(eventUid, event.getInlongGroupId(),
                     event.getInlongStreamId(), dispatchTime);
             PackProfile oldDispatchProfile = this.profileCache.put(dispatchKey, newDispatchProfile);
-            this.dispatchQueue.acquire(oldDispatchProfile.getSize());
-            this.dispatchQueue.offer(oldDispatchProfile);
-            outCounter.addAndGet(dispatchProfile.getCount());
+            if (oldDispatchProfile != null) {
+                this.mqZoneSink.acquireAndOfferDispatchedRecord(oldDispatchProfile);
+            }
+            this.outCounter.addAndGet(dispatchProfile.getCount());
             newDispatchProfile.addEvent(event, maxPackCount, maxPackSize);
         }
-        inCounter.incrementAndGet();
+        this.inCounter.incrementAndGet();
     }
 
     /**
@@ -122,24 +119,21 @@ public class BatchPackManager {
         dispatchProfile.setCallback(callback);
         // offer queue
         for (ProxyEvent event : packEvent.getEvents()) {
-            inCounter.incrementAndGet();
-            boolean addResult = dispatchProfile.addEvent(event, maxPackCount, maxPackSize);
-            // dispatch profile is full
-            if (!addResult) {
-                outCounter.addAndGet(dispatchProfile.getCount());
-                this.dispatchQueue.acquire(dispatchProfile.getSize());
-                this.dispatchQueue.offer(dispatchProfile);
+            if (!dispatchProfile.addEvent(event, maxPackCount, maxPackSize)) {
+                // dispatch profile is full
+                this.outCounter.addAndGet(dispatchProfile.getCount());
+                this.mqZoneSink.acquireAndOfferDispatchedRecord(dispatchProfile);
                 dispatchProfile = new BatchPackProfile(eventUid, event.getInlongGroupId(), event.getInlongStreamId(),
                         dispatchTime);
                 dispatchProfile.setCallback(callback);
                 dispatchProfile.addEvent(event, maxPackCount, maxPackSize);
             }
+            this.inCounter.incrementAndGet();
         }
         // last dispatch profile
         if (dispatchProfile.getEvents().size() > 0) {
-            outCounter.addAndGet(dispatchProfile.getCount());
-            this.dispatchQueue.acquire(dispatchProfile.getSize());
-            this.dispatchQueue.offer(dispatchProfile);
+            this.outCounter.addAndGet(dispatchProfile.getCount());
+            this.mqZoneSink.acquireAndOfferDispatchedRecord(dispatchProfile);
         }
     }
 
@@ -156,10 +150,9 @@ public class BatchPackManager {
         long dispatchTime = msgTime - msgTime % MINUTE_MS;
         SimplePackProfile profile = new SimplePackProfile(uid, inlongGroupId, inlongStreamId, dispatchTime);
         profile.addEvent(event, maxPackCount, maxPackSize);
-        this.dispatchQueue.acquire(profile.getSize());
-        this.dispatchQueue.offer(profile);
-        outCounter.addAndGet(profile.getCount());
-        inCounter.incrementAndGet();
+        this.mqZoneSink.acquireAndOfferDispatchedRecord(profile);
+        this.outCounter.addAndGet(profile.getCount());
+        this.inCounter.incrementAndGet();
     }
 
     /**
@@ -171,7 +164,7 @@ public class BatchPackManager {
             return;
         }
         int profileSize = profileCache.size();
-        int dispatchSize = dispatchQueue.size();
+        int dispatchSize = this.mqZoneSink.getDispatchQueueSize();
         long currentTime = System.currentTimeMillis();
         long createThreshold = currentTime - dispatchTimeout;
         List<String> removeKeys = new ArrayList<>();
@@ -188,19 +181,18 @@ public class BatchPackManager {
         removeKeys.forEach((key) -> {
             PackProfile dispatchProfile = this.profileCache.remove(key);
             if (dispatchProfile != null) {
-                this.dispatchQueue.acquire(dispatchProfile.getSize());
-                dispatchQueue.offer(dispatchProfile);
-                outCounter.addAndGet(dispatchProfile.getCount());
+                this.mqZoneSink.acquireAndOfferDispatchedRecord(dispatchProfile);
+                this.outCounter.addAndGet(dispatchProfile.getCount());
             }
         });
         long hisInCnt = inCounter.getAndSet(0);
         long hisOutCnt = outCounter.getAndSet(0);
         if (!removeKeys.isEmpty()) {
-            LOG.info("{} output overtime data, profileCacheSize: before={}, after={},"
+            logger.info("{} output overtime data, profileCacheSize: before={}, after={},"
                     + " dispatchQueueSize: before={}, after={}, eventCount: {},"
                     + " inCounter: {}, outCounter: {}",
-                    sinkName, profileSize, profileCache.size(), dispatchSize, dispatchQueue.size(),
-                    eventCount, hisInCnt, hisOutCnt);
+                    mqZoneSink.getName(), profileSize, profileCache.size(), dispatchSize,
+                    this.mqZoneSink.getDispatchQueueSize(), eventCount, hisInCnt, hisOutCnt);
         }
     }
 

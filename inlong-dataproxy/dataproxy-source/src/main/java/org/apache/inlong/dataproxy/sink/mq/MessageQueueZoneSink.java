@@ -17,9 +17,10 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
+import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.sink.common.SinkContext;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
@@ -47,7 +48,9 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class MessageQueueZoneSink extends AbstractSink implements Configurable, ConfigUpdateCallback {
 
-    public static final Logger LOG = LoggerFactory.getLogger(MessageQueueZoneSink.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageQueueZoneSink.class);
+    // log print count
+    private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
 
     private final long MQ_CLUSTER_STATUS_CHECK_DUR_MS = 2000L;
 
@@ -56,7 +59,8 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
     private final List<MessageQueueZoneWorker> workers = new ArrayList<>();
     // message group
     private BatchPackManager dispatchManager;
-    private BufferQueue<PackProfile> dispatchQueue;
+    private final BufferQueue<PackProfile> dispatchQueue =
+            new BufferQueue<>(CommonConfigHolder.getInstance().getMaxBufferQueueSizeKb());
     // scheduled thread pool
     // reload
     // dispatch
@@ -71,6 +75,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
     private volatile boolean isShutdown = false;
     // whether mq cluster connected
     private volatile boolean mqClusterStarted = false;
+
     /**
      * configure
      * 
@@ -78,7 +83,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
      */
     @Override
     public void configure(Context context) {
-        LOG.info("start to configure:{}, context:{}.", this.getClass().getSimpleName(), context.toString());
+        logger.info("{} start to configure, context:{}.", this.getName(), context.toString());
         this.parentContext = context;
     }
 
@@ -87,16 +92,14 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
      */
     @Override
     public void start() {
+        if (getChannel() == null) {
+            logger.error("{}'s channel is null", this.getName());
+        }
         try {
             ConfigManager.getInstance().regMetaConfigChgCallback(this);
-            // build dispatch queue
-            this.dispatchQueue = SinkContext.createBufferQueue();
-            this.context = new MessageQueueZoneSinkContext(getName(), parentContext, getChannel(), this.dispatchQueue);
-            if (getChannel() == null) {
-                LOG.error(getName() + "'s channel is null");
-            }
+            this.context = new MessageQueueZoneSinkContext(this, parentContext, getChannel());
             this.context.start();
-            this.dispatchManager = new BatchPackManager(getName(), parentContext, dispatchQueue);
+            this.dispatchManager = new BatchPackManager(this, parentContext);
             this.scheduledPool = Executors.newScheduledThreadPool(2);
             // dispatch
             this.scheduledPool.scheduleWithFixedDelay(new Runnable() {
@@ -112,16 +115,18 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
             this.zoneProducer.start();
             // start configure change listener thread
             this.configListener = new Thread(new ConfigChangeProcessor());
-            this.configListener.setName(getName() + " configure listener");
+            this.configListener.setName(getName() + "-configure-listener");
             this.configListener.start();
             // create worker
+            MessageQueueZoneWorker zoneWorker;
             for (int i = 0; i < context.getMaxThreads(); i++) {
-                MessageQueueZoneWorker worker = new MessageQueueZoneWorker(this.getName(), i, context, zoneProducer);
-                worker.start();
-                this.workers.add(worker);
+                zoneWorker = new MessageQueueZoneWorker(this, i,
+                        context.getProcessInterval(), zoneProducer);
+                zoneWorker.start();
+                this.workers.add(zoneWorker);
             }
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            logger.error("{} start failure", this.getName(), e);
         }
         super.start();
     }
@@ -147,7 +152,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
             try {
                 worker.close();
             } catch (Throwable e) {
-                LOG.error(e.getMessage(), e);
+                logger.error("{} stop Zone worker failure", this.getName(), e);
             }
         }
         this.context.close();
@@ -208,16 +213,52 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
             this.context.addSendFailMetric();
             return Status.READY;
         } catch (Throwable t) {
-            LOG.error("Process event failed!" + this.getName(), t);
+            if (logCounter.shouldPrint()) {
+                logger.error("{} process event failed!", this.getName(), t);
+            }
             try {
                 tx.rollback();
             } catch (Throwable e) {
-                LOG.error("Channel take transaction rollback exception:" + getName(), e);
+                if (logCounter.shouldPrint()) {
+                    logger.error("{} channel take transaction rollback exception", this.getName(), e);
+                }
             }
             return Status.BACKOFF;
         } finally {
             tx.close();
         }
+    }
+    public boolean isMqClusterStarted() {
+        return mqClusterStarted;
+    }
+
+    public void setMQClusterStarted() {
+        this.mqClusterStarted = true;
+    }
+
+    public void acquireAndOfferDispatchedRecord(PackProfile record) {
+        this.dispatchQueue.acquire(record.getSize());
+        this.dispatchQueue.offer(record);
+    }
+
+    public void offerDispatchRecord(PackProfile record) {
+        this.dispatchQueue.offer(record);
+    }
+
+    public PackProfile pollDispatchedRecord() {
+        return this.dispatchQueue.pollRecord();
+    }
+
+    public void releaseAcquiredSizePermit(PackProfile record) {
+        this.dispatchQueue.release(record.getSize());
+    }
+
+    public int getDispatchQueueSize() {
+        return this.dispatchQueue.size();
+    }
+
+    public int getDispatchAvailablePermits() {
+        return this.dispatchQueue.availablePermits();
     }
 
     @Override
@@ -229,14 +270,13 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
         syncLock.notifyAll();
     }
 
-    public boolean isMqClusterStarted() {
-        return mqClusterStarted;
-    }
-
-    public void setMQClusterStarted() {
-        this.mqClusterStarted = true;
-    }
-
+    /**
+     * ConfigChangeProcessor
+     *
+     * Metadata configuration change listener class, when the metadata change notification
+     * arrives, check and change the mapping relationship between the mq cluster information
+     * and the configured inlongid to Topic,
+     */
     private class ConfigChangeProcessor implements Runnable {
 
         @Override
@@ -246,7 +286,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
                 try {
                     syncLock.wait();
                 } catch (InterruptedException e) {
-                    LOG.error("{} config-change processor meet interrupt, exit!", getName());
+                    logger.error("{} config-change processor meet interrupt, exit!", getName());
                     break;
                 } catch (Throwable e2) {
                     //

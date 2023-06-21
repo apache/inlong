@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.web.auth.openapi;
 
 import org.apache.inlong.common.util.BasicAuth;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
-import org.apache.inlong.manager.service.user.LoginUserUtils;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

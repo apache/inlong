@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.user;
-
-import org.apache.inlong.manager.pojo.user.UserInfo;
+package org.apache.inlong.manager.pojo.user;
 
 import lombok.extern.slf4j.Slf4j;
 

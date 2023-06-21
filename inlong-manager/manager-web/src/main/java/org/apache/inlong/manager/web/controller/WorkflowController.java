@@ -20,6 +20,7 @@ package org.apache.inlong.manager.web.controller;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
@@ -35,7 +36,6 @@ import org.apache.inlong.manager.pojo.workflow.WorkflowExecuteLog;
 import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
-import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 
 import io.swagger.annotations.Api;
