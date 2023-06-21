@@ -17,14 +17,14 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import java.util.function.Supplier;
+
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
-
+import java.util.function.Supplier;
 /**
  * AuthInterceptor
  * Before okhttp call a request, uniformly encapsulate the relevant parameters of authentication
