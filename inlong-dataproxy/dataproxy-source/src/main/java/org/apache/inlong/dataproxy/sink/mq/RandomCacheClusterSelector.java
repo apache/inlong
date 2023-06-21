@@ -44,7 +44,7 @@ public class RandomCacheClusterSelector implements CacheClusterSelector, Configu
 
     /**
      * select
-     * @param allClusterList
+     * @param allConfigList
      * @return
      */
     @Override

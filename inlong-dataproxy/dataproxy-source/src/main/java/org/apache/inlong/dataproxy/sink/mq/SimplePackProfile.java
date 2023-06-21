@@ -25,7 +25,6 @@ import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.source2.InLongMessageHandler;
-import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 
@@ -46,10 +45,9 @@ import java.util.Map;
  */
 public class SimplePackProfile extends PackProfile {
 
-    // log print count
-    private static final LogCounter logCounter =
-            new LogCounter(10, 100000, 30 * 1000);
     private static final Logger logger = LoggerFactory.getLogger(SimplePackProfile.class);
+    // log print count
+    private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
     private static final long MINUTE_MS = 60L * 1000;
     private boolean needRspEvent = false;
     private Channel channel;
@@ -154,9 +152,10 @@ public class SimplePackProfile extends PackProfile {
      */
     public Map<String, String> getPropsToMQ() {
         Map<String, String> result = new HashMap<>();
-        result.put(Constants.HEADER_KEY_SOURCE_TIME, event.getHeaders().get(AttributeConstants.RCV_TIME));
+        result.put(AttributeConstants.RCV_TIME, event.getHeaders().get(AttributeConstants.RCV_TIME));
         result.put(ConfigConstants.MSG_ENCODE_VER, event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER));
         result.put(EventConstants.HEADER_KEY_VERSION, event.getHeaders().get(EventConstants.HEADER_KEY_VERSION));
+        result.put(ConfigConstants.REMOTE_IP_KEY, event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY));
         result.put(ConfigConstants.DATAPROXY_IP_KEY, NetworkUtils.getLocalIp());
         return result;
     }

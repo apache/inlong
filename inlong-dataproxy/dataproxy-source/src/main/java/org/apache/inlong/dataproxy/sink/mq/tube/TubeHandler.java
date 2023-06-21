@@ -55,7 +55,7 @@ import java.util.Set;
  */
 public class TubeHandler implements MessageQueueHandler {
 
-    public static final Logger LOG = LoggerFactory.getLogger(TubeHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(TubeHandler.class);
     // log print count
     private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
 
@@ -98,12 +98,12 @@ public class TubeHandler implements MessageQueueHandler {
         try {
             // prepare configuration
             TubeClientConfig conf = initTubeConfig();
-            LOG.info("try to create producer:{}", conf.toJsonString());
+            logger.info("try to create producer:{}", conf.toJsonString());
             this.sessionFactory = new TubeMultiSessionFactory(conf);
             this.producer = sessionFactory.createProducer();
-            LOG.info("create new producer success:{}", producer);
+            logger.info("create new producer success:{}", producer);
         } catch (Throwable e) {
-            LOG.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -116,10 +116,10 @@ public class TubeHandler implements MessageQueueHandler {
         try {
             published = producer.publish(newTopicSet);
             this.topicSet.addAll(newTopicSet);
-            LOG.info("Publish topics to {}, need publish are {}, published are {}",
+            logger.info("Publish topics to {}, need publish are {}, published are {}",
                     this.clusterName, newTopicSet, published);
         } catch (Throwable e) {
-            LOG.warn("Publish topics to {} failure", this.clusterName, e);
+            logger.warn("Publish topics to {} failure", this.clusterName, e);
         }
     }
 
@@ -166,17 +166,17 @@ public class TubeHandler implements MessageQueueHandler {
             try {
                 this.producer.shutdown();
             } catch (Throwable e) {
-                LOG.error(e.getMessage(), e);
+                logger.error(e.getMessage(), e);
             }
         }
         if (this.sessionFactory != null) {
             try {
                 this.sessionFactory.shutdown();
             } catch (TubeClientException e) {
-                LOG.error(e.getMessage(), e);
+                logger.error(e.getMessage(), e);
             }
         }
-        LOG.info("tube handler stopped");
+        logger.info("tube handler stopped");
     }
 
     /**
@@ -193,7 +193,7 @@ public class TubeHandler implements MessageQueueHandler {
                     sinkContext.fileMetricIncWithDetailStats(
                             StatConstants.EVENT_SINK_CONFIG_TOPIC_MISSING, profile.getUid());
                     sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
-                    sinkContext.getDispatchQueue().release(profile.getSize());
+                    sinkContext.getMqZoneSink().releaseAcquiredSizePermit(profile);
                     profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
                     return false;
                 }
@@ -201,7 +201,7 @@ public class TubeHandler implements MessageQueueHandler {
                 if (StringUtils.isEmpty(topic)) {
                     sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_DEFAULT_TOPIC_MISSING);
                     sinkContext.addSendResultMetric(profile, clusterName, profile.getUid(), false, 0);
-                    sinkContext.getDispatchQueue().release(profile.getSize());
+                    sinkContext.getMqZoneSink().releaseAcquiredSizePermit(profile);
                     profile.fail(DataProxyErrCode.GROUPID_OR_STREAMID_NOT_CONFIGURE, "");
                     return false;
                 }
@@ -233,7 +233,7 @@ public class TubeHandler implements MessageQueueHandler {
             sinkContext.processSendFail(profile, clusterName, profile.getUid(), 0,
                     DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
             if (logCounter.shouldPrint()) {
-                LOG.error("Send Message to Tube failure", ex);
+                logger.error("Send Message to Tube failure", ex);
             }
             return false;
         }
@@ -270,14 +270,14 @@ public class TubeHandler implements MessageQueueHandler {
                 if (result.isSuccess()) {
                     sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
                     sinkContext.addSendResultMetric(batchProfile, clusterName, topic, true, sendTime);
-                    sinkContext.getDispatchQueue().release(batchProfile.getSize());
+                    sinkContext.getMqZoneSink().releaseAcquiredSizePermit(batchProfile);
                     batchProfile.ack();
                 } else {
                     sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_FAILURE);
                     sinkContext.processSendFail(batchProfile, clusterName, topic, sendTime,
                             DataProxyErrCode.MQ_RETURN_ERROR, result.getErrMsg());
                     if (logCounter.shouldPrint()) {
-                        LOG.error("Send ProfileV1 to tube failure {}", result.getErrMsg());
+                        logger.error("Send ProfileV1 to tube failure {}", result.getErrMsg());
                     }
                 }
             }
@@ -288,7 +288,7 @@ public class TubeHandler implements MessageQueueHandler {
                 sinkContext.processSendFail(batchProfile, clusterName, topic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
-                    LOG.error("Send ProfileV1 to tube exception", ex);
+                    logger.error("Send ProfileV1 to tube exception", ex);
                 }
             }
         };
@@ -319,7 +319,7 @@ public class TubeHandler implements MessageQueueHandler {
                     sinkContext.fileMetricAddSuccCnt(simpleProfile, topic, result.getPartition().getHost());
                     sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_SUCCESS);
                     sinkContext.addSendResultMetric(simpleProfile, clusterName, topic, true, sendTime);
-                    sinkContext.getDispatchQueue().release(simpleProfile.getSize());
+                    sinkContext.getMqZoneSink().releaseAcquiredSizePermit(simpleProfile);
                     simpleProfile.ack();
                 } else {
                     sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_FAILURE,
@@ -328,7 +328,7 @@ public class TubeHandler implements MessageQueueHandler {
                     sinkContext.processSendFail(simpleProfile, clusterName, topic, sendTime,
                             DataProxyErrCode.MQ_RETURN_ERROR, result.getErrMsg());
                     if (logCounter.shouldPrint()) {
-                        LOG.error("Send SimpleProfileV0 to tube failure: {}", result.getErrMsg());
+                        logger.error("Send SimpleProfileV0 to tube failure: {}", result.getErrMsg());
                     }
                 }
             }
@@ -340,7 +340,7 @@ public class TubeHandler implements MessageQueueHandler {
                 sinkContext.processSendFail(simpleProfile, clusterName, topic, sendTime,
                         DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 if (logCounter.shouldPrint()) {
-                    LOG.error("Send SimpleProfileV0 to tube exception", ex);
+                    logger.error("Send SimpleProfileV0 to tube exception", ex);
                 }
             }
         };

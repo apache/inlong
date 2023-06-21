@@ -39,7 +39,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class MessageQueueZoneProducer {
 
-    public static final Logger LOG = LoggerFactory.getLogger(MessageQueueZoneProducer.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageQueueZoneProducer.class);
     private static final long MAX_RESERVED_TIME = 60 * 1000L;
     private final MessageQueueZoneSink zoneSink;
     private final MessageQueueZoneSinkContext context;
@@ -71,10 +71,10 @@ public class MessageQueueZoneProducer {
      */
     public void start() {
         try {
-            LOG.info("start MessageQueueZoneProducer:{}", zoneSink.getName());
+            logger.info("start MessageQueueZoneProducer:{}", zoneSink.getName());
             this.reloadMetaConfig();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -140,7 +140,7 @@ public class MessageQueueZoneProducer {
                 tmpProducer.stop();
             }
         }
-        LOG.info("Clear {}'s expired cluster producer {}", zoneSink.getName(), expired);
+        logger.info("{} cleared expired cluster producer {}", zoneSink.getName(), expired);
     }
 
     /**
@@ -264,17 +264,17 @@ public class MessageQueueZoneProducer {
                 return;
             }
             if (zoneSink.isMqClusterStarted()) {
-                LOG.info("Reload {}'s cluster info, current cluster are {}, removed {}, created {}",
+                logger.info("{} reload cluster info, current cluster are {}, removed {}, created {}",
                         zoneSink.getName(), lastClusterNames, needRmvs, addedItems);
             } else {
                 zoneSink.setMQClusterStarted();
                 ConfigManager.getInstance().setMqClusterReady();
-                LOG.info(
-                        "Reload {}'s cluster info, and updated sink status, current cluster are {}, removed {}, created {}",
+                logger.info(
+                        "{} reload cluster info, and updated sink status, current cluster are {}, removed {}, created {}",
                         zoneSink.getName(), lastClusterNames, needRmvs, addedItems);
             }
         } catch (Throwable e) {
-            LOG.error("Reload cluster info failure", e);
+            logger.error("{} reload cluster info failure", zoneSink.getName(), e);
         }
     }
 
@@ -283,7 +283,7 @@ public class MessageQueueZoneProducer {
         if (curTopicSet.isEmpty() || lastRefreshTopics.equals(curTopicSet)) {
             return;
         }
-        LOG.info("Reload {}'s topics changed, current topics are {}, last topics are {}",
+        logger.info("{} reload topics changed, current topics are {}, last topics are {}",
                 zoneSink.getName(), curTopicSet, lastRefreshTopics);
         lastRefreshTopics.addAll(curTopicSet);
         for (MessageQueueClusterProducer clusterProducer : this.usingClusterMap.values()) {
