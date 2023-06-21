@@ -28,9 +28,9 @@ import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.node.DataNodeService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
-import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;

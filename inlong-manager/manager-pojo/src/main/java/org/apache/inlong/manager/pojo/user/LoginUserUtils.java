@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.user;
 
-import org.apache.inlong.manager.pojo.user.UserInfo;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
