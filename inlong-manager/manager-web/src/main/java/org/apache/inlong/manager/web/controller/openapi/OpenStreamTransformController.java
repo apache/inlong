@@ -25,9 +25,9 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.transform.DeleteTransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.transform.StreamTransformService;
-import org.apache.inlong.manager.service.user.LoginUserUtils;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
