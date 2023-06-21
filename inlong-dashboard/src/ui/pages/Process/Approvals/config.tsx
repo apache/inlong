@@ -22,7 +22,7 @@ import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import { statusList, genStatusTag } from './status';
 import { timestampFormat } from '@/core/utils';
-import { Tag } from 'antd';
+import StatusTag from '@/ui/components/StatusTag';
 
 export const getFilterFormContent = defaultValues => [
   {
@@ -79,9 +79,9 @@ export const getColumns = activedName => [
     dataIndex: 'inlongGroupMode',
     render: (text, record) => {
       return record.showInList?.inlongGroupMode === 1 ? (
-        <Tag color="green">{i18n.t('pages.Approvals.GroupMode.DataSync')}</Tag>
+        <StatusTag type={'success'} title={i18n.t('pages.Approvals.GroupMode.DataSync')} />
       ) : (
-        <Tag color="blue">{i18n.t('pages.Approvals.GroupMode.Integration')}</Tag>
+        <StatusTag type={'primary'} title={i18n.t('pages.Approvals.GroupMode.Integration')} />
       );
     },
   },
