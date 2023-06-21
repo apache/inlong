@@ -64,6 +64,7 @@ public class ApplyGroupProcessForm extends BaseProcessForm {
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
         show.put("inlongGroupId", groupInfo.getInlongGroupId());
+        show.put("inlongGroupMode", groupInfo.getInlongGroupMode());
         return show;
     }
 }
