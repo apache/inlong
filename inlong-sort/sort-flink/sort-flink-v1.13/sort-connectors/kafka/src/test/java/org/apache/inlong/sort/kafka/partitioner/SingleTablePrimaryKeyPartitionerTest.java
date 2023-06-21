@@ -100,7 +100,6 @@ public class SingleTablePrimaryKeyPartitionerTest {
         record.setRowKind(kind);
         int partition = singleTablePrimaryKeyPartitioner.partition(record, null,
                 null, null, new int[]{0, 1, 2, 3});
-        System.out.println(partition);
         Assert.assertEquals(0, partition);
     }
 }
