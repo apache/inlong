@@ -952,7 +952,7 @@ The text of each license is the standard Apache 2.0 license.
   org.reflections:reflections:0.10.2 - Reflections (https://github.com/ronmamo/reflections/tree/0.10.2), (The Apache Software License, Version 2.0;  WTFPL)
   org.yaml:snakeyaml:1.17 - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml/src/v1.17/), (Apache License, Version 2.0)
   org.yaml:snakeyaml:1.26 - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml/src/v1.26/), (Apache License, Version 2.0)
-  org.xerial.snappy:snappy-java:1.1.8.4 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
+  org.xerial.snappy:snappy-java:1.1.10.1 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
   com.tdunning:t-digest:3.2 - T-Digest (https://github.com/tdunning/t-digest/tree/t-digest-3.2), (The Apache Software License, Version 2.0)
   javax.validation:validation-api:1.1.0.Final - Bean Validation API (http://beanvalidation.org), (The Apache Software License, Version 2.0)
   com.fasterxml.woodstox:woodstox-core:5.0.3 - Woodstox (https://github.com/FasterXML/woodstox/tree/woodstox-core-5.0.3), (The Apache License, Version 2.0)
