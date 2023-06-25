@@ -86,10 +86,8 @@ public class IdTopicConfig {
     public String getPulsarTopicName(String clusterTenant, String clusterNameSpace) {
         StringBuilder builder = new StringBuilder(256);
         // build tenant
-        if (StringUtils.isBlank(tenant)
-                || "null".equalsIgnoreCase(tenant)) {
-            if (StringUtils.isBlank(clusterTenant)
-                    || "null".equalsIgnoreCase(clusterTenant)) {
+        if (StringUtils.isBlank(tenant)) {
+            if (StringUtils.isBlank(clusterTenant)) {
                 builder.append(DEFAULT_PULSAR_TENANT).append("/");
             } else {
                 builder.append(clusterTenant).append("/");
@@ -98,8 +96,7 @@ public class IdTopicConfig {
             builder.append(tenant).append("/");
         }
         // build name space
-        if (StringUtils.isBlank(this.nameSpace)
-                || "null".equalsIgnoreCase(this.nameSpace)) {
+        if (StringUtils.isBlank(this.nameSpace)) {
             builder.append(clusterNameSpace).append("/");
         } else {
             builder.append(this.nameSpace).append("/");
