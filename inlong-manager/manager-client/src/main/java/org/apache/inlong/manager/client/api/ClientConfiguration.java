@@ -53,4 +53,6 @@ public class ClientConfiguration implements Serializable {
     private boolean isUseTls = false;
 
     private boolean retryOnConnectionFailure = true;
+
+    private String tenant = "public";
 }
