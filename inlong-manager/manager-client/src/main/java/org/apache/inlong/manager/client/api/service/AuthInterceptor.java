@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
