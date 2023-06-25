@@ -25,14 +25,14 @@ import org.apache.commons.lang3.StringUtils;
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
 
 /**
- * The postgresql field type mapping strategy
+ * The mysql field type mapping strategy
  */
-public class PostgreSQLFieldTypeStrategy implements FieldTypeMappingStrategy {
+public class MySQLFieldTypeStrategy implements FieldTypeMappingStrategy {
 
     private final FieldTypeMappingReader reader;
 
-    public PostgreSQLFieldTypeStrategy() {
-        this.reader = new FieldTypeMappingReader(DataNodeType.POSTGRESQL);
+    public MySQLFieldTypeStrategy() {
+        this.reader = new FieldTypeMappingReader(DataNodeType.MYSQL);
     }
 
     @Override
