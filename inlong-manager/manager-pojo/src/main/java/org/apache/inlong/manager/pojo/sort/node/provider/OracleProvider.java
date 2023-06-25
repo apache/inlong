@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.StreamType;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.OracleFieldTypeStrategy;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSink;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.base.LoadNodeProvider;
@@ -42,6 +44,8 @@ import java.util.Map;
  */
 public class OracleProvider implements ExtractNodeProvider, LoadNodeProvider {
 
+    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new OracleFieldTypeStrategy();
+
     @Override
     public Boolean accept(String streamType) {
         return StreamType.ORACLE.equals(streamType);
@@ -50,7 +54,8 @@ public class OracleProvider implements ExtractNodeProvider, LoadNodeProvider {
     @Override
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         OracleSource source = (OracleSource) streamNodeInfo;
-        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName());
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName(),
+                FIELD_TYPE_MAPPING_STRATEGY);
         Map<String, String> properties = parseProperties(source.getProperties());
 
         ScanStartUpMode scanStartupMode = StringUtils.isBlank(source.getScanStartupMode())
@@ -77,7 +82,8 @@ public class OracleProvider implements ExtractNodeProvider, LoadNodeProvider {
     public LoadNode createLoadNode(StreamNode nodeInfo, Map<String, StreamField> constantFieldMap) {
         OracleSink oracleSink = (OracleSink) nodeInfo;
         Map<String, String> properties = parseProperties(oracleSink.getProperties());
-        List<FieldInfo> fieldInfos = parseSinkFieldInfos(oracleSink.getSinkFieldList(), oracleSink.getSinkName());
+        List<FieldInfo> fieldInfos = parseSinkFieldInfos(oracleSink.getSinkFieldList(), oracleSink.getSinkName(),
+                FIELD_TYPE_MAPPING_STRATEGY);
         List<FieldRelation> fieldRelations = parseSinkFields(oracleSink.getSinkFieldList(), constantFieldMap);
 
         return new OracleLoadNode(
