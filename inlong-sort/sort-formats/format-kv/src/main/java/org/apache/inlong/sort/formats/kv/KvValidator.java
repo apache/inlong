@@ -33,7 +33,6 @@ public class KvValidator implements DescriptorValidator {
         TableFormatUtils.getValidateProperties(properties);
         properties.validateString(TableFormatConstants.FORMAT_ENTRY_DELIMITER, true, 1, 1);
         properties.validateString(TableFormatConstants.FORMAT_KV_DELIMITER, true, 1, 1);
-        properties.validateString(TableFormatConstants.FORMAT_ESCAPE_CHARACTER, true, 1, 1);
         properties.validateString(TableFormatConstants.FORMAT_QUOTE_CHARACTER, true, 1, 1);
 
         TableFormatUtils.validateSchema(properties);

@@ -616,5 +616,6 @@ public class TableFormatUtils {
     public static void getValidateProperties(DescriptorProperties properties) {
         properties.validateString(TableFormatConstants.FORMAT_TYPE, false, 1);
         properties.validateString(FORMAT_PROPERTY_VERSION, true, 1);
+        properties.validateString(TableFormatConstants.FORMAT_ESCAPE_CHARACTER, true, 1, 1);
     }
 }

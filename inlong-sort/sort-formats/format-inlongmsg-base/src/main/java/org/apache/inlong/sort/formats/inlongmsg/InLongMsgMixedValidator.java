@@ -34,7 +34,6 @@ public class InLongMsgMixedValidator implements DescriptorValidator {
         properties.validateString(TableFormatConstants.FORMAT_DELIMITER, true, 1, 1);
         properties.validateString(TableFormatConstants.FORMAT_ENTRY_DELIMITER, true, 1, 1);
         properties.validateString(TableFormatConstants.FORMAT_KV_DELIMITER, true, 1, 1);
-        properties.validateString(TableFormatConstants.FORMAT_ESCAPE_CHARACTER, true, 1, 1);
         properties.validateString(TableFormatConstants.FORMAT_QUOTE_CHARACTER, true, 1, 1);
         properties.validateBoolean(TableFormatConstants.FORMAT_IGNORE_ERRORS, true);
     }
