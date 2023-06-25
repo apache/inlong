@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.MySQLFieldTypeStrategy;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
@@ -35,6 +37,8 @@ import java.util.Map;
  */
 public class MySQLBinlogProvider implements ExtractNodeProvider {
 
+    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new MySQLFieldTypeStrategy();
+
     @Override
     public Boolean accept(String sourceType) {
         return SourceType.MYSQL_BINLOG.equals(sourceType);
@@ -43,7 +47,8 @@ public class MySQLBinlogProvider implements ExtractNodeProvider {
     @Override
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         MySQLBinlogSource binlogSource = (MySQLBinlogSource) streamNodeInfo;
-        List<FieldInfo> fieldInfos = parseStreamFieldInfos(binlogSource.getFieldList(), binlogSource.getSourceName());
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(binlogSource.getFieldList(), binlogSource.getSourceName(),
+                FIELD_TYPE_MAPPING_STRATEGY);
         Map<String, String> properties = parseProperties(binlogSource.getProperties());
 
         final String database = binlogSource.getDatabaseWhiteList();
