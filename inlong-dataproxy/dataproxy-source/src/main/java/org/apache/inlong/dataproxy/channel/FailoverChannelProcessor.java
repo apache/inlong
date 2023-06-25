@@ -21,6 +21,7 @@ import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.exception.MainChannelFullException;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
+import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -277,7 +278,8 @@ public class FailoverChannelProcessor
             }
         }
         if (!success) {
-            if (MessageUtils.isSyncSendForOrder(event)) {
+            if (MessageUtils.isSyncSendForOrder(event)
+                    || event instanceof ProxyPackEvent) {
                 throw new MainChannelFullException(errMsg);
             }
             List<Channel> optionalChannels = selector.getOptionalChannels(event);
