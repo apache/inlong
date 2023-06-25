@@ -23,6 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import { useRequest } from '@/ui/hooks';
 import i18n from '@/i18n';
 import { ColumnsType } from 'antd/es/table';
+import { timestampFormat } from '@/core/utils';
 
 export interface Props extends ModalProps {
   inlongGroupId: string;
@@ -56,6 +57,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
     {
       title: i18n.t('pages.GroupDetail.Stream.Dt'),
       dataIndex: 'dt',
+      render: text => text && timestampFormat(text),
     },
     {
       title: i18n.t('pages.GroupDetail.Stream.Content'),
