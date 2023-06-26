@@ -55,8 +55,8 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleTcpSource.class);
     private static final String CONNECTIONS = "connections";
-
     protected int maxConnections = Integer.MAX_VALUE;
+    protected long msgValidThreshold;
     protected Context context;
 
     private ServerBootstrap bootstrap = null;
@@ -86,6 +86,8 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
     private static int DEFAULT_MAX_THREADS = 32;
 
     private static int DEFAULT_MAX_CONNECTIONS = 5000;
+
+    private static long DEFAULT_MSG_VALID_THRESHOLD = 7L;
 
     private static int MIN_MSG_LENGTH = 4;
 
@@ -160,11 +162,11 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
             Constructor ctor =
                     clazz.getConstructor(AbstractSource.class, ChannelGroup.class,
                             ServiceDecoder.class, String.class,
-                            Integer.class, Integer.class, String.class);
+                            Integer.class, Integer.class, Long.class, String.class);
             logger.info("Using channel processor:{}", this.getClass().getName());
             fac = (ChannelInitializer) ctor
                     .newInstance(this, allChannels, serviceDecoder,
-                            messageHandlerName, maxMsgLength, maxConnections, this.getName());
+                            messageHandlerName, maxMsgLength, maxConnections, msgValidThreshold, this.getName());
 
         } catch (Exception e) {
             logger.error(
@@ -245,6 +247,13 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         } catch (NumberFormatException e) {
             logger.warn("BaseSource\'s \"connections\" property must specify an integer value.",
                     context.getString(CONNECTIONS));
+        }
+
+        try {
+            msgValidThreshold = context.getLong(ConfigConstants.MSGVALID, DEFAULT_MSG_VALID_THRESHOLD);
+        } catch (NumberFormatException e) {
+            logger.warn("BaseSource\'s \"msg.valid.threshold\" property must specify a long value.",
+                    context.getString(ConfigConstants.MSGVALID));
         }
 
         msgFactoryName = context.getString(ConfigConstants.MSG_FACTORY_NAME,
