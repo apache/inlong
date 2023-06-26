@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.dao.interceptor;
 
-import org.apache.inlong.manager.common.tenant.MultitenantQueryFilter;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
@@ -43,11 +43,13 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.util.Properties;
 
+/**
+ * Interceptor for multi-tenant.
+ */
 @Intercepts({
-        @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class
-        })
+        @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})
 })
-public class MultitenantInterceptor implements Interceptor {
+public class MultiTenantInterceptor implements Interceptor {
 
     private static final String TENANT_CONDITION = "tenant=";
 
@@ -59,7 +61,7 @@ public class MultitenantInterceptor implements Interceptor {
         MappedStatement mappedStatement = (MappedStatement) metaObject.getValue("delegate.mappedStatement");
 
         String fullMethodName = mappedStatement.getId();
-        if (!MultitenantQueryFilter.isMultitenantQuery(fullMethodName.split("_")[0])) {
+        if (!MultiTenantQueryFilter.isMultiTenantQuery(fullMethodName.split(InlongConstants.UNDERSCORE)[0])) {
             return invocation.proceed();
         }
 
@@ -81,6 +83,8 @@ public class MultitenantInterceptor implements Interceptor {
             if (where.toString().contains(TENANT_CONDITION)) {
                 return invocation.proceed();
             }
+
+            // else, append the tenant condition
             whereSql.append(" and ( ").append(where).append(" )");
             Expression expression = CCJSqlParserUtil.parseCondExpression(whereSql.toString());
             plain.setWhere(expression);
@@ -89,7 +93,7 @@ public class MultitenantInterceptor implements Interceptor {
         return invocation.proceed();
     }
 
-    private String getTenant() {
+    private static String getTenant() {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         if (userInfo == null) {
             throw new IllegalStateException("current login user is null, please login first");

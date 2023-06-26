@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface MutitenancyQuery {
+public @interface MultiTenantQuery {
 
     boolean with() default true;
 }

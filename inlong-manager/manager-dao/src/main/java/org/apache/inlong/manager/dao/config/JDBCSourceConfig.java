@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.dao.config;
 
-import org.apache.inlong.manager.dao.interceptor.MultitenantInterceptor;
+import org.apache.inlong.manager.dao.interceptor.MultiTenantInterceptor;
 
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -54,7 +54,7 @@ public class JDBCSourceConfig {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(dataSource());
         bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mappers/*.xml"));
-        Objects.requireNonNull(bean.getObject()).getConfiguration().addInterceptor(new MultitenantInterceptor());
+        Objects.requireNonNull(bean.getObject()).getConfiguration().addInterceptor(new MultiTenantInterceptor());
         Objects.requireNonNull(bean.getObject()).getConfiguration().setMapUnderscoreToCamelCase(true);
         return bean.getObject();
     }

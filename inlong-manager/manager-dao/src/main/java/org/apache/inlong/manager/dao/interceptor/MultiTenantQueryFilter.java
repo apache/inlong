@@ -15,13 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.tenant;
+package org.apache.inlong.manager.dao.interceptor;
 
-import lombok.experimental.UtilityClass;
+import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
+
 import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,35 +33,44 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Utils to check if SQLs from some method should and tenant condition or not.
+ * Filter to check if SQLs from some method should add tenant condition or not.
  */
 @Slf4j
-@UtilityClass
-public class MultitenantQueryFilter {
+@Component
+public class MultiTenantQueryFilter {
 
     private static final String METHOD_FILTER_PATH = "org.apache.inlong.manager.dao.mapper";
 
     private static final Set<String> METHOD_SET = new HashSet<>();
 
-    public static boolean isMultitenantQuery(String methodName) {
+    /**
+     * Check whether the specified method supports multi-tenant queries.
+     *
+     * @param methodName method name
+     * @return true if supports multi-tenant query, false if not
+     */
+    public static boolean isMultiTenantQuery(String methodName) {
         return METHOD_SET.contains(methodName);
     }
 
-    public static void init() {
-
+    /**
+     * Find all methods that support multi-tenant queries - used MultiTenantQuery annotation.
+     */
+    @PostConstruct
+    private void init() {
         Reflections methodReflections = new Reflections(METHOD_FILTER_PATH, Scanners.MethodsAnnotated);
         // process methods
-        Set<Method> methodSet = methodReflections.getMethodsAnnotatedWith(MutitenancyQuery.class);
+        Set<Method> methodSet = methodReflections.getMethodsAnnotatedWith(MultiTenantQuery.class);
         markMethods(methodSet);
 
         // process classes
         Reflections reflections = new Reflections(METHOD_FILTER_PATH, Scanners.TypesAnnotated);
-        Set<Class<?>> clazzSet = reflections.getTypesAnnotatedWith(MutitenancyQuery.class);
+        Set<Class<?>> clazzSet = reflections.getTypesAnnotatedWith(MultiTenantQuery.class);
         clazzSet.stream()
                 .filter(Class::isInterface)
                 .forEach(clazz -> {
                     // Get the JsonTypeDefine annotation
-                    MutitenancyQuery annotation = clazz.getAnnotation(MutitenancyQuery.class);
+                    MultiTenantQuery annotation = clazz.getAnnotation(MultiTenantQuery.class);
                     if (annotation == null || !annotation.with()) {
                         return;
                     }
@@ -66,12 +78,12 @@ public class MultitenantQueryFilter {
                     markMethods(methods);
                 });
 
-        log.debug("These method are annotated with MutitenancyQuery, methods={}", METHOD_SET);
+        log.debug("success to find all methods that support multi-tenant queries, methods={}", METHOD_SET);
     }
 
     private static void markMethods(Collection<Method> methods) {
         methods.forEach(method -> {
-            MutitenancyQuery annotation = method.getAnnotation(MutitenancyQuery.class);
+            MultiTenantQuery annotation = method.getAnnotation(MultiTenantQuery.class);
             if (annotation != null && !annotation.with()) {
                 METHOD_SET.remove(getMethodFullName(method));
             } else {

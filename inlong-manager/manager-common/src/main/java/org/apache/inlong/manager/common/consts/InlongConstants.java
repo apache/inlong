@@ -50,6 +50,10 @@ public class InlongConstants {
 
     public static final String SEMICOLON = ";";
 
+    public static final String HYPHEN = "-";
+
+    public static final String UNDERSCORE = "_";
+
     public static final String LEFT_BRACKET = "(";
 
     public static final String PERCENT = "%";
