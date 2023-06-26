@@ -363,7 +363,7 @@
   "meta.Sinks.Kudu.FieldDescription": "FieldDescription",
   "meta.Sinks.Kudu.buckets": "Buckets",
   "meta.Group.InlongGroupId": "Inlong Group ID",
-  "meta.Group.InlongGroupIdRules": "Only lowercase letters, numbers, minus, and underscores",
+  "meta.Group.InlongGroupIdRules": "Only letters, numbers, minus, and underscores",
   "meta.Group.InlongGroupName": "Inlong Group Name",
   "meta.Group.InlongGroupOwners": "Inlong Group Owners",
   "meta.Group.InlongGroupOwnersExtra": "Can view, modify group info",

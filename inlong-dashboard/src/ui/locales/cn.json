@@ -363,7 +363,7 @@
   "meta.Sinks.Kudu.FieldDescription": "描述",
   "meta.Sinks.Kudu.buckets": "Buckets",
   "meta.Group.InlongGroupId": "数据流组 ID",
-  "meta.Group.InlongGroupIdRules": "只能包含小写字母、数字、中划线、下划线",
+  "meta.Group.InlongGroupIdRules": "只能包含英文字母、数字、中划线、下划线",
   "meta.Group.InlongGroupName": "数据流组名称",
   "meta.Group.InlongGroupOwners": "责任人",
   "meta.Group.InlongGroupOwnersExtra": "责任人，可查看、修改数据流组信息",
