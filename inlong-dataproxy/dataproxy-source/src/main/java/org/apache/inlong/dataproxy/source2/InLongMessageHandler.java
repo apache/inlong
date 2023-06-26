@@ -469,9 +469,9 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
                 strBuff.append(AttributeConstants.SEPARATOR).append(AttributeConstants.MESSAGE_PROCESS_ERRMSG)
                         .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(msgObj.getErrMsg());
             }
-            if (StringUtils.isNotEmpty(msgObj.getAttr())) {
-                strBuff.append(AttributeConstants.SEPARATOR).append(msgObj.getAttr());
-            }
+        }
+        if (StringUtils.isNotEmpty(msgObj.getAttr())) {
+            strBuff.append(AttributeConstants.SEPARATOR).append(msgObj.getAttr());
         }
         // build and send response message
         ByteBuf retData;
