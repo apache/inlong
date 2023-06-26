@@ -57,16 +57,16 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     private final ChannelProcessor processor;
     private final ServiceDecoder serviceDecoder;
     private final int maxConnections;
-    private final long msgValidThreshold;
+    private final long msgValidThresholdDays;
     private final long ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
     public ServerMessageHandler(AbstractSource source, ServiceDecoder serviceDecoder,
-            ChannelGroup allChannels, Integer maxCons, Long msgValidThreshold) {
+            ChannelGroup allChannels, Integer maxCons, Long msgValidThresholdDays) {
         this.processor = source.getChannelProcessor();
         this.serviceDecoder = serviceDecoder;
         this.allChannels = allChannels;
         this.maxConnections = maxCons;
-        this.msgValidThreshold = msgValidThreshold;
+        this.msgValidThresholdDays = msgValidThresholdDays;
     }
 
     @Override
@@ -152,9 +152,10 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         int errorMsgBody = 0;
         for (AuditMessageBody auditMessageBody : bodyList) {
             long msgDays = messageDays(auditMessageBody.getLogTs());
-            if (msgDays >= this.msgValidThreshold) {
-                LOGGER.info("Discard the data as it is from" + msgDays +
+            if (msgDays >= this.msgValidThresholdDays) {
+                String msg = String.format("Discard the data as it is from" + msgDays +
                         "days ago . Note: Only data with a log timestamp less than 7 days is considered valid.");
+                LOGGER.warn(msg);
                 continue;
             }
             AuditData auditData = new AuditData();

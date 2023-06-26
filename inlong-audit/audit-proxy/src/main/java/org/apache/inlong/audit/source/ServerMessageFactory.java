@@ -41,7 +41,7 @@ public class ServerMessageFactory extends ChannelInitializer<SocketChannel> {
     private ServiceDecoder serviceDecoder;
     private String messageHandlerName;
     private int maxConnections = Integer.MAX_VALUE;
-    private final long msgValidThreshold;
+    private final long msgValidThresholdDays;
     private int maxMsgLength;
     private String name;
 
@@ -58,7 +58,7 @@ public class ServerMessageFactory extends ChannelInitializer<SocketChannel> {
      */
     public ServerMessageFactory(AbstractSource source,
             ChannelGroup allChannels, ServiceDecoder serviceDecoder,
-            String messageHandlerName, Integer maxMsgLength, Integer maxCons, Long msgValid, String name) {
+            String messageHandlerName, Integer maxMsgLength, Integer maxCons, Long msgValidThresholdDays, String name) {
         this.source = source;
         this.processor = source.getChannelProcessor();
         this.allChannels = allChannels;
@@ -67,7 +67,7 @@ public class ServerMessageFactory extends ChannelInitializer<SocketChannel> {
         this.name = name;
         this.maxConnections = maxCons;
         this.maxMsgLength = maxMsgLength;
-        this.msgValidThreshold = msgValid;
+        this.msgValidThresholdDays = msgValidThresholdDays;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class ServerMessageFactory extends ChannelInitializer<SocketChannel> {
                                 ChannelGroup.class, Integer.class, Long.class);
 
                 ChannelInboundHandlerAdapter messageHandler = (ChannelInboundHandlerAdapter) ctor
-                        .newInstance(source, serviceDecoder, allChannels, maxConnections, msgValidThreshold);
+                        .newInstance(source, serviceDecoder, allChannels, maxConnections, msgValidThresholdDays);
 
                 ch.pipeline().addLast("messageHandler", messageHandler);
             } catch (Exception e) {

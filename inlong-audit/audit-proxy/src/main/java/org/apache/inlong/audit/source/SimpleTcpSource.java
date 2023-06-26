@@ -49,7 +49,6 @@ import java.net.InetSocketAddress;
 
 /**
  * Simple tcp source
- *
  */
 public class SimpleTcpSource extends AbstractSource implements Configurable, EventDrivenSource {
 
@@ -250,7 +249,8 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         }
 
         try {
-            msgValidThresholdDays = context.getLong(ConfigConstants.MSG_VALID_THRESHOLD_DAYS, DEFAULT_MSG_VALID_THRESHOLD_DAYS);
+            msgValidThresholdDays =
+                    context.getLong(ConfigConstants.MSG_VALID_THRESHOLD_DAYS, DEFAULT_MSG_VALID_THRESHOLD_DAYS);
         } catch (NumberFormatException e) {
             logger.warn("BaseSource\'s \"msg.valid.threshold.days\" property must specify a long value.",
                     context.getString(ConfigConstants.MSG_VALID_THRESHOLD_DAYS));
