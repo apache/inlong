@@ -99,7 +99,6 @@ public class TubeMQNodeSqlParseTest extends AbstractTestBase {
     public void testTubeMQToKafka() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

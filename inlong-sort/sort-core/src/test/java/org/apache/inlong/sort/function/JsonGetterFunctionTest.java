@@ -52,7 +52,6 @@ public class JsonGetterFunctionTest extends AbstractTestBase {
     public void testJsonGetterFunction() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

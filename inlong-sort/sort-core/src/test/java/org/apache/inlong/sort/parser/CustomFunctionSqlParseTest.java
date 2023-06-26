@@ -113,7 +113,6 @@ public class CustomFunctionSqlParseTest extends AbstractTestBase {
         env.disableOperatorChaining();
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);

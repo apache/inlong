@@ -105,7 +105,6 @@ public class AllMigratePostgreSQLTest extends AbstractTestBase {
     public void testAllMigrate() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

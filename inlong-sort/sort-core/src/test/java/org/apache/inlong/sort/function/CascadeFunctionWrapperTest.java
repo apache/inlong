@@ -56,7 +56,6 @@ public class CascadeFunctionWrapperTest extends AbstractTestBase {
         // step 0. Initialize the execution environment
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
