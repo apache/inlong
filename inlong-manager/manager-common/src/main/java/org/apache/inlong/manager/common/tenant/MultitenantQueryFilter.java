@@ -66,7 +66,7 @@ public class MultitenantQueryFilter {
                     markMethods(methods);
                 });
 
-        log.info("These method are annotated with QueryWithoutTenant, methods={}", METHOD_SET);
+        log.debug("These method are annotated with MutitenancyQuery, methods={}", METHOD_SET);
     }
 
     private static void markMethods(Collection<Method> methods) {
