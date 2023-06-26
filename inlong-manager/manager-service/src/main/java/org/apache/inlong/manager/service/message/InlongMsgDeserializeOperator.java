@@ -52,7 +52,7 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
 
     @Override
     public List<DisplayMessage> decodeMsg(InlongStreamInfo streamInfo,
-            byte[] msgBytes, Map<String, String> headers) throws Exception {
+            byte[] msgBytes, Map<String, String> headers, int index) throws Exception {
         String groupId = headers.get(AttributeConstants.GROUP_ID);
         String streamId = headers.get(AttributeConstants.STREAM_ID);
         List<DisplayMessage> messageList = new ArrayList<>();
@@ -73,14 +73,13 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
                         INLONGMSG_ATTR_TIME_T + " or " + INLONGMSG_ATTR_TIME_DT));
             }
             Iterator<byte[]> iterator = inLongMsg.getIterator(attr);
-            int index = 0;
             while (iterator.hasNext()) {
                 byte[] bodyBytes = iterator.next();
                 if (Objects.isNull(bodyBytes)) {
                     continue;
                 }
                 DisplayMessage inLongMessage =
-                        new DisplayMessage(++index, groupId, streamId, msgTime, attributes.get(NODE_IP),
+                        new DisplayMessage(index, groupId, streamId, msgTime, attributes.get(NODE_IP),
                                 new String(bodyBytes, Charset.forName(streamInfo.getDataEncoding())));
                 messageList.add(inLongMessage);
             }

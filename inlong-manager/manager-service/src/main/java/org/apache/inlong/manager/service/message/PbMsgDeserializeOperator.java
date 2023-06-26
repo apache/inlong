@@ -52,7 +52,7 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
 
     @Override
     public List<DisplayMessage> decodeMsg(InlongStreamInfo streamInfo,
-            byte[] msgBytes, Map<String, String> headers) throws Exception {
+            byte[] msgBytes, Map<String, String> headers, int index) throws Exception {
         List<DisplayMessage> messageList = new ArrayList<>();
         int compressType = Integer.parseInt(headers.getOrDefault(COMPRESS_TYPE_KEY, "0"));
         byte[] values = msgBytes;
@@ -68,11 +68,11 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
             default:
                 throw new IllegalArgumentException("Unknown compress type:" + compressType);
         }
-        messageList = transformMessageObjs(MessageObjs.parseFrom(values), streamInfo);
+        messageList = transformMessageObjs(MessageObjs.parseFrom(values), streamInfo, index);
         return messageList;
     }
 
-    private List<DisplayMessage> transformMessageObjs(MessageObjs messageObjs, InlongStreamInfo streamInfo) {
+    private List<DisplayMessage> transformMessageObjs(MessageObjs messageObjs, InlongStreamInfo streamInfo, int index) {
         if (null == messageObjs) {
             return null;
         }
@@ -83,7 +83,7 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
             for (MapFieldEntry mapFieldEntry : mapFieldEntries) {
                 headers.put(mapFieldEntry.getKey(), mapFieldEntry.getValue());
             }
-            DisplayMessage displayMessage = new DisplayMessage(null, headers.get(AttributeConstants.GROUP_ID),
+            DisplayMessage displayMessage = new DisplayMessage(index, headers.get(AttributeConstants.GROUP_ID),
                     headers.get(AttributeConstants.STREAM_ID), messageObj.getMsgTime(),
                     headers.get(NODE_IP),
                     new String(messageObj.getBody().toByteArray(), Charset.forName(streamInfo.getDataEncoding())));

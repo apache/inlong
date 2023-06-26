@@ -44,7 +44,7 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
 
     @Override
     public List<DisplayMessage> decodeMsg(InlongStreamInfo streamInfo,
-            byte[] msgBytes, Map<String, String> headers) throws Exception {
+            byte[] msgBytes, Map<String, String> headers, int index) throws Exception {
         String groupId = headers.get(AttributeConstants.GROUP_ID);
         String streamId = headers.get(AttributeConstants.STREAM_ID);
         long msgTime = Long.parseLong(headers.getOrDefault(MSG_TIME_KEY, "0"));

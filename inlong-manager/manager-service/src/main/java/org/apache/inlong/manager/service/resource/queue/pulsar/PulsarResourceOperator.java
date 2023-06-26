@@ -309,8 +309,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
         String groupId = streamInfo.getInlongGroupId();
         InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(groupInfo.getInlongClusterTag(),
-                null,
-                ClusterType.PULSAR);
+                null, ClusterType.PULSAR);
         List<DisplayMessage> displayMessages = new ArrayList<>();
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             String tenant = inlongPulsarInfo.getPulsarTenant();
@@ -322,10 +321,8 @@ public class PulsarResourceOperator implements QueueResourceOperator {
             String fullTopicName = tenant + "/" + namespace + "/" + topicName;
             String clusterTag = inlongPulsarInfo.getInlongClusterTag();
             String subs = String.format(PULSAR_SUBSCRIPTION_REAL_TIME_REVIEW, clusterTag, topicName);
-            log.info("begin to query message by subs={} for groupId={}, topic={}", subs, groupId, fullTopicName);
             displayMessages =
                     pulsarOperator.queryLastMessage(pulsarAdmin, fullTopicName, subs, messageNumber, streamInfo);
-            log.info("success query message by subs={} for groupId={}, topic={}", subs, groupId, topicName);
             // insert the consumer group info into the inlong_consume table
             Integer id = consumeService.saveBySystem(groupInfo, topicName, subs);
             log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",

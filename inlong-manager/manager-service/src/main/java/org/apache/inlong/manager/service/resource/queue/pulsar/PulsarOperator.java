@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
@@ -396,25 +397,28 @@ public class PulsarOperator {
         try {
             messages = pulsarAdmin.topics().peekMessages(topicFullName, subName, messageNumber);
         } catch (PulsarAdminException e) {
-            String errMsg = "failed to quit peek messages";
+            String errMsg = "failed to query peek messages";
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
+        int index = 0;
         for (Message<byte[]> pulsarMessage : messages) {
             try {
                 Map<String, String> headers = pulsarMessage.getProperties();
-                int wrapTypeId = Integer.parseInt(headers.getOrDefault(VERSION_KEY, "1"));
+                int wrapTypeId = Integer.parseInt(headers.getOrDefault(VERSION_KEY,
+                        Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
                         MessageWrapType.forType(wrapTypeId));
-                messageList.addAll(deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(), headers));
+                messageList.addAll(
+                        deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(), headers, ++index));
             } catch (Exception e) {
                 String errMsg = "decode msg error";
                 LOGGER.error("decode msg error", e);
                 throw new BusinessException(errMsg);
 
             }
-
         }
+        LOGGER.info("success query message by subs={} for topic={}", subName, topicFullName);
         return messageList;
     }
 
