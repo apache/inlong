@@ -17,12 +17,11 @@
 
 package org.apache.inlong.manager.service.message;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.manager.pojo.consume.DisplayMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
@@ -34,8 +33,8 @@ import java.util.Map;
 @Service
 public class RawMsgDeserializeOperator implements DeserializeOperator {
 
-    private static final String MSG_TIME_KEY = "msgTime";
     public static final String NODE_IP = "NodeIP";
+    private static final String MSG_TIME_KEY = "msgTime";
 
     @Override
     public boolean accept(MessageWrapType type) {
@@ -44,7 +43,7 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
 
     @Override
     public List<DisplayMessage> decodeMsg(InlongStreamInfo streamInfo,
-            byte[] msgBytes, Map<String, String> headers) {
+            byte[] msgBytes, Map<String, String> headers) throws Exception {
         String groupId = headers.get(AttributeConstants.GROUP_ID);
         String streamId = headers.get(AttributeConstants.STREAM_ID);
         long msgTime = Long.parseLong(headers.getOrDefault(MSG_TIME_KEY, "0"));

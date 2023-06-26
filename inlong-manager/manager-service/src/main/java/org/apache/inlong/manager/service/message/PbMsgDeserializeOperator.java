@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.message;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.manager.pojo.consume.DisplayMessage;
@@ -25,8 +27,6 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
 import org.apache.inlong.sdk.sort.util.Utils;
-
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
@@ -52,27 +52,23 @@ public class PbMsgDeserializeOperator implements DeserializeOperator {
 
     @Override
     public List<DisplayMessage> decodeMsg(InlongStreamInfo streamInfo,
-            byte[] msgBytes, Map<String, String> headers) {
+            byte[] msgBytes, Map<String, String> headers) throws Exception {
         List<DisplayMessage> messageList = new ArrayList<>();
-        try {
-            int compressType = Integer.parseInt(headers.getOrDefault(COMPRESS_TYPE_KEY, "0"));
-            byte[] values = msgBytes;
-            switch (compressType) {
-                case COMPRESS_TYPE_NONE:
-                    break;
-                case COMPRESS_TYPE_SNAPPY:
-                    values = Utils.snappyDecompress(msgBytes, 0, msgBytes.length);
-                    break;
-                case COMPRESS_TYPE_GZIP:
-                    values = Utils.gzipDecompress(msgBytes, 0, msgBytes.length);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown compress type:" + compressType);
-            }
-            messageList = transformMessageObjs(MessageObjs.parseFrom(values), streamInfo);
-        } catch (Exception e) {
-            log.error("1231");
+        int compressType = Integer.parseInt(headers.getOrDefault(COMPRESS_TYPE_KEY, "0"));
+        byte[] values = msgBytes;
+        switch (compressType) {
+            case COMPRESS_TYPE_NONE:
+                break;
+            case COMPRESS_TYPE_SNAPPY:
+                values = Utils.snappyDecompress(msgBytes, 0, msgBytes.length);
+                break;
+            case COMPRESS_TYPE_GZIP:
+                values = Utils.gzipDecompress(msgBytes, 0, msgBytes.length);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown compress type:" + compressType);
         }
+        messageList = transformMessageObjs(MessageObjs.parseFrom(values), streamInfo);
         return messageList;
     }
 

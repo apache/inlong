@@ -35,7 +35,7 @@ public interface DeserializeOperator {
     boolean accept(MessageWrapType type);
 
     default List<DisplayMessage> decodeMsg(InlongStreamInfo streamInfo,
-            byte[] msgBytes, Map<String, String> headers) {
+            byte[] msgBytes, Map<String, String> headers) throws Exception {
         return null;
     }
 }
