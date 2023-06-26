@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.interceptor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.tenant.MultitenantQueryFilter;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
@@ -91,10 +92,10 @@ public class MultitenantInterceptor implements Interceptor {
     private String getTenant() {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         if (userInfo == null) {
-            throw new IllegalStateException("get no login user, please login first");
+            throw new IllegalStateException("current login user is null, please login first");
         }
         String tenant = userInfo.getTenant();
-        if (tenant == null) {
+        if (StringUtils.isBlank(tenant)) {
             throw new IllegalStateException("get no target tenant of userInfo=" + userInfo);
         }
         return tenant;
