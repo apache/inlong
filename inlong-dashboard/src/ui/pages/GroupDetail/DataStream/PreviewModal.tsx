@@ -20,7 +20,7 @@
 import React, { useState } from 'react';
 import { Modal, Table, Button } from 'antd';
 import { ModalProps } from 'antd/es/modal';
-import { useRequest } from '@/ui/hooks';
+import { useRequest, useUpdateEffect } from '@/ui/hooks';
 import i18n from '@/i18n';
 import { ColumnsType } from 'antd/es/table';
 import { timestampFormat } from '@/core/utils';
@@ -32,12 +32,7 @@ export interface Props extends ModalProps {
 }
 
 const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps }) => {
-  const [messages, setMessages] = useState({
-    groupId: inlongGroupId,
-    streamId: inlongStreamId,
-    position: 1,
-  });
-
+  const [position, setPosition] = useState(1);
   interface DataType {
     id: React.Key;
     nodeIp: string;
@@ -67,17 +62,28 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
     },
   ];
 
-  const { data: savedData } = useRequest(
+  const { data: previewData, run: getPreviewData } = useRequest(
     {
       url: '/stream/queryMessage',
       params: {
-        ...messages,
+        groupId: inlongGroupId,
+        streamId: inlongStreamId,
+        position: position,
       },
     },
     {
-      refreshDeps: [messages],
+      refreshDeps: [position],
+      manual: inlongStreamId !== '' ? false : true,
     },
   );
+
+  useUpdateEffect(() => {
+    if (modalProps.open) {
+      if (inlongStreamId) {
+        getPreviewData();
+      }
+    }
+  }, [modalProps.open]);
 
   return (
     <Modal
@@ -91,7 +97,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
         <Button
           style={{ marginLeft: 20 }}
           onClick={() => {
-            setMessages({ groupId: inlongGroupId, streamId: inlongStreamId, position: 1 });
+            setPosition(1);
           }}
         >
           1
@@ -99,7 +105,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
         <Button
           style={{ marginLeft: 20 }}
           onClick={() => {
-            setMessages({ groupId: inlongGroupId, streamId: inlongStreamId, position: 5 });
+            setPosition(5);
           }}
         >
           5
@@ -107,7 +113,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
         <Button
           style={{ marginLeft: 20 }}
           onClick={() => {
-            setMessages({ groupId: inlongGroupId, streamId: inlongStreamId, position: 10 });
+            setPosition(10);
           }}
         >
           10
@@ -115,7 +121,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
         <Button
           style={{ marginLeft: 20 }}
           onClick={() => {
-            setMessages({ groupId: inlongGroupId, streamId: inlongStreamId, position: 50 });
+            setPosition(50);
           }}
         >
           50
@@ -123,7 +129,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
       </div>
       <Table
         columns={detailColumns}
-        dataSource={savedData}
+        dataSource={previewData}
         rowKey={'id'}
         expandable={{
           expandedRowRender: record => <p style={{ margin: 0 }}>{record.body}</p>,
