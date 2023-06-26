@@ -58,6 +58,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     private final ServiceDecoder serviceDecoder;
     private final int maxConnections;
     private final long msgValidThreshold;
+    private final long ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
     public ServerMessageHandler(AbstractSource source, ServiceDecoder serviceDecoder,
             ChannelGroup allChannels, Integer maxCons, Long msgValidThreshold) {
@@ -192,7 +193,6 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     }
 
     public long messageDays(long logTs) {
-        long ONE_DAY_MS = 24 * 60 * 60 * 1000;
         long currentTime = System.currentTimeMillis();
         long timeDiff = currentTime - logTs;
         return timeDiff / ONE_DAY_MS;
