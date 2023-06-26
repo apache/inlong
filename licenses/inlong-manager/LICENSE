@@ -546,7 +546,7 @@ The text of each license is the standard Apache 2.0 license.
   io.prometheus:simpleclient_tracer_otel:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
   io.prometheus:simpleclient_tracer_otel_agent:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry Agent (https://github.com/prometheus/client_java/tree/parent-0.14.1), (The Apache Software License, Version 2.0)
   org.yaml:snakeyaml:1.30 - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml/src/snakeyaml-1.30/), (Apache License, Version 2.0)
-  org.xerial.snappy:snappy-java:1.1.8.4 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
+  org.xerial.snappy:snappy-java:1.1.10.1 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
   org.springframework.boot:spring-boot:2.6.15 - spring-boot (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
   org.springframework.boot:spring-boot-autoconfigure:2.6.15 - spring-boot-autoconfigure (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
   org.springframework.boot:spring-boot-configuration-processor:2.6.15 - spring-boot-configuration-processor (https://spring.io/projects/spring-boot), (Apache License, Version 2.0)
