@@ -25,6 +25,7 @@ import org.reflections.scanners.Scanners;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
