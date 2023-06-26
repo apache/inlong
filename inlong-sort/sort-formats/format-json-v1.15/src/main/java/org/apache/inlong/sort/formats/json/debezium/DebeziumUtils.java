@@ -15,25 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.formats.csv;
+package org.apache.inlong.sort.formats.json.debezium;
 
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.json.MysqlBinLogData;
+import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDecodingFormat.ReadableMetadata;
 
-import org.apache.flink.table.descriptors.DescriptorProperties;
-import org.apache.flink.table.descriptors.DescriptorValidator;
+public class DebeziumUtils {
 
-/**
- * Validator for {@link Csv}.
- */
-public class CsvValidator implements DescriptorValidator {
-
-    @Override
-    public void validate(DescriptorProperties properties) {
-        TableFormatUtils.getValidateProperties(properties);
-        properties.validateString(TableFormatConstants.FORMAT_DELIMITER, true, 1, 1);
-        properties.validateString(TableFormatConstants.FORMAT_QUOTE_CHARACTER, true, 1, 1);
-
-        TableFormatUtils.validateSchema(properties);
+    public static String getMysqlMetadataKey(ReadableMetadata readableMetadata) {
+        switch (readableMetadata) {
+            case SOURCE_DATABASE:
+                return MysqlBinLogData.MYSQL_METADATA_DATABASE;
+            case SOURCE_TABLE:
+                return MysqlBinLogData.MYSQL_METADATA_TABLE;
+            case INGESTION_TIMESTAMP:
+                return MysqlBinLogData.MYSQL_METADATA_EVENT_TIME;
+            default:
+                throw new IllegalArgumentException("Not supported yet");
+        }
     }
 }
