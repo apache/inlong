@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.service.message;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.manager.pojo.consume.DisplayMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.sdk.sort.util.StringUtil;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
