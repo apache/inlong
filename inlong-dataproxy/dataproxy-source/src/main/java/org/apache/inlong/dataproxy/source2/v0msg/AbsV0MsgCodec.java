@@ -242,6 +242,9 @@ public abstract class AbsV0MsgCodec {
         if (StringUtils.isNotEmpty(proxySend)) {
             headers.put(AttributeConstants.MESSAGE_PROXY_SEND, proxySend);
         }
+        if (isOrderOrProxy) {
+            headers.put(ConfigConstants.DECODER_ATTRS, this.origAttr);
+        }
         String partitionKey = attrMap.get(AttributeConstants.MESSAGE_PARTITION_KEY);
         if (StringUtils.isNotEmpty(partitionKey)) {
             headers.put(AttributeConstants.MESSAGE_PARTITION_KEY, partitionKey);

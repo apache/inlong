@@ -156,6 +156,7 @@ public class SimplePackProfile extends PackProfile {
         result.put(ConfigConstants.MSG_ENCODE_VER, event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER));
         result.put(EventConstants.HEADER_KEY_VERSION, event.getHeaders().get(EventConstants.HEADER_KEY_VERSION));
         result.put(ConfigConstants.REMOTE_IP_KEY, event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY));
+        result.put(ConfigConstants.PKG_TIME_KEY, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
         result.put(ConfigConstants.DATAPROXY_IP_KEY, NetworkUtils.getLocalIp());
         return result;
     }
@@ -189,6 +190,14 @@ public class SimplePackProfile extends PackProfile {
                 if (StringUtils.isNotEmpty(errMsg)) {
                     strBuff.append(AttributeConstants.SEPARATOR).append(AttributeConstants.MESSAGE_PROCESS_ERRMSG)
                             .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(errMsg);
+                }
+            }
+            String origAttr = event.getHeaders().getOrDefault(ConfigConstants.DECODER_ATTRS, "");
+            if (StringUtils.isNotEmpty(origAttr)) {
+                if (strBuff.length() > 0) {
+                    strBuff.append(AttributeConstants.SEPARATOR).append(origAttr);
+                } else {
+                    strBuff.append(origAttr);
                 }
             }
             // build and send response message
