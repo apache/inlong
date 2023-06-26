@@ -33,5 +33,6 @@ public class DataNodeType {
     public static final String REDIS = "REDIS";
     public static final String KUDU = "KUDU";
     public static final String POSTGRESQL = "POSTGRESQL";
+    public static final String ORACLE = "ORACLE";
 
 }
