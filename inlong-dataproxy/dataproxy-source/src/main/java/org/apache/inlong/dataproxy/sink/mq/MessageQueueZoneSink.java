@@ -299,9 +299,12 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
             return;
         }
         reentrantLock.lock();
-        lastNotifyTime.set(System.currentTimeMillis());
-        condition.signal();
-        reentrantLock.unlock();
+        try {
+            lastNotifyTime.set(System.currentTimeMillis());
+            condition.signal();
+        } finally {
+            reentrantLock.unlock();
+        }
     }
 
     /**
