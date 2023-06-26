@@ -23,8 +23,8 @@ package org.apache.inlong.common.enums;
 public enum MessageWrapType {
 
     NONE(0, "NONE"),
-    INLONG_MSG(1, "INLONG_MSG"),
-    PB(2, "PB");
+    PB(1, "PB"),
+    INLONG_MSG(2, "INLONG_MSG");
 
     private final Integer typeId;
 
