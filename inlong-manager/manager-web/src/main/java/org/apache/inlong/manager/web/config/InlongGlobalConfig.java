@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.web.config;
 
-import org.apache.inlong.manager.common.tenant.MultitenancyQueryFilter;
+import org.apache.inlong.manager.common.tenant.MultitenantQueryFilter;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -56,7 +56,7 @@ public class InlongGlobalConfig {
 
     @Bean
     public void queryMethodFilter() {
-        MultitenancyQueryFilter.init();
+        MultitenantQueryFilter.init();
     }
 
 }

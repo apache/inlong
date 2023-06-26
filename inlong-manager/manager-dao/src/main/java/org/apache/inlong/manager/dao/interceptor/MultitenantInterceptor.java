@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.dao.interceptor;
 
-import org.apache.inlong.manager.common.tenant.MultitenancyQueryFilter;
+import org.apache.inlong.manager.common.tenant.MultitenantQueryFilter;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
@@ -46,7 +46,7 @@ import java.util.Properties;
         @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class
         })
 })
-public class MultitenancyInterceptor implements Interceptor {
+public class MultitenantInterceptor implements Interceptor {
 
     private static final String TENANT_CONDITION = "tenant=";
 
@@ -58,7 +58,7 @@ public class MultitenancyInterceptor implements Interceptor {
         MappedStatement mappedStatement = (MappedStatement) metaObject.getValue("delegate.mappedStatement");
 
         String fullMethodName = mappedStatement.getId();
-        if (!MultitenancyQueryFilter.isMultitenancyQuery(fullMethodName.split("_")[0])) {
+        if (!MultitenantQueryFilter.isMultitenantQuery(fullMethodName.split("_")[0])) {
             return invocation.proceed();
         }
 
@@ -74,16 +74,14 @@ public class MultitenancyInterceptor implements Interceptor {
 
         Expression where = plain.getWhere();
         if (where == null) {
-            Expression expression = CCJSqlParserUtil
-                    .parseCondExpression(whereSql.toString());
+            Expression expression = CCJSqlParserUtil.parseCondExpression(whereSql.toString());
             plain.setWhere(expression);
         } else {
             if (where.toString().contains(TENANT_CONDITION)) {
                 return invocation.proceed();
             }
             whereSql.append(" and ( ").append(where).append(" )");
-            Expression expression = CCJSqlParserUtil
-                    .parseCondExpression(whereSql.toString());
+            Expression expression = CCJSqlParserUtil.parseCondExpression(whereSql.toString());
             plain.setWhere(expression);
         }
         metaObject.setValue("delegate.boundSql.sql", select.toString());

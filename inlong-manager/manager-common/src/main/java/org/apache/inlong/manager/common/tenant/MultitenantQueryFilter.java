@@ -34,13 +34,13 @@ import java.util.Set;
  */
 @Slf4j
 @UtilityClass
-public class MultitenancyQueryFilter {
+public class MultitenantQueryFilter {
 
     private static final String METHOD_FILTER_PATH = "org.apache.inlong.manager.dao.mapper";
 
     private static final Set<String> METHOD_SET = new HashSet<>();
 
-    public static boolean isMultitenancyQuery(String methodName) {
+    public static boolean isMultitenantQuery(String methodName) {
         return METHOD_SET.contains(methodName);
     }
 
