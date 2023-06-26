@@ -240,7 +240,7 @@ public class InlongStreamController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true),
-            @ApiImplicitParam(name = "position", dataTypeClass = String.class, required = true)
+            @ApiImplicitParam(name = "messageNumber", dataTypeClass = String.class, required = true)
     })
     public Response<List<DisplayMessage>> queryMessage(@RequestParam String groupId, @RequestParam String streamId,
             @RequestParam Integer messageNumber) {

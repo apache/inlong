@@ -77,5 +77,5 @@ public interface InlongStreamApi {
 
     @GET("stream/queryMessage")
     Call<Response<List<DisplayMessage>>> queryMessage(@Query("groupId") String groupId,
-            @Query("streamId") String streamId, @Query("position") Integer position);
+            @Query("streamId") String streamId, @Query("messageNumber") Integer messageNumber);
 }
