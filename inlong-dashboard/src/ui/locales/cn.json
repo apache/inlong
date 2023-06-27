@@ -22,7 +22,7 @@
   "basic.SuccessfullyRestart": "重启成功",
   "basic.SuccessfullyStop": "停止成功",
   "meta.Sources.Name": "数据源名称",
-  "meta.Sources.NameRule": "只能包含英文字母、数字、中划线、下划线",
+  "meta.Sources.NameRule": "只能包含英文字母、数字、中划线(-)、下划线(_)",
   "meta.Sources.Type": "类型",
   "meta.Sources.File.SerializationType": "文件类型",
   "meta.Sources.File.DataSourceIP": "数据源 IP",
