@@ -79,7 +79,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     rules: [
       { required: true },
       {
-        pattern: /^[a-zA-Z0-9_-]*$/,
+        pattern: /^[a-zA-Z0-9_.-]*$/,
         message: i18n.t('meta.Sinks.SinkNameRule'),
       },
     ],

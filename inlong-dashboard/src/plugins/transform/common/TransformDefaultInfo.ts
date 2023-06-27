@@ -54,7 +54,7 @@ export class TransformDefaultInfo implements DataWithBackend, RenderRow, RenderL
     rules: [
       { required: true },
       {
-        pattern: /^[a-zA-Z0-9_-]*$/,
+        pattern: /^[a-zA-Z0-9_.-]*$/,
         message: i18n.t('meta.Transform.NameRule'),
       },
     ],
