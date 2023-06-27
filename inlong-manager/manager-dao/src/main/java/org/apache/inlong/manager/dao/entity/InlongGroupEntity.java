@@ -33,6 +33,7 @@ public class InlongGroupEntity implements Serializable {
     private String inlongGroupId;
     private String name;
     private String description;
+    private String tenant;
     private String mqType;
     private String mqResource;
     private Integer dailyRecords;

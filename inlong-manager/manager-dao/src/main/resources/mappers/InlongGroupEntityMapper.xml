@@ -25,6 +25,7 @@
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="tenant" jdbcType="VARCHAR" property="mqType"/>
         <result column="mq_type" jdbcType="VARCHAR" property="mqType"/>
         <result column="mq_resource" jdbcType="VARCHAR" property="mqResource"/>
         <result column="daily_records" jdbcType="INTEGER" property="dailyRecords"/>
@@ -56,7 +57,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, inlong_group_id, name, description, mq_type, mq_resource, daily_records, daily_storage,
+        id, inlong_group_id, name, description, tenant, mq_type, mq_resource, daily_records, daily_storage,
         peak_records, max_length, enable_zookeeper, enable_create_resource, inlong_group_mode, data_report_type,
         inlong_cluster_tag, ext_params, in_charges, followers, status, previous_status, is_deleted,
         creator, modifier, create_time, modify_time, version
@@ -65,7 +66,7 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         insert into inlong_group (id, inlong_group_id,
-                                  name, description,
+                                  name, description, tenant,
                                   mq_type, mq_resource,
                                   daily_records, daily_storage,
                                   peak_records, max_length,
@@ -76,7 +77,7 @@
                                   status, previous_status,
                                   creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR},
-                #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+                #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{tenant,jdbcType=VARCHAR},
                 #{mqType,jdbcType=VARCHAR}, #{mqResource,jdbcType=VARCHAR},
                 #{dailyRecords,jdbcType=INTEGER}, #{dailyStorage,jdbcType=INTEGER},
                 #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER},
@@ -88,16 +89,18 @@
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
 
-    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from inlong_group
         where id = #{id,jdbcType=INTEGER}
+        and tenant = #{tenant,jdbcType=VARCHAR}
     </select>
     <select id="countGroupByUser" resultMap="statusCountMap">
         select count(*) as total, status
         from inlong_group
         where is_deleted = 0
+          and tenant = #{tenant,jdbcType=VARCHAR}
           <if test="inlongGroupMode != null">
               and inlong_group_mode = #{inlongGroupMode,jdbcType=TINYINT}
           </if>
@@ -109,6 +112,7 @@
         <include refid="Base_Column_List"/>
         from inlong_group
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and tenant = #{tenant, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
     <select id="selectByGroupIdForUpdate" resultMap="BaseResultMap">
@@ -116,6 +120,7 @@
         <include refid="Base_Column_List"/>
         from inlong_group
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and tenant = #{tenant,jdbcType=VARCHAR}
         and is_deleted = 0 for update
     </select>
     <select id="selectByCondition" resultMap="BaseResultMap"
@@ -124,12 +129,8 @@
         <include refid="Base_Column_List"/>
         from inlong_group
         <where>
-            is_deleted = 0
-            <if test="isAdminRole == false">
-                and (
-                creator = #{currentUser, jdbcType=VARCHAR} or find_in_set(#{currentUser, jdbcType=VARCHAR}, in_charges)
-                )
-            </if>
+            tenant = #{tenant,jdbcType=VARCHAR}
+            and is_deleted = 0
             <if test="keyword != null and keyword != ''">
                 and (inlong_group_id like CONCAT('%',#{keyword},'%') or name like CONCAT('%',#{keyword},'%'))
             </if>
@@ -177,6 +178,7 @@
         from inlong_group
         <where>
             is_deleted = 0
+            and tenant = #{tenant,jdbcType=VARCHAR}
             <if test="mqType != null and mqType != ''">
                 and mq_type = #{mqType, jdbcType=VARCHAR}
             </if>
@@ -203,6 +205,7 @@
         from inlong_group
         <where>
             is_deleted = 0
+            and tenant = #{tenant,jdbcType=VARCHAR}
             <if test="groupIdList != null and groupIdList.size() > 0">
                 and inlong_group_id in
                 <foreach collection="groupIdList" item="inlongGroupId" index="index" open="(" close=")" separator=",">
@@ -216,6 +219,7 @@
         <include refid="Base_Column_List"/>
         from inlong_group
         where is_deleted = 0
+        and tenant = #{tenant,jdbcType=VARCHAR}
         and inlong_cluster_tag = #{inlongClusterTag, jdbcType=VARCHAR}
         limit 10
     </select>
@@ -232,6 +236,7 @@
         select inlong_group_id
         from inlong_group
         where modify_time &lt;= #{timeBefore, jdbcType=TIMESTAMP}
+        and tenant = #{tenant,jdbcType=VARCHAR}
         group by inlong_group_id
         having min(is_deleted) > 0
         limit #{limit, jdbcType=INTEGER}
@@ -264,6 +269,7 @@
             modifier               = #{modifier,jdbcType=VARCHAR},
             version                = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
+          and tenant = #{tenant,jdbcType=VARCHAR}
           and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateByIdentifierSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
@@ -332,6 +338,7 @@
             version = #{version,jdbcType=INTEGER} + 1
         </set>
         where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
+        and tenant = #{tenant,jdbcType=VARCHAR}
         and is_deleted = 0
         and version = #{version, jdbcType=INTEGER}
     </update>
@@ -341,13 +348,15 @@
             status          = #{status, jdbcType=INTEGER},
             modifier        = #{modifier, jdbcType=VARCHAR}
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
+          and tenant = #{tenant,jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <delete id="deleteByPrimaryKey">
         delete
         from inlong_group
         where id = #{id,jdbcType=INTEGER}
+        and tenant = #{tenant,jdbcType=VARCHAR}
     </delete>
     <delete id="deleteByInlongGroupIds">
         delete
@@ -356,5 +365,6 @@
         <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
             #{item}
         </foreach>
+        and tenant = #{tenant,jdbcType=VARCHAR}
     </delete>
 </mapper>
