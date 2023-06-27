@@ -71,6 +71,10 @@ public class CodecTextMsg extends AbsV0MsgCodec {
         // extract body bytes
         this.bodyData = new byte[bodyLen];
         cb.getBytes(msgHeadPos + TXT_MSG_BODY_OFFSET, this.bodyData, 0, bodyLen);
+        if (MsgType.MSG_ORIGINAL_RETURN.equals(MsgType.valueOf(msgType))) {
+            this.origBody = new byte[bodyLen];
+            System.arraycopy(this.bodyData, 0, this.origBody, 0, bodyLen);
+        }
         // get attribute length
         int attrLen = cb.getInt(msgHeadPos + TXT_MSG_BODY_OFFSET + bodyLen);
         if (attrLen < 0) {

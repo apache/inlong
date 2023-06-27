@@ -56,6 +56,7 @@ public abstract class AbsV0MsgCodec {
     protected int msgCount;
     protected String origAttr = "";
     protected byte[] bodyData;
+    protected byte[] origBody = null;
     protected long dataTimeMs;
     protected String groupId;
     protected String streamId = "";
@@ -142,6 +143,10 @@ public abstract class AbsV0MsgCodec {
 
     public String getStrRemoteIP() {
         return strRemoteIP;
+    }
+
+    public byte[] getOrigBody() {
+        return origBody;
     }
 
     public long getMsgRcvTime() {
