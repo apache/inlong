@@ -479,7 +479,7 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType)) {
             retData = buildBinMsgRspPackage(strBuff.toString(), msgObj.getUniq());
         } else {
-            retData = buildTxtMsgRspPackage(msgType, strBuff.toString());
+            retData = buildTxtMsgRspPackage(msgType, strBuff.toString(), msgObj);
         }
         strBuff.delete(0, strBuff.length());
         flushV0MsgPackage(source, channel, retData, msgObj.getAttr());
@@ -591,6 +591,43 @@ public class InLongMessageHandler extends ChannelInboundHandlerAdapter {
         buffer.writeInt(backTotalLen);
         buffer.writeByte(msgType.getValue());
         buffer.writeInt(bodyLen);
+        buffer.writeInt(attrsLen);
+        if (attrsLen > 0) {
+            buffer.writeBytes(attrs.getBytes(StandardCharsets.UTF_8));
+        }
+        return buffer;
+    }
+
+    /**
+     * Build default-msg response message ByteBuf
+     *
+     * @param msgType  the message type
+     * @param attrs    the return attribute
+     * @param msgObj   the request message object
+     * @return ByteBuf
+     */
+    private ByteBuf buildTxtMsgRspPackage(MsgType msgType, String attrs, AbsV0MsgCodec msgObj) {
+        int attrsLen = 0;
+        int bodyLen = 0;
+        byte[] backBody = null;
+        if (attrs != null) {
+            attrsLen = attrs.length();
+        }
+        if (MsgType.MSG_ORIGINAL_RETURN.equals(msgType)) {
+            backBody = msgObj.getOrigBody();
+            if (backBody != null) {
+                bodyLen = backBody.length;
+            }
+        }
+        // backTotalLen = mstType + bodyLen + body + attrsLen + attrs
+        int backTotalLen = 1 + 4 + bodyLen + 4 + attrsLen;
+        ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer(4 + backTotalLen);
+        buffer.writeInt(backTotalLen);
+        buffer.writeByte(msgType.getValue());
+        buffer.writeInt(bodyLen);
+        if (bodyLen > 0) {
+            buffer.writeBytes(backBody);
+        }
         buffer.writeInt(attrsLen);
         if (attrsLen > 0) {
             buffer.writeBytes(attrs.getBytes(StandardCharsets.UTF_8));
