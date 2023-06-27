@@ -347,12 +347,13 @@ public class ConfigManager {
                 }
                 httpPost.setEntity(HttpUtils.getEntity(request));
                 // request with post
-                LOG.info("Start to request {} to get config info, with params {}", url, request);
+                LOG.info("Start to request {} to get config info, with params: {}, headers: {}",
+                        url, request, httpPost.getAllHeaders());
                 CloseableHttpResponse response = httpClient.execute(httpPost);
                 String returnStr = EntityUtils.toString(response.getEntity());
                 if (response.getStatusLine().getStatusCode() != 200) {
-                    LOG.warn("Failed to request {}, with params {}, the response is {}",
-                            url, request, returnStr);
+                    LOG.warn("Failed to request {}, with params: {}, headers: {}, the response is {}",
+                            url, request, httpPost.getAllHeaders(), returnStr);
                     return false;
                 }
                 LOG.info("End to request {} to get config info:{}", url, returnStr);

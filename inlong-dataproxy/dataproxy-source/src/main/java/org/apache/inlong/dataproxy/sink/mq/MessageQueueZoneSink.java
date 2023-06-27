@@ -21,10 +21,14 @@ import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
+import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -42,6 +46,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * MessageQueueZoneSink
@@ -68,7 +74,8 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
 
     private MessageQueueZoneProducer zoneProducer;
     // configure change notify
-    private final Object syncLock = new Object();
+    private final ReentrantLock reentrantLock = new ReentrantLock();
+    private final Condition condition = reentrantLock.newCondition();
     private final AtomicLong lastNotifyTime = new AtomicLong(0);
     // changeListerThread
     private Thread configListener;
@@ -209,8 +216,33 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
                 tx.commit();
                 return Status.READY;
             }
+            // file event
+            if (StringUtils.isEmpty(event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER))) {
+                String groupId = event.getHeaders().get(EventConstants.INLONG_GROUP_ID);
+                String streamId = event.getHeaders().get(EventConstants.INLONG_STREAM_ID);
+                String msgTimeStr = event.getHeaders().get(EventConstants.HEADER_KEY_MSG_TIME);
+                String sourceIp = event.getHeaders().get(EventConstants.HEADER_KEY_SOURCE_IP);
+                String sourceTimeStr = event.getHeaders().get(EventConstants.HEADER_KEY_SOURCE_TIME);
+                if (groupId != null
+                        && streamId != null
+                        && msgTimeStr != null
+                        && sourceIp != null
+                        && sourceTimeStr != null) {
+                    ProxyEvent proxyEvent = new ProxyEvent(groupId, streamId, msgTimeStr,
+                            sourceIp, sourceTimeStr, event.getHeaders(), event.getBody());
+                    this.dispatchManager.addEvent(proxyEvent);
+                    context.fileMetricIncSumStats(StatConstants.EVENT_SINK_EVENT_V1_FILE);
+                } else {
+                    context.fileMetricIncSumStats(StatConstants.EVENT_SINK_EVENT_V1_MALFORMED);
+                }
+            } else {
+                SimpleEvent simpleEvent = new SimpleEvent();
+                simpleEvent.setBody(event.getBody());
+                simpleEvent.setHeaders(event.getHeaders());
+                this.dispatchManager.addSimpleEvent(simpleEvent);
+                context.fileMetricIncSumStats(StatConstants.EVENT_SINK_EVENT_V0_FILE);
+            }
             tx.commit();
-            this.context.addSendFailMetric();
             return Status.READY;
         } catch (Throwable t) {
             if (logCounter.shouldPrint()) {
@@ -266,8 +298,13 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
         if (zoneProducer == null) {
             return;
         }
-        lastNotifyTime.set(System.currentTimeMillis());
-        syncLock.notifyAll();
+        reentrantLock.lock();
+        try {
+            lastNotifyTime.set(System.currentTimeMillis());
+            condition.signal();
+        } finally {
+            reentrantLock.unlock();
+        }
     }
 
     /**
@@ -282,14 +319,16 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
         @Override
         public void run() {
             long lastCheckTime;
+            logger.info("{} config-change processor start!", getName());
             while (!isShutdown) {
+                reentrantLock.lock();
                 try {
-                    syncLock.wait();
-                } catch (InterruptedException e) {
-                    logger.error("{} config-change processor meet interrupt, exit!", getName());
+                    condition.await();
+                } catch (InterruptedException e1) {
+                    logger.info("{} config-change processor meet interrupt, break!", getName());
                     break;
-                } catch (Throwable e2) {
-                    //
+                } finally {
+                    reentrantLock.unlock();
                 }
                 if (zoneProducer == null) {
                     continue;
@@ -299,6 +338,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
                     zoneProducer.reloadMetaConfig();
                 } while (lastCheckTime != lastNotifyTime.get());
             }
+            logger.info("{} config-change processor exit!", getName());
         }
     }
 }

@@ -48,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.management.ManagementFactory;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -71,8 +72,8 @@ public class ProducerManager {
     private static final Logger logger =
             LoggerFactory.getLogger(ProducerManager.class);
     private static final int BROKER_UPDATED_TIME_AFTER_RETRY_FAIL = 2 * 60 * 60 * 1000;
-    private static final AtomicInteger producerCounter =
-            new AtomicInteger(0);
+    private static final SecureRandom sRandom = new SecureRandom(
+            Long.toString(System.nanoTime()).getBytes());
     private final String producerId;
     private final int producerAddrId;
     private final TubeClientConfig tubeClientConfig;
@@ -560,8 +561,8 @@ public class ProducerManager {
         return new StringBuilder(256)
                 .append(AddressUtils.getLocalAddress())
                 .append("-").append(pidName)
-                .append("-").append(System.currentTimeMillis())
-                .append("-").append(producerCounter.incrementAndGet())
+                .append("-").append(System.nanoTime())
+                .append("-").append(Math.abs(sRandom.nextInt()))
                 .append("-").append(TubeClientVersion.PRODUCER_VERSION).toString();
     }
 
