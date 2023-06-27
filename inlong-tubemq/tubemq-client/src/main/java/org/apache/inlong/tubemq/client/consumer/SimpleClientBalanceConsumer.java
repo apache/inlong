@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.management.ManagementFactory;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,8 +80,8 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
     private static final Logger logger =
             LoggerFactory.getLogger(SimpleClientBalanceConsumer.class);
 
-    private static final AtomicInteger consumerCounter =
-            new AtomicInteger(0);
+    private static final SecureRandom sRandom = new SecureRandom(
+            Long.toString(System.nanoTime()).getBytes());
     protected final String consumerId;
     protected final ConsumerConfig consumerConfig;
     private final InnerSessionFactory sessionFactory;
@@ -1753,8 +1754,8 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                 .append(this.consumerConfig.getConsumerGroup())
                 .append("_").append(AddressUtils.getLocalAddress())
                 .append("-").append(pidName)
-                .append("-").append(System.currentTimeMillis())
-                .append("-").append(consumerCounter.incrementAndGet())
+                .append("-").append(System.nanoTime())
+                .append("-").append(Math.abs(sRandom.nextInt()))
                 .append("-Balance-")
                 .append(TubeClientVersion.CONSUMER_VERSION).toString();
     }
