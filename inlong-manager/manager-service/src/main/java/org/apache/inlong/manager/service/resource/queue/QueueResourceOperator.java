@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.queue;
 
-import org.apache.inlong.manager.pojo.consume.DisplayMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
@@ -76,8 +76,8 @@ public interface QueueResourceOperator {
     default void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
     }
 
-    default List<DisplayMessage> queryLastestMessage(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            Integer messageNumber)
+    default List<BriefMQMessage> queryLastestMessage(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
+            Integer messageCount)
             throws PulsarClientException {
         return null;
     }

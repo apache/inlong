@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.tool.excel.ExcelTool;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.pojo.consume.DisplayMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -235,17 +235,17 @@ public class InlongStreamController {
         }
     }
 
-    @RequestMapping(value = "/stream/queryMessage", method = RequestMethod.GET)
+    @RequestMapping(value = "/stream/listMessages", method = RequestMethod.GET)
     @ApiOperation(value = "Get inlong stream message")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true),
-            @ApiImplicitParam(name = "messageNumber", dataTypeClass = String.class, required = true)
+            @ApiImplicitParam(name = "messageCount", dataTypeClass = String.class, required = true)
     })
-    public Response<List<DisplayMessage>> queryMessage(@RequestParam String groupId, @RequestParam String streamId,
-            @RequestParam Integer messageNumber) {
+    public Response<List<BriefMQMessage>> listMessages(@RequestParam String groupId, @RequestParam String streamId,
+            @RequestParam Integer messageCount) {
         String username = LoginUserUtils.getLoginUser().getName();
-        return Response.success(streamService.queryMessage(groupId, streamId, messageNumber, username));
+        return Response.success(streamService.listMessages(groupId, streamId, messageCount, username));
     }
 
 }

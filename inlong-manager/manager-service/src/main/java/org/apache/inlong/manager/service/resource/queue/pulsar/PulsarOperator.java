@@ -18,13 +18,12 @@
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
 import org.apache.inlong.common.enums.DataProxyMsgEncType;
-import org.apache.inlong.common.enums.MessageWrapType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.pojo.consume.DisplayMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -387,15 +386,15 @@ public class PulsarOperator {
     }
 
     /**
-     * Query topic message for the given tubemq cluster.
+     * Query topic message for the given pulsar cluster.
      */
-    public List<DisplayMessage> queryLastMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
-            Integer messageNumber, InlongStreamInfo streamInfo) {
+    public List<BriefMQMessage> queryLastMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
+            Integer messageCount, InlongStreamInfo streamInfo) {
         LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
         List<Message<byte[]>> messages = new ArrayList<>();
-        List<DisplayMessage> messageList = new ArrayList<>();
+        List<BriefMQMessage> messageList = new ArrayList<>();
         try {
-            messages = pulsarAdmin.topics().peekMessages(topicFullName, subName, messageNumber);
+            messages = pulsarAdmin.topics().peekMessages(topicFullName, subName, messageCount);
         } catch (PulsarAdminException e) {
             String errMsg = "failed to query peek messages";
             LOGGER.error(errMsg, e);
@@ -408,7 +407,7 @@ public class PulsarOperator {
                 int wrapTypeId = Integer.parseInt(headers.getOrDefault(VERSION_KEY,
                         Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
-                        MessageWrapType.forType(wrapTypeId));
+                        DataProxyMsgEncType.valueOf(wrapTypeId));
                 messageList.addAll(
                         deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(), headers, ++index));
             } catch (Exception e) {

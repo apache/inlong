@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.pojo.consume.DisplayMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
@@ -248,11 +248,11 @@ public class InlongStreamClient {
         return parseFields(request);
     }
 
-    public List<DisplayMessage> queryMessage(String groupId, String streamId, Integer position) {
+    public List<BriefMQMessage> queryMessage(String groupId, String streamId, Integer messageCount) {
         Preconditions.expectNotBlank(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY);
         Preconditions.expectNotBlank(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY);
-        Response<List<DisplayMessage>> response = ClientUtils.executeHttpCall(
-                inlongStreamApi.queryMessage(groupId, streamId, position));
+        Response<List<BriefMQMessage>> response = ClientUtils.executeHttpCall(
+                inlongStreamApi.listMessages(groupId, streamId, messageCount));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

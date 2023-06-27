@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
-import org.apache.inlong.manager.pojo.consume.DisplayMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
@@ -304,13 +304,13 @@ public class PulsarResourceOperator implements QueueResourceOperator {
         }
     }
 
-    public List<DisplayMessage> queryLastestMessage(InlongGroupInfo groupInfo,
-            InlongStreamInfo streamInfo, Integer messageNumber) throws PulsarClientException {
+    public List<BriefMQMessage> queryLastestMessage(InlongGroupInfo groupInfo,
+            InlongStreamInfo streamInfo, Integer messageCount) throws PulsarClientException {
         String groupId = streamInfo.getInlongGroupId();
         InlongPulsarInfo inlongPulsarInfo = ((InlongPulsarInfo) groupInfo);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(groupInfo.getInlongClusterTag(),
                 null, ClusterType.PULSAR);
-        List<DisplayMessage> displayMessages = new ArrayList<>();
+        List<BriefMQMessage> briefMQMessages = new ArrayList<>();
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             String tenant = inlongPulsarInfo.getPulsarTenant();
             if (StringUtils.isBlank(tenant)) {
@@ -321,14 +321,14 @@ public class PulsarResourceOperator implements QueueResourceOperator {
             String fullTopicName = tenant + "/" + namespace + "/" + topicName;
             String clusterTag = inlongPulsarInfo.getInlongClusterTag();
             String subs = String.format(PULSAR_SUBSCRIPTION_REAL_TIME_REVIEW, clusterTag, topicName);
-            displayMessages =
-                    pulsarOperator.queryLastMessage(pulsarAdmin, fullTopicName, subs, messageNumber, streamInfo);
+            briefMQMessages =
+                    pulsarOperator.queryLastMessage(pulsarAdmin, fullTopicName, subs, messageCount, streamInfo);
             // insert the consumer group info into the inlong_consume table
             Integer id = consumeService.saveBySystem(groupInfo, topicName, subs);
             log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
                     id, subs, groupId, topicName);
         }
-        return displayMessages;
+        return briefMQMessages;
     }
 
 }

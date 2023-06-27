@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.message;
 
-import org.apache.inlong.common.enums.MessageWrapType;
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.manager.pojo.consume.DisplayMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,18 +38,18 @@ public class RawMsgDeserializeOperator implements DeserializeOperator {
     private static final String MSG_TIME_KEY = "msgTime";
 
     @Override
-    public boolean accept(MessageWrapType type) {
-        return MessageWrapType.NONE.equals(type);
+    public boolean accept(DataProxyMsgEncType type) {
+        return DataProxyMsgEncType.MSG_ENCODE_TYPE_RAW.equals(type);
     }
 
     @Override
-    public List<DisplayMessage> decodeMsg(InlongStreamInfo streamInfo,
+    public List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo,
             byte[] msgBytes, Map<String, String> headers, int index) throws Exception {
         String groupId = headers.get(AttributeConstants.GROUP_ID);
         String streamId = headers.get(AttributeConstants.STREAM_ID);
         long msgTime = Long.parseLong(headers.getOrDefault(MSG_TIME_KEY, "0"));
         return Collections
-                .singletonList(new DisplayMessage(null, groupId, streamId, msgTime, headers.get(NODE_IP),
+                .singletonList(new BriefMQMessage(null, groupId, streamId, msgTime, headers.get(NODE_IP),
                         new String(msgBytes, Charset.forName(streamInfo.getDataEncoding()))));
     }
 

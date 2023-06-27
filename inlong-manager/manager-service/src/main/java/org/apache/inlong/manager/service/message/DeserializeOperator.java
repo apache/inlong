@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.message;
 
-import org.apache.inlong.common.enums.MessageWrapType;
-import org.apache.inlong.manager.pojo.consume.DisplayMessage;
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
@@ -32,9 +32,9 @@ public interface DeserializeOperator {
     /**
      * Determines whether the current instance matches the specified type.
      */
-    boolean accept(MessageWrapType type);
+    boolean accept(DataProxyMsgEncType type);
 
-    default List<DisplayMessage> decodeMsg(InlongStreamInfo streamInfo,
+    default List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo,
             byte[] msgBytes, Map<String, String> headers, int index) throws Exception {
         return null;
     }

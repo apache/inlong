@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.service.message;
 
-import org.apache.inlong.common.enums.MessageWrapType;
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
-import org.apache.inlong.manager.pojo.consume.DisplayMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.sdk.sort.util.StringUtil;
 
@@ -46,16 +46,16 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
     public static final String NODE_IP = "NodeIP";
 
     @Override
-    public boolean accept(MessageWrapType type) {
-        return MessageWrapType.INLONG_MSG.equals(type);
+    public boolean accept(DataProxyMsgEncType type) {
+        return DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.equals(type);
     }
 
     @Override
-    public List<DisplayMessage> decodeMsg(InlongStreamInfo streamInfo,
+    public List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo,
             byte[] msgBytes, Map<String, String> headers, int index) throws Exception {
         String groupId = headers.get(AttributeConstants.GROUP_ID);
         String streamId = headers.get(AttributeConstants.STREAM_ID);
-        List<DisplayMessage> messageList = new ArrayList<>();
+        List<BriefMQMessage> messageList = new ArrayList<>();
         InLongMsg inLongMsg = InLongMsg.parseFrom(msgBytes);
         for (String attr : inLongMsg.getAttrs()) {
             Map<String, String> attributes = StringUtil.splitKv(attr, INLONGMSG_ATTR_ENTRY_DELIMITER,
@@ -78,8 +78,8 @@ public class InlongMsgDeserializeOperator implements DeserializeOperator {
                 if (Objects.isNull(bodyBytes)) {
                     continue;
                 }
-                DisplayMessage inLongMessage =
-                        new DisplayMessage(index, groupId, streamId, msgTime, attributes.get(NODE_IP),
+                BriefMQMessage inLongMessage =
+                        new BriefMQMessage(index, groupId, streamId, msgTime, attributes.get(NODE_IP),
                                 new String(bodyBytes, Charset.forName(streamInfo.getDataEncoding())));
                 messageList.add(inLongMessage);
             }

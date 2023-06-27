@@ -36,7 +36,7 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
-import org.apache.inlong.manager.pojo.consume.DisplayMessage;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.ParseFieldRequest;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
@@ -1006,17 +1006,17 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public List<DisplayMessage> queryMessage(String groupId, String streamId, Integer messageNumber, String operator) {
+    public List<BriefMQMessage> listMessages(String groupId, String streamId, Integer messageCount, String operator) {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         // check user
         userService.checkUser(groupEntity.getInCharges(), operator, ErrorCodeEnum.GROUP_PERMISSION_DENIED.getMessage());
         InlongGroupOperator instance = groupOperatorFactory.getInstance(groupEntity.getMqType());
         InlongGroupInfo groupInfo = instance.getFromEntity(groupEntity);
         InlongStreamInfo inlongStreamInfo = get(groupId, streamId);
-        List<DisplayMessage> messageList = new ArrayList<>();
+        List<BriefMQMessage> messageList = new ArrayList<>();
         QueueResourceOperator queueOperator = queueOperatorFactory.getInstance(groupEntity.getMqType());
         try {
-            messageList = queueOperator.queryLastestMessage(groupInfo, inlongStreamInfo, messageNumber);
+            messageList = queueOperator.queryLastestMessage(groupInfo, inlongStreamInfo, messageCount);
         } catch (Exception e) {
             LOGGER.error("query message error ", e);
         }

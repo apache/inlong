@@ -31,8 +31,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Inlong display message info")
-public class DisplayMessage {
+@ApiModel("Inlong brief mq message info")
+public class BriefMQMessage {
 
     @ApiModelProperty(value = "index id")
     private Integer id;
