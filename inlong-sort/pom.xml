@@ -53,6 +53,9 @@
     <profiles>
         <profile>
             <id>v1.13</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <sort.flink.version>v1.13</sort.flink.version>
                 <flink.version>1.13.5</flink.version>
@@ -68,9 +71,6 @@
         </profile>
         <profile>
             <id>v1.15</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <sort.flink.version>v1.15</sort.flink.version>
                 <flink.version>1.15.4</flink.version>
