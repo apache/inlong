@@ -899,7 +899,7 @@ The text of each license is the standard Apache 2.0 license.
   net.sf.jpam:jpam:1.1 - JPam (http://jpam.sourceforge.net/), (The Apache Software License, Version 2.0)
   com.cedarsoftware:json-io:2.5.1 - Java JSON serialization (https://github.com/jdereg/json-io), (Apache License, Version 2.0)
   net.minidev:json-smart:2.3 - JSON Small and Fast Parser (https://github.com/netplex/json-smart-v2/tree/v2.3), (The Apache Software License, Version 2.0)
-  com.github.jsqlparser:jsqlparser:4.2 - JSQLParser library (https://github.com/JSQLParser/JSqlParser), (The Apache Software License, Version 2.0;  GNU Library or Lesser General Public License (LGPL) V2.1)
+  com.github.jsqlparser:jsqlparser:4.6 - JSQLParser library (https://github.com/JSQLParser/JSqlParser), (The Apache Software License, Version 2.0;  GNU Library or Lesser General Public License (LGPL) V2.1)
   org.apache.kerby:kerb-admin:1.0.1 - Kerby-kerb Admin (http://directory.apache.org/kerby/kerby-kerb/kerb-admin), (Apache License, Version 2.0)
   org.apache.kerby:kerb-client:1.0.1 - Kerby-kerb Client (http://directory.apache.org/kerby/kerby-kerb/kerb-client), (Apache License, Version 2.0)
   org.apache.kerby:kerb-common:1.0.1 - Kerby-kerb Common (http://directory.apache.org/kerby/kerby-kerb/kerb-common), (Apache License, Version 2.0)
