@@ -85,6 +85,16 @@ jobs:
         env:
           CI: false
 
+      - name: Rebuild sort-end-to-end-tests with Maven
+        run: mvn --update-snapshots -e -V clean install -U -pl inlong-sort/sort-end-to-end-tests -am -Pv1.15 -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
+        env:
+          CI: false
+
+      - name: Unit test for sort-end-to-end-tests with Maven
+        run: mvn --update-snapshots -e -V test inlong-sort/sort-end-to-end-tests
+        env:
+          CI: false
+
       - name: Upload unit test results
         if: ${{ failure() }}
         uses: actions/upload-artifact@v3
