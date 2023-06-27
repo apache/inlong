@@ -91,7 +91,7 @@ jobs:
           CI: false
 
       - name: Unit test for sort-end-to-end-tests with Maven
-        run: mvn --update-snapshots -e -V test inlong-sort/sort-end-to-end-tests
+        run: mvn --update-snapshots -e -V test -Dtest="*" -pl inlong-sort/sort-end-to-end-tests
         env:
           CI: false
 
