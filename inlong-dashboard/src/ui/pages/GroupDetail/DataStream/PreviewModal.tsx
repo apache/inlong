@@ -18,7 +18,7 @@
  */
 
 import React, { useState } from 'react';
-import { Modal, Table, Button } from 'antd';
+import { Modal, Table, Radio, RadioChangeEvent } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/ui/hooks';
 import i18n from '@/i18n';
@@ -77,6 +77,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
     },
   );
 
+  const onChange = ({ target: { value } }: RadioChangeEvent) => {
+    setPosition(value);
+  };
+
   useUpdateEffect(() => {
     if (modalProps.open) {
       if (inlongStreamId) {
@@ -94,38 +98,12 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, ...modalProps })
     >
       <div style={{ marginBottom: 20, marginTop: 20 }}>
         <span>{i18n.t('pages.GroupDetail.Stream.Number')}: </span>
-        <Button
-          style={{ marginLeft: 20 }}
-          onClick={() => {
-            setPosition(1);
-          }}
-        >
-          1
-        </Button>
-        <Button
-          style={{ marginLeft: 20 }}
-          onClick={() => {
-            setPosition(5);
-          }}
-        >
-          5
-        </Button>
-        <Button
-          style={{ marginLeft: 20 }}
-          onClick={() => {
-            setPosition(10);
-          }}
-        >
-          10
-        </Button>
-        <Button
-          style={{ marginLeft: 20 }}
-          onClick={() => {
-            setPosition(50);
-          }}
-        >
-          50
-        </Button>
+        <Radio.Group defaultValue="1" style={{ marginLeft: 20 }} onChange={onChange}>
+          <Radio.Button value="1">1</Radio.Button>
+          <Radio.Button value="5">5</Radio.Button>
+          <Radio.Button value="10">10</Radio.Button>
+          <Radio.Button value="50">50</Radio.Button>
+        </Radio.Group>
       </div>
       <Table
         columns={detailColumns}
