@@ -378,7 +378,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
                 String[] items = matcher.group(1).split(",");
                 precision = Integer.parseInt(items[0].trim());
                 if (precision < DecimalType.MIN_PRECISION || precision > DecimalType.MAX_PRECISION) {
-                    LOG.info("Decimal has invalid precision {}", precision);
+                    LOG.info("invalid decimal precision: {}, change to: {}", precision, decimalType.getPrecision());
                     return decimalType;
                 }
                 if (items.length == 2) {
