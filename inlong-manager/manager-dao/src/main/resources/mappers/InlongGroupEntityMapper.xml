@@ -25,7 +25,7 @@
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
-        <result column="tenant" jdbcType="VARCHAR" property="mqType"/>
+        <result column="tenant" jdbcType="VARCHAR" property="tenant"/>
         <result column="mq_type" jdbcType="VARCHAR" property="mqType"/>
         <result column="mq_resource" jdbcType="VARCHAR" property="mqResource"/>
         <result column="daily_records" jdbcType="INTEGER" property="dailyRecords"/>

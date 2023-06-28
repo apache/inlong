@@ -26,6 +26,12 @@ import javax.annotation.PostConstruct;
 
 import java.util.List;
 
+/**
+ * Configuration to add {@link MultiTenantInterceptor} into the sql session interceptorChain.
+ *
+ * <p>This MultiTenantInterceptor must be added after {@link com.github.pagehelper.PageInterceptor} to ensure the
+ * correct parameter mapping.</p>
+ */
 @Configuration
 public class MultiTenantInterceptorConfiguration {
 

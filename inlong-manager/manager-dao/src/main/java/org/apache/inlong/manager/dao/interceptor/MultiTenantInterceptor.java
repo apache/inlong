@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.dao.interceptor;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
@@ -51,6 +52,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * This interceptor intercept those queries annotated by {@link MultiTenantQuery}.
+ *
+ * <p>The main idea of MultiTenantInterceptor is that developer define sql template
+ * support multiple tenant in mapper.xml, but no need to pass the tenant explicitly in mapper.java.</p>
+ *
+ * <p>MultiTenantInterceptor will insert <strong>tenant</strong> into the parameter maps in
+ * {@link Executor} and {@link ParameterHandler} stages.</p>
+ */
 @Slf4j
 @Intercepts({
         @Signature(type = ParameterHandler.class, method = "setParameters", args = PreparedStatement.class),
