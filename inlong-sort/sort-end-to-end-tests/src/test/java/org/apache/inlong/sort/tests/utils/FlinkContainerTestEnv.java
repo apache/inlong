@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.tests.utils;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.api.common.time.Deadline;
 import org.apache.flink.client.deployment.StandaloneClusterId;
@@ -58,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -126,11 +128,24 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
                     .withNetworkAliases(INTER_CONTAINER_MYSQL_ALIAS)
                     .withLogConsumer(new Slf4jLogConsumer(MYSQL_LOG));
 
+    private static String flinkDockerImageName;
+
     @BeforeClass
     public static void before() {
+        flinkDockerImageName = "flink:1.13.5-scala_2.11";
+        try (InputStream is = FlinkContainerTestEnv.class.getClassLoader()
+                .getResourceAsStream("sort-properties-from-pom.properties")) {
+            Properties properties = new Properties();
+            properties.load(is);
+            flinkDockerImageName = properties.getProperty("flink.docker.image.name");
+        } catch (Exception e) {
+            LOG.info("load sort-properties-from-pom.properties exception." + e.toString());
+            e.printStackTrace();
+        }
+
         LOG.info("Starting containers...");
         jobManager =
-                new GenericContainer<>("flink:1.13.5-scala_2.11")
+                new GenericContainer<>(flinkDockerImageName)
                         .withCommand("jobmanager")
                         .withNetwork(NETWORK)
                         .withNetworkAliases(INTER_CONTAINER_JM_ALIAS)
@@ -138,7 +153,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
                         .withEnv("FLINK_PROPERTIES", FLINK_PROPERTIES)
                         .withLogConsumer(new Slf4jLogConsumer(JM_LOG));
         taskManager =
-                new GenericContainer<>("flink:1.13.5-scala_2.11")
+                new GenericContainer<>(flinkDockerImageName)
                         .withCommand("taskmanager")
                         .withNetwork(NETWORK)
                         .withNetworkAliases(INTER_CONTAINER_TM_ALIAS)
@@ -239,6 +254,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
 
     /**
      * Polling to detect task status until the task successfully into {@link JobStatus.RUNNING}
+     *
      * @param timeout
      */
     public void waitUntilJobRunning(Duration timeout) {

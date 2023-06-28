@@ -159,6 +159,23 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>write-project-properties</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <outputFile>${project.build.outputDirectory}/sort-properties-from-pom.properties</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -179,6 +196,7 @@
                 <flink.streaming.artifactId>flink-streaming-java_${flink.scala.binary.version}</flink.streaming.artifactId>
                 <flink.test.utils.artifactId>flink-test-utils_${flink.scala.binary.version}</flink.test.utils.artifactId>
                 <flink.runtime.artifactId>flink-runtime_${scala.binary.version}</flink.runtime.artifactId>
+                <flink.docker.image.name>flink:1.13.5-scala_2.11</flink.docker.image.name>
             </properties>
         </profile>
         <profile>
@@ -194,6 +212,7 @@
                 <flink.streaming.artifactId>flink-streaming-java</flink.streaming.artifactId>
                 <flink.test.utils.artifactId>flink-test-utils</flink.test.utils.artifactId>
                 <flink.runtime.artifactId>flink-runtime</flink.runtime.artifactId>
+                <flink.docker.image.name>flink:1.15.4-scala_2.12</flink.docker.image.name>
             </properties>
         </profile>
     </profiles>
