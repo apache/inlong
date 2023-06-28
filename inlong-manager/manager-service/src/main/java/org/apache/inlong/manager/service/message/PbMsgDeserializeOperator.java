@@ -19,13 +19,13 @@ package org.apache.inlong.manager.service.message;
 
 import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.common.util.Utils;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
-import org.apache.inlong.sdk.sort.util.Utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,9 +39,6 @@ import java.util.Map;
 @Slf4j
 @Service
 public class PbMsgDeserializeOperator implements DeserializeOperator {
-
-    public static final String NODE_IP = "NodeIP";
-    private static final String COMPRESS_TYPE_KEY = "compressType";
 
     @Override
     public boolean accept(DataProxyMsgEncType type) {

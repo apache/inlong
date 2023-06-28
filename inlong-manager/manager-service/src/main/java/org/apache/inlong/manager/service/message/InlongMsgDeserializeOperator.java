@@ -20,9 +20,9 @@ package org.apache.inlong.manager.service.message;
 import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.common.util.StringUtil;
 import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.sdk.sort.util.StringUtil;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,16 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_ENTRY_DELIMITER;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_KV_DELIMITER;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_DT;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_T;
-
 @Slf4j
 @Service
 public class InlongMsgDeserializeOperator implements DeserializeOperator {
-
-    public static final String NODE_IP = "NodeIP";
 
     @Override
     public boolean accept(DataProxyMsgEncType type) {

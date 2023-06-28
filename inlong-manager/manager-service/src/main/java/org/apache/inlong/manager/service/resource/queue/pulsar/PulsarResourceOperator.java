@@ -64,7 +64,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
      */
     public static final String PULSAR_SUBSCRIPTION = "%s_%s_%s_consumer_group";
 
-    public static final String PULSAR_SUBSCRIPTION_REAL_TIME_REVIEW = "%s_%s_consumer_group_real_time_review";
+    public static final String PULSAR_SUBSCRIPTION_REALTIME_REVIEW = "%s_%s_consumer_group_realtime_review";
 
     @Autowired
     private InlongClusterService clusterService;
@@ -320,7 +320,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
             String topicName = streamInfo.getMqResource();
             String fullTopicName = tenant + "/" + namespace + "/" + topicName;
             String clusterTag = inlongPulsarInfo.getInlongClusterTag();
-            String subs = String.format(PULSAR_SUBSCRIPTION_REAL_TIME_REVIEW, clusterTag, topicName);
+            String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
             briefMQMessages =
                     pulsarOperator.queryLastMessage(pulsarAdmin, fullTopicName, subs, messageCount, streamInfo);
             // insert the consumer group info into the inlong_consume table

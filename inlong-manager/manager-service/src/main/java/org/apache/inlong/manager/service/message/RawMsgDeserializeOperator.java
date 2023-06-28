@@ -34,9 +34,6 @@ import java.util.Map;
 @Service
 public class RawMsgDeserializeOperator implements DeserializeOperator {
 
-    public static final String NODE_IP = "NodeIP";
-    private static final String MSG_TIME_KEY = "msgTime";
-
     @Override
     public boolean accept(DataProxyMsgEncType type) {
         return DataProxyMsgEncType.MSG_ENCODE_TYPE_RAW.equals(type);

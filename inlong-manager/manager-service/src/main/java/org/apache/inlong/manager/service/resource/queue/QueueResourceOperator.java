@@ -76,6 +76,14 @@ public interface QueueResourceOperator {
     default void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
     }
 
+    /**
+     * Query brief mq message info
+     *
+     * @param groupInfo inlong group info
+     * @param streamInfo inlong stream info
+     * @param messageCount Count of messages to query'
+     * @return query brief mq message info
+     */
     default List<BriefMQMessage> queryLastestMessage(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             Integer messageCount)
             throws PulsarClientException {
