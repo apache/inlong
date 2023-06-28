@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.sink.mq;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.dataproxy.config.CommonConfigHolder;
 
 import org.apache.flume.Event;
 
@@ -32,22 +33,26 @@ public abstract class PackProfile {
     private final long dispatchTime;
     private final long createTime = System.currentTimeMillis();
     private final String uid;
-    protected long count = 0;
-    protected long size = 0;
-
+    protected int count = 0;
+    protected int size = 0;
+    protected final boolean enableRetryAfterFailure;
+    protected final int maxRetries;
+    protected int retries = 0;
     /**
      * Constructor
      *
-     * @param uid
-     * @param inlongGroupId
-     * @param inlongStreamId
-     * @param dispatchTime
+     * @param uid  the inlong id
+     * @param inlongGroupId   the group id
+     * @param inlongStreamId  the stream id
+     * @param dispatchTime the dispatch time
      */
     public PackProfile(String uid, String inlongGroupId, String inlongStreamId, long dispatchTime) {
         this.uid = uid;
         this.inlongGroupId = inlongGroupId;
         this.inlongStreamId = inlongStreamId;
         this.dispatchTime = dispatchTime;
+        this.enableRetryAfterFailure = CommonConfigHolder.getInstance().isEnableSendRetryAfterFailure();
+        this.maxRetries = CommonConfigHolder.getInstance().getMaxRetriesAfterFailure();
     }
 
     /**
@@ -80,7 +85,7 @@ public abstract class PackProfile {
     /**
      * getDispatchTime
      * 
-     * @return
+     * @return the dispatch time
      */
     public long getDispatchTime() {
         return dispatchTime;
@@ -91,7 +96,7 @@ public abstract class PackProfile {
      *
      * @return the count
      */
-    public long getCount() {
+    public int getCount() {
         return count;
     }
 
@@ -100,7 +105,7 @@ public abstract class PackProfile {
      *
      * @param count the count to set
      */
-    public void setCount(long count) {
+    public void setCount(int count) {
         this.count = count;
     }
 
@@ -109,7 +114,7 @@ public abstract class PackProfile {
      *
      * @return the size
      */
-    public long getSize() {
+    public int getSize() {
         return size;
     }
 
@@ -118,15 +123,15 @@ public abstract class PackProfile {
      *
      * @param size the size to set
      */
-    public void setSize(long size) {
+    public void setSize(int size) {
         this.size = size;
     }
 
     /**
      * isTimeout
      *
-     * @param  createThreshold
-     * @return
+     * @param  createThreshold  the creation threshold
+     * @return whether time out
      */
     public boolean isTimeout(long createThreshold) {
         return createThreshold >= createTime;
@@ -139,23 +144,22 @@ public abstract class PackProfile {
 
     /**
      * fail
-     * @return
      */
     public abstract void fail(DataProxyErrCode errCode, String errMsg);
 
     /**
      * isResend
-     * @return
+     * @return whether resend message
      */
     public abstract boolean isResend();
 
     /**
      * addEvent
      *
-     * @param  event
-     * @param  maxPackCount
-     * @param  maxPackSize
-     * @return
+     * @param  event   the event need to add
+     * @param  maxPackCount   the max package count
+     * @param  maxPackSize    the max package size
+     * @return whether add success
      */
     public abstract boolean addEvent(Event event, long maxPackCount, long maxPackSize);
 

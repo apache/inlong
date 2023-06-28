@@ -27,14 +27,14 @@ public class BufferQueue<A> {
 
     private final LinkedBlockingQueue<A> queue;
     private final SizeSemaphore currentTokens;
-    private SizeSemaphore globalTokens;
+    private SizeSemaphore globalTokens = null;
     private final AtomicLong offerCount = new AtomicLong(0);
     private final AtomicLong pollCount = new AtomicLong(0);
 
     /**
      * Constructor
      * 
-     * @param maxSizeKb
+     * @param maxSizeKb  the initial size of permits to acquire
      */
     public BufferQueue(int maxSizeKb) {
         this.queue = new LinkedBlockingQueue<>();
@@ -44,8 +44,8 @@ public class BufferQueue<A> {
     /**
      * Constructor
      * 
-     * @param maxSizeKb
-     * @param globalTokens
+     * @param maxSizeKb    the initial size of permits to acquire
+     * @param globalTokens the global permit semaphore
      */
     public BufferQueue(int maxSizeKb, SizeSemaphore globalTokens) {
         this(maxSizeKb);
@@ -109,42 +109,49 @@ public class BufferQueue<A> {
     }
 
     /**
-     * tryAcquire
+     * try to acquire required size permit
+     *
+     * @param sizeInByte  the size of permits to acquire
+     * @return  true if the permits were acquired and false otherwise
      */
     public boolean tryAcquire(long sizeInByte) {
-        boolean cidResult = currentTokens.tryAcquire(sizeInByte);
-        if (!cidResult) {
-            return false;
-        }
         if (this.globalTokens == null) {
-            return true;
+            return currentTokens.tryAcquire(sizeInByte);
+        } else {
+            if (!this.globalTokens.tryAcquire(sizeInByte)) {
+                return false;
+            }
+            if (currentTokens.tryAcquire(sizeInByte)) {
+                return true;
+            } else {
+                this.globalTokens.release(sizeInByte);
+                return false;
+            }
         }
-        boolean globalResult = this.globalTokens.tryAcquire(sizeInByte);
-        if (globalResult) {
-            return true;
-        }
-        currentTokens.release(sizeInByte);
-        return false;
     }
 
     /**
-     * acquire
+     * acquire size permit
+     *
+     * @param sizeInByte the size of permits to acquire
      */
     public void acquire(long sizeInByte) {
-        currentTokens.acquire(sizeInByte);
         if (this.globalTokens != null) {
             globalTokens.acquire(sizeInByte);
         }
+        currentTokens.acquire(sizeInByte);
     }
 
     /**
-     * release
+     * release size permit
+     *
+     * @param sizeInByte the size of permits to release
      */
     public void release(long sizeInByte) {
+        this.currentTokens.release(sizeInByte);
         if (this.globalTokens != null) {
             this.globalTokens.release(sizeInByte);
         }
-        this.currentTokens.release(sizeInByte);
     }
 
     /**

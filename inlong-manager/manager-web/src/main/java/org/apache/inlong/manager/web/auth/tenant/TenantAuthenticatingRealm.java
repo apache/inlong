@@ -20,11 +20,11 @@ package org.apache.inlong.manager.web.auth.tenant;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.tenant.InlongTenantInfo;
 import org.apache.inlong.manager.pojo.user.InlongRoleInfo;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.TenantRoleInfo;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.tenant.InlongTenantService;
 import org.apache.inlong.manager.service.user.InlongRoleService;
-import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.apache.inlong.manager.service.user.TenantRoleService;
 import org.apache.inlong.manager.service.user.UserService;
 
@@ -91,6 +91,7 @@ public class TenantAuthenticatingRealm extends AuthenticatingRealm {
             addRole(userInfo, tenantRoleInfo.getRoleCode());
         }
 
+        userInfo.setTenant(tenant);
         return new SimpleAuthenticationInfo(userInfo, tenant, getName());
     }
 

@@ -19,14 +19,14 @@ package org.apache.inlong.sort.formats.csv;
 
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 
+import org.apache.flink.table.descriptors.Descriptor;
 import org.apache.flink.table.descriptors.DescriptorProperties;
-import org.apache.flink.table.descriptors.FormatDescriptor;
 
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_DERIVE_SCHEMA;
 
 /**
  * Format descriptor for comma-separated values (CSV).
@@ -35,15 +35,18 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * for Comma-Separated Values (CSV) Files") proposed by the Internet Engineering
  * Task Force (IETF).
  */
-public class Csv extends FormatDescriptor {
+public class Csv implements Descriptor {
 
     public static final String FORMAT_TYPE_VALUE = "tdcsv";
+    private final String type;
+    private final int version;
 
     private DescriptorProperties internalProperties =
             new DescriptorProperties(true);
 
     public Csv() {
-        super(FORMAT_TYPE_VALUE, 1);
+        this.type = FORMAT_TYPE_VALUE;
+        this.version = 1;
     }
 
     /**
@@ -135,7 +138,15 @@ public class Csv extends FormatDescriptor {
         return this;
     }
 
-    @Override
+    /** Converts this descriptor into a set of properties. */
+    public final Map<String, String> toProperties() {
+        final DescriptorProperties properties = new DescriptorProperties();
+        properties.putString(TableFormatConstants.FORMAT_TYPE, type);
+        properties.putInt(TableFormatConstants.FORMAT_PROPERTY_VERSION, version);
+        properties.putProperties(toFormatProperties());
+        return properties.asMap();
+    }
+
     protected Map<String, String> toFormatProperties() {
         final DescriptorProperties properties = new DescriptorProperties();
         properties.putProperties(internalProperties);

@@ -119,7 +119,12 @@ public class CommonConfigHolder {
     public static final int VAL_DEF_AUDIT_MAX_CACHE_ROWS = 2000000;
     public static final String KEY_AUDIT_FORMAT_INTERVAL_MS = "auditFormatInterval";
     public static final long VAL_DEF_AUDIT_FORMAT_INTERVAL_MS = 60000L;
-    // Whether response after save msg
+    // whether to retry after the message send failure
+    public static final String KEY_ENABLE_SEND_RETRY_AFTER_FAILURE = "send.retry.after.failure";
+    public static final boolean VAL_DEF_ENABLE_SEND_RETRY_AFTER_FAILURE = true;
+    // max retry count
+    public static final String KEY_MAX_RETRIES_AFTER_FAILURE = "max.retries.after.failure";
+    public static final int VAL_DEF_MAX_RETRIES_AFTER_FAILURE = -1;
     public static final String KEY_RESPONSE_AFTER_SAVE = "isResponseAfterSave";
     public static final boolean VAL_DEF_RESPONSE_AFTER_SAVE = false;
     // Same as KEY_MAX_RESPONSE_TIMEOUT_MS = "maxResponseTimeoutMs";
@@ -182,6 +187,8 @@ public class CommonConfigHolder {
     private String fileMetricSourceOutName = VAL_DEF_FILE_METRIC_SOURCE_OUTPUT_NAME;
     private String fileMetricSinkOutName = VAL_DEF_FILE_METRIC_SINK_OUTPUT_NAME;
     private String fileMetricEventOutName = VAL_DEF_FILE_METRIC_EVENT_OUTPUT_NAME;
+    private boolean enableSendRetryAfterFailure = VAL_DEF_ENABLE_SEND_RETRY_AFTER_FAILURE;
+    private int maxRetriesAfterFailure = VAL_DEF_MAX_RETRIES_AFTER_FAILURE;
 
     /**
      * get instance for common.properties config manager
@@ -362,6 +369,14 @@ public class CommonConfigHolder {
         return fileMetricEventOutName;
     }
 
+    public boolean isEnableSendRetryAfterFailure() {
+        return enableSendRetryAfterFailure;
+    }
+
+    public int getMaxRetriesAfterFailure() {
+        return maxRetriesAfterFailure;
+    }
+
     private void preReadFields() {
         String tmpValue;
         // read cluster tag
@@ -403,22 +418,20 @@ public class CommonConfigHolder {
         tmpValue = this.props.get(KEY_ENABLE_UNCONFIGURED_TOPIC_ACCEPT);
         if (StringUtils.isNotEmpty(tmpValue)) {
             this.enableUnConfigTopicAccept = "TRUE".equalsIgnoreCase(tmpValue.trim());
-            if (enableUnConfigTopicAccept) {
-                // read default topics
-                tmpValue = this.props.get(KEY_UNCONFIGURED_TOPIC_DEFAULT_TOPICS);
-                if (StringUtils.isNotBlank(tmpValue)) {
-                    List<String> tmpList = new ArrayList<>();
-                    String[] topicItems = tmpValue.split("\\s+");
-                    for (String item : topicItems) {
-                        if (StringUtils.isBlank(item)) {
-                            continue;
-                        }
-                        tmpList.add(item.trim());
-                    }
-                    if (tmpList.size() > 0) {
-                        defaultTopics = tmpList;
-                    }
+        }
+        // read default topics
+        tmpValue = this.props.get(KEY_UNCONFIGURED_TOPIC_DEFAULT_TOPICS);
+        if (StringUtils.isNotBlank(tmpValue)) {
+            List<String> tmpList = new ArrayList<>();
+            String[] topicItems = tmpValue.split("\\s+");
+            for (String item : topicItems) {
+                if (StringUtils.isBlank(item)) {
+                    continue;
                 }
+                tmpList.add(item.trim());
+            }
+            if (tmpList.size() > 0) {
+                defaultTopics = tmpList;
             }
         }
         // read enable whitelist
@@ -547,6 +560,19 @@ public class CommonConfigHolder {
         tmpValue = this.props.get(KEY_PROMETHEUS_HTTP_PORT);
         if (StringUtils.isNotEmpty(tmpValue)) {
             this.prometheusHttpPort = NumberUtils.toInt(tmpValue.trim(), VAL_DEF_PROMETHEUS_HTTP_PORT);
+        }
+        // read whether retry send message after sent failure
+        tmpValue = this.props.get(KEY_ENABLE_SEND_RETRY_AFTER_FAILURE);
+        if (StringUtils.isNotEmpty(tmpValue)) {
+            this.enableSendRetryAfterFailure = "TRUE".equalsIgnoreCase(tmpValue.trim());
+        }
+        // read max retry count
+        tmpValue = this.props.get(KEY_MAX_RETRIES_AFTER_FAILURE);
+        if (StringUtils.isNotBlank(tmpValue)) {
+            int retries = NumberUtils.toInt(tmpValue.trim(), VAL_DEF_MAX_RETRIES_AFTER_FAILURE);
+            if (retries >= 0) {
+                this.maxRetriesAfterFailure = retries;
+            }
         }
         // initial ip parser
         try {

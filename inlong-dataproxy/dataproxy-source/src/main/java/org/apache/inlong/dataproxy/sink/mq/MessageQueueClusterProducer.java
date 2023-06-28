@@ -31,7 +31,7 @@ import java.util.Set;
  */
 public class MessageQueueClusterProducer implements LifecycleAware {
 
-    public static final Logger LOG = LoggerFactory.getLogger(MessageQueueClusterProducer.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageQueueClusterProducer.class);
 
     private final String workerName;
     private final CacheClusterConfig config;

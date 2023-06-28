@@ -36,3 +36,5 @@ export type { NodeMetaType } from './nodes';
 export type { SourceMetaType } from './sources';
 export type { SinkMetaType } from './sinks';
 export type { StreamMetaType } from './streams';
+export type { SyncMetaType } from './sync';
+export type { TransformMetaType } from './transform';

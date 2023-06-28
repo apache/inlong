@@ -92,6 +92,8 @@ public class TestTriggerManager {
 
     @Test
     public void testRestartTriggerJobRestore() throws Exception {
+        agent.cleanupTriggers();
+        agent.cleanupJobs();
 
         TriggerProfile triggerProfile1 = TriggerProfile.parseJsonStr(FILE_JOB_TEMPLATE);
         triggerProfile1.set(JobConstants.JOB_ID, "1");
@@ -114,6 +116,9 @@ public class TestTriggerManager {
 
     @Test
     public void testMultiTriggerWatchSameDir() throws Exception {
+        agent.cleanupTriggers();
+        agent.cleanupJobs();
+
         TriggerProfile triggerProfile1 = TriggerProfile.parseJsonStr(FILE_JOB_TEMPLATE);
         triggerProfile1.set(JobConstants.JOB_ID, "1");
         triggerProfile1.set(JobConstants.JOB_DIR_FILTER_PATTERNS,
@@ -138,6 +143,9 @@ public class TestTriggerManager {
 
     @Test
     public void testSubmitAndShutdown() throws Exception {
+        agent.cleanupTriggers();
+        agent.cleanupJobs();
+
         TriggerProfile triggerProfile1 = TriggerProfile.parseJsonStr(FILE_JOB_TEMPLATE);
         triggerProfile1.set(JobConstants.JOB_ID, "1");
         triggerProfile1.set(JobConstants.JOB_DIR_FILTER_PATTERNS,

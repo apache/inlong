@@ -21,8 +21,11 @@ import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.MsgType;
+import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.source2.InLongMessageHandler;
+import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 
 import io.netty.buffer.ByteBuf;
@@ -33,6 +36,7 @@ import org.apache.flume.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,10 +45,9 @@ import java.util.Map;
  */
 public class SimplePackProfile extends PackProfile {
 
-    // log print count
-    private static final LogCounter logCounter =
-            new LogCounter(10, 100000, 30 * 1000);
     private static final Logger logger = LoggerFactory.getLogger(SimplePackProfile.class);
+    // log print count
+    private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
     private static final long MINUTE_MS = 60L * 1000;
     private boolean needRspEvent = false;
     private Channel channel;
@@ -53,10 +56,10 @@ public class SimplePackProfile extends PackProfile {
 
     /**
      * Constructor
-     * @param uid
-     * @param inlongGroupId
-     * @param inlongStreamId
-     * @param dispatchTime
+     * @param uid   the inlong id
+     * @param inlongGroupId   the group id
+     * @param inlongStreamId  the stream id
+     * @param dispatchTime    the received time
      */
     public SimplePackProfile(String uid, String inlongGroupId, String inlongStreamId, long dispatchTime) {
         super(uid, inlongGroupId, inlongStreamId, dispatchTime);
@@ -80,7 +83,9 @@ public class SimplePackProfile extends PackProfile {
 
     @Override
     public boolean isResend() {
-        return !needRspEvent;
+        return !needRspEvent
+                && enableRetryAfterFailure
+                && (maxRetries < 0 || ++retries <= maxRetries);
     }
 
     @Override
@@ -101,9 +106,9 @@ public class SimplePackProfile extends PackProfile {
     }
 
     /**
-     * create
-     * @param event
-     * @return
+     * create simple pack profile
+     * @param event  the event to process
+     * @return  the package profile
      */
     public static SimplePackProfile create(Event event) {
         Map<String, String> headers = event.getHeaders();
@@ -141,6 +146,22 @@ public class SimplePackProfile extends PackProfile {
     }
 
     /**
+     * get required properties sent to MQ
+     *
+     * @return the properties
+     */
+    public Map<String, String> getPropsToMQ() {
+        Map<String, String> result = new HashMap<>();
+        result.put(AttributeConstants.RCV_TIME, event.getHeaders().get(AttributeConstants.RCV_TIME));
+        result.put(ConfigConstants.MSG_ENCODE_VER, event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER));
+        result.put(EventConstants.HEADER_KEY_VERSION, event.getHeaders().get(EventConstants.HEADER_KEY_VERSION));
+        result.put(ConfigConstants.REMOTE_IP_KEY, event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY));
+        result.put(ConfigConstants.PKG_TIME_KEY, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
+        result.put(ConfigConstants.DATAPROXY_IP_KEY, NetworkUtils.getLocalIp());
+        return result;
+    }
+
+    /**
      *  Return response to client in source
      */
     private void responseV0Msg(DataProxyErrCode errCode, String errMsg) {
@@ -169,6 +190,14 @@ public class SimplePackProfile extends PackProfile {
                 if (StringUtils.isNotEmpty(errMsg)) {
                     strBuff.append(AttributeConstants.SEPARATOR).append(AttributeConstants.MESSAGE_PROCESS_ERRMSG)
                             .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(errMsg);
+                }
+            }
+            String origAttr = event.getHeaders().getOrDefault(ConfigConstants.DECODER_ATTRS, "");
+            if (StringUtils.isNotEmpty(origAttr)) {
+                if (strBuff.length() > 0) {
+                    strBuff.append(AttributeConstants.SEPARATOR).append(origAttr);
+                } else {
+                    strBuff.append(origAttr);
                 }
             }
             // build and send response message

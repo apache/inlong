@@ -19,6 +19,7 @@ package org.apache.inlong.dataproxy.sink.mq;
 
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+import org.apache.inlong.dataproxy.consts.StatConstants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * 
@@ -39,14 +38,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class MessageQueueZoneProducer {
 
-    public static final Logger LOG = LoggerFactory.getLogger(MessageQueueZoneProducer.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageQueueZoneProducer.class);
     private static final long MAX_RESERVED_TIME = 60 * 1000L;
     private final MessageQueueZoneSink zoneSink;
     private final MessageQueueZoneSinkContext context;
     private final CacheClusterSelector cacheClusterSelector;
 
     private final AtomicInteger clusterIndex = new AtomicInteger(0);
-    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private List<String> currentClusterNames = new ArrayList<>();
     private final ConcurrentHashMap<String, Long> usingTimeMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, MessageQueueClusterProducer> usingClusterMap = new ConcurrentHashMap<>();
@@ -71,10 +69,10 @@ public class MessageQueueZoneProducer {
      */
     public void start() {
         try {
-            LOG.info("start MessageQueueZoneProducer:{}", zoneSink.getName());
+            logger.info("start MessageQueueZoneProducer:{}", zoneSink.getName());
             this.reloadMetaConfig();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -140,7 +138,7 @@ public class MessageQueueZoneProducer {
                 tmpProducer.stop();
             }
         }
-        LOG.info("Clear {}'s expired cluster producer {}", zoneSink.getName(), expired);
+        logger.info("{} cleared expired cluster producer {}", zoneSink.getName(), expired);
     }
 
     /**
@@ -150,24 +148,29 @@ public class MessageQueueZoneProducer {
      */
     public boolean send(PackProfile profile) {
         String clusterName;
+        List<String> tmpClusters;
         MessageQueueClusterProducer clusterProducer;
-        readWriteLock.readLock().lock();
-        try {
-            do {
-                clusterName = currentClusterNames.get(
-                        Math.abs(clusterIndex.getAndIncrement()) % currentClusterNames.size());
-                if (clusterName == null) {
-                    continue;
-                }
-                clusterProducer = usingClusterMap.get(clusterName);
-                if (clusterProducer == null) {
-                    continue;
-                }
-                return clusterProducer.send(profile);
-            } while (true);
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+        do {
+            tmpClusters = currentClusterNames;
+            if (tmpClusters == null || tmpClusters.isEmpty()) {
+                context.fileMetricIncSumStats(StatConstants.EVENT_SINK_CLUSTER_EMPTY);
+                sleepSomeTime(100);
+                continue;
+            }
+            clusterName = tmpClusters.get(Math.abs(clusterIndex.getAndIncrement()) % tmpClusters.size());
+            if (clusterName == null) {
+                context.fileMetricIncSumStats(StatConstants.EVENT_SINK_CLUSTER_UNMATCHED);
+                sleepSomeTime(100);
+                continue;
+            }
+            clusterProducer = usingClusterMap.get(clusterName);
+            if (clusterProducer == null) {
+                context.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_CPRODUCER_NULL, clusterName);
+                sleepSomeTime(100);
+                continue;
+            }
+            return clusterProducer.send(profile);
+        } while (true);
     }
 
     private void checkAndReloadClusterInfo() {
@@ -225,14 +228,9 @@ public class MessageQueueZoneProducer {
                 }
             }
             // replace cluster names
-            readWriteLock.writeLock().lock();
-            try {
-                if (!lastClusterNames.equals(currentClusterNames)) {
-                    changed = true;
-                    currentClusterNames = lastClusterNames;
-                }
-            } finally {
-                readWriteLock.writeLock().unlock();
+            if (!lastClusterNames.equals(currentClusterNames)) {
+                currentClusterNames = lastClusterNames;
+                changed = true;
             }
             // filter removed records
             Set<String> needRmvs = new HashSet<>();
@@ -264,17 +262,17 @@ public class MessageQueueZoneProducer {
                 return;
             }
             if (zoneSink.isMqClusterStarted()) {
-                LOG.info("Reload {}'s cluster info, current cluster are {}, removed {}, created {}",
+                logger.info("{} reload cluster info, current cluster are {}, removed {}, created {}",
                         zoneSink.getName(), lastClusterNames, needRmvs, addedItems);
             } else {
                 zoneSink.setMQClusterStarted();
                 ConfigManager.getInstance().setMqClusterReady();
-                LOG.info(
-                        "Reload {}'s cluster info, and updated sink status, current cluster are {}, removed {}, created {}",
+                logger.info(
+                        "{} reload cluster info, and updated sink status, current cluster are {}, removed {}, created {}",
                         zoneSink.getName(), lastClusterNames, needRmvs, addedItems);
             }
         } catch (Throwable e) {
-            LOG.error("Reload cluster info failure", e);
+            logger.error("{} reload cluster info failure", zoneSink.getName(), e);
         }
     }
 
@@ -283,7 +281,7 @@ public class MessageQueueZoneProducer {
         if (curTopicSet.isEmpty() || lastRefreshTopics.equals(curTopicSet)) {
             return;
         }
-        LOG.info("Reload {}'s topics changed, current topics are {}, last topics are {}",
+        logger.info("{} reload topics changed, current topics are {}, last topics are {}",
                 zoneSink.getName(), curTopicSet, lastRefreshTopics);
         lastRefreshTopics.addAll(curTopicSet);
         for (MessageQueueClusterProducer clusterProducer : this.usingClusterMap.values()) {
@@ -291,6 +289,14 @@ public class MessageQueueZoneProducer {
                 continue;
             }
             clusterProducer.publishTopic(curTopicSet);
+        }
+    }
+
+    private void sleepSomeTime(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (Throwable e) {
+            //
         }
     }
 }

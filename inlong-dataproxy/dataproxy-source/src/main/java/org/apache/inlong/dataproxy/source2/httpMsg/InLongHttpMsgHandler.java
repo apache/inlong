@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.source2.httpMsg;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
@@ -29,7 +30,7 @@ import org.apache.inlong.dataproxy.consts.StatConstants;
 import org.apache.inlong.dataproxy.source2.BaseSource;
 import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
-import org.apache.inlong.dataproxy.utils.InLongMsgVer;
+import org.apache.inlong.sdk.commons.protocol.EventConstants;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -332,6 +333,7 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
                 .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(msgRcvTime);
         inLongMsg.addMsg(strBuff.toString(), body.getBytes(HttpAttrConst.VAL_DEF_CHARSET));
         byte[] inlongMsgData = inLongMsg.buildArray();
+        long pkgTime = inLongMsg.getCreatetime();
         inLongMsg.reset();
         strBuff.delete(0, strBuff.length());
         // build flume event
@@ -342,8 +344,12 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
         eventHeaders.put(AttributeConstants.DATA_TIME, String.valueOf(dataTime));
         eventHeaders.put(ConfigConstants.REMOTE_IP_KEY, clientIp);
         eventHeaders.put(ConfigConstants.MSG_COUNTER_KEY, strMsgCount);
-        eventHeaders.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V0.getName());
+        eventHeaders.put(ConfigConstants.MSG_ENCODE_VER,
+                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
+        eventHeaders.put(EventConstants.HEADER_KEY_VERSION,
+                DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getStrId());
         eventHeaders.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
+        eventHeaders.put(ConfigConstants.PKG_TIME_KEY, DateTimeUtils.ms2yyyyMMddHHmm(pkgTime));
         Event event = EventBuilder.withBody(inlongMsgData, eventHeaders);
         // build metric data item
         dataTime = dataTime / 1000 / 60 / 10;
@@ -366,7 +372,7 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
             return true;
         } catch (Throwable ex) {
             source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_FAILURE);
-            source.fileMetricAddFailCnt(statsKey, intMsgCnt);
+            source.fileMetricAddFailCnt(statsKey, 1);
             source.addMetric(false, event.getBody().length, event);
             sendErrorMsg(ctx, DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE,
                     strBuff.append("Put event to channel failure: ").append(ex.getMessage()).toString());

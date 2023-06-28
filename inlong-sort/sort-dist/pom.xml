@@ -31,6 +31,8 @@
 
     <properties>
         <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
+        <flink.v15.version>1.15.4</flink.v15.version>
+        <flink.v13.version>1.13.5</flink.v13.version>
     </properties>
 
     <dependencies>
@@ -77,36 +79,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-json</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
             <artifactId>sort-format-kv</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-csv</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-json</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-sql-avro</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-sql-parquet_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-sql-orc_${scala.binary.version}</artifactId>
-        </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -145,4 +121,80 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>v1.13</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-json</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-sql-parquet_${scala.binary.version}</artifactId>
+                    <version>${flink.v13.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-sql-orc_${scala.binary.version}</artifactId>
+                    <version>${flink.v13.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-csv</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-json</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-sql-avro</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>v1.15</id>
+            <properties>
+                <flink.version>1.15.4</flink.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.inlong</groupId>
+                    <artifactId>sort-format-json-v1.15</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-sql-parquet</artifactId>
+                    <version>${flink.v15.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-sql-orc</artifactId>
+                    <version>${flink.v15.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-csv</artifactId>
+                    <version>${flink.v15.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-json</artifactId>
+                    <version>${flink.v15.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.flink</groupId>
+                    <artifactId>flink-sql-avro</artifactId>
+                    <version>${flink.v15.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

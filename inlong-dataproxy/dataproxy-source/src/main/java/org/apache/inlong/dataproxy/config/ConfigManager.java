@@ -35,7 +35,6 @@ import org.apache.inlong.dataproxy.utils.HttpUtils;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -338,9 +337,7 @@ public class ConfigManager {
             try {
                 url = "http://" + host + ConfigConstants.MANAGER_PATH
                         + ConfigConstants.MANAGER_GET_ALL_CONFIG_PATH;
-                httpPost = new HttpPost(url);
-                httpPost.addHeader(HttpHeaders.CONNECTION, "close");
-                httpPost.addHeader(HttpHeaders.AUTHORIZATION, AuthUtils.genBasicAuth());
+                httpPost = HttpUtils.getHttPost(url);
                 // request body
                 DataProxyConfigRequest request = new DataProxyConfigRequest();
                 request.setClusterName(clusterName);
@@ -350,12 +347,13 @@ public class ConfigManager {
                 }
                 httpPost.setEntity(HttpUtils.getEntity(request));
                 // request with post
-                LOG.info("Start to request {} to get config info, with params {}", url, request);
+                LOG.info("Start to request {} to get config info, with params: {}, headers: {}",
+                        url, request, httpPost.getAllHeaders());
                 CloseableHttpResponse response = httpClient.execute(httpPost);
                 String returnStr = EntityUtils.toString(response.getEntity());
                 if (response.getStatusLine().getStatusCode() != 200) {
-                    LOG.warn("Failed to request {}, with params {}, the response is {}",
-                            url, request, returnStr);
+                    LOG.warn("Failed to request {}, with params: {}, headers: {}, the response is {}",
+                            url, request, httpPost.getAllHeaders(), returnStr);
                     return false;
                 }
                 LOG.info("End to request {} to get config info:{}", url, returnStr);

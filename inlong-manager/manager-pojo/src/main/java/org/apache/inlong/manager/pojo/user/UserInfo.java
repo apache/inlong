@@ -47,6 +47,9 @@ public class UserInfo {
     @ApiModelProperty(value = "Username")
     private String name;
 
+    @ApiModelProperty(value = "Login Tenant")
+    private String tenant;
+
     @ApiModelProperty(value = "User password")
     private String password;
 

@@ -98,6 +98,20 @@ const conf: RouteProps[] = [
     component: () => import('@/ui/pages/Nodes'),
   },
   {
+    path: '/sync',
+    component: () => import('@/ui/pages/SynchronizeDashboard'),
+    childRoutes: [
+      {
+        path: '/create/:id?',
+        component: () => import('@/ui/pages/SynchronizeDetail'),
+      },
+      {
+        path: '/detail/:id',
+        component: () => import('@/ui/pages/SynchronizeDetail'),
+      },
+    ],
+  },
+  {
     component: () => import('@/ui/pages/Error/404'),
   },
 ];

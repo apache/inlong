@@ -54,6 +54,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     open: false,
     inlongGroupId,
     inlongStreamId: '',
+    inlongGroupMode: true,
   });
 
   const [groupStatus, setGroupStatus] = useState();
@@ -111,6 +112,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
       open: true,
       inlongGroupId: inlongGroupId,
       inlongStreamId: record.inlongStreamId,
+      inlongGroupMode: true,
     });
   };
 
@@ -255,8 +257,22 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
 
       <GroupLogs
         {...groupLogs}
-        onOk={() => setGroupLogs({ open: false, inlongGroupId: '', inlongStreamId: '' })}
-        onCancel={() => setGroupLogs({ open: false, inlongGroupId: '', inlongStreamId: '' })}
+        onOk={() =>
+          setGroupLogs({
+            open: false,
+            inlongGroupId: '',
+            inlongStreamId: '',
+            inlongGroupMode: true,
+          })
+        }
+        onCancel={() =>
+          setGroupLogs({
+            open: false,
+            inlongGroupId: '',
+            inlongStreamId: '',
+            inlongGroupMode: true,
+          })
+        }
       />
     </>
   );

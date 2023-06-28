@@ -15,24 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.fieldtype.datasource;
+package org.apache.inlong.manager.common.tenant;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * The interface of base field type mapping
+ * This annotation indicate that SQL queries from this type or method should
+ * be conditioned by tenant, which is obtained from the login user.
  */
-public interface BaseFieldTypeMapping {
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface MultiTenantQuery {
 
-    /**
-     * Get the source field type
-     *
-     * @return The source field type
-     */
-    String getSourceType();
-
-    /**
-     * Get the target field type of inlong field type mapping
-     *
-     * @return The target field type
-     */
-    String getTargetType();
+    boolean with() default true;
 }

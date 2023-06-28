@@ -34,6 +34,7 @@ const resources = {
       'configs.menus.UserManagement': 'User Management',
       'configs.menus.ProcessManagement': 'Process Management',
       'configs.menus.Nodes': 'DataNodes',
+      'configs.menus.DataSynchronize': 'Synchronization',
     },
   },
   cn: {
@@ -47,6 +48,7 @@ const resources = {
       'configs.menus.UserManagement': '用户管理',
       'configs.menus.ProcessManagement': '流程管理',
       'configs.menus.Nodes': '数据节点',
+      'configs.menus.DataSynchronize': '数据同步',
     },
   },
 };

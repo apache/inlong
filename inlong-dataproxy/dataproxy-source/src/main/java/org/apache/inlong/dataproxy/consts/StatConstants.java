@@ -78,15 +78,22 @@ public class StatConstants {
     public static final java.lang.String EVENT_MSG_V1_POST_SUCCESS = "msg.post.v1.success";
     public static final java.lang.String EVENT_MSG_V1_POST_DROPPED = "msg.post.v1.dropped";
     // sink
+    public static final java.lang.String EVENT_SINK_EVENT_V1_MALFORMED = "sink.event.v1.malformed";
+    public static final java.lang.String EVENT_SINK_EVENT_V1_FILE = "sink.event.v1.file";
+    public static final java.lang.String EVENT_SINK_EVENT_V0_FILE = "sink.event.v1.file";
     public static final java.lang.String EVENT_SINK_CONFIG_TOPIC_MISSING = "sink.topic.missing";
     public static final java.lang.String EVENT_SINK_DEFAULT_TOPIC_MISSING = "default.topic.empty";
     public static final java.lang.String EVENT_SINK_DEFAULT_TOPIC_USED = "default.topic.used";
     public static final java.lang.String EVENT_SINK_PRODUCER_NULL = "sink.producer.null";
+    public static final java.lang.String EVENT_SINK_CLUSTER_EMPTY = "sink.cluster.empty";
+    public static final java.lang.String EVENT_SINK_CLUSTER_UNMATCHED = "sink.cluster.unmatched";
+    public static final java.lang.String EVENT_SINK_CPRODUCER_NULL = "sink.cluster.producer.null";
     public static final java.lang.String EVENT_SINK_SEND_EXCEPTION = "sink.send.exception";
 
     public static final java.lang.String EVENT_SINK_FAILRETRY = "sink.retry";
     public static final java.lang.String EVENT_SINK_FAILDROPPED = "sink.dropped";
     public static final java.lang.String EVENT_SINK_SUCCESS = "sink.success";
+    public static final java.lang.String EVENT_SINK_FAILURE = "sink.failure";
     public static final java.lang.String EVENT_SINK_RECEIVEEXCEPT = "sink.rcvexcept";
 
 }
