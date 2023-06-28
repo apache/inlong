@@ -44,6 +44,15 @@ public interface DeserializeOperator {
      */
     boolean accept(DataProxyMsgEncType type);
 
+    /**
+     * List brief mq message info
+     *
+     * @param streamInfo inlong stream info
+     * @param msgBytes messages
+     * @param headers message headers
+     * @param index message index
+     * @return list of brief mq message info
+     */
     default List<BriefMQMessage> decodeMsg(InlongStreamInfo streamInfo,
             byte[] msgBytes, Map<String, String> headers, int index) throws Exception {
         return null;

@@ -388,11 +388,12 @@ public class PulsarOperator {
     /**
      * Query topic message for the given pulsar cluster.
      */
-    public List<BriefMQMessage> queryLastMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
+    public List<BriefMQMessage> queryLastestMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
             Integer messageCount, InlongStreamInfo streamInfo) {
         LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
         List<Message<byte[]>> messages = new ArrayList<>();
         List<BriefMQMessage> messageList = new ArrayList<>();
+
         try {
             messages = pulsarAdmin.topics().peekMessages(topicFullName, subName, messageCount);
         } catch (PulsarAdminException e) {
@@ -400,6 +401,7 @@ public class PulsarOperator {
             LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
+
         int index = 0;
         for (Message<byte[]> pulsarMessage : messages) {
             try {
@@ -417,6 +419,7 @@ public class PulsarOperator {
 
             }
         }
+
         LOGGER.info("success query message by subs={} for topic={}", subName, topicFullName);
         return messageList;
     }
