@@ -187,4 +187,6 @@ public class InlongConstants {
      */
     public static final String BATCH_PARSING_FILED_JSON_COMMENT_PROP = "desc";
 
+    public static final String MSG_ENCODE_VER = "msgEnType";
+
 }

@@ -50,8 +50,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.elasticsearch.ingest.Pipeline.VERSION_KEY;
-
 /**
  * Pulsar operator, supports creating topics and creating subscription.
  */
@@ -406,7 +404,7 @@ public class PulsarOperator {
         for (Message<byte[]> pulsarMessage : messages) {
             try {
                 Map<String, String> headers = pulsarMessage.getProperties();
-                int wrapTypeId = Integer.parseInt(headers.getOrDefault(VERSION_KEY,
+                int wrapTypeId = Integer.parseInt(headers.getOrDefault(InlongConstants.MSG_ENCODE_VER,
                         Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
                 DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
                         DataProxyMsgEncType.valueOf(wrapTypeId));

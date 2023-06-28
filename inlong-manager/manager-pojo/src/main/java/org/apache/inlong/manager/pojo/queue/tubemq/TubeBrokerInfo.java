@@ -114,6 +114,20 @@ public class TubeBrokerInfo {
     }
 
     /**
+     * Get all broker ip list.
+     */
+    public String getOneWorkBrokerIp() {
+        if (data != null) {
+            for (BrokerInfo brokerInfo : data) {
+                if (brokerInfo.isBrokerOnline()) {
+                    return brokerInfo.getBrokerIp() + ":" + brokerInfo.getBrokerWebPort();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Broker info
      */
     @Data
@@ -122,6 +136,7 @@ public class TubeBrokerInfo {
         private int brokerId;
         private String brokerIp;
         private int brokerPort;
+        private int brokerWebPort;
         private String manageStatus;
         private String runStatus;
         private String subStatus;
