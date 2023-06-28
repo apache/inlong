@@ -384,8 +384,9 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
                 if (items.length == 2) {
                     scale = Integer.parseInt(items[1].trim());
                     if (scale < DecimalType.MIN_SCALE || scale > precision) {
-                        LOG.info("Decimal has invalid scale {}", scale);
-                        return new DecimalType(precision);
+                        decimalType = new DecimalType(precision);
+                        LOG.info("invalid decimal scale: {}, change to: {}", scale, decimalType.getScale());
+                        return decimalType;
                     }
                     return new DecimalType(precision, scale);
                 }
