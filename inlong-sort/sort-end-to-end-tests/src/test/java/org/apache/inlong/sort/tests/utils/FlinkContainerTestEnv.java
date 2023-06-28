@@ -58,7 +58,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -108,7 +107,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
 
     private static GenericContainer<?> jobManager;
     private static GenericContainer<?> taskManager;
-    private static String flinkDockerImageName;
     // ----------------------------------------------------------------------------------------
     // MYSQL Variables
     // ----------------------------------------------------------------------------------------
@@ -131,7 +129,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     public static void before() {
         LOG.info("Starting containers...");
         jobManager =
-                new GenericContainer<>(flinkDockerImageName)
+                new GenericContainer<>("flink:1.13.5-scala_2.11")
                         .withCommand("jobmanager")
                         .withNetwork(NETWORK)
                         .withNetworkAliases(INTER_CONTAINER_JM_ALIAS)
@@ -139,7 +137,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
                         .withEnv("FLINK_PROPERTIES", FLINK_PROPERTIES)
                         .withLogConsumer(new Slf4jLogConsumer(JM_LOG));
         taskManager =
-                new GenericContainer<>(flinkDockerImageName)
+                new GenericContainer<>("flink:1.13.5-scala_2.11")
                         .withCommand("taskmanager")
                         .withNetwork(NETWORK)
                         .withNetworkAliases(INTER_CONTAINER_TM_ALIAS)
