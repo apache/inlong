@@ -23,6 +23,7 @@ import { RenderList } from '@/plugins/RenderList';
 import CheckCard from '@/ui/components/CheckCard';
 import { statusList, genStatusTag } from './status';
 import { sources, defaultValue } from '..';
+import i18n from '@/i18n';
 
 const { I18nMap, I18n } = DataWithBackend;
 const { FieldList, FieldDecorator } = RenderRow;
@@ -73,10 +74,16 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
 
   @FieldDecorator({
     type: 'input',
-    rules: [{ required: true }],
+    rules: [
+      { required: true },
+      {
+        pattern: /^[a-zA-Z0-9_.-]*$/,
+        message: i18n.t('meta.Sources.NameRule'),
+      },
+    ],
     props: values => ({
       disabled: Boolean(values.id),
-      maxLength: 128,
+      maxLength: 100,
     }),
     visible: values => Boolean(values.sourceType),
   })
