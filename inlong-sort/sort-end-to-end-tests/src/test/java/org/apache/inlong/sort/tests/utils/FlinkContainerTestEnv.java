@@ -18,7 +18,6 @@
 package org.apache.inlong.sort.tests.utils;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.api.common.time.Deadline;
 import org.apache.flink.client.deployment.StandaloneClusterId;
@@ -45,7 +44,6 @@ import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.lifecycle.Startables;
 
 import javax.annotation.Nullable;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
