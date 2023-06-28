@@ -107,7 +107,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
 
     private static GenericContainer<?> jobManager;
     private static GenericContainer<?> taskManager;
-
+    private static String flinkDockerImageName;
     // ----------------------------------------------------------------------------------------
     // MYSQL Variables
     // ----------------------------------------------------------------------------------------
@@ -125,8 +125,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
                     .withNetwork(NETWORK)
                     .withNetworkAliases(INTER_CONTAINER_MYSQL_ALIAS)
                     .withLogConsumer(new Slf4jLogConsumer(MYSQL_LOG));
-
-    private static String flinkDockerImageName;
 
     @BeforeClass
     public static void before() {
