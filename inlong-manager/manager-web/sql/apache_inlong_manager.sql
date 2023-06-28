@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Inlong group id, filled in by the user, undeleted ones cannot be repeated',
     `name`                   varchar(128)          DEFAULT '' COMMENT 'Inlong group name, English, Chinese, numbers, etc',
     `description`            varchar(256)          DEFAULT '' COMMENT 'Description of inlong group',
+    `tenant`                 varchar(256)          DEFAULT 'public' COMMENT 'Inlong tenant of group',
     `mq_type`                varchar(20)           DEFAULT 'TUBEMQ' COMMENT 'The message queue type, high throughput: TUBEMQ, high consistency: PULSAR',
     `mq_resource`            varchar(128) NOT NULL COMMENT 'MQ resource, for TubeMQ, its Topic, for Pulsar, its Namespace',
     `daily_records`          int(11)               DEFAULT '10' COMMENT 'Number of access records per day, unit: 10,000 records per day',
@@ -58,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`),
     INDEX `group_status_deleted_index` (`status`, `is_deleted`),
+    INDEX `tenant_index` (`tenant`, `is_deleted`),
     INDEX `group_modify_time_index` (`modify_time`),
     INDEX `group_cluster_tag_index` (`inlong_cluster_tag`)
 ) ENGINE = InnoDB
