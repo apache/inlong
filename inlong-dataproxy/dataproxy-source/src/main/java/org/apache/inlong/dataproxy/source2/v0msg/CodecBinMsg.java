@@ -229,7 +229,7 @@ public class CodecBinMsg extends AbsV0MsgCodec {
                 - BIN_MSG_ATTRLEN_SIZE - BIN_MSG_MAGIC_SIZE - origAttr.length(), (short) origAttr.length());
         if (origAttr.length() > 0) {
             System.arraycopy(origAttr.getBytes(StandardCharsets.UTF_8), 0, dataBuf.array(),
-                    totalPkgLength - BIN_MSG_MAGIC_SIZE - origAttr.length(), bodyData.length);
+                    totalPkgLength - BIN_MSG_MAGIC_SIZE - origAttr.length(), origAttr.length());
         }
         dataBuf.putShort(totalPkgLength - BIN_MSG_MAGIC_SIZE, (short) BIN_MSG_MAGIC);
         // build InLong message

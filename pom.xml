@@ -92,6 +92,7 @@
         <spring.fox.version>3.0.0</spring.fox.version>
         <pagehelper.springboot.version>1.4.2</pagehelper.springboot.version>
         <pagehelper.version>5.3.1</pagehelper.version>
+        <jsqlparser.version>4.6</jsqlparser.version>
 
         <h2.version>2.1.214</h2.version>
         <h2.mysql.version>2.0.0</h2.mysql.version>
@@ -199,7 +200,6 @@
         <tomcat.version>8.5.53</tomcat.version>
         <jedis.version>2.9.0</jedis.version>
         <poi.version>5.2.3</poi.version>
-        <jsqlparser.version>4.2</jsqlparser.version>
     </properties>
 
     <dependencyManagement>
@@ -224,11 +224,6 @@
                 <groupId>org.apache.flume</groupId>
                 <artifactId>flume-ng-configuration</artifactId>
                 <version>${flume.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.jsqlparser</groupId>
-                <artifactId>jsqlparser</artifactId>
-                <version>${jsqlparser.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.flume.flume-ng-sinks</groupId>
@@ -636,6 +631,11 @@
                 <artifactId>pagehelper-spring-boot-starter</artifactId>
                 <version>${pagehelper.springboot.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.jsqlparser</groupId>
+                <artifactId>jsqlparser</artifactId>
+                <version>${jsqlparser.version}</version>
+            </dependency>
 
             <!--netty dependency-->
             <dependency>
@@ -816,16 +816,6 @@
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-sql-avro</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-sql-parquet_${scala.binary.version}</artifactId>
-                <version>${flink.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.flink</groupId>
-                <artifactId>flink-sql-orc_${scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
             </dependency>
             <dependency>

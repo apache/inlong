@@ -20,9 +20,8 @@
 import { DataWithBackend } from '@/plugins/DataWithBackend';
 import { RenderRow } from '@/plugins/RenderRow';
 import { RenderList } from '@/plugins/RenderList';
-import CheckCard from '@/ui/components/CheckCard';
-import { statusList, genStatusTag } from './status';
 import { transform, defaultValue } from '..';
+import i18n from '@/i18n';
 
 const { I18nMap, I18n } = DataWithBackend;
 const { FieldList, FieldDecorator } = RenderRow;
@@ -52,15 +51,20 @@ export class TransformDefaultInfo implements DataWithBackend, RenderRow, RenderL
 
   @FieldDecorator({
     type: 'input',
-    rules: [{ required: true }],
+    rules: [
+      { required: true },
+      {
+        pattern: /^[a-zA-Z0-9_.-]*$/,
+        message: i18n.t('meta.Transform.NameRule'),
+      },
+    ],
     props: values => ({
       disabled: Boolean(values.id),
-      maxLength: 128,
+      maxLength: 100,
     }),
-    // visible: values => Boolean(values.sourceType),
   })
   @ColumnDecorator()
-  @I18n('转换节点名称')
+  @I18n('meta.Transform.Name')
   transformName: string;
 
   @FieldDecorator({
@@ -79,8 +83,7 @@ export class TransformDefaultInfo implements DataWithBackend, RenderRow, RenderL
     }),
   })
   @ColumnDecorator()
-  @I18n('转换类型')
-  // sourceType: string;
+  @I18n('meta.Transform.Type')
   transformType: string;
 
   parse(data) {

@@ -211,7 +211,7 @@ public class TubeHandler implements MessageQueueHandler {
             }
             // create producer failed
             if (producer == null) {
-                sinkContext.fileMetricIncSumStats(StatConstants.EVENT_SINK_PRODUCER_NULL);
+                sinkContext.fileMetricIncWithDetailStats(StatConstants.EVENT_SINK_PRODUCER_NULL, topic);
                 sinkContext.processSendFail(profile, clusterName, topic, 0,
                         DataProxyErrCode.PRODUCER_IS_NULL, "");
                 return false;

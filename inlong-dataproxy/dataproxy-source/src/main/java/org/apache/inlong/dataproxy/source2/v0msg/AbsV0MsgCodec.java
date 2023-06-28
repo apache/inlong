@@ -56,6 +56,7 @@ public abstract class AbsV0MsgCodec {
     protected int msgCount;
     protected String origAttr = "";
     protected byte[] bodyData;
+    protected byte[] origBody = null;
     protected long dataTimeMs;
     protected String groupId;
     protected String streamId = "";
@@ -142,6 +143,10 @@ public abstract class AbsV0MsgCodec {
 
     public String getStrRemoteIP() {
         return strRemoteIP;
+    }
+
+    public byte[] getOrigBody() {
+        return origBody;
     }
 
     public long getMsgRcvTime() {
@@ -241,6 +246,9 @@ public abstract class AbsV0MsgCodec {
         String proxySend = attrMap.get(AttributeConstants.MESSAGE_PROXY_SEND);
         if (StringUtils.isNotEmpty(proxySend)) {
             headers.put(AttributeConstants.MESSAGE_PROXY_SEND, proxySend);
+        }
+        if (isOrderOrProxy) {
+            headers.put(ConfigConstants.DECODER_ATTRS, this.origAttr);
         }
         String partitionKey = attrMap.get(AttributeConstants.MESSAGE_PARTITION_KEY);
         if (StringUtils.isNotEmpty(partitionKey)) {

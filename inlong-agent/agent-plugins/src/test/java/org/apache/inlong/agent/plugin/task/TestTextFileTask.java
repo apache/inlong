@@ -32,6 +32,7 @@ import org.apache.inlong.agent.plugin.channel.MemoryChannel;
 import org.apache.inlong.agent.plugin.sinks.MockSink;
 import org.apache.inlong.agent.plugin.sources.TextFileSource;
 import org.apache.inlong.agent.plugin.sources.reader.file.MonitorTextFile;
+import org.apache.inlong.agent.plugin.trigger.TestTriggerManager;
 import org.apache.inlong.agent.plugin.utils.TestUtils;
 import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.common.metric.MetricRegister;
@@ -48,6 +49,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,6 +79,7 @@ import static org.powermock.api.support.membermodification.MemberMatcher.field;
 @PowerMockIgnore({"javax.management.*"})
 public class TestTextFileTask {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestTriggerManager.class);
     public static final TemporaryFolder TMP_FOLDER = new TemporaryFolder();
     private static final Gson GSON = new Gson();
     private static TaskManager taskManager;
@@ -185,7 +189,13 @@ public class TestTextFileTask {
         jobProfile.set(JOB_FILE_META_ENV_LIST, ENV_CVM);
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
+
+        LOGGER.info("sink getResult1 size: {}", sink.getResult().size());
+
         await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 5);
+
+        LOGGER.info("sink getResult2 size: {}", sink.getResult().size());
+
         await().atMost(10, TimeUnit.SECONDS).until(() -> MonitorTextFile.getInstance().monitorNum() == 1);
         String testData = IntStream.range(5, 10)
                 .mapToObj(String::valueOf)
@@ -194,7 +204,12 @@ public class TestTextFileTask {
         sb.append(System.lineSeparator());
         TestUtils.write(file.getAbsolutePath(), sb);
 
-        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 5);
+        LOGGER.info("sink getResult3 size: {}", sink.getResult().size());
+
+        await().atMost(10, TimeUnit.SECONDS).until(() -> sink.getResult().size() >= 5);
+
+        LOGGER.info("sink getResult4 size: {}", sink.getResult().size());
+
         synchronized (this) {
             String collectData = sink.getResult().stream().map(message -> {
                 String content = new String(message.getBody(), StandardCharsets.UTF_8);

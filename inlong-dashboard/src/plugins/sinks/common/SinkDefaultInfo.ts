@@ -79,13 +79,13 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     rules: [
       { required: true },
       {
-        pattern: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
+        pattern: /^[a-zA-Z0-9_.-]*$/,
         message: i18n.t('meta.Sinks.SinkNameRule'),
       },
     ],
     props: values => ({
       disabled: !!values.id,
-      maxLength: 128,
+      maxLength: 100,
     }),
     visible: values => Boolean(values.sinkType),
   })

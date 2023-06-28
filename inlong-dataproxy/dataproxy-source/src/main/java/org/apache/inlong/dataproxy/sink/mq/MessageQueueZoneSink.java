@@ -46,6 +46,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * MessageQueueZoneSink
@@ -72,7 +74,8 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
 
     private MessageQueueZoneProducer zoneProducer;
     // configure change notify
-    private final Object syncLock = new Object();
+    private final ReentrantLock reentrantLock = new ReentrantLock();
+    private final Condition condition = reentrantLock.newCondition();
     private final AtomicLong lastNotifyTime = new AtomicLong(0);
     // changeListerThread
     private Thread configListener;
@@ -295,8 +298,13 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
         if (zoneProducer == null) {
             return;
         }
-        lastNotifyTime.set(System.currentTimeMillis());
-        syncLock.notifyAll();
+        reentrantLock.lock();
+        try {
+            lastNotifyTime.set(System.currentTimeMillis());
+            condition.signal();
+        } finally {
+            reentrantLock.unlock();
+        }
     }
 
     /**
@@ -311,14 +319,16 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
         @Override
         public void run() {
             long lastCheckTime;
+            logger.info("{} config-change processor start!", getName());
             while (!isShutdown) {
+                reentrantLock.lock();
                 try {
-                    syncLock.wait();
-                } catch (InterruptedException e) {
-                    logger.error("{} config-change processor meet interrupt, exit!", getName());
+                    condition.await();
+                } catch (InterruptedException e1) {
+                    logger.info("{} config-change processor meet interrupt, break!", getName());
                     break;
-                } catch (Throwable e2) {
-                    //
+                } finally {
+                    reentrantLock.unlock();
                 }
                 if (zoneProducer == null) {
                     continue;
@@ -328,6 +338,7 @@ public class MessageQueueZoneSink extends AbstractSink implements Configurable, 
                     zoneProducer.reloadMetaConfig();
                 } while (lastCheckTime != lastNotifyTime.get());
             }
+            logger.info("{} config-change processor exit!", getName());
         }
     }
 }
