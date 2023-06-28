@@ -45,6 +45,8 @@ import org.apache.flink.table.types.logical.TinyIntType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.RowKind;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,6 +75,7 @@ import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPA
 @SuppressWarnings("LanguageDetectionInspection")
 public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaFormat<JsonNode> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JsonDynamicSchemaFormat.class);
     /**
      * The first item of array
      */
@@ -357,9 +360,10 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
 
     /**
      * set precision and scale for decimal and other types
-     * @param type
-     * @param dialectType
-     * @return
+     *
+     * @param type original flink type
+     * @param dialectType database dialect type
+     * @return flink type revised according to dialect type
      */
     public LogicalType handleDialectSqlType(LogicalType type, String dialectType) {
         if (StringUtils.isBlank(dialectType)) {
@@ -374,15 +378,18 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
                 String[] items = matcher.group(1).split(",");
                 precision = Integer.parseInt(items[0].trim());
                 if (precision < DecimalType.MIN_PRECISION || precision > DecimalType.MAX_PRECISION) {
+                    LOG.info("Decimal has invalid precision {}", precision);
                     return decimalType;
                 }
                 if (items.length == 2) {
                     scale = Integer.parseInt(items[1].trim());
                     if (scale < DecimalType.MIN_SCALE || scale > precision) {
+                        LOG.info("Decimal has invalid scale {}", scale);
                         return new DecimalType(precision);
                     }
                     return new DecimalType(precision, scale);
                 }
+                LOG.info("Decimal has only precision {} without scale", precision);
                 return new DecimalType(precision);
             }
             return decimalType;
