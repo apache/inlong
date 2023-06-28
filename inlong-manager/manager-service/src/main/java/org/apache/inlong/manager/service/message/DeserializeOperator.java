@@ -29,23 +29,15 @@ import java.util.Map;
  */
 public interface DeserializeOperator {
 
-    public static final String COMPRESS_TYPE_KEY = "compressType";
-    public static final String NODE_IP = "NodeIP";
-    public static final String MSG_TIME_KEY = "msgTime";
-    public static final char INLONGMSG_ATTR_ENTRY_DELIMITER = '&';
-    public static final char INLONGMSG_ATTR_KV_DELIMITER = '=';
+    String COMPRESS_TYPE_KEY = "compressType";
+    String NODE_IP = "NodeIP";
+    String MSG_TIME_KEY = "msgTime";
+    char INLONGMSG_ATTR_ENTRY_DELIMITER = '&';
+    char INLONGMSG_ATTR_KV_DELIMITER = '=';
 
     // keys in attributes
-    public static final String INLONGMSG_ATTR_STREAM_ID = "streamId";
-    public static final String INLONGMSG_ATTR_TIME_T = "t";
-    public static final String INLONGMSG_ATTR_TIME_DT = "dt";
-    public static final String INLONGMSG_ATTR_ADD_COLUMN_PREFIX = "__addcol";
-
-    public static final String FORMAT_TIME_FIELD_NAME = "format.time-field-name";
-    public static final String FORMAT_ATTRIBUTES_FIELD_NAME = "format.attributes-field-name";
-
-    public static final String DEFAULT_TIME_FIELD_NAME = "inlongmsg_time";
-    public static final String DEFAULT_ATTRIBUTES_FIELD_NAME = "inlongmsg_attributes";
+    String INLONGMSG_ATTR_TIME_T = "t";
+    String INLONGMSG_ATTR_TIME_DT = "dt";
 
     /**
      * Determines whether the current instance matches the specified type.
