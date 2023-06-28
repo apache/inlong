@@ -56,6 +56,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -93,7 +94,7 @@ public class TestTextFileTask {
     public static void setup() throws Exception {
         atomicLong = new AtomicLong(0L);
         atomicCountLong = new AtomicLong(0L);
-        taskCache = new ArrayList<>();
+        taskCache = Collections.synchronizedList(new ArrayList());
         TMP_FOLDER.create();
 
         taskManager = new TaskManager(null);
@@ -116,22 +117,26 @@ public class TestTextFileTask {
     @After
     public void teardownEach() {
         taskCache.forEach(taskManager::removeTask);
-        taskCache.clear();
+        synchronized (taskCache) {
+            taskCache.clear();
+        }
     }
 
     public MockSink mockTextTask(JobProfile jobProfile) {
-        List<Reader> readers = new TextFileSource().split(jobProfile);
-        Channel channel = new MemoryChannel();
-        MockSink sink = new MockSink();
+        synchronized (this) {
+            List<Reader> readers = new TextFileSource().split(jobProfile);
+            Channel channel = new MemoryChannel();
+            MockSink sink = new MockSink();
 
-        readers.forEach(reader -> {
-            String taskId = String.format("Text file read %s", reader.getReadSource());
-            TaskWrapper taskWrapper =
-                    new TaskWrapper(taskManager, new Task(taskId, reader, sink, channel, jobProfile));
-            taskManager.submitTask(taskWrapper);
-            taskCache.add(taskId);
-        });
-        return sink;
+            readers.forEach(reader -> {
+                String taskId = String.format("Text file read %s", reader.getReadSource());
+                TaskWrapper taskWrapper =
+                        new TaskWrapper(taskManager, new Task(taskId, reader, sink, channel, jobProfile));
+                taskManager.submitTask(taskWrapper);
+                taskCache.add(taskId);
+            });
+            return sink;
+        }
     }
 
     /**
