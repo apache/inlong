@@ -139,9 +139,17 @@ public class MultiTenantInterceptor implements Interceptor {
 
     private Map<String, Object> makeNewParameters(Object parameterObject, List<ParameterMapping> parameters) {
         Map<String, Object> params;
-        if (isPrimitiveOrWrapper(parameterObject)) {
+
+        // only the single param query has no property name, find it in parameters.
+        if (isPrimitiveOrWrapper(parameterObject) && parameters.size() == 2) {
             params = new LinkedHashMap<>();
-            params.put(parameters.get(0).getProperty(), parameterObject);
+
+            // find the param not tenant
+            int idx = 0;
+            if (KEY_TENANT.equals(parameters.get(0).getProperty())) {
+                idx = 1;
+            }
+            params.put(parameters.get(idx).getProperty(), parameterObject);
         } else {
             String jsonStr = JsonUtils.toJsonString(parameterObject);
             params = JsonUtils.parseObject(jsonStr, Map.class);

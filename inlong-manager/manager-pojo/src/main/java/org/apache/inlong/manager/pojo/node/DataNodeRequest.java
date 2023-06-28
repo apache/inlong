@@ -90,4 +90,8 @@ public abstract class DataNodeRequest {
     @NotNull(groups = {UpdateByIdValidation.class, UpdateByKeyValidation.class}, message = "version cannot be null")
     private Integer version;
 
+    @ApiModelProperty(value = "Inlong tenant of data node", hidden = true)
+    @NotBlank(message = "version cannot be null")
+    private Integer tenant;
+
 }

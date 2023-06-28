@@ -86,3 +86,9 @@ ALTER TABLE `inlong_group`
     ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of group';
 CREATE INDEX tenant_index
     ON inlong_group (`tenant`, `is_deleted`);
+
+-- To support multi-tenancy of datanode. Please see #8349
+ALTER TABLE `data_node`
+    ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of datanode';
+CREATE INDEX datanode_tenant_index
+    ON data_node (`tenant`, `is_deleted`);

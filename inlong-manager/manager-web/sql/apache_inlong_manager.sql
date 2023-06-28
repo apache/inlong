@@ -195,6 +195,7 @@ CREATE TABLE IF NOT EXISTS `data_node`
     `id`                      int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `name`                    varchar(128) NOT NULL COMMENT 'Node name',
     `display_name`            varchar(128)          DEFAULT NULL COMMENT 'Data node display name',
+    `tenant`                  varchar(256) NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of datanode',
     `type`                    varchar(20)           DEFAULT '' COMMENT 'Node type, such as: MYSQL, HIVE, KAFKA, ES, etc',
     `url`                     varchar(512)          DEFAULT NULL COMMENT 'Node URL',
     `username`                varchar(128)          DEFAULT NULL COMMENT 'Username for node if needed',
