@@ -91,6 +91,6 @@ public abstract class DataNodeRequest {
     private Integer version;
 
     @ApiModelProperty(value = "Inlong tenant of data node", hidden = true)
-    private Integer tenant;
+    private String tenant;
 
 }

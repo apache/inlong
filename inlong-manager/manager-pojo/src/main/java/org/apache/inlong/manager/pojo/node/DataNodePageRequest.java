@@ -59,6 +59,6 @@ public class DataNodePageRequest extends PageRequest {
     private Boolean isAdminRole;
 
     @ApiModelProperty(value = "Inlong tenant of datanode", hidden = true)
-    private Boolean tenant;
+    private String tenant;
 
 }
