@@ -17,20 +17,26 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
+import org.apache.inlong.manager.service.message.DeserializeOperator;
+import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.admin.Namespaces;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
+import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.common.policies.data.PersistencePolicies;
 import org.apache.pulsar.common.policies.data.RetentionPolicies;
@@ -40,8 +46,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.elasticsearch.ingest.Pipeline.VERSION_KEY;
 
 /**
  * Pulsar operator, supports creating topics and creating subscription.
@@ -57,7 +66,9 @@ public class PulsarOperator {
     private static final int MAX_PARTITION = 1000;
     private static final int RETRY_TIMES = 3;
     private static final int DELAY_SECONDS = 5;
-
+    private static final String PARSE_ATTR_ERROR_STRING = "Could not find %s in attributes!";
+    @Autowired
+    public DeserializeOperatorFactory deserializeOperatorFactory;
     @Autowired
     private ConversionHandle conversionHandle;
 
@@ -372,6 +383,45 @@ public class PulsarOperator {
             }
         }
         return false;
+    }
+
+    /**
+     * Query topic message for the given pulsar cluster.
+     */
+    public List<BriefMQMessage> queryLastestMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
+            Integer messageCount, InlongStreamInfo streamInfo) {
+        LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
+        List<Message<byte[]>> messages = new ArrayList<>();
+        List<BriefMQMessage> messageList = new ArrayList<>();
+
+        try {
+            messages = pulsarAdmin.topics().peekMessages(topicFullName, subName, messageCount);
+        } catch (PulsarAdminException e) {
+            String errMsg = "failed to query peek messages";
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
+        }
+
+        int index = 0;
+        for (Message<byte[]> pulsarMessage : messages) {
+            try {
+                Map<String, String> headers = pulsarMessage.getProperties();
+                int wrapTypeId = Integer.parseInt(headers.getOrDefault(VERSION_KEY,
+                        Integer.toString(DataProxyMsgEncType.MSG_ENCODE_TYPE_INLONGMSG.getId())));
+                DeserializeOperator deserializeOperator = deserializeOperatorFactory.getInstance(
+                        DataProxyMsgEncType.valueOf(wrapTypeId));
+                messageList.addAll(
+                        deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(), headers, ++index));
+            } catch (Exception e) {
+                String errMsg = "decode msg error";
+                LOGGER.error("decode msg error", e);
+                throw new BusinessException(errMsg);
+
+            }
+        }
+
+        LOGGER.info("success query message by subs={} for topic={}", subName, topicFullName);
+        return messageList;
     }
 
 }
