@@ -129,17 +129,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
 
     @BeforeClass
     public static void before() {
-        flinkDockerImageName = "flink:1.13.5-scala_2.11";
-        try (InputStream is = FlinkContainerTestEnv.class.getClassLoader()
-                .getResourceAsStream("sort-properties-from-pom.properties")) {
-            Properties properties = new Properties();
-            properties.load(is);
-            flinkDockerImageName = properties.getProperty("flink.docker.image.name");
-        } catch (Exception e) {
-            LOG.info("load sort-properties-from-pom.properties exception." + e.toString());
-            e.printStackTrace();
-        }
-
         LOG.info("Starting containers...");
         jobManager =
                 new GenericContainer<>(flinkDockerImageName)
