@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-name: InLong Unit Test For Flink1.15
+name: InLong Unit Test For Flink 1.15
 
 on:
   push:
