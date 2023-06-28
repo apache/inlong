@@ -48,6 +48,7 @@ import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.service.core.SortConfigLoader;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -71,6 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
@@ -252,9 +254,13 @@ public class DataProxyConfigRepositoryV2 implements IRepository {
             }
             Map<String, String> tagMap = MAP_SPLITTER.split(cacheCluster.getExtTag());
             String producerTag = tagMap.getOrDefault(CACHE_CLUSTER_PRODUCER_TAG, Boolean.TRUE.toString());
-            if (StringUtils.equalsIgnoreCase(producerTag, Boolean.TRUE.toString())) {
-                cacheClusterMap.computeIfAbsent(cacheCluster.getClusterTags(), k -> new HashMap<>())
-                        .computeIfAbsent(cacheCluster.getExtTag(), k -> new ArrayList<>()).add(cacheCluster);
+            if (StringUtils.equalsIgnoreCase(producerTag, Boolean.TRUE.toString()) && StringUtils.isNotBlank(
+                    cacheCluster.getClusterTags())) {
+                Set<String> clusterTags = Sets.newHashSet(cacheCluster.getClusterTags().split(InlongConstants.COMMA));
+                clusterTags.forEach(clusterTag -> {
+                    cacheClusterMap.computeIfAbsent(clusterTag, k -> new HashMap<>())
+                            .computeIfAbsent(cacheCluster.getExtTag(), k -> new ArrayList<>()).add(cacheCluster);
+                });
             }
         }
         // mark cache cluster to proxy cluster
