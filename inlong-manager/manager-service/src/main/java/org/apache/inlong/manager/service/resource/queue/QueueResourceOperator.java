@@ -85,8 +85,7 @@ public interface QueueResourceOperator {
      * @return query brief mq message info
      */
     default List<BriefMQMessage> queryLastestMessage(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            Integer messageCount)
-            throws PulsarClientException {
+            Integer messageCount) throws PulsarClientException {
         return null;
     }
 

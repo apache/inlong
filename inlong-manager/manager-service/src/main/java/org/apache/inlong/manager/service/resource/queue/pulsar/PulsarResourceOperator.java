@@ -323,6 +323,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
             String subs = String.format(PULSAR_SUBSCRIPTION_REALTIME_REVIEW, clusterTag, topicName);
             briefMQMessages =
                     pulsarOperator.queryLastMessage(pulsarAdmin, fullTopicName, subs, messageCount, streamInfo);
+
             // insert the consumer group info into the inlong_consume table
             Integer id = consumeService.saveBySystem(groupInfo, topicName, subs);
             log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
