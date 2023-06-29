@@ -26,13 +26,14 @@ import { statusList, genStatusTag } from './status';
 import { sinks, defaultValue } from '..';
 
 const { I18nMap, I18n } = DataWithBackend;
-const { FieldList, FieldDecorator } = RenderRow;
+const { FieldList, FieldDecorator, LightField, LightFieldSet } = RenderRow;
 const { ColumnList, ColumnDecorator } = RenderList;
 
 export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   static I18nMap = I18nMap;
   static FieldList = FieldList;
   static ColumnList = ColumnList;
+  static LightFieldSet = LightFieldSet;
 
   readonly id: number;
 
@@ -71,6 +72,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   @ColumnDecorator({
     render: type => sinks.find(c => c.value === type)?.label || type,
   })
+  @LightField()
   @I18n('meta.Sinks.SinkType')
   sinkType: string;
 
@@ -79,13 +81,13 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     rules: [
       { required: true },
       {
-        pattern: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
+        pattern: /^[a-zA-Z0-9_.-]*$/,
         message: i18n.t('meta.Sinks.SinkNameRule'),
       },
     ],
     props: values => ({
       disabled: !!values.id,
-      maxLength: 128,
+      maxLength: 100,
     }),
     visible: values => Boolean(values.sinkType),
   })
@@ -134,6 +136,12 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     }
 
     return data;
+  }
+
+  renderLightRow() {
+    const constructor = this.constructor as typeof SinkDefaultInfo;
+    const { FieldList, LightFieldSet } = constructor;
+    return FieldList.filter(item => LightFieldSet.has(item.name as string));
   }
 
   renderRow() {

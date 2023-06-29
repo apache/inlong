@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sdk.sort.util;
+package org.apache.inlong.common.util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

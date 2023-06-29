@@ -18,18 +18,19 @@
 package org.apache.inlong.manager.dao.interceptor;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.parser.CCJSqlParserManager;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.executor.statement.StatementHandler;
+import org.apache.ibatis.cache.CacheKey;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
@@ -37,63 +38,131 @@ import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.reflection.DefaultReflectorFactory;
 import org.apache.ibatis.reflection.MetaObject;
-import org.apache.ibatis.reflection.SystemMetaObject;
+import org.apache.ibatis.reflection.ReflectorFactory;
+import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
+import org.apache.ibatis.reflection.factory.ObjectFactory;
+import org.apache.ibatis.reflection.wrapper.DefaultObjectWrapperFactory;
+import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
+import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
 
-import java.io.StringReader;
-import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
- * Interceptor for multi-tenant.
+ * This interceptor intercept those queries annotated by {@link MultiTenantQuery}.
+ *
+ * <p>The main idea of MultiTenantInterceptor is that developer define sql template
+ * support multiple tenant in mapper.xml, but no need to pass the tenant explicitly in mapper.java.</p>
+ *
+ * <p>MultiTenantInterceptor will insert <strong>tenant</strong> into the parameter maps in
+ * {@link Executor} and {@link ParameterHandler} stages.</p>
  */
+@Slf4j
 @Intercepts({
-        @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})
+        @Signature(type = ParameterHandler.class, method = "setParameters", args = PreparedStatement.class),
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                RowBounds.class, ResultHandler.class})
 })
 public class MultiTenantInterceptor implements Interceptor {
 
-    private static final String TENANT_CONDITION = "tenant=";
-
+    private static final String KEY_TENANT = "tenant";
+    private static final ObjectFactory DEFAULT_OBJECT_FACTORY = new DefaultObjectFactory();
+    private static final ObjectWrapperFactory DEFAULT_OBJECT_WRAPPER_FACTORY = new DefaultObjectWrapperFactory();
+    private static final ReflectorFactory REFLECTOR_FACTORY = new DefaultReflectorFactory();
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
-        StatementHandler statementHandler = (StatementHandler) invocation.getTarget();
-        MetaObject metaObject = MetaObject.forObject(statementHandler, SystemMetaObject.DEFAULT_OBJECT_FACTORY,
-                SystemMetaObject.DEFAULT_OBJECT_WRAPPER_FACTORY, new DefaultReflectorFactory());
-        MappedStatement mappedStatement = (MappedStatement) metaObject.getValue("delegate.mappedStatement");
+        if (invocation.getTarget() instanceof ParameterHandler) {
+            return doParameterHandler((ParameterHandler) invocation.getTarget(), invocation);
+        } else if (invocation.getTarget() instanceof Executor) {
+            return doExecutor(invocation);
+        } else {
+            throw new Throwable("do not support type of target=" + invocation.getTarget());
+        }
+    }
 
+    private Object doExecutor(Invocation invocation) throws Throwable {
+        MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
         String fullMethodName = mappedStatement.getId();
         if (!MultiTenantQueryFilter.isMultiTenantQuery(fullMethodName.split(InlongConstants.UNDERSCORE)[0])) {
             return invocation.proceed();
         }
-
-        BoundSql boundSql = statementHandler.getBoundSql();
-        String sql = boundSql.getSql();
-
-        CCJSqlParserManager parserManager = new CCJSqlParserManager();
-        Select select = (Select) parserManager.parse(new StringReader(sql));
-        PlainSelect plain = (PlainSelect) select.getSelectBody();
-
-        StringBuilder whereSql = new StringBuilder();
-        whereSql.append(TENANT_CONDITION).append(getTenant());
-
-        Expression where = plain.getWhere();
-        if (where == null) {
-            Expression expression = CCJSqlParserUtil.parseCondExpression(whereSql.toString());
-            plain.setWhere(expression);
-        } else {
-            if (where.toString().contains(TENANT_CONDITION)) {
-                return invocation.proceed();
+        try {
+            Object[] args = invocation.getArgs();
+            MappedStatement ms = (MappedStatement) args[0];
+            Object parameter = args[1];
+            BoundSql boundSql;
+            if (args.length == 4) {
+                // 4 params
+                boundSql = ms.getBoundSql(parameter);
+            } else {
+                // 6 params
+                boundSql = (BoundSql) args[5];
             }
 
-            // else, append the tenant condition
-            whereSql.append(" and ( ").append(where).append(" )");
-            Expression expression = CCJSqlParserUtil.parseCondExpression(whereSql.toString());
-            plain.setWhere(expression);
+            List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+            // new param mapping
+            Map<String, Object> newParameter = makeNewParameters(parameter, parameterMappings);
+            // update params
+            invocation.getArgs()[1] = newParameter;
+
+            return invocation.proceed();
+        } catch (Exception e) {
+            log.error("failed to do executor in MultiTenantInterceptor", e);
+            throw e;
         }
-        metaObject.setValue("delegate.boundSql.sql", select.toString());
+
+    }
+
+    private Object doParameterHandler(ParameterHandler parameterHandler, Invocation invocation) throws Throwable {
+        MetaObject metaResultSetHandler = MetaObject.forObject(parameterHandler, DEFAULT_OBJECT_FACTORY,
+                DEFAULT_OBJECT_WRAPPER_FACTORY, REFLECTOR_FACTORY);
+        MappedStatement mappedStatement = (MappedStatement) metaResultSetHandler.getValue("mappedStatement");
+        String fullMethodName = mappedStatement.getId();
+        if (!MultiTenantQueryFilter.isMultiTenantQuery(fullMethodName.split(InlongConstants.UNDERSCORE)[0])) {
+            return invocation.proceed();
+        }
+        Object parameterObject = metaResultSetHandler.getValue("parameterObject");
+
+        BoundSql boundSql = (BoundSql) metaResultSetHandler.getValue("boundSql");
+
+        Map<String, Object> newParams = makeNewParameters(parameterObject, boundSql.getParameterMappings());
+
+        metaResultSetHandler.setValue("parameterObject", newParams);
         return invocation.proceed();
     }
 
-    private static String getTenant() {
+    private Map<String, Object> makeNewParameters(Object parameterObject, List<ParameterMapping> parameters) {
+        Map<String, Object> params;
+        if (isPrimitiveOrWrapper(parameterObject)) {
+            params = new LinkedHashMap<>();
+            params.put(parameters.get(0).getProperty(), parameterObject);
+        } else {
+            String jsonStr = JsonUtils.toJsonString(parameterObject);
+            params = JsonUtils.parseObject(jsonStr, Map.class);
+        }
+        params.put(KEY_TENANT, getTenant());
+        return params;
+    }
+
+    private boolean isPrimitiveOrWrapper(Object obj) {
+        try {
+            Class<?> clazz = obj.getClass();
+            return (obj instanceof String)
+                    || clazz.isPrimitive()
+                    || ((Class<?>) clazz.getField("TYPE").get(null)).isPrimitive();
+        } catch (Exception e) {
+            return false;
+        }
+
+    }
+
+    private String getTenant() {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         if (userInfo == null) {
             throw new IllegalStateException("current login user is null, please login first");
@@ -107,11 +176,7 @@ public class MultiTenantInterceptor implements Interceptor {
 
     @Override
     public Object plugin(Object target) {
-        if (target instanceof StatementHandler) {
-            return Plugin.wrap(target, this);
-        } else {
-            return target;
-        }
+        return Plugin.wrap(target, this);
     }
 
     @Override

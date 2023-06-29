@@ -68,7 +68,7 @@ public abstract class SinkRequest {
     @ApiModelProperty("Sink name, unique in one stream")
     @NotBlank(groups = {SaveValidation.class, UpdateByKeyValidation.class}, message = "sinkName cannot be blank")
     @Length(min = 1, max = 100, message = "sinkName length must be between 1 and 100")
-    @Pattern(regexp = "^[a-zA-Z0-9_-]{1,100}$", message = "sinkName only supports letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[a-zA-Z0-9_.-]{1,100}$", message = "sinkName only supports letters, numbers, '.', '-', or '_'")
     private String sinkName;
 
     @ApiModelProperty("Sink description")

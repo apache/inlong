@@ -48,6 +48,8 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     private static final String DDL = "ddl";
     private static final String SCHEMA = "schema";
     private static final String SQL_TYPE = "sqlType";
+    private static final String MYSQL_TYPE = "mysqlType";
+    private static final String ORACLE_TYE = "oracleType";
     private static final String AFTER = "after";
     private static final String BEFORE = "before";
     private static final String SOURCE = "source";
@@ -220,10 +222,14 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
                 throw new IllegalArgumentException(String.format("Error schema: %s.", data));
             }
             JsonNode schemaNode = sourceNode.get(SQL_TYPE);
+            JsonNode dialectSchema = sourceNode.get(MYSQL_TYPE);
+            if (dialectSchema == null) {
+                dialectSchema = sourceNode.get(ORACLE_TYE);
+            }
             if (schemaNode == null) {
                 throw new IllegalArgumentException(String.format("Error schema: %s.", data));
             }
-            return super.extractSchemaNode(schemaNode, pkNames);
+            return super.extractSchemaNode(schemaNode, dialectSchema, pkNames);
         }
         return extractSchemaFromExtractInfo(payload, pkNames);
     }
@@ -240,7 +246,7 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
             }
             for (JsonNode field : schema.get(FIELDS)) {
                 if (AFTER.equals(field.get(FIELD).asText())) {
-                    return extractSchemaNode(field.get(FIELDS), pkNames);
+                    return extractSchemaNode(field.get(FIELDS), null, pkNames);
                 }
             }
             throw new IllegalArgumentException(String.format("Error schema: %s.", schema));
@@ -248,11 +254,15 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     }
 
     @Override
-    public RowType extractSchemaNode(JsonNode schema, List<String> pkNames) {
+    public RowType extractSchemaNode(JsonNode schema, JsonNode dialectSchema, List<String> pkNames) {
         List<RowType.RowField> fields = new ArrayList<>();
         for (JsonNode field : schema) {
             String name = field.get(FIELD).asText();
             LogicalType type = debeziumType2FlinkType(field.get(TYPE).asText());
+            if (dialectSchema != null) {
+                String dialectType = dialectSchema.get(name) != null ? dialectSchema.get(name).asText() : null;
+                type = handleDialectSqlType(type, dialectType);
+            }
             if (pkNames.contains(name)) {
                 type = type.copy(false);
             }

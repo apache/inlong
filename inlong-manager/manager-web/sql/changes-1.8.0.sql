@@ -81,3 +81,8 @@ UPDATE inlong_group SET ext_params = replace(ext_params, '"tenant"', '"pulsarTen
 UPDATE inlong_cluster SET ext_params = replace(ext_params, '"tenant"', '"pulsarTenant"');
 
 ALTER TABLE `inlong_stream` MODIFY COLUMN `name` varchar(256) DEFAULT NULL COMMENT 'The name of the inlong stream page display, can be Chinese';
+
+ALTER TABLE `inlong_group`
+    ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of group';
+CREATE INDEX tenant_index
+    ON inlong_group (`tenant`, `is_deleted`);
