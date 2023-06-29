@@ -48,9 +48,6 @@ public abstract class DataNodeInfo {
     @ApiModelProperty(value = "Data node display name, just for display")
     private String displayName;
 
-    @ApiModelProperty(value = "Inlong tenant of datanode")
-    private String tenant;
-
     @ApiModelProperty(value = "Data node type, including MYSQL, HIVE, KAFKA, ES, etc.")
     private String type;
 
@@ -68,6 +65,9 @@ public abstract class DataNodeInfo {
 
     @ApiModelProperty(value = "Description of the data node")
     private String description;
+
+    @ApiModelProperty(value = "Inlong tenant to which the data node belongs")
+    private String tenant;
 
     @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;

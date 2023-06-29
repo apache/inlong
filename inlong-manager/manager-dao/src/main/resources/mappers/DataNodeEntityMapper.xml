@@ -24,13 +24,13 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="display_name" jdbcType="VARCHAR" property="displayName"/>
-        <result column="tenant" jdbcType="VARCHAR" property="tenant"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="token" jdbcType="VARCHAR" property="token"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="tenant" jdbcType="VARCHAR" property="tenant"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
@@ -41,20 +41,21 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, display_name, tenant, type, url, username, token, ext_params, description, in_charges, status,
-        is_deleted, creator, modifier, create_time, modify_time, version
+        id, name, display_name, type, url, username, token, ext_params, description, tenant, in_charges,
+        status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
-        insert into data_node (id, name, display_name, tenant, type,
-                               url, username, token,
-                               ext_params, description, in_charges,
-                               status, creator, modifier)
+        insert into data_node (id, name, display_name,
+                               type, url, username,
+                               token, ext_params, description,
+                               tenant, in_charges, status,
+                               creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{name, jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR},
-                #{tenant, jdbcType=VARCHAR}, #{type, jdbcType=VARCHAR}, #{url, jdbcType=VARCHAR},
-                #{username, jdbcType=VARCHAR}, #{token, jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
-                #{description, jdbcType=VARCHAR}, #{inCharges, jdbcType=VARCHAR}, #{status, jdbcType=INTEGER},
+                #{type, jdbcType=VARCHAR}, #{url, jdbcType=VARCHAR}, #{username, jdbcType=VARCHAR},
+                #{token, jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR}, #{description, jdbcType=VARCHAR},
+                #{tenant, jdbcType=VARCHAR}, #{inCharges, jdbcType=VARCHAR}, #{status, jdbcType=INTEGER},
                 #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
 
@@ -115,7 +116,6 @@
         set name         = #{name, jdbcType=VARCHAR},
             display_name = #{displayName, jdbcType=VARCHAR},
             type         = #{type, jdbcType=VARCHAR},
-            tenant       = #{tenant, jdbcType=VARCHAR},
             url          = #{url, jdbcType=VARCHAR},
             username     = #{username, jdbcType=VARCHAR},
             token        = #{token, jdbcType=VARCHAR},
