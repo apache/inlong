@@ -130,7 +130,8 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster`
     `version`               int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_cluster` (`name`, `type`, `is_deleted`),
-    INDEX `cluster_type_index` (`type`)
+    INDEX `cluster_type_index` (`type`),
+    INDEX `cluster_tenant_index` (`tenant`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong cluster table';
 
