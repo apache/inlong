@@ -24,7 +24,7 @@ import org.apache.inlong.common.msg.MsgType;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.source2.InLongMessageHandler;
+import org.apache.inlong.dataproxy.source.ServerMessageHandler;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 
@@ -203,9 +203,9 @@ public class SimplePackProfile extends PackProfile {
             // build and send response message
             ByteBuf retData;
             if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType)) {
-                retData = InLongMessageHandler.buildBinMsgRspPackage(strBuff.toString(), Long.parseLong(uid));
+                retData = ServerMessageHandler.buildBinMsgRspPackage(strBuff.toString(), Long.parseLong(uid));
             } else {
-                retData = InLongMessageHandler.buildTxtMsgRspPackage(msgType, strBuff.toString());
+                retData = ServerMessageHandler.buildTxtMsgRspPackage(msgType, strBuff.toString());
             }
             strBuff.delete(0, strBuff.length());
             if (channel == null || !channel.isWritable()) {

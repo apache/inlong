@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source2;
+package org.apache.inlong.dataproxy.source;
 
 public class SourceConstants {
 

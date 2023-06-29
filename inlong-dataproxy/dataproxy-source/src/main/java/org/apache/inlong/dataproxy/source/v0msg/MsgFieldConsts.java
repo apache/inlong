@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source2.v0msg;
+package org.apache.inlong.dataproxy.source.v0msg;
 
 public class MsgFieldConsts {
 

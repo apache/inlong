@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source2.v0msg;
+package org.apache.inlong.dataproxy.source.v0msg;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -23,7 +23,7 @@ import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.msg.MsgType;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.StatConstants;
-import org.apache.inlong.dataproxy.source2.BaseSource;
+import org.apache.inlong.dataproxy.source.BaseSource;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -35,10 +35,10 @@ import org.xerial.snappy.Snappy;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.TXT_MSG_BODYLEN_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.TXT_MSG_BODY_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.TXT_MSG_FORMAT_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.TXT_MSG_TOTALLEN_SIZE;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.TXT_MSG_BODYLEN_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.TXT_MSG_BODY_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.TXT_MSG_FORMAT_SIZE;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.TXT_MSG_TOTALLEN_SIZE;
 
 public class CodecTextMsg extends AbsV0MsgCodec {
 
