@@ -129,7 +129,7 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
           disabled: Boolean(values.id),
           dropdownMatchSelectWidth: false,
           options: sources
-            .filter(item => item.useInSync !== false)
+            .filter(item => item.userSync !== false)
             .map(item => ({
               label: item.label,
               value: item.value,
