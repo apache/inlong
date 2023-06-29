@@ -106,7 +106,6 @@ public class ESMultipleSinkTest extends AbstractTestBase {
     public void testESMultipleSinkParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

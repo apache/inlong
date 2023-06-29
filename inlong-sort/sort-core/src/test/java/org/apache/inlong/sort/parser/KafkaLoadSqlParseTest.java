@@ -225,7 +225,6 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
     public void testKafkaSourceSqlParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -253,7 +252,6 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
     public void testKafkaDynamicTopicParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -281,7 +279,6 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
     public void testKafkaDynamicPartitionParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -309,7 +306,6 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
     public void testKafkaDynamicPartitionWithPrimaryKey() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -337,7 +333,6 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
     public void testKafkaDirtyHandleSqlParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -365,7 +360,6 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
     public void testKafkaDirtyHandleWithDynamicTopicSqlParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

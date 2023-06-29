@@ -54,7 +54,6 @@ public class SplitIndexFunctionTest extends AbstractTestBase {
     public void testSplitIndexFunction() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

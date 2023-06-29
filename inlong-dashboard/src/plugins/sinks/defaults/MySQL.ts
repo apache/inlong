@@ -47,7 +47,7 @@ const fieldTypesConf = {
   TIME: () => '',
   DATETIME: () => '',
   CHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
-  VARCHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  VARCHAR: (m, d) => (1 <= m && m <= 16383 ? '' : '1<=M<=16383'),
   TEXT: () => '',
   BINARY: (m, d) => (1 <= m && m <= 64 ? '' : '1<=M<=64'),
   VARBINARY: (m, d) => (1 <= m && m <= 64 ? '' : '1<=M<=64'),

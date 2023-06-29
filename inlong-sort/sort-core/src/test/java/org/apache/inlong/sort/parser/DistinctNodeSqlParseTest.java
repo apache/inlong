@@ -244,7 +244,6 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
     public void testDistinctBasedProcessTime() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -275,7 +274,6 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
     public void testDistinctBasedTimeField() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -306,7 +304,6 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
     public void testDistinctBasedEventTime() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

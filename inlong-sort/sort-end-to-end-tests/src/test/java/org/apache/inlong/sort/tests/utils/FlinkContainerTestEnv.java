@@ -107,7 +107,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
 
     private static GenericContainer<?> jobManager;
     private static GenericContainer<?> taskManager;
-
     // ----------------------------------------------------------------------------------------
     // MYSQL Variables
     // ----------------------------------------------------------------------------------------
@@ -239,6 +238,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
 
     /**
      * Polling to detect task status until the task successfully into {@link JobStatus.RUNNING}
+     *
      * @param timeout
      */
     public void waitUntilJobRunning(Duration timeout) {

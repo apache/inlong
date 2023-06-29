@@ -159,7 +159,6 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
     public void testIceberg() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

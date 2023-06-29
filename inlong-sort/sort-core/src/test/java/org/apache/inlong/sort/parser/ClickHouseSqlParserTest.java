@@ -108,7 +108,6 @@ public class ClickHouseSqlParserTest extends AbstractTestBase {
     public void testClickHouse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

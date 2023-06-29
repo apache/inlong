@@ -81,6 +81,9 @@ public abstract class DataNodeRequest {
     @Length(max = 256, message = "length must be less than or equal to 256")
     private String description;
 
+    @ApiModelProperty(value = "Inlong tenant to which the data node belongs", hidden = true)
+    private String tenant;
+
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     @NotBlank(groups = SaveValidation.class, message = "inCharges cannot be blank")
     @Length(max = 512, message = "length must be less than or equal to 512")

@@ -166,7 +166,6 @@ public class HudiNodeSqlParserTest extends AbstractTestBase {
     public void testHudi() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

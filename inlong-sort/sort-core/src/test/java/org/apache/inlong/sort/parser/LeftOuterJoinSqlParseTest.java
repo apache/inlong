@@ -244,7 +244,6 @@ public class LeftOuterJoinSqlParseTest extends AbstractTestBase {
     public void testLeftOuterJoin() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -281,7 +280,6 @@ public class LeftOuterJoinSqlParseTest extends AbstractTestBase {
     public void testLeftOuterJoinWithDistinctAndFilter() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

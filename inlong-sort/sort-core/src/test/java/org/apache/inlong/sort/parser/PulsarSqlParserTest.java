@@ -94,7 +94,6 @@ public class PulsarSqlParserTest extends AbstractTestBase {
         env.disableOperatorChaining();
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);

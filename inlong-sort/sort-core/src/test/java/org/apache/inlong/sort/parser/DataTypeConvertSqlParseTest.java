@@ -117,7 +117,6 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
     public void testDataTypeConvertSqlParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -167,7 +166,6 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
     public void testHBaseDataTypeConvertSqlParse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

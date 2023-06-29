@@ -108,7 +108,6 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
     public void testMongoDbToKafka() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -178,7 +177,6 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
     public void testMongoDbComplexTypeToKafka() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
