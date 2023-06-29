@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.dao.interceptor;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
@@ -116,7 +117,6 @@ public class MultiTenantInterceptor implements Interceptor {
             log.error("failed to do executor in MultiTenantInterceptor", e);
             throw e;
         }
-
     }
 
     private Object doParameterHandler(ParameterHandler parameterHandler, Invocation invocation) throws Throwable {
@@ -127,10 +127,9 @@ public class MultiTenantInterceptor implements Interceptor {
         if (!MultiTenantQueryFilter.isMultiTenantQuery(fullMethodName.split(InlongConstants.UNDERSCORE)[0])) {
             return invocation.proceed();
         }
+
         Object parameterObject = metaResultSetHandler.getValue("parameterObject");
-
         BoundSql boundSql = (BoundSql) metaResultSetHandler.getValue("boundSql");
-
         Map<String, Object> newParams = makeNewParameters(parameterObject, boundSql.getParameterMappings());
 
         metaResultSetHandler.setValue("parameterObject", newParams);
@@ -139,9 +138,17 @@ public class MultiTenantInterceptor implements Interceptor {
 
     private Map<String, Object> makeNewParameters(Object parameterObject, List<ParameterMapping> parameters) {
         Map<String, Object> params;
-        if (isPrimitiveOrWrapper(parameterObject)) {
+
+        // only the single param query has no property name, find it in parameters.
+        if (isPrimitiveOrWrapper(parameterObject) && parameters.size() == 2) {
             params = new LinkedHashMap<>();
-            params.put(parameters.get(0).getProperty(), parameterObject);
+
+            // find the param not tenant
+            int idx = 0;
+            if (KEY_TENANT.equals(parameters.get(0).getProperty())) {
+                idx = 1;
+            }
+            params.put(parameters.get(idx).getProperty(), parameterObject);
         } else {
             String jsonStr = JsonUtils.toJsonString(parameterObject);
             params = JsonUtils.parseObject(jsonStr, Map.class);
@@ -159,17 +166,17 @@ public class MultiTenantInterceptor implements Interceptor {
         } catch (Exception e) {
             return false;
         }
-
     }
 
     private String getTenant() {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         if (userInfo == null) {
-            throw new IllegalStateException("current login user is null, please login first");
+            throw new BusinessException("Current user is null, please login first");
         }
         String tenant = userInfo.getTenant();
         if (StringUtils.isBlank(tenant)) {
-            throw new IllegalStateException("get no target tenant of userInfo=" + userInfo);
+            throw new BusinessException(String.format("User tenant is blank for user id=%s and username=%s",
+                    userInfo.getId(), userInfo.getName()));
         }
         return tenant;
     }
