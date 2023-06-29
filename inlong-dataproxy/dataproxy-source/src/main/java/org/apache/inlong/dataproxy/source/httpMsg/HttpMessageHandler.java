@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source2.httpMsg;
+package org.apache.inlong.dataproxy.source.httpMsg;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.enums.DataProxyMsgEncType;
@@ -27,7 +27,7 @@ import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.consts.HttpAttrConst;
 import org.apache.inlong.dataproxy.consts.StatConstants;
-import org.apache.inlong.dataproxy.source2.BaseSource;
+import org.apache.inlong.dataproxy.source.BaseSource;
 import org.apache.inlong.dataproxy.utils.AddressUtils;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
@@ -68,9 +68,9 @@ import static io.netty.handler.codec.http.HttpUtil.is100ContinueExpected;
 /**
  * HTTP Server message handler
  */
-public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class HttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-    private static final Logger logger = LoggerFactory.getLogger(InLongHttpMsgHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpMessageHandler.class);
     // log print count
     private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
     private final BaseSource source;
@@ -80,7 +80,7 @@ public class InLongHttpMsgHandler extends SimpleChannelInboundHandler<FullHttpRe
      *
      * @param source AbstractSource
      */
-    public InLongHttpMsgHandler(BaseSource source) {
+    public HttpMessageHandler(BaseSource source) {
         this.source = source;
     }
 

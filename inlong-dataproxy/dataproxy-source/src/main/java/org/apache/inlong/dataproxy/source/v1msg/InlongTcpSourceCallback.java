@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source.tcp;
+package org.apache.inlong.dataproxy.source.v1msg;
 
+import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePackHeader;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
@@ -34,12 +35,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * InlongTcpEventCallback
- * 
  */
 public class InlongTcpSourceCallback implements SourceCallback {
 
-    public static final Logger LOG = LoggerFactory.getLogger(InlongTcpSourceCallback.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(InlongTcpSourceCallback.class);
+    // log print count
+    private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
     private final ChannelHandlerContext ctx;
     private final MessagePackHeader header;
     private final CountDownLatch latch;
@@ -47,8 +48,9 @@ public class InlongTcpSourceCallback implements SourceCallback {
 
     /**
      * Constructor
-     * @param ctx
-     * @param header
+     *
+     * @param ctx the channel context
+     * @param header the message pack header
      */
     public InlongTcpSourceCallback(ChannelHandlerContext ctx, MessagePackHeader header) {
         this.ctx = ctx;
@@ -58,7 +60,8 @@ public class InlongTcpSourceCallback implements SourceCallback {
 
     /**
      * callback
-     * @param resultCode
+     *
+     * @param resultCode the result code
      */
     @Override
     public void callback(ResultCode resultCode) {
@@ -81,13 +84,17 @@ public class InlongTcpSourceCallback implements SourceCallback {
             if (remoteChannel.isWritable()) {
                 remoteChannel.write(buffer);
             } else {
-                LOG.warn("the send buffer2 is full, so disconnect it!"
-                        + "please check remote client; Connection info:{}",
-                        remoteChannel);
+                if (logCounter.shouldPrint()) {
+                    logger.warn("the send buffer2 is full, so disconnect it!"
+                            + " please check remote client; Connection info:{}",
+                            remoteChannel);
+                }
                 buffer.release();
             }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+        } catch (Throwable e) {
+            if (logCounter.shouldPrint()) {
+                logger.error("Send response failure", e);
+            }
         } finally {
             // notice TCP session
             this.latch.countDown();
@@ -96,6 +103,7 @@ public class InlongTcpSourceCallback implements SourceCallback {
 
     /**
      * get hasResponsed
+     *
      * @return the hasResponsed
      */
     public AtomicBoolean getHasResponsed() {
@@ -104,6 +112,7 @@ public class InlongTcpSourceCallback implements SourceCallback {
 
     /**
      * get latch
+     *
      * @return the latch
      */
     public CountDownLatch getLatch() {
