@@ -176,7 +176,9 @@ public class TestTextFileTask {
      */
     @Test
     public void testReadFull() throws IOException {
-        File file = TMP_FOLDER.newFile();
+        final TemporaryFolder temporaryFolder = new TemporaryFolder();
+        temporaryFolder.create();
+        File file = temporaryFolder.newFile();
         StringBuffer sb = new StringBuffer();
         String testData1 = IntStream.range(0, 5)
                 .mapToObj(String::valueOf)
@@ -222,6 +224,7 @@ public class TestTextFileTask {
                 return logJson.get(MetadataConstants.DATA_CONTENT);
             }).collect(Collectors.joining(System.lineSeparator()));
         }
+        temporaryFolder.delete();
     }
 
     /**
@@ -229,7 +232,9 @@ public class TestTextFileTask {
      */
     @Test
     public void testReadIncrement() throws IOException {
-        File file = TMP_FOLDER.newFile();
+        final TemporaryFolder temporaryFolder = new TemporaryFolder();
+        temporaryFolder.create();
+        File file = temporaryFolder.newFile();
         StringBuffer sb = new StringBuffer();
         sb.append(IntStream.range(0, 5)
                 .mapToObj(String::valueOf)
@@ -263,11 +268,14 @@ public class TestTextFileTask {
                 return logJson.get(MetadataConstants.DATA_CONTENT);
             }).collect(Collectors.joining(System.lineSeparator()));
         }
+        temporaryFolder.delete();
     }
 
     @Test
     public void testScaleData() throws IOException {
-        File file = TMP_FOLDER.newFile();
+        final TemporaryFolder temporaryFolder = new TemporaryFolder();
+        temporaryFolder.create();
+        File file = temporaryFolder.newFile();
         StringBuffer sb = new StringBuffer();
         String testData1 = IntStream.range(0, 5)
                 .mapToObj(String::valueOf)
@@ -284,5 +292,6 @@ public class TestTextFileTask {
         // mock data
         final MockSink sink = mockTextTask(jobProfile);
         await().atMost(100, TimeUnit.SECONDS).until(() -> sink.getResult().size() == 5);
+        temporaryFolder.delete();
     }
 }
