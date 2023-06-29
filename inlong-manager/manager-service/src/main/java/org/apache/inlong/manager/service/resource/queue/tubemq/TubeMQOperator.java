@@ -273,7 +273,7 @@ public class TubeMQOperator {
         LOGGER.info("begin to query message for topic {}", topicName);
         String masterUrl = tubeCluster.getMasterWebUrl();
         TubeBrokerInfo brokerView = this.getBrokerInfo(masterUrl);
-        String brokerUrl = brokerView.getOneWorkBrokerIp();
+        String brokerUrl = brokerView.getOnlineBrokerAddress();
 
         List<BriefMQMessage> messageList = new ArrayList<>();
         try {
@@ -301,7 +301,7 @@ public class TubeMQOperator {
             for (TubeDataInfo tubeDataInfo : response.getDataSet()) {
                 Map<String, String> map = new HashMap<>();
                 for (String kv : tubeDataInfo.getAttr().split(InlongConstants.COMMA)) {
-                    map.put(kv.split("=")[0], kv.split("=")[1]);
+                    map.put(kv.split(InlongConstants.EQUAL)[0], kv.split(InlongConstants.EQUAL)[1]);
                 }
 
                 int wrapTypeId = Integer.parseInt(map.getOrDefault(InlongConstants.MSG_ENCODE_VER,

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.queue.tubemq;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
+
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -114,17 +116,19 @@ public class TubeBrokerInfo {
     }
 
     /**
-     * Get all broker ip list.
+     * Get one online broker address of TubeMQ.
      */
-    public String getOneWorkBrokerIp() {
+    public String getOnlineBrokerAddress() {
+        String onlineBrokerAddress = null;
         if (data != null) {
             for (BrokerInfo brokerInfo : data) {
                 if (brokerInfo.isBrokerOnline()) {
-                    return brokerInfo.getBrokerIp() + ":" + brokerInfo.getBrokerWebPort();
+                    onlineBrokerAddress =
+                            brokerInfo.getBrokerIp() + InlongConstants.COLON + brokerInfo.getBrokerWebPort();
                 }
             }
         }
-        return null;
+        return onlineBrokerAddress;
     }
 
     /**

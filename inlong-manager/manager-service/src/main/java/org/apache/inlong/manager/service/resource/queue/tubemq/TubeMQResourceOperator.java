@@ -36,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -116,21 +115,11 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
             Integer messageCount) {
         Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
 
-        String groupId = groupInfo.getInlongGroupId();
-        List<BriefMQMessage> briefMQMessages = new ArrayList<>();
+        String clusterTag = groupInfo.getInlongClusterTag();
+        TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
+        String topicName = groupInfo.getMqResource();
 
-        try {
-            // 1. create tubemq topic
-            String clusterTag = groupInfo.getInlongClusterTag();
-            TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
-            String topicName = groupInfo.getMqResource();
-            briefMQMessages = tubeMQOperator.queryLastMessage(tubeCluster, topicName, messageCount, streamInfo);
-
-        } catch (Exception e) {
-            log.error("failed to create tubemq resource for groupId=" + groupId, e);
-            throw new WorkflowListenerException("failed to create tubemq resource: " + e.getMessage());
-        }
-        return briefMQMessages;
+        return tubeMQOperator.queryLastMessage(tubeCluster, topicName, messageCount, streamInfo);
     }
 
 }

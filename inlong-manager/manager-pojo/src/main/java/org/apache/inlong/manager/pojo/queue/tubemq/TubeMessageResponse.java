@@ -22,7 +22,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * The response info of TubeMQ manager.
+ * The message info from TubeMQ.
  */
 @Data
 public class TubeMessageResponse {

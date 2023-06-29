@@ -48,6 +48,8 @@ public class InlongConstants {
 
     public static final String COLON = ":";
 
+    public static final String EQUAL = "=";
+
     public static final String SEMICOLON = ";";
 
     public static final String HYPHEN = "-";
@@ -187,6 +189,9 @@ public class InlongConstants {
      */
     public static final String BATCH_PARSING_FILED_JSON_COMMENT_PROP = "desc";
 
+    /**
+     * Message compression type, 0 is Raw message without any InLong format, 1 is inlongMsgPb, 2 is InlongMsg
+     */
     public static final String MSG_ENCODE_VER = "msgEnType";
 
 }
