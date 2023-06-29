@@ -108,7 +108,7 @@ const Comp: React.FC<Props> = ({
   }, [modalProps.open]);
 
   const formContent = useMemo(() => {
-    return Entity ? new Entity().renderRow() : [];
+    return Entity ? new Entity().renderSyncRow() : [];
   }, [Entity]);
 
   return (

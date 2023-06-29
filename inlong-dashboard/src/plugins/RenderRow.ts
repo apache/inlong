@@ -22,7 +22,7 @@ import merge from 'lodash/merge';
 
 export abstract class RenderRow {
   static FieldList: FieldItemType[] = [];
-  static LightFieldSet = new Set<string>();
+  static SyncFieldSet = new Set<string>();
 
   static FieldDecorator(config: FieldItemType): PropertyDecorator {
     return (target: any, propertyKey: string) => {
@@ -47,9 +47,9 @@ export abstract class RenderRow {
     };
   }
 
-  static LightField(): PropertyDecorator {
+  static SyncField(): PropertyDecorator {
     return (target: any, propertyKey: string) => {
-      target.constructor.LightFieldSet.add(propertyKey);
+      target.constructor.SyncFieldSet.add(propertyKey);
     };
   }
 
