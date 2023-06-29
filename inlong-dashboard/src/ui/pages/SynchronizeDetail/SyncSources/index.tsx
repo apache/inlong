@@ -18,7 +18,7 @@
  */
 
 import React, { useState, forwardRef, useMemo, useCallback } from 'react';
-import { Badge, Button, Card, Modal, List, Tag, Segmented, message } from 'antd';
+import { Badge, Button, Card, Modal, List, Tag, Segmented, message, PaginationProps } from 'antd';
 import { PaginationConfig } from 'antd/lib/pagination';
 import {
   UnorderedListOutlined,
@@ -170,6 +170,10 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
     size: 'small',
   };
 
+  const onChangeList: PaginationProps['onChange'] = page => {
+    setOptions({ pageSize: defaultSize, pageNum: page, sourceType: defaultValue });
+  };
+
   const { Entity } = useLoadMeta<SourceMetaType>('source', options.sourceType);
 
   const entityColumns = useMemo(() => {
@@ -277,7 +281,14 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
             size="small"
             loading={loading}
             dataSource={data?.list as Record<string, any>[]}
-            pagination={pagination}
+            pagination={{
+              pageSize: defaultSize,
+              current: options.pageNum,
+              total: data?.total,
+              simple: true,
+              size: 'small',
+              onChange: onChangeList,
+            }}
             split={true}
             renderItem={item => (
               <List.Item
