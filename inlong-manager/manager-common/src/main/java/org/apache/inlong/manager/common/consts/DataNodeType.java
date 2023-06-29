@@ -35,4 +35,5 @@ public class DataNodeType {
     public static final String POSTGRESQL = "POSTGRESQL";
     public static final String ORACLE = "ORACLE";
     public static final String SQLSERVER = "SQLSERVER";
+    public static final String MONGO = "MONGO";
 }

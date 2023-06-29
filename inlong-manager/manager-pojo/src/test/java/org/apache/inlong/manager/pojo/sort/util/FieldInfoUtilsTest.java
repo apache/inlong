@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
+import org.apache.inlong.manager.common.fieldtype.strategy.MongoFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.MySQLFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.OracleFieldTypeStrategy;
 import org.apache.inlong.manager.common.fieldtype.strategy.PostgreSQLFieldTypeStrategy;
@@ -81,6 +82,18 @@ public class FieldInfoUtilsTest {
         streamField.setFieldType("XML");
         FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
                 "nodeId", new SQLServerFieldTypeStrategy());
+        TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
+        Assertions.assertTrue(typeInfo instanceof StringTypeInfo);
+    }
+
+    @Test
+    public void testMongoFieldTypeInfo() {
+        StreamField streamField = new StreamField();
+        streamField.setIsMetaField(0);
+        streamField.setFieldName("UUID");
+        streamField.setFieldType("uuid");
+        FieldInfo fieldInfo = FieldInfoUtils.parseStreamFieldInfo(streamField,
+                "nodeId", new MongoFieldTypeStrategy());
         TypeInfo typeInfo = fieldInfo.getFormatInfo().getTypeInfo();
         Assertions.assertTrue(typeInfo instanceof StringTypeInfo);
     }
