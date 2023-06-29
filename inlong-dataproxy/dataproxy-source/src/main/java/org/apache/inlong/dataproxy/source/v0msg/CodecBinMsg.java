@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.source2.v0msg;
+package org.apache.inlong.dataproxy.source.v0msg;
 
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -24,7 +24,7 @@ import org.apache.inlong.common.msg.MsgType;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.StatConstants;
-import org.apache.inlong.dataproxy.source2.BaseSource;
+import org.apache.inlong.dataproxy.source.BaseSource;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -36,21 +36,21 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_ATTRLEN_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_BODYLEN_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_BODY_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_CNT_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_DT_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_EXTEND_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_FORMAT_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_GROUPIDNUM_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_MAGIC;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_MAGIC_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_MSGTYPE_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_STREAMIDNUM_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_TOTALLEN_OFFSET;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_TOTALLEN_SIZE;
-import static org.apache.inlong.dataproxy.source2.v0msg.MsgFieldConsts.BIN_MSG_UNIQ_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_ATTRLEN_SIZE;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_BODYLEN_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_BODY_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_CNT_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_DT_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_EXTEND_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_FORMAT_SIZE;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_GROUPIDNUM_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_MAGIC;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_MAGIC_SIZE;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_MSGTYPE_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_STREAMIDNUM_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_TOTALLEN_OFFSET;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_TOTALLEN_SIZE;
+import static org.apache.inlong.dataproxy.source.v0msg.MsgFieldConsts.BIN_MSG_UNIQ_OFFSET;
 
 public class CodecBinMsg extends AbsV0MsgCodec {
 
