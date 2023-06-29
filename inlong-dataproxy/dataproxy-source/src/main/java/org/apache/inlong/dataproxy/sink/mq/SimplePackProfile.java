@@ -156,7 +156,6 @@ public class SimplePackProfile extends PackProfile {
         result.put(ConfigConstants.MSG_ENCODE_VER, event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER));
         result.put(EventConstants.HEADER_KEY_VERSION, event.getHeaders().get(EventConstants.HEADER_KEY_VERSION));
         result.put(ConfigConstants.REMOTE_IP_KEY, event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY));
-        result.put(ConfigConstants.PKG_TIME_KEY, event.getHeaders().get(ConfigConstants.PKG_TIME_KEY));
         result.put(ConfigConstants.DATAPROXY_IP_KEY, NetworkUtils.getLocalIp());
         return result;
     }

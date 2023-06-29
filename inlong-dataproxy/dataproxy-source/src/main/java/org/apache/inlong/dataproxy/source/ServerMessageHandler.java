@@ -287,7 +287,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         try {
             source.getChannelProcessor().processEvent(event);
             source.fileMetricIncSumStats(StatConstants.EVENT_MSG_V0_POST_SUCCESS);
-            source.fileMetricAddSuccCnt(statsKey, msgCodec.getMsgCount(), 1, msgCodec.getBodyLength());
+            source.fileMetricAddSuccCnt(statsKey, msgCodec.getMsgCount(), 1, event.getBody().length);
             source.addMetric(true, event.getBody().length, event);
             if (msgCodec.isNeedResp() && !msgCodec.isOrderOrProxy()) {
                 msgCodec.setSuccessInfo();
