@@ -25,99 +25,45 @@
     </parent>
 
     <artifactId>manager-plugins</artifactId>
+    <packaging>pom</packaging>
     <name>Apache InLong - Manager Plugins</name>
+
+    <modules>
+        <module>manager-plugins-flink-v1.13</module>
+        <module>manager-plugins-flink-v1.15</module>
+        <module>base</module>
+    </modules>
 
     <properties>
         <inlong.root.dir>${project.parent.parent.basedir}</inlong.root.dir>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>manager-common</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>manager-workflow</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-flink-dependencies-v1.13</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.scala-lang</groupId>
-                    <artifactId>scala-library</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <profiles>
+        <profile>
+            <id>flink-all-version</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>base</module>
+                <module>manager-plugins-flink-v1.13</module>
+                <module>manager-plugins-flink-v1.15</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>v1.13</id>
+            <modules>
+                <module>base</module>
+                <module>manager-plugins-flink-v1.13</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>v1.15</id>
+            <modules>
+                <module>base</module>
+                <module>manager-plugins-flink-v1.15</module>
+            </modules>
+        </profile>
+    </profiles>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <outputDirectory>target/plugins</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/resources</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <finalName>plugins</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <descriptors>
-                        <descriptor>src/main/assembly/assembly.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>plugins</id>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

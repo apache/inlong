@@ -23,6 +23,7 @@ import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequest;
 import org.apache.inlong.manager.plugin.flink.enums.Constants;
 import org.apache.inlong.manager.plugin.util.FlinkConfiguration;
+import org.apache.inlong.manager.plugin.util.FlinkServiceUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +65,7 @@ public class FlinkService {
     private final Integer parallelism;
     private final String savepointDirectory;
     private final Configuration configuration;
+    private final FlinkClientService clientService;
 
     /**
      * Constructor of FlinkService.
@@ -93,6 +95,8 @@ public class FlinkService {
         }
         configuration.setString(JobManagerOptions.ADDRESS, address);
         configuration.setInteger(RestOptions.PORT, port);
+
+        clientService = (FlinkClientService) FlinkServiceUtils.getFlinkClientService(configuration);
     }
 
     /**
@@ -118,45 +122,17 @@ public class FlinkService {
     }
 
     /**
-     * Get the Flink Client.
-     */
-    public RestClusterClient<StandaloneClusterId> getFlinkClient() throws Exception {
-        try {
-            return new RestClusterClient<>(configuration, StandaloneClusterId.getInstance());
-        } catch (Exception e) {
-            log.error("get flink client failed: ", e);
-            throw new Exception("get flink client failed: " + e.getMessage());
-        }
-    }
-
-    /**
      * Get the job status by the given job id.
      */
     public JobStatus getJobStatus(String jobId) throws Exception {
-        try {
-            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
-            JobID jobID = JobID.fromHexString(jobId);
-            CompletableFuture<JobStatus> jobStatus = client.getJobStatus(jobID);
-            return jobStatus.get();
-        } catch (Exception e) {
-            log.error("get job status by jobId={} failed: ", jobId, e);
-            throw new Exception("get job status by jobId=" + jobId + " failed: " + e.getMessage());
-        }
+        return clientService.getJobStatus(jobId);
     }
 
     /**
      * Get job detail by the given job id.
      */
     public JobDetailsInfo getJobDetail(String jobId) throws Exception {
-        try {
-            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
-            JobID jobID = JobID.fromHexString(jobId);
-            CompletableFuture<JobDetailsInfo> jobDetails = client.getJobDetails(jobID);
-            return jobDetails.get();
-        } catch (Exception e) {
-            log.error("get job detail by jobId={} failed: ", jobId, e);
-            throw new Exception("get job detail by jobId=" + jobId + " failed: " + e.getMessage());
-        }
+        return clientService.getJobDetail(jobId);
     }
 
     /**
@@ -216,7 +192,7 @@ public class FlinkService {
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, configuration, parallelism, false);
         jobGraph.addJars(connectorJars);
 
-        RestClusterClient<StandaloneClusterId> client = getFlinkClient();
+        RestClusterClient<StandaloneClusterId> client = clientService.getFlinkClient();
         CompletableFuture<JobID> result = client.submitJob(jobGraph);
         return result.get().toString();
     }
@@ -225,30 +201,14 @@ public class FlinkService {
      * Stop the Flink job with the savepoint.
      */
     public String stopJob(String jobId, StopWithSavepointRequest request) throws Exception {
-        try {
-            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
-            JobID jobID = JobID.fromHexString(jobId);
-            CompletableFuture<String> stopResult = client.stopWithSavepoint(jobID, request.isDrain(),
-                    request.getTargetDirectory());
-            return stopResult.get();
-        } catch (Exception e) {
-            log.error("stop job {} and request {} failed: ", jobId, request, e);
-            throw new Exception("stop job " + jobId + " failed: " + e.getMessage());
-        }
+        return clientService.stopJob(jobId, request.isDrain(), request.getTargetDirectory());
     }
 
     /**
      * Cancel the Flink job.
      */
     public void cancelJob(String jobId) throws Exception {
-        try {
-            RestClusterClient<StandaloneClusterId> client = getFlinkClient();
-            JobID jobID = JobID.fromHexString(jobId);
-            client.cancel(jobID);
-        } catch (Exception e) {
-            log.error("cancel job {} failed: ", jobId, e);
-            throw new Exception("cancel job " + jobId + " failed: " + e.getMessage());
-        }
+        clientService.cancelJob(jobId);
     }
 
     /**
