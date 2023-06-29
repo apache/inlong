@@ -53,7 +53,6 @@ public class EncryptFunctionTest extends AbstractTestBase {
     public void testEncryptFunction() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

@@ -225,7 +225,6 @@ public class MetaFieldSyncTest extends AbstractTestBase {
     public void testMetaFieldSyncTest() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

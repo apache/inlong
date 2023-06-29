@@ -160,7 +160,6 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
     public void testSqlServerLoad() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -184,7 +183,6 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
     public void testSqlServerExtract() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

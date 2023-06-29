@@ -120,7 +120,6 @@ public class AllMigrateOracleTest extends AbstractTestBase {
     public void testAllMigrate() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -147,7 +146,6 @@ public class AllMigrateOracleTest extends AbstractTestBase {
     public void testAllMigrateWithBytesFormat() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
                 .newInstance()
-                .useBlinkPlanner()
                 .inStreamingMode()
                 .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
