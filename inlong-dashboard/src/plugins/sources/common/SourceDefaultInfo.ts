@@ -123,7 +123,21 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
   renderSyncRow() {
     const constructor = this.constructor as typeof SourceDefaultInfo;
     const { FieldList, SyncFieldSet } = constructor;
-    return FieldList.filter(item => SyncFieldSet.has(item.name as string));
+    return FieldList.filter(item => {
+      if (item.name === 'sourceType') {
+        item.props = values => ({
+          disabled: Boolean(values.id),
+          dropdownMatchSelectWidth: false,
+          options: sources
+            .filter(item => item.isSync !== false)
+            .map(item => ({
+              label: item.label,
+              value: item.value,
+            })),
+        });
+      }
+      return SyncFieldSet.has(item.name as string);
+    });
   }
 
   renderRow() {

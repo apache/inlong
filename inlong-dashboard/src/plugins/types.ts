@@ -26,6 +26,7 @@ export type MetaExportStaticList<T> = {
 export type MetaExportWithBackendList<T> = {
   label: string;
   value: string;
+  isSync?: boolean;
   LoadEntity: () => Promise<{ default: T }>;
 }[];
 
