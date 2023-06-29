@@ -44,6 +44,9 @@ public class ClusterTagPageRequest extends PageRequest {
     @ApiModelProperty(value = "Status")
     private Integer status;
 
+    @ApiModelProperty(value = "Inlong tenant of cluster tag", hidden = true)
+    private String tenant;
+
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
