@@ -24,16 +24,19 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
   {
     label: 'ALL',
     value: '',
+    isSync: false,
     LoadEntity: () => import('../common/SourceInfo').then(r => ({ default: r.SourceInfo })),
   },
   {
     label: 'Auto-Push',
     value: 'AUTO_PUSH',
+    isSync: false,
     LoadEntity: () => import('./AutoPush'),
   },
   {
     label: 'File',
     value: 'FILE',
+    isSync: false,
     LoadEntity: () => import('./File'),
   },
   {
