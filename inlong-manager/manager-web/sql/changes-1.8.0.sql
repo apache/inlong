@@ -83,12 +83,12 @@ UPDATE inlong_cluster SET ext_params = replace(ext_params, '"tenant"', '"pulsarT
 ALTER TABLE `inlong_stream` MODIFY COLUMN `name` varchar(256) DEFAULT NULL COMMENT 'The name of the inlong stream page display, can be Chinese';
 
 ALTER TABLE `inlong_group`
-    ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of group';
+    ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of group' after in_charges;
 CREATE INDEX tenant_index
     ON inlong_group (`tenant`, `is_deleted`);
 
 -- To support multi-tenancy of datanode. Please see #8349
 ALTER TABLE `data_node`
-    ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of datanode';
+    ADD tenant VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of datanode' after in_charges;
 CREATE INDEX datanode_tenant_index
     ON data_node (`tenant`, `is_deleted`);
