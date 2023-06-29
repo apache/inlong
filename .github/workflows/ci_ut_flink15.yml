@@ -54,7 +54,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build for Flink 1.15 with Maven
-        run: mvn --update-snapshots -e -V package -U -pl inlong-sort/sort-core -am -Pv1.15 -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
+        run: mvn --update-snapshots -e -V package -U -pl inlong-sort/sort-core -amd -Pv1.15 -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Daether.connector.http.reuseConnections=false -Daether.connector.requestTimeout=60000
         env:
           CI: false
 
