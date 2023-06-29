@@ -29,6 +29,7 @@ import org.apache.inlong.sort.cdc.mysql.source.assigners.state.BinlogPendingSpli
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.HybridPendingSplitsState;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.PendingSplitsState;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.PendingSplitsStateSerializer;
+import org.apache.inlong.sort.cdc.mysql.source.assigners.state.SnapshotPendingSplitsState;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfigFactory;
 import org.apache.inlong.sort.cdc.mysql.source.enumerator.MySqlSourceEnumerator;
@@ -37,6 +38,7 @@ import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlRecordEmitter;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReaderContext;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSplitReader;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSchemalessSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitSerializer;
 import org.apache.inlong.sort.cdc.mysql.table.StartupMode;
@@ -59,10 +61,15 @@ import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.kafka.connect.source.SourceRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.discoverCapturedTables;
 import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
@@ -100,6 +107,8 @@ public class MySqlSource<T>
         implements
             Source<T, MySqlSplit, PendingSplitsState>,
             ResultTypeQueryable<T> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MySqlSource.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -208,6 +217,28 @@ public class MySqlSource<T>
 
         final MySqlSplitAssigner splitAssigner;
         if (checkpoint instanceof HybridPendingSplitsState) {
+            try (JdbcConnection jdbc = openJdbcConnection(sourceConfig)) {
+                final List<TableId> capturedTables = discoverCapturedTables(jdbc, sourceConfig);
+                SnapshotPendingSplitsState splitsState =
+                        ((HybridPendingSplitsState) checkpoint).getSnapshotPendingSplits();
+                List<TableId> tables = new ArrayList<>(splitsState.getAlreadyProcessedTables());
+                tables.addAll(splitsState.getRemainingTables());
+                LOG.info("Checkpoint tables: {}", Arrays.deepToString(tables.toArray()));
+                tables.removeAll(capturedTables);
+                if (tables.size() > 0) {
+                    LOG.info("Debezium doesn't capture {} tables, remove them from checkpoint",
+                            Arrays.deepToString(tables.toArray()));
+                    splitsState.getRemainingTables().removeAll(tables);
+                    splitsState.getAlreadyProcessedTables().addAll(tables);
+                    List<MySqlSchemalessSnapshotSplit> snapshotSplits = splitsState.getRemainingSplits().stream()
+                            .filter(it -> tables.contains(it.getTableId())).collect(Collectors.toList());
+                    splitsState.getRemainingSplits().removeAll(snapshotSplits);
+                    LOG.info("Remaining splits: {}", Arrays.deepToString(splitsState.getRemainingSplits().toArray()));
+                }
+            } catch (Exception e) {
+                throw new FlinkRuntimeException("Failed to discover captured tables for enumerator", e);
+            }
+
             splitAssigner =
                     new MySqlHybridSplitAssigner(
                             sourceConfig,
