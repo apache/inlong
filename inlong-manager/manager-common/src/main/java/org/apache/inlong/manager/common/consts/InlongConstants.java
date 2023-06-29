@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.common.consts;
 
+import org.apache.inlong.common.enums.DataProxyMsgEncType;
+
 import com.google.common.collect.Sets;
 
 import java.util.Set;
@@ -190,7 +192,8 @@ public class InlongConstants {
     public static final String BATCH_PARSING_FILED_JSON_COMMENT_PROP = "desc";
 
     /**
-     * Message compression type, 0 is Raw message without any InLong format, 1 is inlongMsgPb, 2 is InlongMsg
+     * Message compression type, 0 is Raw message without any InLong format, 1 is InlongMsgPb, 2 is InlongMsg
+     * {@link DataProxyMsgEncType}
      */
     public static final String MSG_ENCODE_VER = "msgEnType";
 

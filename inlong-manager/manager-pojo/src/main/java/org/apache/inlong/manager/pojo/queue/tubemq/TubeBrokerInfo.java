@@ -120,14 +120,19 @@ public class TubeBrokerInfo {
      */
     public String getOnlineBrokerAddress() {
         String onlineBrokerAddress = null;
-        if (data != null) {
-            for (BrokerInfo brokerInfo : data) {
-                if (brokerInfo.isBrokerOnline()) {
-                    onlineBrokerAddress =
-                            brokerInfo.getBrokerIp() + InlongConstants.COLON + brokerInfo.getBrokerWebPort();
-                }
+
+        if (data == null) {
+            return onlineBrokerAddress;
+        }
+
+        for (BrokerInfo brokerInfo : data) {
+            if (brokerInfo.isBrokerOnline()) {
+                onlineBrokerAddress =
+                        brokerInfo.getBrokerIp() + InlongConstants.COLON + brokerInfo.getBrokerWebPort();
+                break;
             }
         }
+
         return onlineBrokerAddress;
     }
 
