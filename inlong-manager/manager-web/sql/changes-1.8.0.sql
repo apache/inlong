@@ -95,7 +95,6 @@ ALTER TABLE `data_node`
 CREATE INDEX datanode_tenant_index
     ON data_node (`tenant`, `is_deleted`);
 
-
 ALTER TABLE `inlong_cluster`
     ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of cluster' after heartbeat;
 CREATE INDEX cluster_tenant_index

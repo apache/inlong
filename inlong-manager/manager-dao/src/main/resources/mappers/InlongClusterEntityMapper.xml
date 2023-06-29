@@ -210,7 +210,6 @@
             ext_params           = #{extParams,jdbcType=LONGVARCHAR},
             description          = #{description,jdbcType=VARCHAR},
             heartbeat            = #{heartbeat,jdbcType=LONGVARCHAR},
-            tenant               = #{tenant,jdbcType=VARCHAR},
             in_charges           = #{inCharges,jdbcType=VARCHAR},
             status               = #{status,jdbcType=INTEGER},
             is_deleted           = #{isDeleted,jdbcType=INTEGER},
