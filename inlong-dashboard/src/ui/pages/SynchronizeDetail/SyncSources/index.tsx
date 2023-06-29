@@ -48,7 +48,7 @@ interface Props extends CommonInterface {
 const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   const [mode, setMode] = useState('list');
 
-  const { defaultValue } = useDefaultMeta('syncSource');
+  const { defaultValue } = useDefaultMeta('source');
 
   const defaultOptions = {
     // keyword: '',
@@ -177,7 +177,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
   }, [Entity]);
 
   const entityFields = useMemo(() => {
-    return Entity ? new Entity().renderRow() : [];
+    return Entity ? new Entity().renderSyncRow() : [];
   }, [Entity]);
 
   const getFilterFormContent = useCallback(

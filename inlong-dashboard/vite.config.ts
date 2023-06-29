@@ -41,7 +41,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/inlong/manager/api': {
-        target: 'http://127.0.0.1:8083',
+        // target: 'http://127.0.0.1:8083',
+        target: 'http://9.23.28.24',
+        // target: 'http://9.134.14.47',
         changeOrigin: true,
         secure: false,
       },

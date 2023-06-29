@@ -50,7 +50,7 @@ const Comp: React.FC<DetailModalProps> = ({
 
   const [sinkType, setSinkType] = useState('');
 
-  const { loading: pluginLoading, Entity } = useLoadMeta<SinkMetaType>('syncSink', sinkType);
+  const { loading: pluginLoading, Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
 
   const { data: groupData, run: getGroupData } = useRequest(`/group/get/${inlongGroupId}`, {
     manual: true,
@@ -94,7 +94,7 @@ const Comp: React.FC<DetailModalProps> = ({
 
   const formContent = useMemo(() => {
     if (Entity) {
-      const row = new Entity().renderRow();
+      const row = new Entity().renderSyncRow();
       return row.map(item => ({
         ...item,
         col: item.name === 'sinkType' || item.type === EditableTable ? 24 : 12,

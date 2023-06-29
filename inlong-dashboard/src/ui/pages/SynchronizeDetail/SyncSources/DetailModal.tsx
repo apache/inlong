@@ -46,11 +46,11 @@ const Comp: React.FC<Props> = ({
   const [form] = useForm();
   const { t } = useTranslation();
 
-  const { defaultValue } = useDefaultMeta('syncSource');
+  const { defaultValue } = useDefaultMeta('source');
 
   const [type, setType] = useState(defaultValue);
 
-  const { loading, Entity } = useLoadMeta<SourceMetaType>('syncSource', type);
+  const { loading, Entity } = useLoadMeta<SourceMetaType>('source', type);
 
   const { data, run: getData } = useRequest(
     id => ({
@@ -108,7 +108,7 @@ const Comp: React.FC<Props> = ({
   }, [modalProps.open]);
 
   const formContent = useMemo(() => {
-    return Entity ? new Entity().renderRow() : [];
+    return Entity ? new Entity().renderSyncRow() : [];
   }, [Entity]);
 
   return (

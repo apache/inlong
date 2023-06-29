@@ -26,14 +26,14 @@ import { statusList, genStatusTag } from './status';
 import { sinks, defaultValue } from '..';
 
 const { I18nMap, I18n } = DataWithBackend;
-const { FieldList, FieldDecorator, LightField, LightFieldSet } = RenderRow;
+const { FieldList, FieldDecorator, SyncField, SyncFieldSet } = RenderRow;
 const { ColumnList, ColumnDecorator } = RenderList;
 
 export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   static I18nMap = I18nMap;
   static FieldList = FieldList;
   static ColumnList = ColumnList;
-  static LightFieldSet = LightFieldSet;
+  static SyncFieldSet = SyncFieldSet;
 
   readonly id: number;
 
@@ -42,6 +42,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     type: 'text',
     hidden: true,
   })
+  @SyncField()
   @I18n('inlongGroupId')
   readonly inlongGroupId: string;
 
@@ -49,6 +50,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     type: 'text',
     hidden: true,
   })
+  @SyncField()
   @I18n('inlongStreamId')
   readonly inlongStreamId: string;
 
@@ -72,7 +74,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   @ColumnDecorator({
     render: type => sinks.find(c => c.value === type)?.label || type,
   })
-  @LightField()
+  @SyncField()
   @I18n('meta.Sinks.SinkType')
   sinkType: string;
 
@@ -92,6 +94,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     visible: values => Boolean(values.sinkType),
   })
   @ColumnDecorator()
+  @SyncField()
   @I18n('meta.Sinks.SinkName')
   sinkName: string;
 
@@ -103,6 +106,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     },
     visible: values => Boolean(values.sinkType),
   })
+  @SyncField()
   @I18n('meta.Sinks.Description')
   description: string;
 
@@ -118,6 +122,7 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   @ColumnDecorator({
     render: text => genStatusTag(text),
   })
+  @SyncField()
   @I18n('basic.Status')
   readonly status: string;
 
@@ -138,10 +143,10 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     return data;
   }
 
-  renderLightRow() {
+  renderSyncRow() {
     const constructor = this.constructor as typeof SinkDefaultInfo;
-    const { FieldList, LightFieldSet } = constructor;
-    return FieldList.filter(item => LightFieldSet.has(item.name as string));
+    const { FieldList, SyncFieldSet } = constructor;
+    return FieldList.filter(item => SyncFieldSet.has(item.name as string));
   }
 
   renderRow() {

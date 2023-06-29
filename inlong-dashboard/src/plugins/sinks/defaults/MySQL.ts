@@ -25,7 +25,7 @@ import { SinkInfo } from '../common/SinkInfo';
 import NodeSelect from '@/ui/components/NodeSelect';
 
 const { I18n } = DataWithBackend;
-const { FieldDecorator } = RenderRow;
+const { FieldDecorator, SyncField } = RenderRow;
 const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
@@ -73,6 +73,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @ColumnDecorator()
   @I18n('meta.Sinks.MySQL.DatabaseName')
+  @SyncField()
   databaseName: string;
 
   @FieldDecorator({
@@ -84,6 +85,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @ColumnDecorator()
   @I18n('meta.Sinks.MySQL.TableName')
+  @SyncField()
   tableName: string;
 
   @FieldDecorator({
@@ -95,6 +97,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
   })
   @ColumnDecorator()
   @I18n('meta.Sinks.MySQL.PrimaryKey')
+  @SyncField()
   primaryKey: string;
 
   @FieldDecorator({
@@ -117,6 +120,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend, Rende
     }),
   })
   @I18n('meta.Sinks.EnableCreateResource')
+  @SyncField()
   enableCreateResource: number;
 
   @FieldDecorator({

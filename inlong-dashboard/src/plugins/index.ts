@@ -27,8 +27,6 @@ import { streams, defaultValue as defaultStream } from './streams';
 import { sources, defaultValue as defaultSource } from './sources';
 import { sinks, defaultValue as defaultSink } from './sinks';
 import { sync, defaultValue as defaultSync } from './sync';
-import { syncSinks, defaultValue as defaultSyncSink } from './syncSink';
-import { syncSources, defaultValue as defaultSyncSource } from './syncSource';
 import { transform, defaultValue as defaultTransform } from './transform';
 
 export type {
@@ -40,8 +38,6 @@ export type {
   SinkMetaType,
   StreamMetaType,
   SyncMetaType,
-  SyncSinkMetaType,
-  SyncSourceMetaType,
   TransformMetaType,
 } from './types';
 
@@ -59,8 +55,6 @@ export type MetaTypeKeys =
   | 'source'
   | 'sink'
   | 'sync'
-  | 'syncSink'
-  | 'syncSource'
   | 'transform';
 
 const metasMap: Record<MetaTypeKeys, [MetaExportWithBackendList<any>, string?]> = {
@@ -72,8 +66,6 @@ const metasMap: Record<MetaTypeKeys, [MetaExportWithBackendList<any>, string?]> 
   source: [sources, defaultSource],
   sink: [sinks, defaultSink],
   sync: [sync, defaultSync],
-  syncSink: [syncSinks, defaultSyncSink],
-  syncSource: [syncSources, defaultSyncSource],
   transform: [transform, defaultTransform],
 };
 
