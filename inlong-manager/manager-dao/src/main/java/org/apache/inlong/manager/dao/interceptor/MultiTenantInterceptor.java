@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.dao.interceptor;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
@@ -73,6 +72,7 @@ import java.util.Properties;
 public class MultiTenantInterceptor implements Interceptor {
 
     private static final String KEY_TENANT = "tenant";
+    private static final String DEFAULT_TENANT = "public";
     private static final ObjectFactory DEFAULT_OBJECT_FACTORY = new DefaultObjectFactory();
     private static final ObjectWrapperFactory DEFAULT_OBJECT_WRAPPER_FACTORY = new DefaultObjectWrapperFactory();
     private static final ReflectorFactory REFLECTOR_FACTORY = new DefaultReflectorFactory();
@@ -171,12 +171,13 @@ public class MultiTenantInterceptor implements Interceptor {
     private String getTenant() {
         UserInfo userInfo = LoginUserUtils.getLoginUser();
         if (userInfo == null) {
-            throw new BusinessException("Current user is null, please login first");
+            log.warn("find no user info, use default tenant={}", DEFAULT_TENANT);
+            return DEFAULT_TENANT;
         }
         String tenant = userInfo.getTenant();
         if (StringUtils.isBlank(tenant)) {
-            throw new BusinessException(String.format("User tenant is blank for user id=%s and username=%s",
-                    userInfo.getId(), userInfo.getName()));
+            log.warn("find no tenant for user=[{}], user default tenant={}", userInfo.getName(), DEFAULT_TENANT);
+            return DEFAULT_TENANT;
         }
         return tenant;
     }

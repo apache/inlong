@@ -136,7 +136,7 @@ public class InlongShiroImpl implements InlongShiro {
             filters.put(FILTER_NAME_API, new OpenAPIFilter());
             pathDefinitions.put("/openapi/**/*", genFiltersInOrder(FILTER_NAME_API, FILTER_NAME_TENANT));
         } else {
-            pathDefinitions.put("/openapi/**/*", "anon");
+            pathDefinitions.put("/openapi/**/*", genFiltersInOrder("anon", FILTER_NAME_TENANT));
         }
 
         // other web
