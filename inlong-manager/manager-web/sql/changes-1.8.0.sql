@@ -104,3 +104,9 @@ CREATE INDEX cluster_tenant_index
 -- To support multi-tenancy of cluster tag. Please see #8378
 ALTER TABLE `inlong_cluster_tag`
     ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of inlong cluster tag' after `description`;
+
+-- To support multi-tenancy of inlong consume. Please see #8378
+ALTER TABLE `inlong_consume`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of consume' after `ext_params`;
+CREATE INDEX consume_tenant_index
+    ON inlong_consume (`tenant`, `is_deleted`);

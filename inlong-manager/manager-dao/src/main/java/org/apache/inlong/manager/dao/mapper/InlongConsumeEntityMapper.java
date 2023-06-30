@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.pojo.common.CountInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeBriefInfo;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@MultiTenantQuery
 @Repository
 public interface InlongConsumeEntityMapper {
 
