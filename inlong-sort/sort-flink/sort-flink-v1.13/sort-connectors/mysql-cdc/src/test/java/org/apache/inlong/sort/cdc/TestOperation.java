@@ -24,6 +24,7 @@ import org.apache.inlong.sort.protocol.ddl.enums.PositionType;
 import org.apache.inlong.sort.protocol.ddl.expressions.AlterColumn;
 import org.apache.inlong.sort.protocol.ddl.operations.AlterOperation;
 import org.apache.inlong.sort.protocol.ddl.operations.Operation;
+import org.apache.inlong.sort.protocol.ddl.operations.UnsupportedOperation;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -82,6 +83,16 @@ public class TestOperation {
         Assert.assertEquals(alterColumn.getAlterType(), AlterType.CHANGE_COLUMN);
         Assert.assertEquals(alterColumn.getNewColumn().getName(), "c");
         Assert.assertEquals(alterColumn.getOldColumn().getName(), "b");
+    }
+
+    @Test
+    public void testUnsupportedOperation() {
+        String sql = "alter table a drop key 'b'";
+        HashMap<String, Integer> sqlType = new HashMap<>();
+        Operation operation = OperationUtils.generateOperation(sql, sqlType);
+        assert operation != null;
+        Assert.assertTrue(operation instanceof UnsupportedOperation);
+        Assert.assertEquals(operation.getOperationType(), OperationType.OTHER);
     }
 
 }

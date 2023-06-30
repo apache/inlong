@@ -29,6 +29,7 @@ import org.apache.inlong.sort.protocol.ddl.operations.DropTableOperation;
 import org.apache.inlong.sort.protocol.ddl.operations.Operation;
 import org.apache.inlong.sort.protocol.ddl.operations.RenameTableOperation;
 import org.apache.inlong.sort.protocol.ddl.operations.TruncateTableOperation;
+import org.apache.inlong.sort.protocol.ddl.operations.UnsupportedOperation;
 
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
@@ -89,12 +90,12 @@ public class OperationUtils {
             } else if (statement instanceof RenameTableStatement) {
                 return new RenameTableOperation();
             } else {
-                LOG.warn("doesn't support sql {}, statement {}", sql, statement);
+                LOG.error("doesn't support sql {}, statement {}", sql, statement);
             }
         } catch (Exception e) {
-            LOG.error("parse ddl error: {}， set ddl to null", sql, e);
+            LOG.error("parse ddl in sql {} error", sql, e);
         }
-        return null;
+        return new UnsupportedOperation();
     }
 
     /**
