@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.queue.tubemq;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,21 +120,19 @@ public class TubeBrokerInfo {
      * Get one online broker address of TubeMQ.
      */
     public String getOnlineBrokerAddress() {
-        String onlineBrokerAddress = null;
-
-        if (data == null) {
-            return onlineBrokerAddress;
+        if (CollectionUtils.isEmpty(data)) {
+            return null;
         }
 
+        String brokerAddress = null;
         for (BrokerInfo brokerInfo : data) {
             if (brokerInfo.isBrokerOnline()) {
-                onlineBrokerAddress =
-                        brokerInfo.getBrokerIp() + InlongConstants.COLON + brokerInfo.getBrokerWebPort();
+                brokerAddress = brokerInfo.getBrokerIp() + InlongConstants.COLON + brokerInfo.getBrokerWebPort();
                 break;
             }
         }
 
-        return onlineBrokerAddress;
+        return brokerAddress;
     }
 
     /**
@@ -162,8 +161,8 @@ public class TubeBrokerInfo {
         }
 
         private boolean isWorking() {
-            return RUNNING.equals(runStatus) && (ONLINE.equals(manageStatus) || ONLY_READ.equals(manageStatus)
-                    || ONLY_WRITE.equals(manageStatus));
+            return RUNNING.equals(runStatus) &&
+                    (ONLINE.equals(manageStatus) || ONLY_READ.equals(manageStatus) || ONLY_WRITE.equals(manageStatus));
         }
 
         private boolean isConfigurable() {

@@ -192,8 +192,9 @@ public class InlongConstants {
     public static final String BATCH_PARSING_FILED_JSON_COMMENT_PROP = "desc";
 
     /**
-     * Message compression type, 0 is Raw message without any InLong format, 1 is InlongMsgPb, 2 is InlongMsg
-     * {@link DataProxyMsgEncType}
+     * Message compression type, 0: Raw message without any InLong format, 1: InlongMsgPb, 2: InlongMsg
+     * <p/>
+     * See more: {@link DataProxyMsgEncType}
      */
     public static final String MSG_ENCODE_VER = "msgEnType";
 

@@ -111,7 +111,7 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
         // currently, not support delete tubemq resource for stream
     }
 
-    public List<BriefMQMessage> queryLastestMessage(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
+    public List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             Integer messageCount) {
         Preconditions.expectNotNull(groupInfo, "inlong group info cannot be null");
 

@@ -34,7 +34,6 @@ import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.inlong.manager.service.message.DeserializeOperator;
 import org.apache.inlong.manager.service.message.DeserializeOperatorFactory;
 
-import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -78,12 +77,12 @@ public class TubeMQOperator {
     private static final String ADD_TOPIC_PATH = "/webapi.htm?method=admin_add_new_topic_record";
     private static final String QUERY_CONSUMER_PATH = "/webapi.htm?method=admin_query_allowed_consumer_group_info";
     private static final String ADD_CONSUMER_PATH = "/webapi.htm?method=admin_add_authorized_consumergroup_info";
-    private static final String QUERY_LAST_MESSAGE_PATH = "/broker.htm?method=admin_snapshot_message";
-    private static final Gson GSON = new Gson();
-    @Autowired
-    public DeserializeOperatorFactory deserializeOperatorFactory;
+    private static final String QUERY_MESSAGE_PATH = "/broker.htm?method=admin_snapshot_message";
+
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    public DeserializeOperatorFactory deserializeOperatorFactory;
 
     /**
      * Create topic for the given tubemq cluster.
@@ -269,26 +268,24 @@ public class TubeMQOperator {
      * Query topic message for the given tubemq cluster.
      */
     public List<BriefMQMessage> queryLastMessage(TubeClusterInfo tubeCluster, String topicName,
-            Integer messageCount, InlongStreamInfo streamInfo) {
-        LOGGER.info("begin to query message for topic {}", topicName);
+            Integer msgCount, InlongStreamInfo streamInfo) {
+        LOGGER.info("begin to query message for topic {} in cluster: {}", topicName, tubeCluster);
         String masterUrl = tubeCluster.getMasterWebUrl();
         TubeBrokerInfo brokerView = this.getBrokerInfo(masterUrl);
         String brokerUrl = brokerView.getOnlineBrokerAddress();
 
         List<BriefMQMessage> messageList = new ArrayList<>();
         try {
-            String url =
-                    "http://" + brokerUrl + QUERY_LAST_MESSAGE_PATH + TOPIC_NAME + topicName + MSG_COUNT + messageCount;
-
             if (StringUtils.isEmpty(brokerUrl) || StringUtils.isEmpty(topicName)) {
                 throw new BusinessException("tubemq master url or tubemq topic cannot be null");
             }
 
             if (!this.isTopicExist(masterUrl, topicName)) {
-                LOGGER.error("tubemq topic {} not exists in {}, skip to create", topicName, masterUrl);
-                throw new BusinessException("tubemq master url or tubemq topic cannot be null");
+                LOGGER.error("tubemq topic {} not exists in {}, skip to query", topicName, masterUrl);
+                throw new BusinessException("TubeMQ master url or TubeMQ topic cannot be null");
             }
 
+            String url = "http://" + brokerUrl + QUERY_MESSAGE_PATH + TOPIC_NAME + topicName + MSG_COUNT + msgCount;
             TubeMessageResponse response = HttpUtils.request(restTemplate, url, HttpMethod.GET,
                     null, new HttpHeaders(), TubeMessageResponse.class);
             if (response.getErrCode() != SUCCESS_CODE) {
@@ -297,6 +294,7 @@ public class TubeMQOperator {
                 LOGGER.error(msg + " in {} for broker {}", masterUrl, brokerUrl);
                 throw new BusinessException(msg);
             }
+
             int index = 0;
             for (TubeDataInfo tubeDataInfo : response.getDataSet()) {
                 Map<String, String> map = new HashMap<>();
@@ -314,9 +312,9 @@ public class TubeMQOperator {
 
             LOGGER.info("success query messages for topic={}", topicName);
         } catch (Exception e) {
-            String errMsg = "failed to query messages";
+            String errMsg = "failed to query messages: ";
             LOGGER.error(errMsg, e);
-            throw new BusinessException(errMsg);
+            throw new BusinessException(errMsg + e.getMessage());
         }
 
         return messageList;

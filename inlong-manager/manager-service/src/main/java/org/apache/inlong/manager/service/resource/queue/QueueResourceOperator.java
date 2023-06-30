@@ -21,8 +21,6 @@ import org.apache.inlong.manager.pojo.consume.BriefMQMessage;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
-import org.apache.pulsar.client.api.PulsarClientException;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -77,15 +75,16 @@ public interface QueueResourceOperator {
     }
 
     /**
-     * Query brief mq message info
+     * Query latest messages from MQ.
      *
      * @param groupInfo inlong group info
      * @param streamInfo inlong stream info
-     * @param messageCount Count of messages to query'
+     * @param messageCount count of messages to query
+     * @throws Exception any exception if occurred
      * @return query brief mq message info
      */
-    default List<BriefMQMessage> queryLastestMessage(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            Integer messageCount) throws PulsarClientException {
+    default List<BriefMQMessage> queryLatestMessages(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
+            Integer messageCount) throws Exception {
         return null;
     }
 

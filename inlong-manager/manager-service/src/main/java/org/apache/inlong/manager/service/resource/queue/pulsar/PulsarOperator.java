@@ -386,21 +386,21 @@ public class PulsarOperator {
     /**
      * Query topic message for the given pulsar cluster.
      */
-    public List<BriefMQMessage> queryLastestMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
+    public List<BriefMQMessage> queryLatestMessage(PulsarAdmin pulsarAdmin, String topicFullName, String subName,
             Integer messageCount, InlongStreamInfo streamInfo) {
         LOGGER.info("begin to query message for topic {}, subName={}", topicFullName, subName);
-        List<Message<byte[]>> messages = new ArrayList<>();
-        List<BriefMQMessage> messageList = new ArrayList<>();
 
+        List<Message<byte[]>> messages;
         try {
             messages = pulsarAdmin.topics().peekMessages(topicFullName, subName, messageCount);
         } catch (PulsarAdminException e) {
-            String errMsg = "failed to query peek messages";
+            String errMsg = "failed to query peek messages: ";
             LOGGER.error(errMsg, e);
-            throw new BusinessException(errMsg);
+            throw new BusinessException(errMsg + e.getMessage());
         }
 
         int index = 0;
+        List<BriefMQMessage> messageList = new ArrayList<>();
         for (Message<byte[]> pulsarMessage : messages) {
             try {
                 Map<String, String> headers = pulsarMessage.getProperties();
@@ -411,9 +411,9 @@ public class PulsarOperator {
                 messageList.addAll(
                         deserializeOperator.decodeMsg(streamInfo, pulsarMessage.getData(), headers, ++index));
             } catch (Exception e) {
-                String errMsg = "decode msg error";
-                LOGGER.error("decode msg error", e);
-                throw new BusinessException(errMsg);
+                String errMsg = "decode msg error: ";
+                LOGGER.error(errMsg, e);
+                throw new BusinessException(errMsg + e.getMessage());
 
             }
         }
