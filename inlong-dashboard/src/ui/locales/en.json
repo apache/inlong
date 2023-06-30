@@ -674,7 +674,7 @@
   "pages.Approvals.ProcessID": "Process ID",
   "pages.Approvals.GroupId": "Inlong Group ID",
   "pages.Approvals.GroupMode": "Inlong Group Mode",
-  "pages.Approvals.GroupMode.Integration": "Integration",
+  "pages.Approvals.GroupMode.Ingestion": "Ingestion",
   "pages.Approvals.GroupMode.DataSync": "Synchronization",
   "pages.Approvals.MyApplication": "My Application",
   "pages.Approvals.MyApproval": "My Approval",
