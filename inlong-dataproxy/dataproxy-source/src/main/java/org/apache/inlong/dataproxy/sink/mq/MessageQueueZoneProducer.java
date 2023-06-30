@@ -69,7 +69,7 @@ public class MessageQueueZoneProducer {
      */
     public void start() {
         try {
-            logger.info("start MessageQueueZoneProducer:{}", zoneSink.getName());
+            logger.info("{} start MessageQueueZoneProducer", zoneSink.getName());
             this.reloadMetaConfig();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
