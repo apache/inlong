@@ -95,7 +95,12 @@ ALTER TABLE `data_node`
 CREATE INDEX datanode_tenant_index
     ON data_node (`tenant`, `is_deleted`);
 
+-- To support multi-tenancy of cluster. Please see #8365
 ALTER TABLE `inlong_cluster`
     ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of cluster' after `heartbeat`;
 CREATE INDEX cluster_tenant_index
     ON inlong_cluster (`tenant`, `is_deleted`);
+
+-- To support multi-tenancy of cluster tag. Please see #8378
+ALTER TABLE `inlong_cluster_tag`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of inlong cluster tag' after `description`;
