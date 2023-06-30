@@ -21,11 +21,9 @@ import org.apache.inlong.sort.base.dirty.DirtyData;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.utils.FormatUtils;
 import org.apache.inlong.sort.base.util.LabelUtils;
+import org.apache.inlong.sort.formats.json.utils.FormatJsonUtil;
 
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.formats.common.TimestampFormat;
-import org.apache.flink.formats.json.JsonOptions.MapNullKeyMode;
-import org.apache.flink.formats.json.RowDataToJsonConverters;
 import org.apache.flink.formats.json.RowDataToJsonConverters.RowDataToJsonConverter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -61,8 +59,7 @@ public class LogDirtySink<T> implements DirtySink<T> {
 
     @Override
     public void open(Configuration configuration) throws Exception {
-        converter = new RowDataToJsonConverters(TimestampFormat.SQL, MapNullKeyMode.DROP, null)
-                .createConverter(physicalRowDataType.getLogicalType());
+        converter = FormatJsonUtil.rowDataToJsonConverter(physicalRowDataType);
         fieldGetters = FormatUtils.parseFieldGetters(physicalRowDataType.getLogicalType());
     }
 

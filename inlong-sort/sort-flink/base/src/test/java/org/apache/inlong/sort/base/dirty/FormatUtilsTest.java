@@ -18,10 +18,8 @@
 package org.apache.inlong.sort.base.dirty;
 
 import org.apache.inlong.sort.base.dirty.utils.FormatUtils;
+import org.apache.inlong.sort.formats.json.utils.FormatJsonUtil;
 
-import org.apache.flink.formats.common.TimestampFormat;
-import org.apache.flink.formats.json.JsonOptions.MapNullKeyMode;
-import org.apache.flink.formats.json.RowDataToJsonConverters;
 import org.apache.flink.formats.json.RowDataToJsonConverters.RowDataToJsonConverter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -87,9 +85,8 @@ public class FormatUtilsTest {
 
     @Test
     public void testJsonFormat() throws JsonProcessingException {
-        RowDataToJsonConverter converter = new RowDataToJsonConverters(TimestampFormat.SQL,
-                MapNullKeyMode.DROP, null)
-                        .createConverter(schema.toPhysicalRowDataType().getLogicalType());
+        RowDataToJsonConverter converter =
+                FormatJsonUtil.rowDataToJsonConverter(schema.toPhysicalRowDataType().getLogicalType());
         String expectedStr = "{\"database\":\"inlong\",\"table\":\"student\",\"id\":1,\"name\":\"leo\",\"age\":18}";
         JsonNode expected = mapper.readValue(expectedStr, JsonNode.class);
         String actual = FormatUtils.jsonFormat(jsonNode, labelMap);

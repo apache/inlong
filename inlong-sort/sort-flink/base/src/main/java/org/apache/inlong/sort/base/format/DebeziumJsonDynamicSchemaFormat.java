@@ -19,26 +19,18 @@ package org.apache.inlong.sort.base.format;
 
 import org.apache.inlong.sort.base.format.JsonToRowDataConverters.JsonToRowDataConverter;
 
-import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.types.logical.BigIntType;
-import org.apache.flink.table.types.logical.BooleanType;
-import org.apache.flink.table.types.logical.DoubleType;
-import org.apache.flink.table.types.logical.FloatType;
-import org.apache.flink.table.types.logical.IntType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.table.types.logical.SmallIntType;
-import org.apache.flink.table.types.logical.TinyIntType;
-import org.apache.flink.table.types.logical.VarBinaryType;
-import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.RowKind;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.inlong.sort.formats.json.utils.FormatJsonUtil.DEBEZIUM_TYPE_2_FLINK_TYPE_MAPPING;
 
 /**
  * Debezium json dynamic format
@@ -75,19 +67,6 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
      * Delete
      */
     private static final String OP_DELETE = "d";
-
-    private static final Map<String, LogicalType> DEBEZIUM_TYPE_2_FLINK_TYPE_MAPPING =
-            ImmutableMap.<String, LogicalType>builder()
-                    .put("BOOLEAN", new BooleanType())
-                    .put("INT8", new TinyIntType())
-                    .put("INT16", new SmallIntType())
-                    .put("INT32", new IntType())
-                    .put("INT64", new BigIntType())
-                    .put("FLOAT32", new FloatType())
-                    .put("FLOAT64", new DoubleType())
-                    .put("STRING", new VarCharType())
-                    .put("BYTES", new VarBinaryType())
-                    .build();
 
     protected DebeziumJsonDynamicSchemaFormat(Map<String, String> props) {
         super(props);

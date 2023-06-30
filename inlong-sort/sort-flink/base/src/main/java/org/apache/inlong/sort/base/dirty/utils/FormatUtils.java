@@ -17,9 +17,8 @@
 
 package org.apache.inlong.sort.base.dirty.utils;
 
-import org.apache.flink.formats.common.TimestampFormat;
-import org.apache.flink.formats.json.JsonOptions.MapNullKeyMode;
-import org.apache.flink.formats.json.RowDataToJsonConverters;
+import org.apache.inlong.sort.formats.json.utils.FormatJsonUtil;
+
 import org.apache.flink.formats.json.RowDataToJsonConverters.RowDataToJsonConverter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -76,8 +75,7 @@ public final class FormatUtils {
      * @return RowDataToJsonConverter
      */
     public static RowDataToJsonConverter parseRowDataToJsonConverter(LogicalType rowType) {
-        return new RowDataToJsonConverters(TimestampFormat.SQL, MapNullKeyMode.DROP, null)
-                .createConverter(rowType);
+        return FormatJsonUtil.rowDataToJsonConverter(rowType);
     }
 
     /**
