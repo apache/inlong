@@ -22,7 +22,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.HudiProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.KafkaProvider;
-import org.apache.inlong.manager.pojo.sort.node.provider.MongoProvider;
+import org.apache.inlong.manager.pojo.sort.node.provider.MongoDBProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.MySQLBinlogProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.OracleProvider;
 import org.apache.inlong.manager.pojo.sort.node.provider.PostgreSQLProvider;
@@ -48,7 +48,7 @@ public class ExtractNodeProviderFactory {
         // The Providers Parsing SourceInfo to ExtractNode which sort needed
         EXTRACT_NODE_PROVIDER_LIST.add(new HudiProvider());
         EXTRACT_NODE_PROVIDER_LIST.add(new KafkaProvider());
-        EXTRACT_NODE_PROVIDER_LIST.add(new MongoProvider());
+        EXTRACT_NODE_PROVIDER_LIST.add(new MongoDBProvider());
         EXTRACT_NODE_PROVIDER_LIST.add(new OracleProvider());
         EXTRACT_NODE_PROVIDER_LIST.add(new PulsarProvider());
         EXTRACT_NODE_PROVIDER_LIST.add(new RedisProvider());

@@ -25,13 +25,13 @@ import org.apache.commons.lang3.StringUtils;
 import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
 
 /**
- * The mongo field type mapping strategy
+ * The mongoDB field type mapping strategy
  */
-public class MongoFieldTypeStrategy implements FieldTypeMappingStrategy {
+public class MongoDBFieldTypeStrategy implements FieldTypeMappingStrategy {
 
     private final FieldTypeMappingReader reader;
 
-    public MongoFieldTypeStrategy() {
+    public MongoDBFieldTypeStrategy() {
         this.reader = new FieldTypeMappingReader(DataNodeType.MONGODB);
     }
 
