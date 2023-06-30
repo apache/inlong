@@ -32,7 +32,7 @@ public class MongoFieldTypeStrategy implements FieldTypeMappingStrategy {
     private final FieldTypeMappingReader reader;
 
     public MongoFieldTypeStrategy() {
-        this.reader = new FieldTypeMappingReader(DataNodeType.MONGO);
+        this.reader = new FieldTypeMappingReader(DataNodeType.MONGODB);
     }
 
     @Override
