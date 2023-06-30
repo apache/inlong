@@ -62,6 +62,19 @@ public class BufferQueue<A> {
     }
 
     /**
+     * Take record
+     */
+    public A takeRecord() {
+        try {
+            A record = queue.take();
+            this.offerCount.incrementAndGet();
+            return record;
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+
+    /**
      * offer
      */
     public void offer(A record) {

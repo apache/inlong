@@ -78,7 +78,7 @@ public class MessageQueueZoneWorker extends Thread {
         PackProfile profile = null;
         while (status != LifecycleState.STOP) {
             try {
-                profile = this.mqZoneSink.pollDispatchedRecord();
+                profile = this.mqZoneSink.takeDispatchedRecord();
                 if (profile == null) {
                     this.sleepOneInterval();
                     continue;
