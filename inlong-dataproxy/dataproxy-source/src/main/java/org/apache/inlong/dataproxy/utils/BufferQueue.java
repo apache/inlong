@@ -30,6 +30,7 @@ public class BufferQueue<A> {
     private SizeSemaphore globalTokens = null;
     private final AtomicLong offerCount = new AtomicLong(0);
     private final AtomicLong pollCount = new AtomicLong(0);
+    private final AtomicLong takeCount = new AtomicLong(0);
 
     /**
      * Constructor
@@ -67,7 +68,7 @@ public class BufferQueue<A> {
     public A takeRecord() {
         try {
             A record = queue.take();
-            this.offerCount.incrementAndGet();
+            this.takeCount.incrementAndGet();
             return record;
         } catch (Throwable e) {
             return null;
@@ -183,5 +184,14 @@ public class BufferQueue<A> {
      */
     public long getPollCount() {
         return pollCount.getAndSet(0);
+    }
+
+    /**
+     * get takeCount
+     *
+     * @return the take count
+     */
+    public long getTakeCount() {
+        return takeCount.getAndSet(0);
     }
 }
