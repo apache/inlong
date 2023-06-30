@@ -62,6 +62,11 @@ public final class Constants {
     public static final String NUM_BYTES_IN_PER_SECOND = "numBytesInPerSecond";
 
     public static final String NUM_RECORDS_IN_PER_SECOND = "numRecordsInPerSecond";
+
+    public static final String CURRENT_FETCH_EVENT_TIME_LAG = "currentFetchEventTimeLag";
+
+    public static final String CURRENT_EMIT_EVENT_TIME_LAG = "currentEmitEventTimeLag";
+
     /**
      * Timestamp when the read phase changed
      */

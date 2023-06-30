@@ -108,7 +108,8 @@ public class MySqlSourceReaderMetrics {
 
     public void outputMetrics(String database, String table, boolean isSnapshotRecord, Object data) {
         if (sourceTableMetricData != null) {
-            sourceTableMetricData.outputMetricsWithEstimate(database, table, isSnapshotRecord, data);
+            sourceTableMetricData.outputMetricsWithEstimate(database, table, isSnapshotRecord, data, fetchDelay,
+                    emitDelay);
         }
     }
 
