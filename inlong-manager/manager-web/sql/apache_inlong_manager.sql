@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster`
     `ext_params`            mediumtext            DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string',
     `description`           varchar(256)          DEFAULT '' COMMENT 'Description of cluster',
     `heartbeat`             mediumtext            DEFAULT NULL COMMENT 'Cluster heartbeat info',
+    `tenant`                varchar(256) NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of cluster',
     `in_charges`            varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`                int(4)                DEFAULT '0' COMMENT 'Cluster status',
     `is_deleted`            int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -129,7 +130,8 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster`
     `version`               int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_cluster` (`name`, `type`, `is_deleted`),
-    INDEX `cluster_type_index` (`type`)
+    INDEX `cluster_type_index` (`type`),
+    INDEX `cluster_tenant_index` (`tenant`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong cluster table';
 
