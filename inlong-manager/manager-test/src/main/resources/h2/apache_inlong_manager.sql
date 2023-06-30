@@ -163,6 +163,7 @@ CREATE TABLE IF NOT EXISTS `inlong_consume`
     `filter_enabled`   int(2)                DEFAULT '0' COMMENT 'Whether to filter consume, 0: not filter, 1: filter',
     `inlong_stream_id` varchar(256)          DEFAULT NULL COMMENT 'The target inlong stream id of this consume, needed if the filter_enabled=1',
     `ext_params`       mediumtext            DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string',
+    `tenant`           varchar(256) NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of the inlong consume',
     `in_charges`       varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`           int(4)                DEFAULT '100' COMMENT 'Inlong consume status',
     `previous_status`  int(4)                DEFAULT '100' COMMENT 'Previous status',
