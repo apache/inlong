@@ -37,7 +37,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.apache.inlong.common.util.BasicAuth.*;
+import static org.apache.inlong.common.util.BasicAuth.BASIC_AUTH_TENANT_HEADER;
+import static org.apache.inlong.common.util.BasicAuth.DEFAULT_TENANT;
+import static org.apache.inlong.common.util.BasicAuth.DEFAULT_USER;
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_ADMIN;
 import static org.apache.inlong.manager.pojo.user.UserRoleCode.TENANT_ADMIN;
 
@@ -56,7 +58,7 @@ public class TenantAuthenticatingFilter implements Filter {
         UserInfo loginUserInfo;
         // pre-check
         if (!subject.isAuthenticated()) {
-            log.warn("the request is not authed before tenant authentication, use default user:{}, path:{}",
+            log.debug("the request is not authed before tenant authentication, use default user:{}, path:{}",
                     DEFAULT_USER, httpServletRequest.getServletPath());
             loginUserInfo = defaultUserInfo();
             LoginUserUtils.setUserLoginInfo(loginUserInfo);
