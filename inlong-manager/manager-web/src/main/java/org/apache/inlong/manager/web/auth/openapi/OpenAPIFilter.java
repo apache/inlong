@@ -66,7 +66,7 @@ public class OpenAPIFilter implements Filter {
             SecretToken token = parseBasicAuth(httpServletRequest);
             subject.login(token);
         } catch (Exception ex) {
-            LOGGER.error("login error: {}", ex.getMessage());
+            LOGGER.error("login error", ex);
             ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_FORBIDDEN, ex.getMessage());
             return;
         }
@@ -89,32 +89,32 @@ public class OpenAPIFilter implements Filter {
         String basicAuth = servletRequest.getHeader(BasicAuth.BASIC_AUTH_HEADER);
         if (StringUtils.isBlank(basicAuth)) {
             log.error("basic auth header is empty");
-            return null;
+            return new SecretToken();
         }
 
         // Basic auth string must be "Basic Base64(ID:Secret)"
         String[] parts = basicAuth.split(BasicAuth.BASIC_AUTH_SEPARATOR);
         if (parts.length != 2) {
             log.error("the length parts size error: {}", parts.length);
-            return null;
+            return new SecretToken();
         }
         if (!parts[0].equals(BasicAuth.BASIC_AUTH_PREFIX)) {
             log.error("prefix error: {}", parts[0]);
-            return null;
+            return new SecretToken();
         }
 
         String joinedPair = new String(Base64.getDecoder().decode(parts[1]));
         String[] pair = joinedPair.split(BasicAuth.BASIC_AUTH_JOINER);
         if (pair.length != 2) {
             log.error("pair format error: {}", pair.length);
-            return null;
+            return new SecretToken();
         }
 
         String secretId = pair[0];
         String secretKey = pair[1];
         if (StringUtils.isBlank(secretId) || StringUtils.isBlank(secretKey)) {
             log.error("invalid id = {} or key = {}", secretId, secretKey);
-            return null;
+            return new SecretToken();
         }
 
         return new SecretToken(secretId, secretKey);

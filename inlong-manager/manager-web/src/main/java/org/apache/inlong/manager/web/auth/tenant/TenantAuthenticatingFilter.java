@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.web.auth.tenant;
 
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
 import lombok.extern.slf4j.Slf4j;
@@ -34,14 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.apache.inlong.common.util.BasicAuth.BASIC_AUTH_TENANT_HEADER;
-import static org.apache.inlong.common.util.BasicAuth.DEFAULT_TENANT;
-import static org.apache.inlong.common.util.BasicAuth.DEFAULT_USER;
-import static org.apache.inlong.manager.pojo.user.UserRoleCode.INLONG_ADMIN;
-import static org.apache.inlong.manager.pojo.user.UserRoleCode.TENANT_ADMIN;
 
 /**
  * Shiro filter to check if the request user has the permission to target tenant.
@@ -55,24 +48,23 @@ public class TenantAuthenticatingFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         Subject subject = SecurityUtils.getSubject();
 
-        UserInfo loginUserInfo;
         // pre-check
         if (!subject.isAuthenticated()) {
-            log.debug("the request is not authed before tenant authentication, use default user:{}, path:{}",
-                    DEFAULT_USER, httpServletRequest.getServletPath());
-            loginUserInfo = defaultUserInfo();
-            LoginUserUtils.setUserLoginInfo(loginUserInfo);
-        } else {
-            loginUserInfo = (UserInfo) subject.getPrincipal();
+            log.error("The request should be authed before tenant authentication, user:{}, path:{}",
+                    subject.getPrincipal(),
+                    httpServletRequest.getServletPath());
+            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return;
         }
 
         // tenant auth
+        UserInfo loginUserInfo = (UserInfo) subject.getPrincipal();
         String tenant = httpServletRequest.getHeader(BASIC_AUTH_TENANT_HEADER);
         try {
             Preconditions.expectNotBlank(tenant, "tenant should not be null or blank");
             subject.login(new TenantToken(loginUserInfo.getName(), tenant));
         } catch (Exception ex) {
-            log.error("tenant auth error", ex);
+            log.error("tenant auth error: {}", ex.getMessage());
             ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN, ex.getMessage());
             return;
         }
@@ -87,16 +79,5 @@ public class TenantAuthenticatingFilter implements Filter {
 
         // next filter
         chain.doFilter(request, response);
-    }
-
-    private UserInfo defaultUserInfo() {
-        UserInfo loginUserInfo = new UserInfo();
-        loginUserInfo.setName(DEFAULT_USER);
-        loginUserInfo.setTenant(DEFAULT_TENANT);
-        Set<String> roles = new HashSet<>();
-        roles.add(TENANT_ADMIN);
-        roles.add(INLONG_ADMIN);
-        loginUserInfo.setRoles(roles);
-        return loginUserInfo;
     }
 }
