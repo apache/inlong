@@ -85,6 +85,7 @@ public class OpenAPIFilter implements Filter {
         }
     }
 
+    // return empty token if parse failed.
     private SecretToken parseBasicAuth(HttpServletRequest servletRequest) {
         String basicAuth = servletRequest.getHeader(BasicAuth.BASIC_AUTH_HEADER);
         if (StringUtils.isBlank(basicAuth)) {
