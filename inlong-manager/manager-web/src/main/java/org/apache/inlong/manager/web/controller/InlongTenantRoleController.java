@@ -31,6 +31,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -51,7 +52,7 @@ public class InlongTenantRoleController {
     @RequestMapping(value = "/role/tenant/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get tenant role by ID")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.TENANT_OPERATOR})
     public Response<TenantRoleInfo> get(@PathVariable int id) {
         return Response.success(tenantRoleService.get(id));
     }
@@ -59,7 +60,7 @@ public class InlongTenantRoleController {
     @RequestMapping(value = "/role/tenant/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save tenant role")
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Integer> save(@Validated @RequestBody TenantRoleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(tenantRoleService.save(request, operator));
@@ -68,7 +69,7 @@ public class InlongTenantRoleController {
     @RequestMapping(value = "/role/tenant/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Update tenant role")
-    @RequiresRoles(value = UserRoleCode.TENANT_ADMIN)
+    @RequiresRoles(logical = Logical.OR, value = {UserRoleCode.TENANT_ADMIN, UserRoleCode.INLONG_ADMIN})
     public Response<Boolean> update(@Validated @RequestBody TenantRoleRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(tenantRoleService.update(request, operator));

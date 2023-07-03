@@ -38,8 +38,8 @@ public class TenantRolePageRequest extends PageRequest {
     @ApiModelProperty(value = "Role code")
     private String roleCode;
 
-    @ApiModelProperty(value = "Tenant")
-    private String tenant;
+    @ApiModelProperty(value = "keyword of tenant")
+    private String keyword;
 
     @ApiModelProperty(value = "If disabled")
     private Integer disabled;

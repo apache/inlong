@@ -105,7 +105,7 @@ public class TenantRoleServiceTest extends ServiceBaseTest {
             service.save(request, LoginUserUtils.getLoginUser().getName());
         }
         TenantRolePageRequest pageRequest = new TenantRolePageRequest();
-        pageRequest.setTenant("public");
+        pageRequest.setKeyword("pub");
         PageInfo<TenantRoleInfo> infos = service.listByCondition(pageRequest);
         Assertions.assertEquals(max, infos.getSize());
     }
