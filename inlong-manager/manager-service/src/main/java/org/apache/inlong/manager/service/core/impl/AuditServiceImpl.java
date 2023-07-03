@@ -73,6 +73,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -204,11 +205,11 @@ public class AuditServiceImpl implements AuditService {
             if (AuditQuerySource.MYSQL == querySource) {
                 String format = "%Y-%m-%d %H:%i:00";
                 // Support min agg at now
-                DateTimeFormatter forPattern = DateTimeFormat.forPattern("yyyy-MM-dd");
-                DateTime edtDate = forPattern.parseDateTime(request.getEndDate());
-                String endDate = edtDate.plusDays(1).toString(forPattern);
+                DateTimeFormatter forPattern = DateTimeFormat.forPattern(DAY_FORMAT);
+                DateTime endDate = forPattern.parseDateTime(request.getEndDate());
+                String endDateStr = endDate.plusDays(1).toString(forPattern);
                 List<Map<String, Object>> sumList = auditEntityMapper.sumByLogTs(
-                        groupId, streamId, auditId, request.getStartDate(), endDate, format);
+                        groupId, streamId, auditId, request.getStartDate(), endDateStr, format);
                 List<AuditInfo> auditSet = sumList.stream().map(s -> {
                     AuditInfo vo = new AuditInfo();
                     vo.setLogTs((String) s.get("logTs"));
@@ -375,8 +376,8 @@ public class AuditServiceImpl implements AuditService {
         List<AuditVO> result = new ArrayList<>();
         for (AuditVO auditVO : auditVOList) {
             AuditVO statInfo = new AuditVO();
-            ConcurrentHashMap<String, AtomicLong> countMap = new ConcurrentHashMap<>();
-            ConcurrentHashMap<String, AtomicLong> delayMap = new ConcurrentHashMap<>();
+            HashMap<String, AtomicLong> countMap = new HashMap<>();
+            HashMap<String, AtomicLong> delayMap = new HashMap<>();
             statInfo.setAuditId(auditVO.getAuditId());
             statInfo.setNodeType(auditVO.getNodeType());
             for (AuditInfo auditInfo : auditVO.getAuditSet()) {
