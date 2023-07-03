@@ -38,7 +38,7 @@ public class AuditInfo {
 
     public AuditInfo(String logTs, Long count, Long delay) {
         this.logTs = logTs;
-        this.count = count;
-        this.delay = delay;
+        this.count = count == null ? 0 : count;
+        this.delay = delay == null ? 0 : delay;
     }
 }
