@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.pojo.sort.node.provider;
 
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.fieldtype.strategy.FieldTypeMappingStrategy;
+import org.apache.inlong.manager.common.fieldtype.strategy.MongoDBFieldTypeStrategy;
 import org.apache.inlong.manager.pojo.sort.node.base.ExtractNodeProvider;
 import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSource;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
@@ -29,9 +31,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Provider for creating Mongo extract nodes.
+ * The Provider for creating MongoDB extract nodes.
  */
-public class MongoProvider implements ExtractNodeProvider {
+public class MongoDBProvider implements ExtractNodeProvider {
+
+    private static final FieldTypeMappingStrategy FIELD_TYPE_MAPPING_STRATEGY = new MongoDBFieldTypeStrategy();
 
     @Override
     public Boolean accept(String sourceType) {
@@ -41,7 +45,8 @@ public class MongoProvider implements ExtractNodeProvider {
     @Override
     public ExtractNode createExtractNode(StreamNode streamNodeInfo) {
         MongoDBSource source = (MongoDBSource) streamNodeInfo;
-        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName());
+        List<FieldInfo> fieldInfos = parseStreamFieldInfos(source.getFieldList(), source.getSourceName(),
+                FIELD_TYPE_MAPPING_STRATEGY);
         Map<String, String> properties = parseProperties(source.getProperties());
 
         return new MongoExtractNode(
