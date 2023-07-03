@@ -521,7 +521,7 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
             throws IOException {
         List<Long> uncommittedChkList = deltaManifestsMap.keySet()
                 .stream()
-                .sorted((a, b) -> a < b ? 1 : ((a == b) ? 0 : -1))
+                .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toList());
         long uncommittedChkId = INITIAL_CHECKPOINT_ID;
         for (long chkId : uncommittedChkList) {

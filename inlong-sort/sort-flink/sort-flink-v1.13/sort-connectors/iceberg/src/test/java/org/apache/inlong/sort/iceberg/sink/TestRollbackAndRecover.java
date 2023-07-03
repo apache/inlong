@@ -119,7 +119,7 @@ public class TestRollbackAndRecover {
     }
 
     // case1: Commit normally, and then submit multiple times. At this time, reset to a previous chk, \
-    //        and the snapshot corresponding to the chk has not expired
+    // and the snapshot corresponding to the chk has not expired
     @Test
     public void testRollbackToSnapshotWithRestoreCheckpointId() throws Exception {
         long timestamp = 0;
@@ -177,8 +177,8 @@ public class TestRollbackAndRecover {
         }
     }
 
-    // case2: Commit normally, and then submit multiple times. At this time, reset to a previous chk, but the snapshot 
-    //        corresponding to the chk has been expired
+    // case2: Commit normally, and then submit multiple times. At this time, reset to a previous chk, but the snapshot
+    // corresponding to the chk has been expired
     @Test
     public void testFallbackToRecoverWithUnCompletedNotification() throws Exception {
         long timestamp = 0;
@@ -240,8 +240,8 @@ public class TestRollbackAndRecover {
     }
 
     // case3: Commit normally, and then commit multiple times. At this time, reset to a previous chk.
-    //        There are multiple uncommitted manifests in this chk. These manifests are really not committed 
-    //        successfully
+    // There are multiple uncommitted manifests in this chk. These manifests are really not committed
+    // successfully
     @Test
     public void testRecoveryFromSnapshotWithoutCompletedNotification() throws Exception {
         long timestamp = 0;
