@@ -96,6 +96,9 @@ public class AuditServiceImpl implements AuditService {
     private static final String SECOND_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String HOUR_FORMAT = "yyyy-MM-dd HH";
     private static final String DAY_FORMAT = "yyyy-MM-dd";
+    private static final DateTimeFormatter SECOND_DATE_FORMATTER = DateTimeFormat.forPattern(SECOND_FORMAT);
+    private static final DateTimeFormatter HOUR_DATE_FORMATTER = DateTimeFormat.forPattern(HOUR_FORMAT);
+    private static final DateTimeFormatter DAY_DATE_FORMATTER = DateTimeFormat.forPattern(DAY_FORMAT);
 
     // key: type of audit base item, value: entity of audit base item
     private final Map<String, AuditBaseEntity> auditSentItemMap = new ConcurrentHashMap<>();
@@ -205,9 +208,8 @@ public class AuditServiceImpl implements AuditService {
             if (AuditQuerySource.MYSQL == querySource) {
                 String format = "%Y-%m-%d %H:%i:00";
                 // Support min agg at now
-                DateTimeFormatter forPattern = DateTimeFormat.forPattern(DAY_FORMAT);
-                DateTime endDate = forPattern.parseDateTime(request.getEndDate());
-                String endDateStr = endDate.plusDays(1).toString(forPattern);
+                DateTime endDate = DAY_DATE_FORMATTER.parseDateTime(request.getEndDate());
+                String endDateStr = endDate.plusDays(1).toString(DAY_DATE_FORMATTER);
                 List<Map<String, Object>> sumList = auditEntityMapper.sumByLogTs(
                         groupId, streamId, auditId, request.getStartDate(), endDateStr, format);
                 List<AuditInfo> auditSet = sumList.stream().map(s -> {
@@ -325,9 +327,8 @@ public class AuditServiceImpl implements AuditService {
      */
     private PreparedStatement getAuditCkStatement(Connection connection, String groupId, String streamId,
             String auditId, String startDate, String endDate) throws SQLException {
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(DAY_FORMAT);
-        String start = formatter.parseDateTime(startDate).toString(SECOND_FORMAT);
-        String end = formatter.parseDateTime(endDate).plusDays(1).toString(SECOND_FORMAT);
+        String start = DAY_DATE_FORMATTER.parseDateTime(startDate).toString(SECOND_FORMAT);
+        String end = DAY_DATE_FORMATTER.parseDateTime(endDate).plusDays(1).toString(SECOND_FORMAT);
 
         String sql = new SQL()
                 .SELECT("log_ts", "sum(count) as total", "sum(delay) as total_delay")
