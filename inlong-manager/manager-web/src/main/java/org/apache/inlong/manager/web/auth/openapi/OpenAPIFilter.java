@@ -48,8 +48,10 @@ import java.util.Base64;
 public class OpenAPIFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPIFilter.class);
+    private final boolean openAPIAuthEnabled;
 
-    public OpenAPIFilter() {
+    public OpenAPIFilter(boolean openAPIAuthEnabled) {
+        this.openAPIAuthEnabled = openAPIAuthEnabled;
     }
 
     @Override
@@ -85,38 +87,41 @@ public class OpenAPIFilter implements Filter {
         }
     }
 
-    // return empty token if parse failed. The realm will pass the request and use default user
-    // if the openapi auth is disable.
     private SecretToken parseBasicAuth(HttpServletRequest servletRequest) {
+        // return empty token if openapi auth is disable. The realm will pass the request and use default user.
+        if (openAPIAuthEnabled) {
+            return new SecretToken();
+        }
+
         String basicAuth = servletRequest.getHeader(BasicAuth.BASIC_AUTH_HEADER);
         if (StringUtils.isBlank(basicAuth)) {
-            log.warn("basic auth header is empty");
-            return new SecretToken();
+            log.error("basic auth header is empty");
+            return null;
         }
 
         // Basic auth string must be "Basic Base64(ID:Secret)"
         String[] parts = basicAuth.split(BasicAuth.BASIC_AUTH_SEPARATOR);
         if (parts.length != 2) {
-            log.warn("the length parts size error: {}", parts.length);
-            return new SecretToken();
+            log.error("the length parts size error: {}", parts.length);
+            return null;
         }
         if (!parts[0].equals(BasicAuth.BASIC_AUTH_PREFIX)) {
-            log.warn("prefix error: {}", parts[0]);
-            return new SecretToken();
+            log.error("prefix error: {}", parts[0]);
+            return null;
         }
 
         String joinedPair = new String(Base64.getDecoder().decode(parts[1]));
         String[] pair = joinedPair.split(BasicAuth.BASIC_AUTH_JOINER);
         if (pair.length != 2) {
-            log.warn("pair format error: {}", pair.length);
-            return new SecretToken();
+            log.error("pair format error: {}", pair.length);
+            return null;
         }
 
         String secretId = pair[0];
         String secretKey = pair[1];
         if (StringUtils.isBlank(secretId) || StringUtils.isBlank(secretKey)) {
-            log.warn("invalid id = {} or key = {}", secretId, secretKey);
-            return new SecretToken();
+            log.error("invalid id = {} or key = {}", secretId, secretKey);
+            return null;
         }
 
         return new SecretToken(secretId, secretKey);
