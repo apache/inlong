@@ -206,9 +206,9 @@ public class AuditServiceImpl implements AuditService {
                 // Support min agg at now
                 DateTimeFormatter forPattern = DateTimeFormat.forPattern("yyyy-MM-dd");
                 DateTime edtDate = forPattern.parseDateTime(request.getEndDate());
-                String eDate = edtDate.plusDays(1).toString(forPattern);
+                String endDate = edtDate.plusDays(1).toString(forPattern);
                 List<Map<String, Object>> sumList = auditEntityMapper.sumByLogTs(
-                        groupId, streamId, auditId, request.getStartDate(), eDate, format);
+                        groupId, streamId, auditId, request.getStartDate(), endDate, format);
                 List<AuditInfo> auditSet = sumList.stream().map(s -> {
                     AuditInfo vo = new AuditInfo();
                     vo.setLogTs((String) s.get("logTs"));
