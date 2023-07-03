@@ -26,8 +26,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,9 +47,9 @@ public class AuditController {
     @Autowired
     private AuditService auditService;
 
-    @GetMapping(value = "/audit/list")
+    @PostMapping(value = "/audit/list")
     @ApiOperation(value = "Query audit list according to conditions")
-    public Response<List<AuditVO>> listByCondition(@Valid AuditRequest request) throws Exception {
+    public Response<List<AuditVO>> listByCondition(@Valid @RequestBody AuditRequest request) throws Exception {
         return Response.success(auditService.listByCondition(request));
     }
 

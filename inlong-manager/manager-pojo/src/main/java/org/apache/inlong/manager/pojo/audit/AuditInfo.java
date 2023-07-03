@@ -30,12 +30,15 @@ public class AuditInfo {
     private String logTs;
     @ApiModelProperty(value = "Audit count")
     private Long count;
+    @ApiModelProperty(value = "Audit delay")
+    private Long delay;
 
     public AuditInfo() {
     }
 
-    public AuditInfo(String logTs, Long count) {
+    public AuditInfo(String logTs, Long count, Long delay) {
         this.logTs = logTs;
         this.count = count;
+        this.delay = delay;
     }
 }

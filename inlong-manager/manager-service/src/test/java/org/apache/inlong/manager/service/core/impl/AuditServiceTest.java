@@ -46,12 +46,13 @@ class AuditServiceTest extends ServiceBaseTest {
         request.setAuditIds(Arrays.asList("3", "4"));
         request.setInlongGroupId("g1");
         request.setInlongStreamId("s1");
-        request.setDt("2022-01-01");
+        request.setStartDate("2022-01-01");
+        request.setEndDate("2022-01-01");
         List<AuditVO> result = new ArrayList<>();
         AuditVO auditVO = new AuditVO();
         auditVO.setAuditId("3");
-        auditVO.setAuditSet(Arrays.asList(new AuditInfo("2022-01-01 00:00:00", 123L),
-                new AuditInfo("2022-01-01 00:01:00", 124L)));
+        auditVO.setAuditSet(Arrays.asList(new AuditInfo("2022-01-01 00:00:00", 123L, 12L),
+                new AuditInfo("2022-01-01 00:01:00", 124L, 12L)));
         result.add(auditVO);
         Assertions.assertNotNull(result);
         // close real test for testQueryFromMySQL due to date_format function not support in h2
@@ -70,7 +71,8 @@ class AuditServiceTest extends ServiceBaseTest {
         request.setAuditIds(Arrays.asList("3", "4"));
         request.setInlongGroupId("g1");
         request.setInlongStreamId("s1");
-        request.setDt("2022-01-01");
+        request.setStartDate("2022-01-01");
+        request.setEndDate("2022-01-01");
         Assertions.assertNotNull(auditService.listByCondition(request));
     }
 }

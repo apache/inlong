@@ -50,9 +50,11 @@ public class AuditRequest {
     @ApiModelProperty(value = "sink id")
     private Integer sinkId;
 
-    @ApiModelProperty(value = "query date, format by 'yyyy-MM-dd'", required = true, example = "2022-01-01")
-    @NotBlank(message = "dt not be blank")
-    private String dt;
+    @ApiModelProperty(value = "query start date, format by 'yyyy-MM-dd'", required = true, example = "2022-01-01")
+    private String startDate;
+
+    @ApiModelProperty(value = "query end date, format by 'yyyy-MM-dd'", required = true, example = "2022-01-01")
+    private String endDate;
 
     /**
      * Time statics dim such as MINUTE, HOUR, DAY
