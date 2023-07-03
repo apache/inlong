@@ -63,36 +63,41 @@ public class TenantAuthenticatingRealm extends AuthenticatingRealm {
 
     @Override
     public AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        TenantToken tenantToken = (TenantToken) token;
-        String username = tenantToken.getUsername();
-        String tenant = tenantToken.getTenant();
+        try {
+            TenantToken tenantToken = (TenantToken) token;
+            String username = tenantToken.getUsername();
+            String tenant = tenantToken.getTenant();
 
-        InlongTenantInfo tenantInfo = tenantService.getByName(tenant);
-        if (tenantInfo == null) {
-            String errMsg = String.format("tenant=[%s] not found", tenant);
-            log.error(errMsg);
-            throw new AuthenticationException(errMsg);
+            InlongTenantInfo tenantInfo = tenantService.getByName(tenant);
+            if (tenantInfo == null) {
+                String errMsg = String.format("tenant=[%s] not found", tenant);
+                log.error(errMsg);
+                throw new AuthenticationException(errMsg);
+            }
+
+            InlongRoleInfo inlongRoleInfo = inlongRoleService.getByUsername(username);
+            TenantRoleInfo tenantRoleInfo = tenantRoleService.getByUsernameAndTenant(username, tenant);
+            if (inlongRoleInfo == null && tenantRoleInfo == null) {
+                String errMsg = String.format("user=[%s] has no privilege for tenant=[%s]", username, tenant);
+                log.error(errMsg);
+                throw new AuthenticationException(errMsg);
+            }
+
+            UserInfo userInfo = getUserInfo(username);
+            if (inlongRoleInfo != null) {
+                addRole(userInfo, inlongRoleInfo.getRoleCode());
+            }
+
+            if (tenantRoleInfo != null) {
+                addRole(userInfo, tenantRoleInfo.getRoleCode());
+            }
+
+            userInfo.setTenant(tenant);
+            return new SimpleAuthenticationInfo(userInfo, tenant, getName());
+        } catch (Throwable t) {
+            log.error("failed to do tenant authentication", t);
+            throw t;
         }
-
-        InlongRoleInfo inlongRoleInfo = inlongRoleService.getByUsername(username);
-        TenantRoleInfo tenantRoleInfo = tenantRoleService.getByUsernameAndTenant(username, tenant);
-        if (inlongRoleInfo == null && tenantRoleInfo == null) {
-            String errMsg = String.format("user=[%s] has no privilege for tenant=[%s]", username, tenant);
-            log.error(errMsg);
-            throw new AuthenticationException(errMsg);
-        }
-
-        UserInfo userInfo = getUserInfo(username);
-        if (inlongRoleInfo != null) {
-            addRole(userInfo, inlongRoleInfo.getRoleCode());
-        }
-
-        if (tenantRoleInfo != null) {
-            addRole(userInfo, tenantRoleInfo.getRoleCode());
-        }
-
-        userInfo.setTenant(tenant);
-        return new SimpleAuthenticationInfo(userInfo, tenant, getName());
     }
 
     @Override
