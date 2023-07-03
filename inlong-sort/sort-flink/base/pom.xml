@@ -41,9 +41,15 @@
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-json</artifactId>
+            <artifactId>sort-format-json-${sort.flink.version}</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-base</artifactId>
+            <version>${flink.version}</version>
         </dependency>
 
         <dependency>

@@ -26,8 +26,8 @@
         <version>1.8.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>sort-format-json</artifactId>
-    <name>Apache InLong - Sort Format-json</name>
+    <artifactId>sort-format-json-v1.13</artifactId>
+    <name>Apache InLong - Sort Format-json-v1.13</name>
 
     <properties>
         <inlong.root.dir>${project.parent.parent.parent.basedir}</inlong.root.dir>
