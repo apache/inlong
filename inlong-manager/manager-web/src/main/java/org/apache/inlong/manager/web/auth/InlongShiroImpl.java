@@ -132,7 +132,7 @@ public class InlongShiroImpl implements InlongShiro {
         pathDefinitions.put("/swagger-resources", "anon");
 
         // openapi
-        filters.put(FILTER_NAME_API, new OpenAPIFilter());
+        filters.put(FILTER_NAME_API, new OpenAPIFilter(openAPIAuthEnabled));
         pathDefinitions.put("/openapi/**/*", genFiltersInOrder(FILTER_NAME_API, FILTER_NAME_TENANT));
 
         // other web
