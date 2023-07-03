@@ -36,7 +36,7 @@ public class AuditInfo {
     public AuditInfo() {
     }
 
-    public AuditInfo(String logTs, Long count, Long delay) {
+    public AuditInfo(String logTs, long count, long delay) {
         this.logTs = logTs;
         this.count = count;
         this.delay = delay;
