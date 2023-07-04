@@ -251,7 +251,7 @@ const Comp = ({ inlongGroupId, inlongStreamId, readonly }: Props, ref) => {
         extra={[
           !readonly && (
             <Button key="create" type="link" onClick={() => setCreateModal({ open: true })}>
-              {i18n.t('pages.GroupDetail.Sources.Create')}
+              {i18n.t('basic.Create')}
             </Button>
           ),
 
