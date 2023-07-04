@@ -622,6 +622,7 @@ CREATE TABLE IF NOT EXISTS `workflow_approver`
     `id`           int(11)       NOT NULL AUTO_INCREMENT,
     `process_name` varchar(256)  NOT NULL COMMENT 'Process name',
     `task_name`    varchar(256)  NOT NULL COMMENT 'Approval task name',
+    `tenant`       varchar(256)  NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of workflow',
     `approvers`    varchar(1024) NOT NULL COMMENT 'Approvers, separated by commas',
     `creator`      varchar(64)   NOT NULL COMMENT 'Creator name',
     `modifier`     varchar(64)            DEFAULT NULL COMMENT 'Modifier name',
@@ -635,9 +636,9 @@ CREATE TABLE IF NOT EXISTS `workflow_approver`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow approver table';
 
 -- create workflow approver for newly inlong group and inlong consume.
-INSERT INTO `workflow_approver`(`process_name`, `task_name`, `approvers`, `creator`, `modifier`)
-VALUES ('APPLY_GROUP_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init'),
-       ('APPLY_CONSUME_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init');
+INSERT INTO `workflow_approver`(`process_name`, `task_name`, `approvers`, `tenant`, `creator`, `modifier`)
+VALUES ('APPLY_GROUP_PROCESS', 'ut_admin', 'admin', 'public', 'inlong_init', 'inlong_init'),
+       ('APPLY_CONSUME_PROCESS', 'ut_admin', 'admin', 'public', 'inlong_init', 'inlong_init');
 
 -- ----------------------------
 -- Table structure for workflow_event_log
@@ -676,6 +677,7 @@ CREATE TABLE IF NOT EXISTS `workflow_process`
     `id`               int(11)      NOT NULL AUTO_INCREMENT,
     `name`             varchar(256) NOT NULL COMMENT 'Process name',
     `display_name`     varchar(256) NOT NULL COMMENT 'Process display name',
+    `tenant`           varchar(256) NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of workflow',
     `type`             varchar(256)          DEFAULT NULL COMMENT 'Process classification',
     `title`            varchar(256)          DEFAULT NULL COMMENT 'Process title',
     `inlong_group_id`  varchar(256)          DEFAULT NULL COMMENT 'Inlong group id to which this process belongs',
@@ -702,6 +704,7 @@ CREATE TABLE IF NOT EXISTS `workflow_task`
     `process_id`           int(11)       NOT NULL COMMENT 'Process ID',
     `process_name`         varchar(256)  NOT NULL COMMENT 'Process name',
     `process_display_name` varchar(256)  NOT NULL COMMENT 'Process name',
+    `tenant`               varchar(256)  NOT NULL DEFAULT 'public' COMMENT 'Inlong tenant of workflow',
     `name`                 varchar(256)  NOT NULL COMMENT 'Task name',
     `display_name`         varchar(256)  NOT NULL COMMENT 'Task display name',
     `applicant`            varchar(64)   DEFAULT NULL COMMENT 'Applicant',

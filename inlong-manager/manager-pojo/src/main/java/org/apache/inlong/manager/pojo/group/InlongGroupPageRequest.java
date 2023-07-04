@@ -70,4 +70,7 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "If list streamSource for group", hidden = true)
     @Builder.Default
     private boolean listSources = false;
+
+    @ApiModelProperty(value = "Inlong tenant to which the data node belongs", hidden = true)
+    private String tenant;
 }

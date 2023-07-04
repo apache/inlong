@@ -30,6 +30,7 @@ public class WorkflowProcessEntity {
     private Integer id;
     private String name;
     private String displayName;
+    private String tenant;
     private String type;
     private String title;
 

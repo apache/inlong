@@ -22,6 +22,8 @@ import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
@@ -72,7 +74,12 @@ public class ApproveApplyProcessListener implements ProcessEventListener {
         processForm.setStreamInfos(streamList);
 
         // may run for long time, make it async processing
-        EXECUTOR_SERVICE.execute(() -> workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm));
+        UserInfo userInfo = LoginUserUtils.getLoginUser();
+        EXECUTOR_SERVICE.execute(() -> {
+            LoginUserUtils.setUserLoginInfo(userInfo);
+            workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm);
+            LoginUserUtils.removeUserLoginInfo();
+        });
         log.info("success to execute ApproveApplyProcessListener for groupId={}", groupId);
         return ListenerResult.success();
     }

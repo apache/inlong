@@ -20,12 +20,12 @@ package org.apache.inlong.manager.dao.interceptor;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.tenant.MultiTenantQuery;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
@@ -47,6 +47,7 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
+import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -108,7 +109,7 @@ public class MultiTenantInterceptor implements Interceptor {
 
             List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
             // new param mapping
-            Map<String, Object> newParameter = makeNewParameters(parameter, parameterMappings);
+            Object newParameter = makeNewParameters(parameter, parameterMappings);
             // update params
             invocation.getArgs()[1] = newParameter;
 
@@ -130,31 +131,56 @@ public class MultiTenantInterceptor implements Interceptor {
 
         Object parameterObject = metaResultSetHandler.getValue("parameterObject");
         BoundSql boundSql = (BoundSql) metaResultSetHandler.getValue("boundSql");
-        Map<String, Object> newParams = makeNewParameters(parameterObject, boundSql.getParameterMappings());
+        Object newParams = makeNewParameters(parameterObject, boundSql.getParameterMappings());
 
         metaResultSetHandler.setValue("parameterObject", newParams);
         return invocation.proceed();
     }
 
-    private Map<String, Object> makeNewParameters(Object parameterObject, List<ParameterMapping> parameters) {
-        Map<String, Object> params;
+    private Object makeNewParameters(Object parameterObject, List<ParameterMapping> parameters) {
 
         // only the single param query has no property name, find it in parameters.
         if (isPrimitiveOrWrapper(parameterObject) && parameters.size() == 2) {
-            params = new LinkedHashMap<>();
-
-            // find the param not tenant
-            int idx = 0;
-            if (KEY_TENANT.equals(parameters.get(0).getProperty())) {
-                idx = 1;
-            }
-            params.put(parameters.get(idx).getProperty(), parameterObject);
+            return makeNewParametersFromPrimitive(parameterObject, parameters);
+        } else if (parameterObject instanceof MapperMethod.ParamMap) {
+            return makeNewParametersFromMap((MapperMethod.ParamMap) parameterObject);
         } else {
-            String jsonStr = JsonUtils.toJsonString(parameterObject);
-            params = JsonUtils.parseObject(jsonStr, Map.class);
+            return makeNewParametersFromEntity(parameterObject);
         }
+    }
+
+    private Object makeNewParametersFromMap(MapperMethod.ParamMap parameterObject) {
+        parameterObject.put(KEY_TENANT, getTenant());
+        return parameterObject;
+    }
+    private Object makeNewParametersFromPrimitive(Object parameterObject, List<ParameterMapping> parameters) {
+        Map<String, Object> params = new LinkedHashMap<>();
+
+        // find the param not tenant
+        int idx = 0;
+        if (KEY_TENANT.equals(parameters.get(0).getProperty())) {
+            idx = 1;
+        }
+        params.put(parameters.get(idx).getProperty(), parameterObject);
         params.put(KEY_TENANT, getTenant());
         return params;
+    }
+
+    private Object makeNewParametersFromEntity(Object parameterObject) {
+        Field[] fields = parameterObject.getClass().getDeclaredFields();
+
+        try {
+            for (Field field : fields) {
+                if (!field.getName().equals(KEY_TENANT)) {
+                    continue;
+                }
+                field.setAccessible(true);
+                field.set(parameterObject, getTenant());
+            }
+        } catch (Exception e) {
+            log.error("failed to set tenant into parameters={}", parameterObject, e);
+        }
+        return parameterObject;
     }
 
     private boolean isPrimitiveOrWrapper(Object obj) {

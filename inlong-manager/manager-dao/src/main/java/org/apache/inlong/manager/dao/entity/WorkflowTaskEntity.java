@@ -34,6 +34,7 @@ public class WorkflowTaskEntity {
     private String type;
     private String name;
     private String displayName;
+    private String tenant;
     private Integer processId;
     private String processName;
     private String processDisplayName;

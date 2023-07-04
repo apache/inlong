@@ -24,6 +24,7 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="display_name" jdbcType="VARCHAR" property="displayName"/>
+        <result column="tenant" jdbcType="VARCHAR" property="tenant"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
@@ -37,28 +38,29 @@
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, display_name, type, title, inlong_group_id, inlong_stream_id,
+        id, name, display_name, tenant, type, title, inlong_group_id, inlong_stream_id,
         applicant, status, start_time, end_time, hidden, form_data, ext_params
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id"
             parameterType="org.apache.inlong.manager.dao.entity.WorkflowProcessEntity">
-        insert into workflow_process (name, display_name, type,
+        insert into workflow_process (name, display_name, type, tenant,
                                       title, inlong_group_id, inlong_stream_id,
                                       applicant, status, start_time,
                                       end_time, form_data, ext_params, hidden)
         values (#{name,jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
-                #{title,jdbcType=VARCHAR}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
-                #{applicant,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP},
-                #{endTime,jdbcType=TIMESTAMP}, #{formData,jdbcType=LONGVARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
-                #{hidden,jdbcType=TINYINT})
+                #{tenant,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{inlongGroupId,jdbcType=VARCHAR},
+                #{inlongStreamId,jdbcType=VARCHAR}, #{applicant,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
+                #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{formData,jdbcType=LONGVARCHAR},
+                #{extParams,jdbcType=LONGVARCHAR}, #{hidden,jdbcType=TINYINT})
     </insert>
 
-    <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="selectById" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from workflow_process
-        where id = #{id,jdbcType=INTEGER}
+        where tenant = #{tenant,jdbcType=VARCHAR}
+        and id = #{id,jdbcType=INTEGER}
     </select>
     <select id="selectByCondition" parameterType="org.apache.inlong.manager.pojo.workflow.ProcessRequest"
             resultMap="BaseResultMap">
@@ -66,6 +68,7 @@
         <include refid="Base_Column_List"/>
         from workflow_process
         <where>
+            tenant = #{tenant,jdbcType=VARCHAR}
             <if test="id != null">
                 and id = #{id,jdbcType=INTEGER}
             </if>
@@ -114,13 +117,14 @@
         </where>
         order by id desc
     </select>
-    <select id="selectByInlongGroupIds" resultType="java.lang.Integer">
+    <select id="selectByInlongGroupIds">
         select id
         from workflow_process
         where inlong_group_id in
         <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
             #{item}
         </foreach>
+        and tenant = #{tenant,jdbcType=VARCHAR}
     </select>
 
     <select id="countByQuery" parameterType="org.apache.inlong.manager.pojo.workflow.ProcessCountRequest"
@@ -128,6 +132,7 @@
         select status as `key`, count(1) as `value`
         from workflow_process
         <where>
+            tenant = #{tenant,jdbcType=VARCHAR}
             <if test="name != null and name !=''">
                 and name = #{name,jdbcType=VARCHAR}
             </if>
@@ -164,7 +169,8 @@
         set status     = #{status,jdbcType=VARCHAR},
             end_time   = #{endTime,jdbcType=TIMESTAMP},
             ext_params = #{extParams,jdbcType=LONGVARCHAR}
-        where id = #{id,jdbcType=INTEGER}
+        where tenant = #{tenant,jdbcType=VARCHAR}
+        and id = #{id,jdbcType=INTEGER}
     </update>
 
     <delete id="deleteByProcessIds">
@@ -174,5 +180,6 @@
         <foreach item="item" index="index" collection="processIdList" open="(" close=")" separator=",">
             #{item}
         </foreach>
+        and tenant = #{tenant,jdbcType=VARCHAR}
     </delete>
 </mapper>

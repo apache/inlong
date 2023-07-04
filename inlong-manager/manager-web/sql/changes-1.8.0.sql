@@ -110,3 +110,11 @@ ALTER TABLE `inlong_consume`
     ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of consume' after `ext_params`;
 CREATE INDEX consume_tenant_index
     ON inlong_consume (`tenant`, `is_deleted`);
+
+-- To support multi-tenancy of workflows. Please see #8404
+ALTER TABLE `workflow_approver`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of consume' after `task_name`;
+ALTER TABLE `workflow_process`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of consume' after `display_name`;
+ALTER TABLE `workflow_task`
+    ADD `tenant` VARCHAR(256) DEFAULT 'public' NOT NULL comment 'Inlong tenant of consume' after `process_display_name`;
