@@ -52,7 +52,7 @@
         from workflow_approver
         where tenant = #{tenant,jdbcType=VARCHAR}
         and id = #{id, jdbcType=INTEGER}
-        and is_deleted=0
+        and is_deleted = 0
     </select>
     <select id="selectByCondition" resultMap="BaseResultMap"
             parameterType="org.apache.inlong.manager.pojo.workflow.ApproverPageRequest">
