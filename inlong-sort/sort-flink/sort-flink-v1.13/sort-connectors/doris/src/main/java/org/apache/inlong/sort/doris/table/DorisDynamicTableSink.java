@@ -53,6 +53,9 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     private final Integer parallelism;
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
+    private final boolean enableSchemaChange;
+    @Nullable
+    private final String schemaChangePolicies;
 
     public DorisDynamicTableSink(DorisOptions options,
             DorisReadOptions readOptions,
@@ -68,7 +71,9 @@ public class DorisDynamicTableSink implements DynamicTableSink {
             String auditHostAndPorts,
             Integer parallelism,
             DirtyOptions dirtyOptions,
-            @Nullable DirtySink<Object> dirtySink) {
+            @Nullable DirtySink<Object> dirtySink,
+            boolean enableSchemaChange,
+            @Nullable String schemaChangePolicies) {
         this.options = options;
         this.readOptions = readOptions;
         this.executionOptions = executionOptions;
@@ -84,6 +89,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
         this.parallelism = parallelism;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
+        this.enableSchemaChange = enableSchemaChange;
+        this.schemaChangePolicies = schemaChangePolicies;
     }
 
     @Override
@@ -114,7 +121,9 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                 .setIgnoreSingleTableErrors(ignoreSingleTableErrors)
                 .setSchemaUpdatePolicy(schemaUpdatePolicy)
                 .setDirtyOptions(dirtyOptions)
-                .setDirtySink(dirtySink);
+                .setDirtySink(dirtySink)
+                .setEnableSchemaChange(enableSchemaChange)
+                .setSchemaChangePolicies(schemaChangePolicies);
         return SinkFunctionProvider.of(
                 new GenericDorisSinkFunction<>(builder.build()), parallelism);
     }
@@ -135,7 +144,9 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                 auditHostAndPorts,
                 parallelism,
                 dirtyOptions,
-                dirtySink);
+                dirtySink,
+                enableSchemaChange,
+                schemaChangePolicies);
     }
 
     @Override
