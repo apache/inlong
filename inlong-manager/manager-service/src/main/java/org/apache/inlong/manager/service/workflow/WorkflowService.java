@@ -86,7 +86,12 @@ public interface WorkflowService {
      * @param remark Remarks information.
      * @return Workflow result.
      */
-    WorkflowResult continueProcessAsync(Integer processId, UserInfo userInfo, String remark);
+    default WorkflowResult continueProcessAsync(Integer processId, UserInfo userInfo, String remark) {
+        LoginUserUtils.setUserLoginInfo(userInfo);
+        WorkflowResult result = continueProcess(processId, userInfo.getName(), remark);
+        LoginUserUtils.removeUserLoginInfo();
+        return result;
+    }
 
     /**
      * Cancellation process application
