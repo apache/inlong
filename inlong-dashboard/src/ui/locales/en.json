@@ -796,5 +796,18 @@
   "components.FieldList.Sink": "SinkField",
   "components.FieldList.CreateSource": "Create SourceField",
   "components.FieldList.CreateSink": "Create SinkField",
-  "components.FieldList.AddField": "Add Field"
+  "components.FieldList.AddField": "Add Field",
+  "pages.Tenant.config.Name": "TenantName",
+  "pages.Tenant.config.Creator": "Creator",
+  "pages.Tenant.config.CreateTime": "CreateTime",
+  "pages.Tenant.config.Description": "Description",
+  "pages.Tenant.New": "Create",
+  "pages.TenantRole.config.Name": "TenantName",
+  "pages.TenantRole.New": "Create",
+  "pages.TenantRole.config.UserName": "UserName",
+  "pages.TenantRole.config.TenantRole": "TenantRole",
+  "pages.TenantRole.config.Admin": "Admin",
+  "pages.TenantRole.config.GeneralUser": "General User",
+  "pages.TenantRole.config.Creator": "Creator",
+  "pages.TenantRole.config.CreateTime": "CreateTime"
 }

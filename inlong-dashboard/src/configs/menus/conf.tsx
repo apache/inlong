@@ -27,6 +27,7 @@ import {
   SafetyOutlined,
   ShopOutlined,
   InteractionOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import type { MenuItemType } from '.';
 
@@ -82,6 +83,14 @@ const conf: MenuItemType[] = [
       {
         path: '/approval',
         name: i18n.t('configs.menus.ProcessManagement'),
+      },
+      {
+        path: '/tenantRole',
+        name: '租户角色',
+      },
+      {
+        path: '/tenant',
+        name: '租户管理',
       },
     ],
   },

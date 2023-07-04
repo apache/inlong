@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 import request from '@/core/utils/request';
 import PasswordModal from './PasswordModal';
 import KeyModal from './KeyModal';
+import { useLocalStorage } from '@/core/utils/localStorage';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
@@ -38,8 +39,11 @@ const Comp: React.FC = () => {
     open: false,
   });
 
+  const [getLocalStorage, setLocalStorage, removeLocalStorage] = useLocalStorage('tenant');
+
   const runLogout = async () => {
     await request('/anno/logout');
+    removeLocalStorage('tenant');
     window.location.href = '/';
   };
 

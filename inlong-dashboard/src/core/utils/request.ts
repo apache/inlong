@@ -41,7 +41,7 @@ export interface RequestOptions extends FetchOptions {
   responseParse?: (res: any) => SuccessResponse;
 }
 
-const extendRequest = extend({
+export const extendRequest = extend({
   prefix: config.requestPrefix,
   timeout: 60 * 1000,
 });
