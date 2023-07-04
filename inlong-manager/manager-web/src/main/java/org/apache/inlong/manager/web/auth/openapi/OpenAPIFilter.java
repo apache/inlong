@@ -88,8 +88,8 @@ public class OpenAPIFilter implements Filter {
     }
 
     private SecretToken parseBasicAuth(HttpServletRequest servletRequest) {
-        // return empty token if openapi auth is disable. The realm will pass the request and use default user.
-        if (openAPIAuthEnabled) {
+        // return empty token if openapi auth is disabled. The realm will pass the request and use default user.
+        if (!openAPIAuthEnabled) {
             return new SecretToken();
         }
 
