@@ -22,7 +22,7 @@ import { Button, Divider, Dropdown, Input, MenuProps, message, Select, Space, th
 import { useRequest, useSelector } from '@/ui/hooks';
 import { State } from '@/core/stores';
 import { useTranslation } from 'react-i18next';
-import request from '@/core/utils/request';
+import request, { extendRequest } from '@/core/utils/request';
 import KeyModal from '../NavWidget/KeyModal';
 import { useLocalStorage } from '@/core/utils/localStorage';
 
@@ -82,11 +82,6 @@ const Comp: React.FC = () => {
   };
   const tenantData = { list: [] };
 
-  const testClick = () => {
-    console.log(12);
-    setLocalStorage({ name: 'testTTTTTT' });
-  };
-
   // for (let i = 0; i < 5; i++) {
   //   const t = {
   //     label: 'tenant_test_' + i,
@@ -129,8 +124,17 @@ const Comp: React.FC = () => {
   };
 
   const onClick: MenuProps['onClick'] = ({ key }) => {
-    console.log(key, 'kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
     setLocalStorage({ name: key });
+    extendRequest.interceptors.request.use((url, options) => {
+      return {
+        options: {
+          ...options,
+          interceptors: true,
+          headers: { rname: 'tenant', value: key },
+        },
+      };
+    });
+    message.success(t('切换成功'));
     window.location.reload();
   };
 

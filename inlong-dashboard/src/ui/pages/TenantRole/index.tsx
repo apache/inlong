@@ -21,18 +21,20 @@ import React, { useState } from 'react';
 import { Button, Card, Modal, message } from 'antd';
 import { PageContainer, Container } from '@/ui/components/PageContainer';
 import HighTable from '@/ui/components/HighTable';
-import { useRequest } from '@/ui/hooks';
+import { useRequest, useSelector } from '@/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import request from '@/core/utils/request';
 import { defaultSize } from '@/configs/pagination';
 import DataSourcesCreateModal from './DetailModal';
 import { getFilterFormContent, getColumns } from './config';
+import { State } from '@/core/stores';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
+  const tenant = useSelector<State, State['tenant']>(state => state.tenant);
 
   const [options, setOptions] = useState({
-    keyword: '',
+    keyword: tenant,
     pageSize: defaultSize,
     pageNum: 1,
   });
