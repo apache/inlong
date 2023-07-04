@@ -22,7 +22,6 @@ import org.apache.inlong.sort.cdc.oracle.source.meta.offset.RedoLogOffset;
 import io.debezium.config.Configuration;
 import io.debezium.connector.oracle.OracleConnection;
 import io.debezium.connector.oracle.Scn;
-import io.debezium.jdbc.JdbcConfiguration;
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.RelationalTableFilters;
 import io.debezium.relational.TableId;
@@ -53,12 +52,7 @@ public class OracleConnectionUtils {
     private static final String SHOW_CURRENT_SCN = "SELECT CURRENT_SCN FROM V$DATABASE";
 
     /** Creates a new {@link OracleConnection}, but not open the connection. */
-    public static OracleConnection createOracleConnection(Configuration configuration) {
-        return createOracleConnection(JdbcConfiguration.adapt(configuration));
-    }
-
-    /** Creates a new {@link OracleConnection}, but not open the connection. */
-    public static OracleConnection createOracleConnection(JdbcConfiguration dbzConfiguration) {
+    public static OracleConnection createOracleConnection(Configuration dbzConfiguration) {
         Configuration configuration = dbzConfiguration.subset(DATABASE_CONFIG_PREFIX, true);
         return new OracleConnection(
                 configuration.isEmpty() ? dbzConfiguration : configuration,
