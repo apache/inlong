@@ -22,6 +22,9 @@ import org.apache.iceberg.flink.TableLoader;
 
 import java.io.File;
 
+/**
+ *  Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
+ */
 public class TestTableLoader implements TableLoader {
 
     private File dir;

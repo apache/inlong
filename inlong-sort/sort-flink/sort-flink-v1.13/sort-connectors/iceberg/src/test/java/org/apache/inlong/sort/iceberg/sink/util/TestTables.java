@@ -45,6 +45,9 @@ import java.util.Map;
 
 import static org.apache.iceberg.TableMetadata.newTableMetadata;
 
+/**
+ *  Copy from iceberg-flink:iceberg-flink-1.15:1.1.x
+ */
 public class TestTables {
 
     private TestTables() {

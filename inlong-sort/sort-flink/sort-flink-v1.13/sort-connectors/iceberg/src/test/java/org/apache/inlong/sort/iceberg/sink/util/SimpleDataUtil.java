@@ -73,6 +73,9 @@ import java.util.stream.Collectors;
 
 import static org.apache.iceberg.hadoop.HadoopOutputFile.fromPath;
 
+/**
+ *  Copy from iceberg-flink:iceberg-flink-1.15:1.1.x
+ */
 public class SimpleDataUtil {
 
     private SimpleDataUtil() {
