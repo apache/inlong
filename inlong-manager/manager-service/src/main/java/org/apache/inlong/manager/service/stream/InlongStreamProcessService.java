@@ -111,7 +111,8 @@ public class InlongStreamProcessService {
             return processStatus == ProcessStatus.COMPLETED;
         } else {
             UserInfo userInfo = LoginUserUtils.getLoginUser();
-            EXECUTOR_SERVICE.execute(() -> workflowService.startAsync(processName, userInfo, processForm));
+            EXECUTOR_SERVICE.execute(
+                    () -> workflowService.startAsync(processName, userInfo, processForm));
             return true;
         }
     }
@@ -152,7 +153,8 @@ public class InlongStreamProcessService {
             return processStatus == ProcessStatus.COMPLETED;
         } else {
             UserInfo userInfo = LoginUserUtils.getLoginUser();
-            EXECUTOR_SERVICE.execute(() -> workflowService.startAsync(processName, userInfo, processForm));
+            EXECUTOR_SERVICE.execute(
+                    () -> workflowService.startAsync(processName, userInfo, processForm));
             return true;
         }
     }
@@ -193,7 +195,8 @@ public class InlongStreamProcessService {
             return processStatus == ProcessStatus.COMPLETED;
         } else {
             UserInfo userInfo = LoginUserUtils.getLoginUser();
-            EXECUTOR_SERVICE.execute(() -> workflowService.startAsync(processName, userInfo, processForm));
+            EXECUTOR_SERVICE.execute(
+                    () -> workflowService.startAsync(processName, userInfo, processForm));
             return true;
         }
     }
