@@ -75,8 +75,8 @@ public class ApproveApplyProcessListener implements ProcessEventListener {
 
         // may run for long time, make it async processing
         UserInfo userInfo = LoginUserUtils.getLoginUser();
-        EXECUTOR_SERVICE
-                .execute(() -> workflowService.startAsync(ProcessName.CREATE_GROUP_RESOURCE, userInfo, processForm));
+        EXECUTOR_SERVICE.execute(() ->
+                workflowService.startAsync(ProcessName.CREATE_GROUP_RESOURCE, userInfo, processForm));
         log.info("success to execute ApproveApplyProcessListener for groupId={}", groupId);
         return ListenerResult.success();
     }
