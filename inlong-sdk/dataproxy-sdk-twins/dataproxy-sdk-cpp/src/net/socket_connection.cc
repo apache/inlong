@@ -347,6 +347,10 @@ namespace dataproxy_sdk
         recv_buf_->Skip(body_len);
         LOG_TRACE("body_len is %d, and skip body");
         uint32_t attr_len = recv_buf_->ReadUint32();
+        if (attr_len > constants::kMaxAttrLen) {
+            LOG_ERROR("attr_len(%d) > kMaxAttrLen(%d)", attr_len, constants::kMaxAttrLen);
+            return false;
+        }
         char attr[attr_len + 1];
         memset(attr, 0x0, attr_len + 1);
         strncpy(attr, recv_buf_->data(), attr_len);
@@ -373,6 +377,10 @@ namespace dataproxy_sdk
     {
         uint32_t uniq = recv_buf_->ReadUint32();
         uint16_t attr_len = recv_buf_->ReadUint16();
+        if (attr_len > constants::kMaxAttrLen) {
+            LOG_ERROR("attr_len(%d) > kMaxAttrLen(%d)", attr_len, constants::kMaxAttrLen);
+            return false;
+        }
         char attr[attr_len + 1];
         memset(attr, 0x0, attr_len + 1);
         strncpy(attr, recv_buf_->data(), attr_len);
