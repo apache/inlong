@@ -352,6 +352,12 @@ namespace dataproxy_sdk
         strncpy(attr, recv_buf_->data(), attr_len);
         recv_buf_->Skip(attr_len);
         LOG_TRACE("attr_len is %d, attr info: %s", attr_len, attr);
+
+        int errorCode = parseErrorCode(attr, attr_len);
+        if (errorCode != 0) {
+            LOG_ERROR("parseErrorCode is:%d ", errorCode);
+            return false;
+        }
         uint32_t buf_uniqId = parseAttr(attr, attr_len);
 
         auto bpr=g_pools->getUidBufPool(buf_uniqId);
@@ -367,6 +373,10 @@ namespace dataproxy_sdk
     {
         uint32_t uniq = recv_buf_->ReadUint32();
         uint16_t attr_len = recv_buf_->ReadUint16();
+        char attr[attr_len + 1];
+        memset(attr, 0x0, attr_len + 1);
+        strncpy(attr, recv_buf_->data(), attr_len);
+
         recv_buf_->Skip(attr_len);
         uint16_t magic = recv_buf_->ReadUint16();
 
@@ -378,6 +388,12 @@ namespace dataproxy_sdk
         if (magic != constants::kBinaryMagic)
         {
             LOG_ERROR("failed to parse binary ack, get error magic: %d", magic);
+            return false;
+        }
+
+        int errorCode = parseErrorCode(attr, attr_len);
+        if (errorCode != 0) {
+            LOG_ERROR("parseErrorCode is:%d ", errorCode);
             return false;
         }
 
@@ -453,6 +469,19 @@ namespace dataproxy_sdk
         LOG_TRACE("parse ack and get buf uid:%d", buf_uniqId);
 
         return buf_uniqId;
+    }
+
+    int Connection::parseErrorCode(char *attr, int32_t attr_len) {
+        char *errorCodeStr = nullptr;
+        LOG_TRACE("ack attr:%s", attr);
+        errorCodeStr = strstr(attr, "errCode=");
+        if (!errorCodeStr) {
+            return 0;
+        }
+        int errorCode = atoi(&errorCodeStr[8]);
+        LOG_TRACE("parse ack and get buf errorCode:%d", errorCode);
+
+        return errorCode;
     }
 
     int32_t Connection::getAvgLoad()
