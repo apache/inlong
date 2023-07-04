@@ -24,7 +24,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 USE `apache_inlong_manager`;
 
 ALTER TABLE inlong_group
-    CHANGE lightweight inlong_group_mode tinyint(1) DEFAULT 0 NULL COMMENT 'Inlong group mode, Standard mode: 0, DataSync mode: 1';
+    CHANGE lightweight inlong_group_mode tinyint(1) DEFAULT 0 NULL COMMENT 'InLong group mode, Standard mode(include Data Ingestion and Synchronization): 0, DataSync mode(only Data Synchronization): 1';
 
 -- To support multi-tenant management in InLong, see https://github.com/apache/inlong/issues/7914
 CREATE TABLE IF NOT EXISTS `inlong_tenant`
