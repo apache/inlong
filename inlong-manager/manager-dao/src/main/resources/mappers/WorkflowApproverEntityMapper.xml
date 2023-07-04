@@ -34,16 +34,18 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, process_name, task_name, tenant, approvers, creator, modifier, create_time, modify_time, is_deleted, version
+        id, process_name, task_name, tenant, approvers, creator, modifier,
+        create_time, modify_time, is_deleted, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
-        insert into workflow_approver (id, process_name, task_name, tenant,
-                                       approvers, creator, modifier)
+        insert into workflow_approver (id, process_name, task_name,
+                                       tenant, approvers,
+                                       creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{processName, jdbcType=VARCHAR}, #{taskName, jdbcType=VARCHAR},
-                #{tenant,jdbcType=VARCHAR}, #{approvers, jdbcType=VARCHAR}, #{creator, jdbcType=VARCHAR},
-                #{modifier, jdbcType=VARCHAR})
+                #{tenant,jdbcType=VARCHAR}, #{approvers, jdbcType=VARCHAR},
+                #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
 
     <select id="selectById" resultMap="BaseResultMap">

@@ -137,22 +137,23 @@ public class MultiTenantInterceptor implements Interceptor {
         return invocation.proceed();
     }
 
+    @SuppressWarnings("unchecked")
     private Object makeNewParameters(Object parameterObject, List<ParameterMapping> parameters) {
-
         // only the single param query has no property name, find it in parameters.
         if (isPrimitiveOrWrapper(parameterObject) && parameters.size() == 2) {
             return makeNewParametersFromPrimitive(parameterObject, parameters);
         } else if (parameterObject instanceof MapperMethod.ParamMap) {
-            return makeNewParametersFromMap((MapperMethod.ParamMap) parameterObject);
+            return makeNewParametersFromMap((MapperMethod.ParamMap<String>) parameterObject);
         } else {
             return makeNewParametersFromEntity(parameterObject);
         }
     }
 
-    private Object makeNewParametersFromMap(MapperMethod.ParamMap parameterObject) {
+    private Object makeNewParametersFromMap(MapperMethod.ParamMap<String> parameterObject) {
         parameterObject.put(KEY_TENANT, getTenant());
         return parameterObject;
     }
+
     private Object makeNewParametersFromPrimitive(Object parameterObject, List<ParameterMapping> parameters) {
         Map<String, Object> params = new LinkedHashMap<>();
 
@@ -178,7 +179,7 @@ public class MultiTenantInterceptor implements Interceptor {
                 field.set(parameterObject, getTenant());
             }
         } catch (Exception e) {
-            log.error("failed to set tenant into parameters={}", parameterObject, e);
+            log.error("failed to set tenant into parameters=" + parameterObject, e);
         }
         return parameterObject;
     }

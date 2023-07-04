@@ -64,6 +64,9 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
+    @ApiModelProperty(value = "Inlong tenant name", hidden = true)
+    private String tenant;
+
     @ApiModelProperty(value = "Whether the current user is in the administrator role", hidden = true)
     private Boolean isAdminRole;
 
@@ -71,6 +74,4 @@ public class InlongGroupPageRequest extends PageRequest {
     @Builder.Default
     private boolean listSources = false;
 
-    @ApiModelProperty(value = "Inlong tenant to which the data node belongs", hidden = true)
-    private String tenant;
 }

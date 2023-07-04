@@ -46,20 +46,20 @@ public interface WorkflowService {
     /**
      * Initiation process
      *
-     * @param process Process name
-     * @param applicant Applicant
-     * @param form Process form
-     * @return result
+     * @param process process name
+     * @param applicant applicant name
+     * @param form process form
+     * @return workflow result
      */
     WorkflowResult start(ProcessName process, String applicant, ProcessForm form);
 
     /**
      * Initiation process async
      *
-     * @param process Process name
+     * @param process process name
      * @param userInfo login user info
-     * @param form Process form
-     * @return result
+     * @param form process form
+     * @return workflow result
      */
     default WorkflowResult startAsync(ProcessName process, UserInfo userInfo, ProcessForm form) {
         LoginUserUtils.setUserLoginInfo(userInfo);

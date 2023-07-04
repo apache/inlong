@@ -24,11 +24,11 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="display_name" jdbcType="VARCHAR" property="displayName"/>
-        <result column="tenant" jdbcType="VARCHAR" property="tenant"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
+        <result column="tenant" jdbcType="VARCHAR" property="tenant"/>
         <result column="applicant" jdbcType="VARCHAR" property="applicant"/>
         <result column="status" jdbcType="VARCHAR" property="status"/>
         <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
@@ -38,19 +38,20 @@
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, display_name, tenant, type, title, inlong_group_id, inlong_stream_id,
-        applicant, status, start_time, end_time, hidden, form_data, ext_params
+        id, name, display_name, type, title, inlong_group_id, inlong_stream_id,
+        tenant, applicant, status, start_time, end_time, hidden, form_data, ext_params
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id"
             parameterType="org.apache.inlong.manager.dao.entity.WorkflowProcessEntity">
-        insert into workflow_process (name, display_name, type, tenant,
+        insert into workflow_process (name, display_name, type,
                                       title, inlong_group_id, inlong_stream_id,
-                                      applicant, status, start_time,
-                                      end_time, form_data, ext_params, hidden)
+                                      tenant, applicant, status,
+                                      start_time, end_time, form_data,
+                                      ext_params, hidden)
         values (#{name,jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
-                #{tenant,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{inlongGroupId,jdbcType=VARCHAR},
-                #{inlongStreamId,jdbcType=VARCHAR}, #{applicant,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
+                #{title,jdbcType=VARCHAR}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
+                #{tenant,jdbcType=VARCHAR}, #{applicant,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
                 #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{formData,jdbcType=LONGVARCHAR},
                 #{extParams,jdbcType=LONGVARCHAR}, #{hidden,jdbcType=TINYINT})
     </insert>

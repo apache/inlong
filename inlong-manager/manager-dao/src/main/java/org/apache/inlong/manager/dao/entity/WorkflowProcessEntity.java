@@ -30,12 +30,12 @@ public class WorkflowProcessEntity {
     private Integer id;
     private String name;
     private String displayName;
-    private String tenant;
     private String type;
     private String title;
 
     private String inlongGroupId;
     private String inlongStreamId;
+    private String tenant;
     private String applicant;
     private String status;
     private String formData;
