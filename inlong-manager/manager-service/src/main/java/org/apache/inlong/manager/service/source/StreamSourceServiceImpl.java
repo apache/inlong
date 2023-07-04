@@ -238,8 +238,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                     .collect(Collectors.groupingBy(StreamSource::getInlongStreamId, HashMap::new,
                             Collectors.toCollection(ArrayList::new)));
         } else {
-            // if the group mode is STANDARD(include Data Ingestion and Synchronization), needs to get the cached MQ
-            // sources
+            // if the group mode is STANDARD(include Data Ingestion and Synchronization),
+            // InLong needs to get the cached MQ sources
             StreamSourceOperator sourceOperator = operatorFactory.getInstance(groupInfo.getMqType());
             result = sourceOperator.getSourcesMap(groupInfo, streamInfos, streamSources);
         }
