@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.SendResult;
@@ -54,6 +55,11 @@ public class HttpProxySender extends Thread {
     private final LinkedBlockingQueue<HttpMessage> messageCache;
 
     public HttpProxySender(ProxyClientConfig configure) throws Exception {
+        // correct ProtocolType settings
+        if (!ProtocolType.HTTP.equals(configure.getProtocolType())) {
+            configure.setProtocolType(ProtocolType.HTTP);
+        }
+        logger.info("Initial http sender, configure is {}", configure);
         this.proxyClientConfig = configure;
         initTDMClientAndRequest(configure);
         this.messageCache = new LinkedBlockingQueue<>(configure.getTotalAsyncCallbackSize());
