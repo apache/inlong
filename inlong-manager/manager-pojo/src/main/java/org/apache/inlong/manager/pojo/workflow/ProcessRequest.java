@@ -55,6 +55,9 @@ public class ProcessRequest extends PageRequest {
     @ApiModelProperty("Process display name")
     private String displayName;
 
+    @ApiModelProperty("Inlong tenant name")
+    private String tenant;
+
     @ApiModelProperty("Applicant")
     private String applicant;
 

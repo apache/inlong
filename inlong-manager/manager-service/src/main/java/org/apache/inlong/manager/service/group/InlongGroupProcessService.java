@@ -34,6 +34,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
@@ -130,7 +131,9 @@ public class InlongGroupProcessService {
         groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), operator);
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.SUSPEND);
-        EXECUTOR_SERVICE.execute(() -> workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form));
+        UserInfo userInfo = LoginUserUtils.getLoginUser();
+        EXECUTOR_SERVICE.execute(
+                () -> workflowService.startAsync(ProcessName.SUSPEND_GROUP_PROCESS, userInfo, form));
 
         LOGGER.info("success to suspend process asynchronously for groupId={} by operator={}", groupId, operator);
         return groupId;
@@ -175,7 +178,9 @@ public class InlongGroupProcessService {
         groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), operator);
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.RESTART);
-        EXECUTOR_SERVICE.execute(() -> workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form));
+        UserInfo userInfo = LoginUserUtils.getLoginUser();
+        EXECUTOR_SERVICE.execute(
+                () -> workflowService.startAsync(ProcessName.RESTART_GROUP_PROCESS, userInfo, form));
 
         LOGGER.info("success to restart process asynchronously for groupId={} by operator={}", groupId, operator);
         return groupId;
@@ -312,9 +317,9 @@ public class InlongGroupProcessService {
             List<WorkflowProcessEntity> entities = workflowQueryService.listProcessEntity(processQuery);
             entities.sort(Comparator.comparingInt(WorkflowProcessEntity::getId));
             WorkflowProcessEntity lastProcess = entities.get(entities.size() - 1);
-            EXECUTOR_SERVICE.execute(() -> {
-                workflowService.continueProcess(lastProcess.getId(), operator, "Reset group status");
-            });
+            UserInfo userInfo = LoginUserUtils.getLoginUser();
+            EXECUTOR_SERVICE.execute(
+                    () -> workflowService.continueProcessAsync(lastProcess.getId(), userInfo, "Reset group status"));
             return true;
         }
         if (resetFinalStatus == 1) {
