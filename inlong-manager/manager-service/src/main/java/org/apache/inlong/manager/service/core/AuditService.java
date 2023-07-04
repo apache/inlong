@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
+import org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 
@@ -51,4 +52,40 @@ public interface AuditService {
      */
     Boolean refreshBaseItemCache();
 
+    /**
+     * Insert a new source and make the source in use.
+     * @param auditQuerySource MYSQL, CLICKHOUSE, ELASTICSEARCH
+     * @param hosts
+     * @param userName
+     * @param password
+     * @param esAuthEnable a param related to Elasticsearch which can be written as any integer when writing the ClickHouse source
+     * @return
+     */
+    Boolean updateAuditQuerySource(String auditQuerySource, String hosts, String userName, String password,
+            Integer esAuthEnable);
+
+    /**
+     * Insert a new source.
+     * @param auditQuerySource MYSQL, CLICKHOUSE, ELASTICSEARCH
+     * @param hosts
+     * @param userName
+     * @param password
+     * @param esAuthEnable a param related to Elasticsearch which can be written as any integer when writing the ClickHouse source
+     * @return
+     */
+    Boolean insertAuditSource(String auditQuerySource, String hosts, String userName, String password,
+            Integer esAuthEnable);
+
+    /**
+     * Make a source in use according its hosts, only one source can be in use in one time.
+     * @param hosts
+     * @return
+     */
+    Boolean updateSourceByHosts(String hosts);
+
+    /**
+     * Query which source is in use.
+     * @return
+     */
+    AuditQuerySourceConfigEntity queryInUse();
 }

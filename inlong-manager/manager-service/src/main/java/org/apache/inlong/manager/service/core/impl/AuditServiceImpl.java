@@ -24,12 +24,14 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.AuditBaseEntity;
+import org.apache.inlong.manager.dao.entity.AuditQuerySourceConfigEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.AuditBaseEntityMapper;
 import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.dao.mapper.AuditQuerySourceConfigEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
@@ -109,7 +111,7 @@ public class AuditServiceImpl implements AuditService {
     private List<String> auditIdListForUser;
 
     @Value("${audit.query.source}")
-    private String auditQuerySource = AuditQuerySource.MYSQL.name();
+    private String auditQuerySource;
 
     @Autowired
     private AuditBaseEntityMapper auditBaseMapper;
@@ -121,6 +123,10 @@ public class AuditServiceImpl implements AuditService {
     private StreamSinkEntityMapper sinkEntityMapper;
     @Autowired
     private StreamSourceEntityMapper sourceEntityMapper;
+    @Autowired
+    private ClickHouseConfig config;
+    @Autowired
+    private AuditQuerySourceConfigEntityMapper querySourceConfigEntityMapper;
 
     @PostConstruct
     public void initialize() {
@@ -153,6 +159,68 @@ public class AuditServiceImpl implements AuditService {
 
         LOGGER.debug("success to reload audit base item info");
         return true;
+    }
+
+    private AuditQuerySourceConfigEntity createAuditQuerySource(String auditQuerySource, String hosts, String userName,
+            String password, Integer esAuthEnable) {
+        AuditQuerySourceConfigEntity auditQuerySourceConfig = new AuditQuerySourceConfigEntity();
+        auditQuerySourceConfig.setInUse(0);
+        auditQuerySourceConfig.setAuditQuerySource(auditQuerySource);
+        auditQuerySourceConfig.setHosts(hosts);
+        auditQuerySourceConfig.setUserName(userName);
+        auditQuerySourceConfig.setPassword(password);
+        auditQuerySourceConfig.setEsAuthEnable(esAuthEnable);
+        return auditQuerySourceConfig;
+    }
+    @Override
+    public Boolean updateAuditQuerySource(String auditQuerySource, String hosts, String userName, String password,
+            Integer esAuthEnable) {
+        try {
+            insertAuditSource(auditQuerySource, hosts, userName, password, esAuthEnable);
+            updateSourceByHosts(hosts);
+        } catch (Exception e) {
+            LOGGER.error("fail to update audit query source!");
+            LOGGER.error(e.toString());
+            return false;
+        }
+        LOGGER.info("success to update audit source!");
+        return true;
+    }
+
+    @Override
+    public Boolean insertAuditSource(String auditQuerySource, String hosts, String userName, String password,
+            Integer esAuthEnable) {
+        try {
+            AuditQuerySourceConfigEntity entity =
+                    createAuditQuerySource(auditQuerySource, hosts, userName, password, esAuthEnable);
+            querySourceConfigEntityMapper.insert(entity);
+        } catch (Exception e) {
+            LOGGER.error("fail to insert audit source!");
+            LOGGER.error(e.toString());
+            return false;
+        }
+        LOGGER.error("success to insert audit source!");
+        return true;
+    }
+
+    @Override
+    public Boolean updateSourceByHosts(String hosts) {
+        try {
+            querySourceConfigEntityMapper.cancelInUse();
+            querySourceConfigEntityMapper.startInUse(hosts);
+            config.updateCkSource();
+        } catch (Exception e) {
+            LOGGER.error("fail to update audit source by host!");
+            LOGGER.error(e.toString());
+            return false;
+        }
+        LOGGER.error("success to update audit source by host!");
+        return true;
+    }
+
+    @Override
+    public AuditQuerySourceConfigEntity queryInUse() {
+        return querySourceConfigEntityMapper.findByInUse();
     }
 
     @Override
@@ -239,7 +307,7 @@ public class AuditServiceImpl implements AuditService {
                     }
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
-                try (Connection connection = ClickHouseConfig.getCkConnection();
+                try (Connection connection = config.getCkConnection();
                         PreparedStatement statement =
                                 getAuditCkStatement(connection, groupId, streamId, auditId, request.getDt());
                         ResultSet resultSet = statement.executeQuery()) {
