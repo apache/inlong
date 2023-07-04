@@ -181,7 +181,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     /**
      * Set origin node to mq node for transform fields if necessary.
      *
-     * In standard mode(Data Ingestion) for InlongGroup, transform input node must either be
+     * In standard mode(include Data Ingestion and Synchronization) for InlongGroup, transform input node must either be
      * mq source node or transform node, otherwise replace it with mq node name.
      */
     private void adjustTransformField(List<TransformResponse> transforms, Set<String> nodeNameSet, String mqNodeName) {
