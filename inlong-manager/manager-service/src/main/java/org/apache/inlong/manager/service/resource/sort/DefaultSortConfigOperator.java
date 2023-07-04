@@ -138,8 +138,9 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             if (InlongConstants.STANDARD_MODE.equals(groupInfo.getInlongGroupMode())) {
                 if (CollectionUtils.isNotEmpty(transformResponses)) {
                     relations = NodeRelationUtils.createNodeRelations(inlongStream);
-                    // in standard mode, replace upstream source node and transform input fields node
-                    // to MQ node (which is inlong stream id)
+                    // in standard mode(include Data Ingestion and Synchronization), replace upstream source node and
+                    // transform input fields
+                    // node to MQ node (which is InLong stream id)
                     String mqNodeName = sources.get(0).getSourceName();
                     Set<String> nodeNameSet = getInputNodeNames(sources, transformResponses);
                     adjustTransformField(transformResponses, nodeNameSet, mqNodeName);
@@ -181,7 +182,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     /**
      * Set origin node to mq node for transform fields if necessary.
      *
-     * In standard mode for InlongGroup, transform input node must either be
+     * In standard mode(Data Ingestion) for InlongGroup, transform input node must either be
      * mq source node or transform node, otherwise replace it with mq node name.
      */
     private void adjustTransformField(List<TransformResponse> transforms, Set<String> nodeNameSet, String mqNodeName) {
