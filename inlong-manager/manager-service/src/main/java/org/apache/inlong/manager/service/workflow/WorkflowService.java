@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.workflow;
 
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.user.LoginUserUtils;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
@@ -52,6 +54,21 @@ public interface WorkflowService {
     WorkflowResult start(ProcessName process, String applicant, ProcessForm form);
 
     /**
+     * Initiation process async
+     *
+     * @param process Process name
+     * @param userInfo login user info
+     * @param form Process form
+     * @return result
+     */
+    default WorkflowResult startAsync(ProcessName process, UserInfo userInfo, ProcessForm form) {
+        LoginUserUtils.setUserLoginInfo(userInfo);
+        WorkflowResult result = start(process, userInfo.getName(), form);
+        LoginUserUtils.removeUserLoginInfo();
+        return result;
+    }
+
+    /**
      * Continue process when pending or failed
      *
      * @param processId Process id.
@@ -60,6 +77,16 @@ public interface WorkflowService {
      * @return Workflow result.
      */
     WorkflowResult continueProcess(Integer processId, String operator, String remark);
+
+    /**
+     * Continue process when pending or failed
+     *
+     * @param processId Process id.
+     * @param userInfo userInfo.
+     * @param remark Remarks information.
+     * @return Workflow result.
+     */
+    WorkflowResult continueProcessAsync(Integer processId, UserInfo userInfo, String remark);
 
     /**
      * Cancellation process application

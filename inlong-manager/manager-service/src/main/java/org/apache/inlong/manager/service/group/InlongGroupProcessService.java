@@ -132,11 +132,7 @@ public class InlongGroupProcessService {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.SUSPEND);
         UserInfo userInfo = LoginUserUtils.getLoginUser();
-        EXECUTOR_SERVICE.execute(() -> {
-            LoginUserUtils.setUserLoginInfo(userInfo);
-            workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
-            LoginUserUtils.removeUserLoginInfo();
-        });
+        EXECUTOR_SERVICE.execute(() -> workflowService.startAsync(ProcessName.SUSPEND_GROUP_PROCESS, userInfo, form));
 
         LOGGER.info("success to suspend process asynchronously for groupId={} by operator={}", groupId, operator);
         return groupId;
@@ -324,11 +320,8 @@ public class InlongGroupProcessService {
             entities.sort(Comparator.comparingInt(WorkflowProcessEntity::getId));
             WorkflowProcessEntity lastProcess = entities.get(entities.size() - 1);
             UserInfo userInfo = LoginUserUtils.getLoginUser();
-            EXECUTOR_SERVICE.execute(() -> {
-                LoginUserUtils.setUserLoginInfo(userInfo);
-                workflowService.continueProcess(lastProcess.getId(), operator, "Reset group status");
-                LoginUserUtils.removeUserLoginInfo();
-            });
+            EXECUTOR_SERVICE.execute(
+                    () -> workflowService.continueProcessAsync(lastProcess.getId(), userInfo, "Reset group status"));
             return true;
         }
         if (resetFinalStatus == 1) {

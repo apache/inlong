@@ -156,12 +156,8 @@ public class QueueResourceListener implements QueueOperateListener {
             final String errMsg = "failed to start stream process for groupId=" + groupId + " streamId=" + streamId;
             UserInfo userInfo = LoginUserUtils.getLoginUser();
             CompletableFuture<WorkflowResult> future = CompletableFuture
-                    .supplyAsync(() -> {
-                        LoginUserUtils.setUserLoginInfo(userInfo);
-                        WorkflowResult result = workflowService.start(CREATE_STREAM_RESOURCE, operator, form);
-                        LoginUserUtils.removeUserLoginInfo();
-                        return result;
-                    }, EXECUTOR_SERVICE)
+                    .supplyAsync(() -> workflowService.startAsync(CREATE_STREAM_RESOURCE, userInfo, form),
+                            EXECUTOR_SERVICE)
                     .whenComplete((result, ex) -> {
                         if (ex != null) {
                             log.error(errMsg + ": " + ex.getMessage());
