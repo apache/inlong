@@ -44,7 +44,7 @@
 |:-----------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![Stargazers over time](https://starchart.cc/apache/inlong.svg)](https://starchart.cc/apache/inlong) | [![Contributor Over Time](https://contributor-overtime-api.git-contributor.com/contributors-svg?chart=contributorOverTime&repo=apache/inlong)](https://git-contributor.com?chart=contributorOverTime&repo=apache/inlong) |
 
-[Apache InLong](https://inlong.apache.org) is a one-stop, full-scenario integration framework for massive data that supports `Data Ingestion`, `Data Synchronization` and `Data Subscription` at the same time, and it provides automatic, secure and reliable data transmission capabilities. InLong supports both batch and stream data processing at the same time, which offers great power to build data analysis, modeling and other real-time  applications based on streaming data.
+[Apache InLong](https://inlong.apache.org) is a one-stop, full-scenario integration framework for massive data that supports `Data Ingestion`, `Data Synchronization` and `Data Subscription`, and it provides automatic, secure and reliable data transmission capabilities. InLong also supports both batch and stream data processing at the same time, which offers great power to build data analysis, modeling and other real-time  applications based on streaming data.
 
 InLong (应龙) is a divine beast in Chinese mythology who guides the river into the sea, and it is regarded as a metaphor of the InLong system for reporting data streams.
 
