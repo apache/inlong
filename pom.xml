@@ -32,7 +32,7 @@
     <packaging>pom</packaging>
     <name>Apache InLong</name>
 
-    <description>InLong is a one-stop integration framework for massive data donated by Tencent to
+    <description>InLong is a one-stop, full-scenario integration framework for massive data donated by Tencent to
         the Apache community.
         It provides automatic, safe, reliable, and high-performance data transmission capabilities
         to facilitate the construction of streaming-based data analysis, modeling, and applications.</description>

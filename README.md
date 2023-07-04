@@ -20,7 +20,7 @@
 -->
 
 
-# [A one-stop integration framework for massive data](https://inlong.apache.org/)
+# [A one-stop, full-scenario integration framework for massive data](https://inlong.apache.org/)
 [![GitHub Actions](https://github.com/apache/inlong/actions/workflows/ci_build.yml/badge.svg)](https://github.com/apache/inlong/actions)
 [![CodeCov](https://codecov.io/gh/apache/inlong/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/inlong)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.inlong/inlong/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.inlong)
@@ -44,7 +44,7 @@
 |:-----------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![Stargazers over time](https://starchart.cc/apache/inlong.svg)](https://starchart.cc/apache/inlong) | [![Contributor Over Time](https://contributor-overtime-api.git-contributor.com/contributors-svg?chart=contributorOverTime&repo=apache/inlong)](https://git-contributor.com?chart=contributorOverTime&repo=apache/inlong) |
 
-[Apache InLong](https://inlong.apache.org) is a one-stop integration framework for massive data that provides automatic, secure and reliable data transmission capabilities. InLong supports both batch and stream data processing at the same time, which offers great power to build data analysis, modeling and other real-time  applications based on streaming data.
+[Apache InLong](https://inlong.apache.org) is a one-stop, full-scenario integration framework for massive data that provides automatic, secure and reliable data transmission capabilities. InLong supports both batch and stream data processing at the same time, which offers great power to build data analysis, modeling and other real-time  applications based on streaming data.
 
 InLong (应龙) is a divine beast in Chinese mythology who guides the river into the sea, and it is regarded as a metaphor of the InLong system for reporting data streams.
 
@@ -64,7 +64,7 @@ Apache InLong offers a variety of features:
 
 
 ## When should I use InLong?
-InLong is based on MQ and aims to provide a one-stop, practice-tested module pluggable integration framework for massive data, based on this system, users can easily build stream-based data applications. It is suitable for environments that need to quickly build a data reporting platform, as well as an ultra-large-scale data reporting environment that InLong is very suitable for, and an environment that needs to automatically sort and land the reported data.
+InLong aims to provide a one-stop, full-scenario integration framework for massive data, users can easily build stream-based data applications. It supports `Data Ingestion`, `Data Synchronization` and `Data Subscription` at the same time, and is suitable for environments that need to quickly build a data reporting platform, as well as an ultra-large-scale data reporting environment that InLong is very suitable for, and an environment that needs to automatically sort and land the reported data.
 
 You can use InLong in the following ways：
 - Integrate InLong, manage data streams through [SDK](https://inlong.apache.org/docs/next/sdk/manager-sdk/example).
