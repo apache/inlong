@@ -47,7 +47,7 @@ const BasicLayout: React.FC = props => {
   const roles = useSelector<State, State['roles']>(state => state.roles);
   const { breadcrumbMap, menuData } = useMemo(() => {
     const _menus = menusTree.filter(
-        item => (item.isAdmin && roles?.includes('ADMIN')) || !item.isAdmin,
+      item => (item.isAdmin && roles?.includes('ADMIN')) || !item.isAdmin,
     );
     return getMenuData(_menus);
   }, [roles]);
