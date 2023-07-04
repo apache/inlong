@@ -50,7 +50,7 @@ export class SyncDefaultInfo implements DataWithBackend, RenderRow, RenderList {
     ],
   })
   @ColumnDecorator()
-  @I18n('GroupID')
+  @I18n('meta.Group.InlongGroupId')
   inlongGroupId: string;
 
   @FieldDecorator({
